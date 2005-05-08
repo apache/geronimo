@@ -24,8 +24,11 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -190,7 +193,7 @@ public class PackageBuilder {
         Kernel kernel = createKernel();
 
         // start the Configuration we're going to use for this deployment
-        ConfigurationManager configMgr = kernel.getConfigurationManager();
+        ConfigurationManager configMgr = ConfigurationUtil.getConfigurationManager(kernel);
         if (!configMgr.isLoaded(deploymentConfig)) {
             List configs = configMgr.loadRecursive(deploymentConfig);
             for (int i = 0; i < configs.size(); i++) {
@@ -208,12 +211,12 @@ public class PackageBuilder {
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
     private Kernel createKernel() throws Exception {
-        Kernel kernel = Kernel.getKernel(KERNEL_NAME);
+        Kernel kernel = KernelRegistry.getKernel(KERNEL_NAME);
         if (kernel != null) {
             return kernel;
         }
 
-        kernel = new Kernel(KERNEL_NAME);
+        kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
 
         bootDeployerSystem(kernel);

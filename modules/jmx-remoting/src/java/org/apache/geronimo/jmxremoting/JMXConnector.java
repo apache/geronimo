@@ -86,7 +86,7 @@ public class JMXConnector implements GBeanLifecycle {
      *
      * @return the JMX URL for this connector
      */
-    public String getURL() {
+    public String getUrl() {
         return url;
     }
 
@@ -95,7 +95,7 @@ public class JMXConnector implements GBeanLifecycle {
      *
      * @param url the JMX URL for this connector
      */
-    public void setURL(String url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 
@@ -132,7 +132,7 @@ public class JMXConnector implements GBeanLifecycle {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JMXConnector.class); //TODO just  a gbean?
-        infoFactory.addAttribute("URL", String.class, true);
+        infoFactory.addAttribute("url", String.class, true);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);

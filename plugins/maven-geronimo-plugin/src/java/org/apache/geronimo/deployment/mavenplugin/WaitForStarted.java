@@ -20,15 +20,18 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 
 public class WaitForStarted extends AbstractModuleCommand {
 
@@ -36,7 +39,7 @@ public class WaitForStarted extends AbstractModuleCommand {
     private int retryIntervalMilliseconds = 1000;
 
     private MBeanServerConnection mbServerConnection;
-    private KernelMBean kernel;
+    private Kernel kernel;
     private String id;
 
     public String getId() {
@@ -85,14 +88,16 @@ public class WaitForStarted extends AbstractModuleCommand {
         } finally {
             Thread.currentThread().setContextClassLoader(oldcl);
         }
-        URI id = new URI(getId());
+        ObjectName configName = Configuration.getConfigurationObjectName(new URI(getId()));
         for (int tries = maxTries; tries > 0; tries--) {
             try {
-                int state = kernel.getConfigurationState(id);
+                int state = kernel.getGBeanState(configName);
                 if (state == State.RUNNING_INDEX) {
                     return;
                 }
-            } catch (NoSuchConfigException e) {
+            } catch (InternalKernelException e) {
+                //hasn't been loaded yet, keep trying
+            } catch (GBeanNotFoundException e) {
                 //hasn't been loaded yet, keep trying
             }
             Thread.sleep(retryIntervalMilliseconds);

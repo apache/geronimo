@@ -65,13 +65,12 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         this.cl = cl;
     }
 
-    public String addGBeans(EARContext earContext, Module webModule, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module webModule, ClassLoader cl) throws DeploymentException {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.webModule, webModule);
         assertEquals(this.cl, cl);
         assertNotNull(contextRoot);
         this.contextRoot = ((WebModule) webModule).getContextRoot();
-        return null;
     }
 
 }

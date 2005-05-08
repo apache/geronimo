@@ -26,10 +26,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
@@ -59,6 +57,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
@@ -147,17 +146,15 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public List buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
+    public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         String domain = null;
         String server = null;
 
-        buildConfiguration(configType, domain, server, outfile);
-
-        return Collections.EMPTY_LIST;
+        return buildConfiguration(configType, domain, server, outfile);
     }
 
-    public void buildConfiguration(ConfigurationType configType, String domain, String server, File outfile) throws DeploymentException, IOException {
+    public ConfigurationData buildConfiguration(ConfigurationType configType, String domain, String server, File outfile) throws DeploymentException, IOException {
         URI parentID = null;
         if (configType.isSetParentId()) {
             try {
@@ -206,6 +203,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         GbeanType[] gbeans = configType.getGbeanArray();
         addGBeans(gbeans, cl, j2eeContext, context);
         context.close();
+        return context.getConfigurationData();
     }
 
     public static void addIncludes(DeploymentContext context, DependencyType[] includes, Repository repository) throws DeploymentException {

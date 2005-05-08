@@ -18,32 +18,50 @@ package org.apache.geronimo.j2ee.management.impl;
 
 import java.util.Hashtable;
 import javax.management.ObjectName;
-import javax.naming.Context;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.J2EEAppClientModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * @version $Revision$ $Date$
  */
-public class J2EEAppClientModuleImpl {
+public class J2EEAppClientModuleImpl implements J2EEAppClientModule {
     private final String deploymentDescriptor;
     private final J2EEServer server;
     private final J2EEApplication application;
     private final ClassLoader classLoader;
+    private final String objectName;
 
     public J2EEAppClientModuleImpl(String objectName, J2EEServer server, J2EEApplication application, String deploymentDescriptor, ClassLoader classLoader) {
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        this.objectName = objectName;
+        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
 
         this.server = server;
         this.application = application;
         this.deploymentDescriptor = deploymentDescriptor;
         this.classLoader = classLoader;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     /**

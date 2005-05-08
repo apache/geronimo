@@ -280,7 +280,7 @@ public class MailGBean implements GBeanLifecycle {
     /**
      * Returns the debug setting for Sessions created from this GBean.
      */
-    public Boolean isDebug() {
+    public Boolean getDebug() {
         return debug;
     }
 

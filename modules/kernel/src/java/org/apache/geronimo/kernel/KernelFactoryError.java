@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,19 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.registry;
-
-import javax.management.ObjectName;
-
-import org.apache.geronimo.gbean.runtime.GBeanInstance;
-import org.apache.geronimo.gbean.GBeanName;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.Kernel;
+package org.apache.geronimo.kernel;
 
 /**
  * @version $Rev$ $Date$
  */
-public class BasicGBeanRegistry extends AbstractGBeanRegistry {
+public class KernelFactoryError extends Error {
+    public KernelFactoryError() {
+        super();
+    }
+
+    public KernelFactoryError(String message) {
+        super(message);
+    }
+
+    public KernelFactoryError(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public KernelFactoryError(Throwable cause) {
+        super(cause);
+    }
 }

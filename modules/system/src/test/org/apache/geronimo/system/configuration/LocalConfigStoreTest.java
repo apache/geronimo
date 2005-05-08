@@ -25,11 +25,14 @@ import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.Collections;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
@@ -49,15 +52,11 @@ public class LocalConfigStoreTest extends TestCase {
     private ObjectName gbeanName1;
     private ObjectName gbeanName2;
     private ObjectName storeName;
+    private ConfigurationManager configurationManager;
 
     public void testInstall() throws Exception {
         kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
         assertTrue(new File(root, "1/META-INF/config.ser").exists());
-        assertEquals(new File(root, "1").toURL(),
-            kernel.invoke(storeName, "getBaseURL", new Object[] {uri}, new String[] {"java.net.URI"}));
-
-        GBeanData config = (GBeanData) kernel.invoke(storeName, "getConfiguration", new Object[] {uri}, new String[] {"java.net.URI"});
-        assertEquals(uri, config.getAttribute("ID"));
     }
 
     public void testReInstall() throws Exception {
@@ -79,16 +78,15 @@ public class LocalConfigStoreTest extends TestCase {
         kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
 
         // load and start the config
-        ConfigurationManager configurationManager = kernel.getConfigurationManager();
         ObjectName configName = configurationManager.load(uri);
-        kernel.invoke(configName, "startRecursive", null, null);
+        kernel.startRecursiveGBean(configName);
 
         // make sure the config and the enabled gbean are running
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(configName, "state"));
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(gbeanName1, "state"));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName1));
 
         // make sure the config and the disabled gbean are NOT running
-        assertEquals(new Integer(State.STOPPED_INDEX), kernel.getAttribute(gbeanName2, "state"));
+        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
 
         // set the value
         kernel.setAttribute(gbeanName1, "value", "9900990099");
@@ -96,26 +94,26 @@ public class LocalConfigStoreTest extends TestCase {
 
         // stop and unload the config
         kernel.stopGBean(configName);
-        configurationManager.unload(configName);
+        kernel.unloadGBean(configName);
 
         // assure it was unloaded
         assertFalse(kernel.isLoaded(configName));
 
         // now reload and restart the config
         configName = configurationManager.load(uri);
-        kernel.invoke(configName, "startRecursive", null, null);
+        kernel.startRecursiveGBean(configName);
 
         // make sure the value was reloaded correctly
         assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));
 
         // stop and unload the config
         kernel.stopGBean(configName);
-        configurationManager.unload(configName);
+        kernel.unloadGBean(configName);
     }
 
     protected void setUp() throws Exception {
         try {
-            kernel = new Kernel("test.kernel");
+            kernel = KernelFactory.newInstance().createKernel("test.kernel");
             kernel.boot();
 
             gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
@@ -136,13 +134,19 @@ public class LocalConfigStoreTest extends TestCase {
             storeName = new ObjectName("geronimo.test:j2eeType=ConfigurationStore,name=LocalConfigStore");
             GBeanData store = new GBeanData(storeName, LocalConfigStore.getGBeanInfo());
             store.setAttribute("root", root.toURI());
-
             kernel.loadGBean(store, getClass().getClassLoader());
             kernel.startGBean(storeName);
 
+            ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
+            GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+            configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+            kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+            kernel.startGBean(configurationManagerName);
+            configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
+
             uri = new URI("test");
             GBeanData gbean = new GBeanData(Configuration.getConfigurationObjectName(uri), Configuration.GBEAN_INFO);
-            gbean.setAttribute("ID", uri);
+            gbean.setAttribute("id", uri);
             gbean.setAttribute("gBeanState", state);
 
 

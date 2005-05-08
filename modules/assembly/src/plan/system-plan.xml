@@ -45,6 +45,11 @@ specific services - those should be provided by children.
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 
+    <!-- Configuration Manager service -->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
+        <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
+    </gbean>
+
     <!-- Persistent List of running Configurations service -->
     <gbean name="Default" class="org.apache.geronimo.system.configuration.FileConfigurationList">
         <reference name="ServerInfo"><name>ServerInfo</name></reference>

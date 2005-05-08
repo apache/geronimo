@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.geronimo.kernel;
+package org.apache.geronimo.system.jmx;
 
 /**
- * ???
- *
  * @version $Rev$ $Date$
  */
-public class Version {
+public class MBeanServerNotFound extends Exception {
+    public MBeanServerNotFound() {
+    }
+
+    public MBeanServerNotFound(String message) {
+        super(message);
+    }
+
+    public MBeanServerNotFound(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MBeanServerNotFound(Throwable cause) {
+        super(cause);
+    }
 }

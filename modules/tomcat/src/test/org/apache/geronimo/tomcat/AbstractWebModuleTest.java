@@ -36,6 +36,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
@@ -258,7 +259,7 @@ public class AbstractWebModuleTest extends TestCase {
     private void start(GBeanData gbeanData) throws Exception {
         kernel.loadGBean(gbeanData, cl);
         kernel.startGBean(gbeanData.getName());
-        if (((Integer) kernel.getAttribute(gbeanData.getName(), "state")).intValue() != State.RUNNING_INDEX) {
+        if (kernel.getGBeanState(gbeanData.getName()) != State.RUNNING_INDEX) {
             fail("gbean not started: " + gbeanData.getName());
         }
     }
@@ -283,7 +284,7 @@ public class AbstractWebModuleTest extends TestCase {
 
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
-        kernel = new Kernel("test.kernel");
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
         //ServerInfo

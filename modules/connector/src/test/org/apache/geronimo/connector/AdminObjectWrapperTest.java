@@ -30,8 +30,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 
 /**
  * @version $Rev$ $Date$
@@ -103,7 +103,7 @@ public class AdminObjectWrapperTest extends TestCase {
 
     protected void setUp() throws Exception {
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo.server", "testapp", NameFactory.RESOURCE_ADAPTER_MODULE, "testmodule", TARGET_NAME, NameFactory.JMS_RESOURCE);
-        kernel = new Kernel(j2eeContext.getJ2eeDomainName(), new BasicGBeanRegistry());
+        kernel = KernelFactory.newInstance().createKernel(j2eeContext.getJ2eeDomainName());
         kernel.boot();
         selfName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, null, null, j2eeContext);
 

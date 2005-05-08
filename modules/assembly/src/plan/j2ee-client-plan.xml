@@ -73,6 +73,10 @@ by the app client.
 
     <!--client side web services-->
     <dependency>
+        <uri>asm/jars/asm-${asm_version}.jar</uri>
+    </dependency>
+
+    <dependency>
         <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
     </dependency>
 

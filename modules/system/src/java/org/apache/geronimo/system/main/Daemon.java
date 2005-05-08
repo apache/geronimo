@@ -17,30 +17,34 @@
 
 package org.apache.geronimo.system.main;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.management.ObjectName;
+import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.jmx.JMXGBeanRegistry;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
-import org.apache.geronimo.system.url.GeronimoURLFactory;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.system.jmx.MBeanServerKernelBridge;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
+import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -131,9 +135,16 @@ public class Daemon {
             } finally {
                 ois.close();
             }
+            URI configurationId = (URI) configuration.getAttribute("id");
+            ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
+            configuration.setName(configName);
 
-            // build a jms kernel
-            final Kernel kernel = new Kernel("geronimo", new JMXGBeanRegistry(MBeanServerFactory.createMBeanServer("geronimo")));
+            // create a mbean server
+            MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
+            String mbeanServerId = (String) mbeanServer.getAttribute(new ObjectName("JMImplementation:type=MBeanServerDelegate"), "MBeanServerId");
+
+            // create the kernel
+            final Kernel kernel = KernelFactory.newInstance().createKernel("geronimo");
 
             // boot the kernel
             try {
@@ -144,9 +155,11 @@ public class Daemon {
                 throw new AssertionError();
             }
 
+            // load this configuration into the kernel
+            kernel.loadGBean(configuration, classLoader);
+            kernel.setAttribute(configName, "baseURL", classLoader.getResource("/"));
+
             // add our shutdown hook
-            ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            configurationManager.load(configuration, classLoader.getResource("/"), classLoader);
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
                     log.info("Server shutdown begun");
@@ -154,6 +167,13 @@ public class Daemon {
                     log.info("Server shutdown completed");
                 }
             });
+
+            // add the jmx bridge
+            ObjectName mbeanServerKernelBridgeName = new ObjectName("geronimo.boot:role=MBeanServerKernelBridge"); 
+            GBeanData mbeanServerKernelBridge = new GBeanData(mbeanServerKernelBridgeName, MBeanServerKernelBridge.GBEAN_INFO);
+            mbeanServerKernelBridge.setAttribute("mbeanServerId", mbeanServerId);
+            kernel.loadGBean(mbeanServerKernelBridge, classLoader);
+            kernel.startGBean(mbeanServerKernelBridgeName);
 
             // start this configuration
             kernel.startRecursiveGBean(configuration.getName());
@@ -177,6 +197,7 @@ public class Daemon {
 
             // load the rest of the configurations
             try {
+                ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 for (Iterator i = configs.iterator(); i.hasNext();) {
                     URI configID = (URI) i.next();
                     List list = configurationManager.loadRecursive(configID);
@@ -209,9 +230,9 @@ public class Daemon {
             for (Iterator iterator = allGBeans.iterator(); iterator.hasNext();) {
                 ObjectName objectName = (ObjectName) iterator.next();
                 try {
-                    Integer state = (Integer) kernel.getAttribute(objectName, "state");
-                    if (state.intValue() != State.RUNNING_INDEX) {
-                        log.info("GBean " + objectName + " is not running. Current state: " + State.fromInteger(state).getName());
+                    int state = kernel.getGBeanState(objectName);
+                    if (state != State.RUNNING_INDEX) {
+                        log.info("GBean " + objectName + " is not running. Current state: " + State.fromInt(state).getName());
                     }
                 } catch (GBeanNotFoundException e) {
                     log.info("Alleged GBean " + objectName + " is not a GBean");

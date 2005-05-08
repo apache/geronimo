@@ -26,13 +26,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.management.ObjectName;
-import javax.management.MBeanServerFactory;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
-import org.apache.geronimo.kernel.jmx.JMXGBeanRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
@@ -97,7 +99,6 @@ public class StartServer {
         }
         File root = new File(getGeronimoHome());
         URL systemURL = new File(root, "bin/server.jar").toURL();
-//        System.out.println("systemURL = " + systemURL);
         URL configURL = new URL("jar:" + systemURL.toString() + "!/META-INF/config.ser");
         GBeanData configuration = new GBeanData();
         ObjectInputStream ois = new ObjectInputStream(configURL.openStream());
@@ -106,16 +107,20 @@ public class StartServer {
         } finally {
             ois.close();
         }
+        URI configurationId = (URI) configuration.getAttribute("id");
+        ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
+        configuration.setName(configName);
 
         // build a basic kernel without a configuration-store, our configuration store is
-        Kernel kernel = new Kernel(getKernelName());
+        Kernel kernel = KernelFactory.newInstance().createKernel(getKernelName());
         kernel.boot();
 
-        ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        ObjectName configName = configurationManager.load(configuration, systemURL, this.getClass().getClassLoader());
+        kernel.loadGBean(configuration, this.getClass().getClassLoader());
+        kernel.setAttribute(configName, "baseURL", systemURL);
         kernel.startRecursiveGBean(configName);
 
         // load the rest of the configuration listed on the command line
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         for (Iterator i = configList.iterator(); i.hasNext();) {
             URI configID = (URI) i.next();
             List list = configurationManager.loadRecursive(configID);

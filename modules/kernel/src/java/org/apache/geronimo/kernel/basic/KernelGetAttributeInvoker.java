@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,25 +14,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.proxy;
+
+package org.apache.geronimo.kernel.basic;
 
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.runtime.RawInvoker;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public final class RawGetAttributeInvoker implements ProxyInvoker {
-    private final RawInvoker rawInvoker;
-    private final int methodIndex;
+public final class KernelGetAttributeInvoker implements ProxyInvoker {
+    private final Kernel kernel;
+    private final String name;
 
-    public RawGetAttributeInvoker(RawInvoker rawInvoker, int methodIndex) {
-        this.rawInvoker = rawInvoker;
-        this.methodIndex = methodIndex;
+    public KernelGetAttributeInvoker(Kernel kernel, String name) {
+        this.kernel = kernel;
+        this.name = name;
     }
 
-    public Object invoke(final ObjectName objectName, final Object[] arguments) throws Throwable {
-        return rawInvoker.getAttribute(methodIndex);
+    public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+        return kernel.getAttribute(objectName, name);
     }
 }

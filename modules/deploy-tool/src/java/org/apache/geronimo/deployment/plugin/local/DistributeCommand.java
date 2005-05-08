@@ -25,7 +25,7 @@ import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -33,12 +33,12 @@ import org.apache.geronimo.kernel.jmx.KernelMBean;
 public class DistributeCommand extends AbstractDeployCommand {
     protected final Target[] targetList;
 
-    public DistributeCommand(KernelMBean kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {
+    public DistributeCommand(Kernel kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {
         super(CommandType.DISTRIBUTE, kernel, moduleArchive, deploymentPlan, null, null, false);
         this.targetList = targetList;
     }
 
-    public DistributeCommand(KernelMBean kernel, Target[] targetList, InputStream moduleStream, InputStream deploymentStream) {
+    public DistributeCommand(Kernel kernel, Target[] targetList, InputStream moduleStream, InputStream deploymentStream) {
         super(CommandType.DISTRIBUTE, kernel, null, null, moduleStream, deploymentStream, true);
         this.targetList = targetList;
     }

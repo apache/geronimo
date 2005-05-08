@@ -23,21 +23,19 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -54,6 +52,9 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
 
@@ -61,16 +62,9 @@ import org.apache.geronimo.kernel.repository.Repository;
  * @version $Rev$ $Date$
  */
 public class DeploymentContext {
-    private final URI configID;
-    /**
-     * Identifies the type of configuration (WAR, RAR, EAR et cetera)
-     */
-    private final ConfigurationModuleType type;
     private final Kernel kernel;
-    private final GBeanData config;
+    private final ConfigurationData configurationData;
     private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
-    private final Set dependencies = new LinkedHashSet();
-    private final LinkedHashSet classPath = new LinkedHashSet();
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
@@ -78,17 +72,15 @@ public class DeploymentContext {
     private final LinkedList startedAncestors;
     private final ClassLoader parentCL;
 
-    public DeploymentContext(File baseDir, URI configID, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
-        this(baseDir,  configID,  type, parentID, null, null, kernel);
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+        this(baseDir, configId,  type, parentID, null, null, kernel);
     }
 
-    public DeploymentContext(File baseDir, URI configID, ConfigurationModuleType type, URI parentID, String domain, String server, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI parentId, String domain, String server, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
         assert baseDir != null: "baseDir is null";
-        assert configID != null: "configID is null";
+        assert configId != null: "configID is null";
         assert type != null: "type is null";
 
-        this.configID = configID;
-        this.type = type;
         this.kernel = kernel;
 
         if (!baseDir.exists()) {
@@ -100,34 +92,23 @@ public class DeploymentContext {
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
-        config = new GBeanData(Configuration.getConfigurationObjectName(configID), Configuration.GBEAN_INFO);
+        configurationData = new ConfigurationData();
+        configurationData.setId(configId);
+        configurationData.setModuleType(type);
+        configurationData.setParentId(parentId);
 
-        try {
-            config.setAttribute("ID", configID);
-            config.setAttribute("type", type);
-            config.setAttribute("parentID", parentID);
-            config.setAttribute("domain", domain);
-            config.setAttribute("server", server);
-        } catch (Exception e) {
-            // we created this GBean ...
-            throw new AssertionError();
-        }
-
-//        gbeans.setDefaultDomain(domain);
-
-        if (kernel != null && parentID != null) {
-            ConfigurationManager configurationManager = kernel.getConfigurationManager();
-            ObjectName parentName = Configuration.getConfigurationObjectName(parentID);
-            config.setReferencePattern("Parent", parentName);
+        if (kernel != null && parentId != null) {
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+            ObjectName parentName = Configuration.getConfigurationObjectName(parentId);
             try {
-                loadedAncestors = configurationManager.loadRecursive(parentID);
+                loadedAncestors = configurationManager.loadRecursive(parentId);
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
             }
 
             try {
-                config.setAttribute("domain", kernel.getAttribute(parentName, "domain"));
-                config.setAttribute("server", kernel.getAttribute(parentName, "server"));
+                domain = (String) kernel.getAttribute(parentName, "domain");
+                server = (String) kernel.getAttribute(parentName, "server");
             } catch (Exception e) {
                 throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
             }
@@ -137,11 +118,11 @@ public class DeploymentContext {
                 ObjectName ancestorName = parentName;
                 while (ancestorName != null && !isRunning(kernel, ancestorName)) {
                     startedAncestors.addFirst(ancestorName);
-                    Set patterns = kernel.getGBeanData(ancestorName).getReferencePatterns("Parent");
-                    if (patterns.isEmpty()) {
+                    URI pattern = (URI) kernel.getGBeanData(ancestorName).getAttribute("parentId");
+                    if (pattern == null) {
                         break;
                     }
-                    ancestorName = (ObjectName) patterns.iterator().next();
+                    ancestorName = Configuration.getConfigurationObjectName(pattern);
                 }
                 //we've found what we need to start, now start them.
                 for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
@@ -173,22 +154,24 @@ public class DeploymentContext {
         }
 
         //check that domain and server are now known
-        if (config.getAttribute("domain") == null || config.getAttribute("server") == null) {
-            throw new IllegalStateException("Domain or server could not be determined from explicit args or parent configuration. ParentID: " + parentID + ", domain: " + config.getAttribute("domain") + ", server: " + config.getAttribute("server"));
+        if (domain == null || server == null) {
+            throw new IllegalStateException("Domain or server could not be determined from explicit args or parent configuration. ParentID: " + parentId + ", domain: " + domain + ", server: " + server);
         }
 
+        configurationData.setDomain(domain);
+        configurationData.setServer(server);
     }
 
     private static boolean isRunning(Kernel kernel, ObjectName name) throws Exception {
-        return State.RUNNING_INDEX == ((Integer) kernel.getAttribute(name, "state")).intValue();
+        return State.RUNNING_INDEX == kernel.getGBeanState(name);
     }
 
     public URI getConfigID() {
-        return configID;
+        return configurationData.getId();
     }
 
     public ConfigurationModuleType getType() {
-        return type;
+        return configurationData.getModuleType();
     }
 
     public File getBaseDir() {
@@ -196,11 +179,11 @@ public class DeploymentContext {
     }
 
     public String getDomain() {
-        return (String) config.getAttribute("domain");
+        return configurationData.getDomain();
     }
 
     public String getServer() {
-        return (String) config.getAttribute("server");
+        return configurationData.getServer();
     }
 
     public void addGBean(GBeanData gbean) {
@@ -217,7 +200,7 @@ public class DeploymentContext {
     }
 
     public void addDependency(URI uri) {
-        dependencies.add(uri);
+        configurationData.addDependency(uri);
     }
 
     /**
@@ -236,7 +219,7 @@ public class DeploymentContext {
     public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
         File targetFile = getTargetFile(targetPath);
         DeploymentUtil.copyToPackedJar(jarFile, targetFile);
-        classPath.add(targetPath);
+        configurationData.addClassPathLocation(targetPath);
     }
 
     /**
@@ -256,7 +239,7 @@ public class DeploymentContext {
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, zipFile, zipEntry);
-        classPath.add(targetPath);
+        configurationData.addClassPathLocation(targetPath);
     }
 
     /**
@@ -275,7 +258,7 @@ public class DeploymentContext {
     public void addInclude(URI targetPath, URL source) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
-        classPath.add(targetPath);
+        configurationData.addClassPathLocation(targetPath);
     }
 
     /**
@@ -294,7 +277,7 @@ public class DeploymentContext {
     public void addInclude(URI targetPath, File source) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
-        classPath.add(targetPath);
+        configurationData.addClassPathLocation(targetPath);
     }
 
     /**
@@ -344,7 +327,7 @@ public class DeploymentContext {
             }
 
             URI targetUri = moduleBaseUri.resolve(pathUri);
-            classPath.add(targetUri);
+            configurationData.addClassPathLocation(targetUri);
         }
     }
 
@@ -368,7 +351,7 @@ public class DeploymentContext {
         assert location.toString().endsWith("/");
 
         if (addToClasspath) {
-            classPath.add(location);
+            configurationData.addClassPathLocation(location);
         }
         String classFileName = fqcn.replace('.', '/') + ".class";
         addFile(getTargetFile(new URI(location.toString() + classFileName)), new ByteArrayInputStream(bytes));
@@ -429,6 +412,8 @@ public class DeploymentContext {
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
         // shouldn't user classpath come before dependencies?
+        List dependencies = configurationData.getDependencies();
+        List classPath = configurationData.getClassPath();
         URL[] urls = new URL[dependencies.size() + classPath.size()];
         try {
             int index = 0;
@@ -449,8 +434,6 @@ public class DeploymentContext {
     }
 
     public void close() throws IOException, DeploymentException {
-        saveConfiguration();
-
         if (kernel != null) {
             if (startedAncestors != null) {
                 //stopping one stops all it's children.
@@ -482,46 +465,41 @@ public class DeploymentContext {
         }
     }
 
-    private void saveConfiguration() throws IOException, DeploymentException {
-        // persist all the GBeans in this Configuration
-        // save the dependencies and classpath
-        try {
-            GBeanData[] gbeanArray = gbeans.getGBeans();
-            config.setAttribute("gBeanState", Configuration.storeGBeans(gbeanArray));
-            config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
-            config.setAttribute("dependencies", new ArrayList(dependencies));
-            config.setAttribute("classPath", new ArrayList(classPath));
-        } catch (Exception e) {
-            throw new DeploymentException("Unable to initialize Configuration", e);
-        }
+    public void addChildConfiguration(ConfigurationData configurationData) {
+        configurationData.addChildConfiguration(configurationData);
+    }
 
-        // save the persisted form in the archive
-        File metaInf = new File(baseDir, "META-INF");
-        metaInf.mkdirs();
-        File configSer = new File(metaInf, "config.ser");
-
-        ObjectOutputStream out = null;
-        try {
-            out = new ObjectOutputStream(new FileOutputStream(configSer));
-            try {
-                config.writeExternal(out);
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to save Configuration state", e);
-            }
-        } finally {
-            DeploymentUtil.flush(out);
-            DeploymentUtil.close(out);
-        }
+    public ConfigurationData getConfigurationData() {
+        ConfigurationData configurationData = new ConfigurationData(this.configurationData);
+        configurationData.setGBeans(Arrays.asList(gbeans.getGBeans()));
+        return configurationData;
     }
 
     /**
      * @deprecated Currently used only in some tests, and may not be appropriate as a public method.
      * @return a copy of the configurations GBeanData
      */
-    public GBeanData getConfigurationGBeanData() {
-        return new GBeanData(config);
+    public GBeanData getConfigurationGBeanData() throws MalformedObjectNameException, InvalidConfigException {
+        URI id = configurationData.getId();
+        GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
+        config.setAttribute("id", id);
+        config.setAttribute("type", configurationData.getModuleType());
+        config.setAttribute("domain", configurationData.getDomain());
+        config.setAttribute("server", configurationData.getServer());
+
+        URI parentId = configurationData.getParentId();
+        if (parentId != null) {
+            config.setAttribute("parentId", parentId);
+            ObjectName parentName = Configuration.getConfigurationObjectName(parentId);
+            config.setReferencePattern("Parent", parentName);
+        }
+
+        config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans.getGBeans()));
+        config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
+        config.setAttribute("dependencies", configurationData.getDependencies());
+        config.setAttribute("classPath", configurationData.getClassPath());
+
+        return config;
     }
 
     /**

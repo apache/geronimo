@@ -23,8 +23,8 @@ import javax.management.ObjectName;
 
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.proxy.DeadProxyException;
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
 
 /**
@@ -62,7 +62,7 @@ public class ConnectorMethodInterceptor implements MethodInterceptor, Serializab
     }
 
     private void connectInternalProxy() throws Throwable {
-        Kernel kernel = Kernel.getKernel(kernelName);
+        Kernel kernel = KernelRegistry.getKernel(kernelName);
         try {
             internalProxy = kernel.invoke(targetName, "$getConnectionFactory");
         } catch (Exception e) {

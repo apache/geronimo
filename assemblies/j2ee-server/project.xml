@@ -699,7 +699,7 @@
         </dependency>
         <dependency>
             <groupId>springframework</groupId>
-            <artifactId>${spring_artifact}</artifactId>
+            <artifactId>spring</artifactId>
             <version>${spring_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>

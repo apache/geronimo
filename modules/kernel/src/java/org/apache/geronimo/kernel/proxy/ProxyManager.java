@@ -16,85 +16,45 @@
  */
 package org.apache.geronimo.kernel.proxy;
 
-import java.util.IdentityHashMap;
 import javax.management.ObjectName;
 
-import net.sf.cglib.proxy.Callback;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import org.apache.geronimo.kernel.Kernel;
-
 /**
+ * Manages kernel proxies
  * @version $Rev$ $Date$
  */
-public class ProxyManager {
-    private final Kernel kernel;
+public interface ProxyManager {
+    /**
+     * Create a proxy factory which will generate proxies of the specified type
+     * @param type the type of the proxies to create
+     * @return the proxy factory
+     */
+    public ProxyFactory createProxyFactory(Class type);
 
-    // todo use weak keys for this
-    private final IdentityHashMap interceptors = new IdentityHashMap();
+    /**
+     * Create a proxy implementing the class to the specified target.
+     * @param target the target object name
+     * @param type the type of the proxy to create
+     * @return the proxy
+     */
+    public Object createProxy(ObjectName target, Class type);
 
-    public ProxyManager(Kernel kernel) {
-        this.kernel = kernel;
-    }
+    /**
+     * Cleans up and resources associated with the proxy
+     * @param proxy the proxy to destroy
+     */
+    public void destroyProxy(Object proxy);
 
-    public synchronized ProxyFactory createProxyFactory(Class type) {
-        assert type != null: "type is null";
-        return new ManagedProxyFactory(type);
-    }
+    /**
+     * Is the specified object a proxy
+     * @param object the object to determin if it is a proxy
+     * @return true if the object is a proxy
+     */
+    public boolean isProxy(Object object);
 
-    public synchronized Object createProxy(ObjectName target, Class type) {
-        assert type != null: "type is null";
-        assert target != null: "target is null";
-
-        return createProxyFactory(type).createProxy(target);
-    }
-
-    public synchronized void destroyProxy(Object proxy) {
-        if (proxy == null) {
-            return;
-        }
-
-        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.remove(proxy);
-        if (methodInterceptor != null) {
-            methodInterceptor.destroy();
-        }
-    }
-
-    public boolean isProxy(Object proxy) {
-        return interceptors.containsKey(proxy);
-    }
-
-    public synchronized ObjectName getProxyTarget(Object proxy) {
-        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.remove(proxy);
-        if (methodInterceptor == null) {
-            return null;
-        }
-        return methodInterceptor.getObjectName();
-    }
-
-    private class ManagedProxyFactory implements ProxyFactory {
-        private final Class type;
-        private final Enhancer enhancer;
-
-        public ManagedProxyFactory(Class type) {
-            enhancer = new Enhancer();
-            enhancer.setSuperclass(type);
-            enhancer.setCallbackType(MethodInterceptor.class);
-            enhancer.setUseFactory(false);
-            this.type = enhancer.createClass();
-        }
-
-        public synchronized Object createProxy(ObjectName target) {
-            assert target != null: "target is null";
-
-            ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(type, kernel, target);
-
-            // @todo trap CodeGenerationException indicating missing no-arg ctr
-            enhancer.setCallbacks(new Callback[]{interceptor});
-            Object proxy = enhancer.create();
-
-            interceptors.put(proxy, interceptor);
-            return proxy;
-        }
-    }
+    /**
+     * Get the object name of the specified proxy
+     * @param proxy the proxy to get the target object name from
+     * @return the object name of the target
+     */
+    public ObjectName getProxyTarget(Object proxy);
 }

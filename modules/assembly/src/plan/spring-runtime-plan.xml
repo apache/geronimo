@@ -25,7 +25,7 @@
   >
 
   <dependency>
-    <uri>springframework/jars/${spring_artifact}-${spring_version}.jar</uri>
+    <uri>springframework/jars/spring-${spring_version}.jar</uri>
   </dependency>
   <dependency>
     <uri>geronimo/jars/geronimo-spring-${geronimo_version}.jar</uri>

@@ -18,7 +18,6 @@
 package org.apache.geronimo.deployment;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -26,6 +25,8 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.system.repository.ReadOnlyRepository;
@@ -155,31 +156,12 @@ public class Bootstrap {
                 configurationDir = configStore.createNewConfigurationDir();
 
                 // build the deployer-system configuration into the configurationDir
-                builder.buildConfiguration(deployerSystemConfig, null, configurationDir);
+                ConfigurationData configurationData = builder.buildConfiguration(deployerSystemConfig, null, configurationDir);
 
-                // Write the manifest
-                File metaInf = new File(configurationDir, "META-INF");
-                metaInf.mkdirs();
-                FileOutputStream out = null;
-                try {
-                    out = new FileOutputStream(new File(metaInf, "MANIFEST.MF"));
-                    manifest.write(out);
-                } finally {
-                    DeploymentUtil.close(out);
-                }
-
-                // add the startup file which allows us to locate the startup directory
-                File startupJarTag = new File(metaInf, "startup-jar");
-                startupJarTag.createNewFile();
-
-                // jar up the directory
-                DeploymentUtil.jarDirectory(configurationDir, new File(deployerJar));
-
-                // delete the startup file before moving this to the config store
-                startupJarTag.delete();
+                ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, configurationDir, new File(deployerJar));
 
                 // install the configuration
-                configStore.install(configurationDir);
+                configStore.install(configurationData, configurationDir);
             } catch (Throwable e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 if (e instanceof Error) {
@@ -199,10 +181,10 @@ public class Bootstrap {
                 configurationDir = configStore.createNewConfigurationDir();
 
                 // build the j2ee-deployer configuration into the configurationDir
-                builder.buildConfiguration(j2eeDeployerConfig, domain, server, configurationDir);
+                ConfigurationData configurationData = builder.buildConfiguration(j2eeDeployerConfig, domain, server, configurationDir);
 
                 // install the configuration
-                configStore.install(configurationDir);
+                configStore.install(configurationData, configurationDir);
             } catch (Throwable e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 if (e instanceof Error) {

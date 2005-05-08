@@ -29,9 +29,9 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.app.MockWebServiceContainer;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
@@ -46,7 +46,7 @@ public class ContainerTest extends TestCase {
     private ObjectName connectorName;
 
     public void testServer() throws Exception {
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(containerName, "state"));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(containerName));
     }
 
     public void testHTTPConnector() throws Exception {
@@ -55,7 +55,7 @@ public class ContainerTest extends TestCase {
         connector.setReferencePatterns("JettyContainer", containerPatterns);
         start(connector);
 
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(connectorName, "state"));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(connectorName));
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678").openConnection();
         try {
@@ -75,7 +75,7 @@ public class ContainerTest extends TestCase {
         connector.setReferencePatterns("JettyContainer", containerPatterns);
         start(connector);
 
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(connectorName, "state"));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(connectorName));
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
@@ -117,7 +117,7 @@ public class ContainerTest extends TestCase {
         containerPatterns = new HashSet();
         containerPatterns.add(containerName);
         connectorName = new ObjectName("geronimo.jetty:role=Connector");
-        kernel = new Kernel("test.kernel", new BasicGBeanRegistry());
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
         start(container);

@@ -31,6 +31,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.bridge.TestLoginModule;
 import org.apache.geronimo.security.jaas.JaasLoginService;
@@ -51,7 +52,7 @@ public abstract class AbstractTest extends TestCase {
     protected ObjectName serverStub;
 
     protected void setUp() throws Exception {
-        kernel = new Kernel("test.kernel");
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
         GBeanData gbean;

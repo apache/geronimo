@@ -6,7 +6,7 @@
     >
 
     <dependency>
-        <uri>commons-collections/jars/commons-collections-2.1.jar</uri>
+        <uri>commons-collections/jars/commons-collections-3.1.jar</uri>
     </dependency>
     
     <context-root>/debug-tool</context-root>

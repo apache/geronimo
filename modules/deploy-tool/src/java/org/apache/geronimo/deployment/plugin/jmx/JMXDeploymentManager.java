@@ -47,9 +47,11 @@ import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.Kernel;
 
 
 /**
@@ -58,13 +60,15 @@ import org.apache.geronimo.kernel.management.State;
 public class JMXDeploymentManager implements DeploymentManager {
     private JMXConnector jmxConnector;
     private MBeanServerConnection mbServerConnection;
-    private KernelMBean kernel;
+    private Kernel kernel;
+    private ConfigurationManager configurationManager;
     private CommandContext commandContext;
 
     public JMXDeploymentManager(JMXConnector jmxConnector) throws IOException {
         this.jmxConnector = jmxConnector;
         mbServerConnection = jmxConnector.getMBeanServerConnection();
         kernel = new KernelDelegate(mbServerConnection);
+        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         commandContext = new CommandContext();
         commandContext.setLogErrors(true);
         commandContext.setVerbose(true);
@@ -77,6 +81,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             throw (IllegalStateException) new IllegalStateException("Unable to close connection").initCause(e);
         } finally {
             mbServerConnection = null;
+            configurationManager = null;
             kernel = null;
         }
     }
@@ -85,7 +90,7 @@ public class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        List stores = kernel.listConfigurationStores();
+        List stores = configurationManager.listStores();
         if (stores.size() == 0) {
             return null;
         }
@@ -139,7 +144,7 @@ public class JMXDeploymentManager implements DeploymentManager {
             for (int i = 0; i < targetList.length; i++) {
                 TargetImpl target = (TargetImpl) targetList[i];
                 ObjectName storeName = target.getObjectName();
-                List infos = kernel.listConfigurations(storeName);
+                List infos = configurationManager.listConfigurations(storeName);
                 for (int j = 0; j < infos.size(); j++) {
                     ConfigurationInfo info = (ConfigurationInfo) infos.get(j);
                     if (filter.accept(info)) {

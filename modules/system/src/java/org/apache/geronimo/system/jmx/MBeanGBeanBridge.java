@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel.jmx;
+package org.apache.geronimo.system.jmx;
 
 import java.util.Iterator;
 import javax.management.Attribute;
@@ -33,21 +33,23 @@ import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.MBeanRegistration;
+import javax.management.MBeanServer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
  * @version $Rev: 109772 $ $Date: 2004-12-03 21:06:02 -0800 (Fri, 03 Dec 2004) $
  */
-public final class GBeanMBean implements DynamicMBean, NotificationEmitter, LifecycleBroadcaster {
-    private static final Log log = LogFactory.getLog(GBeanMBean.class);
+public final class MBeanGBeanBridge implements MBeanRegistration, DynamicMBean, NotificationEmitter {
+    private static final Log log = LogFactory.getLog(MBeanGBeanBridge.class);
 
     /**
      * The kernel
@@ -68,16 +70,37 @@ public final class GBeanMBean implements DynamicMBean, NotificationEmitter, Life
      * The broadcaster for notifications
      */
     private final NotificationBroadcasterSupport notificationBroadcaster = new NotificationBroadcasterSupport();
+    private final LifecycleBridge lifecycleBridge;
 
-    /**
-     * Sequence number used for notifications
-     */
-    private long sequence;
-
-    public GBeanMBean(Kernel kernel, ObjectName objectName, MBeanInfo mbeanInfo) {
+    public MBeanGBeanBridge(Kernel kernel, ObjectName objectName, MBeanInfo mbeanInfo) {
         this.kernel = kernel;
         this.objectName = objectName;
         this.mbeanInfo = mbeanInfo;
+        lifecycleBridge = new LifecycleBridge(objectName, notificationBroadcaster);
+    }
+
+    public ObjectName getObjectName() {
+        return objectName;
+    }
+
+    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
+        return objectName;
+    }
+
+    public void postRegister(Boolean registrationDone) {
+        if (Boolean.TRUE.equals(registrationDone)) {
+            // fire the loaded event from the gbeanMBean.. it was already fired from the GBeanInstance when it was created
+            kernel.getLifecycleMonitor().addLifecycleListener(lifecycleBridge, objectName);
+            lifecycleBridge.loaded(objectName);
+        }
+    }
+
+    public void preDeregister() {
+        kernel.getLifecycleMonitor().removeLifecycleListener(lifecycleBridge);
+        lifecycleBridge.unloaded(objectName);
+    }
+
+    public void postDeregister() {
     }
 
     public MBeanInfo getMBeanInfo() {
@@ -162,39 +185,75 @@ public final class GBeanMBean implements DynamicMBean, NotificationEmitter, Life
         notificationBroadcaster.removeNotificationListener(listener, filter, handback);
     }
 
-    public void fireLoadedEvent() {
-        notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_CREATED, objectName, nextSequence()));
-    }
-
-    public void fireStartingEvent() {
-        notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STARTING, objectName, nextSequence()));
-    }
-
-    public void fireRunningEvent() {
-        notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_RUNNING, objectName, nextSequence()));
-    }
-
-    public void fireStoppingEvent() {
-        notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPING, objectName, nextSequence()));
-    }
-
-    public void fireStoppedEvent() {
-        notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPED, objectName, nextSequence()));
-    }
-
-    public void fireFailedEvent() {
-        notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_FAILED, objectName, nextSequence()));
-    }
-
-    public void fireUnloadedEvent() {
-        notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_DELETED, objectName, nextSequence()));
-    }
-
-    private synchronized long nextSequence() {
-        return sequence++;
-    }
-
     public String toString() {
         return objectName.toString();
+    }
+
+    private static class LifecycleBridge implements LifecycleListener {
+        /**
+         * Sequence number used for notifications
+         */
+        private long sequence;
+
+        /**
+         * Name of the MBeanGBean
+         */
+        private final ObjectName mbeanGBeanName;
+
+        /**
+         * The notification broadcaster to use
+         */
+        private final NotificationBroadcasterSupport notificationBroadcaster;
+
+        public LifecycleBridge(ObjectName mbeanGBeanName, NotificationBroadcasterSupport notificationBroadcaster) {
+            this.mbeanGBeanName = mbeanGBeanName;
+            this.notificationBroadcaster = notificationBroadcaster;
+        }
+
+        public void loaded(ObjectName objectName) {
+            if (mbeanGBeanName.equals(objectName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_CREATED, objectName, nextSequence()));
+            }
+        }
+
+        public void starting(ObjectName objectName) {
+            if (mbeanGBeanName.equals(objectName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STARTING, objectName, nextSequence()));
+            }
+        }
+
+        public void running(ObjectName objectName) {
+            if (mbeanGBeanName.equals(objectName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_RUNNING, objectName, nextSequence()));
+            }
+        }
+
+        public void stopping(ObjectName objectName) {
+            if (mbeanGBeanName.equals(objectName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPING, objectName, nextSequence()));
+            }
+        }
+
+        public void stopped(ObjectName objectName) {
+            if (mbeanGBeanName.equals(objectName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_STOPPED, objectName, nextSequence()));
+            }
+        }
+
+        public void failed(ObjectName objectName) {
+            if (mbeanGBeanName.equals(objectName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.STATE_FAILED, objectName, nextSequence()));
+            }
+        }
+
+        public void unloaded(ObjectName objectName) {
+            if (mbeanGBeanName.equals(objectName)) {
+                notificationBroadcaster.sendNotification(new Notification(NotificationType.OBJECT_DELETED, objectName, nextSequence()));
+            }
+        }
+
+        public synchronized long nextSequence() {
+            return sequence++;
+        }
     }
 }

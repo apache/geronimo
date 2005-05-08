@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
@@ -298,7 +297,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        // web application do not add anything to the shared context
    }
 
-   public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+   public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
        WebModule webModule = (WebModule) module;
@@ -429,7 +428,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        } catch (Exception e) {
            throw new DeploymentException("Unable to initialize webapp GBean", e);
        }
-       return null;
    }
 
    private ClassLoader getWebClassLoader(EARContext earContext, WebModule webModule, ClassLoader cl, boolean contextPriorityClassLoader) throws DeploymentException {

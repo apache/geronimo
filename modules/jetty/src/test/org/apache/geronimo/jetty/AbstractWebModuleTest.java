@@ -34,13 +34,13 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginService;
@@ -246,7 +246,7 @@ public class AbstractWebModuleTest extends TestCase {
     private void start(GBeanData gbeanData) throws Exception {
         kernel.loadGBean(gbeanData, cl);
         kernel.startGBean(gbeanData.getName());
-        if (((Integer) kernel.getAttribute(gbeanData.getName(), "state")).intValue() != State.RUNNING_INDEX) {
+        if (kernel.getGBeanState(gbeanData.getName()) != State.RUNNING_INDEX) {
             fail("gbean not started: " + gbeanData.getName());
         }
     }
@@ -266,7 +266,7 @@ public class AbstractWebModuleTest extends TestCase {
         tcmName = NameFactory.getComponentName(null, null, null, null, null, "TransactionContextManager", NameFactory.JTA_RESOURCE, moduleContext);
         ctcName = new ObjectName("geronimo.test:role=ConnectionTrackingCoordinator");
 
-        kernel = new Kernel("test.kernel");
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 

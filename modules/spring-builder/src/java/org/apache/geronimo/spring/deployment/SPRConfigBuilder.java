@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -38,6 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.spring.SpringApplicationImpl;
 import org.apache.geronimo.spring.SpringGBean;
@@ -100,7 +100,7 @@ public class SPRConfigBuilder
     return this;		// token passed to buildConfiguration()...
   }
 
-  public List
+  public ConfigurationData
     buildConfiguration(Object plan, JarFile sprFile, File outfile)
     throws IOException, DeploymentException
   {
@@ -168,6 +168,6 @@ public class SPRConfigBuilder
       if (ctx!=null) ctx.close();
     }
 
-    return Collections.singletonList(uid);
+    return ctx.getConfigurationData();
   }
 }

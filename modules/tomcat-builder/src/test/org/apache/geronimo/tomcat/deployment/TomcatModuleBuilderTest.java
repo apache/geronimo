@@ -58,15 +58,18 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
@@ -175,22 +178,18 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.loadGBean(configData, cl);
 
         kernel.startRecursiveGBean(configData.getName());
-        if (((Integer) kernel.getAttribute(configData.getName(), "state"))
-                .intValue() != State.RUNNING_INDEX) {
+        if (kernel.getGBeanState(configData.getName()) != State.RUNNING_INDEX) {
             fail("gbean not started: " + configData.getName());
         }
 
-        assertEquals(new Integer(State.RUNNING_INDEX),kernel.getAttribute(
-                                ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=org/apache/geronimo/test"),
-                                "state"));        
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=org/apache/geronimo/test")));
 
         Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
-            System.out.println("STATE: " + kernel.getAttribute(objectName, "state") + " - " + objectName.getCanonicalName());
-            assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(
-                    objectName, "state"));
+            System.out.println("STATE: " + kernel.getGBeanState(objectName) + " - " + objectName.getCanonicalName());
+            assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
         }
 
         //If we got here with no errors, then Tomcat deployed the war and loaded the classes
@@ -336,7 +335,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         ctcName = new ObjectName(
                 "geronimo.server:role=ConnectionTrackingCoordinator");
 
-        kernel = new Kernel("foo", new BasicGBeanRegistry());
+        kernel = KernelFactory.newInstance().createKernel("foo");
         kernel.boot();
 
         GBeanData store = new GBeanData(JMXUtil
@@ -345,11 +344,15 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.loadGBean(store, this.getClass().getClassLoader());
         kernel.startGBean(store.getName());
 
-        GBeanData baseConfig = (GBeanData) kernel.invoke(store.getName(),
-                "getConfiguration", new Object[] { parentId },
-                new String[] { URI.class.getName() });
-        kernel.loadGBean(baseConfig, this.getClass().getClassLoader());
-        kernel.startGBean(baseConfig.getName());
+        ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
+        GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+        configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+        kernel.startGBean(configurationManagerName);
+        ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
+
+        ObjectName baseConfigName = configurationManager.load(parentId);
+        kernel.startGBean(baseConfigName);
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
@@ -447,8 +450,7 @@ public class TomcatModuleBuilderTest extends TestCase {
     private void start(GBeanData gbeanData) throws Exception {
         kernel.loadGBean(gbeanData, cl);
         kernel.startGBean(gbeanData.getName());
-        if (((Integer) kernel.getAttribute(gbeanData.getName(), "state"))
-                .intValue() != State.RUNNING_INDEX) {
+        if (kernel.getGBeanState(gbeanData.getName()) != State.RUNNING_INDEX) {
             fail("gbean not started: " + gbeanData.getName());
         }
     }
@@ -459,49 +461,50 @@ public class TomcatModuleBuilderTest extends TestCase {
     }
 
     public static class MockConfigStore implements ConfigurationStore {
-        public URI install(URL source) throws IOException,
-                InvalidConfigException {
+        private final Kernel kernel;
+
+        public MockConfigStore(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public URI install(URL source) throws IOException, InvalidConfigException {
             return null;
         }
 
-        public URI install(File source) throws IOException,
-                InvalidConfigException {
-            return null;
+        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         }
 
-        public void uninstall(URI configID) throws NoSuchConfigException,
-                IOException {
+        public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+        }
 
+        public ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ObjectName configurationObjectName = null;
+            try {
+                configurationObjectName = Configuration.getConfigurationObjectName(configId);
+            } catch (MalformedObjectNameException e) {
+                throw new InvalidConfigException(e);
+            }
+            GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
+            configData.setAttribute("id", configId);
+            configData.setAttribute("domain", "test");
+            configData.setAttribute("server", "bar");
+            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+
+            try {
+                kernel.loadGBean(configData, Configuration.class.getClassLoader());
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to register configuration", e);
+            }
+
+            return configurationObjectName;
         }
 
         public boolean containsConfiguration(URI configID) {
             return true;
         }
 
-        public GBeanData getConfiguration(URI id) throws NoSuchConfigException,
-                IOException, InvalidConfigException {
-            GBeanData configData = null;
-            try {
-                configData = new GBeanData(Configuration
-                        .getConfigurationObjectName(id),
-                        Configuration.GBEAN_INFO);
-            } catch (MalformedObjectNameException e) {
-                throw new InvalidConfigException(e);
-            }
-            configData.setAttribute("ID", id);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            return configData;
-        }
+        public void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
 
-        public void updateConfiguration(Configuration configuration)
-                throws NoSuchConfigException, Exception {
-
-        }
-
-        public URL getBaseURL(URI id) throws NoSuchConfigException {
-            return null;
         }
 
         public String getObjectName() {
@@ -521,9 +524,10 @@ public class TomcatModuleBuilderTest extends TestCase {
         private static final byte[] NO_OBJECTS_OS;
 
         static {
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(
-                    MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
+            infoBuilder.addAttribute("kernel", Kernel.class, false);
+            infoBuilder.setConstructor(new String[] {"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -535,6 +539,5 @@ public class TomcatModuleBuilderTest extends TestCase {
                 throw new RuntimeException(e);
             }
         }
-    };
-
+    }
 }

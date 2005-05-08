@@ -61,6 +61,7 @@ import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -272,7 +273,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // application clients do not add anything to the shared context
     }
 
-    public String addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
 
         AppClientModule appClientModule = (AppClientModule) module;
@@ -327,10 +328,11 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         // create another child configuration within the config store for the client application
         EARContext appClientDeploymentContext = null;
-        File appClientConfiguration = null;
+        File appClientDir = null;
+        ConfigurationData appClientConfigurationData = null;
         try {
             try {
-                appClientConfiguration = store.createNewConfigurationDir();
+                appClientDir = store.createNewConfigurationDir();
 
                 // construct the app client deployment context... this is the same class used by the ear context
                 try {
@@ -342,7 +344,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     } else {
                         clientParentId = defaultClientParentId;
                     }
-                    appClientDeploymentContext = new EARContext(appClientConfiguration,
+                    appClientDeploymentContext = new EARContext(appClientDir,
                             clientConfigId,
                             ConfigurationModuleType.APP_CLIENT,
                             clientParentId,
@@ -476,6 +478,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
                 }
                 appClientDeploymentContext.addGBean(appClientContainerGBeanData);
+
+                // get the configuration data
+                appClientConfigurationData = appClientDeploymentContext.getConfigurationData();
             } finally {
                 if (appClientDeploymentContext != null) {
                     try {
@@ -486,12 +491,14 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             }
 
             try {
-                return store.install(appClientConfiguration).toString();
+                // todo this should be handled in the Deployer class
+                store.install(appClientDeploymentContext.getConfigurationData(), appClientDir);
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
+            earContext.addChildConfiguration(appClientConfigurationData);
         } catch (Throwable e) {
-            DeploymentUtil.recursiveDelete(appClientConfiguration);
+            DeploymentUtil.recursiveDelete(appClientDir);
             if (e instanceof Error) {
                 throw (Error) e;
             } else if (e instanceof DeploymentException) {

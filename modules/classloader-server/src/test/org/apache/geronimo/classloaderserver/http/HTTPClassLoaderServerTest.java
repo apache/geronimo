@@ -32,8 +32,8 @@ import org.apache.geronimo.classloaderserver.ClassLoaderInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.jetty.JettyContainerImpl;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 
 
 /**
@@ -85,7 +85,7 @@ public class HTTPClassLoaderServerTest extends TestCase {
         connectorName = new ObjectName("geronimo.jetty:role=Connector");
         Set connectorPatterns = new HashSet();
         connectorPatterns.add(connectorName);
-        kernel = new Kernel("test.kernel", new BasicGBeanRegistry());
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
         GBeanData container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
         start(container);

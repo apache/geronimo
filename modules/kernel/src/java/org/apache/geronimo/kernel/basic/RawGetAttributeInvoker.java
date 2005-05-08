@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.proxy;
+package org.apache.geronimo.kernel.basic;
 
 import javax.management.ObjectName;
 
@@ -23,17 +23,16 @@ import org.apache.geronimo.gbean.runtime.RawInvoker;
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public final class RawSetAttributeInvoker implements ProxyInvoker {
+public final class RawGetAttributeInvoker implements ProxyInvoker {
     private final RawInvoker rawInvoker;
     private final int methodIndex;
 
-    public RawSetAttributeInvoker(RawInvoker rawInvoker, int methodIndex) {
+    public RawGetAttributeInvoker(RawInvoker rawInvoker, int methodIndex) {
         this.rawInvoker = rawInvoker;
         this.methodIndex = methodIndex;
     }
 
     public Object invoke(final ObjectName objectName, final Object[] arguments) throws Throwable {
-        rawInvoker.setAttribute(methodIndex, arguments[0]);
-        return null;
+        return rawInvoker.getAttribute(methodIndex);
     }
 }

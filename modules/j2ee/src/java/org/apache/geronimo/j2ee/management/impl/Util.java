@@ -47,11 +47,16 @@ public class Util {
         return names;
     }
 
-    public static String[] getObjectNames(Kernel kernel, Object parentName, String[] j2eeTypes) throws MalformedObjectNameException {
+    public static String[] getObjectNames(Kernel kernel, Object parentName, String[] j2eeTypes) {
         List objectNames = new LinkedList();
         for (int i = 0; i < j2eeTypes.length; i++) {
             String j2eeType = j2eeTypes[i];
-            objectNames.addAll(kernel.listGBeans(new ObjectName(parentName + "j2eeType=" + j2eeType + ",*")));
+            String name = parentName + "j2eeType=" + j2eeType + ",*";
+            try {
+                objectNames.addAll(kernel.listGBeans(new ObjectName(name)));
+            } catch (MalformedObjectNameException e) {
+                throw new IllegalArgumentException("Malformed ObjectName: " + name);
+            }
         }
         String[] names = new String[objectNames.size()];
         Iterator iterator = objectNames.iterator();

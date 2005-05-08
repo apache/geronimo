@@ -16,10 +16,7 @@
  */
 package org.apache.geronimo.kernel.jmx;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -30,25 +27,24 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.jmx.*;
-import org.apache.geronimo.gbean.jmx.GBeanMBean;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Rev$ $Date$
  */
-public class KernelDelegate implements KernelMBean {
+public class KernelDelegate implements Kernel {
     private final MBeanServerConnection mbeanServer;
+    private final ProxyManager proxyManager;
 
     public KernelDelegate(MBeanServerConnection mbeanServer) {
         this.mbeanServer = mbeanServer;
+        proxyManager = new JMXProxyManager(this);
     }
 
     public Date getBootTime() {
@@ -69,10 +65,6 @@ public class KernelDelegate implements KernelMBean {
         } catch (Exception e) {
             throw new InternalKernelException(e);
         }
-    }
-
-    public void loadGBean(ObjectName name, GBeanMBean gbean) throws GBeanAlreadyExistsException, InternalKernelException {
-        throw new UnsupportedOperationException("Use loadGBean(GBeanData, ClassLoader)");
     }
 
     public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
@@ -123,28 +115,10 @@ public class KernelDelegate implements KernelMBean {
         }
     }
 
-    public boolean isRunning() {
-        return ((Boolean) getKernelAttribute("running")).booleanValue();
-    }
-
-    public ConfigurationManager getConfigurationManager() {
-        return (ConfigurationManager) getKernelAttribute("configurationManager");
-    }
-
-    public List listConfigurationStores() {
+    public int getGBeanState(ObjectName name) throws GBeanNotFoundException {
         try {
-            return (List) invokeKernel("listConfigurationStores", new Object[] {}, new String[] {});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
-    }
-
-    public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
-        try {
-            return (List) invokeKernel("listConfigurations", new Object[] {storeName}, new String[] {ObjectName.class.getName()});
-        } catch (NoSuchStoreException e) {
+            return ((Integer) invokeKernel("getGBeanState", new Object[]{name}, new String[]{ObjectName.class.getName()})).intValue();
+        } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
             throw e;
@@ -153,14 +127,10 @@ public class KernelDelegate implements KernelMBean {
         }
     }
 
-    public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException {
         try {
-            return (ObjectName) invokeKernel("startConfiguration", new Object[]{configID}, new String[]{URI.class.getName()});
-        } catch (NoSuchConfigException e) {
-            throw e;
-        } catch (IOException e) {
-            throw e;
-        } catch (InvalidConfigException e) {
+            return ((Long) invokeKernel("getGBeanStartTime", new Object[]{name}, new String[]{ObjectName.class.getName()})).longValue();
+        } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
             throw e;
@@ -169,10 +139,10 @@ public class KernelDelegate implements KernelMBean {
         }
     }
 
-    public void stopConfiguration(URI configID) throws NoSuchConfigException {
+    public boolean isGBeanEnabled(ObjectName name) throws GBeanNotFoundException {
         try {
-            invokeKernel("stopConfiguration", new Object[]{configID}, new String[]{URI.class.getName()});
-        } catch (NoSuchConfigException e) {
+            return ((Boolean) invokeKernel("isGBeanEnabled", new Object[] {name}, new String[] {ObjectName.class.getName()})).booleanValue();
+        } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
             throw e;
@@ -181,10 +151,10 @@ public class KernelDelegate implements KernelMBean {
         }
     }
 
-    public int getConfigurationState(URI configID) throws NoSuchConfigException {
+    public void setGBeanEnabled(ObjectName name, boolean enabled) throws GBeanNotFoundException {
         try {
-            return ((Integer) invokeKernel("getConfigurationState", new Object[]{configID}, new String[]{URI.class.getName()})).intValue();
-        } catch (NoSuchConfigException e) {
+            invokeKernel("setGBeanEnabled", new Object[] {name}, new String[] {ObjectName.class.getName()});
+        } catch (GBeanNotFoundException e) {
             throw e;
         } catch (RuntimeException e) {
             throw e;
@@ -367,12 +337,30 @@ public class KernelDelegate implements KernelMBean {
         }
     }
 
+    public boolean isRunning() {
+        return ((Boolean) getKernelAttribute("running")).booleanValue();
+    }
+
+    public DependencyManager getDependencyManager() {
+        throw new UnsupportedOperationException("Dependency manager is not accessable by way of a remote connection");
+    }
+
+    public LifecycleMonitor getLifecycleMonitor() {
+        throw new UnsupportedOperationException("Lifecycle monitor is not accessable by way of a remote connection");
+    }
+
+    public ProxyManager getProxyManager() {
+        return proxyManager;
+    }
+
+    public void boot() throws Exception {
+        throw new UnsupportedOperationException("A remote kernel can not be booted");
+    }
+
     private Throwable unwrapJMException(Throwable cause) {
         while ((cause instanceof JMException || cause instanceof JMRuntimeException) && cause.getCause() != null) {
             cause = cause.getCause();
         }
         return cause;
     }
-
-
 }

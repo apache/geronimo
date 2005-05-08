@@ -64,11 +64,10 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         this.cl = cl;
     }
 
-    public String addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl) {
+    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.ejbModule, ejbModule);
         assertEquals(this.cl, cl);
-        return null;
     }
 
     public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {

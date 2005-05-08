@@ -21,17 +21,21 @@ import java.net.URI;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
 /**
  * @version $Rev$ $Date$
  */
 public class StopCommand extends CommandSupport {
-    private final KernelMBean kernel;
+    private final Kernel kernel;
     private final TargetModuleID[] modules;
 
-    public StopCommand(KernelMBean kernel, TargetModuleID modules[]) {
+    public StopCommand(Kernel kernel, TargetModuleID modules[]) {
         super(CommandType.START);
         this.kernel = kernel;
         this.modules = modules;
@@ -39,11 +43,14 @@ public class StopCommand extends CommandSupport {
 
     public void run() {
         try {
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             for (int i = 0; i < modules.length; i++) {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                kernel.stopConfiguration(moduleID);
+                ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
+                kernel.stopGBean(configName);
+                configurationManager.unload(moduleID);
                 addModule(module);
             }
             complete("Completed");

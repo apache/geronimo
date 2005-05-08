@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel.lifecycle;
+package org.apache.geronimo.kernel.basic;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,8 +27,10 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 
 /**
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $

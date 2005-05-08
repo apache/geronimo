@@ -27,11 +27,9 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.NoSuchAttributeException;
-import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
 
@@ -267,11 +265,8 @@ public abstract class AbstractGBeanReference implements GBeanReference {
      */
     private boolean isRunning(Kernel kernel, ObjectName objectName) {
         try {
-            final int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
+            final int state = kernel.getGBeanState(objectName);
             return state == State.RUNNING_INDEX;
-        } catch (NoSuchAttributeException e) {
-            // ok -- mbean is not a startable
-            return true;
         } catch (GBeanNotFoundException e) {
             // mbean is no longer registerd
             return false;

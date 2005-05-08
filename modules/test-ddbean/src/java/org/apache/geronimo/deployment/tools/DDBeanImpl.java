@@ -91,7 +91,7 @@ public class DDBeanImpl implements DDBean {
     }
 
     public String getId() {
-        return getAttributeValue("ID");
+        return getAttributeValue("id");
     }
 
     public String getAttributeValue(String attrName) {

@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.naming.reference;
 
-import javax.naming.RefAddr;
-
 import org.apache.geronimo.kernel.Kernel;
 
 /**

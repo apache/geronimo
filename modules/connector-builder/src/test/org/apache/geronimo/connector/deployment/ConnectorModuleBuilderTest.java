@@ -17,13 +17,9 @@
 
 package org.apache.geronimo.connector.deployment;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -39,9 +35,9 @@ import java.util.Set;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.Reference;
 import javax.sql.DataSource;
 import javax.xml.namespace.QName;
-import javax.naming.Reference;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
@@ -53,25 +49,29 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -153,18 +153,24 @@ public class ConnectorModuleBuilderTest extends TestCase {
                                             return null;
                                         }
                                     };
+    private ObjectName configurationManagerName;
 
 
     public void testBuildEar() throws Exception {
         ObjectName connectionTrackerName = new ObjectName("geronimo.connector:service=ConnectionTracker");
         JarFile rarFile = null;
-        Kernel kernel = new Kernel("foo", new BasicGBeanRegistry());
+        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
         try {
             kernel.boot();
 
             GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
+
+            GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+            configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+            kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+            kernel.startGBean(configurationManagerName);
 
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
@@ -296,13 +302,19 @@ public class ConnectorModuleBuilderTest extends TestCase {
         ObjectName connectionTrackerName = NameFactory.getComponentName(null, null, null, null, "ConnectionTracker", ConnectionTrackingCoordinator.GBEAN_INFO.getJ2eeType(), j2eeContext);
                 //new ObjectName("test:J2EEServer=bar,J2EEModule=org/apache/geronimo/j2ee/deployment/test,service=ConnectionTracker");
 
-        Kernel kernel = new Kernel("foo", new BasicGBeanRegistry());
+        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
         try {
             kernel.boot();
 
             GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
+
+            GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+            configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+            kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+            kernel.startGBean(configurationManagerName);
+
             ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel);
             File rarFile = action.getRARFile();
 
@@ -341,7 +353,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 moduleBuilder.addGBeans(earContext, module, cl);
                 earContext.close();
 
-                verifyDeployment(tempDir, oldCl, j2eeContext, resourceAdapterName, is15);
+                verifyDeployment(earContext.getConfigurationData(), tempDir, oldCl, j2eeContext, resourceAdapterName, is15);
             } finally {
                 module.close();
                 DeploymentUtil.recursiveDelete(tempDir);
@@ -351,23 +363,29 @@ public class ConnectorModuleBuilderTest extends TestCase {
         }
     }
 
-    private void verifyDeployment(File unpackedDir, ClassLoader cl, J2eeContext j2eeContext, String resourceAdapterName, boolean is15) throws Exception {
+    private void verifyDeployment(ConfigurationData configurationData, File unpackedDir, ClassLoader cl, J2eeContext j2eeContext, String resourceAdapterName, boolean is15) throws Exception {
         DataSource ds = null;
         Kernel kernel = null;
         try {
-            GBeanData config = loadConfig(unpackedDir);
+            GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
             ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
             config.setName(objectName);
 
-            kernel = new Kernel("bar", new BasicGBeanRegistry());
+            kernel = KernelFactory.newInstance().createKernel("bar");
             kernel.boot();
+
             GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
 
-            GBeanData baseConfig = (GBeanData) kernel.invoke(store.getName(), "getConfiguration", new Object[]{defaultParentId}, new String[]{URI.class.getName()});
-            kernel.loadGBean(baseConfig, this.getClass().getClassLoader());
-            kernel.startGBean(baseConfig.getName());
+            GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+            configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+            kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+            kernel.startGBean(configurationManagerName);
+            ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
+
+            ObjectName baseConfigName = configurationManager.load(defaultParentId);
+            kernel.startGBean(baseConfigName);
 
             ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":name=ServerInfo");
             GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, ServerInfo.GBEAN_INFO);
@@ -392,7 +410,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             Set gb = kernel.listGBeans(JMXUtil.getObjectName("test:*"));
             for (Iterator iterator = gb.iterator(); iterator.hasNext();) {
                 ObjectName name = (ObjectName) iterator.next();
-                if (State.RUNNING_INDEX != ((Integer) kernel.getAttribute(name, "state")).intValue()) {
+                if (State.RUNNING_INDEX != kernel.getGBeanState(name)) {
                     System.out.println("Not running: " + name);
                 }
             }
@@ -524,23 +542,11 @@ public class ConnectorModuleBuilderTest extends TestCase {
     }
 
     private void assertRunning(Kernel kernel, ObjectName objectName) throws Exception {
-        int state = ((Integer) kernel.getAttribute(objectName, "state")).intValue();
-        assertEquals(State.RUNNING_INDEX, state);
-    }
-
-    private GBeanData loadConfig(File unpackedCar) throws Exception {
-        InputStream in = new FileInputStream(new File(unpackedCar, "META-INF/config.ser"));
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(in));
-            GBeanData config = new GBeanData();
-            config.readExternal(ois);
-            return config;
-        } finally {
-            in.close();
-        }
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
     }
 
     protected void setUp() throws Exception {
+        configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         defaultParentId = new URI("org/apache/geronimo/Server");
     }
 
@@ -561,42 +567,50 @@ public class ConnectorModuleBuilderTest extends TestCase {
     }
 
     public static class MockConfigStore implements ConfigurationStore {
+        private final Kernel kernel;
+
+        public MockConfigStore(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
         public URI install(URL source) throws IOException, InvalidConfigException {
             return null;
         }
 
-        public URI install(File source) throws IOException, InvalidConfigException {
-            return null;
+        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+        }
 
+        public ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ObjectName configurationObjectName = null;
+            try {
+                configurationObjectName = Configuration.getConfigurationObjectName(configId);
+            } catch (MalformedObjectNameException e) {
+                throw new InvalidConfigException(e);
+            }
+            GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
+            configData.setAttribute("id", configId);
+            configData.setAttribute("domain", "test");
+            configData.setAttribute("server", "bar");
+            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+
+            try {
+                kernel.loadGBean(configData, Configuration.class.getClassLoader());
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to register configuration", e);
+            }
+
+            return configurationObjectName;
         }
 
         public boolean containsConfiguration(URI configID) {
             return true;
         }
 
-        public GBeanData getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException {
-            GBeanData configData = null;
-            try {
-                configData = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-            } catch (MalformedObjectNameException e) {
-                throw new InvalidConfigException(e);
-            }
-            configData.setAttribute("ID", id);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            return configData;
-        }
+        public void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
 
-        public void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception {
-
-        }
-
-        public URL getBaseURL(URI id) throws NoSuchConfigException {
-            return null;
         }
 
         public String getObjectName() {
@@ -618,6 +632,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
         static {
             GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
+            infoBuilder.addAttribute("kernel", Kernel.class, false);
+            infoBuilder.setConstructor(new String[] {"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -629,6 +645,5 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 throw new RuntimeException(e);
             }
         }
-    };
-
+    }
 }

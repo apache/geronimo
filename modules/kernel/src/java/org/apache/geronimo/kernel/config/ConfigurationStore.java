@@ -23,7 +23,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-import org.apache.geronimo.gbean.GBeanData;
+import javax.management.ObjectName;
 
 /**
  * Interface to a store for Configurations.
@@ -43,13 +43,30 @@ public interface ConfigurationStore {
     /**
      * Move the unpacked configuration directory into this store
      *
+     * @param configurationData the configuration data
      * @param source the directory which contains a contiguration
      * @throws IOException if the direcotyr could not be moved into the store
      * @throws InvalidConfigException if there is a configuration problem within the source direcotry
      */
-    URI install(File source) throws IOException, InvalidConfigException;
+    void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException;
 
+    /**
+     * Removes a configuration from the store
+     * @param configID the id of the configuration to remove
+     * @throws NoSuchConfigException if the configuration is not contained in the store
+     * @throws IOException if a problem occurs during the removal
+     */
     void uninstall(URI configID) throws NoSuchConfigException, IOException;
+
+    /**
+     * Loads the specified configuration into the kernel
+     * @param configId the id of the configuration to load
+     * @return the object name of the configuration in the kernel
+     * @throws NoSuchConfigException if the configuration is not contained in the kernel
+     * @throws IOException if a problem occurs loading the configuration from the store
+     * @throws InvalidConfigException if the configuration is corrupt
+     */
+    ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Determines if the store contains a configuration with the spedified ID.
@@ -60,31 +77,11 @@ public interface ConfigurationStore {
     boolean containsConfiguration(URI configID);
 
     /**
-     * Return the Configuration GBean for the specified ID
-     *
-     * @param id the unique ID of a Configuration
-     * @return the GBeanData for that configuration
-     * @throws NoSuchConfigException if the store does not contain a Configuration with that id
-     * @throws IOException if there was a problem loading the Configuration from the store
-     * @throws InvalidConfigException if the Configuration is invalid
-     */
-    GBeanData getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException;
-
-    /**
      * Updates the saved state of the configuration.
      *
-     * @param configuration the configuration to update
+     * @param configurationData the configuration to update
      */
-    void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception;
-
-    /**
-     * Return the base URL for the specified ID
-     *
-     * @param id the unique ID for a Configuration
-     * @return the URL of the base location for the Configuration that should be used for resolution
-     * @throws NoSuchConfigException if the store does not contain a Configuration with that id
-     */
-    URL getBaseURL(URI id) throws NoSuchConfigException;
+    void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception;
 
     /**
      * Return the object name for the store.
@@ -96,9 +93,10 @@ public interface ConfigurationStore {
     /**
      * Return the configurations in the store
      *
-     * @return a List<URI> of configurations in the store
+     * @return a List ConfigurationInfo objects
      */
     List listConfiguations();
 
     File createNewConfigurationDir();
+
 }

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -35,19 +36,21 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
 
 /**
  * @version $Rev$ $Date$
@@ -233,7 +236,7 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testBuildConfiguration() throws Exception {
-        Kernel kernel = new Kernel("foo", new BasicGBeanRegistry());
+        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
         kernel.boot();
 
         GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
@@ -242,6 +245,11 @@ public class EARConfigBuilderTest extends TestCase {
 
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, kernel);
 
+        ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
+        GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+        configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+        kernel.startGBean(configurationManagerName);
 
         File tempDir = null;
         try {
@@ -309,42 +317,50 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public static class MockConfigStore implements ConfigurationStore {
+        private final Kernel kernel;
+
+        public MockConfigStore(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
         public URI install(URL source) throws IOException, InvalidConfigException {
             return null;
         }
 
-        public URI install(File source) throws IOException, InvalidConfigException {
-            return null;
+        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+        }
 
+        public ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ObjectName configurationObjectName = null;
+            try {
+                configurationObjectName = Configuration.getConfigurationObjectName(configId);
+            } catch (MalformedObjectNameException e) {
+                throw new InvalidConfigException(e);
+            }
+            GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
+            configData.setAttribute("id", configId);
+            configData.setAttribute("domain", "test");
+            configData.setAttribute("server", "bar");
+            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+
+            try {
+                kernel.loadGBean(configData, Configuration.class.getClassLoader());
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to register configuration", e);
+            }
+
+            return configurationObjectName;
         }
 
         public boolean containsConfiguration(URI configID) {
             return true;
         }
 
-        public GBeanData getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException {
-            GBeanData configData = null;
-            try {
-                configData = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-            } catch (MalformedObjectNameException e) {
-                throw new InvalidConfigException(e);
-            }
-            configData.setAttribute("ID", id);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            return configData;
-        }
+        public void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
 
-        public void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception {
-
-        }
-
-        public URL getBaseURL(URI id) throws NoSuchConfigException {
-            return null;
         }
 
         public String getObjectName() {
@@ -366,6 +382,8 @@ public class EARConfigBuilderTest extends TestCase {
         static {
             GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
+            infoBuilder.addAttribute("kernel", Kernel.class, false);
+            infoBuilder.setConstructor(new String[] {"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -377,7 +395,5 @@ public class EARConfigBuilderTest extends TestCase {
                 throw new RuntimeException(e);
             }
         }
-    };
-
-
+    }
 }

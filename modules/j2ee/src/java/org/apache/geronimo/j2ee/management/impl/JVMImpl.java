@@ -23,13 +23,14 @@ import java.net.UnknownHostException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.geronimo.JVM;
 
 /**
  *
  *
  * @version $Rev$ $Date$
  */
-public class JVMImpl {
+public class JVMImpl implements JVM {
     public static final String JAVA_VERSION = System.getProperty("java.version");
     public static final String JAVA_VENDOR = System.getProperty("java.vendor");
     public static final String NODE;
@@ -45,13 +46,35 @@ public class JVMImpl {
         NODE = node;
     }
 
+    private final String objectName;
+
+    public JVMImpl(String objectName) {
+        this.objectName = objectName;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return true;
+    }
+
     /**
      * The version of the JVMImpl we are running on.
      * This is the value of java.version system property
      * @see "JSR77.3.4.1.1"
      * @return the JVMImpl version
      */
-    public String getjavaVersion() {
+    public String getJavaVersion() {
         return JAVA_VERSION;
     }
 
@@ -61,7 +84,7 @@ public class JVMImpl {
      * @see "JSR77.3.4.1.2"
      * @return the JVMImpl version
      */
-    public String getjavaVendor() {
+    public String getJavaVendor() {
         return JAVA_VENDOR;
     }
 
@@ -72,23 +95,23 @@ public class JVMImpl {
      * @see "JSR77.3.4.1.3"
      * @return the node we are running on
      */
-    public String getnode() {
+    public String getNode() {
         return NODE;
     }
 
-    public long getfreeMemory() {
+    public long getFreeMemory() {
         return runtime.freeMemory();
     }
 
-    public long getmaxMemory() {
+    public long getMaxMemory() {
         return runtime.maxMemory();
     }
 
-    public long gettotalMemory() {
+    public long getTotalMemory() {
         return runtime.totalMemory();
     }
 
-    public int getavailableProcessors() {
+    public int getAvailableProcessors() {
         return runtime.availableProcessors();
     }
 
@@ -97,6 +120,7 @@ public class JVMImpl {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JVMImpl.class, NameFactory.JVM);
 
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("javaVersion", String.class, false);
         infoFactory.addAttribute("javaVendor", String.class, false);
         infoFactory.addAttribute("node", String.class, false);
@@ -104,7 +128,7 @@ public class JVMImpl {
         infoFactory.addAttribute("maxMemory", Long.TYPE, false);
         infoFactory.addAttribute("totalMemory", Long.TYPE, false);
         infoFactory.addAttribute("availableProcessors", Integer.TYPE, false);
-
+        infoFactory.setConstructor(new String[] {"objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

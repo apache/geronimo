@@ -193,7 +193,7 @@
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
+            <artifactId>cglib-nodep</artifactId>
             <version>${cglib_version}</version>
             <url>http://cglib.sf.net/</url>
         </dependency>
@@ -216,6 +216,12 @@
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>${mx4j_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm_version}</version>
         </dependency>
 
         <dependency>

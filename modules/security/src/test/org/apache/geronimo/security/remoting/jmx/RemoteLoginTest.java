@@ -34,6 +34,7 @@ import javax.security.auth.login.LoginContext;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
@@ -85,7 +86,7 @@ public class RemoteLoginTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        kernel = new Kernel("test.kernel");
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
         GBeanData gbean;

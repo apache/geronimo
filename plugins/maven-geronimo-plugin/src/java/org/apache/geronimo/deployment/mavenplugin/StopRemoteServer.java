@@ -8,16 +8,15 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  */
 public class StopRemoteServer extends AbstractModuleCommand {
 
     private MBeanServerConnection mbServerConnection;
-    private KernelMBean kernel;
+    private Kernel kernel;
 
     public void execute() throws Exception {
         String uri = getUri().substring(DeploymentFactoryImpl.URI_PREFIX.length());

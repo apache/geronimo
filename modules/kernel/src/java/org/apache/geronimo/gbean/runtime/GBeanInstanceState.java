@@ -24,8 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
@@ -190,9 +190,9 @@ public class GBeanInstanceState {
             ObjectName child = (ObjectName) iterator.next();
             try {
                 log.trace("Checking if child is running: child=" + child);
-                if (((Integer) kernel.getAttribute(child, "state")).intValue() == State.RUNNING_INDEX) {
+                if (kernel.getGBeanState(child) == State.RUNNING_INDEX) {
                     log.trace("Stopping child: child=" + child);
-                    kernel.invoke(child, "stop", null, null);
+                    kernel.stopGBean(child);
                     log.trace("Stopped child: child=" + child);
                 }
             } catch (Exception ignore) {
@@ -306,14 +306,11 @@ public class GBeanInstanceState {
                 }
                 try {
                     log.trace("Checking if parent is running: parent=" + parent);
-                    if (((Integer) kernel.getAttribute(parent, "state")).intValue() != State.RUNNING_INDEX) {
+                    if (kernel.getGBeanState(parent) != State.RUNNING_INDEX) {
                         log.trace("Cannot run because parent is not running: parent=" + parent);
                         return;
                     }
                     log.trace("Parent is running: parent=" + parent);
-                } catch (NoSuchAttributeException e) {
-                    // ok -- parent is not a startable
-                    log.trace("Parent does not have a State attibute");
                 } catch (GBeanNotFoundException e) {
                     // depended on instance was removed bewteen the register check and the invoke
                     log.trace("Cannot run because parent is not registered: parent=" + parent);

@@ -134,7 +134,6 @@ public class GenericConnectionManager extends AbstractConnectionManager {
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(GenericConnectionManager.class, AbstractConnectionManager.GBEAN_INFO);
 
-        infoBuilder.addAttribute("name", String.class, true);
         infoBuilder.addAttribute("transactionSupport", TransactionSupport.class, true);
         infoBuilder.addAttribute("pooling", PoolingSupport.class, true);
 

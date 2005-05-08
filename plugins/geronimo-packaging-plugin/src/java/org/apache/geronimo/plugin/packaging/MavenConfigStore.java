@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
@@ -34,7 +33,9 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Implementation of ConfigurationStore that loads Configurations from a repository.
@@ -44,10 +45,12 @@ import org.apache.geronimo.kernel.repository.Repository;
  * @version $Rev$ $Date$
  */
 public class MavenConfigStore implements ConfigurationStore {
+    private final Kernel kernel;
     private final ObjectName objectName;
     private final Repository repository;
 
-    public MavenConfigStore(String objectName, Repository repository) throws MalformedObjectNameException {
+    public MavenConfigStore(Kernel kernel, String objectName, Repository repository) throws MalformedObjectNameException {
+        this.kernel = kernel;
         this.objectName = new ObjectName(objectName);
         this.repository = repository;
     }
@@ -56,24 +59,54 @@ public class MavenConfigStore implements ConfigurationStore {
         return objectName.toString();
     }
 
-    public GBeanData getConfiguration(URI id) throws NoSuchConfigException, IOException, InvalidConfigException {
-        if (!repository.hasURI(id)) {
-            throw new NoSuchConfigException("Configuration not found: " + id);
+    public synchronized ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        if (!repository.hasURI(configId)) {
+            throw new NoSuchConfigException("Configuration not found: " + configId);
         }
 
-        URL stateURL = new URL(getBaseURL(id), "META-INF/config.ser");
-        InputStream jis = stateURL.openStream();
+        GBeanData config = new GBeanData();
+        URL baseURL = new URL("jar:" + repository.getURL(configId).toString() + "!/");
+        InputStream jis = null;
         try {
+            URL stateURL = new URL(baseURL, "META-INF/config.ser");
+            jis = stateURL.openStream();
             ObjectInputStream ois = new ObjectInputStream(jis);
-            GBeanData config = new GBeanData();
             config.readExternal(ois);
             config.setReferencePattern("ConfigurationStore", objectName);
-            return config;
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigException("Unable to load class from config: " + id, e);
+            throw new InvalidConfigException("Unable to load class from config: " + configId, e);
         } finally {
-            jis.close();
+            if (jis != null) {
+                jis.close();
+            }
         }
+
+        ObjectName name;
+        try {
+            name = Configuration.getConfigurationObjectName(configId);
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
+        }
+        config.setName(name);
+
+        try {
+            kernel.loadGBean(config, Configuration.class.getClassLoader());
+        } catch (Exception e) {
+            throw new InvalidConfigException("Unable to register configuration", e);
+        }
+
+        try {
+            kernel.setAttribute(name, "baseURL", baseURL);
+        } catch (Exception e) {
+            try {
+                kernel.unloadGBean(name);
+            } catch (Exception ignored) {
+                // ignore
+            }
+            throw new InvalidConfigException("Cannot set baseURL", e);
+        }
+
+        return name;
     }
 
     public boolean containsConfiguration(URI configID) {
@@ -95,19 +128,11 @@ public class MavenConfigStore implements ConfigurationStore {
         }
     }
 
-    public URL getBaseURL(URI id) throws NoSuchConfigException {
-        try {
-            return new URL("jar:" + repository.getURL(id).toString() + "!/");
-        } catch (MalformedURLException e) {
-            throw new AssertionError();
-        }
-    }
-
     public URI install(URL source) throws IOException, InvalidConfigException {
         throw new UnsupportedOperationException();
     }
 
-    public URI install(File source) throws IOException, InvalidConfigException {
+    public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         throw new UnsupportedOperationException();
     }
 
@@ -115,7 +140,7 @@ public class MavenConfigStore implements ConfigurationStore {
         throw new UnsupportedOperationException();
     }
 
-    public void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception {
+    public void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
         // we don't store persistent state
     }
 
@@ -133,9 +158,10 @@ public class MavenConfigStore implements ConfigurationStore {
     static {
         GBeanInfoBuilder builder = new GBeanInfoBuilder(MavenConfigStore.class);
         builder.addInterface(ConfigurationStore.class);
+        builder.addAttribute("kernel", Kernel.class, false);
         builder.addAttribute("objectName", String.class, false);
         builder.addReference("Repository", Repository.class);
-        builder.setConstructor(new String[]{"objectName", "Repository"});
+        builder.setConstructor(new String[]{"kernel", "objectName", "Repository"});
         GBEAN_INFO = builder.getBeanInfo();
     }
 }

@@ -26,6 +26,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.jmxdebug.util.ObjectNameComparator;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 
@@ -38,7 +39,7 @@ public class KernelHelper {
     private final Kernel kernel;
 
     public KernelHelper() {
-        kernel = Kernel.getSingleKernel();
+        kernel = KernelRegistry.getSingleKernel();
     }
 
     public Kernel getKernel() {
@@ -87,8 +88,7 @@ public class KernelHelper {
 
     public String getState(ObjectName name) {
         try {
-            int state = ((Integer) kernel.getAttribute(name, "state")).intValue();
-            return State.toString(state);
+            return State.toString(kernel.getGBeanState(name));
         } catch (Exception e) {
             return null;
         }

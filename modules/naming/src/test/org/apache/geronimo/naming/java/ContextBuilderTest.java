@@ -32,6 +32,8 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -86,10 +88,10 @@ public class ContextBuilderTest extends TestCase {
 //        builder.addResourceEnvRef("resourceenvref", List.class, localRef);
 
         SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
-        Kernel kernel = new Kernel("test.kernel");
+        Kernel kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
         try {
-            assertEquals(kernel, Kernel.getKernel("test.kernel"));
+            assertEquals(kernel, KernelRegistry.getKernel("test.kernel"));
             ObjectName proxyFactoryName = null;//referenceFactory.createAdminObjectObjectName("testAdminObject");
             GBeanData gbean = new GBeanData(proxyFactoryName, getGbeanInfo());
             gbean.setAttribute("Content", proxy);

@@ -64,22 +64,22 @@ Configuration for the Apache Tomcat web container
         <uri>tomcat/jars/servlets-invoker-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-beanutils/jars/commons-beanutils-1.6.1.jar</uri>
+        <uri>commons-beanutils/jars/commons-beanutils-${commons_beanutils_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-collections/jars/commons-collections-2.1.jar</uri>
+        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-digester/jars/commons-digester-1.6.jar</uri>
+        <uri>commons-digester/jars/commons-digester-${commons_digester_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-el/jars/commons-el-1.0.jar</uri>
+        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-modeler/jars/commons-modeler-1.1.jar</uri>
+        <uri>commons-modeler/jars/commons-modeler-${commons_modeler_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>regexp/jars/regexp-1.3.jar</uri>
+        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>mx4j/jars/mx4j-${mx4j-version}.jar</uri>

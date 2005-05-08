@@ -21,6 +21,7 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 
 
@@ -94,7 +95,7 @@ public class InteropGBeanTest extends TestCase {
 
     protected void setUp() throws Exception {
         log("setUp():");
-        kernel = new Kernel(KERNEL_NAME);
+        kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
 
         log("setUp(): kernel = " + kernel);
 

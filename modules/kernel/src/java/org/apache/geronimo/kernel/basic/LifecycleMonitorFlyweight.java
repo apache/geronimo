@@ -14,10 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.lifecycle;
+package org.apache.geronimo.kernel.basic;
 
 import java.util.Set;
 import javax.management.ObjectName;
+
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 
 /**
  * @version $Rev$ $Date$

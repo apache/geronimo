@@ -362,7 +362,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     }
 
-    public String addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
         J2eeContext resourceJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.JCA_RESOURCE, module.getName());
@@ -409,8 +409,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
 
         addConnectorGBeans(earContext, resourceJ2eeContext, resourceAdapterModuleName, (ConnectorType) specDD, geronimoConnector, cl);
-
-        return null;
     }
 
     private void addConnectorGBeans(EARContext earContext, J2eeContext moduleJ2eeContext, ObjectName resourceAdapterModuleObjectName, ConnectorType connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
@@ -720,7 +718,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Unexpected pooling support element");
         }
         try {
-            connectionManagerGBean.setAttribute("name", connectionfactoryInstance.getName());
+//            connectionManagerGBean.setAttribute("name", connectionfactoryInstance.getName());
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());

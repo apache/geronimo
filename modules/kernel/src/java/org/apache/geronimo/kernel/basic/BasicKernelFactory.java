@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,26 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.geronimo.kernel.proxy;
-
-import javax.management.ObjectName;
+package org.apache.geronimo.kernel.basic;
 
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 
 /**
- * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
-public final class KernelGetAttributeInvoker implements ProxyInvoker {
-    private final Kernel kernel;
-    private final String name;
-
-    public KernelGetAttributeInvoker(Kernel kernel, String name) {
-        this.kernel = kernel;
-        this.name = name;
-    }
-
-    public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-        return kernel.getAttribute(objectName, name);
+public class BasicKernelFactory extends KernelFactory {
+    public Kernel createKernel(String kernelName) {
+        return new BasicKernel(kernelName);
     }
 }

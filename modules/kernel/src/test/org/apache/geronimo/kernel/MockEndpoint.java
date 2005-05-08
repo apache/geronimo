@@ -36,5 +36,5 @@ public interface MockEndpoint {
 
     String echo(String message);
 
-    GBeanLifecycleController getGBeanLifecycleController();
+    GBeanLifecycleController getGbeanLifecycleController();
 }

@@ -16,10 +16,7 @@
  */
 package org.apache.geronimo.naming.reference;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Rev$ $Date$

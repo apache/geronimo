@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -47,11 +46,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -95,7 +97,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return objectName.toString();
     }
 
-    public void doStart() throws FileNotFoundException, IOException {
+    public synchronized void doStart() throws FileNotFoundException, IOException {
         // resolve the root dir if not alredy resolved
         if (rootDir == null) {
             if (serverInfo == null) {
@@ -185,7 +187,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         URI configId;
         try {
             GBeanData config = loadConfig(configurationDir);
-            configId = (URI) config.getAttribute("ID");
+            configId = (URI) config.getAttribute("id");
             index.setProperty(configId.toString(), configurationDir.getName());
         } catch (Exception e) {
             delete(configurationDir);
@@ -200,7 +202,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return configId;
     }
 
-    public URI install(File source) throws IOException, InvalidConfigException {
+    public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         if (!source.isDirectory()) {
             throw new InvalidConfigException("Source must be a directory: source=" + source);
         }
@@ -208,21 +210,15 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             throw new InvalidConfigException("Source must be within the config store: source=" + source + ", configStoreDir=" + rootDir);
         }
 
-        URI configId;
-        try {
-            GBeanData config = loadConfig(source);
-            configId = (URI) config.getAttribute("ID");
-            index.setProperty(configId.toString(), source.getName());
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
-        }
+        ExecutableConfigurationUtil.writeConfiguration(configurationData, source);
 
+        // update the index
         synchronized (this) {
+            index.setProperty(configurationData.getId().toString(), source.getName());
             saveIndex();
         }
 
-        log.info("Installed configuration " + configId + " in location " + source.getName());
-        return configId;
+        log.info("Installed configuration " + configurationData.getId() + " in location " + source.getName());
     }
 
     public void uninstall(URI configID) throws NoSuchConfigException, IOException {
@@ -245,20 +241,48 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         delete(configDir);
     }
 
-    public synchronized GBeanData getConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        return loadConfig(getRoot(configID));
+    public synchronized ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        GBeanData config = loadConfig(getRoot(configId));
+
+        ObjectName name;
+        try {
+            name = Configuration.getConfigurationObjectName(configId);
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
+        }
+        config.setName(name);
+
+        try {
+            kernel.loadGBean(config, Configuration.class.getClassLoader());
+        } catch (Exception e) {
+            throw new InvalidConfigException("Unable to register configuration", e);
+        }
+
+        try {
+            kernel.setAttribute(name, "baseURL", getRoot(configId).toURL());
+        } catch (Exception e) {
+            try {
+                kernel.unloadGBean(name);
+            } catch (Exception ignored) {
+                // ignore
+            }
+            throw new InvalidConfigException("Cannot set baseURL", e);
+        }
+        log.info("Loaded Configuration " + name);
+
+        return name;
     }
 
-    public synchronized void updateConfiguration(Configuration configuration) throws NoSuchConfigException, Exception {
-        File root = getRoot(configuration.getID());
+    public synchronized void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
+        File root = getRoot(configurationData.getId());
         File stateFile = new File(root, "META-INF/state.ser");
         try {
             FileOutputStream fos = new FileOutputStream(stateFile);
             ObjectOutputStream oos;
             try {
                 oos = new ObjectOutputStream(fos);
-                GBeanData gbeanData = kernel.getGBeanData(JMXUtil.getObjectName(configuration.getObjectName()));
-                gbeanData.writeExternal(oos);
+                GBeanData configurationGBeanData = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
+                configurationGBeanData.writeExternal(oos);
                 oos.flush();
             } finally {
                 fos.close();
@@ -275,20 +299,33 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         synchronized (this) {
             configs = new ArrayList(index.size());
             for (Iterator i = index.keySet().iterator(); i.hasNext();) {
-                String id = (String) i.next();
-                configs.add(URI.create(id));
+                URI configId = URI.create((String) i.next());
+                try {
+                    ObjectName configName = Configuration.getConfigurationObjectName(configId);
+                    State state;
+                    if (kernel.isLoaded(configName)) {
+                        try {
+                            state = State.fromInt(kernel.getGBeanState(configName));
+                        } catch (Exception e) {
+                            state = null;
+                        }
+                    } else {
+                        // If the configuration is not loaded by the kernel
+                        // and defined by the store, then it is stopped.
+                        state = State.STOPPED;
+                    }
+
+                    GBeanData bean = loadConfig(getRoot(configId));
+                    ConfigurationModuleType type = (ConfigurationModuleType) bean.getAttribute("type");
+
+                    configs.add(new ConfigurationInfo(objectName, configId, state, type));
+                } catch (Exception e) {
+                    // bad configuration in store - ignored for this purpose
+                    log.info("Unable get configuration info for configuration " + configId, e);
+                }
             }
         }
         return configs;
-    }
-
-    public URL getBaseURL(URI configID) throws NoSuchConfigException {
-        File root = getRoot(configID);
-        try {
-            return root.toURL();
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException("Unable to turn config root into URL: " + root);
-        }
     }
 
     public synchronized boolean containsConfiguration(URI configID) {

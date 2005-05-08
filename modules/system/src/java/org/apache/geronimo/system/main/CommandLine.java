@@ -27,9 +27,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.url.GeronimoURLFactory;
 
@@ -74,7 +77,7 @@ public class CommandLine {
     }
 
     private Kernel kernel;
-    private GBeanData config;
+    private GBeanData configuration;
 
     public void invokeMainGBean(List configurations, ObjectName mainGBean, String mainMethod, String[] args) throws Exception {
         startKernel(configurations);
@@ -94,24 +97,30 @@ public class CommandLine {
     }
 
     protected void startKernel(List configurations) throws Exception {
-        // boot the kernel
-        kernel = new Kernel("geronimo");
-        kernel.boot();
-
         // load and start the configuration in this jar
-        ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        config = new GBeanData();
+        configuration = new GBeanData();
         ClassLoader classLoader = CommandLine.class.getClassLoader();
         ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
         try {
-            config.readExternal(ois);
+            configuration.readExternal(ois);
         } finally {
             ois.close();
         }
-        configurationManager.load(config, classLoader.getResource("/"), classLoader);
-        kernel.startRecursiveGBean(config.getName());
+        URI configurationId = (URI) configuration.getAttribute("id");
+        ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
+        configuration.setName(configName);
+
+        // boot the kernel
+        kernel = KernelFactory.newInstance().createKernel("geronimo");
+        kernel.boot();
+
+        // load this configuration into the kernel
+        kernel.loadGBean(configuration, classLoader);
+        kernel.setAttribute(configName, "baseURL", classLoader.getResource("/"));
+        kernel.startRecursiveGBean(configName);
 
         // load and start the configurations
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         for (Iterator i = configurations.iterator(); i.hasNext();) {
             URI configID = (URI) i.next();
             List list = configurationManager.loadRecursive(configID);
@@ -128,7 +137,7 @@ public class CommandLine {
 
     protected void stopKernel() throws GBeanNotFoundException, InternalKernelException {
         // stop this configuration
-        kernel.stopGBean(config.getName());
+        kernel.stopGBean(configuration.getName());
 
         // shutdown the kernel
         kernel.shutdown();

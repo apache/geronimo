@@ -14,28 +14,30 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.kernel.proxy;
+package org.apache.geronimo.kernel.basic;
 
-import java.beans.Introspector;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.beans.Introspector;
 import javax.management.ObjectName;
 
+import net.sf.cglib.asm.Type;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.kernel.Kernel;
-import org.objectweb.asm.Type;
+import org.apache.geronimo.kernel.proxy.DeadProxyException;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Rev: 106345 $ $Date: 2004-11-23 12:37:03 -0800 (Tue, 23 Nov 2004) $

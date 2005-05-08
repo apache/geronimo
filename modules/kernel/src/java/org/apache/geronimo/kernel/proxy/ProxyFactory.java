@@ -24,5 +24,10 @@ import javax.management.ObjectName;
  * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
  */
 public interface ProxyFactory {
+    /**
+     * Creates a proxy to the specified target
+     * @param target the name of the target
+     * @return the proxy
+     */
     Object createProxy(ObjectName target);
 }

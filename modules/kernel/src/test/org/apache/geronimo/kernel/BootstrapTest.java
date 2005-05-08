@@ -20,6 +20,7 @@ package org.apache.geronimo.kernel;
 import java.io.File;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  *
@@ -31,12 +32,12 @@ public class BootstrapTest extends TestCase {
     private File kernelState;
 
     public void testCreate() throws Exception {
-        Kernel kernel = new Kernel("test.kernel");
-        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
+        Kernel kernel = KernelFactory.newInstance().createKernel("test.kernel");
+        assertEquals("No kernel should be registered", null, KernelRegistry.getKernel("test.kernel"));
         kernel.boot();
-        assertEquals("test.kernel kernel should be registered", kernel, Kernel.getKernel("test.kernel"));
+        assertEquals("test.kernel kernel should be registered", kernel, KernelRegistry.getKernel("test.kernel"));
         kernel.shutdown();
-        assertEquals("No kernel should be registered", null, Kernel.getKernel("test.kernel"));
+        assertEquals("No kernel should be registered", null, KernelRegistry.getKernel("test.kernel"));
     }
 
     protected void setUp() throws Exception {

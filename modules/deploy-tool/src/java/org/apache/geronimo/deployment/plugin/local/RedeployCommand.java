@@ -19,7 +19,6 @@ package org.apache.geronimo.deployment.plugin.local;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
-
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
@@ -27,7 +26,10 @@ import javax.management.ObjectName;
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -36,12 +38,12 @@ public class RedeployCommand extends AbstractDeployCommand {
     private static final String[] UNINSTALL_SIG = {URI.class.getName()};
     private final TargetModuleID[] modules;
 
-    public RedeployCommand(KernelMBean kernel, TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
+    public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
         super(CommandType.DISTRIBUTE, kernel, moduleArchive, deploymentPlan, null, null, false);
         this.modules = moduleIDList;
     }
 
-    public RedeployCommand(KernelMBean kernel, TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
+    public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
         super(CommandType.START, kernel, null, null, moduleArchive, deploymentPlan, true);
         this.modules = moduleIDList;
     }
@@ -63,11 +65,15 @@ public class RedeployCommand extends AbstractDeployCommand {
                     copyTo(deploymentPlan, deploymentStream);
                 }
             }
+
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             for (int i = 0; i < modules.length; i++) {
                 TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
                 URI configID = URI.create(module.getModuleID());
-                kernel.stopConfiguration(configID);
+                ObjectName configName = Configuration.getConfigurationObjectName(configID);
+                kernel.stopGBean(configName);
+                configurationManager.unload(configID);
 
                 TargetImpl target = (TargetImpl) module.getTarget();
                 ObjectName storeName = target.getObjectName();

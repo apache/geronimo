@@ -43,9 +43,9 @@ import javax.management.loading.ClassLoaderRepository;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
+import org.apache.geronimo.kernel.Kernel;
  
 /**
  * A MBeanServerImplementation that delegates to a Kernel.

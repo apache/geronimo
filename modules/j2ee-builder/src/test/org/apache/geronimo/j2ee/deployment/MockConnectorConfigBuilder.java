@@ -64,11 +64,10 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         this.cl = cl;
     }
 
-    public String addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl) {
+    public void addGBeans(EARContext earContext, Module connectorModule, ClassLoader cl) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.connectorModule, connectorModule);
         assertEquals(this.cl, cl);
-        return null;
     }
 
     public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {

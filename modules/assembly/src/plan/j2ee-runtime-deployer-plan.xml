@@ -61,6 +61,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>asm/jars/asm-${asm_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-axis-builder-${geronimo_version}.jar</uri>
     </dependency>
 

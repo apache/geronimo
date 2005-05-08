@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.deployment.mavenplugin;
 
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -34,7 +35,7 @@ public class StopServer {
     }
 
     public void execute() throws Exception {
-        Kernel kernel = Kernel.getKernel(getKernelName());
+        Kernel kernel = KernelRegistry.getKernel(getKernelName());
         kernel.shutdown();
     }
 

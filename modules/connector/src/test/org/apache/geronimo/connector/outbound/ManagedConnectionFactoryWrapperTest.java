@@ -45,6 +45,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
@@ -142,7 +143,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
 //    }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel(KERNEL_NAME);
+        kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
         ClassLoader cl = MockConnectionTrackingCoordinator.class.getClassLoader();
         ctcName = ObjectName.getInstance("test:role=ConnectionTrackingCoordinator");
@@ -153,7 +154,6 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         GBeanData cmf = new GBeanData(cmfName, GenericConnectionManager.getGBeanInfo());
         cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         cmf.setAttribute("pooling", new NoPool());
-        cmf.setAttribute("name", "TestCF");
         cmf.setReferencePatterns("ConnectionTracker", Collections.singleton(ctcName));
         kernel.loadGBean(cmf, cl);
 

@@ -730,7 +730,7 @@ public class SMTPTransportGBean extends ProtocolGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SMTPTransportGBean.class, ProtocolGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SMTPTransportGBean.class);
 
         infoFactory.addAttribute("port", Integer.class, true);
         infoFactory.addAttribute("connectionTimeout", Integer.class, true);
@@ -753,6 +753,13 @@ public class SMTPTransportGBean extends ProtocolGBean {
         infoFactory.addAttribute("socketFactoryFallback", Boolean.class, true);
         infoFactory.addAttribute("socketFactoryPort", Integer.class, true);
         infoFactory.addAttribute("mailExtension", String.class, true);
+
+        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("protocol", String.class, false);
+        infoFactory.addAttribute("properties", Properties.class, true);
+        infoFactory.addAttribute("host", String.class, true);
+        infoFactory.addAttribute("user", String.class, true);
+        infoFactory.addOperation("addOverrides", new Class[]{Properties.class});
 
         infoFactory.setConstructor(new String[]{"objectName", "properties", "host", "user",
                                                 "port",

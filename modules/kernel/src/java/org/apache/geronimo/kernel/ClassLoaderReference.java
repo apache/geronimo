@@ -16,15 +16,13 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.io.Serializable;
 import java.io.IOException;
-import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ClassLoaderReference extends ClassLoader implements Serializable {
-
     private ClassLoader classloader;
 
     public ClassLoaderReference(ClassLoader parent) {
@@ -37,7 +35,7 @@ public class ClassLoaderReference extends ClassLoader implements Serializable {
         classloader = objectInputStreamExt.getClassloader();
     }
 
-    private Object readResolve() throws ObjectStreamException {
+    private Object readResolve() {
         return classloader;
     }
 }

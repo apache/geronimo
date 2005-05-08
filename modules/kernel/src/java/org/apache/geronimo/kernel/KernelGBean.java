@@ -16,29 +16,40 @@
  */
 package org.apache.geronimo.kernel;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Rev$ $Date$
  */
-public class KernelGBean {
+public class KernelGBean implements Kernel{
     private final Kernel kernel;
 
     public KernelGBean(Kernel kernel) {
         this.kernel = kernel;
+    }
+
+    public DependencyManager getDependencyManager() {
+        return kernel.getDependencyManager();
+    }
+
+    public LifecycleMonitor getLifecycleMonitor() {
+        return kernel.getLifecycleMonitor();
+    }
+
+    public ProxyManager getProxyManager() {
+        return kernel.getProxyManager();
+    }
+
+    public void boot() throws Exception {
+        throw new UnsupportedOperationException();
     }
 
     public Date getBootTime() {
@@ -69,32 +80,24 @@ public class KernelGBean {
         kernel.unloadGBean(name);
     }
 
+    public int getGBeanState(ObjectName name) throws GBeanNotFoundException {
+        return kernel.getGBeanState(name);
+    }
+
+    public long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException {
+        return kernel.getGBeanStartTime(name);
+    }
+
+    public boolean isGBeanEnabled(ObjectName name) throws GBeanNotFoundException {
+        return kernel.isGBeanEnabled(name);
+    }
+
+    public void setGBeanEnabled(ObjectName name, boolean enabled) throws GBeanNotFoundException {
+        kernel.setGBeanEnabled(name, enabled);
+    }
+
     public boolean isRunning() {
         return kernel.isRunning();
-    }
-
-    public ConfigurationManager getConfigurationManager() {
-        return kernel.getConfigurationManager();
-    }
-
-    public List listConfigurationStores() {
-        return kernel.listConfigurationStores();
-    }
-
-    public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
-        return kernel.listConfigurations(storeName);
-    }
-
-    public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
-        return kernel.startConfiguration(configID);
-    }
-
-    public void stopConfiguration(URI configID) throws NoSuchConfigException {
-        kernel.stopConfiguration(configID);
-    }
-
-    public int getConfigurationState(URI configId) throws NoSuchConfigException {
-        return kernel.getConfigurationState(configId);
     }
 
     public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException, InternalKernelException {

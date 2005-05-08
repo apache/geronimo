@@ -108,7 +108,7 @@ public class MockGBean implements MockEndpoint {
     }
 
     public String getObjectName() {
-        throw new RuntimeException("this should never be called");
+        return objectName;
     }
 
     public ClassLoader getActualClassLoader() {
@@ -116,10 +116,10 @@ public class MockGBean implements MockEndpoint {
     }
 
     public ClassLoader getClassLoader() {
-        throw new RuntimeException("this should never be called");
+        return classLoader;
     }
 
-    public GBeanLifecycleController getGBeanLifecycleController() {
+    public GBeanLifecycleController getGbeanLifecycleController() {
         return gbeanLifecycleController;
     }
 
@@ -128,7 +128,7 @@ public class MockGBean implements MockEndpoint {
     }
 
     public Kernel getKernel() {
-        throw new RuntimeException("this should never be called");
+        return kernel;
     }
 
     public void setKernel(Kernel kernel) {
@@ -148,13 +148,6 @@ public class MockGBean implements MockEndpoint {
 
     public int getFinalInt() {
         return finalInt;
-    }
-
-    /**
-     * Note the wrong return type, instead of int type.
-     */
-    public String getAnotherFinalInt() {
-        return null;
     }
 
     /**

@@ -44,7 +44,7 @@ public class GBeanTest extends TestCase {
         gbean.setAttribute("finalInt", new Integer(123));
         kernel.loadGBean(gbean, myCl);
         kernel.startGBean(name);
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(name, "state"));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(name));
         assertEquals("Hello", kernel.invoke(name, "doSomething", new Object[]{"Hello"}, new String[]{String.class.getName()}));
 
         assertEquals(name.getCanonicalName(), kernel.getAttribute(name, "objectName"));
@@ -86,7 +86,7 @@ public class GBeanTest extends TestCase {
     protected void setUp() throws Exception {
         name = new ObjectName("test:name=MyMockGBean");
         name2 = new ObjectName("test:name=MyMockGBean2");
-        kernel = new Kernel("test");
+        kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
     }
 

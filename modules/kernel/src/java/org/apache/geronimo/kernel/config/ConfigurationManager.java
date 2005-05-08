@@ -18,18 +18,18 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanData;
-
 /**
- * 
- * 
  * @version $Rev$ $Date$
  */
 public interface ConfigurationManager {
+    /**
+     * Is the specified configuration loaded into the kernel?
+     * @param configID the name of the configuration
+     * @return true if the configuration has been loaded; false otherwise
+     */
     boolean isLoaded(URI configID);
 
     /**
@@ -46,23 +46,30 @@ public interface ConfigurationManager {
      */
     List listConfigurations(ObjectName store) throws NoSuchStoreException;
 
+    /**
+     * Load the specified configuration into the kernel.
+     * @param configID the id of the configuration
+     * @return the name of the new configuration object mounted into the kernel
+     * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
+     * @throws IOException if there is a problem loading te configuration from the store
+     * @throws InvalidConfigException if the configuration is corrupt
+     */
     ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
-     * Load the supplied Configuration into the Kernel and override the default JMX name.
-     * This method should be used with discretion as it is possible to create
-     * Configurations that cannot be located by management or monitoring tools.
-     *
-     * @param config the GBeanData representing the Configuration
-     * @param rootURL the URL to be used to resolve relative paths in the configuration
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if the Configuration is not valid
+     * Load the specified configuration and all parent configurations into the kernel.
+     * @param configID the id of the configuration
+     * @return a list of names of configurations loaded into the kernel
+     * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
+     * @throws IOException if there is a problem loading te configuration from the store
+     * @throws InvalidConfigException if the configuration is corrupt
      */
-    ObjectName load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException;
-
     List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
+    /**
+     * Unloads the specified configuration from the kernel
+     * @param configID the name fo the configuration to remove
+     * @throws NoSuchConfigException if the configuration is now loaded into the kernel
+     */
     void unload(URI configID) throws NoSuchConfigException;
-
-    void unload(ObjectName configName) throws NoSuchConfigException;
-
 }

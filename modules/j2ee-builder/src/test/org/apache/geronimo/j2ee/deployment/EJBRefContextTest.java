@@ -30,7 +30,6 @@ import org.apache.geronimo.common.UnknownEJBRefException;
 import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.apache.geronimo.kernel.Kernel;
 
 /**

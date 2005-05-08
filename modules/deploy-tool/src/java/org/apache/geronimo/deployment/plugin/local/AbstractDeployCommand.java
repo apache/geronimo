@@ -30,7 +30,7 @@ import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
@@ -40,7 +40,7 @@ import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 public abstract class AbstractDeployCommand extends CommandSupport {
     private final static String DEPLOYER_NAME = "*:name=Deployer,j2eeType=Deployer,*";
 
-    protected final KernelMBean kernel;
+    protected final Kernel kernel;
     private static final String[] DEPLOY_SIG = {File.class.getName(), File.class.getName()};
     protected final boolean spool;
     protected File moduleArchive;
@@ -48,7 +48,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     protected InputStream moduleStream;
     protected InputStream deploymentStream;
 
-    public AbstractDeployCommand(CommandType command, KernelMBean kernel, File moduleArchive, File deploymentPlan, InputStream moduleStream, InputStream deploymentStream, boolean spool) {
+    public AbstractDeployCommand(CommandType command, Kernel kernel, File moduleArchive, File deploymentPlan, InputStream moduleStream, InputStream deploymentStream, boolean spool) {
         super(command);
         this.kernel = kernel;
         this.moduleArchive = moduleArchive;

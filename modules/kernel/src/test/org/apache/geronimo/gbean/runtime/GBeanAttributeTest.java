@@ -22,9 +22,10 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
@@ -345,7 +346,7 @@ public class GBeanAttributeTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel("test");
+        kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
         gbeanInstance = new GBeanInstance(new GBeanData(new ObjectName("test:MockGBean=normal"), MockGBean.getGBeanInfo()),

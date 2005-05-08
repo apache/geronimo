@@ -46,8 +46,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -61,8 +61,8 @@ import org.apache.geronimo.kernel.repository.Repository;
  * <p/>
  * The persistent attributes of the Configuration are:
  * <ul>
- * <li>its unique configID used to identify this specific config</li>
- * <li>the configID of a parent Configuration on which this one is dependent</li>
+ * <li>its unique configId used to identify this specific config</li>
+ * <li>the configId of a parent Configuration on which this one is dependent</li>
  * <li>a List<URI> of code locations (which may be absolute or relative to a baseURL)</li>
  * <li>a byte[] holding the state of the GBeans instances in Serialized form</li>
  * </ul>
@@ -84,8 +84,8 @@ import org.apache.geronimo.kernel.repository.Repository;
 public class Configuration implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
-    public static ObjectName getConfigurationObjectName(URI configID) throws MalformedObjectNameException {
-        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configID.toString()));
+    public static ObjectName getConfigurationObjectName(URI configId) throws MalformedObjectNameException {
+        return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toString()));
     }
 
     /**
@@ -112,7 +112,7 @@ public class Configuration implements GBeanLifecycle {
     /**
      * The uri of the parent of this configuration.  May be null.
      */
-    private final URI parentID;
+    private final URI parentId;
 
     /**
      * The configuration store from which this configuration was loaded.  May be null if this configuration
@@ -121,6 +121,8 @@ public class Configuration implements GBeanLifecycle {
      */
     private final ConfigurationStore configurationStore;
 
+    private final List dependencies;
+    private final List classPath;
     private final String domain;
     private final String server;
 
@@ -150,19 +152,21 @@ public class Configuration implements GBeanLifecycle {
         objectName = null;
         id = null;
         moduleType = null;
-        parentID = null;
+        parentId = null;
         configurationStore = null;
         domain = null;
         server = null;
         objectNames = null;
         configurationClassLoader = null;
+        dependencies = null;
+        classPath = null;
     }
 
     /**
      * Constructor that can be used to create an offline Configuration, typically
      * only used publically during the deployment process for initial configuration.
      *
-     * @param id           the unique ID of this Configuration
+     * @param id           the unique id of this Configuration
      * @param moduleType   the module type identifier
      * @param parent       the parent Configuration; may be null
      * @param classPath    a List<URI> of locations that define the codebase for this Configuration
@@ -175,7 +179,7 @@ public class Configuration implements GBeanLifecycle {
             URI id,
             ConfigurationModuleType moduleType,
             URL baseURL,
-            URI parentID,
+            URI parentId,
             ConfigurationParent parent,
             String domain,
             String server,
@@ -190,8 +194,18 @@ public class Configuration implements GBeanLifecycle {
         this.objectName = JMXUtil.getObjectName(objectName);
         this.id = id;
         this.moduleType = moduleType;
-        this.parentID = parentID;
+        this.parentId = parentId;
         this.gbeanState = gbeanState;
+        if (classPath != null) {
+            this.classPath = classPath;
+        } else {
+            this.classPath = Collections.EMPTY_LIST;
+        }
+        if (dependencies != null) {
+            this.dependencies = dependencies;
+        } else {
+            this.dependencies = Collections.EMPTY_LIST;
+        }
 
         this.configurationStore = configurationStore;
 
@@ -341,7 +355,16 @@ public class Configuration implements GBeanLifecycle {
         }
 
         if (configurationStore != null) {
-            configurationStore.updateConfiguration(this);
+            ConfigurationData configurationData = new ConfigurationData();
+            configurationData.setId(id);
+            configurationData.setModuleType(moduleType);
+            configurationData.setDomain(domain);
+            configurationData.setServer(server);
+            configurationData.setParentId(parentId);
+            configurationData.setGBeans(Arrays.asList(gbeans));
+            configurationData.setDependencies(dependencies);
+            configurationData.setClassPath(classPath);
+            configurationStore.updateConfiguration(configurationData);
         }
     }
 
@@ -349,20 +372,20 @@ public class Configuration implements GBeanLifecycle {
     }
 
     /**
-     * Return the unique ID of this Configuration's parent
+     * Return the unique id of this Configuration's parent
      *
-     * @return the unique ID of the parent, or null if it does not have one
+     * @return the unique id of the parent, or null if it does not have one
      */
-    public URI getParentID() {
-        return parentID;
+    public URI getParentId() {
+        return parentId;
     }
 
     /**
-     * Return the unique ID
+     * Return the unique Id
      *
-     * @return the unique ID
+     * @return the unique Id
      */
-    public URI getID() {
+    public URI getId() {
         return id;
     }
 
@@ -422,6 +445,10 @@ public class Configuration implements GBeanLifecycle {
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
      */
     public static byte[] storeGBeans(GBeanData[] gbeans) throws InvalidConfigException {
+        return storeGBeans(Arrays.asList(gbeans));
+    }
+
+    public static byte[] storeGBeans(List gbeans) throws InvalidConfigException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos;
         try {
@@ -429,8 +456,8 @@ public class Configuration implements GBeanLifecycle {
         } catch (IOException e) {
             throw (AssertionError) new AssertionError("Unable to initialize ObjectOutputStream").initCause(e);
         }
-        for (int i = 0; i < gbeans.length; i++) {
-            GBeanData gbeanData = gbeans[i];
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+            GBeanData gbeanData = (GBeanData) iterator.next();
             try {
                 gbeanData.writeExternal(oos);
             } catch (Exception e) {
@@ -451,9 +478,9 @@ public class Configuration implements GBeanLifecycle {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Configuration.class);//does not use jsr-77 naming
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("ID", URI.class, true);
+        infoFactory.addAttribute("id", URI.class, true);
         infoFactory.addAttribute("type", ConfigurationModuleType.class, true);
-        infoFactory.addAttribute("parentID", URI.class, true);
+        infoFactory.addAttribute("parentId", URI.class, true);
         infoFactory.addAttribute("domain", String.class, true);
         infoFactory.addAttribute("server", String.class, true);
         infoFactory.addAttribute("classPath", List.class, true);
@@ -469,10 +496,10 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.setConstructor(new String[]{
             "kernel",
             "objectName",
-            "ID",
+            "id",
             "type",
             "baseURL",
-            "parentID",
+            "parentId",
             "Parent",
             "domain",
             "server",

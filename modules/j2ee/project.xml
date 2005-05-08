@@ -68,7 +68,7 @@
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
+            <artifactId>cglib-nodep</artifactId>
             <version>${cglib_version}</version>
             <url>http://cglib.sf.net/</url>
         </dependency>

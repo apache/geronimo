@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -52,6 +50,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
@@ -271,11 +270,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return gerApplication;
     }
 
-    public List buildConfiguration(Object plan, JarFile earFile, File outfile) throws IOException, DeploymentException {
+    public ConfigurationData buildConfiguration(Object plan, JarFile earFile, File outfile) throws IOException, DeploymentException {
+        assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         try {
-            List moduleIDs = new LinkedList();
-
             // Create the output ear context
             EARContext earContext = null;
             ConfigurationModuleType applicationType = applicationInfo.getType();
@@ -376,12 +374,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             // each module can now add it's GBeans
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                String moduleID = getBuilder(module).addGBeans(earContext, module, cl);
-
-                // this is a bit weird and should be rethougth but it works
-                if (moduleID != null) {
-                    moduleIDs.add(moduleID);
-                }
+                getBuilder(module).addGBeans(earContext, module, cl);
             }
 
             //add the JACC gbean if there is a principal-role mapping
@@ -390,7 +383,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 earContext.addGBean(jaccBeanData);
             }
             earContext.close();
-            return moduleIDs;
+            return earContext.getConfigurationData();
         } finally {
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {

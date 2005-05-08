@@ -27,6 +27,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.j2ee.management.impl.JVMImpl;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -46,7 +47,7 @@ public abstract class Abstract77Test extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        kernel = new Kernel(DOMAIN);
+        kernel = KernelFactory.newInstance().createKernel(DOMAIN);
         kernel.boot();
 
         ClassLoader classLoader = getClass().getClassLoader();

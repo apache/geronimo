@@ -18,11 +18,13 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
-
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.jmx.KernelMBean;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
 /**
  *
@@ -30,10 +32,10 @@ import org.apache.geronimo.kernel.jmx.KernelMBean;
  * @version $Rev$ $Date$
  */
 public class StartCommand extends CommandSupport {
-    private final KernelMBean kernel;
+    private final Kernel kernel;
     private final TargetModuleID[] modules;
 
-    public StartCommand(KernelMBean kernel, TargetModuleID modules[]) {
+    public StartCommand(Kernel kernel, TargetModuleID modules[]) {
         super(CommandType.START);
         this.kernel = kernel;
         this.modules = modules;
@@ -41,11 +43,14 @@ public class StartCommand extends CommandSupport {
 
     public void run() {
         try {
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             for (int i = 0; i < modules.length; i++) {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                kernel.startConfiguration(moduleID);
+                ObjectName configName = configurationManager.load(moduleID);
+                kernel.startRecursiveGBean(configName);
+
                 addModule(module);
             }
             complete("Completed");

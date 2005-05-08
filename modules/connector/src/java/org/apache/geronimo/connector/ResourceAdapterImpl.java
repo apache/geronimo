@@ -16,20 +16,11 @@
  */
 package org.apache.geronimo.connector;
 
-import java.util.Map;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.management.J2EEServer;
-import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev:  $ $Date:  $

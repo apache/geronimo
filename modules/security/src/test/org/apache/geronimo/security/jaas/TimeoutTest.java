@@ -28,7 +28,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
@@ -51,7 +51,7 @@ public class TimeoutTest extends AbstractTest {
     protected ObjectName clientCE;
 
     public void setUp() throws Exception {
-        kernel = new Kernel("test.kernel");
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
         GBeanData gbean;

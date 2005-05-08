@@ -23,8 +23,8 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -38,22 +38,27 @@ public class ConfigTest extends TestCase {
 
     public void testOnlineConfig() throws Exception {
         URI id = new URI("test");
+        ObjectName configName = Configuration.getConfigurationObjectName(id);
+
+        // create the config gbean data
         GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-        config.setAttribute("ID", id);
+        config.setAttribute("id", id);
         config.setReferencePatterns("Parent", null);
         config.setAttribute("classPath", Collections.EMPTY_LIST);
         config.setAttribute("gBeanState", state);
         config.setAttribute("dependencies", Collections.EMPTY_LIST);
-        ConfigurationManager configurationManager = kernel.getConfigurationManager();
-        ObjectName configName = configurationManager.load(config, null, getClass().getClassLoader());
-        kernel.invoke(configName, "startRecursive", null, null);
+        config.setName(configName);
 
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(configName, "state"));
+        // load and start the config
+        kernel.loadGBean(config, this.getClass().getClassLoader());
+        kernel.startRecursiveGBean(configName);
+
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
         assertNotNull(kernel.getAttribute(configName, "configurationClassLoader"));
 
-        assertEquals(new Integer(State.RUNNING_INDEX), kernel.getAttribute(gbeanName1, "state"));
-        Object state = kernel.getAttribute(gbeanName2, "state");
-        assertEquals(new Integer(State.RUNNING_INDEX), state);
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName1));
+        int state = kernel.getGBeanState(gbeanName2);
+        assertEquals(State.RUNNING_INDEX, state);
         assertEquals(new Integer(1), kernel.getAttribute(gbeanName1, "finalInt"));
         assertEquals("1234", kernel.getAttribute(gbeanName1, "value"));
         assertEquals(new Integer(3), kernel.getAttribute(gbeanName2, "finalInt"));
@@ -74,21 +79,26 @@ public class ConfigTest extends TestCase {
         assertEquals(new Integer(99), kernel.getAttribute(gbeanName2, "endpointMutableInt"));
         assertEquals(new Integer(99), kernel.getAttribute(gbeanName1, "mutableInt"));
 
-        kernel.invoke(configName, "stop", null, null);
+        kernel.stopGBean(configName);
         try {
             kernel.getAttribute(gbeanName1, "value");
             fail();
         } catch (GBeanNotFoundException e) {
             // ok
         }
-        assertEquals(new Integer(State.STOPPED.toInt()), kernel.getAttribute(configName, "state"));
-        configurationManager.unload(configName);
+        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(configName));
+        kernel.unloadGBean(configName);
         assertFalse(kernel.isLoaded(configName));
     }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel("test");
+        kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
+
+        ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
+        GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
+        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+        kernel.startGBean(configurationManagerName);
 
         gbeanName1 = new ObjectName("geronimo.test:name=MyMockGMBean1");
         GBeanData mockBean1 = new GBeanData(gbeanName1, MockGBean.getGBeanInfo());

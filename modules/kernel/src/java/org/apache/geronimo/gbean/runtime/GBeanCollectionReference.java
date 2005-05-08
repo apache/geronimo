@@ -21,8 +21,8 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 

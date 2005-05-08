@@ -23,8 +23,9 @@ import java.lang.reflect.Method;
 import javax.management.ObjectName;
 
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.MockGBean;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
 
 /**
@@ -94,7 +95,7 @@ public class Speed {
         printResults("FastClass", end, start, iterations);
 
         // start a kernel
-        Kernel kernel = new Kernel("speed");
+        Kernel kernel = KernelFactory.newInstance().createKernel("speed");
         kernel.boot();
         ObjectName objectName = new ObjectName("speed:type=MockGBean");
         GBeanData mockGBean = new GBeanData(objectName, MockGBean.getGBeanInfo());
@@ -224,7 +225,7 @@ public class Speed {
         printResults("FastClass", end, start, iterations);
 
         // start a kernel
-        Kernel kernel = new Kernel("speed");
+        Kernel kernel = KernelFactory.newInstance().createKernel("speed");
         kernel.boot();
         ObjectName objectName = new ObjectName("speed:type=MockGBean");
         GBeanData mockGBean = new GBeanData(objectName, MockGBean.getGBeanInfo());

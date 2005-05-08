@@ -67,7 +67,7 @@ public class GBeanInfoHelper {
 
     public String getState() {
         try {
-            return State.toString(((Integer)kernel.getAttribute(objectName, "state")).intValue());
+            return State.toString(kernel.getGBeanState(objectName));
         } catch (Exception e) {
             return ("Could not get state: " + e.getMessage());
         }

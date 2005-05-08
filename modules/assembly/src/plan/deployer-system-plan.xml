@@ -38,6 +38,10 @@ Configuration for the system layer of the Geronimo deployer
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 
+    <!-- Configuration Manager service -->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
+        <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
+    </gbean>
 
     <!-- Repository -->
     <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">

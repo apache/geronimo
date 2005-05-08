@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,561 +14,260 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.kernel;
 
-import java.io.IOException;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.net.URI;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanName;
-import org.apache.geronimo.gbean.runtime.GBeanInstance;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.jmx.JMXLifecycleBroadcaster;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.lifecycle.BasicLifecycleMonitor;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
-import org.apache.geronimo.kernel.lifecycle.LifecycleMonitorFlyweight;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.kernel.registry.BasicGBeanRegistry;
-import org.apache.geronimo.kernel.registry.GBeanRegistry;
-
 
 /**
- * The core of a Geronimo instance.
- * A Kernel is responsible for managing the Configurations that comprise a
- * Geronimo system and exposing them using JMX. Each Kernel is associated
- * with an MBeanServer that is used to register the Configurations themselves
- * and the MBeans they define.
- * <p/>
- * Dependencies between MBeans are handled by a dedicated DependencyManager
- * that is responsible for tracking those dependencies and ensuring that the
- * dependent objects follow the appropriate lifecycle and receive appropriate
- * notifications.
- * <p/>
- * The Kernel also provides a ConfigurationStore which is used to stage
- * installed Configurations (providing a local filesystem based classpath) and
- * used hold the persistent state of each Configuration. This allows
- * Configurations to restart in the event of system failure.
- * 
- * TODO: Describe the order of method invocation (e.g. if loadGbean may be before boot)
- *
  * @version $Rev$ $Date$
  */
-public class Kernel {
-
+public interface Kernel {
     /**
      * The JMX name used by a Kernel to register itself when it boots.
-     * todo drop "geronimo.boot:" from this name so the kernel shows up in the kernel default domain
      */
-    public static final ObjectName KERNEL = JMXUtil.getObjectName("geronimo.boot:role=Kernel");
+    ObjectName KERNEL = JMXUtil.getObjectName(":role=Kernel");
 
     /**
-     * Index of kernel (Weak) references by kernel name
-     */
-    private static final Map kernels = new HashMap();
-
-    /**
-     * ReferenceQueue that watches the weak references to our kernels
-     */
-    private static final ReferenceQueue queue = new ReferenceQueue();
-
-    /**
-     * Helper objects for invoke and getAttribute
-     */
-    private static final String[] NO_TYPES = new String[0];
-    private static final Object[] NO_ARGS = new Object[0];
-
-    /**
-     * Name of the configuration manager
-     * todo drop "geronimo.boot:" from this name so the configuration manger shows up in the kernel default domain
-     */
-    private static final ObjectName CONFIGURATION_MANAGER_NAME = JMXUtil.getObjectName("geronimo.boot:role=ConfigurationManager");
-
-    /**
-     * Te pattern we use to find all the configuation stores registered with the kernel
-     */
-    private static final ObjectName CONFIGURATION_STORE_PATTERN = JMXUtil.getObjectName("*:j2eeType=ConfigurationStore,*");
-
-    /**
-     * Name of this kernel
-     */
-    private final String kernelName;
-
-    /**
-     * The log
-     */
-    private Log log;
-
-    /**
-     * Is this kernel running?
-     */
-    private boolean running;
-
-    /**
-     * The timestamp when the kernel was started
-     */
-    private Date bootTime;
-
-    /**
-     * The gbean registry
-     */
-    private final GBeanRegistry gbeanRegistry;
-
-    /**
-     * Listeners for when the kernel shutdown
-     */
-    private LinkedList shutdownHooks = new LinkedList();
-
-    /**
-     * This manager is used by the kernel to manage dependencies between gbeans
-     */
-    private DependencyManager dependencyManager;
-
-    /**
-     * The kernel uses this manager to load configurations which are collections of GBeans
-     */
-    private ConfigurationManager configurationManager;
-
-    /**
-     * The GBeanMbean that wraps the configuration manager
-     */
-    private GBeanInstance configurationManagerInstance;
-
-    /**
-     * Monitors the lifecycle of all gbeans.
-     */
-    private BasicLifecycleMonitor lifecycleMonitor;
-    private LifecycleMonitor publicLifecycleMonitor;
-
-    /**
-     * This factory gbean proxies, and tracks all proxies in the system
-     */
-    private ProxyManager proxyManager;
-
-    /**
-     * No-arg constructor allowing this class to be used as a GBean reference.
-     */
-    protected Kernel() {
-        kernelName = null;
-        gbeanRegistry = null;
-    }
-
-    /**
-     * Construct a Kernel with the specified name and GBeanRegistry implementation.
+     * Get the name of this kernel
      *
-     * @param kernelName the name of the kernel
-     * @param gbeanRegistry the GBeanRegistry implementation to use for this contianer
+     * @return the name of this kernel
      */
-    public Kernel(String kernelName, GBeanRegistry gbeanRegistry) {
-        if (kernelName.indexOf(':') >= 0 || kernelName.indexOf('*') >= 0 || kernelName.indexOf('?') >= 0) {
-            throw new IllegalArgumentException("Kernel name may not contain a ':', '*' or '?' character");
-        }
-        this.kernelName = kernelName;
-        this.gbeanRegistry = gbeanRegistry;
-    }
+    String getKernelName();
 
     /**
-     * Construct a Kernel with the specified name and an unspecified GBeanRegistry implementation.
+     * Gets the dependency manager kernel service
+     * @return the dependency manager or null if the kernel is not running
+     */
+    DependencyManager getDependencyManager();
+
+    /**
+     * Gets the lifecycle monitor kernel service
+     * @return the lifecycle monitor or null if the kernel is not running
+     */
+    LifecycleMonitor getLifecycleMonitor();
+
+    /**
+     * Gets the proxy manager kernel service
+     * @return the proxy manager or null if the kernel is not running
+     */
+    ProxyManager getProxyManager();
+
+    /**
+     * Load a specific GBean into this kernel.
+     * This is intended for applications that are embedding the kernel.
      *
-     * @param kernelName the name of the kernel
+     * @param gbeanData the GBean to load
+     * @param classLoader the class loader to use to load the gbean
+     * @throws org.apache.geronimo.kernel.GBeanAlreadyExistsException if the name is already used
+     * @throws org.apache.geronimo.kernel.InternalKernelException if there is a problem during registration
      */
-    public Kernel(String kernelName) {
-        this(kernelName, new BasicGBeanRegistry());
-    }
+    void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException;
 
-    public String getKernelName() {
-        return kernelName;
-    }
-
-    public static Set getKernelNames() {
-        synchronized(kernels) {
-            return Collections.unmodifiableSet(kernels.keySet());
-        }
-    }
-    
     /**
-     * Get a particular kernel indexed by a name
+     * Is there a GBean registered with the kernel under the specified name?
+     * @param name the name to check
+     * @return true if there is a gbean registered under the specified name; false otherwise
+     */
+    boolean isLoaded(ObjectName name);
+
+    /**
+     * Start a specific GBean.
      *
-     * @param name the name of the kernel to be obtained
-     * @return the kernel that was registered with that name
+     * @param name the GBean to start
+     * @throws org.apache.geronimo.kernel.GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
+     * @throws IllegalStateException If the gbean is disabled
      */
-    public static Kernel getKernel(String name) {
-        if (name == null) {
-            return getSingleKernel();
-        }
-        synchronized (kernels) {
-            processQueue();
-            KernelReference ref = (KernelReference) kernels.get(name);
-            if (ref != null) {
-                return (Kernel) ref.get();
-            }
-        }
-        return null;
-    }
+    void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
     /**
-     * Obtain the single kernel that's registered.
-     * <p/>
-     * <p>This method assumes that there is only one kernel registered and will throw an
-     * <code>IllegalStateException</code> if more than one has been registered.
+     * Start a specific GBean and its children.
      *
-     * @return the single kernel that's registered
-     * @throws IllegalStateException if more than one
+     * @param name the GBean to start
+     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
+     * @throws IllegalStateException If the gbean is disabled
      */
-    public static Kernel getSingleKernel() {
-        synchronized (kernels) {
-            processQueue();
-
-            int size = kernels.size();
-            if (size > 1) throw new IllegalStateException("More than one kernel has been registered.");
-            if (size < 1) return null;
-
-            Kernel result = (Kernel) ((KernelReference) kernels.values().iterator().next()).get();
-            if (result == null) {
-                kernels.clear();
-            }
-            return result;
-        }
-    }
+    void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
     /**
-     * @deprecated this will be removed as when we add generalized dependencies to gbeans... the only current user is Configuration
-     */
-    public DependencyManager getDependencyManager() {
-        return dependencyManager;
-    }
-
-    public ConfigurationManager getConfigurationManager() {
-        return configurationManager;
-    }
-
-    /**
-     * Gets the lifecycle monitor.
-     * @deprecated don't use this yet... it may change or go away
-     */
-    public LifecycleMonitor getLifecycleMonitor() {
-        return publicLifecycleMonitor;
-    }
-
-    /**
-     * Gets the proxy manager.
-     * @deprecated don't use this yet... it may change or go away
-     */
-    public ProxyManager getProxyManager() {
-        return proxyManager;
-    }
-
-    public Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(objectName));
-        return gbeanInstance.getAttribute(attributeName);
-    }
-
-    public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(objectName));
-        gbeanInstance.setAttribute(attributeName, attributeValue);
-    }
-
-    public Object invoke(ObjectName objectName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
-        return invoke(objectName, methodName, NO_ARGS, NO_TYPES);
-    }
-
-    public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(objectName));
-        return gbeanInstance.invoke(methodName, args, types);
-    }
-
-    public boolean isLoaded(ObjectName name) {
-        return gbeanRegistry.isRegistered(new GBeanName(name));
-    }
-
-    public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(name));
-        return gbeanInstance.getGBeanInfo();
-    }
-
-    public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(name));
-        return gbeanInstance.getGBeanData();
-    }
-
-    public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException {
-        ObjectName objectName = gbeanData.getName();
-        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleMonitor.createLifecycleBroadcaster(objectName), classLoader);
-        gbeanRegistry.register(gbeanInstance);
-    }
-
-    /**
-     * @deprecated use loadGBean(GBeanData gbeanData, ClassLoader classLoader)
-     */
-    public void loadGBean(ObjectName name, org.apache.geronimo.gbean.jmx.GBeanMBean gbean) throws GBeanAlreadyExistsException, InternalKernelException {
-        GBeanData gbeanData = gbean.getGBeanData();
-        gbeanData.setName(name);
-        ClassLoader classLoader = gbean.getClassLoader();
-        loadGBean(gbeanData, classLoader);
-    }
-
-    public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(name));
-        gbeanInstance.start();
-    }
-
-    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(name));
-        gbeanInstance.startRecursive();
-    }
-
-    public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(name));
-        gbeanInstance.stop();
-    }
-
-    public void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
-        GBeanName gbeanName = new GBeanName(name);
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(gbeanName);
-        gbeanInstance.die();
-        gbeanRegistry.unregister(gbeanName);
-    }
-
-    public Set listGBeans(ObjectName pattern) {
-        String domain = (pattern == null || pattern.isDomainPattern()) ? null : pattern.getDomain();
-        Map props = pattern == null ? null : pattern.getKeyPropertyList();
-        Set gbeans = gbeanRegistry.listGBeans(domain, props);
-        Set result = new HashSet(gbeans.size());
-        for (Iterator i = gbeans.iterator(); i.hasNext();) {
-            GBeanInstance instance = (GBeanInstance) i.next();
-            result.add(instance.getObjectNameObject());
-        }
-        return result;
-    }
-
-    public Set listGBeans(Set patterns) {
-        Set gbeans = new HashSet();
-        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
-            ObjectName pattern = (ObjectName) iterator.next();
-            gbeans.addAll(listGBeans(pattern));
-        }
-        return gbeans;
-    }
-
-    public List listConfigurationStores() {
-        return getConfigurationManager().listStores();
-    }
-
-    public List listConfigurations(ObjectName storeName) throws NoSuchStoreException {
-        return getConfigurationManager().listConfigurations(storeName);
-    }
-
-    public ObjectName startConfiguration(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException, InternalKernelException {
-        ObjectName configName = getConfigurationManager().load(configID);
-		try {
-		    startRecursiveGBean(configName);
-		} catch (GBeanNotFoundException e) {
-		    // should not happen as we just loaded it
-		    throw new InvalidConfigException(e);
-		}
-		return configName;
-    }
-
-    public void stopConfiguration(URI configID) throws NoSuchConfigException, InternalKernelException {
-        ConfigurationManager configurationManager = getConfigurationManager();
-        try {
-            ObjectName configName = Configuration.getConfigurationObjectName(configID);
-            stopGBean(configName);
-        } catch (MalformedObjectNameException e) {
-            throw new NoSuchConfigException(e);
-        } catch (GBeanNotFoundException e) {
-            throw new NoSuchConfigException(e);
-        }
-        configurationManager.unload(configID);
-    }
-
-    public int getConfigurationState(URI configID) throws NoSuchConfigException, InternalKernelException {
-        GBeanInstance gbeanInstance = null;
-        try {
-            ObjectName configName = Configuration.getConfigurationObjectName(configID);
-            gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(configName));
-        } catch (MalformedObjectNameException e) {
-            throw new NoSuchConfigException(e);
-        } catch (GBeanNotFoundException e) {
-            throw new NoSuchConfigException(e);
-        }
-        return gbeanInstance.getState();
-    }
-
-    /**
-     * Boot this Kernel, triggering the instantiation of the MBeanServer and DependencyManager,
-     * and the registration of ConfigurationStore
+     * Stop a specific GBean.
      *
-     * @throws java.lang.Exception if the boot fails
+     * @param name the GBean to stop
+     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is not state manageable or if there is a general error
+     * @throws IllegalStateException If the gbean is disabled
      */
-    public void boot() throws Exception {
-        if (running) {
-            return;
-        }
-        bootTime = new Date();
-        log = LogFactory.getLog(Kernel.class.getName());
-        log.info("Starting boot");
-
-        // todo cleanup when boot fails
-        synchronized (kernels) {
-            if (kernels.containsKey(kernelName)) {
-                throw new IllegalStateException("A kernel is already running this kernel name: " + kernelName);
-            }
-            kernels.put(kernelName, new KernelReference(kernelName, this));
-        }
-
-        gbeanRegistry.start(this);
-
-        lifecycleMonitor = new BasicLifecycleMonitor(this);
-        publicLifecycleMonitor = new LifecycleMonitorFlyweight(lifecycleMonitor);
-        dependencyManager = new DependencyManager(publicLifecycleMonitor);
-        proxyManager = new ProxyManager(this);
-
-        // set up the data for the new configuration manager instance
-        GBeanData configurationData = new GBeanData(CONFIGURATION_MANAGER_NAME, ConfigurationManagerImpl.GBEAN_INFO);
-        configurationData.setReferencePatterns("Stores", Collections.singleton(CONFIGURATION_STORE_PATTERN));
-
-        // create the connfiguration manager instance
-        JMXLifecycleBroadcaster lifecycleBroadcaster = new JMXLifecycleBroadcaster(CONFIGURATION_MANAGER_NAME, lifecycleMonitor.createLifecycleBroadcaster(CONFIGURATION_MANAGER_NAME));
-        configurationManagerInstance = new GBeanInstance(configurationData, this, dependencyManager, lifecycleBroadcaster, getClass().getClassLoader());
-        configurationManagerInstance.start();
-        configurationManager = (ConfigurationManager) configurationManagerInstance.getTarget();
-        assert configurationManager != null: "ConfigurationManager failed to start";
-        gbeanRegistry.register(configurationManagerInstance);
-
-        // load and start the kernel gbean
-        GBeanData kernelGBeanData = new GBeanData(KERNEL, KernelGBean.GBEAN_INFO);
-        loadGBean(kernelGBeanData, getClass().getClassLoader());
-        startGBean(KERNEL);
-
-        running = true;
-        log.info("Booted");
-    }
-
-    public Date getBootTime() {
-        return bootTime;
-    }
-
-    public void registerShutdownHook(Runnable hook) {
-        assert hook != null : "Shutdown hook was null";
-        synchronized (shutdownHooks) {
-            shutdownHooks.add(hook);
-        }
-    }
-
-    public void unregisterShutdownHook(Runnable hook) {
-        synchronized (shutdownHooks) {
-            shutdownHooks.remove(hook);
-        }
-    }
+    void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
     /**
-     * Shut down this kernel instance, unregistering the MBeans and releasing
-     * the MBeanServer.
+     * Unload a specific GBean.
+     * This is intended for applications that are embedding the kernel.
+     *
+     * @param name the name of the GBean to unregister
+     * @throws GBeanNotFoundException if the GBean could not be found
+     * @throws InternalKernelException if there GBean is a problem while unloading the GBean
      */
-    public void shutdown() {
-        if (!running) {
-            return;
-        }
-        running = false;
-        log.info("Starting kernel shutdown");
+    void unloadGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException;
 
-        notifyShutdownHooks();
-        shutdownConfigManager();
+    /**
+     * Gets the state of the specified GBean.
+     * @param name the name of the GBean
+     * @return the state of the GBean
+     * @throws GBeanNotFoundException if the GBean could not be found
+     */
+    int getGBeanState(ObjectName name) throws GBeanNotFoundException;
 
-        gbeanRegistry.stop();
+    /**
+     * Gets the time the specified GBean was started
+     * @param name the name of the GBean
+     * @return the start time of the GBean or 0 if not running
+     * @throws GBeanNotFoundException if the GBean could not be found
+     */
+    long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException;
 
-        dependencyManager.close();
-        dependencyManager = null;
+    /**
+     * Is the specified GBean enabled?
+     * @param name the name if the GBean
+     * @return true if the gbean is enabled
+     * @throws GBeanNotFoundException if the GBean could not be found
+     */
+    boolean isGBeanEnabled(ObjectName name) throws GBeanNotFoundException;
 
-        synchronized (this) {
-            notify();
-        }
+    /**
+     * Sets the eneabled status of the specified GBean.  A disabled gbean can not be started, and
+     * will not be started via startRecursive.
+     * @param name the name if the GBean
+     * @param enabled the new enabled status
+     * @throws GBeanNotFoundException if the GBean could not be found
+     */
+    void setGBeanEnabled(ObjectName name, boolean enabled) throws GBeanNotFoundException;
 
-        synchronized (kernels) {
-            kernels.remove(kernelName);
-        }
+    /**
+     * Gets the ClassLoader used to register the specified GBean
+     * @param name the name of the gbean from which the class loader should be extracted
+     * @return the class loader associated with the specified GBean
+     * @throws GBeanNotFoundException if the specified GBean is not registered with the kernel
+     */
+    ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException;
 
-        log.info("Kernel shutdown complete");
-    }
+    /**
+     * Return the GBeanInfo for a registered GBean instance.
+     * @param name the name of the GBean whose info should be returned
+     * @return the info for that instance
+     * @throws GBeanNotFoundException if there is no instance with the supplied name
+     */
+    GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException;
 
-    private void notifyShutdownHooks() {
-        while (!shutdownHooks.isEmpty()) {
-            Runnable hook;
-            synchronized (shutdownHooks) {
-                hook = (Runnable) shutdownHooks.removeFirst();
-            }
-            try {
-                hook.run();
-            } catch (Throwable e) {
-                log.warn("Error from kernel shutdown hook", e);
-            }
-        }
-    }
+    /**
+     * Return the GBeanData for a GBean instance.
+     * @param name the name of the GBean whose info should be returned
+     * @return the info for that instance
+     * @throws GBeanNotFoundException if there is no instance with the supplied name
+     */
+    GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException;
 
-    private void shutdownConfigManager() {
-        configurationManager = null;
-        if (configurationManagerInstance != null) {
-            try {
-                configurationManagerInstance.stop();
-            } catch (Exception e) {
-                // ignore
-            }
-            try {
-                gbeanRegistry.unregister(new GBeanName(CONFIGURATION_MANAGER_NAME));
-            } catch (Exception e) {
-                // ignore
-            }
-            configurationManagerInstance = null;
-        }
-    }
+    /**
+     * Returns a Set of all GBeans matching the object name pattern
+     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
+     */
+    Set listGBeans(ObjectName pattern);
 
-    public boolean isRunning() {
-        return running;
-    }
+    /**
+     * Returns a Set of all GBeans matching the set of object name pattern
+     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
+     */
+    Set listGBeans(Set patterns);
 
-    public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
-        GBeanInstance gbeanInstance = gbeanRegistry.getGBeanInstance(new GBeanName(name));
-        return gbeanInstance.getClassLoader();
-    }
+    /**
+     * Gets the value of an attribute on the specified gbean
+     * @param objectName the name of the gbean from which the attribute will be retrieved
+     * @param attributeName the name of the attribute to fetch
+     * @return the value of the attribute
+     * @throws GBeanNotFoundException if there is not a gbean under the specified name
+     * @throws NoSuchAttributeException if the gbean does not contain the specified attribute
+     * @throws Exception if the gbean throws an exception from the getter
+     */
+    Object getAttribute(ObjectName objectName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
 
-    private static void processQueue() {
-        KernelReference kernelRef;
-        while ((kernelRef = (KernelReference) queue.poll()) != null) {
-            synchronized (kernels) {
-                kernels.remove(kernelRef.key);
-            }
-        }
-    }
+    /**
+     * Sets the value of an attribute on the specified gbean
+     * @param objectName the name of the gbean from in which the new attribute value will be set
+     * @param attributeName the name of the attribute to set
+     * @param attributeValue the new value of the attribute
+     * @throws GBeanNotFoundException if there is not a gbean under the specified name
+     * @throws NoSuchAttributeException if the gbean does not contain the specified attribute
+     * @throws Exception if the gbean throws an exception from the setter
+     */
+    void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception;
 
-    private static class KernelReference extends WeakReference {
-        private final Object key;
+    /**
+     * Invokes a no-argument method on the specified GBean
+     * @param objectName the name of the gbean from in which the new attribute value will be set
+     * @param methodName the name of the method to invoke
+     * @return the return value of the method or null if the specified method does not return a value
+     * @throws GBeanNotFoundException if there is not a gbean under the specified name
+     * @throws NoSuchOperationException if the gbean does not have the specified operation
+     * @throws InternalKernelException if an error occurs within the kernel itself
+     * @throws Exception if the method throws an exception
+     */
+    Object invoke(ObjectName objectName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
 
-        public KernelReference(Object key, Object kernel) {
-            super(kernel, queue);
-            this.key = key;
-        }
-    }
+    /**
+     * Invokes a method on the specified GBean with the specified arguments
+     * @param objectName the name of the gbean from in which the new attribute value will be set
+     * @param methodName the name of the method to invoke
+     * @param args the arguments to pass to the method
+     * @param types the types of the arguments; the types are used to determine the signature of the mehod that should be invoked
+     * @return the return value of the method or null if the specified method does not return a value
+     * @throws GBeanNotFoundException if there is not a gbean under the specified name
+     * @throws NoSuchOperationException if the gbean does not have the specified operation
+     * @throws InternalKernelException if an error occurs within the kernel itself
+     * @throws Exception if the method throws an exception
+     */
+    Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
+
+    /**
+     * Brings the kernel online
+     * @throws Exception if the kernel can not boot
+     */
+    void boot() throws Exception;
+
+    /**
+     * Returns the time this kernel was last booted.
+     * @return the time this kernel was last booted; null if the kernel has not been
+     */
+    Date getBootTime();
+
+    /**
+     * Registers a runnable to execute when the kernel is shutdown
+     * @param hook a runnable to execute when the kernel is shutdown
+     */
+    void registerShutdownHook(Runnable hook);
+
+    /**
+     * Unregisters a runnable from the list to execute when the kernel is shutdown
+     * @param hook the runnable that should be removed
+     */
+    void unregisterShutdownHook(Runnable hook);
+
+    /**
+     * Stops the kernel
+     */
+    void shutdown();
+
+    /**
+     * Has the kernel been booted
+     * @return true if the kernel has been booted; false otherwise
+     */
+    boolean isRunning();
+
 }

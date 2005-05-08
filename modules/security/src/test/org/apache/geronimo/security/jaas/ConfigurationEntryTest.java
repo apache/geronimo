@@ -30,6 +30,7 @@ import javax.security.auth.login.LoginContext;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
@@ -125,7 +126,7 @@ public class ConfigurationEntryTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        kernel = new Kernel("test.kernel");
+        kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
         GBeanData gbean;

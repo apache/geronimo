@@ -17,12 +17,12 @@
 package org.apache.geronimo.j2ee.management.impl;
 
 import java.util.Hashtable;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -30,14 +30,16 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 /**
  * @version $Rev$ $Date$
  */
-public class J2EEApplicationImpl {
+public class J2EEApplicationImpl implements J2EEApplication {
     private final String deploymentDescriptor;
     private final String baseName;
     private final Kernel kernel;
     private final J2EEServer server;
+    private final String objectName;
 
     public J2EEApplicationImpl(Kernel kernel, String objectName, J2EEServer server, String deploymentDescriptor) {
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
+        this.objectName = objectName;
+        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
         verifyObjectName(myObjectName);
 
         // build the base name used to query the server for child modules
@@ -49,6 +51,22 @@ public class J2EEApplicationImpl {
         this.kernel = kernel;
         this.server = server;
         this.deploymentDescriptor = deploymentDescriptor;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     /**
@@ -75,7 +93,7 @@ public class J2EEApplicationImpl {
         }
     }
 
-    public String[] getmodules() throws MalformedObjectNameException {
+    public String[] getModules() {
         return Util.getObjectNames(kernel,
                 baseName,
                 new String[]{"AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});

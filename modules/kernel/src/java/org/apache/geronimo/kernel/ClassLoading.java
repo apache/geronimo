@@ -27,7 +27,6 @@ import java.util.Map;
  * @version $Rev$ $Date$
  */
 public class ClassLoading {
-
     /**
      * Load a class for the given name.
      * <p/>

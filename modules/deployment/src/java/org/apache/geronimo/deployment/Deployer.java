@@ -19,31 +19,26 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileOutputStream;
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Collections;
-import java.util.ArrayList;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
-//import org.apache.commons.cli.CommandLine;
-//import org.apache.commons.cli.HelpFormatter;
-//import org.apache.commons.cli.Options;
-//import org.apache.commons.cli.ParseException;
-//import org.apache.commons.cli.PosixParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.system.main.CommandLineManifest;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 
 /**
  * Command line based deployment utility which combines multiple deployable modules
@@ -158,38 +153,21 @@ public class Deployer {
                 mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), endorsedDirs);
             }
 
-            // Write the manifest
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(new File(metaInf, "MANIFEST.MF"));
-                manifest.write(out);
-            } finally {
-                DeploymentUtil.close(out);
-            }
-
-
-            // this is a bit weird and should be rethougth but it works
-            List childURIs = builder.buildConfiguration(plan, module, configurationDir);
-
+            ConfigurationData configurationData = builder.buildConfiguration(plan, module, configurationDir);
             try {
                 if (targetFile != null) {
-                    // add the startup tag file which allows us to locate the startup directory
-                    File startupJarTag = new File(metaInf, "startup-jar");
-                    if (mainClass != null) {
-                        startupJarTag.createNewFile();
-                    }
-
-                    // jar up the directory
-                    DeploymentUtil.jarDirectory(configurationDir,  targetFile);
-
-                    // remove the startup tag file so it doesn't accidently leak into a normal classloader
-                    startupJarTag.delete();
+                    ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, configurationDir, targetFile);
                 }
                 if (install) {
-                    URI uri = store.install(configurationDir);
-                    List deployedURIs = new ArrayList(childURIs.size() + 1);
-                    deployedURIs.add(uri.toString());
-                    deployedURIs.addAll(childURIs);
+                    store.install(configurationData, configurationDir);
+                    List deployedURIs = new ArrayList();
+                    deployedURIs.add(configurationData.getId().toString());
+                    // todo this should support a tree structure since configurations could be nested to any depth
+                    for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
+                        ConfigurationData childConfiguration = (ConfigurationData) iterator.next();
+                        deployedURIs.add(childConfiguration.getId().toString());
+                        // todo install the child conifgurations here
+                    }
                     return deployedURIs;
                 } else {
                     DeploymentUtil.recursiveDelete(configurationDir);

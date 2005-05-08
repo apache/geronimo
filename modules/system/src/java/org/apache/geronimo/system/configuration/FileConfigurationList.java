@@ -40,6 +40,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -56,6 +58,11 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
      * The kernel for which we are persisting the configuration list.
      */
     private final Kernel kernel;
+
+    /**
+     * The ConfigurationManager for the kernel
+     */
+    private final ConfigurationManager configurationManager;
 
     /**
      * Used to resolve the location of the configuration file.
@@ -87,6 +94,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
 
     public FileConfigurationList(Kernel kernel, ServerInfo serverInfo, String configDir) {
         this.kernel = kernel;
+        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         this.serverInfo = serverInfo;
         this.configFile = configDir;
     }
@@ -137,10 +145,10 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(configList));
         try {
-            List stores = kernel.listConfigurationStores();
+            List stores = configurationManager.listStores();
             for (Iterator i = stores.iterator(); i.hasNext();) {
                 ObjectName storeName = (ObjectName) i.next();
-                List configList = kernel.listConfigurations(storeName);
+                List configList = configurationManager.listConfigurations(storeName);
                 for (Iterator j = configList.iterator(); j.hasNext();) {
                     ConfigurationInfo info = (ConfigurationInfo) j.next();
                     if (info.getState() == State.RUNNING) {

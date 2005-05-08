@@ -108,6 +108,10 @@ by the server.
     </dependency>
 
     <dependency>
+        <uri>asm/jars/asm-${asm_version}.jar</uri>
+    </dependency>
+
+    <dependency>
          <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
     </dependency>
 
@@ -284,7 +288,7 @@ by the server.
 
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="URL">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="url">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
 

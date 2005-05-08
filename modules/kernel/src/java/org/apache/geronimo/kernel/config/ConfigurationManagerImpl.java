@@ -19,7 +19,6 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +30,6 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -39,7 +37,6 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.State;
 
 /**
  * @version $Rev$ $Date$
@@ -48,10 +45,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
     private final Kernel kernel;
     private final Collection stores;
+    private final ShutdownHook shutdownHook;
 
     public ConfigurationManagerImpl(Kernel kernel, Collection stores) {
         this.kernel = kernel;
         this.stores = stores;
+        shutdownHook = new ShutdownHook(kernel);
     }
 
     public List listStores() {
@@ -69,38 +68,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (storeName.equals(JMXUtil.getObjectName(store.getObjectName()))) {
-                List ids = store.listConfiguations();
-                List result = new ArrayList(ids.size());
-                for (int j = 0; j < ids.size(); j++) {
-                    URI configID = (URI) ids.get(j);
-                    ObjectName configName;
-                    try {
-                        configName = Configuration.getConfigurationObjectName(configID);
-                    } catch (MalformedObjectNameException e) {
-                        throw new AssertionError("Store returned invalid configID: " + configID);
-                    }
-                    State state;
-                    if (kernel.isLoaded(configName)) {
-                        try {
-                            state = State.fromInteger((Integer) kernel.getAttribute(configName, "state"));
-                        } catch (Exception e) {
-                            state = null;
-                        }
-                    } else {
-                        // If the configuration is not loaded by the kernel
-                        // and defined by the store, then it is stopped.
-                        state = State.STOPPED;
-                    }
-                    ConfigurationModuleType type = null;
-                    try {
-                        GBeanData bean = store.getConfiguration(configID);
-                        type = (ConfigurationModuleType) bean.getAttribute("type");
-                    } catch (Exception e) {
-                        log.error(store + " defines configID " + configID + " which can not be loaded.");
-                    }
-                    result.add(new ConfigurationInfo(storeName, configID, state, type));
-                }
-                return result;
+                return store.listConfiguations();
             }
         }
         throw new NoSuchStoreException("No such store: " + storeName);
@@ -121,43 +89,10 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configID)) {
-                GBeanData config = store.getConfiguration(configID);
-                URL baseURL = store.getBaseURL(configID);
-                return load(config, baseURL, Configuration.class.getClassLoader());
+                return store.loadConfiguration(configID);
             }
         }
         throw new NoSuchConfigException("No configuration with id: " + configID);
-    }
-
-    public ObjectName load(GBeanData config, URL rootURL, ClassLoader classLoader) throws InvalidConfigException {
-        ObjectName name;
-        try {
-            URI configID = (URI) config.getAttribute("ID");
-            name = Configuration.getConfigurationObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
-        }
-        config.setName(name);
-
-        try {
-            kernel.loadGBean(config, classLoader);
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to register configuration", e);
-        }
-
-        try {
-            kernel.setAttribute(name, "baseURL", rootURL);
-        } catch (Exception e) {
-            try {
-                kernel.unloadGBean(name);
-            } catch (Exception ignored) {
-                // ignore
-            }
-            throw new InvalidConfigException("Cannot set baseURL", e);
-        }
-        log.info("Loaded Configuration " + name);
-
-        return name;
     }
 
     public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -166,7 +101,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             while (configID != null && !isLoaded(configID)) {
                 ObjectName name = load(configID);
                 ancestors.addFirst(name);
-                configID = (URI) kernel.getAttribute(name, "parentID");
+                configID = (URI) kernel.getAttribute(name, "parentId");
             }
             return ancestors;
         } catch (NoSuchConfigException e) {
@@ -187,10 +122,6 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         } catch (MalformedObjectNameException e) {
             throw new NoSuchConfigException("Cannot convert ID to ObjectName: ", e);
         }
-        unload(configName);
-    }
-
-    public void unload(ObjectName configName) throws NoSuchConfigException {
         try {
             kernel.unloadGBean(configName);
         } catch (GBeanNotFoundException e) {
@@ -204,45 +135,25 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     }
 
     public void doStart() {
+        kernel.registerShutdownHook(shutdownHook);
     }
 
     private static final ObjectName CONFIG_QUERY = JMXUtil.getObjectName("geronimo.config:*");
 
     public void doStop() {
-        while (true) {
-            Set configs = kernel.listGBeans(CONFIG_QUERY);
-            if (configs.isEmpty()) {
-                return;
-            }
-            for (Iterator i = configs.iterator(); i.hasNext();) {
-                ObjectName configName = (ObjectName) i.next();
-                if (kernel.isLoaded(configName)) {
-                    try {
-                        kernel.stopGBean(configName);
-                    } catch (GBeanNotFoundException e) {
-                        // ignore
-                    } catch (InternalKernelException e) {
-                        log.warn("Could not stop configuration: " + configName, e);
-                    }
-                    try {
-                        kernel.unloadGBean(configName);
-                    } catch (GBeanNotFoundException e) {
-                        // ignore
-                    }
-                }
-            }
-        }
+        kernel.unregisterShutdownHook(shutdownHook);
     }
 
     public void doFail() {
+        log.error("Cofiguration manager failed");
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationManagerImpl.class);  //name assigned by boot process
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationManagerImpl.class, "ConfigurationManager");
         infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addReference("Stores", ConfigurationStore.class);
+        infoFactory.addReference("Stores", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addInterface(ConfigurationManager.class);
         infoFactory.setConstructor(new String[]{"kernel", "Stores"});
         GBEAN_INFO = infoFactory.getBeanInfo();
@@ -250,5 +161,39 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    private static class ShutdownHook implements Runnable {
+        private final Kernel kernel;
+
+        public ShutdownHook(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public void run() {
+            while (true) {
+                Set configs = kernel.listGBeans(CONFIG_QUERY);
+                if (configs.isEmpty()) {
+                    return;
+                }
+                for (Iterator i = configs.iterator(); i.hasNext();) {
+                    ObjectName configName = (ObjectName) i.next();
+                    if (kernel.isLoaded(configName)) {
+                        try {
+                            kernel.stopGBean(configName);
+                        } catch (GBeanNotFoundException e) {
+                            // ignore
+                        } catch (InternalKernelException e) {
+                            log.warn("Could not stop configuration: " + configName, e);
+                        }
+                        try {
+                            kernel.unloadGBean(configName);
+                        } catch (GBeanNotFoundException e) {
+                            // ignore
+                        }
+                    }
+                }
+            }
+        }
     }
 }

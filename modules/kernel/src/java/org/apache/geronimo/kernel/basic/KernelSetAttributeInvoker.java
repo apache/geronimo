@@ -15,9 +15,8 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.kernel.proxy;
+package org.apache.geronimo.kernel.basic;
 
-import java.lang.reflect.Method;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.Kernel;
@@ -25,24 +24,17 @@ import org.apache.geronimo.kernel.Kernel;
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
-public final class KernelOperationInvoker implements ProxyInvoker {
+public final class KernelSetAttributeInvoker implements ProxyInvoker {
     private final Kernel kernel;
     private final String name;
-    private final String[] argumentTypes;
 
-    public KernelOperationInvoker(Kernel kernel, Method method) {
+    public KernelSetAttributeInvoker(Kernel kernel, String name) {
         this.kernel = kernel;
-        name = method.getName();
-
-        // convert the parameters to a MBeanServer friendly string array
-        Class[] parameters = method.getParameterTypes();
-        argumentTypes = new String[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            argumentTypes[i] = parameters[i].getName();
-        }
+        this.name = name;
     }
 
     public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-        return kernel.invoke(objectName, name, arguments, argumentTypes);
+        kernel.setAttribute(objectName, name, arguments[0]);
+        return null;
     }
 }
