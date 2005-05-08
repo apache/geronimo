@@ -34,7 +34,7 @@
         <uri>wsdl4j/jars/wsdl4j-${wsdl4j_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>axis/jars/commons-discovery-${axis_commons_discovery_version}.jar</uri>
+        <uri>commons-discovery/jars/commons-discovery-${commons_discovery_version}.jar</uri>
     </dependency>
 <!--    <dependency>-->
 <!--        <uri>ews/jars/ews-${ews_version}.jar</uri>-->
