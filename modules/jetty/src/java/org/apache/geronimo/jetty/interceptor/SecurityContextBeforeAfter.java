@@ -209,7 +209,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
             } else if (request.isIntegral()) {
                 transportType = "INTEGRAL";
             } else {
-                transportType = null;
+                transportType = "NONE";
             }
             WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest.getServletPath(), new String[]{servletHttpRequest.getMethod()}, transportType);
             acc.checkPermission(wudp);

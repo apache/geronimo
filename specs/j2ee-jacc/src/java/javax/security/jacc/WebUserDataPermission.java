@@ -81,7 +81,7 @@ public final class WebUserDataPermission extends Permission implements Serializa
         super(urlPattern);
 
         urlPatternSpec = new URLPatternSpec(urlPattern);
-        httpMethodSpec = new HTTPMethodSpec(HTTPMethods, transportType);
+        httpMethodSpec = new HTTPMethodSpec(HTTPMethods, transportType == null? "NONE": transportType);
     }
 
     public boolean equals(Object o) {
