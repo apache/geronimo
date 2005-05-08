@@ -1013,9 +1013,9 @@
         </dependency>
 
         <dependency>
-            <groupId>axis</groupId>
+            <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>
-            <version>${axis_commons_discovery_version}</version>
+            <version>${commons_discovery_version}</version>
             <properties>
                 <repository>true</repository>
             </properties>
