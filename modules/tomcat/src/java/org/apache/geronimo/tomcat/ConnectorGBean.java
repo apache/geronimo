@@ -30,7 +30,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     private final Connector connector;
     private final TomcatContainer container;
 
-    public ConnectorGBean(Map initParams, TomcatContainer container) throws Exception {
+    public ConnectorGBean(String protocol, Map initParams, TomcatContainer container) throws Exception {
         super(); // TODO: make it an attribute
         
         if (container == null){
@@ -40,7 +40,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         this.container = container;
                 
         //Create the Connector object
-        connector = new Connector();
+        connector = new Connector(protocol);
         
         //Set the parameters
         setParameters(connector, initParams);
@@ -68,10 +68,11 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatConnector", ConnectorGBean.class);
+        infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "initParams", "TomcatContainer"});
+        infoFactory.setConstructor(new String[] { "protocol", "initParams", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
