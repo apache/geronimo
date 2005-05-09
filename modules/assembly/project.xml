@@ -863,6 +863,15 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
+            <artifactId>tomcat-jk2</artifactId>
+            <version>${tomcat_jk2_version}</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
             <artifactId>tomcat-util</artifactId>
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
