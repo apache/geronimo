@@ -55,9 +55,9 @@ Configuration for the main ring of a Geronimo Interop server.
 
     <gbean gbeanName="interop:type=NetworkService,name=RMIIIOP" class="org.openejb.server.StandardServiceStackGBean">
         <attribute name="name">RMIIIOP</attribute>
-        <attribute name="port">9000</attribute>
-        <attribute name="address">127.0.0.1</attribute>
-        <attribute name="allowHosts">127.0.0.1</attribute>
+        <attribute name="port">${PlanIIOPPort}</attribute>
+        <attribute name="address">${PlanServerHostname}</attribute>
+        <attribute name="allowHosts">${PlanClientAddresses}</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
         <reference name="Executor"><name>DefaultThreadPool</name></reference>
@@ -68,7 +68,7 @@ Configuration for the main ring of a Geronimo Interop server.
         <reference name="adapterManager"><gbean-name>interop:name=AdapterManager</gbean-name></reference>
         <attribute name="writeSystemExceptionStackTrace">false</attribute>
         <attribute name="simpleIDL">false</attribute>
-        <attribute name="args">-ORBPort, 2001, -ORBInitRef, NameService=corbaloc::localhost:1050/NameService, -ORBCSIv2, -ORBGSSClientUser, "user1,a"</attribute>
+        <attribute name="args">-ORBPort, ${PlanORBPort}, -ORBInitRef, NameService=corbaloc::${PlanServerHostname}:${PlanCOSNamingPort}/NameService, -ORBCSIv2, -ORBGSSClientUser, "user1,a"</attribute>
         <attribute name="props">
 
             org.omg.PortableInterceptor.ORBInitializerClass.org.openejb.corba.transaction.TransactionInitializer

@@ -64,8 +64,8 @@
     <gbean name="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
         <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
         <reference name="derbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
-        <attribute name="host">127.0.0.1</attribute>
-        <attribute name="port">1527</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanDerbyPort}</attribute>
     </gbean>
 
     <gbean name="JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">

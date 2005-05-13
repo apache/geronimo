@@ -234,14 +234,14 @@ by the server.
     </gbean>
 
     <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
-        <attribute name="port">8080</attribute>
+        <attribute name="port">${PlanJettyHTTPPort}</attribute>
         <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
         <!--        <attribute name="MaxConnections">10</attribute>-->
         <!--        <attribute name="MaxIdleTime">10</attribute>-->
     </gbean>
 
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
-        <attribute name="port">8443</attribute>
+        <attribute name="port">${PlanJettyHTTPSPort}</attribute>
         <attribute name="keystore">var/security/keystore</attribute>
         <attribute name="keystoreType">JKS</attribute>
         <attribute name="password">secret</attribute>
@@ -255,9 +255,9 @@ by the server.
     <!-- EJB Protocol -->
     <gbean gbeanName="openejb:type=NetworkService,name=EJB" class="org.openejb.server.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
-        <attribute name="port">4201</attribute>
-        <attribute name="address">127.0.0.1</attribute>
-        <attribute name="allowHosts">127.0.0.1</attribute>
+        <attribute name="port">${PlanOpenEJBPort}</attribute>
+        <attribute name="address">${PlanServerHostname}</attribute>
+        <attribute name="allowHosts">${PlanClientAddresses}</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
         <reference name="Executor"><name>DefaultThreadPool</name></reference>
@@ -288,7 +288,7 @@ by the server.
 
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="url">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
 

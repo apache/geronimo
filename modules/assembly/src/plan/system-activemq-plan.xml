@@ -56,8 +56,8 @@
         <reference name="dataSource"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</gbean-name></reference>
     </gbean>
 
-    <gbean name="ActiveMQ.tcp.localhost.61616" class="org.activemq.gbean.ActiveMQConnectorGBean">
-        <attribute name="url">tcp://localhost:61616</attribute>
+    <gbean name="ActiveMQ.tcp.${PlanServerHostname}.${PlanActiveMQPort}" class="org.activemq.gbean.ActiveMQConnectorGBean">
+        <attribute name="url">tcp://${PlanServerHostname}:${PlanActiveMQPort}</attribute>
         <reference name="activeMQContainer"><gbean-name>geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</gbean-name></reference>
     </gbean>
 

@@ -67,7 +67,7 @@ specific services - those should be provided by children.
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
         <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
         <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
-        <attribute name="namingProviderUrl">rmi://localhost:1099</attribute>
+        <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
     </gbean>
 
 </configuration>

@@ -133,13 +133,13 @@ by the server.
 
     <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
         <attribute name="initParams">
-            port=8090
+            port=${PlanTomcatHTTPPort}
             maxHttpHeaderSize=8192
             maxThreads=150
             minSpareThreads=25
             maxSpareThreads=75
             enableLookups=false
-            redirectPort=8443
+            redirectPort=${PlanTomcatHTTPSPort}
             acceptCount=100
             connectionTimeout=20000
             disableUploadTimeout=true
@@ -152,9 +152,9 @@ by the server.
     <gbean name="TomcatAJPConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
         <attribute name="protocol">AJP/1.3</attribute>
         <attribute name="initParams">
-            port=8009
+            port=${PlanTomcatAJPPort}
             enableLookups=false
-            redirectPort=8443
+            redirectPort=${PlanTomcatHTTPSPort}
         </attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>
@@ -172,7 +172,7 @@ by the server.
 
     <gbean name="TomcatWebSSLConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
         <attribute name="initParams">
-            port=8443
+            port=${PlanTomcatHTTPSPort}
             maxHttpHeaderSize=8192
             maxThreads=150
             minSpareThreads=25
@@ -194,7 +194,7 @@ by the server.
         <attribute name="className">org.apache.geronimo.tomcat.TomcatEngine</attribute>
         <attribute name="initParams">
             name=Geronimo
-            defaultHost=localhost
+            defaultHost=${PlanServerHostname}
         </attribute>
         <reference name="realmGBean">
             <name>TomcatJAASRealm</name>
@@ -218,7 +218,7 @@ by the server.
     <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
         <attribute name="initParams">
-            prefix=localhost_access_log.
+            prefix=${PlanServerHostname}_access_log.
             suffix=.txt
             pattern=common
         </attribute>
@@ -239,7 +239,7 @@ by the server.
     <gbean name="TomcatHost" class="org.apache.geronimo.tomcat.HostGBean">
         <attribute name="className">org.apache.catalina.core.StandardHost</attribute>
         <attribute name="initParams">
-            name=localhost
+            name=${PlanServerHostname}
             appBase=
             workDir=work
         </attribute>

@@ -196,13 +196,45 @@
         </ant:copy>
 
         <!-- Preprocess all plans using velocity  -->
-        <ant:mkdir dir="${basedir}/target/plan"/>
+
+        <!-- First pass to write out plans with some variables remaining
+             for the benefit of the installer -->
+        <ant:mkdir dir="${basedir}/target/installer/plan-src"/>
         <fileScanner var="plans">
             <fileset dir="${basedir}/src/plan">
                 <include name="*-plan.xml"/>
             </fileset>
         </fileScanner>
 
+        <j:forEach var="plan" items="${plans.iterator()}">
+            <j:set var="planName" value="${plan.name}"/>
+            <echo>Installer processing ${planName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/plan"
+                template="${planName}"
+                name="${basedir}/target/installer/plan-src/${planName}"/>
+        </j:forEach>
+
+
+        <!-- Second pass for the default build -->
+
+        <!-- Substitution variables for default hostname, ports, etc. -->
+        <j:set var="PlanServerHostname" value="localhost" />
+        <j:set var="PlanNamingPort" value="1099" />
+        <j:set var="PlanIIOPPort" value="9000" />
+        <j:set var="PlanORBPort" value="2001" />
+        <j:set var="PlanCOSNamingPort" value="1050" />
+        <j:set var="PlanClientAddresses" value="127.0.0.1" />
+        <j:set var="PlanJettyHTTPPort" value="8080" />
+        <j:set var="PlanJettyHTTPSPort" value="8443" />
+        <j:set var="PlanOpenEJBPort" value="4201" />
+        <j:set var="PlanTomcatHTTPPort" value="8090" />
+        <j:set var="PlanTomcatHTTPSPort" value="8443" />
+        <j:set var="PlanTomcatAJPPort" value="8009" />
+        <j:set var="PlanActiveMQPort" value="61616" />
+        <j:set var="PlanDerbyPort" value="1527" />
+
+        <ant:mkdir dir="${basedir}/target/plan"/>
         <j:forEach var="plan" items="${plans.iterator()}">
             <j:set var="planName" value="${plan.name}"/>
             <echo>Preprocessing ${planName}</echo>
@@ -234,6 +266,10 @@
             deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,j2eeType=Deployer,J2EEServer=deployer"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
+
+        <ant:copy todir="${basedir}/target/installer">
+          <ant:fileset dir="${distDir}" />
+        </ant:copy>
 
         <!-- build the system configuration and server.jar -->
         <ant:echo>Building server.jar</ant:echo>
