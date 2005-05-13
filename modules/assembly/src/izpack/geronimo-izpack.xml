@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<installation version="1.0">
+    <info>
+        <appname>Apache Geronimo</appname>
+        <appversion>${GeronimoVersion}</appversion>
+        <url>http://geronimo.apache.org/</url>
+        <javaversion>1.4</javaversion>
+    </info>
+    <variables>
+      <variable name="SERVER_CLASSPATH" value="${ServerClasspath}" />
+      <variable name="CLIENT_CLASSPATH" value="${ClientClasspath}"/>
+    </variables>
+    <guiprefs width="640" height="480" resizable="yes"/>
+    <locale>
+        <langpack iso3="eng"/>
+    </locale>
+    <resources>
+        <res id="LicencePanel.licence" src="LICENSE.txt"/>
+        <res id="InfoPanel.info" src="RELEASE-NOTES-${ReleaseNotesVersion}.txt"/>
+        <res id="userInputSpec.xml" src="izpack-user-input.xml" />
+        <res id="ProcessPanel.Spec.xml" src="izpack-process.xml" />
+    </resources>
+    <panels>
+        <panel classname="HelloPanel"/>
+        <panel classname="LicencePanel"/>
+        <panel classname="TargetPanel"/>
+        <panel classname="PacksPanel"/>
+        <panel classname="UserInputPanel"/>
+        <panel classname="InstallPanel"/>
+        <panel classname="ProcessPanel"/>
+        <panel classname="InfoPanel"/>
+        <panel classname="FinishPanel"/>
+    </panels>
+    <packs>
+        <pack name="Server" required="yes">
+            <description>Core Geronimo installation</description>
+            <file src="BUILDING.txt" targetdir="$INSTALL_PATH"/>
+            <file src="LICENSE.txt" targetdir="$INSTALL_PATH"/>
+            <file src="NOTICE.txt" targetdir="$INSTALL_PATH"/>
+            <file src="PROPOSAL.txt" targetdir="$INSTALL_PATH"/>
+            <file src="README.txt" targetdir="$INSTALL_PATH"/>
+            <file src="RELEASE-NOTES-1.0-M1.txt" targetdir="$INSTALL_PATH"/>
+            <file src="RELEASE-NOTES-1.0-M2.txt" targetdir="$INSTALL_PATH"/>
+            <file src="RELEASE-NOTES-1.0-M3.txt" targetdir="$INSTALL_PATH"/>
+            <file src="STATUS" targetdir="$INSTALL_PATH"/>
+            <file src="bin" targetdir="$INSTALL_PATH"/>
+            <file src="lib" targetdir="$INSTALL_PATH"/>
+            <file src="config-store" targetdir="$INSTALL_PATH"/>
+            <file src="repository" targetdir="$INSTALL_PATH"/>
+            <file src="schema" targetdir="$INSTALL_PATH"/>
+            <file src="var" targetdir="$INSTALL_PATH"/>
+            <parsable targetfile="$INSTALL_PATH/var/security/users.properties" type="javaprop"/>
+            <parsable targetfile="$INSTALL_PATH/var/security/groups.properties" type="javaprop"/>
+            
+            <file src="plan-src/j2ee-deployer-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <file src="plan-src/deployer-system-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <file src="plan-src/system-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <parsable targetfile="$INSTALL_PATH/server-plans/system-plan.xml" type="xml"/>
+        </pack>
+        <pack name="J2EE Features" required="yes">
+            <description>Geronimo J2EE Support</description>
+            <file src="plan-src/j2ee-server-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <parsable targetfile="$INSTALL_PATH/server-plans/j2ee-server-plan.xml" type="xml"/>
+            <file src="plan-src/default-database-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <file src="plan-src/system-activemq-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <parsable targetfile="$INSTALL_PATH/server-plans/system-activemq-plan.xml" type="xml"/>
+            <file src="plan-src/system-jms-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <parsable targetfile="$INSTALL_PATH/server-plans/system-jms-plan.xml" type="xml"/>
+            <file src="plan-src/j2ee-secure-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <file src="plan-src/client-system-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <file src="plan-src/j2ee-client-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+        </pack>
+        <pack name="JMX Console Web App" required="no">
+            <description>A web application that lets you display the JMX data from a running Geronimo server.</description>
+            <file src="plan-src/geronimo-jmxdebug-${GeronimoVersion}.war" targetdir="$INSTALL_PATH/server-plans"/>
+        </pack>
+        <pack name="Demo Web Application" required="no">
+            <description>A sample web app that runs in Geronimo</description>
+            <file src="plan-src/geronimo-demo-${GeronimoVersion}.war" targetdir="$INSTALL_PATH/server-plans"/>
+        </pack>
+        <pack name="Sample Derby Database" required="no">
+            <description>A sample embedded database, using the Derby RDBMS</description>
+            <file src="plan-src/system-database-plan.xml" targetdir="$INSTALL_PATH/server-plans"/>
+            <parsable targetfile="$INSTALL_PATH/server-plans/system-database-plan.xml" type="xml"/>
+        </pack>
+    </packs>
+</installation>

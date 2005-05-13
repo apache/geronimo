@@ -195,7 +195,27 @@
             <fileset dir="${project.root}" includes="*.txt,STATUS"/>
         </ant:copy>
 
-        <!-- Preprocess all plans using velocity  -->
+        <!-- Preprocess all mungible content using velocity  -->
+
+        <!-- Copy over the IzPack Installer configuration files -->
+        <ant:mkdir dir="${basedir}/target/installer"/>
+        <fileScanner var="installFiles">
+            <fileset dir="${basedir}/src/izpack">
+                <include name="*.xml"/>
+            </fileset>
+        </fileScanner>
+        <j:set var="ServerClasspath" value="${server.classpath}" />
+        <j:set var="ClientClasspath" value="${client.classpath}" />
+        <j:set var="GeronimoVersion" value="${geronimo_version}" />
+        <j:set var="ReleaseNotesVersion" value="1.0-M3" />
+        <j:forEach var="installer" items="${installFiles.iterator()}">
+            <j:set var="installerName" value="${installer.name}"/>
+            <echo>Processing installer file ${installerName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/izpack"
+                template="${installerName}"
+                name="${basedir}/target/installer/${installerName}"/>
+        </j:forEach>
 
         <!-- First pass to write out plans with some variables remaining
              for the benefit of the installer -->
