@@ -92,6 +92,7 @@
         <!--     deploy: include dependency in deployer classpath       -->
         <!--     repository: copy dependency into repository (Note: all -->
         <!--         geronimojars are always copied to repository)      -->
+        <!--     installer: copied to the installer/wars directory      -->
         <!-- ========================================================== -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -442,6 +443,38 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jmxdebug</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <installer>true</installer>
+            </properties>
+        </dependency>
+
+        <!-- Not currently deployed
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console-web</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <installer>true</installer>
+            </properties>
+        </dependency>
+        -->
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-demo</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <installer>true</installer>
             </properties>
         </dependency>
 

@@ -9,8 +9,10 @@
       <arg>$SERVER_CLASSPATH</arg>
       <arg>--mainClass</arg>
       <arg>org.apache.geronimo.system.main.Daemon</arg>
+      <arg>--endorsedDirs</arg>
+      <arg>lib/endorsed</arg>
       <arg>--install</arg>
-      <arg>$INSTALL_PATH/server-plans/system-plan.xml</arg>
+      <arg>$INSTALL_PATH/installer-temp/system-plan.xml</arg>
       <arg>$INSTALL_PATH/bin/server.jar</arg>
     </executefile>
     <executeForPack name="Server" />
@@ -20,45 +22,16 @@
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/j2ee-server-plan.xml</arg>
+      <arg>$INSTALL_PATH/installer-temp/j2ee-server-plan.xml</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Install Required Database Configuration">
+  <job name="Install Deployer Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/default-database-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/tranql/rars/tranql-connector-1.0-M3.rar</arg>
-    </executefile>
-    <executeForPack name="J2EE Features" />
-  </job>
-  <job name="Install JMS Server Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/system-activemq-plan.xml</arg>
-    </executefile>
-    <executeForPack name="J2EE Features" />
-  </job>
-  <job name="Install Required JMS Queue Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/system-jms-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/activemq/rars/activemq-ra-1.2-20041105.rar</arg>
-    </executefile>
-    <executeForPack name="J2EE Features" />
-  </job>
-  <job name="Install Web Security Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/j2ee-secure-plan.xml</arg>
+      <arg>$INSTALL_PATH/installer-temp/j2ee-runtime-deployer-plan.xml</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
@@ -72,46 +45,121 @@
       <arg>--mainClass</arg>
       <arg>org.apache.geronimo.system.main.ClientCommandLine</arg>
       <arg>--install</arg>
-      <arg>$INSTALL_PATH/server-plans/client-system-plan.xml</arg>
+      <arg>$INSTALL_PATH/installer-temp/client-system-plan.xml</arg>
       <arg>$INSTALL_PATH/bin/client.jar</arg>
     </executefile>
     <executeForPack name="Server" />
+  </job>
+  <job name="Install Required Database Configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/system-database-plan.xml</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/rars/geronimo-derby-connector-${GeronimoVersion}.rar</arg>
+    </executefile>
+    <executeForPack name="J2EE Features" />
+  </job>
+  <job name="Install JMS Server Configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/system-activemq-plan.xml</arg>
+    </executefile>
+    <executeForPack name="J2EE Features" />
+  </job>
+  <job name="Install Required JMS Queue Configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/system-jms-plan.xml</arg>
+      <arg>$INSTALL_PATH/repository/activemq/rars/activemq-ra-${activemq_version}.rar</arg>
+    </executefile>
+    <executeForPack name="J2EE Features" />
+  </job>
+  <job name="Install Spring Configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/spring-runtime-plan.xml</arg>
+    </executefile>
+    <executeForPack name="Spring Integration" />
+  </job>
+  <job name="Install Spring Deployer">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/spring-deployer-plan.xml</arg>
+    </executefile>
+    <executeForPack name="Spring Integration" />
+  </job>
+  <job name="Install Web Security Configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/j2ee-secure-plan.xml</arg>
+    </executefile>
+    <executeForPack name="J2EE Features" />
   </job>
   <job name="Install Client Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/j2ee-client-plan.xml</arg>
+      <arg>$INSTALL_PATH/installer-temp/j2ee-client-plan.xml</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Install JMX Console Web App Configuration">
+  <job name="Install Tomcat Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/geronimo-jmxdebug-1.0-M3.war</arg>
+      <arg>$INSTALL_PATH/installer-temp/j2ee-server-tomcat-plan.xml</arg>
     </executefile>
-    <executeForPack name="JMX Console Web App" />
+    <executeForPack name="J2EE Features" />
+  </job>
+  <job name="Install JMX Debug Tool Web App Configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/geronimo-jmxdebug-${GeronimoVersion}.war</arg>
+    </executefile>
+    <executeForPack name="JMX Debug Tool Web App" />
   </job>
   <job name="Install Demo Web App Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/geronimo-demo-1.0-M3.war</arg>
+      <arg>$INSTALL_PATH/installer-temp/geronimo-demo-${GeronimoVersion}.war</arg>
     </executefile>
     <executeForPack name="Demo Web Application" />
   </job>
-  <job name="Install Sample Derby Database Configuration">
+  <job name="Install Remote ClassLoader Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
-      <arg>$INSTALL_PATH/server-plans/system-database-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/tranql/rars/tranql-connector-1.0-M3.rar</arg>
+      <arg>$INSTALL_PATH/installer-temp/j2ee-remote-classloading-deployer-plan.xml</arg>
     </executefile>
-    <executeForPack name="Sample Derby Database" />
+    <executeForPack name="J2EE Features" />
   </job>
+  <job name="Install Axion Database Configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-jar</arg>
+      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
+      <arg>distribute</arg>
+      <arg>$INSTALL_PATH/installer-temp/default-database-plan.xml</arg>
+      <arg>$INSTALL_PATH/repository/tranql/rars/tranql-connector-${tranql_connector_version}.rar</arg>
+    </executefile>
+    <executeForPack name="Sample Axion Database" />
+  </job>
+  <job name="Finished" />
 </processing>

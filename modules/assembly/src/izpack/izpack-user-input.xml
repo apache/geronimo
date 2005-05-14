@@ -63,7 +63,7 @@
       <description txt="The network port that the Derby DB should use" />
       <spec txt="Derby Port:" layout="N:5:5" set="0:1527" />
       <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="Sample Derby Database" />
+      <createForPack name="J2EE Features" />
     </field>
     <field type="rule" variable="PlanIIOPPort">
       <description txt="The network port that the RMI/IIOP listener should use" />

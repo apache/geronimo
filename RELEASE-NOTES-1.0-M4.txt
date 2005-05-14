@@ -1,0 +1,75 @@
+Release Notes -- Apache Geronimo -- Version 1.0-M4
+
+NOTE: THIS IS A PLACEHOLDER.  THERE HAS NOT BEEN AN OFFICIAL M4 RELEASE
+YET.  YOU MAY LOOK AT THE FILE RELEASE-NOTES-1.0-M3.txt IN YOUR
+GERONIMO DISTRIBUTION FOR THE RELEASE NOTES FROM THE LAST MILESTONE, BUT
+THOSE ARE SOMEWHAT OUT OF DATE.
+
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/download.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing.html
+Source Code:   http://geronimo.apache.org/source.html
+Bug Tracking:  http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
+Wiki:          http://wiki.apache.org/geronimo
+
+
+System Requirements
+-------------------
+You need a platform that supports JDK 1.4 or JDK 1.5 (and some
+features such as HTTPS currently depend on Sun implementation
+classes, so a Sun JVM would be the best bet).
+
+Most testing has been done on Linux, Mac OS X, and Windows.  For a
+list of notes on specific configurations, see
+http://wiki.apache.org/geronimo/KnownWorkingConfigurations
+
+Installing & Starting Geronimo
+------------------------------
+To install, simply unpack the zip or tar file containing Geronimo.
+
+To start Geronimo, change to the Geronimo directory and run
+
+   java -jar bin/server.jar
+
+
+Current Project Status at a Glance
+----------------------------------
+http://wiki.apache.org/geronimo/RoadMap
+
+
+Significant Changes Since the M3 Release
+----------------------------------------
+  == FILL ME IN ==
+
+
+Significant Missing Features
+----------------------------
+  == FILL ME IN ==
+
+
+Overall Project Status
+----------------------
+Geronimo is currently undergoing TCK testing.  Many features work, but
+it is not fully J2EE compliant yet.  Geronimo has also not been
+extensively performance tested.  Your help would be appreciated!
+
+Documentation efforts are underway, and freely available documentation
+covers many of the more stable aspects of the product.
+
+For more information on specific bugs or features, or to help with
+testing efforts, please visit JIRA, our bug/issue tracking system, at
+http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
+
+
+Specific Issues Addressed in M4 Release
+---------------------------------------
+
+** New Features
+
+** Improvements
+
+** Bug Fixes
