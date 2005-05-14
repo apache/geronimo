@@ -296,9 +296,16 @@
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 
+        <!-- The installer works off a Geronimo distribution at this point:
+             The deployer has been built but nothing else has been configured yet -->
         <ant:copy todir="${basedir}/target/installer">
           <ant:fileset dir="${distDir}" />
         </ant:copy>
+        <ant:echo file="${basedir}/target/installer/var/security/users.properties">$${SecurityDefaultUser}=$${SecurityDefaultPassword}
+</ant:echo>
+        <ant:echo file="${basedir}/target/installer/var/security/groups.properties">admin=$${SecurityDefaultUser}
+</ant:echo>
+
 
         <!-- build the system configuration and server.jar -->
         <ant:echo>Building server.jar</ant:echo>

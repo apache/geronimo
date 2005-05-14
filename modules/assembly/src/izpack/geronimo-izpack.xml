@@ -27,6 +27,7 @@
         <panel classname="PacksPanel"/>
         <panel classname="UserInputPanel"/>
         <panel classname="UserInputPanel"/>
+        <panel classname="UserInputPanel"/>
         <panel classname="InstallPanel"/>
         <panel classname="ProcessPanel"/>
         <panel classname="InfoPanel"/>
