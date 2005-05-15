@@ -53,6 +53,7 @@ specific services - those should be provided by children.
     <!-- Persistent List of running Configurations service -->
     <gbean name="Default" class="org.apache.geronimo.system.configuration.FileConfigurationList">
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <reference name="ConfigurationManager"><name>ConfigurationManager</name></reference>
         <attribute name="configFile">var/config/config.list</attribute>
     </gbean>
 

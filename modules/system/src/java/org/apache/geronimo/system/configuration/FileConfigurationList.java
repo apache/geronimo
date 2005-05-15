@@ -92,9 +92,9 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
      */
     private Runnable hook;
 
-    public FileConfigurationList(Kernel kernel, ServerInfo serverInfo, String configDir) {
+    public FileConfigurationList(Kernel kernel, ServerInfo serverInfo, ConfigurationManager configurationManager, String configDir) {
         this.kernel = kernel;
-        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        this.configurationManager = configurationManager;
         this.serverInfo = serverInfo;
         this.configFile = configDir;
     }
@@ -197,8 +197,9 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("kernelFullyStarted", boolean.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addReference("ConfigurationManager", ConfigurationManager.class, "ConfigurationManager");
         infoFactory.addAttribute("configFile", String.class, true);
-        infoFactory.setConstructor(new String[]{"kernel", "ServerInfo", "configFile"});
+        infoFactory.setConstructor(new String[]{"kernel", "ServerInfo", "ConfigurationManager", "configFile"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
