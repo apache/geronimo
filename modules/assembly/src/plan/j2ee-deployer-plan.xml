@@ -165,10 +165,15 @@ Configuration for the Geronimo deployer
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
         <reference name="XmlAttributeBuilders"><name>*</name></reference>
+        <reference name="XmlReferenceBuilders">
+            <name>*</name>
+        </reference>
     </gbean>
 
     <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
     <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
+
+    <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
 
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
