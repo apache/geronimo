@@ -132,8 +132,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         server.removeRealm(realm.getName());
     }
 
-    public void addWebService(String contextPath, WebServiceContainer webServiceContainer) throws Exception {
-        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer);
+    public void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
+        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
         addContext(webServiceContext);
         webServiceContext.start();
         webServices.put(contextPath, webServiceContext);

@@ -25,31 +25,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.geronimo.webservices.WebServiceContainer;
+import org.mortbay.http.Authenticator;
+import org.mortbay.http.BasicAuthenticator;
+import org.mortbay.http.ClientCertAuthenticator;
+import org.mortbay.http.DigestAuthenticator;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpHandler;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
+import org.mortbay.http.UserRealm;
 
 /**
  * Delegates requests to a WebServiceContainer which is presumably for an EJB WebService.
- *
+ * <p/>
  * WebServiceContainer delegates to an EJBContainer that will ultimately provide the JNDI,
  * TX, and Security services for this web service.
- *
+ * <p/>
  * Nothing stopping us from using this for POJOs or other types of webservices if shared
  * Context (JNDI, tx, security) wasn't required to be supplied by the web context.
- *
+ * <p/>
  * From a 10,000 foot view the Jetty architecture has:
  * Container -> Context -> Holder -> Servlet
- *
+ * <p/>
  * A Container has multiple Contexts, typically webapps
  * A Context provides the JNDI, TX, and Security for the webapp and has many Holders
  * A Holder simply wraps each Servlet
- *
+ * <p/>
  * The POJO Web Service architecture on Jetty looks like this:
  * Container -> WebApp Context -> JettyPOJOWebServiceHolder -> POJOWebServiceServlet
- *
+ * <p/>
  * The EJB Web Service architecure, on the other hand, creates one Context for each EJB:
  * Container -> JettyEJBWebServiceContext
  *
@@ -59,12 +64,51 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
 
     private final String contextPath;
     private final WebServiceContainer webServiceContainer;
+    private final Authenticator authenticator;
+    private final UserRealm realm;
+    private final boolean isConfidentialTransportGuarantee;
+    private final boolean isIntegralTransportGuarantee;
+    private final ClassLoader classLoader;
 
     private HttpContext httpContext;
 
-    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer) {
+    public JettyEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) {
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
+        if (securityRealmName != null) {
+            JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
+            setRealm(realm);
+            this.realm = realm;
+            if ("NONE".equals(transportGuarantee)) {
+                isConfidentialTransportGuarantee = false;
+                isIntegralTransportGuarantee = false;
+            } else if ("INTEGRAL".equals(transportGuarantee)) {
+                isConfidentialTransportGuarantee = false;
+                isIntegralTransportGuarantee = true;
+            } else if ("CONFIDENTIAL".equals(transportGuarantee)) {
+                isConfidentialTransportGuarantee = true;
+                isIntegralTransportGuarantee = false;
+            } else {
+                throw new IllegalArgumentException("Invalid transport-guarantee: " + transportGuarantee);
+            }
+            if ("BASIC".equals(authMethod)) {
+                authenticator = new BasicAuthenticator();
+            } else if ("DIGEST".equals(authMethod)) {
+                authenticator = new DigestAuthenticator();
+            } else if ("CLIENT-CERT".equals(authMethod)) {
+                authenticator = new ClientCertAuthenticator();
+            } else if ("NONE".equals(authMethod)) {
+                authenticator = null;
+            } else {
+                throw new IllegalArgumentException("Invalid authMethod: " + authMethod);
+            }
+        } else {
+            realm = null;
+            authenticator = null;
+            isConfidentialTransportGuarantee = false;
+            isIntegralTransportGuarantee = false;
+        }
+        this.classLoader = classLoader;
     }
 
     public String getName() {
@@ -84,26 +128,49 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
         req.setContentType("text/xml");
         RequestAdapter request = new RequestAdapter(req);
         ResponseAdapter response = new ResponseAdapter(res);
-            
+
         if (req.getParameter("wsdl") != null) {
             try {
-                webServiceContainer.getWsdl(request,response);
+                webServiceContainer.getWsdl(request, response);
+                //WHO IS RESPONSIBLE FOR CLOSING OUT?
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
                 throw (HttpException) new HttpException(500, "Could not fetch wsdl!").initCause(e);
             }
         } else {
+            if (isConfidentialTransportGuarantee) {
+                if (!req.isConfidential()) {
+                    throw new HttpException(403);
+                }
+            } else if (isIntegralTransportGuarantee) {
+                if (!req.isIntegral()) {
+                    throw new HttpException(403);
+                }
+            }
+            Thread currentThread = Thread.currentThread();
+            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(classLoader);
             try {
-                webServiceContainer.invoke(request,response);
-                req.setHandled(true);
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
+                if (authenticator != null) {
+                    String pathInContext = org.mortbay.util.URI.canonicalPath(req.getPath());
+                    if (authenticator.authenticate(realm, pathInContext, req, res) == null) {
+                        throw new HttpException(403);
+                    }
+                }
+                try {
+                    webServiceContainer.invoke(request, response);
+                    req.setHandled(true);
+                } catch (IOException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw (HttpException) new HttpException(500, "Could not process message!").initCause(e);
+                }
+            } finally {
+                currentThread.setContextClassLoader(oldClassLoader);
             }
         }
-            
+
     }
 
     public String getContextPath() {
@@ -123,9 +190,9 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
         }
 
         public java.net.URI getURI() {
-            if( uri==null ) {
+            if (uri == null) {
                 try {
-                    String uriString =  request.getScheme()+"://"+request.getHost()+":"+request.getPort()+request.getURI();
+                    String uriString = request.getScheme() + "://" + request.getHost() + ":" + request.getPort() + request.getURI();
                     //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
                     uri = new java.net.URI(uriString);
                 } catch (URISyntaxException e) {
@@ -149,7 +216,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
 
         public int getMethod() {
             Integer method = (Integer) methods.get(request.getMethod());
-            return method == null ? UNSUPPORTED: method.intValue();
+            return method == null ? UNSUPPORTED : method.intValue();
         }
 
         public String getParameter(String name) {
@@ -164,7 +231,7 @@ public class JettyEJBWebServiceContext extends HttpContext implements HttpHandle
             return request.getAttribute(name);
         }
 
-        public void setAttribute(String name, Object value){
+        public void setAttribute(String name, Object value) {
             request.setAttribute(name, value);
         }
 

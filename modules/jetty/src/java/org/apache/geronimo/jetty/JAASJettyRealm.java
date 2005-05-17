@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -27,8 +28,11 @@ import javax.security.jacc.WebRoleRefPermission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.jetty.interceptor.SecurityContextBeforeAfter;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.realm.providers.CertificateCallbackHandler;
+import org.apache.geronimo.security.realm.providers.ClearableCallbackHandler;
+import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 
@@ -66,16 +70,22 @@ public class JAASJettyRealm implements UserRealm {
                 userMap.remove(username);
             }
 
-
-            char[] password;
+            ClearableCallbackHandler callbackHandler;
             if (credentials instanceof char[]) {
-                password = (char[]) credentials;
+                char[] password = (char[]) credentials;
+                callbackHandler = new PasswordCallbackHandler(username, password);
             } else if (credentials instanceof String) {
-                password = ((String) credentials).toCharArray();
+                char[] password = ((String) credentials).toCharArray();
+                callbackHandler = new PasswordCallbackHandler(username, password);
+            } else if (credentials instanceof X509Certificate[]) {
+                X509Certificate[] certs = (X509Certificate[]) credentials;
+                if (certs.length < 1) {
+                    throw new LoginException("no certificates supplied");
+                }
+                callbackHandler = new CertificateCallbackHandler(certs[0]);
             } else {
                 throw new LoginException("Cannot extract credentials from class: " + credentials.getClass().getName());
             }
-            PasswordCallbackHandler callbackHandler = new PasswordCallbackHandler(username, password);
 
             //set up the login context
             LoginContext loginContext = new LoginContext(loginDomainName, callbackHandler);
@@ -93,7 +103,7 @@ public class JAASJettyRealm implements UserRealm {
 
             return userPrincipal;
         } catch (LoginException e) {
-            log.warn(e);
+            log.info("problem", e);
             return null;
         }
     }

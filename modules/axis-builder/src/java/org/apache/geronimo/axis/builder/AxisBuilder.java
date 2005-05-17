@@ -112,7 +112,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         try {
             classLoader.loadClass(seiClassName);
         } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Unable to load servlet class for pojo webservice: "+seiClassName, e);
+            throw new DeploymentException("Unable to load servlet class for pojo webservice: " + seiClassName, e);
         }
 
         targetGBean.setAttribute("pojoClassName", seiClassName);
@@ -165,7 +165,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         SchemaInfoBuilder schemaInfoBuilder = null;
         JavaWsdlMappingType mapping = null;
         if (wsdlURI != null) {
-            schemaInfoBuilder =  new SchemaInfoBuilder(moduleFile, wsdlURI);
+            schemaInfoBuilder = new SchemaInfoBuilder(moduleFile, wsdlURI);
 
             mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
         }
@@ -237,9 +237,6 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
 
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
-//        Map schemaTypeKeyToSchemaTypeMap = schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap();
-//        Map complexTypeMap = schemaInfoBuilder.getComplexTypesInWsdl();
-//        Map elementMap = schemaInfoBuilder.getElementToTypeMap();
 
         Map wsdlPortMap = service.getPorts();
         for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
@@ -257,7 +254,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
             ServiceEndpointInterfaceMappingType[] endpointMappings = mapping.getServiceEndpointInterfaceMappingArray();
 
-            String credentialsName = credentialsNameMap == null? null: (String) credentialsNameMap.get(port.getName());
+            String credentialsName = credentialsNameMap == null ? null : (String) credentialsNameMap.get(port.getName());
 
             //port type corresponds to SEI
             List operations = portType.getOperations();
@@ -274,15 +271,20 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         javax.wsdl.Service service;
         if (serviceQName != null) {
             service = definition.getService(serviceQName);
+            if (service == null) {
+                throw new DeploymentException("No service wsdl for supplied service qname " + serviceQName);
+            }
         } else {
             Map services = definition.getServices();
-            if (services.size() != 1) {
+            if (services.size() > 1) {
                 throw new DeploymentException("no serviceQName supplied, and there are " + services.size() + " services");
             }
-            service = (javax.wsdl.Service) services.values().iterator().next();
-        }
-        if (service == null) {
-            throw new DeploymentException("No service wsdl for supplied service qname " + serviceQName);
+            if (services.size() == 0) {
+                //partial wsdl
+                service = null;
+            } else {
+                service = (javax.wsdl.Service) services.values().iterator().next();
+            }
         }
         return service;
     }

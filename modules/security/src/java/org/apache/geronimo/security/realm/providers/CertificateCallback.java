@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.webservices;
+package org.apache.geronimo.security.realm.providers;
+
+import java.security.cert.X509Certificate;
+import javax.security.auth.callback.Callback;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public interface SoapHandler {
+public class CertificateCallback implements Callback {
+    X509Certificate certificate;
 
-    void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception;
+    public X509Certificate getCertificate() {
+        return certificate;
+    }
 
-    void removeWebService(String contextPath);
-
+    public void setCertificate(X509Certificate certificate) {
+        this.certificate = certificate;
+    }
 }

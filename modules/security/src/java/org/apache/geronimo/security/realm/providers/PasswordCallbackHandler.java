@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jetty;
+package org.apache.geronimo.security.realm.providers;
 
 import java.util.Arrays;
 import javax.security.auth.callback.Callback;
@@ -26,7 +26,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 /**
  * @version $Revision$ $Date$
  */
-public class PasswordCallbackHandler implements CallbackHandler {
+public class PasswordCallbackHandler implements ClearableCallbackHandler {
     private final String username;
     private final char[] password;
 

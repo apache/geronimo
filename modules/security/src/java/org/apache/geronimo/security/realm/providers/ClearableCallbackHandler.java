@@ -14,15 +14,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.webservices;
+package org.apache.geronimo.security.realm.providers;
+
+import javax.security.auth.callback.CallbackHandler;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public interface SoapHandler {
-
-    void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception;
-
-    void removeWebService(String contextPath);
-
+public interface ClearableCallbackHandler extends CallbackHandler {
+    void clear();
 }
