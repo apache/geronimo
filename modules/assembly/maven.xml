@@ -373,6 +373,7 @@
                 <ant:echo message="Waiting for server at: ${distDir}"/>
                 <deploy:waitForStarted
                     uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                    maxtries="125"
                     username="system"
                     password="manager"
                     id="org/apache/geronimo/RuntimeDeployer"/>
