@@ -89,6 +89,10 @@ import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -160,7 +164,8 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
 
     //ServicereferenceBuilder
-    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+        GerServiceRefType gerServiceRefType = (GerServiceRefType) serviceRefType;
         JarFile moduleFile = module.getModuleFile();
         SchemaInfoBuilder schemaInfoBuilder = null;
         JavaWsdlMappingType mapping = null;
@@ -170,7 +175,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             mapping = WSDescriptorParser.readJaxrpcMapping(moduleFile, jaxrpcMappingURI);
         }
 
-        Object service = createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, portLocationMap, credentialsNameMap, deploymentContext, module, classLoader);
+        Object service = createService(serviceInterface, schemaInfoBuilder, mapping, serviceQName, SOAP_VERSION, handlerInfos, gerServiceRefType, deploymentContext, module, classLoader);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = null;
         try {
@@ -185,12 +190,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         return reference;
     }
 
-    public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
+    public Object createService(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType mapping, QName serviceQName, SOAPConstants soapVersion, List handlerInfos, GerServiceRefType serviceRefType, DeploymentContext context, Module module, ClassLoader classloader) throws DeploymentException {
         Map seiPortNameToFactoryMap = new HashMap();
         Map seiClassNameToFactoryMap = new HashMap();
         Object serviceInstance = createServiceInterfaceProxy(serviceInterface, seiPortNameToFactoryMap, seiClassNameToFactoryMap, context, module, classloader);
         if (schemaInfoBuilder != null) {
-            buildSEIFactoryMap(serviceInterface, schemaInfoBuilder, portLocationMap, credentialsNameMap, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
+            buildSEIFactoryMap(serviceInterface, schemaInfoBuilder, serviceRefType, mapping, handlerInfos, serviceQName, soapVersion, seiPortNameToFactoryMap, seiClassNameToFactoryMap, serviceInstance, context, module, classloader);
         }
         return serviceInstance;
     }
@@ -227,44 +232,105 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
     }
 
-    public void buildSEIFactoryMap(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, Map portLocationMap, Map credentialsNameMap, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
-
-        //find the service we are working with
-        javax.wsdl.Service service = getService(serviceQName, schemaInfoBuilder.getDefinition());
-
-        if (portLocationMap != null) {
-            SchemaInfoBuilder.updatePortLocations(service, portLocationMap);
-        }
-
+    public void buildSEIFactoryMap(Class serviceInterface, SchemaInfoBuilder schemaInfoBuilder, GerServiceRefType serviceRefType, JavaWsdlMappingType mapping, List handlerInfos, QName serviceQName, SOAPConstants soapVersion, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, Object serviceImpl, DeploymentContext context, Module module, ClassLoader classLoader) throws DeploymentException {
         Map exceptionMap = WSDescriptorParser.getExceptionMap(mapping);
 
-        Map wsdlPortMap = service.getPorts();
-        for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String portName = (String) entry.getKey();
-            Port port = (Port) entry.getValue();
+        Definition definition = schemaInfoBuilder.getDefinition();
+        //check for consistency
+        if (definition.getServices().size() == 0) {
+            //partial wsdl
+            if (serviceRefType == null || !serviceRefType.isSetServiceCompletion()) {
+                throw new DeploymentException("Partial wsdl, but no service completion supplied");
+            }
+            GerServiceCompletionType serviceCompletion = serviceRefType.getServiceCompletion();
+            String serviceLocalName = serviceCompletion.getServiceName().trim();
+            String namespace = definition.getTargetNamespace();
+            serviceQName = new QName(namespace, serviceLocalName);
+            javax.wsdl.Service service = definition.createService();
+            service.setQName(serviceQName);
+            GerPortCompletionType[] ports = serviceCompletion.getPortArray();
+            for (int i = 0; i < ports.length; i++) {
+                GerPortCompletionType port = ports[i];
+                URL location = getLocation(port);
+                String portName = port.getPortName().trim();
+                String bindingName = port.getBindingName().trim();
+                QName bindingQName = new QName(namespace, bindingName);
+                Binding binding = definition.getBinding(bindingQName);
+                if (binding == null) {
+                    throw new DeploymentException("No binding found with qname: " + bindingQName);
+                }
+                String credentialsName = port.isSetCredentialsName() ? port.getCredentialsName().trim() : null;
+                mapBinding(binding, mapping, serviceQName, classLoader, context, module, soapVersion, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName, exceptionMap);
 
-            URL location = getAddressLocation(port);
+            }
+        } else {
+            //full wsdl
+            if (serviceRefType != null && serviceRefType.isSetServiceCompletion()) {
+                throw new DeploymentException("Full wsdl, but service completion supplied");
+            }
+            //organize the extra port info
+            Map portMap = new HashMap();
+            if (serviceRefType != null) {
+                GerPortType[] ports = serviceRefType.getPortArray();
+                for (int i = 0; i < ports.length; i++) {
+                    GerPortType port = ports[i];
+                    String portName = port.getPortName().trim();
+                    portMap.put(portName, port);
+                }
+            }
 
-            Binding binding = port.getBinding();
+            //find the service we are working with
+            javax.wsdl.Service service = getService(serviceQName, schemaInfoBuilder.getDefinition());
 
-            Style portStyle = getStyle(binding);
+            Map wsdlPortMap = service.getPorts();
+            for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String portName = (String) entry.getKey();
+                Port port = (Port) entry.getValue();
 
-            PortType portType = binding.getPortType();
+                GerPortType gerPort = (GerPortType) portMap.get(portName);
 
-            ServiceEndpointInterfaceMappingType[] endpointMappings = mapping.getServiceEndpointInterfaceMappingArray();
+                URL location = gerPort == null? getAddressLocation(port): getLocation(gerPort);
+                String credentialsName = gerPort == null || gerPort.getCredentialsName() == null? null : gerPort.getCredentialsName().trim();
 
-            String credentialsName = credentialsNameMap == null ? null : (String) credentialsNameMap.get(port.getName());
+                Binding binding = port.getBinding();
 
-            //port type corresponds to SEI
-            List operations = portType.getOperations();
-            OperationInfo[] operationInfos = new OperationInfo[operations.size()];
-            if (endpointMappings.length == 0) {
-                doLightweightMapping(service.getQName(), portType, mapping, classLoader, context, module, operations, binding, portStyle, soapVersion, operationInfos, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
-            } else {
-                doHeavyweightMapping(service.getQName(), portType, endpointMappings, classLoader, context, module, operations, binding, portStyle, soapVersion, exceptionMap, schemaInfoBuilder, mapping, operationInfos, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+                mapBinding(binding, mapping, serviceQName, classLoader, context, module, soapVersion, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName, exceptionMap);
             }
         }
+    }
+
+    private void mapBinding(Binding binding, JavaWsdlMappingType mapping, QName serviceQName, ClassLoader classLoader, DeploymentContext context, Module module, SOAPConstants soapVersion, SchemaInfoBuilder schemaInfoBuilder, String portName, Object serviceImpl, URL location, List handlerInfos, Map seiPortNameToFactoryMap, Map seiClassNameToFactoryMap, String credentialsName, Map exceptionMap) throws DeploymentException {
+        Style portStyle = getStyle(binding);
+
+        PortType portType = binding.getPortType();
+
+        ServiceEndpointInterfaceMappingType[] endpointMappings = mapping.getServiceEndpointInterfaceMappingArray();
+
+
+        //port type corresponds to SEI
+        List operations = portType.getOperations();
+        OperationInfo[] operationInfos = new OperationInfo[operations.size()];
+        if (endpointMappings.length == 0) {
+            doLightweightMapping(serviceQName, portType, mapping, classLoader, context, module, operations, binding, portStyle, soapVersion, operationInfos, schemaInfoBuilder, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+        } else {
+            doHeavyweightMapping(serviceQName, portType, endpointMappings, classLoader, context, module, operations, binding, portStyle, soapVersion, exceptionMap, schemaInfoBuilder, mapping, operationInfos, portName, serviceImpl, location, handlerInfos, seiPortNameToFactoryMap, seiClassNameToFactoryMap, credentialsName);
+        }
+    }
+
+    private URL getLocation(GerPortType port) throws DeploymentException {
+        String protocol = port.getProtocol().trim();
+        String host = port.getHost().trim();
+        int portNum = port.getPort();
+        String uri = port.getUri().trim();
+        String locationURIString = protocol + "://" + host + ":" + portNum + uri;
+        URL location;
+        try {
+            location = new URL(locationURIString);
+        } catch (MalformedURLException e) {
+            throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
+        }
+        return location;
     }
 
     private javax.wsdl.Service getService(QName serviceQName, Definition definition) throws DeploymentException {
@@ -280,8 +346,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                 throw new DeploymentException("no serviceQName supplied, and there are " + services.size() + " services");
             }
             if (services.size() == 0) {
-                //partial wsdl
-                service = null;
+                throw new DeploymentException("No service in wsdl, and no service completion supplied!");
             } else {
                 service = (javax.wsdl.Service) services.values().iterator().next();
             }

@@ -32,7 +32,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  */
 public class UnavailableServiceReferenceBuilder implements ServiceReferenceBuilder {
 
-    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Map portLocationMap, Map credentialsNameMap, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+    public Object createService(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         throw new DeploymentException("Service references are not available in this configuration");
     }
 

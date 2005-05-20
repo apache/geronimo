@@ -432,16 +432,16 @@ public class ENCConfigBuilder {
         }
     }
 
-    //TODO current implementation does not deal with portComponentRefs.
-    public static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, Map serviceRefMap, Map serviceRefCredentialsNameMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    //TODO current implementation does not deal with portComponentRef links.
+    public static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, Map serviceRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
 
         RefContext refContext = earContext.getRefContext();
 
         for (int i = 0; i < serviceRefs.length; i++) {
             ServiceRefType serviceRef = serviceRefs[i];
             String name = getStringValue(serviceRef.getServiceRefName());
-            Map portLocationMap = (Map) serviceRefMap.get(name);
-            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);
+            GerServiceRefType serviceRefType = (GerServiceRefType) serviceRefMap.get(name);
+//            Map credentialsNameMap = (Map) serviceRefCredentialsNameMap.get(name);
             String serviceInterfaceName = getStringValue(serviceRef.getServiceInterface());
             assureInterface(serviceInterfaceName, "javax.xml.rpc.Service", "[Web]Service", cl);
             Class serviceInterface = null;
@@ -491,7 +491,7 @@ public class ENCConfigBuilder {
             List handlerInfos = buildHandlerInfoList(handlers, cl);
 
             //we could get a Reference or the actual serializable Service back.
-            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, portLocationMap, credentialsNameMap, earContext, module, cl);
+            Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, earContext, module, cl);
             builder.bind(name, ref);
         }
 
@@ -678,10 +678,11 @@ public class ENCConfigBuilder {
 
         addMessageDestinationRefs(earContext, uri, messageDestinationRefs, cl, builder);
 
-        Map serviceRefMap = new HashMap();
-        Map serviceRefCredentialsNameMap = new HashMap();
-        mapServiceRefs(gerServiceRefs, serviceRefMap, serviceRefCredentialsNameMap);
-        addServiceRefs(earContext, module, serviceRefs, serviceRefMap, serviceRefCredentialsNameMap, cl, builder);
+//        Map serviceRefMap = new HashMap();
+//        Map serviceRefCredentialsNameMap = new HashMap();
+//        mapServiceRefs(gerServiceRefs, serviceRefMap, serviceRefCredentialsNameMap);
+        Map serviceRefMap = mapServiceRefs(gerServiceRefs);
+        addServiceRefs(earContext, module, serviceRefs, serviceRefMap, cl, builder);
 
         return builder.getContext();
     }
@@ -730,35 +731,14 @@ public class ENCConfigBuilder {
         return refMap;
     }
 
-    private static Map mapServiceRefs(GerServiceRefType[] refs, Map refMap, Map serviceRefCredentialsNameMap) {
-        if (refs != null) {
-            for (int i = 0; i < refs.length; i++) {
-                GerServiceRefType ref = refs[i];
-                String serviceRefName = ref.getServiceRefName().trim();
-                Map portMap = new HashMap();
-                Map credentialsMap = new HashMap();
-                GerPortType[] ports = ref.getPortArray();
-                for (int j = 0; j < ports.length; j++) {
-                    GerPortType port = ports[j];
-                    String portName = port.getPortName().trim();
-                    String protocol = port.getProtocol().trim();
-                    String host = port.getHost().trim();
-                    int portNum = port.getPort();
-                    String uri = port.getUri().trim();
-                    String location = protocol + "://" + host + ":" + portNum + uri;
-                    portMap.put(portName, location);
-
-                    if (port.isSetCredentialsName()) {
-                        String credentialsName = port.getCredentialsName();
-                        credentialsMap.put(portName, credentialsName);
-                    }
-                }
-                refMap.put(serviceRefName, portMap);
-                serviceRefCredentialsNameMap.put(serviceRefName, credentialsMap);
-            }
+    private static Map mapServiceRefs(GerServiceRefType[] refs) {
+        Map refMap = new HashMap();
+        for (int i = 0; i < refs.length; i++) {
+            GerServiceRefType ref = refs[i];
+            String serviceRefName = ref.getServiceRefName().trim();
+            refMap.put(serviceRefName, ref);
         }
         return refMap;
     }
-
 
 }
