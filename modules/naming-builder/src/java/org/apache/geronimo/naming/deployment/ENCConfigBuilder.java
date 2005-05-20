@@ -49,7 +49,6 @@ import org.apache.geronimo.naming.java.ComponentContextBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
@@ -733,10 +732,12 @@ public class ENCConfigBuilder {
 
     private static Map mapServiceRefs(GerServiceRefType[] refs) {
         Map refMap = new HashMap();
-        for (int i = 0; i < refs.length; i++) {
-            GerServiceRefType ref = refs[i];
-            String serviceRefName = ref.getServiceRefName().trim();
-            refMap.put(serviceRefName, ref);
+        if (refs != null) {
+            for (int i = 0; i < refs.length; i++) {
+                GerServiceRefType ref = refs[i];
+                String serviceRefName = ref.getServiceRefName().trim();
+                refMap.put(serviceRefName, ref);
+            }
         }
         return refMap;
     }
