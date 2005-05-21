@@ -149,7 +149,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
             OperationDesc operationDesc = (OperationDesc) iter.next();
             ArrayList parameters = new ArrayList(operationDesc.getParameters());
-            if (null != operationDesc.getReturnParamDesc()) {
+            if (null != operationDesc.getReturnParamDesc().getTypeQName()) {
                 parameters.add(operationDesc.getReturnParamDesc());
             }
             for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
