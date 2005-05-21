@@ -21,7 +21,10 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +34,8 @@ import javax.xml.namespace.QName;
 import org.apache.axis.description.AttributeDesc;
 import org.apache.axis.description.ElementDesc;
 import org.apache.axis.description.FieldDesc;
+import org.apache.axis.description.OperationDesc;
+import org.apache.axis.description.ParameterDesc;
 import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 import org.apache.axis.encoding.ser.ArraySerializerFactory;
 import org.apache.axis.encoding.ser.Base64DeserializerFactory;
@@ -69,18 +74,22 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
+    private final Collection operations;
     private final boolean hasEncoded;
 
-    public HeavyweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames, boolean hasEncoded) {
+    public HeavyweightTypeInfoBuilder(ClassLoader cl, Map schemaTypeKeyToSchemaTypeMap, Set wrapperElementQNames, Collection operations, boolean hasEncoded) {
         this.cl = cl;
         this.schemaTypeKeyToSchemaTypeMap = schemaTypeKeyToSchemaTypeMap;
         this.wrapperElementQNames = wrapperElementQNames;
+        this.operations = operations;
         this.hasEncoded = hasEncoded;
     }
 
     public List buildTypeInfo(JavaWsdlMappingType mapping) throws DeploymentException {
         List typeInfoList = new ArrayList();
 
+        Set mappedTypeQNames = new HashSet();
+        
         JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
@@ -119,30 +128,9 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             if (schemaType == null) {
                 throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
             }
+            mappedTypeQNames.add(key.getqName());
 
-            Class serializerFactoryClass = null;
-            Class deserializerFactoryClass = null;
-            if (null == schemaType.getContentModel()) {
-                QName typeQName;
-                if (SchemaType.SIMPLE_CONTENT == schemaType.getContentType()) {
-                    typeQName = schemaType.getBaseType().getName();
-                } else {
-                    typeQName = schemaType.getName();
-                }
-                FactoryPair pair = (FactoryPair) qnamesToFactoryPair.get(typeQName);
-                if (null != pair) {
-                    serializerFactoryClass = pair.serializerFactoryClass;
-                    deserializerFactoryClass = pair.deserializerFactoryClass;
-                }
-                // TODO: shall we fail there?
-            }
-            if (null == serializerFactoryClass) {
-                serializerFactoryClass = BeanSerializerFactory.class;
-                deserializerFactoryClass = BeanDeserializerFactory.class;
-            }
-            
             String className = javaXmlTypeMapping.getJavaType().getStringValue().trim();
-
             Class clazz = null;
             try {
                 clazz = ClassLoading.loadClass(className, cl);
@@ -150,38 +138,101 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 throw new DeploymentException("Could not load java type", e2);
             }
 
-            if (clazz.isArray()) {
-                serializerFactoryClass = ArraySerializerFactory.class;
-                deserializerFactoryClass = ArrayDeserializerFactory.class;
-            } else if (clazz == List.class) {
-                serializerFactoryClass = SimpleListSerializerFactory.class;
-                deserializerFactoryClass = SimpleListDeserializerFactory.class;
-            }
-
             TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
-            internalTypeInfo.setClazz(clazz);
-
-            internalTypeInfo.setSerializerClass(serializerFactoryClass);
-            internalTypeInfo.setDeserializerClass(deserializerFactoryClass);
+            defineSerializerPair(internalTypeInfo, schemaType, clazz);
 
             populateInternalTypeInfo(clazz, key, schemaType, javaXmlTypeMapping, internalTypeInfo);
 
             typeInfoList.add(internalTypeInfo.buildTypeInfo());
         }
+        
+        for (Iterator iter = operations.iterator(); iter.hasNext();) {
+            OperationDesc operationDesc = (OperationDesc) iter.next();
+            ArrayList parameters = new ArrayList(operationDesc.getParameters());
+            if (null != operationDesc.getReturnParamDesc()) {
+                parameters.add(operationDesc.getReturnParamDesc());
+            }
+            for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
+                ParameterDesc parameterDesc = (ParameterDesc) iterator.next();
+                QName typeQName = parameterDesc.getTypeQName();
+                if (mappedTypeQNames.contains(typeQName)) {
+                    continue;
+                }
+
+                SchemaTypeKey key = new SchemaTypeKey(typeQName, true, false, false, null);
+                SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
+                if (schemaType == null) {
+                    throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+                }
+                mappedTypeQNames.add(key.getqName());
+	            
+                Class clazz = parameterDesc.getJavaType();
+                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
+                setTypeQName(internalTypeInfo, key);
+                defineSerializerPair(internalTypeInfo, schemaType, clazz);
+                internalTypeInfo.setFields(new FieldDesc[0]);
+
+                typeInfoList.add(internalTypeInfo.buildTypeInfo());
+            }
+        }
 
         return typeInfoList;
     }
 
-    private void populateInternalTypeInfo(Class javaClass, SchemaTypeKey key, SchemaType schemaType, JavaXmlTypeMappingType javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
-        String ns = key.getqName().getNamespaceURI();
-        typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
+    private void defineSerializerPair(TypeInfo.UpdatableTypeInfo internalTypeInfo, SchemaType schemaType, Class clazz) {
+        Class serializerFactoryClass = null;
+        Class deserializerFactoryClass = null;
+        if (null == schemaType.getContentModel()) {
+            QName typeQName;
+            if (SchemaType.SIMPLE_CONTENT == schemaType.getContentType()) {
+                typeQName = schemaType.getBaseType().getName();
+            } else {
+                typeQName = schemaType.getName();
+            }
+            FactoryPair pair = (FactoryPair) qnamesToFactoryPair.get(typeQName);
+            if (null != pair) {
+                serializerFactoryClass = pair.serializerFactoryClass;
+                deserializerFactoryClass = pair.deserializerFactoryClass;
+            }
+            // TODO: shall we fail there?
+        }
+        if (null == serializerFactoryClass) {
+            serializerFactoryClass = BeanSerializerFactory.class;
+            deserializerFactoryClass = BeanDeserializerFactory.class;
+        }
+        
+        if (clazz.isArray()) {
+            if (schemaType.isSimpleType() && SchemaType.LIST == schemaType.getSimpleVariety()) {
+                serializerFactoryClass = SimpleListSerializerFactory.class;
+                deserializerFactoryClass = SimpleListDeserializerFactory.class;
+            } else {
+                serializerFactoryClass = ArraySerializerFactory.class;
+                deserializerFactoryClass = ArrayDeserializerFactory.class;
+            }
+        } else if (clazz == List.class) {
+            serializerFactoryClass = SimpleListSerializerFactory.class;
+            deserializerFactoryClass = SimpleListDeserializerFactory.class;
+        }
+        
+        internalTypeInfo.setClazz(clazz);
+        internalTypeInfo.setSerializerClass(serializerFactoryClass);
+        internalTypeInfo.setDeserializerClass(deserializerFactoryClass);
+    }
 
+    private void setTypeQName(TypeInfo.UpdatableTypeInfo typeInfo, SchemaTypeKey key) {
         //figure out the name axis expects to look up under.
         QName axisKey = key.getElementQName();
         if (axisKey == null) {
             axisKey = key.getqName();
         }
         typeInfo.setQName(axisKey);
+    }
+    
+    private void populateInternalTypeInfo(Class javaClass, SchemaTypeKey key, SchemaType schemaType, JavaXmlTypeMappingType javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
+        String ns = key.getqName().getNamespaceURI();
+        typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
+
+        setTypeQName(typeInfo, key);
 
         Map paramNameToType = new HashMap();
         if (null == schemaType.getContentModel()) {

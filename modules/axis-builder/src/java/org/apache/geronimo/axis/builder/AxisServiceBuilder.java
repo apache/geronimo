@@ -21,6 +21,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
+
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -45,6 +48,7 @@ import javax.xml.namespace.QName;
 import org.apache.axis.constants.Style;
 import org.apache.axis.constants.Use;
 import org.apache.axis.description.JavaServiceDesc;
+import org.apache.axis.description.OperationDesc;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.geronimo.axis.client.TypeInfo;
@@ -155,8 +159,13 @@ public class AxisServiceBuilder {
             validateLightweightMapping(portInfo.getDefinition());
         }
 
-        Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, classLoader, serviceDesc);
-
+        Collection operations = new ArrayList();
+        Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, classLoader, operations);
+        for (Iterator iter = operations.iterator(); iter.hasNext();) {
+            OperationDesc operation = (OperationDesc) iter.next();
+            serviceDesc.addOperationDesc(operation);
+        }
+     
         TypeMappingRegistryImpl tmr = new TypeMappingRegistryImpl();
         tmr.doRegisterFromVersion("1.3");
 
@@ -170,16 +179,14 @@ public class AxisServiceBuilder {
             LightweightTypeInfoBuilder builder = new LightweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         } else {
-            HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames, hasEncoded);
+            HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames, operations, hasEncoded);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         }
-        TypeInfo.register(typeInfo, typeMapping);
 
-        serviceDesc.getOperations();
         return new ReadOnlyServiceDesc(serviceDesc, typeInfo);
     }
 
-    private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, ClassLoader classLoader, JavaServiceDesc serviceDesc) throws DeploymentException {
+    private static Set buildOperations(Binding binding, Class serviceEndpointInterface, boolean lightweight, PortInfo portInfo, Map exceptionMap, ClassLoader classLoader, Collection operations) throws DeploymentException {
         Set wrappedElementQNames = new HashSet();
 
         SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
@@ -204,7 +211,7 @@ public class AxisServiceBuilder {
                 wrappedElementQNames.addAll(wrappedElementQNamesForOper);
             }
 
-            serviceDesc.addOperationDesc(operationDescBuilder.buildOperationDesc());
+            operations.add(operationDescBuilder.buildOperationDesc());
         }
 
         return wrappedElementQNames;

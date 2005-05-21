@@ -26,6 +26,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -388,6 +389,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
         Class enhancedServiceEndpointClass = enhanceServiceEndpointInterface(serviceEndpointInterface, context, module, classLoader);
 
+        Collection operationDescs = new ArrayList();
         ServiceEndpointMethodMappingType[] methodMappings = endpointMapping.getServiceEndpointMethodMappingArray();
         int i = 0;
         Set wrapperElementQNames = new HashSet();
@@ -414,10 +416,11 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             HeavyweightOperationDescBuilder operationDescBuilder = new HeavyweightOperationDescBuilder(bindingOperation, mapping, methodMapping, portStyle, exceptionMap, schemaInfoBuilder, javaXmlTypeMappings, classLoader, enhancedServiceEndpointClass);
             OperationInfo operationInfo = operationDescBuilder.buildOperationInfo(soapVersion);
             operationInfos[i++] = operationInfo;
+            operationDescs.add(operationInfo.getOperationDesc());
             wrapperElementQNames.addAll(operationDescBuilder.getWrapperElementQNames());
             hasEncoded |= operationDescBuilder.isEncoded();
         }
-        HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), wrapperElementQNames, hasEncoded);
+        HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaInfoBuilder.getSchemaTypeKeyToSchemaTypeMap(), wrapperElementQNames, operationDescs, hasEncoded);
         List typeInfo = builder.buildTypeInfo(mapping);
 
         seiFactory = createSEIFactory(serviceName, portName, enhancedServiceEndpointClass, serviceImpl, typeInfo, location, operationInfos, handlerInfos, credentialsName, context, classLoader);
