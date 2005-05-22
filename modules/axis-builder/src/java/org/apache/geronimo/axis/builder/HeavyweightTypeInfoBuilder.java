@@ -146,6 +146,12 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             typeInfoList.add(internalTypeInfo.buildTypeInfo());
         }
         
+        Map qNameToKey = new HashMap();
+        for (Iterator iter = schemaTypeKeyToSchemaTypeMap.keySet().iterator(); iter.hasNext();) {
+            SchemaTypeKey key = (SchemaTypeKey) iter.next();
+            qNameToKey.put(key.getqName(), key);
+        }
+        
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
             OperationDesc operationDesc = (OperationDesc) iter.next();
             ArrayList parameters = new ArrayList(operationDesc.getParameters());
@@ -157,13 +163,17 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 QName typeQName = parameterDesc.getTypeQName();
                 if (mappedTypeQNames.contains(typeQName)) {
                     continue;
+                } else if (qnamesToFactoryPair.keySet().contains(typeQName)) {
+                    continue;
                 }
-
-                SchemaTypeKey key = new SchemaTypeKey(typeQName, true, false, false, null);
+                
+                SchemaTypeKey key = (SchemaTypeKey) qNameToKey.get(typeQName);
+                if (null == key) {
+                    continue;
+//                    throw new DeploymentException("Type Qname " + typeQName + " defined by operation " + 
+//                            operationDesc + " has not been found in schema: " + schemaTypeKeyToSchemaTypeMap);
+                }
                 SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
-                if (schemaType == null) {
-                    throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
-                }
                 mappedTypeQNames.add(key.getqName());
 	            
                 Class clazz = parameterDesc.getJavaType();
