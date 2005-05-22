@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
-
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -106,7 +105,6 @@ public class AxisServiceBuilder {
     public static JavaServiceDesc createServiceDesc(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
 
         Port port = portInfo.getPort();
-//        System.out.println("port = " + port);
 
         Class serviceEndpointInterface = null;
         try {
@@ -152,7 +150,7 @@ public class AxisServiceBuilder {
             OperationDesc operation = (OperationDesc) iter.next();
             serviceDesc.addOperationDesc(operation);
         }
-     
+
         TypeMappingRegistryImpl tmr = new TypeMappingRegistryImpl();
         tmr.doRegisterFromVersion("1.3");
 
@@ -169,12 +167,12 @@ public class AxisServiceBuilder {
             HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames, operations, hasEncoded);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         }
-        
-        // We register type mappings and invoke serviceDesc.getOperations to trigger an introspection of the 
+
+        // We register type mappings and invoke serviceDesc.getOperations to trigger an introspection of the
         // operations. By doing these operations during deployment, no introspection is required during runtime.
         TypeInfo.register(typeInfo, typeMapping);
         serviceDesc.getOperations();
-        
+
         return new ReadOnlyServiceDesc(serviceDesc, typeInfo);
     }
 
@@ -212,7 +210,6 @@ public class AxisServiceBuilder {
 
     private static Style getStyle(Binding binding) throws DeploymentException {
         SOAPBinding soapBinding = (SOAPBinding) SchemaInfoBuilder.getExtensibilityElement(SOAPBinding.class, binding.getExtensibilityElements());
-//            String transportURI = soapBinding.getTransportURI();
         String portStyleString = soapBinding.getStyle();
         Style portStyle = Style.getStyle(portStyleString);
         return portStyle;
@@ -221,12 +218,6 @@ public class AxisServiceBuilder {
     private static String getAddressLocation(Port port) throws DeploymentException {
         SOAPAddress soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
         String locationURIString = soapAddress.getLocationURI();
-//        URL location = null;
-//        try {
-//            location = new URL(locationURIString);
-//        } catch (MalformedURLException e) {
-//            throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
-//        }
         return locationURIString;
     }
 
