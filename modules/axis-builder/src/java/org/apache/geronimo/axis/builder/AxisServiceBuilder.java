@@ -182,7 +182,12 @@ public class AxisServiceBuilder {
             HeavyweightTypeInfoBuilder builder = new HeavyweightTypeInfoBuilder(classLoader, schemaTypeKeyToSchemaTypeMap, wrapperElementQNames, operations, hasEncoded);
             typeInfo = builder.buildTypeInfo(portInfo.getJavaWsdlMapping());
         }
-
+        
+        // We register type mappings and invoke serviceDesc.getOperations to trigger an introspection of the 
+        // operations. By doing these operations during deployment, no introspection is required during runtime.
+        TypeInfo.register(typeInfo, typeMapping);
+        serviceDesc.getOperations();
+        
         return new ReadOnlyServiceDesc(serviceDesc, typeInfo);
     }
 
