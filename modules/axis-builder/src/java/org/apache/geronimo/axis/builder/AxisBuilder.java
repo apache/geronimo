@@ -282,6 +282,9 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
             //find the service we are working with
             javax.wsdl.Service service = getService(serviceQName, schemaInfoBuilder.getDefinition());
+            if (serviceQName == null) {
+                serviceQName = service.getQName();
+            }
 
             Map wsdlPortMap = service.getPorts();
             for (Iterator iterator = wsdlPortMap.entrySet().iterator(); iterator.hasNext();) {

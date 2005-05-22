@@ -93,19 +93,6 @@ public class AxisServiceBuilder {
         return createServiceInfo(portInfo, classLoader);
     }
 
-    private static JavaServiceDesc createEJBServiceDesc(JarFile jarFile, String ejbName, ClassLoader classLoader) throws DeploymentException {
-        Map portComponentsMap = null;
-        try {
-            URL webservicesURL = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
-            portComponentsMap = WSDescriptorParser.parseWebServiceDescriptor(webservicesURL, jarFile, true);
-        } catch (MalformedURLException e1) {
-            throw new DeploymentException("Invalid URL to webservices.xml", e1);
-        }
-
-        // Grab the portInfo for this ejb
-        PortInfo portInfo = (PortInfo) portComponentsMap.get(ejbName);
-        return createServiceDesc(portInfo, classLoader);
-    }
 
     public static ServiceInfo createServiceInfo(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
         JavaServiceDesc serviceDesc = createServiceDesc(portInfo, classLoader);
@@ -134,8 +121,8 @@ public class AxisServiceBuilder {
 
         JavaServiceDesc serviceDesc = new JavaServiceDesc();
 
-        URL location = getAddressLocation(port);
-        serviceDesc.setEndpointURL(location.toExternalForm());
+        String location = getAddressLocation(port);
+        serviceDesc.setEndpointURL(location);
         serviceDesc.setWSDLFile(portInfo.getWsdlLocation());
         Binding binding = port.getBinding();
 
@@ -231,16 +218,16 @@ public class AxisServiceBuilder {
         return portStyle;
     }
 
-    private static URL getAddressLocation(Port port) throws DeploymentException {
+    private static String getAddressLocation(Port port) throws DeploymentException {
         SOAPAddress soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
         String locationURIString = soapAddress.getLocationURI();
-        URL location = null;
-        try {
-            location = new URL(locationURIString);
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
-        }
-        return location;
+//        URL location = null;
+//        try {
+//            location = new URL(locationURIString);
+//        } catch (MalformedURLException e) {
+//            throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
+//        }
+        return locationURIString;
     }
 
     private static Map rewriteWsdlMap(PortInfo portInfo, Map rawWsdlMap) throws DeploymentException {
