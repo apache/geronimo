@@ -502,7 +502,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 if (part == null) {
                     throw new DeploymentException("No part for wsdlMessagePartName " + wsdlMessagePartName + " in output message for operation " + operationName);
                 }
-                returnQName = part.getElementName();
+                returnQName = new QName("", part.getName());
                 returnType = part.getTypeName();
             } else {
                 Part part = output.getPart(wsdlMessagePartName);
