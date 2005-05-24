@@ -71,6 +71,8 @@ import org.apache.xmlbeans.SchemaType;
  */
 public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";
+    private static final String XMLSchema_NS = "http://www.w3.org/2001/XMLSchema";
+    
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
@@ -163,7 +165,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 QName typeQName = parameterDesc.getTypeQName();
                 if (mappedTypeQNames.contains(typeQName)) {
                     continue;
-                } else if (qnamesToFactoryPair.keySet().contains(typeQName)) {
+                } else if (typeQName.getNamespaceURI().equals(XMLSchema_NS)) {
                     continue;
                 }
                 
@@ -206,6 +208,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             }
             // TODO: shall we fail there?
         }
+
         if (null == serializerFactoryClass) {
             serializerFactoryClass = BeanSerializerFactory.class;
             deserializerFactoryClass = BeanDeserializerFactory.class;
@@ -393,6 +396,8 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
         qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedByte"), 
                 new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedLong"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
         qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "QName"), 
                 new FactoryPair(QNameSerializerFactory.class, QNameDeserializerFactory.class));
         qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "dateTime"), 
@@ -408,6 +413,30 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "hexBinary"), 
                 new FactoryPair(HexSerializerFactory.class, HexDeserializerFactory.class));
         qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "anySimpleType"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "nonPositiveInteger"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "nonNegativeInteger"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "positiveInteger"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "negativeInteger"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "ID"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "NCName"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "language"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "normalizedString"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "token"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "Name"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "NMTOKEN"), 
+                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "NMTOKENS"), 
                 new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
     }
     
