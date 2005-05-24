@@ -147,46 +147,47 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
 
             typeInfoList.add(internalTypeInfo.buildTypeInfo());
         }
-        
-        Map qNameToKey = new HashMap();
-        for (Iterator iter = schemaTypeKeyToSchemaTypeMap.keySet().iterator(); iter.hasNext();) {
-            SchemaTypeKey key = (SchemaTypeKey) iter.next();
-            qNameToKey.put(key.getqName(), key);
-        }
-        
-        for (Iterator iter = operations.iterator(); iter.hasNext();) {
-            OperationDesc operationDesc = (OperationDesc) iter.next();
-            ArrayList parameters = new ArrayList(operationDesc.getParameters());
-            if (null != operationDesc.getReturnParamDesc().getTypeQName()) {
-                parameters.add(operationDesc.getReturnParamDesc());
-            }
-            for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
-                ParameterDesc parameterDesc = (ParameterDesc) iterator.next();
-                QName typeQName = parameterDesc.getTypeQName();
-                if (mappedTypeQNames.contains(typeQName)) {
-                    continue;
-                } else if (typeQName.getNamespaceURI().equals(XMLSchema_NS)) {
-                    continue;
-                }
-                
-                SchemaTypeKey key = (SchemaTypeKey) qNameToKey.get(typeQName);
-                if (null == key) {
-                    continue;
-//                    throw new DeploymentException("Type Qname " + typeQName + " defined by operation " + 
-//                            operationDesc + " has not been found in schema: " + schemaTypeKeyToSchemaTypeMap);
-                }
-                SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
-                mappedTypeQNames.add(key.getqName());
-	            
-                Class clazz = parameterDesc.getJavaType();
-                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
-                setTypeQName(internalTypeInfo, key);
-                defineSerializerPair(internalTypeInfo, schemaType, clazz);
-                internalTypeInfo.setFields(new FieldDesc[0]);
 
-                typeInfoList.add(internalTypeInfo.buildTypeInfo());
-            }
-        }
+        // TODO: temporary comment the addition of implicit java to xml type mappings.
+//        Map qNameToKey = new HashMap();
+//        for (Iterator iter = schemaTypeKeyToSchemaTypeMap.keySet().iterator(); iter.hasNext();) {
+//            SchemaTypeKey key = (SchemaTypeKey) iter.next();
+//            qNameToKey.put(key.getqName(), key);
+//        }
+//        
+//        for (Iterator iter = operations.iterator(); iter.hasNext();) {
+//            OperationDesc operationDesc = (OperationDesc) iter.next();
+//            ArrayList parameters = new ArrayList(operationDesc.getParameters());
+//            if (null != operationDesc.getReturnParamDesc().getTypeQName()) {
+//                parameters.add(operationDesc.getReturnParamDesc());
+//            }
+//            for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
+//                ParameterDesc parameterDesc = (ParameterDesc) iterator.next();
+//                QName typeQName = parameterDesc.getTypeQName();
+//                if (mappedTypeQNames.contains(typeQName)) {
+//                    continue;
+//                } else if (typeQName.getNamespaceURI().equals(XMLSchema_NS)) {
+//                    continue;
+//                }
+//                
+//                SchemaTypeKey key = (SchemaTypeKey) qNameToKey.get(typeQName);
+//                if (null == key) {
+//                    continue;
+////                    throw new DeploymentException("Type Qname " + typeQName + " defined by operation " + 
+////                            operationDesc + " has not been found in schema: " + schemaTypeKeyToSchemaTypeMap);
+//                }
+//                SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
+//                mappedTypeQNames.add(key.getqName());
+//	            
+//                Class clazz = parameterDesc.getJavaType();
+//                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
+//                setTypeQName(internalTypeInfo, key);
+//                defineSerializerPair(internalTypeInfo, schemaType, clazz);
+//                internalTypeInfo.setFields(new FieldDesc[0]);
+//
+//                typeInfoList.add(internalTypeInfo.buildTypeInfo());
+//            }
+//        }
 
         return typeInfoList;
     }
