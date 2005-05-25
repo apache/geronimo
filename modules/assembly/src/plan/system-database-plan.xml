@@ -44,14 +44,15 @@
                     <config-property-setting name="DatabaseName">SystemDatabase</config-property-setting>
                     <config-property-setting name="CreateDatabase">create</config-property-setting>
                     <connectionmanager>
-                        <local-transaction/>
+                        <xa-transaction>
+                            <transaction-caching/>
+                        </xa-transaction>
                         <single-pool>
                             <max-size>10</max-size>
                             <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
                             <match-one/>
                         </single-pool>
                     </connectionmanager>
-                    <global-jndi-name>SystemDatasource</global-jndi-name>
                 </connectiondefinition-instance>
             </connection-definition>
         </outbound-resourceadapter>
