@@ -16,9 +16,6 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
