@@ -362,7 +362,9 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
             throw new DeploymentException("No exception mapping for fault " + faultName + " and fault message " + messageQName + " for operation " + operationName);
         }
         String className = exceptionMapping.getExceptionType().getStringValue().trim();
+        //TODO investigate whether there are other cases in which the namespace of faultQName can be determined.
         //this is weird, but I can't figure out what it should be.
+        //if part has an element rather than a type, it should be part.getElementName() (see below)
         QName faultQName = new QName("", faultName);
         Part part;
         if (exceptionMapping.isSetWsdlMessagePartName()) {
@@ -379,6 +381,7 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
                 throw new DeploymentException("Neither type nor element name supplied for part: " + part);
             }
         } else {
+            faultQName = part.getElementName();
             faultTypeQName = (QName) schemaInfoBuilder.getElementToTypeMap().get(part.getElementName());
             if (faultTypeQName == null) {
                 throw new DeploymentException("Can not find type for: element: " + part.getElementName() + ", known elements: " + schemaInfoBuilder.getElementToTypeMap());
