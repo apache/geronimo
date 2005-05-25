@@ -59,15 +59,13 @@ public class GeronimoStandardContext extends StandardContext{
         Map componentContext = ctx.getComponentContext();
         try {
             if (componentContext != null) {
-                for (Iterator iterator = componentContext.values().iterator(); iterator
-                        .hasNext();) {
+                for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
                     Object value = iterator.next();
                     if (value instanceof KernelAwareReference) {
                         ((KernelAwareReference) value).setKernel(ctx.getKernel());
                     }
                     if (value instanceof ClassLoaderAwareReference) {
-                        ((ClassLoaderAwareReference) value)
-                                .setClassLoader(getLoader().getClassLoader());
+                        ((ClassLoaderAwareReference) value).setClassLoader(ctx.getWebClassLoader());
                     }
                 }
                 enc = new SimpleReadOnlyContext(componentContext);
