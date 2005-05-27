@@ -30,32 +30,30 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
+import javax.xml.rpc.encoding.DeserializerFactory;
+import javax.xml.rpc.encoding.SerializerFactory;
 
 import org.apache.axis.description.AttributeDesc;
 import org.apache.axis.description.ElementDesc;
 import org.apache.axis.description.FieldDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
+import org.apache.axis.encoding.DefaultJAXRPC11TypeMappingImpl;
+import org.apache.axis.encoding.DefaultSOAPEncodingTypeMappingImpl;
+import org.apache.axis.encoding.TypeMappingImpl;
+import org.apache.axis.encoding.XMLType;
 import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 import org.apache.axis.encoding.ser.ArraySerializerFactory;
-import org.apache.axis.encoding.ser.Base64DeserializerFactory;
-import org.apache.axis.encoding.ser.Base64SerializerFactory;
 import org.apache.axis.encoding.ser.BeanDeserializerFactory;
 import org.apache.axis.encoding.ser.BeanSerializerFactory;
-import org.apache.axis.encoding.ser.CalendarDeserializerFactory;
-import org.apache.axis.encoding.ser.CalendarSerializerFactory;
-import org.apache.axis.encoding.ser.DateDeserializerFactory;
-import org.apache.axis.encoding.ser.DateSerializerFactory;
-import org.apache.axis.encoding.ser.HexDeserializerFactory;
-import org.apache.axis.encoding.ser.HexSerializerFactory;
-import org.apache.axis.encoding.ser.QNameDeserializerFactory;
-import org.apache.axis.encoding.ser.QNameSerializerFactory;
+import org.apache.axis.encoding.ser.EnumDeserializerFactory;
+import org.apache.axis.encoding.ser.EnumSerializerFactory;
 import org.apache.axis.encoding.ser.SimpleDeserializerFactory;
 import org.apache.axis.encoding.ser.SimpleListDeserializerFactory;
 import org.apache.axis.encoding.ser.SimpleListSerializerFactory;
 import org.apache.axis.encoding.ser.SimpleSerializerFactory;
-import org.apache.axis.encoding.ser.TimeDeserializerFactory;
-import org.apache.axis.encoding.ser.TimeSerializerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.client.TypeInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -71,7 +69,9 @@ import org.apache.xmlbeans.SchemaType;
  */
 public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";
-    private static final String XMLSchema_NS = "http://www.w3.org/2001/XMLSchema";
+    private static final String XML_SCHEMA_NS = "http://www.w3.org/2001/XMLSchema";
+
+    private static final Log log = LogFactory.getLog(HeavyweightTypeInfoBuilder.class); 
     
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
@@ -148,84 +148,116 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             typeInfoList.add(internalTypeInfo.buildTypeInfo());
         }
 
-        // TODO: temporary comment the addition of implicit java to xml type mappings.
-//        Map qNameToKey = new HashMap();
-//        for (Iterator iter = schemaTypeKeyToSchemaTypeMap.keySet().iterator(); iter.hasNext();) {
-//            SchemaTypeKey key = (SchemaTypeKey) iter.next();
-//            qNameToKey.put(key.getqName(), key);
-//        }
-//        
-//        for (Iterator iter = operations.iterator(); iter.hasNext();) {
-//            OperationDesc operationDesc = (OperationDesc) iter.next();
-//            ArrayList parameters = new ArrayList(operationDesc.getParameters());
-//            if (null != operationDesc.getReturnParamDesc().getTypeQName()) {
-//                parameters.add(operationDesc.getReturnParamDesc());
-//            }
-//            for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
-//                ParameterDesc parameterDesc = (ParameterDesc) iterator.next();
-//                QName typeQName = parameterDesc.getTypeQName();
-//                if (mappedTypeQNames.contains(typeQName)) {
-//                    continue;
-//                } else if (typeQName.getNamespaceURI().equals(XMLSchema_NS)) {
-//                    continue;
-//                }
-//                
-//                SchemaTypeKey key = (SchemaTypeKey) qNameToKey.get(typeQName);
-//                if (null == key) {
-//                    continue;
-////                    throw new DeploymentException("Type Qname " + typeQName + " defined by operation " + 
-////                            operationDesc + " has not been found in schema: " + schemaTypeKeyToSchemaTypeMap);
-//                }
-//                SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
-//                mappedTypeQNames.add(key.getqName());
-//	            
-//                Class clazz = parameterDesc.getJavaType();
-//                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
-//                setTypeQName(internalTypeInfo, key);
-//                defineSerializerPair(internalTypeInfo, schemaType, clazz);
-//                internalTypeInfo.setFields(new FieldDesc[0]);
-//
-//                typeInfoList.add(internalTypeInfo.buildTypeInfo());
-//            }
-//        }
+        Map qNameToKey = new HashMap();
+        for (Iterator iter = schemaTypeKeyToSchemaTypeMap.keySet().iterator(); iter.hasNext();) {
+            SchemaTypeKey key = (SchemaTypeKey) iter.next();
+            qNameToKey.put(key.getqName(), key);
+        }
+        
+        for (Iterator iter = operations.iterator(); iter.hasNext();) {
+            OperationDesc operationDesc = (OperationDesc) iter.next();
+            ArrayList parameters = new ArrayList(operationDesc.getParameters());
+            ParameterDesc returnParameterDesc = operationDesc.getReturnParamDesc(); 
+            if (null != returnParameterDesc.getTypeQName() &&
+                    false == returnParameterDesc.getTypeQName().equals(XMLType.AXIS_VOID)) {
+                parameters.add(returnParameterDesc);
+            }
+            for (Iterator iterator = parameters.iterator(); iterator.hasNext();) {
+                ParameterDesc parameterDesc = (ParameterDesc) iterator.next();
+                QName typeQName = parameterDesc.getTypeQName();
+                if (null == typeQName) {
+                    continue;
+                } else if (mappedTypeQNames.contains(typeQName)) {
+                    continue;
+                } else if (typeQName.getNamespaceURI().equals(XML_SCHEMA_NS) ||
+                        typeQName.getNamespaceURI().equals(SOAP_ENCODING_NS)) {
+                    continue;
+                }
+                
+                SchemaTypeKey key = (SchemaTypeKey) qNameToKey.get(typeQName);
+                if (null == key) {
+                    log.warn("Type QName [" + typeQName + "] defined by operation [" + 
+                            operationDesc + "] has not been found in schema: " + schemaTypeKeyToSchemaTypeMap);
+                    continue;
+                }
+                SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
+                mappedTypeQNames.add(key.getqName());
+	            
+                if (false == schemaType.isSimpleType()) {
+                    if (false == mappedTypeQNames.contains(schemaType.getName())) {
+                        // TODO: this lookup is not enough: the jaxrpc mapping file may define an anonymous
+                        // mapping.
+                        log.warn("Operation [" + operationDesc + "] uses XML type [" + schemaType + 
+                                "], whose mapping is not declared by the jaxrpc mapping file.\n Continuing deployment; " +
+                                "yet, the deployment is not-portable.");
+                    }
+                    continue;
+                }
+                
+                Class clazz = parameterDesc.getJavaType();
+                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
+                setTypeQName(internalTypeInfo, key);
+                defineSerializerPair(internalTypeInfo, schemaType, clazz);
+                internalTypeInfo.setFields(new FieldDesc[0]);
+
+                typeInfoList.add(internalTypeInfo.buildTypeInfo());
+            }
+        }
 
         return typeInfoList;
     }
 
-    private void defineSerializerPair(TypeInfo.UpdatableTypeInfo internalTypeInfo, SchemaType schemaType, Class clazz) {
+    private void defineSerializerPair(TypeInfo.UpdatableTypeInfo internalTypeInfo, SchemaType schemaType, Class clazz)
+        throws DeploymentException {
         Class serializerFactoryClass = null;
         Class deserializerFactoryClass = null;
-        if (null == schemaType.getContentModel()) {
-            QName typeQName;
-            if (SchemaType.SIMPLE_CONTENT == schemaType.getContentType()) {
-                typeQName = schemaType.getBaseType().getName();
-            } else {
-                typeQName = schemaType.getName();
-            }
-            FactoryPair pair = (FactoryPair) qnamesToFactoryPair.get(typeQName);
-            if (null != pair) {
-                serializerFactoryClass = pair.serializerFactoryClass;
-                deserializerFactoryClass = pair.deserializerFactoryClass;
-            }
-            // TODO: shall we fail there?
-        }
-
-        if (null == serializerFactoryClass) {
-            serializerFactoryClass = BeanSerializerFactory.class;
-            deserializerFactoryClass = BeanDeserializerFactory.class;
-        }
-        
-        if (clazz.isArray()) {
-            if (schemaType.isSimpleType() && SchemaType.LIST == schemaType.getSimpleVariety()) {
+        if (schemaType.isSimpleType()) {
+            if (SchemaType.ATOMIC == schemaType.getSimpleVariety()) {
+                if (clazz.isArray()) {
+                    serializerFactoryClass = ArraySerializerFactory.class;
+                    deserializerFactoryClass = ArrayDeserializerFactory.class;
+                } else if (null != schemaType.getEnumerationValues()) {
+                    serializerFactoryClass = EnumSerializerFactory.class;
+                    deserializerFactoryClass = EnumDeserializerFactory.class;
+                } else {
+                    QName typeQName = schemaType.getPrimitiveType().getName();
+                    FactoryPair pair = (FactoryPair) TypeMappingLookup.getFactoryPair(typeQName);
+                    if (null == pair) {
+                        throw new DeploymentException("Primitive type [" + typeQName + "] is not registered.");
+                    }
+                    serializerFactoryClass = pair.serializerFactoryClass;
+                    deserializerFactoryClass = pair.deserializerFactoryClass;
+                }
+            } else if (SchemaType.LIST == schemaType.getSimpleVariety()) {
                 serializerFactoryClass = SimpleListSerializerFactory.class;
                 deserializerFactoryClass = SimpleListDeserializerFactory.class;
             } else {
+                throw new DeploymentException("Schema type [" + schemaType + "] is invalid.");
+            }
+        } else {
+            if (clazz.isArray()) {
                 serializerFactoryClass = ArraySerializerFactory.class;
                 deserializerFactoryClass = ArrayDeserializerFactory.class;
+            } else {
+                QName typeQName;
+                if (SchemaType.SIMPLE_CONTENT == schemaType.getContentType()) {
+                    typeQName = schemaType.getBaseType().getName();
+                } else if (SchemaType.EMPTY_CONTENT == schemaType.getContentType() ||
+                        SchemaType.ELEMENT_CONTENT == schemaType.getContentType() ||
+                        SchemaType.MIXED_CONTENT == schemaType.getContentType()) {
+                    typeQName = schemaType.getName();
+                } else {
+                    throw new DeploymentException("Schema type [" + schemaType + "] is invalid.");
+                }
+                FactoryPair pair = (FactoryPair) TypeMappingLookup.getFactoryPair(typeQName);
+                if (null != pair) {
+                    serializerFactoryClass = pair.serializerFactoryClass;
+                    deserializerFactoryClass = pair.deserializerFactoryClass;
+                } else {
+                    serializerFactoryClass = BeanSerializerFactory.class;
+                    deserializerFactoryClass = BeanDeserializerFactory.class;
+                }
             }
-        } else if (clazz == List.class) {
-            serializerFactoryClass = SimpleListSerializerFactory.class;
-            deserializerFactoryClass = SimpleListDeserializerFactory.class;
         }
         
         internalTypeInfo.setClazz(clazz);
@@ -367,78 +399,28 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             }
         }
     }
-    
-    private static final Map qnamesToFactoryPair = new HashMap();
 
-    static {
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "string"),
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "integer"),
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "int"),
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "long"),
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "short"),
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "decimal"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "float"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "double"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "boolean"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "byte"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedInt"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedShort"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedByte"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "unsignedLong"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "QName"), 
-                new FactoryPair(QNameSerializerFactory.class, QNameDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "dateTime"), 
-                new FactoryPair(CalendarSerializerFactory.class, CalendarDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "date"), 
-                new FactoryPair(DateSerializerFactory.class, DateDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "time"), 
-                new FactoryPair(TimeSerializerFactory.class, TimeDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "anyURI"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "base64Binary"), 
-                new FactoryPair(Base64SerializerFactory.class, Base64DeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "hexBinary"), 
-                new FactoryPair(HexSerializerFactory.class, HexDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "anySimpleType"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "nonPositiveInteger"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "nonNegativeInteger"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "positiveInteger"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "negativeInteger"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "ID"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "NCName"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "language"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "normalizedString"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "token"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "Name"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "NMTOKEN"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
-        qnamesToFactoryPair.put(new QName("http://www.w3.org/2001/XMLSchema", "NMTOKENS"), 
-                new FactoryPair(SimpleSerializerFactory.class, SimpleDeserializerFactory.class));
+    private static class TypeMappingLookup {
+        private static final TypeMappingImpl SOAP_TM = DefaultSOAPEncodingTypeMappingImpl.getSingleton();
+        private static final TypeMappingImpl JAXRPC_TM = DefaultJAXRPC11TypeMappingImpl.getSingleton();
+        
+        public static FactoryPair getFactoryPair(QName xmlType) {
+            Class clazz = SOAP_TM.getClassForQName(xmlType, null, null);
+            SerializerFactory sf;
+            DeserializerFactory df;
+            if (null != clazz) {
+                sf = SOAP_TM.getSerializer(clazz, xmlType);
+                df = SOAP_TM.getDeserializer(clazz, xmlType, null);
+            } else {
+                clazz = JAXRPC_TM.getClassForQName(xmlType, null, null);
+                if (null == clazz) {
+                    return null;
+                }
+                sf = JAXRPC_TM.getSerializer(clazz, xmlType);
+                df = JAXRPC_TM.getDeserializer(clazz, xmlType, null);
+            }
+            return new FactoryPair(sf.getClass(), df.getClass());
+        }
     }
     
     private static class FactoryPair {

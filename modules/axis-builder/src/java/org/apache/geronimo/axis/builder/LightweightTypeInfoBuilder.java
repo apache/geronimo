@@ -160,6 +160,8 @@ public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
             if (javaType.isArray()) {
                 elementDesc.setMinOccurs(particle.getIntMinOccurs());
                 elementDesc.setMaxOccurs(particle.getIntMaxOccurs());
+                //TODO axis seems to have the wrong name for this property based on how it is used
+                elementDesc.setMaxOccursUnbounded(particle.getIntMaxOccurs() > 1);
             }
 
             fields[idx++] = elementDesc;
