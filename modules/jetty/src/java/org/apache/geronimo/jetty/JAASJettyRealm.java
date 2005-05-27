@@ -129,6 +129,10 @@ public class JAASJettyRealm implements UserRealm {
     }
 
     public boolean isUserInRole(Principal user, String role) {
+        if (user == null || role == null) {
+            return false;
+        }
+        
         AccessControlContext acc = ContextManager.getCurrentContext();
         try {
             acc.checkPermission(new WebRoleRefPermission(JettyServletHolder.getCurrentServletName(), role));
