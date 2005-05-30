@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
-    Copyright 2004 The Apache Software Foundation
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+* Copyright 2005 the original author or authors.
+*
+*  Licensed under the Apache License, Version 2.0 (the "License");
+*  you may not use this file except in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software
+*  distributed under the License is distributed on an "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*  See the License for the specific language governing permissions and
+*  limitations under the License.
 -->
-
 <configuration
     configId="org/apache/geronimo/Server"
-    domain="gbean"
-    server="server"
+    domain="geronimo.server"
+    server="geronimo"
     >
 
+    <dependency>
+        <uri>mx4j/jars/mx4j-remote-3.0.1.jar</uri>
+    </dependency>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc4.jar</uri>
     </dependency>
@@ -64,9 +65,57 @@
     <dependency>
         <uri>tranql/jars/tranql-1.0-SNAPSHOT.jar</uri>
     </dependency>
+
     <dependency>
         <uri>openejb/jars/openejb-core-2.0-SNAPSHOT.jar</uri>
     </dependency>
+    <dependency>
+        <uri>tmporb/jars/tmporb-orb-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tmporb/jars/tmporb-orb-omg-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tmporb/jars/tmporb-orb-tools-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tmporb/jars/tmporb-tools-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tmporb/jars/tmporb-ins-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tmporb/jars/tmporb-pss-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo-spec/jars/geronimo-spec-corba-2.3-rc4.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>bouncycastle/jars/bcprov-jdk14-124.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>avalon/jars/avalon-framework-4.1.4.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>avalon/jars/avalon-logkit-1.2.2.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>ant/jars/ant-1.5.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xfire/jars/xfire-20050202.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xfire/jars/xfire-java-20050202.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-1.1.1-dev.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-api-1.0.jar</uri>
+    </dependency>
+
+
     <dependency>
         <uri>geronimo/jars/geronimo-jetty-1.0-SNAPSHOT.jar</uri>
     </dependency>
@@ -106,6 +155,15 @@
 
     <dependency>
          <uri>geronimo/jars/geronimo-axis-1.0-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>axis/jars/axis-1.2.1-SNAPSHOT.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>wsdl4j/jars/wsdl4j-PATCH-1193602.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-discovery/jars/commons-discovery-SNAPSHOT.jar</uri>
     </dependency>
 
     <dependency>
