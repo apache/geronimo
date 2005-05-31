@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.axis.server;
 
+import java.lang.reflect.Method;
 import javax.xml.rpc.holders.IntHolder;
 
 import org.apache.axis.providers.java.RPCProvider;
@@ -33,5 +34,19 @@ public class POJOProvider extends RPCProvider {
     public Object getServiceObject(MessageContext msgContext, Handler service, String clsName, IntHolder scopeHolder) throws Exception {
         WebServiceContainer.Request request = (WebServiceContainer.Request) msgContext.getProperty(AxisWebServiceContainer.REQUEST);
         return request.getAttribute(WebServiceContainer.POJO_INSTANCE);
+    }
+
+
+    protected Object invokeMethod(MessageContext msgContext, Method interfaceMethod, Object pojo, Object[] arguments) throws Exception {
+        Class pojoClass = pojo.getClass();
+
+        Method pojoMethod = null;
+        try {
+            pojoMethod = pojoClass.getMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes());
+        } catch (NoSuchMethodException e) {
+            throw new NoSuchMethodException("The pojo class '"+pojoClass.getName()+"' does not have a method matching signature: "+interfaceMethod);
+        }
+
+        return pojoMethod.invoke(pojo, arguments);
     }
 }
