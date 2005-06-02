@@ -267,28 +267,33 @@ public class RefContext {
         try {
             return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
         } catch (UnknownEJBRefException e) {
-
-            ObjectName query = null;
-            try {
-                query = NameFactory.getComponentNameQuery(null, null, null, name, type, j2eeContext);
-            } catch (MalformedObjectNameException e1) {
-                throw new DeploymentException("Could not construct connection factory object name query", e);
-            }
-            Set matches = context.listGBeans(query);
-            if (matches.size() > 1) {
-                throw new DeploymentException("More than one match for query " + matches);
-            }
-            if (matches.size() == 1) {
-                return ((ObjectName) matches.iterator().next()).getCanonicalName();
-            }
-            try {
-                query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
-            } catch (MalformedObjectNameException e1) {
-                throw new DeploymentException("Could not construct connection factory object name query", e);
-            }
-            ObjectName containerName = locateUniqueName(query, "resource");
+            ObjectName containerName = locateComponent(name, type, j2eeContext, context, "connection factory");
             return containerName.getCanonicalName();
         }
+    }
+
+    public ObjectName locateComponent(String name, String type, J2eeContext j2eeContext, DeploymentContext context, String queryType) throws DeploymentException {
+        ObjectName query = null;
+        ObjectName containerName;
+        try {
+            query = NameFactory.getComponentNameQuery(null, null, null, name, type, j2eeContext);
+        } catch (MalformedObjectNameException e1) {
+            throw new DeploymentException("Could not construct " + queryType + " object name query", e1);
+        }
+        Set matches = context.listGBeans(query);
+        if (matches.size() > 1) {
+            throw new DeploymentException("More than one match for query " + matches);
+        }
+        if (matches.size() == 1) {
+            containerName = (ObjectName) matches.iterator().next();
+        }
+        try {
+            query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
+        } catch (MalformedObjectNameException e1) {
+            throw new DeploymentException("Could not construct " + queryType + " object name query", e1);
+        }
+        containerName = locateUniqueName(query, queryType);
+        return containerName;
     }
 
     public Reference getAdminObjectRef(String containerId, Class iface) throws DeploymentException {
@@ -310,7 +315,7 @@ public class RefContext {
             return containerName.getCanonicalName();
         }
     }
-                                                  
+
     public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
         return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, deploymentContext, module, classLoader);
     }

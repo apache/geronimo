@@ -52,6 +52,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerCssType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
@@ -86,6 +87,7 @@ public class ENCConfigBuilder {
             if (context.listGBeans(exact).size() == 1) {
                 containerId = exact;
             } else {
+                //TODO figure out some way to use the copy of this code in RefContext
                 ObjectName query = null;
                 try {
                     query = NameFactory.getComponentNameQuery(null, null, null, linkName, j2eeType, j2eeContext);
@@ -345,9 +347,25 @@ public class ENCConfigBuilder {
                         ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
                     } else if (remoteRef.isSetNsCorbaloc()) {
                         try {
+                            ObjectName cssBean;
+                            if (remoteRef.isSetCssName()) {
+                                cssBean = ObjectName.getInstance(getStringValue(remoteRef.getCssName()));
+                            } else if (remoteRef.isSetCssLink()) {
+                                String cssLink = remoteRef.getCssLink().trim();
+                                cssBean = refContext.locateComponent(cssLink, NameFactory.CORBA_CSS, j2eeContext, earContext, "css gbean");
+                            } else {
+                                GerCssType css = remoteRef.getCss();
+                                cssBean = NameFactory.getComponentName(getStringValue(css.getDomain()),
+                                    getStringValue(css.getServer()),
+                                    getStringValue(css.getApplication()),
+                                    getStringValue(css.getModule()),
+                                    getStringValue(css.getName()),
+                                    getStringValue(NameFactory.CORBA_CSS),
+                                    j2eeContext);
+                            }
                             ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
                                                                         getStringValue(remoteRef.getName()),
-                                                                        ObjectName.getInstance(getStringValue(remoteRef.getCssName())),
+                                                                        ObjectName.getInstance(cssBean),
                                                                         home);
                         } catch (URISyntaxException e) {
                             throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);

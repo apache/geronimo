@@ -198,7 +198,7 @@
             <xsd:element name="service-ref-name" type="xsd:string"/>
             <xsd:choice>
                 <xsd:element name="service-completion" type="gernaming:service-completionType"/>
-            <xsd:element name="port" type="gernaming:portType" maxOccurs="unbounded"/>
+                <xsd:element name="port" type="gernaming:portType" maxOccurs="unbounded"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>
@@ -242,14 +242,25 @@
                     </xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="css-name" type="xsd:string">
-                <xsd:annotation>
-                    <xsd:documentation>
+            <xsd:choice>
+                <xsd:element name="css" type="gernaming:cssType"/>
+                <xsd:element name="css-link" type="xsd:string"/>
+                <xsd:element name="css-name" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
                         The GBean name of the client security server used to make interop calls.
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:choice>
         </xsd:sequence>
     </xsd:group>
+
+    <xsd:complexType name="cssType">
+        <xsd:sequence>
+            <!-- todo type is not relevant -->
+            <xsd:group ref="gernaming:objectNameGroup"/>
+        </xsd:sequence>
+    </xsd:complexType>
 
 </xsd:schema>
