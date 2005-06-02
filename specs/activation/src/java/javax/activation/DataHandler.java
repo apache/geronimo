@@ -182,7 +182,7 @@ public class DataHandler implements Transferable {
         public InputStream getInputStream() throws IOException {
             final DataContentHandler dch = getDataContentHandler();
             if (dch == null) {
-                throw new UnsupportedDataTypeException();
+                throw new UnsupportedDataTypeException(mimeType);
             }
             final PipedInputStream is = new PipedInputStream();
             Thread thread = new Thread() {
