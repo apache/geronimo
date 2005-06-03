@@ -17,10 +17,13 @@
 package org.apache.geronimo.kernel.config;
 
 import java.util.Set;
+import java.util.Iterator;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.management.State;
 
 /**
  * @version $Rev$ $Date$
@@ -32,8 +35,18 @@ public final class ConfigurationUtil {
     }
 
     public static ConfigurationManager getConfigurationManager(Kernel kernel) {
-        // todo cache this
         Set names = kernel.listGBeans(CONFIGURATION_MANAGER_QUERY);
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            try {
+                if (kernel.getGBeanState(objectName) != State.RUNNING_INDEX) {
+                    iterator.remove();
+                }
+            } catch (GBeanNotFoundException e) {
+                // bean died
+                iterator.remove();
+            }
+        }
         if (names.isEmpty()) {
             throw new IllegalStateException("Configuration mananger could not be found in kernel: " + CONFIGURATION_MANAGER_QUERY);
         }
