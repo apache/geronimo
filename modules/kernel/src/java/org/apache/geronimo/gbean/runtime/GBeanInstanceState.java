@@ -334,11 +334,12 @@ public class GBeanInstanceState {
             }
         } catch (Throwable t) {
             // oops there was a problem and the gbean failed
+            log.error("Error while starting; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
             setStateInstance(State.FAILED);
             lifecycleBroadcaster.fireFailedEvent();
 
             if (t instanceof Exception) {
-                log.error("Error while starting; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
+                // ignore - we only rethrow errors
             } else if (t instanceof Error) {
                 throw (Error) t;
             } else {
@@ -402,11 +403,12 @@ public class GBeanInstanceState {
                 return;
             }
         } catch (Throwable t) {
+            log.error("Error while stopping; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
             setStateInstance(State.FAILED);
             lifecycleBroadcaster.fireFailedEvent();
 
             if (t instanceof Exception) {
-                log.error("Error while stopping; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
+                // ignore - we only rethrow errors
             } else if (t instanceof Error) {
                 throw (Error) t;
             } else {

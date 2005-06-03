@@ -277,9 +277,9 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     }
 
     protected final String getDescription() {
-        return "Reference Name: " + getName() +
+        return "GBeanInstance: " + gbeanInstance.getName() +
+                ", Reference Name: " + getName() +
                 ", Reference Type: " + getReferenceType() +
-                ", Proxy Type: " + getProxy() +
-                ", GBeanInstance: " + gbeanInstance.getName();
+                ", Proxy Type: " + getProxy();
     }
 }

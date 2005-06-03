@@ -329,6 +329,11 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         }
 
         // if the bean is already stopped or failed, this will do nothing; otherwise it will shutdown the bean
+        int state = getState();
+        if (state == State.STOPPED_INDEX || state == State.FAILED_INDEX) {
+            log.error("GBeanInstance should already be stopped before die() is called: objectName=" + objectName);
+        }
+
         gbeanInstanceState.fail();
 
         // tell everyone we are done

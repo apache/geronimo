@@ -116,6 +116,9 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         // if we are running, and we now have two valid targets, which is an illegal state so we need to fail
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
+            log.error("Illegal state: two or more targets are not running for a signle valued reference: " + getDescription() +
+                    ", currentTarget=" + proxyTarget +
+                    ", newTarget=" + target);
             gbeanInstance.referenceFailed();
         } else if (waitingForMe) {
             Set targets = getTargets();
@@ -130,6 +133,8 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
             // we no longer have a valid target, which is an illegal state so we need to fail
+            log.error("Illegal state: current target for a signle valued reference stopped: " + getDescription() +
+                    ", currentTarget=" + target);
             gbeanInstance.referenceFailed();
         } else if (waitingForMe) {
             Set targets = getTargets();
