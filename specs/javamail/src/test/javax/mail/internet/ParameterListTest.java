@@ -31,4 +31,10 @@ public class ParameterListTest extends TestCase {
         assertEquals("vulue", list.get("thong"));
         assertEquals("git", list.get("thung"));
     }
+
+    public void testQuotedParameter() throws ParseException {
+        ParameterList list = new ParameterList("foo=one;bar=\"two\"");
+        assertEquals("one", list.get("foo"));
+        assertEquals("two", list.get("bar"));
+    }
 }

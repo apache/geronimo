@@ -50,7 +50,11 @@ public class ParameterList {
                     throw new ParseException(parameter);
                 } else {
                     String name = parameter.substring(0, eq);
-                    String value = parameter.substring(eq + 1);
+                    String value = parameter.substring(eq + 1).trim();
+                    if (value.charAt(0) == '"') {
+                        int end = value.lastIndexOf('"');
+                        value = value.substring(1, end);
+                    }
                     set(name, value);
                 }
             }
