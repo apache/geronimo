@@ -18,7 +18,6 @@
 package org.apache.geronimo.pool;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
-import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -35,7 +34,8 @@ public class ThreadPool implements Executor, GBeanLifecycle {
     private int nextWorkerID = 0;
 
     public ThreadPool(final int poolSize, final String poolName, final long keepAliveTime, final ClassLoader classLoader) {
-        PooledExecutor p = new PooledExecutor(new LinkedQueue(), poolSize);
+        PooledExecutor p = new PooledExecutor(poolSize);
+        p.abortWhenBlocked();
         p.setKeepAliveTime(keepAliveTime);
         p.setMinimumPoolSize(poolSize);
         p.setThreadFactory(new ThreadFactory() {
