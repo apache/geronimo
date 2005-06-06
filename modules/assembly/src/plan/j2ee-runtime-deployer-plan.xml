@@ -137,6 +137,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     <gbean name="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
         <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
+        <reference name="WebServiceBuilder"><name>WebServiceBuilder</name></reference>
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
     -->
@@ -197,12 +198,27 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="servletName">dummy</attribute>
     </gbean>
 
+    <!--
+    - Comment this section to deploy webapps to Apache Tomcat
+    -
+    -->
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
 <!--        <reference name="SkeletonGenerator"><gbean-name>openejb.CORBA:type=SkeletonGenerator,vendor=OpenORB</gbean-name></reference>-->
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
+
+    <!--
+    - Uncomment this section to deploy webapps to Apache Tomcat
+    -
+
+    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+    </gbean>
+    -->
 
     <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
 
