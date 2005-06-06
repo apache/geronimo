@@ -36,14 +36,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
+import javax.wsdl.WSDLException;
 
-import org.apache.geronimo.axis.builder.WSDescriptorParser;
+import org.apache.axis.description.JavaServiceDesc;
+import org.apache.axis.handlers.HandlerInfoChainFactory;
+import org.apache.axis.handlers.soap.SOAPService;
+import org.apache.axis.providers.java.RPCProvider;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis.builder.AxisServiceBuilder;
+import org.apache.geronimo.axis.builder.PortInfo;
+import org.apache.geronimo.axis.server.AxisWebServiceContainer;
+import org.apache.geronimo.axis.server.POJOProvider;
+import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -56,10 +68,13 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.ClassLoaderReference;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -75,6 +90,7 @@ import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
+import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -97,18 +113,24 @@ import org.apache.xmlbeans.XmlObject;
 * @version $Rev: 161588 $ $Date: 2005-04-16 12:06:59 -0600 (Sat, 16 Apr 2005) $
 */
 public class TomcatModuleBuilder implements ModuleBuilder {
+   private static Log log = LogFactory.getLog(TomcatModuleBuilder.class);
+
    private final URI defaultParentId;
    private final ObjectName tomcatContainerObjectName;
+
+   private final WebServiceBuilder webServiceBuilder;
 
    private final Repository repository;
    private final Kernel kernel;
 
    public TomcatModuleBuilder(URI defaultParentId,
                              ObjectName tomcatContainerObjectName,
+                             WebServiceBuilder webServiceBuilder,
                              Repository repository,
                              Kernel kernel) {
        this.defaultParentId = defaultParentId;
        this.tomcatContainerObjectName = tomcatContainerObjectName;
+       this.webServiceBuilder = webServiceBuilder;
        this.repository = repository;
        this.kernel = kernel;
 
@@ -155,11 +177,13 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
        //look for a webservices dd
        Map portMap = Collections.EMPTY_MAP;
-       try {
-           URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-           portMap = WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, false);
-       } catch (MalformedURLException e) {
-           //no descriptor
+       if (webServiceBuilder != null){
+           try {
+               URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
+               portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false);
+           } catch (MalformedURLException e) {
+               //no descriptor
+           }
        }
 
        // parse vendor dd
@@ -192,7 +216,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
    TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
        TomcatWebAppType tomcatWebApp = null;
        try {
-           // load the geronimo-jetty.xml from either the supplied plan or from the earFile
+           // load the geronimo-tomcat.xml from either the supplied plan or from the earFile
            try {
                if (plan instanceof XmlObject) {
                    tomcatWebApp = (TomcatWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
@@ -256,7 +280,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
            id = webApp.getId();
        }
        tomcatWebApp.setConfigId(id);
-       tomcatWebApp.setContextRoot(id);
+       tomcatWebApp.setContextRoot("/" + id);
        return tomcatWebApp;
    }
 
@@ -346,7 +370,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
            webModuleData.setAttribute("componentContext", compContext);
            webModuleData.setAttribute("userTransaction", userTransaction);
            //classpath may have been augmented with enhanced classes
-           webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
+           webModuleData.setAttribute("webClassPath", getFinalWebClasspath(webModule));
            // unsharableResources, applicationManagedSecurityResources
            GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
            ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
@@ -376,12 +400,36 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                }           
            }
            
-           //Handle the role permissions on the servlets.
+           Map portMap = webModule.getPortMap();
+
+           //Handle the role permissions and webservices on the servlets.
            ServletType[] servletTypes = webApp.getServletArray();
+           Map webServices = new HashMap();
            for (int i = 0; i < servletTypes.length; i++) {
                ServletType servletType = servletTypes[i];
+               
+               //Handle the Role Ref Permissions
                processRoleRefPermissions(servletType, securityRoles, rolePermissions);
+                              
+               //Do we have webservices configured?
+               if (portMap != null){
+                   //Check if the Servlet is a Webservice
+                   String servletName = servletType.getServletName().getStringValue().trim();
+                   if (portMap.containsKey(servletName)){
+                       //Yes, this servlet is a web service so let the web service builder 
+                       // deal with configuring the web service stack
+                       String servletClassName = servletType.getServletClass().getStringValue().trim();
+                       Object portInfo = portMap.get(servletName);
+                       if (portInfo == null) {
+                           throw new DeploymentException("No web service deployment info for servlet name " + servletName);
+                       }
+                       
+                       StoredObject wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, webClassLoader);
+                       webServices.put(servletName, wsContainer);
+                   }
+               }
            }
+           webModuleData.setAttribute("webServices", webServices);
            
            if (tomcatWebApp.isSetSecurityRealmName()) {
                
@@ -770,6 +818,23 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        }
    }
 
+   private static URI[] getFinalWebClasspath(WebModule webModule) throws Exception{
+   
+       URI oldClassPath[] = webModule.getWebClasspath();
+       String target = webModule.getTargetPath();
+       URI cleanClassPath[] = new URI[oldClassPath.length];
+       
+       for (int i = 0; i < oldClassPath.length; i++){
+           String uri = oldClassPath[i].toString();
+           if (uri.startsWith(target)){
+               cleanClassPath[i] = new URI(uri.substring(target.length() + 1));
+           } else {
+               cleanClassPath[i] = oldClassPath[i];
+           }
+       }
+       return cleanClassPath;
+   }
+   
    private static void checkString(String pattern) throws DeploymentException {
        //j2ee_1_4.xsd explicitly requires preserving all whitespace. Do not trim.
        if (pattern.indexOf(0x0D) >= 0) throw new DeploymentException("<url-pattern> must not contain CR(#xD)");
@@ -782,6 +847,52 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
    }
 
+   public StoredObject configurePOJO(JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException, IOException {
+
+       PortInfo portInfo = (PortInfo) portInfoObject;
+       ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
+       JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
+
+       try {
+           classLoader.loadClass(seiClassName);
+       } catch (ClassNotFoundException e) {
+           throw new DeploymentException("Unable to load servlet class for pojo webservice: " + seiClassName, e);
+       }
+
+       RPCProvider provider = new POJOProvider();
+
+       SOAPService service = new SOAPService(null, provider, null);
+       service.setServiceDescription(serviceDesc);
+       service.setOption("className", seiClassName);
+
+       HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHandlerInfos());
+       service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
+
+       URI location = null;
+       try {
+           location = new URI(serviceDesc.getEndpointURL());
+       } catch (URISyntaxException e) {
+           throw new DeploymentException("Invalid webservice endpoint URI", e);
+       }
+       URI wsdlURI = null;
+       try {
+           wsdlURI = new URI(serviceDesc.getWSDLFile());
+       } catch (URISyntaxException e) {
+           throw new DeploymentException("Invalid wsdl URI", e);
+
+       }
+
+       classLoader = new ClassLoaderReference(classLoader);
+       AxisWebServiceContainer axisWebServiceContainer = null;
+       try {
+           axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
+       } catch (WSDLException e) {
+           throw new DeploymentException("Could not construct AxisWebServiceContainer", e);
+       }
+
+       return new StoredObject(axisWebServiceContainer);
+   }   
+   
    class UncheckedItem {
        final static int NA = 0x00;
        final static int INTEGRAL = 0x01;
@@ -838,6 +949,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
        infoBuilder.addAttribute("defaultParentId", URI.class, true);
        infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true);
+       infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
        infoBuilder.addAttribute("kernel", Kernel.class, false);
        infoBuilder.addInterface(ModuleBuilder.class);
@@ -845,6 +957,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
        infoBuilder.setConstructor(new String[]{
            "defaultParentId",
            "tomcatContainerObjectName",
+           "WebServiceBuilder",
            "Repository",
            "kernel"});
        GBEAN_INFO = infoBuilder.getBeanInfo();

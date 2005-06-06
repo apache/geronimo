@@ -57,6 +57,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -241,6 +247,19 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-saaj</artifactId>
             <version>${geronimo_spec_saaj_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>${commons_discovery_version}</version>
+            <url>http://jakarta.apache.org/commons/discovery/</url>
         </dependency>
 
         <dependency>

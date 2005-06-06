@@ -41,6 +41,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -54,20 +55,21 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
@@ -141,16 +143,25 @@ public class TomcatModuleBuilderTest extends TestCase {
     private URI parentId = URI.create("org/apache/geronimo/Foo");
 
     public void testDeployWar4() throws Exception {
+        deployWar("war4", "org/apache/geronimo/test");
+    }
+    
+    public void testDeployWar5() throws Exception {
+        deployWar("war5", "hello");
+    }
+
+    public void deployWar(String warName, String name) throws Exception {
+        
         File outputPath = new File(basedir,
-                "target/test-resources/deployables/war4");
+                "target/test-resources/deployables/" + warName);
         recursiveDelete(outputPath);
         outputPath.mkdirs();
-        File path = new File(basedir, "src/test-resources/deployables/war4");
-        File dest = new File(basedir, "target/test-resources/deployables/war4/war");
+        File path = new File(basedir, "src/test-resources/deployables/" + warName);
+        File dest = new File(basedir, "target/test-resources/deployables/" + warName + "/war");
         recursiveCopy(path, dest);
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
-        URI id = new URI("war4");
+        URI id = new URI(warName);
         
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
@@ -182,7 +193,7 @@ public class TomcatModuleBuilderTest extends TestCase {
             fail("gbean not started: " + configData.getName());
         }
 
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=org/apache/geronimo/test")));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=" + name)));
 
         Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,*"));
         System.out.println("Object names: " + names);
@@ -302,7 +313,7 @@ public class TomcatModuleBuilderTest extends TestCase {
             File file = (File) iterator.next(); 
             if (file.getAbsolutePath().indexOf(".svn") < 0){
                 String pathToFile = file.getPath();
-                String relativePath = pathToFile.substring(src.getPath().length(), pathToFile.length());
+                String relativePath = pathToFile.substring(src.getPath().length(), pathToFile.length() - (file.getName().length()));
                 FileUtils.copyFileToDirectory(file,new File(dest.getPath() + relativePath));
             }
         }
@@ -365,8 +376,9 @@ public class TomcatModuleBuilderTest extends TestCase {
                 "org.apache.geronimo.security.jacc.GeronimoPolicy");
         start(securityServiceGBean);
 
-        builder = new TomcatModuleBuilder(new URI("null"), containerName, null,
-                kernel);
+        WebServiceBuilder webServiceBuilder = new AxisBuilder();
+        
+        builder = new TomcatModuleBuilder(new URI("null"), containerName, webServiceBuilder, null, kernel);
 
         // Default Realm
         Map initParams = new HashMap();
