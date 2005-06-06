@@ -121,8 +121,9 @@ public class Bootstrap {
 
     public void bootstrap() throws Exception {
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(Bootstrap.class.getClassLoader());
         try {
+            Thread.currentThread().setContextClassLoader(Bootstrap.class.getClassLoader());
+
             // parse the deployment-system and j2ee-deployer plans
             ConfigurationType deployerSystemConfig = ConfigurationDocument.Factory.parse(new File(deployerSystemPlan)).getConfiguration();
             ConfigurationType j2eeDeployerConfig = ConfigurationDocument.Factory.parse(new File(j2eeDeployerPlan)).getConfiguration();

@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.lang.reflect.Field;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -129,12 +131,12 @@ public class Configuration implements GBeanLifecycle {
     /**
      * The names of all GBeans contained in this configuration.
      */
-    private final Set objectNames;
+    private Set objectNames;
 
     /**
      * The classloadeder used to load the child GBeans contained in this configuration.
      */
-    private final ConfigurationClassLoader configurationClassLoader;
+    private ConfigurationClassLoader configurationClassLoader;
 
     /**
      * The GBeanData for the GBeans contained in this configuration.  These must be persisted as a ByteArray, becuase
@@ -142,6 +144,21 @@ public class Configuration implements GBeanLifecycle {
      * is deserialized and started.
      */
     private byte[] gbeanState;
+
+    /**
+     * Base path used to resolve relative class path entries.
+     */
+    private final URL baseURL;
+
+    /**
+     * Parent of this configuration
+     */
+    private final ConfigurationParent parent;
+
+    /**
+     * The repositories used dependencies.
+     */
+    private final Collection repositories;
 
     /**
      * Only used to allow declaration as a reference.
@@ -160,6 +177,9 @@ public class Configuration implements GBeanLifecycle {
         configurationClassLoader = null;
         dependencies = null;
         classPath = null;
+        baseURL = null;
+        parent = null;
+        repositories = null;
     }
 
     /**
@@ -194,8 +214,11 @@ public class Configuration implements GBeanLifecycle {
         this.objectName = JMXUtil.getObjectName(objectName);
         this.id = id;
         this.moduleType = moduleType;
+        this.baseURL = baseURL;
         this.parentId = parentId;
+        this.parent = parent;
         this.gbeanState = gbeanState;
+        this.repositories = repositories;
         if (classPath != null) {
             this.classPath = classPath;
         } else {
@@ -211,7 +234,21 @@ public class Configuration implements GBeanLifecycle {
 
         this.domain = domain;
         this.server = server;
+    }
 
+    public String getObjectName() {
+        return objectNameString;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public void doStart() throws Exception {
         // build configurationClassLoader
         URL[] urls = resolveClassPath(classPath, baseURL, dependencies, repositories);
         log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
@@ -248,7 +285,7 @@ public class Configuration implements GBeanLifecycle {
                 log.trace("Registering GBean " + name);
                 kernel.loadGBean(gbeanData, configurationClassLoader);
                 objectNames.add(name);
-                // todo change this to a dependency on the gbeanData itself as soon as we add that feature 
+                // todo change this to a dependency on the gbeanData itself as soon as we add that feature
                 kernel.getDependencyManager().addDependency(name, this.objectName);
             }
             this.objectNames = objectNames;
@@ -292,18 +329,6 @@ public class Configuration implements GBeanLifecycle {
         return urls;
     }
 
-    public String getObjectName() {
-        return objectNameString;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public String getServer() {
-        return server;
-    }
-
     private static void setGBeanBaseUrl(GBeanData gbeanData, URL baseUrl) {
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         Set attributes = gbeanInfo.getAttributes();
@@ -314,9 +339,6 @@ public class Configuration implements GBeanLifecycle {
                 return;
             }
         }
-    }
-
-    public void doStart() throws Exception {
     }
 
     public void doStop() throws Exception {
@@ -354,6 +376,15 @@ public class Configuration implements GBeanLifecycle {
             }
         }
 
+        // destroy the class loader
+        LogFactory.release(configurationClassLoader);
+        configurationClassLoader = null;
+        clearSoftCache(ObjectInputStream.class, "subclassAudits");
+        clearSoftCache(ObjectOutputStream.class, "subclassAudits");
+        clearSoftCache(ObjectStreamClass.class, "localDescs");
+        clearSoftCache(ObjectStreamClass.class, "reflectors");
+
+        // update the configuation store
         if (configurationStore != null) {
             ConfigurationData configurationData = new ConfigurationData();
             configurationData.setId(id);
@@ -365,6 +396,23 @@ public class Configuration implements GBeanLifecycle {
             configurationData.setDependencies(dependencies);
             configurationData.setClassPath(classPath);
             configurationStore.updateConfiguration(configurationData);
+        }
+    }
+
+    private static void clearSoftCache(Class clazz, String fieldName) {
+        Map cache = null;
+        try {
+            Field f = clazz.getDeclaredField(fieldName);
+            f.setAccessible(true);
+            cache = (Map) f.get(null);
+        } catch (Throwable e) {
+            log.error("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+        }
+
+        if (cache != null) {
+            synchronized (cache) {
+                cache.clear();
+            }
         }
     }
 

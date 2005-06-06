@@ -87,12 +87,12 @@ public final class AppClientContainer {
     public void main(String[] args) throws Exception {
         Thread thread = Thread.currentThread();
 
-        ClassLoader contextClassLoader = thread.getContextClassLoader();
-        thread.setContextClassLoader(classLoader);
+        ClassLoader oldClassLoader = thread.getContextClassLoader();
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
         TransactionContext currentTransactionContext = null;
         Subject oldCurrentCaller = ContextManager.getCurrentCaller();
         try {
+            thread.setContextClassLoader(classLoader);
             ContextManager.setCurrentCaller(defaultSubject);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
             currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
@@ -109,7 +109,7 @@ public final class AppClientContainer {
         } finally {
             jndiContext.stopClient(appClientModuleName);
 
-            thread.setContextClassLoader(contextClassLoader);
+            thread.setContextClassLoader(oldClassLoader);
             transactionContextManager.setContext(oldTransactionContext);
             currentTransactionContext.commit();
             ContextManager.setCurrentCaller(oldCurrentCaller);

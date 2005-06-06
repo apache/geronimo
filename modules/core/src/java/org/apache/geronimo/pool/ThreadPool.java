@@ -28,47 +28,103 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * @version $Rev$ $Date$
  */
 public class ThreadPool implements Executor, GBeanLifecycle {
-
     private PooledExecutor executor;
+    private ClassLoader classLoader;
 
-    private int nextWorkerID = 0;
-
-    public ThreadPool(final int poolSize, final String poolName, final long keepAliveTime, final ClassLoader classLoader) {
+    public ThreadPool(int poolSize, String poolName, long keepAliveTime, ClassLoader classLoader) {
         PooledExecutor p = new PooledExecutor(poolSize);
         p.abortWhenBlocked();
         p.setKeepAliveTime(keepAliveTime);
         p.setMinimumPoolSize(poolSize);
-        p.setThreadFactory(new ThreadFactory() {
-            public Thread newThread(Runnable arg0) {
-                Thread thread = new Thread(arg0, poolName + " " + getNextWorkerID());
-                thread.setContextClassLoader(classLoader);
-                return thread;
-            }
-        });
+        p.setThreadFactory(new ThreadPoolThreadFactory(poolName, classLoader));
 
         executor = p;
+        this.classLoader = classLoader;
     }
 
 
     public void execute(Runnable command) throws InterruptedException {
-        executor.execute(command);
-    }
-
-    private synchronized int getNextWorkerID() {
-        return nextWorkerID++;
+        PooledExecutor p;
+        synchronized(this) {
+            p = executor;
+        }
+        if (p == null) {
+            throw new IllegalStateException("ThreadPool has been stopped");
+        }
+        Runnable task = new ContextClassLoaderRunnable(command, classLoader);
+        p.execute(task);
     }
 
     public void doStart() throws Exception {
     }
 
     public void doStop() throws Exception {
-        executor.shutdownNow();
+        PooledExecutor p;
+        synchronized(this) {
+            p = executor;
+            executor = null;
+            classLoader = null;
+        }
+        if (p != null) {
+            p.shutdownNow();
+        }
     }
 
     public void doFail() {
         try {
             doStop();
         } catch (Exception e) {
+        }
+    }
+
+    private static final class ThreadPoolThreadFactory implements ThreadFactory {
+        private final String poolName;
+        private final ClassLoader classLoader;
+
+        private int nextWorkerID = 0;
+
+        public ThreadPoolThreadFactory(String poolName, ClassLoader classLoader) {
+            this.poolName = poolName;
+            this.classLoader = classLoader;
+        }
+
+        public Thread newThread(Runnable arg0) {
+            Thread thread = new Thread(arg0, poolName + " " + getNextWorkerID());
+            thread.setContextClassLoader(classLoader);
+            return thread;
+        }
+
+        private synchronized int getNextWorkerID() {
+            return nextWorkerID++;
+        }
+    }
+
+    private static final class ContextClassLoaderRunnable implements Runnable {
+        private Runnable task;
+        private ClassLoader classLoader;
+
+        public ContextClassLoaderRunnable(Runnable task, ClassLoader classLoader) {
+            this.task = task;
+            this.classLoader = classLoader;
+        }
+
+        public void run() {
+            Runnable myTask = task;
+            ClassLoader myClassLoader = classLoader;
+
+            // clear fields so they can be garbage collected
+            task = null;
+            classLoader = null;
+
+            if (myClassLoader != null) {
+                // we asumme the thread classloader is already set to our final class loader
+                // because the only to access the thread is wrapped with the Runnable or via the initial thread pool
+                try {
+                    myTask.run();
+                } finally {
+                    Thread.currentThread().setContextClassLoader(myClassLoader);
+                }
+            }
         }
     }
 
@@ -93,6 +149,4 @@ public class ThreadPool implements Executor, GBeanLifecycle {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-
-
 }

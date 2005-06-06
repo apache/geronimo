@@ -101,62 +101,64 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         messageContext.setProperty(REQUEST, req);
         messageContext.setProperty(RESPONSE, res);
 
+        ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            String characterEncoding = (String) requestMessage.getProperty(SOAPMessage.CHARACTER_SET_ENCODING);
-            if (characterEncoding != null) {
-                messageContext.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, characterEncoding);
-            } else {
-                messageContext.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
+            try {
+                String characterEncoding = (String) requestMessage.getProperty(SOAPMessage.CHARACTER_SET_ENCODING);
+                if (characterEncoding != null) {
+                    messageContext.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, characterEncoding);
+                } else {
+                    messageContext.setProperty(SOAPMessage.CHARACTER_SET_ENCODING, "UTF-8");
+                }
+
+
+                String soapAction = req.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
+                if (soapAction != null) {
+                    messageContext.setUseSOAPAction(true);
+                    messageContext.setSOAPActionURI(soapAction);
+                }
+
+                SOAPEnvelope env = requestMessage.getSOAPEnvelope();
+                if (env != null && env.getSOAPConstants() != null) {
+                    messageContext.setSOAPConstants(env.getSOAPConstants());
+                }
+                SOAPService service = messageContext.getService();
+
+                Thread.currentThread().setContextClassLoader(classLoader);
+                service.invoke(messageContext);
+
+                responseMessage = messageContext.getResponseMessage();
+            } catch (AxisFault fault) {
+                responseMessage = handleFault(fault, res, messageContext);
+
+            } catch (Exception e) {
+                responseMessage = handleException(messageContext, res, e);
             }
-
-
-            String soapAction = req.getHeader(HTTPConstants.HEADER_SOAP_ACTION);
-            if (soapAction != null) {
-                messageContext.setUseSOAPAction(true);
-                messageContext.setSOAPActionURI(soapAction);
-            }
-
-            SOAPEnvelope env = requestMessage.getSOAPEnvelope();
-            if (env != null && env.getSOAPConstants() != null) {
-                messageContext.setSOAPConstants(env.getSOAPConstants());
-            }
-            SOAPService service = messageContext.getService();
-
-            Thread.currentThread().setContextClassLoader(classLoader);
-            service.invoke(messageContext);
-
-            responseMessage = messageContext.getResponseMessage();
-        } catch (AxisFault fault) {
-            responseMessage = handleFault(fault, res, messageContext);
-
-        } catch (Exception e) {
-            responseMessage = handleException(messageContext, res, e);
-        }
-        //TODO investigate and fix operation == null!
-        if (messageContext.getOperation() != null) {
-            if (messageContext.getOperation().getMep() == OperationType.ONE_WAY) {
-                // No content, so just indicate accepted
+            //TODO investigate and fix operation == null!
+            if (messageContext.getOperation() != null) {
+                if (messageContext.getOperation().getMep() == OperationType.ONE_WAY) {
+                    // No content, so just indicate accepted
+                    res.setStatusCode(202);
+                    return;
+                } else if (responseMessage == null) {
+                    responseMessage = handleException(messageContext, null, new RuntimeException("No response for non-one-way operation"));
+                }
+            } else if (responseMessage == null) {
                 res.setStatusCode(202);
                 return;
-            } else if (responseMessage == null) {
-                responseMessage = handleException(messageContext, null, new RuntimeException("No response for non-one-way operation"));
             }
-        } else if (responseMessage == null) {
-            res.setStatusCode(202);
-            return;
-        }
-        try {
-            SOAPConstants soapConstants = messageContext.getSOAPConstants();
-            String contentType1 = responseMessage.getContentType(soapConstants);
-            res.setContentType(contentType1);
-                // Transfer MIME headers to HTTP headers for response message.
-                MimeHeaders responseMimeHeaders = responseMessage.getMimeHeaders();
-                for (Iterator i = responseMimeHeaders.getAllHeaders(); i.hasNext(); ) {
-                    MimeHeader responseMimeHeader = (MimeHeader) i.next();
-                    res.setHeader(responseMimeHeader.getName(),
-                                  responseMimeHeader.getValue());
-                }
-            //TODO discuss this with dims.
+            try {
+                SOAPConstants soapConstants = messageContext.getSOAPConstants();
+                String contentType1 = responseMessage.getContentType(soapConstants);
+                res.setContentType(contentType1);
+                    // Transfer MIME headers to HTTP headers for response message.
+                    MimeHeaders responseMimeHeaders = responseMessage.getMimeHeaders();
+                    for (Iterator i = responseMimeHeaders.getAllHeaders(); i.hasNext(); ) {
+                        MimeHeader responseMimeHeader = (MimeHeader) i.next();
+                        res.setHeader(responseMimeHeader.getName(),
+                                      responseMimeHeader.getValue());
+                    }
+                //TODO discuss this with dims.
 //                // synchronize the character encoding of request and response
 //                String responseEncoding = (String) messageContext.getProperty(
 //                        SOAPMessage.CHARACTER_SET_ENCODING);
@@ -168,12 +170,15 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 //                        log.info(Messages.getMessage("exception00"), e);
 //                    }
 //                }
-                //determine content type from message response
-                contentType = responseMessage.getContentType(messageContext.
-                        getSOAPConstants());
-                responseMessage.writeTo(res.getOutputStream());
-        } catch (Exception e) {
-            log.info(Messages.getMessage("exception00"), e);
+                    //determine content type from message response
+                    contentType = responseMessage.getContentType(messageContext.
+                            getSOAPConstants());
+                    responseMessage.writeTo(res.getOutputStream());
+            } catch (Exception e) {
+                log.info(Messages.getMessage("exception00"), e);
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 

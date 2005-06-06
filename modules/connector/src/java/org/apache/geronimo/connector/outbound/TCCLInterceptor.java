@@ -34,8 +34,8 @@ public class TCCLInterceptor implements ConnectionInterceptor{
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         Thread currentThread = Thread.currentThread();
         ClassLoader oldClassLoader = currentThread.getContextClassLoader();
-        currentThread.setContextClassLoader(classLoader);
         try {
+            currentThread.setContextClassLoader(classLoader);
             next.getConnection(connectionInfo);
         } finally {
             currentThread.setContextClassLoader(oldClassLoader);
@@ -45,8 +45,8 @@ public class TCCLInterceptor implements ConnectionInterceptor{
     public void returnConnection(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
         Thread currentThread = Thread.currentThread();
         ClassLoader oldClassLoader = currentThread.getContextClassLoader();
-        currentThread.setContextClassLoader(classLoader);
         try {
+            currentThread.setContextClassLoader(classLoader);
             next.returnConnection(connectionInfo, connectionReturnAction);
         } finally {
             currentThread.setContextClassLoader(oldClassLoader);
