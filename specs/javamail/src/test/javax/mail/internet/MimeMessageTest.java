@@ -34,22 +34,25 @@ public class MimeMessageTest extends TestCase {
     private Session session;
 
     public void testWriteTo() throws MessagingException, IOException {
-/*
         MimeMessage msg = new MimeMessage(session);
         msg.setSender(new InternetAddress("foo"));
         MimeMultipart mp = new MimeMultipart();
         MimeBodyPart part1 = new MimeBodyPart();
+        part1.setHeader("foo", "bar");
         part1.setContent("Hello World", "text/plain");
         mp.addBodyPart(part1);
+        MimeBodyPart part2 = new MimeBodyPart();
+        part2.setContent("Hello Again", "text/plain");
+        mp.addBodyPart(part2);
         msg.setContent(mp);
         msg.writeTo(System.out);
-*/
     }
 
     protected void setUp() throws Exception {
         defaultMap = CommandMap.getDefaultCommandMap();
         MailcapCommandMap myMap = new MailcapCommandMap();
         myMap.addMailcap("text/plain;;    x-java-content-handler=" + MimeMultipartTest.DummyTextHandler.class.getName());
+        myMap.addMailcap("multipart/*;;    x-java-content-handler=" + MimeMultipartTest.DummyMultipartHandler.class.getName());
         CommandMap.setDefaultCommandMap(myMap);
         session = Session.getDefaultInstance(new Properties());
     }

@@ -43,6 +43,9 @@ by the app client.
         <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
     </dependency>
 

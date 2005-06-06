@@ -73,7 +73,7 @@ public class DataHandler implements Transferable {
             ObjectDataSource ods = (ObjectDataSource) ds;
             DataContentHandler dch = getDataContentHandler();
             if (dch == null) {
-                throw new UnsupportedDataTypeException();
+                throw new UnsupportedDataTypeException(ods.mimeType);
             }
             dch.writeTo(ods.data, ods.mimeType, os);
         } else {
@@ -185,11 +185,10 @@ public class DataHandler implements Transferable {
                 throw new UnsupportedDataTypeException(mimeType);
             }
             final PipedInputStream is = new PipedInputStream();
-            Thread thread = new Thread() {
+            final PipedOutputStream os = new PipedOutputStream(is);
+            Thread thread = new Thread("DataHandler Pipe Pump") {
                 public void run() {
                     try {
-                        PipedOutputStream os = new PipedOutputStream(is);
-                        is.connect(os);
                         try {
                             dch.writeTo(data, mimeType, os);
                         } finally {

@@ -20,7 +20,6 @@ package javax.mail.internet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import javax.activation.DataSource;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
@@ -129,6 +128,7 @@ public class MimeMultipart extends Multipart {
         }
         out.write(dash);
         out.write(bytes);
+        out.write(dash);
         out.write(crlf);
         out.flush();
     }

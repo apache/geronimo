@@ -20,43 +20,34 @@
 // Community Process. In order to remain compliant with the specification
 // DO NOT add / change / or delete method signatures!
 //
-package javax.mail.internet;
+package javax.activation;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import javax.mail.MessagingException;
-import javax.activation.CommandMap;
-import javax.activation.MailcapCommandMap;
-import javax.activation.DataContentHandler;
-import javax.activation.DataSource;
 
 import junit.framework.TestCase;
 
 /**
  * @version $Rev$ $Date$
  */
-public class MimeMultipartTest extends TestCase {
+public class DataHandlerTest extends TestCase {
     private CommandMap defaultMap;
 
-    public void testWriteTo() throws MessagingException, IOException {
-        MimeMultipart mp = new MimeMultipart();
-        MimeBodyPart part1 = new MimeBodyPart();
-        part1.setHeader("foo", "bar");
-        part1.setContent("Hello World", "text/plain");
-        mp.addBodyPart(part1);
-        MimeBodyPart part2 = new MimeBodyPart();
-        part2.setContent("Hello Again", "text/plain");
-        mp.addBodyPart(part2);
-        mp.writeTo(System.out);
+    public void testObjectInputStream() throws IOException {
+        DataHandler handler = new DataHandler("Hello World", "text/plain");
+        InputStream is = handler.getInputStream();
+        byte[] bytes = new byte[128];
+        assertEquals(11, is.read(bytes));
+        assertEquals("Hello World", new String(bytes, 0, 11));
     }
 
     protected void setUp() throws Exception {
         defaultMap = CommandMap.getDefaultCommandMap();
         MailcapCommandMap myMap = new MailcapCommandMap();
         myMap.addMailcap("text/plain;;    x-java-content-handler=" + DummyTextHandler.class.getName());
-        myMap.addMailcap("multipart/*;;    x-java-content-handler=" + DummyMultipartHandler.class.getName());
         CommandMap.setDefaultCommandMap(myMap);
     }
 
@@ -66,42 +57,19 @@ public class MimeMultipartTest extends TestCase {
 
     public static class DummyTextHandler implements DataContentHandler {
         public DataFlavor[] getTransferDataFlavors() {
-            return new DataFlavor[0];  //To change body of implemented methods use File | Settings | File Templates.
+            throw new UnsupportedOperationException();
         }
 
         public Object getTransferData(DataFlavor df, DataSource ds) throws UnsupportedFlavorException, IOException {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            throw new UnsupportedOperationException();
         }
 
         public Object getContent(DataSource ds) throws IOException {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            throw new UnsupportedOperationException();
         }
 
         public void writeTo(Object obj, String mimeType, OutputStream os) throws IOException {
             os.write(((String)obj).getBytes());
-        }
-    }
-
-    public static class DummyMultipartHandler implements DataContentHandler {
-        public DataFlavor[] getTransferDataFlavors() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object getTransferData(DataFlavor df, DataSource ds) throws UnsupportedFlavorException, IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object getContent(DataSource ds) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        public void writeTo(Object obj, String mimeType, OutputStream os) throws IOException {
-            MimeMultipart mp = (MimeMultipart) obj;
-            try {
-                mp.writeTo(os);
-            } catch (MessagingException e) {
-                throw (IOException) new IOException(e.getMessage()).initCause(e);
-            }
         }
     }
 }
