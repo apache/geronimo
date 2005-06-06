@@ -36,12 +36,18 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
+import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
+import org.apache.geronimo.security.jaas.DirectConfigurationEntry;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
@@ -56,14 +62,12 @@ public class RemoteLoginTest extends TestCase {
     protected ObjectName testCE;
     protected ObjectName testRealm;
     ObjectName serverStub;
-    JaasLoginServiceMBean asyncRemoteProxy;
-    JaasLoginServiceMBean saslRemoteProxy;
-    JaasLoginServiceMBean gssapiRemoteProxy;
+//    JaasLoginServiceMBean asyncRemoteProxy;
+//    JaasLoginServiceMBean saslRemoteProxy;
+//    JaasLoginServiceMBean gssapiRemoteProxy;
 
-    public void testNothing() {
-    }
 
-    public void XtestLogin() throws Exception {
+    public void testLogin() throws Exception {
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
@@ -76,8 +80,8 @@ public class RemoteLoginTest extends TestCase {
             assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
             IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
             assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
-            assertTrue("subject should have five principals", subject.getPrincipals().size() == 5);
-            assertTrue("subject should have two realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+            assertEquals("subject should have three principals", 3, subject.getPrincipals().size());
+            assertEquals("subject should have no realm principal", 0, subject.getPrincipals(RealmPrincipal.class).size());
 
             context.logout();
         } finally {
@@ -102,7 +106,6 @@ public class RemoteLoginTest extends TestCase {
         loginService = new ObjectName("geronimo.security:type=JaasLoginService");
         gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-//        gbean.setAttribute("reclaimPeriod", new Long(100));
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(gbean, JaasLoginService.class.getClassLoader());
@@ -111,6 +114,7 @@ public class RemoteLoginTest extends TestCase {
         gbean = new GBeanData(testCE, LoginModuleGBean.getGBeanInfo());
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
+        gbean.setAttribute("loginDomainName", "secret");
         Properties props = new Properties();
         props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
@@ -126,9 +130,6 @@ public class RemoteLoginTest extends TestCase {
         testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
         gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "properties-realm");
-//        props = new Properties();
-//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
-//        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
@@ -144,16 +145,51 @@ public class RemoteLoginTest extends TestCase {
         kernel.startGBean(testCE);
         kernel.startGBean(testUseName);
         kernel.startGBean(testRealm);
-        kernel.startGBean(serverStub);
+        try {
+            kernel.startGBean(serverStub);
+        } catch (Throwable t) {
+            tearDown();
+            throw new RuntimeException(t);
+        }
 
+        //set up "Client side" in the same kernel
+        ObjectName glc = new ObjectName("geronimo.client:name=GeronimoLoginConfiguration");
+        gbean = new GBeanData(glc, GeronimoLoginConfiguration.getGBeanInfo());
+        gbean.setReferencePattern("Configurations", new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
+        kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
+        kernel.startGBean(glc);
+
+        //JaasLoginCoordinator client lm
+        ObjectName jlc = new ObjectName("geronimo.security:type=JaasLoginCoordinatorLM");
+        gbean = new GBeanData(jlc, LoginModuleGBean.getGBeanInfo());
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.JaasLoginCoordinator");
+        gbean.setAttribute("serverSide", new Boolean(false));
+        props = new Properties();
         URI connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
-        asyncRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
+        props.put("host", connectURI.getHost());
+        props.put("port", "" + connectURI.getPort());
+        props.put("realm", "properties-realm");
 
-        connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
-        saslRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
+        gbean.setAttribute("options", props);
+        kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
+        kernel.startGBean(jlc);
 
-        connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
-        gssapiRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
+        ObjectName dce = new ObjectName("geronimo.security:type=ConfigurationEntry,name=client");
+        gbean = new GBeanData(dce, DirectConfigurationEntry.getGBeanInfo());
+        gbean.setAttribute("applicationConfigName", "FOO");
+        gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
+        gbean.setReferencePattern("Module", jlc);
+        kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
+        kernel.startGBean(dce);
+
+//        connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
+//        asyncRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
+//
+//        connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
+//        saslRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
+//
+//        connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
+//        gssapiRemoteProxy = JaasLoginServiceRemotingClient.create(connectURI.getHost(), connectURI.getPort());
     }
 
     protected void tearDown() throws Exception {
