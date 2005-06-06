@@ -93,6 +93,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     private final J2EEServer server;
 
     private final J2EEApplication application;
+    
+    private final Map webServices;
 
     public TomcatWebAppContext(
             ClassLoader classLoader,
@@ -114,6 +116,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
             RoleDesignateSource roleDesignateSource,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
+            Map webServices,
             J2EEServer server, 
             J2EEApplication application, 
             Kernel kernel)
@@ -167,14 +170,16 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
             valveChain = null;
         }
         
+        this.webServices = webServices;
+        
         URI root = URI.create(configurationBaseUrl.toString());
-        webAppRoot = root.resolve(webAppRoot);
+//        webAppRoot = root.resolve(webAppRoot);
         URL webAppRootURL = webAppRoot.toURL();
         
         URL[] urls = new URL[webClassPath.length];
         for (int i = 0; i < webClassPath.length; i++) {
             URI classPathEntry = webClassPath[i];
-            classPathEntry = root.resolve(classPathEntry);
+            classPathEntry = webAppRoot.resolve(classPathEntry);
             urls[i] = classPathEntry.toURL();
         }
         this.webClassLoader = new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
@@ -266,6 +271,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         return valveChain;
     }
 
+    public Map getWebServices(){
+        return webServices;
+    }
+    
     /**
      * ObjectName must match this pattern: <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
@@ -359,6 +368,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
                 RoleDesignateSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
+        infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -383,6 +393,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
                 "RoleDesignateSource", 
                 "TomcatRealm",
                 "TomcatValveChain",
+                "webServices",
                 "J2EEServer", 
                 "J2EEApplication",
                 "kernel" 

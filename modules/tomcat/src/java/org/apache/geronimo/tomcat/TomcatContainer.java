@@ -135,8 +135,7 @@ public class TomcatContainer implements GBeanLifecycle {
         //Add default contexts
         Container[] hosts = engine.findChildren();
         for(int i = 0; i < hosts.length; i++){
-            Context defaultContext = embedded.createContext("","");
-            defaultContext.setParentClassLoader(classLoader);
+            Context defaultContext = embedded.createContext("","", classLoader);
             hosts[i].addChild(defaultContext);
         }
         
@@ -167,9 +166,7 @@ public class TomcatContainer implements GBeanLifecycle {
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext ctx) throws Exception{
-        Context anotherCtxObj = embedded.createContext(ctx.getPath(), ctx.getDocBase());
-        anotherCtxObj.setParentClassLoader(ctx.getWebClassLoader());
-        //anotherCtxObj.setParentClassLoader(this.getClass().getClassLoader());
+        Context anotherCtxObj = embedded.createContext(ctx.getPath(), ctx.getDocBase(), ctx.getWebClassLoader());
 
         // Set the context for the Tomcat implementation
         ctx.setContext(anotherCtxObj);

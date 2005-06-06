@@ -16,19 +16,24 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
+import javax.servlet.Servlet;
 
+import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
@@ -43,6 +48,9 @@ import org.apache.geronimo.tomcat.valve.InstanceContextValve;
 import org.apache.geronimo.tomcat.valve.PolicyContextValve;
 import org.apache.geronimo.tomcat.valve.TransactionContextValve;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.webservices.POJOWebServiceServlet;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
 public class GeronimoStandardContext extends StandardContext{
     
@@ -51,6 +59,8 @@ public class GeronimoStandardContext extends StandardContext{
     private static final long serialVersionUID = 3834587716552831032L;
 
     private Subject defaultSubject = null;
+    
+    private Map webServiceMap = null;
     
     public void setContextProperties(TomcatContext ctx){
     
@@ -128,7 +138,7 @@ public class GeronimoStandardContext extends StandardContext{
             }
         }
 
-
+        this.webServiceMap = ctx.getWebServices();
     }
 
     public synchronized void start() throws LifecycleException {
@@ -144,5 +154,51 @@ public class GeronimoStandardContext extends StandardContext{
        super.stop();
     }
     
+    public void addChild(Container child){
+        Wrapper wrapper = (Wrapper) child;
+        
+        String servletClassName = wrapper.getServletClass();
+        
+        ClassLoader cl = this.getParentClassLoader();
+        
+        Class baseServletClass = null;
+        Class servletClass = null;
+        try{
+            baseServletClass = cl.loadClass(Servlet.class.getName());
+            servletClass = cl.loadClass(servletClassName);
+            //Check if the servlet is of type Servlet class
+            if (!baseServletClass.isAssignableFrom(servletClass)){
+                //Nope - its probably a webservice, so lets see...
+                if (webServiceMap != null){
+                    StoredObject storedObject = (StoredObject)webServiceMap.get(wrapper.getName());
+                        
+                    if (storedObject != null){
+                        WebServiceContainer webServiceContainer = null;
+                        try{
+                            webServiceContainer = (WebServiceContainer)storedObject.getObject(cl);
+                        } catch(IOException io){
+                            throw new RuntimeException(io);
+                        }
+                        //Yep its a web service
+                        //So swap it out with a POJOWebServiceServlet
+                        wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");
+                    
+                        //Set the WebServiceContainer stuff
+                        String webServicecontainerID = wrapper.getName() + WebServiceContainerInvoker.WEBSERVICE_CONTAINER + webServiceContainer.hashCode();
+                        getServletContext().setAttribute(webServicecontainerID, webServiceContainer);
+                        wrapper.addInitParameter(WebServiceContainerInvoker.WEBSERVICE_CONTAINER, webServicecontainerID);
     
+                        //Set the SEI Class in the attribute
+                        String pojoClassID = wrapper.getName() + POJOWebServiceServlet.POJO_CLASS + servletClass.hashCode();
+                        getServletContext().setAttribute(pojoClassID, servletClass);
+                        wrapper.addInitParameter(POJOWebServiceServlet.POJO_CLASS, pojoClassID);
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e){
+            throw new RuntimeException(e.getMessage(), e);
+        }
+                
+        super.addChild(child);
+    }
 }

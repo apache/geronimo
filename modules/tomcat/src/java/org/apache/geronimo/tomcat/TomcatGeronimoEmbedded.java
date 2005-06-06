@@ -16,8 +16,6 @@
 */
 package org.apache.geronimo.tomcat;
 
-import java.io.File;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.startup.ContextConfig;
@@ -28,8 +26,8 @@ import org.apache.commons.logging.LogFactory;
 public class TomcatGeronimoEmbedded extends Embedded{
     
     private static final Log log = LogFactory.getLog(TomcatGeronimoEmbedded.class);
-
-    public Context createContext(String path, String docBase) {
+    
+    public Context createContext(String path, String docBase, ClassLoader cl) {
 
         if( log.isDebugEnabled() )
             log.debug("Creating context '" + path + "' with docBase '" +
@@ -39,6 +37,7 @@ public class TomcatGeronimoEmbedded extends Embedded{
 
         context.setDocBase(docBase);
         context.setPath(path);
+        context.setParentClassLoader(cl);
         
         ContextConfig config = new ContextConfig();
         config.setCustomAuthenticators(authenticators);

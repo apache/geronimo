@@ -130,6 +130,11 @@
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
             <version>${geronimo_spec_j2ee_version}</version>
