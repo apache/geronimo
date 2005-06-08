@@ -116,8 +116,8 @@ public class RemoteLoginTest extends TestCase {
         gbean.setAttribute("serverSide", new Boolean(true));
         gbean.setAttribute("loginDomainName", "secret");
         Properties props = new Properties();
-        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toString());
-        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toString());
+        props.put("usersURI", new File(new File("."), "src/test-data/data/users.properties").toURI().toString());
+        props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
