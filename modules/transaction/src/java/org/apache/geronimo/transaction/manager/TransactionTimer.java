@@ -27,6 +27,7 @@ public class TransactionTimer {
     private static class CurrentTime extends Thread {
         protected CurrentTime() {
             currentTime = System.currentTimeMillis();
+            setContextClassLoader(null);
         }
 
         public void run() {
