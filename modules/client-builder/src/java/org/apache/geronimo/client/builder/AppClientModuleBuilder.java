@@ -98,17 +98,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     public AppClientModuleBuilder(URI defaultClientParentId,
-            URI defaultServerParentId,
-            ObjectName transactionContextManagerObjectName,
-            ObjectName connectionTrackerObjectName,
-            ObjectName corbaGBeanObjectName,
-            EJBReferenceBuilder ejbReferenceBuilder,
-            ModuleBuilder connectorModuleBuilder,
-            ResourceReferenceBuilder resourceReferenceBuilder,
-            ServiceReferenceBuilder serviceReferenceBuilder,
-            ConfigurationStore store,
-            Repository repository,
-            Kernel kernel) {
+                                  URI defaultServerParentId,
+                                  ObjectName transactionContextManagerObjectName,
+                                  ObjectName connectionTrackerObjectName,
+                                  ObjectName corbaGBeanObjectName,
+                                  EJBReferenceBuilder ejbReferenceBuilder,
+                                  ModuleBuilder connectorModuleBuilder,
+                                  ResourceReferenceBuilder resourceReferenceBuilder,
+                                  ServiceReferenceBuilder serviceReferenceBuilder,
+                                  ConfigurationStore store,
+                                  Repository repository,
+                                  Kernel kernel) {
         this.defaultClientParentId = defaultClientParentId;
         this.defaultServerParentId = defaultServerParentId;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
@@ -294,7 +294,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             if (mainClasss == null) {
                 throw new DeploymentException("App client module jar does not have Main-Class defined in the manifest: " + moduleFile.getName());
             }
-           String classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
+            String classPath = manifest.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
             if (module.isStandAlone() && classPath != null) {
                 throw new DeploymentException("Manifest class path entry is not allowed in a standalone jar (J2EE 1.4 Section 8.2)");
             }
@@ -468,10 +468,27 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 try {
                     appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);
                     appClientContainerGBeanData.setAttribute("appClientModuleName", appClientModuleName);
-                    if (geronimoAppClient.isSetDefaultPrincipal()) {
-                           DefaultPrincipal defaultPrincipal = SecurityBuilder.buildDefaultPrincipal(geronimoAppClient.getDefaultPrincipal());
+                    String callbackHandlerClassName = null;
+                    if (appClient.isSetCallbackHandler()) {
+                        callbackHandlerClassName = appClient.getCallbackHandler().getStringValue().trim();
+                    }
+                    if (geronimoAppClient.isSetCallbackHandler()) {
+                        callbackHandlerClassName = geronimoAppClient.getCallbackHandler().trim();
+                    }
+                    String realmName = null;
+                    if (geronimoAppClient.isSetRealmName()) {
+                        realmName = geronimoAppClient.getRealmName().trim();
+                    }
+                    if (callbackHandlerClassName != null && realmName == null) {
+                        throw new DeploymentException("You must specify a realm name with the callback handler");
+                    }
+                    if (realmName != null) {
+                        appClientContainerGBeanData.setAttribute("realmName", realmName);
+                        appClientContainerGBeanData.setAttribute("callbackHandlerClassName", callbackHandlerClassName);
+                    } else if (geronimoAppClient.isSetDefaultPrincipal()) {
+                        DefaultPrincipal defaultPrincipal = SecurityBuilder.buildDefaultPrincipal(geronimoAppClient.getDefaultPrincipal());
                         appClientContainerGBeanData.setAttribute("defaultPrincipal", defaultPrincipal);
-                       }
+                    }
                     appClientContainerGBeanData.setReferencePattern("JNDIContext", jndiContextName);
                     appClientContainerGBeanData.setReferencePattern("TransactionContextManager", transactionContextManagerObjectName);
                 } catch (Exception e) {

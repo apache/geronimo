@@ -7,4 +7,6 @@
         <ref-name>jdbc/DB1</ref-name>
         <target-name>DefaultDatabase</target-name>
     </resource-ref>
+    <realm-name>default</realm-name>
+    <callback-handler>org.apache.geronimo.client.DefaultCallbackHandler</callback-handler>
 </application-client>

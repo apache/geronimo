@@ -18,8 +18,12 @@ package org.apache.geronimo.client;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+import java.security.PrivilegedAction;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -40,14 +44,18 @@ public final class AppClientContainer {
     private final String mainClassName;
     private final AppClientPlugin jndiContext;
     private final ObjectName appClientModuleName;
+    private final String realmName;
+    private final Class callbackHandlerClass;
     private final Subject defaultSubject;
     private final Method mainMethod;
     private final ClassLoader classLoader;
     private final Kernel kernel;
     private final TransactionContextManager transactionContextManager;
 
-    public AppClientContainer(String mainClassName, 
+    public AppClientContainer(String mainClassName,
                               ObjectName appClientModuleName,
+                              String realmName,
+                              String callbackHandlerClassName,
                               DefaultPrincipal defaultPrincipal,
                               AppClientPlugin jndiContext,
                               TransactionContextManager transactionContextManager,
@@ -56,6 +64,19 @@ public final class AppClientContainer {
                               ) throws Exception {
         this.mainClassName = mainClassName;
         this.appClientModuleName = appClientModuleName;
+        if ((realmName == null) != (callbackHandlerClassName == null)) {
+            throw new IllegalArgumentException("You must supply both realmName and callbackHandlerClass or neither");
+        }
+        this.realmName = realmName;
+        if (callbackHandlerClassName != null) {
+            try {
+                this.callbackHandlerClass = classLoader.loadClass(callbackHandlerClassName);
+            } catch (ClassNotFoundException e) {
+                throw new AppClientInitializationException("Could not load callbackHandlerClass", e);
+            }
+        } else {
+            callbackHandlerClass = null;
+        }
         if (defaultPrincipal != null) {
             defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
         } else {
@@ -84,20 +105,49 @@ public final class AppClientContainer {
         return mainClassName;
     }
 
-    public void main(String[] args) throws Exception {
+    public void main(final String[] args) throws Exception {
         Thread thread = Thread.currentThread();
 
         ClassLoader oldClassLoader = thread.getContextClassLoader();
         TransactionContext oldTransactionContext = transactionContextManager.getContext();
         TransactionContext currentTransactionContext = null;
         Subject oldCurrentCaller = ContextManager.getCurrentCaller();
+        Subject clientSubject = defaultSubject;
+        LoginContext loginContext = null;
         try {
             thread.setContextClassLoader(classLoader);
-            ContextManager.setCurrentCaller(defaultSubject);
+            if (callbackHandlerClass != null) {
+                //look for a constructor taking the args
+                CallbackHandler callbackHandler;
+                try {
+                    Constructor cArgs = callbackHandlerClass.getConstructor(new Class[] {String[].class});
+                    callbackHandler = (CallbackHandler) cArgs.newInstance(new Object[] {args});
+                } catch (NoSuchMethodException e) {
+                    callbackHandler = (CallbackHandler) callbackHandlerClass.newInstance();
+                }
+                loginContext = new LoginContext(realmName, callbackHandler);
+                loginContext.login();
+                clientSubject = loginContext.getSubject();
+            }
+            ContextManager.setCurrentCaller(clientSubject);
             jndiContext.startClient(appClientModuleName, kernel, classLoader);
             currentTransactionContext = transactionContextManager.newUnspecifiedTransactionContext();
-            mainMethod.invoke(null, new Object[]{args});
-
+            if (clientSubject == null) {
+                mainMethod.invoke(null, new Object[]{args});
+            } else {
+                Subject.doAs(clientSubject, new PrivilegedAction() {
+                    public Object run() {
+                        try {
+                            mainMethod.invoke(null, new Object[]{args});
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        } catch (InvocationTargetException e) {
+                            throw new RuntimeException(e);
+                        }
+                        return null;
+                    }
+                });
+            }
         } catch (InvocationTargetException e) {
             Throwable cause = e.getCause();
             if (cause instanceof Exception) {
@@ -107,6 +157,9 @@ public final class AppClientContainer {
             }
             throw new Error(e);
         } finally {
+            if (loginContext != null) {
+                loginContext.logout();
+            }
             jndiContext.stopClient(appClientModuleName);
 
             thread.setContextClassLoader(oldClassLoader);
@@ -122,22 +175,29 @@ public final class AppClientContainer {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientContainer.class, NameFactory.APP_CLIENT);
 
         infoFactory.addOperation("main", new Class[]{String[].class});
+
         infoFactory.addAttribute("mainClassName", String.class, true);
         infoFactory.addAttribute("appClientModuleName", ObjectName.class, true);
+        infoFactory.addAttribute("realmName", String.class, true);
+        infoFactory.addAttribute("callbackHandlerClassName", String.class, true);
         infoFactory.addAttribute("defaultPrincipal", DefaultPrincipal.class, true);
+
         infoFactory.addReference("JNDIContext", AppClientPlugin.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
 
-        infoFactory.setConstructor(new String[]{"mainClassName", 
+        infoFactory.setConstructor(new String[]{"mainClassName",
                                                 "appClientModuleName",
+                                                "realmName",
+                                                "callbackHandlerClassName",
                                                 "defaultPrincipal",
                                                 "JNDIContext",
                                                 "TransactionContextManager",
-                                                "classLoader", 
-                                                "kernel"                                   
+                                                "classLoader",
+                                                "kernel"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

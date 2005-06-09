@@ -40,12 +40,6 @@
             <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
 
-            <!---->
-            <!--            <xs:element name="callback-handler"-->
-            <!--                type="geronimo:fully-qualified-classType"-->
-            <!--                minOccurs="0"/>-->
-            <xs:element ref="security:default-principal" minOccurs="0"/>
-
             <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
 
             <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
@@ -53,6 +47,14 @@
             <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element ref="security:default-principal" minOccurs="0"/>
+
+            <xs:sequence minOccurs="0">
+                <xs:element name="realm-name" type="xs:string"/>
+                <xs:element name="callback-handler" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+
 
             <xs:element name="resource" type="geronimo:resourceType" minOccurs="0" maxOccurs="unbounded"/>
 
