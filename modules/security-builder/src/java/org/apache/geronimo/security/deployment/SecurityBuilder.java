@@ -88,9 +88,9 @@ public class SecurityBuilder {
 
     private static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap) throws DeploymentException {
 
-        Iterator rollMappings = security.getRoleMappings().values().iterator();
-        while (rollMappings.hasNext()) {
-            Role role = (Role) rollMappings.next();
+        Iterator roleMappings = security.getRoleMappings().values().iterator();
+        while (roleMappings.hasNext()) {
+            Role role = (Role) roleMappings.next();
 
             String roleName = role.getRoleName();
             Subject roleDesignate = new Subject();
