@@ -23,7 +23,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -36,8 +35,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.lang.reflect.Field;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -48,8 +45,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -363,26 +360,8 @@ public class Configuration implements GBeanLifecycle {
             log.info("Unable to update persistent state during shutdown", e);
         }
 
-        // unregister all GBeans
-        for (Iterator i = objectNames.iterator(); i.hasNext();) {
-            ObjectName name = (ObjectName) i.next();
-            kernel.getDependencyManager().removeDependency(name, objectName);
-            try {
-                log.trace("Unregistering GBean " + name);
-                kernel.unloadGBean(name);
-            } catch (Exception e) {
-                // ignore
-                log.warn("Could not unregister child " + name, e);
-            }
-        }
-
-        // destroy the class loader
-        LogFactory.release(configurationClassLoader);
-        configurationClassLoader = null;
-        clearSoftCache(ObjectInputStream.class, "subclassAudits");
-        clearSoftCache(ObjectOutputStream.class, "subclassAudits");
-        clearSoftCache(ObjectStreamClass.class, "localDescs");
-        clearSoftCache(ObjectStreamClass.class, "reflectors");
+        // shutdown the configuration and unload all beans
+        shutdown();
 
         // update the configuation store
         if (configurationStore != null) {
@@ -399,24 +378,29 @@ public class Configuration implements GBeanLifecycle {
         }
     }
 
-    private static void clearSoftCache(Class clazz, String fieldName) {
-        Map cache = null;
-        try {
-            Field f = clazz.getDeclaredField(fieldName);
-            f.setAccessible(true);
-            cache = (Map) f.get(null);
-        } catch (Throwable e) {
-            log.error("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+    private void shutdown() {
+        // unregister all GBeans
+        for (Iterator i = objectNames.iterator(); i.hasNext();) {
+            ObjectName name = (ObjectName) i.next();
+            kernel.getDependencyManager().removeDependency(name, objectName);
+            try {
+                log.trace("Unregistering GBean " + name);
+                kernel.unloadGBean(name);
+            } catch (Exception e) {
+                // ignore
+                log.warn("Could not unregister child " + name, e);
+            }
         }
 
-        if (cache != null) {
-            synchronized (cache) {
-                cache.clear();
-            }
+        // destroy the class loader
+        if (configurationClassLoader != null) {
+            configurationClassLoader.destroy();
+            configurationClassLoader = null;
         }
     }
 
     public void doFail() {
+        shutdown();
     }
 
     /**

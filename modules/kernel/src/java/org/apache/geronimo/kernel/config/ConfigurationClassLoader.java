@@ -20,6 +20,13 @@ package org.apache.geronimo.kernel.config;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.util.Map;
+import java.lang.reflect.Field;
+
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -45,8 +52,40 @@ public class ConfigurationClassLoader extends URLClassLoader {
     public void setClassLoaderServerURLs(URL[] urls) {
         this.urls = urls;
     }
-    
+
+    public void destroy() {
+        LogFactory.release(this);
+        clearSoftCache(ObjectInputStream.class, "subclassAudits");
+        clearSoftCache(ObjectOutputStream.class, "subclassAudits");
+        clearSoftCache(ObjectStreamClass.class, "localDescs");
+        clearSoftCache(ObjectStreamClass.class, "reflectors");
+    }
+
     public String toString() {
         return "[Configuration ClassLoader id=" + id + "]";
+    }
+
+    private static Object lock = new Object();
+    private static boolean clearSoftCacheFailed = false;
+    private static void clearSoftCache(Class clazz, String fieldName) {
+        Map cache = null;
+        try {
+            Field f = clazz.getDeclaredField(fieldName);
+            f.setAccessible(true);
+            cache = (Map) f.get(null);
+        } catch (Throwable e) {
+            synchronized (lock) {
+                if (!clearSoftCacheFailed) {
+                    clearSoftCacheFailed = true;
+                    LogFactory.getLog(ConfigurationClassLoader.class).error("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+                }
+            }
+        }
+
+        if (cache != null) {
+            synchronized (cache) {
+                cache.clear();
+            }
+        }
     }
 }
