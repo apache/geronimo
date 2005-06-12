@@ -130,6 +130,9 @@
             <ant:fileset dir="${project.root}/modules/security-builder">
                 <ant:include name="src/schema/geronimo*.xsd"/>
             </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/service-builder">
+                <ant:include name="src/schema/geronimo*.xsd"/>
+            </ant:fileset>
             <ant:fileset dir="${project.root}/modules/client-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
