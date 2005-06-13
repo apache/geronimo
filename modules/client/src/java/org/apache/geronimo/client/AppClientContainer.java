@@ -106,6 +106,7 @@ public final class AppClientContainer {
     }
 
     public void main(final String[] args) throws Exception {
+        //TODO reorganize this so it makes more sense.  maybe use an interceptor stack.
         Thread thread = Thread.currentThread();
 
         ClassLoader oldClassLoader = thread.getContextClassLoader();
@@ -164,7 +165,9 @@ public final class AppClientContainer {
 
             thread.setContextClassLoader(oldClassLoader);
             transactionContextManager.setContext(oldTransactionContext);
-            currentTransactionContext.commit();
+            if (currentTransactionContext != null) {
+                currentTransactionContext.commit();
+            }
             ContextManager.setCurrentCaller(oldCurrentCaller);
         }
     }
