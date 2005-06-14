@@ -35,7 +35,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractDeployCommand extends CommandSupport {
     private final static String DEPLOYER_NAME = "*:name=Deployer,j2eeType=Deployer,*";
@@ -61,7 +61,10 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     protected ObjectName getDeployerName() {
         Set deployers = kernel.listGBeans(JMXUtil.getObjectName(DEPLOYER_NAME));
         if (deployers.isEmpty()) {
-            fail("No deployer present in kernel");
+            fail("No Deployer GBean present in running Geronimo kernel. " +
+                 "The Deployer GBean would've been started up automatically if there hadn't been a Geronimo instance up already. " +
+                 "Stop the running instance and run the deployer again " +
+                 "or see http://issues.apache.org/jira/browse/GERONIMO-671 for possible alternatives");
             return null;
         }
         Iterator j = deployers.iterator();
