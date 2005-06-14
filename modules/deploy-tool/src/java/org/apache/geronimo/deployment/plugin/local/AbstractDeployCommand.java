@@ -35,7 +35,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 190584 $ $Date$
  */
 public abstract class AbstractDeployCommand extends CommandSupport {
     private final static String DEPLOYER_NAME = "*:name=Deployer,j2eeType=Deployer,*";
