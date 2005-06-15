@@ -231,9 +231,6 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
         propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean.setAttribute("realmName", "Geronimo");
-//        Properties config = new Properties();
-//        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
-//        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
         Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
         principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");

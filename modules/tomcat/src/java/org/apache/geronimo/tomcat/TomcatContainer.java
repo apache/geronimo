@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
@@ -27,6 +30,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.webservices.SoapHandler;
+import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
  * Apache Tomcat GBean
@@ -36,7 +41,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * 
  * @version $Rev: 46019 $ $Date: 2004-09-14 11:56:06 +0200 (Tue, 14 Sep 2004) $
  */
-public class TomcatContainer implements GBeanLifecycle {
+public class TomcatContainer implements SoapHandler, GBeanLifecycle {
 
     private static final Log log = LogFactory.getLog(TomcatContainer.class);
 
@@ -71,6 +76,8 @@ public class TomcatContainer implements GBeanLifecycle {
      * Used only to resolve the paths
      */
     private ServerInfo serverInfo;
+
+    private final Map webServices = new HashMap();
 
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
@@ -213,6 +220,37 @@ public class TomcatContainer implements GBeanLifecycle {
     public void removeConnector(Connector connector) {
         embedded.removeConnector(connector);
     }
+    
+    public void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
+        Context webServiceContext = embedded.createEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
+
+        //TODO When OpenEJB supports virtual hosts, remove the next line
+        String virtualServer = engine.getDefaultHost();
+
+        //TODO When OpenEJB supports virtual hosts, uncomment the code below.  The 
+        //virtualServer variable should be a String parameter from this function call
+        //if (virtualServer == null)
+        //    virtualServer = engine.getDefaultHost();
+        
+        Container host = engine.findChild(virtualServer);
+        if (host == null){
+            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matchiing Host entry in the plan?");
+        }
+        
+        host.addChild(webServiceContext);
+        webServices.put(contextPath, webServiceContext);
+    }
+
+    public void removeWebService(String contextPath) {
+        TomcatEJBWebServiceContext context = (TomcatEJBWebServiceContext) webServices.get(contextPath);
+        try{
+            context.destroy();
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        embedded.removeContext(context);
+        webServices.remove(contextPath);
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -235,10 +273,13 @@ public class TomcatContainer implements GBeanLifecycle {
         infoFactory.addOperation("addConnector", new Class[] { Connector.class });
         infoFactory.addOperation("removeConnector", new Class[] { Connector.class });
 
+        infoFactory.addInterface(SoapHandler.class);
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }

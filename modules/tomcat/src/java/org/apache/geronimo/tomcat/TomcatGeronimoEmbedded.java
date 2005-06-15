@@ -22,6 +22,7 @@ import org.apache.catalina.startup.ContextConfig;
 import org.apache.catalina.startup.Embedded;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.webservices.WebServiceContainer;
 
 public class TomcatGeronimoEmbedded extends Embedded{
     
@@ -39,6 +40,27 @@ public class TomcatGeronimoEmbedded extends Embedded{
         context.setPath(path);
         context.setParentClassLoader(cl);
         
+        ContextConfig config = new ContextConfig();
+        config.setCustomAuthenticators(authenticators);
+        ((Lifecycle) context).addLifecycleListener(config);
+
+        return (context);
+
+    }
+
+   public Context createEJBWebServiceContext(String contextPath, 
+           WebServiceContainer webServiceContainer, 
+           String securityRealmName, 
+           String realmName, 
+           String transportGuarantee, 
+           String authMethod, 
+           ClassLoader classLoader) {
+
+        if( log.isDebugEnabled() )
+            log.debug("Creating EJBWebService context '" + contextPath + "'.");
+
+        TomcatEJBWebServiceContext context = new TomcatEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
+
         ContextConfig config = new ContextConfig();
         config.setCustomAuthenticators(authenticators);
         ((Lifecycle) context).addLifecycleListener(config);
