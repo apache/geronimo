@@ -274,7 +274,6 @@ public class RefContext {
 
     public ObjectName locateComponent(String name, String type, J2eeContext j2eeContext, DeploymentContext context, String queryType) throws DeploymentException {
         ObjectName query = null;
-        ObjectName containerName;
         try {
             query = NameFactory.getComponentNameQuery(null, null, null, name, type, j2eeContext);
         } catch (MalformedObjectNameException e1) {
@@ -285,15 +284,15 @@ public class RefContext {
             throw new DeploymentException("More than one match for query " + matches);
         }
         if (matches.size() == 1) {
-            containerName = (ObjectName) matches.iterator().next();
+            return (ObjectName) matches.iterator().next();
         }
+        //no matches in current context, look in other modules with J2EEApplication=null
         try {
             query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
         } catch (MalformedObjectNameException e1) {
             throw new DeploymentException("Could not construct " + queryType + " object name query", e1);
         }
-        containerName = locateUniqueName(query, queryType);
-        return containerName;
+        return locateUniqueName(query, queryType);
     }
 
     public Reference getAdminObjectRef(String containerId, Class iface) throws DeploymentException {
