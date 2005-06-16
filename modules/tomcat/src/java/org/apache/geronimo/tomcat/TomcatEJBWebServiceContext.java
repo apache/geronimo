@@ -53,6 +53,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.webServiceContainer = webServiceContainer;
         this.setPath(contextPath);
         this.setDocBase("");
+        this.setParentClassLoader(classLoader);
         
         if (securityRealmName != null) {
             
