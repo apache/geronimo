@@ -18,12 +18,13 @@ package org.apache.geronimo.security.realm.providers;
 
 import java.security.cert.X509Certificate;
 import java.security.cert.Certificate;
+import java.io.Serializable;
 import javax.security.auth.callback.Callback;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class CertificateChainCallback implements Callback {
+public class CertificateChainCallback implements Callback, Serializable {
     Certificate[] certificateChain;
 
     public Certificate[] getCertificateChain() {
