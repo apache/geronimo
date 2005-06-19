@@ -17,11 +17,8 @@
  */
 package org.apache.geronimo.interop.generator;
 
-import org.apache.geronimo.interop.rmi.iiop.compiler.StubCompiler;
-
-import java.util.List;
 import java.util.LinkedList;
-import java.util.Iterator;
+import java.util.List;
 
 public class GenOptions {
     // -gs  genSrcDir
@@ -35,70 +32,116 @@ public class GenOptions {
     // -cd  compiledebug
     // -lc  loadclass
 
-    private String      genSrcDir = "./src";
-    private String      genClassDir = "./classes";
-    private boolean     overwrite = false;
-    private boolean     verbose = false;
-    private boolean     simpleidl = false;
-    private String      classpath = "";
-    private boolean     generate = true;
-    private boolean     compile = false;
-    private boolean     compileDebug = false;
-    private boolean     loadclass = false;
+    private String genSrcDir = "./src";
+    private String genClassDir = "./classes";
+    private boolean overwrite = false;
+    private boolean verbose = false;
+    private boolean simpleIdl = false;
+    private String classpath = "";
+    private boolean generate = true;
+    private boolean compile = false;
+    private boolean compileDebug = false;
+    private boolean loadclass = false;
 
-    private List        interfaces = new LinkedList();
+    private List interfaces = new LinkedList();
 
-    public GenOptions( String defaultSrcDir, String args[] )
-        throws GenWarning, GenException {
+    public GenOptions() {
+    }
+
+    public GenOptions(String defaultSrcDir, String args[]) throws GenWarning, GenException {
         genSrcDir = defaultSrcDir;
-        parseOptions( args );
+        parseOptions(args);
     }
 
     public String getGenSrcDir() {
         return genSrcDir;
     }
 
+    public void setGenSrcDir(String genSrcDir) {
+        this.genSrcDir = genSrcDir;
+    }
+
     public String getGenClassDir() {
         return genClassDir;
+    }
+
+    public void setGenClassDir(String genClassDir) {
+        this.genClassDir = genClassDir;
     }
 
     public boolean isOverwrite() {
         return overwrite;
     }
 
+    public void setOverwrite(boolean overwrite) {
+        this.overwrite = overwrite;
+    }
+
     public boolean isVerbose() {
         return verbose;
     }
 
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
+
     public boolean isSimpleIdl() {
-        return simpleidl;
+        return simpleIdl;
+    }
+
+    public void setSimpleIdl(boolean simpleIdl) {
+        this.simpleIdl = simpleIdl;
     }
 
     public String getClasspath() {
         return classpath;
     }
 
+    public void setClasspath(String classpath) {
+        this.classpath = classpath;
+    }
+
     public boolean isGenerate() {
         return generate;
+    }
+
+    public void setGenerate(boolean generate) {
+        this.generate = generate;
     }
 
     public boolean isCompile() {
         return compile;
     }
 
+    public void setCompile(boolean compile) {
+        this.compile = compile;
+    }
+
     public boolean isCompileDebug() {
         return compileDebug;
+    }
+
+    public void setCompileDebug(boolean compileDebug) {
+        this.compileDebug = compileDebug;
     }
 
     public boolean isLoadclass() {
         return loadclass;
     }
 
+    public void setLoadclass(boolean loadclass) {
+        this.loadclass = loadclass;
+    }
+
     public List getInterfaces() {
         return interfaces;
     }
 
-    protected void parseOptions(String args[]) throws GenException, GenWarning {
+    public void setInterfaces(List interfaces) {
+        this.interfaces = interfaces;
+    }
+
+    public void parseOptions(String args[]) throws GenException, GenWarning {
         GenWarning genWarning = null;
 
         for (int i = 0; i < args.length; i++) {
@@ -111,24 +154,24 @@ public class GenOptions {
             } else if (args[i].equals("-l")) {
                 loadclass = true;
             } else if (args[i].equals("-s")) {
-                simpleidl = true;
+                simpleIdl = true;
             } else if (args[i].equals("-gs")) {
                 if ((i + 1) < args.length) {
                     genSrcDir = args[++i];
                 } else {
-                    throw new GenException( "-gs requires an source output diretory." );
+                    throw new GenException("-gs requires an source output diretory.");
                 }
             } else if (args[i].equals("-cp")) {
                 if ((i + 1) < args.length) {
                     classpath = args[++i];
                 } else {
-                    throw new GenException( "-cp requires a classpath directory." );
+                    throw new GenException("-cp requires a classpath directory.");
                 }
             } else if (args[i].equals("-gc")) {
                 if ((i + 1) < args.length) {
                     genClassDir = args[++i];
                 } else {
-                    throw new GenException( "-gc requires an class output diretory." );
+                    throw new GenException("-gc requires an class output diretory.");
                 }
             } else if (args[i].equals("-v")) {
                 verbose = true;
@@ -138,9 +181,9 @@ public class GenOptions {
                 String msg = "Ignoring unrecognized options: '" + args[i] + "'";
                 if (genWarning != null) {
                     // just a cheap way of chaining the warnings...
-                    genWarning = new GenWarning( msg, genWarning);
+                    genWarning = new GenWarning(msg, genWarning);
                 } else {
-                    genWarning = new GenWarning( msg );
+                    genWarning = new GenWarning(msg);
                 }
             } else {
                 interfaces.add(args[i]);

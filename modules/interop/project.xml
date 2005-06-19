@@ -88,25 +88,4 @@
             <version>${mx4j_version}</version>
         </dependency>
     </dependencies>
-
-
-    <!-- =================== -->
-    <!-- Build Specification -->
-    <!-- =================== -->
-
-    <build>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-            <resources>
-                <resource>
-                    <directory>${basedir}/src/test-resources</directory>
-                </resource>
-            </resources>
-        </unitTest>
-    </build>
 </project>
