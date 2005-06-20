@@ -31,6 +31,9 @@ import org.apache.geronimo.interop.generator.GenOptions;
  * @version $Rev$ $Date$
  */
 public class PortableStubCompilerTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
+
+
     public void testStubCompiler() throws Exception {
         GenOptions genOptions = new GenOptions();
         new File("target/stubs").mkdirs();
@@ -52,7 +55,8 @@ public class PortableStubCompilerTest extends TestCase {
 
     public void testBasicNameMangler() throws Exception {
         Properties nameManglerProperties = new Properties();
-        nameManglerProperties.load(new FileInputStream("src/test-data/nameMangler.properties"));
+        File file = new File(basedir, "src/test-data/nameMangler.properties");
+        nameManglerProperties.load(new FileInputStream(file));
 
         Set methodSignatures = new HashSet();
         IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(Foo.class);
@@ -83,7 +87,8 @@ public class PortableStubCompilerTest extends TestCase {
 
     public void testSpecialNameMangler() throws Exception {
         Properties nameManglerProperties = new Properties();
-        nameManglerProperties.load(new FileInputStream("src/test-data/specialNameMangler.properties"));
+        File file = new File(basedir, "src/test-data/specialNameMangler.properties");
+        nameManglerProperties.load(new FileInputStream(file));
 
         Set methodSignatures = new HashSet();
         IiopOperation[] iiopOperations = PortableStubCompiler.createIiopOperations(Special.class);
