@@ -21,7 +21,7 @@ import java.util.HashMap;
 
 public class JType extends JEntity {
 
-    private static HashMap    typeMap = new HashMap(60);
+    private static HashMap    typeCache = new HashMap(60);
     private Class             type;
     private String            typeDecl;
 
@@ -32,7 +32,7 @@ public class JType extends JEntity {
 
     public void setType(Class type) {
         this.type = type;
-        calculateTypeDecl();
+        this.typeDecl = calculateTypeDecl(type);
     }
 
     public Class getType() {
@@ -61,64 +61,32 @@ public class JType extends JEntity {
         return rc;
     }
 
-    protected void calculateTypeDecl() {
-        if (type == null) {
-            return;
-        }
-
-        typeDecl = (String) typeMap.get(type);
-
-        if (typeDecl == null) {
-            synchronized (typeMap) {
-                typeDecl = type.getName();
-
-                if (type.isArray()) {
-                    typeDecl = convertToTypeDecl(typeDecl);
-                }
-
-                typeMap.put(type, typeDecl);
+    private static String calculateTypeDecl(Class type) {
+        String typeName = type.getName();
+        synchronized (typeCache) {
+            String typeDecl= (String) typeCache.get(typeName);
+            if (typeDecl != null) {
+                return typeDecl;
             }
-        }
-    }
 
-    protected String convertToTypeDecl(String typeName) {
-        String rc = "";
-        char charAt = 0;
-        int i;
+            StringBuffer typeString = new StringBuffer();
 
-        if (typeName != null && typeName.length() > 0) {
-            for (i = 0; i < typeName.length(); i++) {
-                charAt = typeName.charAt(i);
-
-                if (charAt == '[') {
-                    rc = rc + "[]";
-                } else if (charAt == 'Z') {
-                    rc = "boolean" + rc;
-                } else if (charAt == 'B') {
-                    rc = "byte" + rc;
-                } else if (charAt == 'C') {
-                    rc = "char" + rc;
-                } else if (charAt == 'L') {
-                    int semiIndex = typeName.indexOf(";");
-                    rc = typeName.substring(i + 1, semiIndex) + rc;
-                    i = semiIndex;
-                } else if (charAt == 'D') {
-                    rc = "double" + rc;
-                } else if (charAt == 'F') {
-                    rc = "float" + rc;
-                } else if (charAt == 'I') {
-                    rc = "int" + rc;
-                } else if (charAt == 'J') {
-                    rc = "long" + rc;
-                } else if (charAt == 'S') {
-                    rc = "short" + rc;
-                } else {
-                    System.out.println("Error: Invalid signature. typeName = " + typeName + ", charAt = " + charAt + ", i = " + i);
-                }
+            while (type.isArray()) {
+                typeString.append("[]");
+                type = type.getComponentType();
             }
-        }
 
-        return rc;
+            typeString.insert(0, type.getName());
+            if (type.getDeclaringClass() != null) {
+                String declaringClassName = calculateTypeDecl(type.getDeclaringClass());
+                assert type.getName().startsWith(declaringClassName + "$");
+                typeString.setCharAt(declaringClassName.length(), '.');
+            }
+
+            typeDecl = typeString.toString();
+            typeCache.put(typeName, typeDecl);
+            return typeDecl;
+        }
     }
 
     protected void showTypeInfo() {

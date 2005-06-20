@@ -90,7 +90,7 @@ public class PortableStubCompiler {
 
 
             // build the basic class object
-            String className = "_" + getClassName(interfaceName) + "_Stub_DAIN";
+            String className = "_" + getClassName(interfaceClass) + "_Stub";
             JClass jclass = jpackage.newClass(className);
             jclass.addImport("javax.rmi.CORBA", "Stub");
             jclass.setExtends("Stub");
@@ -114,12 +114,18 @@ public class PortableStubCompiler {
         }
     }
 
-    private static String getClassName(String interfaceName) {
-        int endIndex = interfaceName.lastIndexOf('.');
-        if (endIndex < 0) {
-            return interfaceName;
+    private static String getClassName(Class type) {
+        if (type.isArray()) {
+            throw new IllegalArgumentException("type is an array: " + type);
         }
-        return interfaceName.substring(endIndex + 1);
+
+        // get the classname
+        String typeName = type.getName();
+        int endIndex = typeName.lastIndexOf('.');
+        if (endIndex < 0) {
+            return typeName;
+        }
+        return typeName.substring(endIndex + 1);
     }
 
     private static String getPackageName(String interfaceName) {
@@ -157,46 +163,109 @@ public class PortableStubCompiler {
     public static IiopOperation[] createIiopOperations(Class intfClass) {
         Method[] methods = getAllMethods(intfClass);
 
-        // index the methods by name
-        HashMap methodsByName = new HashMap(methods.length);
+        // index the methods by name... used to determine which methods are overloaded
+        HashMap overloadedMethods = new HashMap(methods.length);
         for (int i = 0; i < methods.length; i++) {
-            List methodList = (ArrayList) methodsByName.get(methods[i].getName());
+            String methodName = methods[i].getName();
+            List methodList = (List) overloadedMethods.get(methodName);
             if (methodList == null) {
-                methodList = new ArrayList(methods.length);
-                methodsByName.put(methods[i].getName(), methodList);
+                methodList = new LinkedList();
+                overloadedMethods.put(methodName, methodList);
             }
             methodList.add(methods[i]);
         }
 
-        List overloadList = new ArrayList(methodsByName.size());
+        // index the methods by lower case name... used to determine which methods differ only by case
+        HashMap caseCollisionMethods = new HashMap(methods.length);
+        for (int i = 0; i < methods.length; i++) {
+            String lowerCaseMethodName = methods[i].getName().toLowerCase();
+            Set methodSet = (Set) caseCollisionMethods.get(lowerCaseMethodName);
+            if (methodSet == null) {
+                methodSet = new HashSet();
+                caseCollisionMethods.put(lowerCaseMethodName, methodSet);
+            }
+            methodSet.add(methods[i].getName());
+        }
+
+        String className = getClassName(intfClass);
+        List overloadList = new ArrayList(methods.length);
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
+
             String iiopName = method.getName();
-            if (((List) methodsByName.get(method.getName())).size() > 1) {
-                iiopName = buildOverloadMethodName(method);
+
+            if (((Set) caseCollisionMethods.get(method.getName().toLowerCase())).size() > 1) {
+                iiopName += upperCaseIndexString(iiopName);
             }
+
+            // if we have a leading underscore prepend with J
+            if (iiopName.charAt(0) == '_') {
+                iiopName = "J" + iiopName;
+            }
+
+            // if this is an overloaded method append the parameter string
+            if (((List) overloadedMethods.get(method.getName())).size() > 1) {
+                iiopName += buildOverloadParameterString(method.getParameterTypes());
+            }
+
+            // if we have a leading underscore prepend with J
+            iiopName = replace(iiopName, '$', "U0024");
+
+            // if we have matched a keyword prepend with an underscore
+            if (keywords.contains(iiopName.toLowerCase())) {
+                iiopName = "_" + iiopName;
+            }
+
+            // if the name is the same as the class name, append an underscore
+            if (iiopName.equalsIgnoreCase(className)) {
+                iiopName += "_";
+            }
+
             overloadList.add(new IiopOperation(iiopName, method));
         }
 
         return (IiopOperation[]) overloadList.toArray(new IiopOperation[overloadList.size()]);
     }
 
-    public static String buildOverloadMethodName(Method method) {
-        Class parameterTypes[] = method.getParameterTypes();
-        String name = method.getName() + "_";
+    private static String upperCaseIndexString(String iiopName) {
+        StringBuffer stringBuffer = new StringBuffer();
+        for (int i = 0; i < iiopName.length(); i++) {
+            char c = iiopName.charAt(i);
+            if (Character.isUpperCase(c)) {
+                stringBuffer.append('_').append(i);
+            }
+        }
+        return stringBuffer.toString();
+    }
+
+    public static String replace(String source, char oldChar, String newString) {
+        StringBuffer stringBuffer = new StringBuffer(source.length());
+        for (int i = 0; i < source.length(); i++) {
+            char c = source.charAt(i);
+            if (c == oldChar) {
+                stringBuffer.append(newString);
+            } else {
+                stringBuffer.append(c);
+            }
+        }
+        return stringBuffer.toString();
+    }
+
+    public static String buildOverloadParameterString(Class[] parameterTypes) {
+        String name = "";
         if (parameterTypes.length ==0) {
-            name += "_";
+            name += "__";
         } else {
             for (int i = 0; i < parameterTypes.length; i++) {
                 Class parameterType = parameterTypes[i];
-                name += buildOverloadParameterName(parameterType);
+                name += buildOverloadParameterString(parameterType);
             }
         }
         return name.replace('.', '_');
     }
 
-    public static String buildOverloadParameterName(Class parameterType) {
-        String name = "";
+    public static String buildOverloadParameterString(Class parameterType) {
+        String name = "_";
 
         int arrayDimensions = 0;
         while (parameterType.isArray()) {
@@ -214,14 +283,11 @@ public class PortableStubCompiler {
             name += "_org_omg_boxedIDL";
         }
 
-        // determine the parameterType name... this is overriden for special corba types
-        String parameterTypeName = (String) overloadTypes.get(parameterType.getName());
-        if (parameterTypeName == null) {
-            parameterTypeName = parameterType.getName();
+        // add package... some types have special mappings in corba
+        String packageName = (String) specialTypePackages.get(parameterType.getName());
+        if (packageName == null) {
+            packageName = getPackageName(parameterType.getName());
         }
-
-        // add package
-        String packageName = getPackageName(parameterTypeName);
         if (packageName.length() > 0) {
             name += "_" + packageName;
         }
@@ -232,9 +298,41 @@ public class PortableStubCompiler {
         }
 
         // add the class name
-        name += "_" + getClassName(parameterTypeName);
+        String className = (String) specialTypeNames.get(parameterType.getName());
+        if (className == null) {
+            className = buildClassName(parameterType);
+        }
+        name += "_" + className;
 
         return name;
+    }
+
+    private static String buildClassName(Class type) {
+        if (type.isArray()) {
+            throw new IllegalArgumentException("type is an array: " + type);
+        }
+
+        // get the classname
+        String typeName = type.getName();
+        int endIndex = typeName.lastIndexOf('.');
+        if (endIndex < 0) {
+            return typeName;
+        }
+        StringBuffer className = new StringBuffer(typeName.substring(endIndex + 1));
+
+        // for innerclasses replace the $ separator with two underscores
+        // we can't just blindly replace all $ characters since class names can contain the $ character
+        if (type.getDeclaringClass() != null) {
+            String declaringClassName = getClassName(type.getDeclaringClass());
+            assert className.toString().startsWith(declaringClassName + "$");
+            className.replace(declaringClassName.length(), declaringClassName.length() + 1, "__");
+        }
+
+        // if we have a leading underscore prepend with J
+        if (className.charAt(0) == '_') {
+            className.insert(0, "J");
+        }
+        return className.toString();
     }
 
     private void addMethod(JClass jclass, String iiopMethodName, JReturnType jreturnType, String name, JParameter[] jparameters, Class[] exceptions) {
@@ -478,9 +576,11 @@ public class PortableStubCompiler {
 //        }
 //    }
 
-    private static HashMap readMethods;
-    private static HashMap writeMethods;
-    private static HashMap overloadTypes;
+    private static final Map readMethods;
+    private static final Map writeMethods;
+    private static final Map specialTypeNames;
+    private static final Map specialTypePackages;
+    private static final Set keywords;
 
     static {
         readMethods = new HashMap();
@@ -505,18 +605,80 @@ public class PortableStubCompiler {
         writeMethods.put("double", "write_double");
         writeMethods.put("org.omg.CORBA.Object", "write_Object");
 
-        overloadTypes = new HashMap();
-        overloadTypes.put("boolean", "boolean");
-        overloadTypes.put("char", "wchar");
-        overloadTypes.put("byte", "octet");
-        overloadTypes.put("short", "short");
-        overloadTypes.put("int", "long");
-        overloadTypes.put("long", "long_long");
-        overloadTypes.put("float", "float");
-        overloadTypes.put("double", "double");
-        overloadTypes.put("java.lang.Class", "javax.rmi.CORBA.ClassDesc");
-        overloadTypes.put("java.lang.String", "CORBA.WStringValue");
-        overloadTypes.put("org.omg.CORBA.Object", "Object");
+        specialTypeNames = new HashMap();
+        specialTypeNames.put("boolean", "boolean");
+        specialTypeNames.put("char", "wchar");
+        specialTypeNames.put("byte", "octet");
+        specialTypeNames.put("short", "short");
+        specialTypeNames.put("int", "long");
+        specialTypeNames.put("long", "long_long");
+        specialTypeNames.put("float", "float");
+        specialTypeNames.put("double", "double");
+        specialTypeNames.put("java.lang.Class", "ClassDesc");
+        specialTypeNames.put("java.lang.String", "WStringValue");
+        specialTypeNames.put("org.omg.CORBA.Object", "Object");
+
+        specialTypePackages = new HashMap();
+        specialTypePackages.put("boolean", "");
+        specialTypePackages.put("char", "");
+        specialTypePackages.put("byte", "");
+        specialTypePackages.put("short", "");
+        specialTypePackages.put("int", "");
+        specialTypePackages.put("long", "");
+        specialTypePackages.put("float", "");
+        specialTypePackages.put("double", "");
+        specialTypePackages.put("java.lang.Class", "javax.rmi.CORBA");
+        specialTypePackages.put("java.lang.String", "CORBA");
+        specialTypePackages.put("org.omg.CORBA.Object", "");
+
+        keywords = new HashSet();
+        keywords.add("abstract");
+        keywords.add("any");
+        keywords.add("attribute");
+        keywords.add("boolean");
+        keywords.add("case");
+        keywords.add("char");
+        keywords.add("const");
+        keywords.add("context");
+        keywords.add("custom");
+        keywords.add("default");
+        keywords.add("double");
+        keywords.add("enum");
+        keywords.add("exception");
+        keywords.add("factory");
+        keywords.add("false");
+        keywords.add("fixed");
+        keywords.add("float");
+        keywords.add("in");
+        keywords.add("inout");
+        keywords.add("interface");
+        keywords.add("long");
+        keywords.add("module");
+        keywords.add("native");
+        keywords.add("object");
+        keywords.add("octet");
+        keywords.add("oneway");
+        keywords.add("out");
+        keywords.add("private");
+        keywords.add("public");
+        keywords.add("raises");
+        keywords.add("readonly");
+        keywords.add("sequence");
+        keywords.add("short");
+        keywords.add("string");
+        keywords.add("struct");
+        keywords.add("supports");
+        keywords.add("switch");
+        keywords.add("true");
+        keywords.add("truncatable");
+        keywords.add("typedef");
+        keywords.add("union");
+        keywords.add("unsigned");
+        keywords.add("valuebase");
+        keywords.add("valuetype");
+        keywords.add("void");
+        keywords.add("wchar");
+        keywords.add("wstring");
     }
 
     protected String getWriteMethod(JVariable jvariable) {
