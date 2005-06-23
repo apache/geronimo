@@ -70,7 +70,21 @@ public class RealmPrincipal implements Principal, Serializable {
      * @return a string representation of this principal.
      */
     public String toString() {
-        return getName();
+        //TODO hack to workaround bogus assumptions in some secret code.
+//        return getName();
+        if (name == null) {
+
+            StringBuffer buffer = new StringBuffer("");
+            buffer.append(loginDomain);
+            buffer.append(":[");
+            buffer.append(principal.getClass().getName());
+            buffer.append(':');
+            buffer.append(principal.getName());
+            buffer.append("]");
+
+            name = buffer.toString();
+        }
+        return name;
     }
 
     /**
@@ -88,19 +102,21 @@ public class RealmPrincipal implements Principal, Serializable {
      * @return the name of this principal.
      */
     public String getName() {
-        if (name == null) {
-
-            StringBuffer buffer = new StringBuffer("");
-            buffer.append(loginDomain);
-            buffer.append(":[");
-            buffer.append(principal.getClass().getName());
-            buffer.append(':');
-            buffer.append(principal.getName());
-            buffer.append("]");
-
-            name = buffer.toString();
-        }
-        return name;
+        //TODO hack to workaround bogus assumptions in some secret code.
+//        if (name == null) {
+//
+//            StringBuffer buffer = new StringBuffer("");
+//            buffer.append(loginDomain);
+//            buffer.append(":[");
+//            buffer.append(principal.getClass().getName());
+//            buffer.append(':');
+//            buffer.append(principal.getName());
+//            buffer.append("]");
+//
+//            name = buffer.toString();
+//        }
+//        return name;
+        return principal.getName();
     }
 
     /**
