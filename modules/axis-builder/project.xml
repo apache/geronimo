@@ -251,7 +251,9 @@
             </resource>
             <resource>
                 <directory>${basedir}/target/xmlbeans</directory>
-                <includes>schema/**</includes>
+                <includes>
+                    <include>schema/**</include>
+                </includes>
             </resource>
         </resources>
         <unitTest>

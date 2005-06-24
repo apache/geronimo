@@ -310,8 +310,10 @@
             </resource>
             <resource>
                 <directory>${basedir}/target/xmlbeans</directory>
-                <includes>schema/**</includes>
-            </resource>
+                <includes>
+                     <include>schema/**</include>
+                 </includes>
+             </resource>
         </resources>
         <unitTest>
             <includes>

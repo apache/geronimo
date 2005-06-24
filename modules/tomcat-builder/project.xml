@@ -336,7 +336,7 @@
             <version>${regexp_version}</version>
             <url>http://jakarta.apache.org/regexp</url>
         </dependency>
-        
+
        <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
@@ -406,7 +406,7 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-        	
+
         <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
@@ -419,13 +419,13 @@
             <artifactId>wsdl4j</artifactId>
             <version>${wsdl4j_version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>${xerces_version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xmlParserAPIs</artifactId>
@@ -452,8 +452,10 @@
             </resource>
             <resource>
                 <directory>${basedir}/target/xmlbeans</directory>
-                <includes>schema/**</includes>
-            </resource>
+                <includes>
+                     <include>schema/**</include>
+                 </includes>
+             </resource>
         </resources>
         <unitTest>
             <includes>

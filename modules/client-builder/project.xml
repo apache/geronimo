@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <!-- $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
 
 <project>
@@ -92,9 +92,9 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.currentVersion}</version>   
+            <version>${pom.currentVersion}</version>
         </dependency>
- 
+
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
@@ -121,7 +121,7 @@
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-           
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
@@ -130,7 +130,7 @@
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
- 
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
@@ -210,8 +210,10 @@
             </resource>
             <resource>
                 <directory>${basedir}/target/xmlbeans</directory>
-                <includes>schema/**</includes>
-            </resource>
+                <includes>
+                     <include>schema/**</include>
+                 </includes>
+             </resource>
         </resources>
         <unitTest>
             <includes>
