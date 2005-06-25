@@ -43,6 +43,14 @@
     <dependencies>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-xmlbeans-plugin</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
+
+        <!-- what is this for?? -->
+        <dependency>
             <groupId>maven-plugins</groupId>
             <artifactId>maven-axis-plugin</artifactId>
             <version>0.5</version>

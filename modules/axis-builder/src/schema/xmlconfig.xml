@@ -1,0 +1,13 @@
+<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config"
+    >
+
+    <xb:namespace uri="http://www.w3.org/2001/XMLSchema">
+        <xb:package>org.apache.geronimo.xbeans.schema</xb:package>
+    </xb:namespace>
+
+    <xb:namespace uri="http://schemas.xmlsoap.org/wsdl/">
+        <xb:package>org.apache.geronimo.xbeans.wsdl</xb:package>
+    </xb:namespace>
+
+
+</xb:config>

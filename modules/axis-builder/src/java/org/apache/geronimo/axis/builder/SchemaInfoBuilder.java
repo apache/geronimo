@@ -50,6 +50,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaParticle;
@@ -596,7 +597,8 @@ public class SchemaInfoBuilder {
             try {
                 ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
                 wsdlInputStream = moduleFile.getInputStream(entry);
-                Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(wsdlInputStream));
+//                Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(wsdlInputStream));
+                DefinitionsDocument definition = DefinitionsDocument.Factory.parse(wsdlInputStream);
                 wsdlMap.put(wsdlURI, definition);
                 wsdlInputStream.close();
                 wsdlInputStream = moduleFile.getInputStream(entry);
@@ -618,10 +620,13 @@ public class SchemaInfoBuilder {
                 ZipEntry entry = moduleFile.getEntry(latestImportURI.toString());
                 importInputStream = moduleFile.getInputStream(entry);
                 try {
-                    Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(importInputStream));
+//                    Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(importInputStream));
+                    DefinitionsDocument definition = DefinitionsDocument.Factory.parse(importInputStream);
+                    wsdlMap.put(wsdlURI, definition);
+                    importInputStream.close();
                     wsdlMap.put(latestImportURI, definition);
                     importInputStream.close();
-                } catch (WSDLException e) {
+                } catch (XmlException e) {
                     //probably was a schema rather than wsdl.  If there are real problems they will show up later.
                 }
                 importInputStream = moduleFile.getInputStream(entry);

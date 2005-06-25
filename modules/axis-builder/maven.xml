@@ -26,13 +26,13 @@
     xmlns:xmlbeans="geronimo:xmlbeans"
     >
 
-<!--    <preGoal name="java:compile">-->
-<!--        <xmlbeans:schema2java-->
-<!--            sourcedir="${basedir}/src"-->
-<!--            sourceschema="schema/XMLSchema.xsd"-->
-<!--            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"-->
-<!--            targetdir="${basedir}/target/xmlbeans"-->
-<!--            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>-->
-<!--    </preGoal>-->
+    <preGoal name="java:compile">
+        <xmlbeans:schema2java
+            sourcedir="${basedir}/src"
+            sourceschema="schema/wsdl.xsd"
+            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
+            targetdir="${basedir}/target/xmlbeans"
+            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>
+    </preGoal>
 
 </project>

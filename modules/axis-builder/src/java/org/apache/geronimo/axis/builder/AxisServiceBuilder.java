@@ -34,11 +34,7 @@ import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
-import javax.wsdl.Import;
 import javax.wsdl.Port;
-import javax.wsdl.Types;
-import javax.wsdl.extensions.UnknownExtensibilityElement;
-import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.wsdl.extensions.soap.SOAPBody;
@@ -51,19 +47,23 @@ import org.apache.axis.description.OperationDesc;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
 import org.apache.geronimo.axis.client.TypeInfo;
+import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
+import org.apache.geronimo.xbeans.wsdl.TDefinitions;
+import org.apache.geronimo.xbeans.wsdl.TImport;
+import org.apache.geronimo.xbeans.wsdl.TPort;
+import org.apache.geronimo.xbeans.wsdl.TService;
+import org.apache.geronimo.xbeans.wsdl.TTypes;
+import org.apache.xmlbeans.XmlCursor;
 import org.w3.x2001.xmlSchema.ImportDocument;
 import org.w3.x2001.xmlSchema.IncludeDocument;
 import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * @version $Rev$ $Date$
@@ -71,6 +71,10 @@ import org.w3c.dom.Node;
 public class AxisServiceBuilder {
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
+    private static final String SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";
+    private static final QName ADDRESS_QNAME = new QName(SOAP_NS, "address");
+    private static final QName LOCATION_QNAME = new QName("", "location");
+    private static final String LOCATION_REPLACEMENT_TOKEN = AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN;
 
 
     private static void validateLightweightMapping(Definition definition) throws DeploymentException {
@@ -234,57 +238,102 @@ public class AxisServiceBuilder {
                 rewriteSchema(schema, contextURI, key);
                 String schemaString = schemaDocument.toString();
                 wsdlMap.put(key.toString(), schemaString);
-            } else if (value instanceof Definition) {
-                Definition definition = (Definition) value;
-                Map imports = definition.getImports();
-                for (Iterator iterator2 = imports.values().iterator(); iterator2.hasNext();) {
-                    List importList = (List) iterator2.next();
-                    for (Iterator iterator3 = importList.iterator(); iterator3.hasNext();) {
-                        Import anImport = (Import) iterator3.next();
-                        String importLocation = anImport.getLocationURI();
-                        if (!importLocation.startsWith("http://")) {
-                            URI updated = buildQueryURI(contextURI, key, importLocation);
-                            anImport.setLocationURI(updated.toString());
+//            } else if (value instanceof Definition) {
+//                Definition definition = (Definition) value;
+//                Map imports = definition.getImports();
+//                for (Iterator iterator2 = imports.values().iterator(); iterator2.hasNext();) {
+//                    List importList = (List) iterator2.next();
+//                    for (Iterator iterator3 = importList.iterator(); iterator3.hasNext();) {
+//                        Import anImport = (Import) iterator3.next();
+//                        String importLocation = anImport.getLocationURI();
+//                        if (!importLocation.startsWith("http://")) {
+//                            URI updated = buildQueryURI(contextURI, key, importLocation);
+//                            anImport.setLocationURI(updated.toString());
+//                        }
+//                    }
+//                }
+//                Types types = definition.getTypes();
+//                Map namespaceMap = definition.getNamespaces();
+//                if (null != types) {
+//                    List schemaList = types.getExtensibilityElements();
+//                    for (Iterator iterator1 = schemaList.iterator(); iterator1.hasNext();) {
+//                        Object o = iterator1.next();
+//                        if (o instanceof Schema) {
+//                            Schema schemaType = (Schema) o;
+//                            Element e = schemaType.getElement();
+//                            try {
+//                                SchemaDocument.Schema schema = (SchemaDocument.Schema) XmlObject.Factory.parse(e);
+//                                rewriteSchema(schema, contextURI, key);
+//                                Element e2 = (Element) schema.newDomNode();
+//                                schemaType.setElement(e2);
+//                            } catch (XmlException e1) {
+//                                throw new DeploymentException("Could not parse included schema", e1);
+//                            }
+//                        } else if (o instanceof UnknownExtensibilityElement) {
+//                            UnknownExtensibilityElement u = (UnknownExtensibilityElement) o;
+//                            QName elementType = u.getElementType();
+//                            if (SCHEMA_QNAME.equals(elementType)) {
+//                                Element e = u.getElement();
+//                                try {
+//                                    SchemaDocument schemaDocument = (SchemaDocument) SchemaInfoBuilder.parseWithNamespaces(e, namespaceMap);
+//                                    SchemaDocument.Schema schema = schemaDocument.getSchema();
+//                                    rewriteSchema(schema, contextURI, key);
+//                                    Node node = schema.newDomNode();
+//                                    Element e2 = (Element) node.getFirstChild();
+//                                    u.setElement(e2);
+//                                } catch (XmlException e1) {
+//                                    throw new DeploymentException("Could not parse included schema", e1);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                wsdlMap.put(key.toString(), definition);
+            } else if (value instanceof DefinitionsDocument) {
+                DefinitionsDocument doc = (DefinitionsDocument) value;
+                TDefinitions definitions = doc.getDefinitions();
+                TImport[] imports = definitions.getImportArray();
+                for (int i = 0; i < imports.length; i++) {
+                    TImport anImport = imports[i];
+                    String importLocation = anImport.getLocation().trim();
+                    if (!importLocation.startsWith("http://")) {
+                        URI updated = buildQueryURI(contextURI, key, importLocation);
+                        anImport.setLocation(updated.toString());
+                    }
+                }
+                TTypes[] types = definitions.getTypesArray();
+                for (int i = 0; i < types.length; i++) {
+                    TTypes type = types[i];
+                    XmlCursor typeCursor = type.newCursor();
+                    try {
+                        typeCursor.toChild(SCHEMA_QNAME);
+                        do {
+                            SchemaDocument.Schema schema = (SchemaDocument.Schema) typeCursor.getObject();
+                            rewriteSchema(schema, contextURI, key);
+                         } while (typeCursor.toNextSibling(SCHEMA_QNAME));
+                    } finally {
+                        typeCursor.dispose();
+                    }
+                }
+                //prepare for location substitution
+                TService[] services = definitions.getServiceArray();
+                for (int i = 0; i < services.length; i++) {
+                    TService service = services[i];
+                    TPort[] ports = service.getPortArray();
+                    for (int j = 0; j < ports.length; j++) {
+                        TPort port = ports[j];
+                        XmlCursor portCursor = port.newCursor();
+                        try {
+                            if (portCursor.toChild(ADDRESS_QNAME)) {
+                                //TODO rewrite the path from the actual deployed location, and just replace the schema/host/port
+                                portCursor.setAttributeText(LOCATION_QNAME, LOCATION_REPLACEMENT_TOKEN);
+                            }
+                        } finally {
+                            portCursor.dispose();
                         }
                     }
                 }
-                Types types = definition.getTypes();
-                Map namespaceMap = definition.getNamespaces();
-                if (null != types) {
-                    List schemaList = types.getExtensibilityElements();
-                    for (Iterator iterator1 = schemaList.iterator(); iterator1.hasNext();) {
-                        Object o = iterator1.next();
-                        if (o instanceof Schema) {
-                            Schema schemaType = (Schema) o;
-                            Element e = schemaType.getElement();
-                            try {
-                                SchemaDocument.Schema schema = (SchemaDocument.Schema) XmlObject.Factory.parse(e);
-                                rewriteSchema(schema, contextURI, key);
-                                Element e2 = (Element) schema.newDomNode();
-                                schemaType.setElement(e2);
-                            } catch (XmlException e1) {
-                                throw new DeploymentException("Could not parse included schema", e1);
-                            }
-                        } else if (o instanceof UnknownExtensibilityElement) {
-                            UnknownExtensibilityElement u = (UnknownExtensibilityElement) o;
-                            QName elementType = u.getElementType();
-                            if (SCHEMA_QNAME.equals(elementType)) {
-                                Element e = u.getElement();
-                                try {
-                                    SchemaDocument schemaDocument = (SchemaDocument) SchemaInfoBuilder.parseWithNamespaces(e, namespaceMap);
-                                    SchemaDocument.Schema schema = schemaDocument.getSchema();
-                                    rewriteSchema(schema, contextURI, key);
-                                    Node node = schema.newDomNode();
-                                    Element e2 = (Element) node.getFirstChild();
-                                    u.setElement(e2);
-                                } catch (XmlException e1) {
-                                    throw new DeploymentException("Could not parse included schema", e1);
-                                }
-                            }
-                        }
-                    }
-                }
-                wsdlMap.put(key.toString(), definition);
+                wsdlMap.put(key.toString(), doc.toString());
             } else {
                 throw new DeploymentException("Unexpected element in wsdlMap at location: " + key + ", value: " + value);
             }
