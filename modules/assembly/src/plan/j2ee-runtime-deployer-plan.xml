@@ -71,6 +71,10 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>geronimo/jars/geronimo-interop-${geronimo_version}.jar</uri>
     </dependency>
 
+    <dependency>
+        <uri>geronimo/jars/geronimo-servicemix-builder-${geronimo_version}.jar</uri>
+    </dependency>
+
     <!--
     - Uncomment this section to deploy webapps to Apache Tomcat
     -
@@ -249,5 +253,14 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
 
+
+    <gbean name="JBIBuilder" class="org.apache.geronimo.servicemix.deployment.ServiceMixConfigBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="deploymentDependencies">
+            servicemix/jars/spring-${servicemix_spring_version}.jar,
+            servicemix/jars/servicemix-${servicemix_version}.jar
+        </attribute>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+    </gbean>
 
 </configuration>

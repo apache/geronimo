@@ -132,6 +132,14 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-interop-${geronimo_version}.jar</uri>
     </dependency>
 
+    <dependency>
+        <uri>geronimo/jars/geronimo-servicemix-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-servicemix-builder-${geronimo_version}.jar</uri>
+    </dependency>
+
+
     <!--
    - Uncomment this to deploy webapps to Apache Tomcat
    -
@@ -314,5 +322,16 @@ Configuration for the Geronimo deployer
 <!--        </attribute>-->
 <!--        <reference name="Compiler"><gbean-name>openejb.CORBA:type=Compiler,vendor=Ant</gbean-name></reference>-->
 <!--    </gbean>-->
+
+
+    <gbean name="JBIBuilder" class="org.apache.geronimo.servicemix.deployment.ServiceMixConfigBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="deploymentDependencies">
+            servicemix/jars/spring-${servicemix_spring_version}.jar,
+            servicemix/jars/servicemix-${servicemix_version}.jar
+        </attribute>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+    </gbean>
+
 
 </configuration>
