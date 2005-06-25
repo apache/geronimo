@@ -434,29 +434,6 @@
                 <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
             </ant:java>
 
-            <!-- build the servicemix runtime configuration -->
-            <ant:echo>Building servicemix runtime configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/servicemix-runtime-plan.xml"/>
-            </ant:java>
-            <!-- build the servicemix deployer configuration -->
-            <ant:echo>Building servicemix deployer configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/servicemix-deployer-plan.xml"/>
-            </ant:java>
-
             <!-- build the spring runtime configuration -->
             <ant:echo>Building spring runtime configuration</ant:echo>
             <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
