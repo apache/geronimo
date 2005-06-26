@@ -306,11 +306,12 @@ public class AxisServiceBuilder {
                     TTypes type = types[i];
                     XmlCursor typeCursor = type.newCursor();
                     try {
-                        typeCursor.toChild(SCHEMA_QNAME);
-                        do {
-                            SchemaDocument.Schema schema = (SchemaDocument.Schema) typeCursor.getObject();
-                            rewriteSchema(schema, contextURI, key);
-                         } while (typeCursor.toNextSibling(SCHEMA_QNAME));
+                        if (typeCursor.toChild(SCHEMA_QNAME)) {
+                            do {
+                                SchemaDocument.Schema schema = (SchemaDocument.Schema) typeCursor.getObject();
+                                rewriteSchema(schema, contextURI, key);
+                             } while (typeCursor.toNextSibling(SCHEMA_QNAME));
+                        }
                     } finally {
                         typeCursor.dispose();
                     }
