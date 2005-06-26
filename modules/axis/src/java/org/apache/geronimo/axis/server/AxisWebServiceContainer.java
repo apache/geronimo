@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.wsdl.OperationType;
+import javax.wsdl.WSDLException;
 import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPMessage;
@@ -61,7 +62,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     private final Map wsdlMap;
 //    private transient WSDLWriter wsdlWriter;
 
-    public AxisWebServiceContainer(URI location, URI wsdlURL, SOAPService service, Map wsdlMap, ClassLoader classLoader) {
+    public AxisWebServiceContainer(URI location, URI wsdlURL, SOAPService service, Map wsdlMap, ClassLoader classLoader) throws WSDLException {
         this.location = location;
         this.wsdlLocation = wsdlURL;
         this.service = service;
