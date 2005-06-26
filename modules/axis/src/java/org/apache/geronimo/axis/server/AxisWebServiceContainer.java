@@ -62,7 +62,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
     private final Map wsdlMap;
 //    private transient WSDLWriter wsdlWriter;
 
-    public AxisWebServiceContainer(URI location, URI wsdlURL, SOAPService service, Map wsdlMap, ClassLoader classLoader) throws WSDLException {
+    public AxisWebServiceContainer(URI location, URI wsdlURL, SOAPService service, Map wsdlMap, ClassLoader classLoader) {
         this.location = location;
         this.wsdlLocation = wsdlURL;
         this.service = service;
