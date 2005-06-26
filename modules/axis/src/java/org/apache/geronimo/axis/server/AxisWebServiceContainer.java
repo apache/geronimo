@@ -253,8 +253,8 @@ public class AxisWebServiceContainer implements WebServiceContainer {
                     realLocation.getPath(), //TODO this is very wrong for services containing more than one port.
                     null,
                     null);
-            ((String)wsdl).replaceAll(LOCATION_REPLACEMENT_TOKEN, updated.toString());
-            response.getOutputStream().write(((String)wsdl).getBytes());
+            String replaced = ((String)wsdl).replaceAll(LOCATION_REPLACEMENT_TOKEN, updated.toString());
+            response.getOutputStream().write(replaced.getBytes());
 //        } else {
 //             Definition definition = (Definition) wsdl;
 //            synchronized (definition) {
