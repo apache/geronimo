@@ -35,14 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
-
 import javax.wsdl.Binding;
 import javax.wsdl.BindingOperation;
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
 import javax.wsdl.Port;
 import javax.wsdl.PortType;
-import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
 import javax.xml.namespace.QName;
@@ -55,7 +53,6 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.NoOp;
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastConstructor;
-
 import org.apache.axis.client.Service;
 import org.apache.axis.constants.Style;
 import org.apache.axis.description.JavaServiceDesc;
@@ -86,14 +83,14 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoaderReference;
 import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.naming.reference.DeserializingReference;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceCompletionType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPortCompletionType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerPortType;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -145,12 +142,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
 
         classLoader = new ClassLoaderReference(classLoader);
-        AxisWebServiceContainer axisWebServiceContainer = null;
-        try {
-            axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
-        } catch (WSDLException e) {
-            throw new DeploymentException("Could not construct AxisWebServiceContainer", e);
-        }
+        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
         //targetGBean.setAttribute("webServiceContainer", axisWebServiceContainer);
         try {
             targetGBean.setAttribute("webServiceContainer", new StoredObject(axisWebServiceContainer)); // Hack!
