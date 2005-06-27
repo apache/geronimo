@@ -71,8 +71,8 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";
     private static final String XML_SCHEMA_NS = "http://www.w3.org/2001/XMLSchema";
 
-    private static final Log log = LogFactory.getLog(HeavyweightTypeInfoBuilder.class); 
-    
+    private static final Log log = LogFactory.getLog(HeavyweightTypeInfoBuilder.class);
+
     private final ClassLoader cl;
     private final Map schemaTypeKeyToSchemaTypeMap;
     private final Set wrapperElementQNames;
@@ -91,7 +91,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         List typeInfoList = new ArrayList();
 
         Set mappedTypeQNames = new HashSet();
-        
+
         JavaXmlTypeMappingType[] javaXmlTypeMappings = mapping.getJavaXmlTypeMappingArray();
         for (int j = 0; j < javaXmlTypeMappings.length; j++) {
             JavaXmlTypeMappingType javaXmlTypeMapping = javaXmlTypeMappings[j];
@@ -153,11 +153,11 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             SchemaTypeKey key = (SchemaTypeKey) iter.next();
             qNameToKey.put(key.getqName(), key);
         }
-        
+
         for (Iterator iter = operations.iterator(); iter.hasNext();) {
             OperationDesc operationDesc = (OperationDesc) iter.next();
             ArrayList parameters = new ArrayList(operationDesc.getParameters());
-            ParameterDesc returnParameterDesc = operationDesc.getReturnParamDesc(); 
+            ParameterDesc returnParameterDesc = operationDesc.getReturnParamDesc();
             if (null != returnParameterDesc.getTypeQName() &&
                     false == returnParameterDesc.getTypeQName().equals(XMLType.AXIS_VOID)) {
                 parameters.add(returnParameterDesc);
@@ -173,27 +173,29 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                         typeQName.getNamespaceURI().equals(SOAP_ENCODING_NS)) {
                     continue;
                 }
-                
+
                 SchemaTypeKey key = (SchemaTypeKey) qNameToKey.get(typeQName);
                 if (null == key) {
-                    log.warn("Type QName [" + typeQName + "] defined by operation [" + 
+                    log.warn("Type QName [" + typeQName + "] defined by operation [" +
                             operationDesc + "] has not been found in schema: " + schemaTypeKeyToSchemaTypeMap);
                     continue;
                 }
                 SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
                 mappedTypeQNames.add(key.getqName());
-	            
+
                 if (false == schemaType.isSimpleType()) {
-                    if (false == mappedTypeQNames.contains(schemaType.getName())) {
-                        // TODO: this lookup is not enough: the jaxrpc mapping file may define an anonymous
-                        // mapping.
-                        log.warn("Operation [" + operationDesc + "] uses XML type [" + schemaType + 
-                                "], whose mapping is not declared by the jaxrpc mapping file.\n Continuing deployment; " +
-                                "yet, the deployment is not-portable.");
+                    if (false == parameterDesc.getJavaType().isArray()) {
+                        if (false == mappedTypeQNames.contains(schemaType.getName())) {
+                            // TODO: this lookup is not enough: the jaxrpc mapping file may define an anonymous
+                            // mapping.
+                            log.warn("Operation [" + operationDesc + "] uses XML type [" + schemaType +
+                                    "], whose mapping is not declared by the jaxrpc mapping file.\n Continuing deployment; " +
+                                    "yet, the deployment is not-portable.");
+                        }
+                        continue;
                     }
-                    continue;
                 }
-                
+
                 Class clazz = parameterDesc.getJavaType();
                 TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
                 setTypeQName(internalTypeInfo, key);
@@ -208,7 +210,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     }
 
     private void defineSerializerPair(TypeInfo.UpdatableTypeInfo internalTypeInfo, SchemaType schemaType, Class clazz)
-        throws DeploymentException {
+            throws DeploymentException {
         Class serializerFactoryClass = null;
         Class deserializerFactoryClass = null;
         if (schemaType.isSimpleType()) {
@@ -259,7 +261,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 }
             }
         }
-        
+
         internalTypeInfo.setClazz(clazz);
         internalTypeInfo.setSerializerClass(serializerFactoryClass);
         internalTypeInfo.setDeserializerClass(deserializerFactoryClass);
@@ -273,7 +275,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         }
         typeInfo.setQName(axisKey);
     }
-    
+
     private void populateInternalTypeInfo(Class javaClass, SchemaTypeKey key, SchemaType schemaType, JavaXmlTypeMappingType javaXmlTypeMapping, TypeInfo.UpdatableTypeInfo typeInfo) throws DeploymentException {
         String ns = key.getqName().getNamespaceURI();
         typeInfo.setCanSearchParents(schemaType.getDerivationType() == SchemaType.DT_RESTRICTION);
@@ -403,7 +405,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static class TypeMappingLookup {
         private static final TypeMappingImpl SOAP_TM = DefaultSOAPEncodingTypeMappingImpl.getSingleton();
         private static final TypeMappingImpl JAXRPC_TM = DefaultJAXRPC11TypeMappingImpl.getSingleton();
-        
+
         public static FactoryPair getFactoryPair(QName xmlType) {
             Class clazz = SOAP_TM.getClassForQName(xmlType, null, null);
             SerializerFactory sf;
@@ -422,11 +424,11 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             return new FactoryPair(sf.getClass(), df.getClass());
         }
     }
-    
+
     private static class FactoryPair {
         private final Class serializerFactoryClass;
         private final Class deserializerFactoryClass;
-        
+
         private FactoryPair(Class serializerFactoryClass, Class deserializerFactoryClass) {
             this.serializerFactoryClass = serializerFactoryClass;
             this.deserializerFactoryClass = deserializerFactoryClass;
