@@ -75,10 +75,9 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <!-- todo: move this once DConfigBean home is selected -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deploy-tool</artifactId>
+            <artifactId>geronimo-deploy-config</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>

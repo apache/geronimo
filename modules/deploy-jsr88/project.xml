@@ -30,9 +30,11 @@
     <id>geronimo-deploy-jsr88</id>
     <shortDescription>Geronimo JSR-88 Plugin</shortDescription>
     <description>The deployment module contains basic infrastructure and
-      base classes.  The deploy-tool module contains a command-line
-      deployment tool.  This module contains the master JSR-88 plugin
-      used by third-party configuration and deployment tools.</description>
+      base classes for module builders/deployer.  The deploy-config module
+      contains basic infrastructure and base classes for JSR-88 DConfigBeans.
+      The deploy-tool module contains a command-line deployment tool.  This
+      module contains the master JSR-88 plugin used by third-party
+      configuration and deployment tools.</description>
     <url>http://incubator.apache.org/projects/geronimo/deployment/</url>
     <siteDirectory>/www/incubator.apache.org/projects/geronimo/deployment</siteDirectory>
     <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/deployment/</distributionDirectory>
