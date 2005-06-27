@@ -32,6 +32,7 @@ import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
@@ -52,15 +53,35 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
     private ResourceAdapterDConfigBean resourceAdapterDConfigBean;
 
     public ResourceAdapterDConfigRoot(DDBeanRoot ddBean) {
-        super(ddBean, GerConnectorDocument.Factory.newInstance());
-        GerResourceadapterType resourceAdapter = getConnectorDocument().addNewConnector().addNewResourceadapter();
-        getConnectorDocument().getConnector().setVersion(GerVersionType.X_1_5);
-        replaceResourceAdapterDConfigBean(resourceAdapter);
+        super(ddBean, loadDefaultData(ddBean));
+        replaceResourceAdapterDConfigBean(getConnectorDocument().getConnector().getResourceadapterArray()[0]);
+    }
+
+    private static XmlObject loadDefaultData(DDBeanRoot root) {
+        InputStream in = root.getDeployableObject().getEntry("META-INF/geronimo-ra.xml");
+        if(in == null) {
+            GerConnectorDocument doc = GerConnectorDocument.Factory.newInstance();
+            doc.addNewConnector().addNewResourceadapter();
+            doc.getConnector().setVersion(GerVersionType.X_1_5);
+            return doc;
+        } else {
+            try {
+                XmlObject result =  GerConnectorDocument.Factory.parse(in);
+                in.close();
+                return result;
+            } catch (XmlException e) {
+                throw new RuntimeException("Unable to load default Geronimo RA data", e);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to load default Geronimo RA data", e);
+            }
+        }
     }
 
     private void replaceResourceAdapterDConfigBean(GerResourceadapterType resourceAdapter) {
         DDBean ddBean = getDDBean();
-        DDBean childDDBean = ddBean.getChildBean(getXpaths()[0])[0];
+        String path = getXpaths()[0];
+        System.out.println("********** Searching XPath "+path+" -- "+ddBean.getChildBean(path));
+        DDBean childDDBean = ddBean.getChildBean(path)[0];
         resourceAdapterDConfigBean = new ResourceAdapterDConfigBean(childDDBean, resourceAdapter);
     }
 

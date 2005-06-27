@@ -151,10 +151,19 @@ public class ResourceAdapterDConfigBean extends DConfigBeanSupport {
     }
 
     public String getWorkManager() {
+        if(getResourceadapterInstance() == null || getResourceadapterInstance().getWorkmanager() == null) {
+            return null;
+        }
         return getResourceadapterInstance().getWorkmanager().getGbeanLink();
     }
 
     public void setWorkManager(String workManager) {
+        if(getResourceadapterInstance() == null) {
+            getResourceadapter().addNewResourceadapterInstance();
+        }
+        if(getResourceadapterInstance().getWorkmanager() == null) {
+            getResourceadapterInstance().addNewWorkmanager();
+        }
         getResourceadapterInstance().getWorkmanager().setGbeanLink(workManager);
     }
 

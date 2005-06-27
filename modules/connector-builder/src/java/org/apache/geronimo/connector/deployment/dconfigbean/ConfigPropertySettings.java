@@ -134,4 +134,8 @@ public class ConfigPropertySettings extends XmlBeanSupport {
         getConfigPropertySetting().setStringValue(configPropertyValue);
         pcs.firePropertyChange("configPropertyValue", old, configPropertyValue);
     }
+
+    public String toString() {
+        return "Property "+getConfigPropertyName();
+    }
 }

@@ -209,4 +209,7 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         pcs.firePropertyChange("realmBridgeName", old, realmBridgeName);
     }
 
+    public String toString() {
+        return "Connection "+getName();
+    }
 }
