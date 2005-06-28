@@ -87,7 +87,7 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deploy-config</artifactId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 

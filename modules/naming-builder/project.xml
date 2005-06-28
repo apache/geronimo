@@ -120,13 +120,6 @@
             <version>${geronimo_spec_jta_version}</version>
         </dependency>
 
-    <!-- todo: should be removed once DConfigBean locations are resolved -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-deploy-tool</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>

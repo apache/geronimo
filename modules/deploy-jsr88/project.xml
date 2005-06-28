@@ -90,6 +90,13 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
+        <!-- only until we move out various DConfigBean trees -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
