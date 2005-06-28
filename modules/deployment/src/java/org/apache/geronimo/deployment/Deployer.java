@@ -41,8 +41,7 @@ import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 
 /**
- * Command line based deployment utility which combines multiple deployable modules
- * into a single configuration.
+ * GBean that knows how to deploy modules (by consulting available module builders)
  *
  * @version $Rev$ $Date$
  */

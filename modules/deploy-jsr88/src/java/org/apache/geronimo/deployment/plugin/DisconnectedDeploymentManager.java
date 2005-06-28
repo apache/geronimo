@@ -30,6 +30,9 @@ import javax.enterprise.deploy.shared.ModuleType;
 import java.util.Locale;
 import java.io.File;
 import java.io.InputStream;
+import org.apache.geronimo.connector.deployment.RARConfigurer;
+import org.apache.geronimo.jetty.deployment.WARConfigurer;
+import org.openejb.deployment.EJBConfigurer;
 
 /**
  * Implementation of a disconnected JSR88 DeploymentManager.
@@ -40,6 +43,18 @@ import java.io.InputStream;
 public class DisconnectedDeploymentManager implements DeploymentManager {
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
+        if(dObj.getType().equals(ModuleType.CAR)) {
+            //todo: need a client configurer
+        } else if(dObj.getType().equals(ModuleType.EAR)) {
+            //todo: need an EAR configurer
+        } else if(dObj.getType().equals(ModuleType.EJB)) {
+            return new EJBConfigurer().createConfiguration(dObj);
+        } else if(dObj.getType().equals(ModuleType.RAR)) {
+            return new RARConfigurer().createConfiguration(dObj);
+        } else if(dObj.getType().equals(ModuleType.WAR)) {
+            return new WARConfigurer().createConfiguration(dObj); // this is jetty
+            // todo: Tomcat WARConfigurer
+        }
         throw new InvalidModuleException("Not supported");
     }
 

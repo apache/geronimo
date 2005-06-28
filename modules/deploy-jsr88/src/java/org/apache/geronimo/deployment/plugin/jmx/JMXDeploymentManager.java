@@ -52,6 +52,9 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.connector.deployment.RARConfigurer;
+import org.apache.geronimo.jetty.deployment.WARConfigurer;
+import org.openejb.deployment.EJBConfigurer;
 
 
 /**
@@ -268,6 +271,18 @@ public class JMXDeploymentManager implements DeploymentManager {
     }
 
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
+        if(dObj.getType().equals(ModuleType.CAR)) {
+            //todo: need a client configurer
+        } else if(dObj.getType().equals(ModuleType.EAR)) {
+            //todo: need an EAR configurer
+        } else if(dObj.getType().equals(ModuleType.EJB)) {
+            return new EJBConfigurer().createConfiguration(dObj);
+        } else if(dObj.getType().equals(ModuleType.RAR)) {
+            return new RARConfigurer().createConfiguration(dObj);
+        } else if(dObj.getType().equals(ModuleType.WAR)) {
+            return new WARConfigurer().createConfiguration(dObj); // this is jetty
+            // todo: Tomcat WARConfigurer
+        }
         throw new InvalidModuleException("Not supported");
     }
 
