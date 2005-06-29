@@ -622,7 +622,6 @@ public class SchemaInfoBuilder {
                 try {
 //                    Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(importInputStream));
                     DefinitionsDocument definition = DefinitionsDocument.Factory.parse(importInputStream);
-                    wsdlMap.put(wsdlURI, definition);
                     importInputStream.close();
                     wsdlMap.put(latestImportURI, definition);
                     importInputStream.close();
