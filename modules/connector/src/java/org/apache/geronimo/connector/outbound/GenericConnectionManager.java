@@ -140,7 +140,7 @@ public class GenericConnectionManager extends AbstractConnectionManager {
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_RESOURCE);
+        infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("RealmBridge", RealmBridge.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
 

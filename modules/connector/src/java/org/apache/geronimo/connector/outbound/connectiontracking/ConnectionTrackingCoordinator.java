@@ -146,7 +146,7 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectionTrackingCoordinator.class, NameFactory.JCA_RESOURCE);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectionTrackingCoordinator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoFactory.addInterface(TrackedConnectionAssociator.class);
         infoFactory.addInterface(ConnectionTracker.class);
         GBEAN_INFO = infoFactory.getBeanInfo();

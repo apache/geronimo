@@ -52,6 +52,7 @@ public class NameFactory {
     public static String JAVA_MAIL_RESOURCE = "JavaMailResource";
     public static String JCA_RESOURCE = "JCAResource";
     public static String JCA_CONNECTION_FACTORY = "JCAConnectionFactory";
+    public static String JCA_CONNECTION_TRACKER = "JCAConnectionTracker";
     public static String JCA_MANAGED_CONNECTION_FACTORY = "JCAManagedConnectionFactory";
     public static String JDBC_RESOURCE = "JDBCResource";
     public static String JDBC_DATASOURCE = "JDBCDataSource";
