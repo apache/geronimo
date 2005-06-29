@@ -120,15 +120,10 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
                 new SimpleSerializerFactory(URI.class, Constants.XSD_ANYURI),
                 new SimpleDeserializerFactory(URI.class, Constants.XSD_ANYURI));
 
+        TypeInfo.register(typeInfo, typeMapping);
         for (Iterator iter = typeInfo.iterator(); iter.hasNext();) {
             TypeInfo info = (TypeInfo) iter.next();
             TypeDesc.registerTypeDescForClass(info.getClazz(), info.buildTypeDesc());
-
-            SerializerFactory sf =
-                    BaseSerializerFactory.createFactory(info.getSerFactoryClass(), info.getClazz(), info.getqName());
-            DeserializerFactory df =
-                    BaseDeserializerFactory.createFactory(info.getDeserFactoryClass(), info.getClazz(), info.getqName());
-            typeMapping.register(info.getClazz(), info.getqName(), sf, df);
         }
     }
 
