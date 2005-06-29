@@ -49,7 +49,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
- * 
+ *
  * @version $Rev: 56022 $ $Date: 2004-10-30 07:16:18 +0200 (Sat, 30 Oct 2004) $
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
@@ -67,58 +67,58 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     private String path = null;
 
     private String docBase = null;
-    
+
     private String virtualServer = null;
-    
+
     private final Realm realm;
-    
+
     private final List valveChain;
 
     private final Map componentContext;
-    
+
     private final Kernel kernel;
-    
+
     private final Set unshareableResources;
-    
+
     private final Set applicationManagedSecurityResources;
-    
+
     private final TrackedConnectionAssociator trackedConnectionAssociator;
 
     private final TransactionContextManager transactionContextManager;
 
     private final RoleDesignateSource roleDesignateSource;
-    
+
     private final SecurityHolder securityHolder;
 
     private final J2EEServer server;
 
     private final J2EEApplication application;
-    
+
     private final Map webServices;
 
     public TomcatWebAppContext(
             ClassLoader classLoader,
-            String objectName, 
+            String objectName,
             String originalSpecDD,
-            URI webAppRoot, 
-            URI[] webClassPath, 
+            URI webAppRoot,
+            URI[] webClassPath,
             boolean contextPriorityClassLoader,
             URL configurationBaseUrl,
             SecurityHolder securityHolder,
             String virtualServer,
-            Map componentContext, 
+            Map componentContext,
             Set unshareableResources,
-            Set applicationManagedSecurityResources,            
+            Set applicationManagedSecurityResources,
             OnlineUserTransaction userTransaction,
             TransactionContextManager transactionContextManager,
             TrackedConnectionAssociator trackedConnectionAssociator,
-            TomcatContainer container, 
+            TomcatContainer container,
             RoleDesignateSource roleDesignateSource,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
             Map webServices,
-            J2EEServer server, 
-            J2EEApplication application, 
+            J2EEServer server,
+            J2EEApplication application,
             Kernel kernel)
             throws Exception {
 
@@ -147,7 +147,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         this.roleDesignateSource = roleDesignateSource;
         this.server = server;
         this.application = application;
-        
+
         if (tomcatRealm != null){
             realm = (Realm)tomcatRealm.getInternalObject();
             if (!(realm instanceof Realm)){
@@ -156,7 +156,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         } else{
             realm = null;
         }
-        
+
         //Add the valve list
         if (tomcatValveChain != null){
             ArrayList chain = new ArrayList();
@@ -169,13 +169,13 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         } else {
             valveChain = null;
         }
-        
+
         this.webServices = webServices;
-        
+
         URI root = URI.create(configurationBaseUrl.toString());
 //        webAppRoot = root.resolve(webAppRoot);
         URL webAppRootURL = webAppRoot.toURL();
-        
+
         URL[] urls = new URL[webClassPath.length];
         for (int i = 0; i < webClassPath.length; i++) {
             URI classPathEntry = webClassPath[i];
@@ -191,7 +191,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         if (securityHolder != null){
             if (roleDesignateSource == null) {
                 throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
-            }            
+            }
         }
         userTransaction.setUp(transactionContextManager,
                 trackedConnectionAssociator);
@@ -250,7 +250,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         return securityHolder;
     }
 
-    
+
     public Set getApplicationManagedSecurityResources() {
         return applicationManagedSecurityResources;
     }
@@ -274,7 +274,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
     public Map getWebServices(){
         return webServices;
     }
-    
+
     /**
      * ObjectName must match this pattern: <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
@@ -360,7 +360,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         infoBuilder.addReference("transactionContextManager",
                 TransactionContextManager.class, NameFactory.JTA_RESOURCE);
         infoBuilder.addReference("trackedConnectionAssociator",
-                TrackedConnectionAssociator.class, NameFactory.JCA_RESOURCE);
+                TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
         infoBuilder.addReference("Container", TomcatContainer.class,
                 NameFactory.GERONIMO_SERVICE);
@@ -373,30 +373,30 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
-        infoBuilder.setConstructor(new String[] { 
+        infoBuilder.setConstructor(new String[] {
                 "classLoader",
                 "objectName",
                 "deploymentDescriptor",
-                "webAppRoot", 
+                "webAppRoot",
                 "webClassPath",
                 "contextPriorityClassLoader",
-                "configurationBaseUrl", 
-                "securityHolder", 
+                "configurationBaseUrl",
+                "securityHolder",
                 "virtualServer",
                 "componentContext",
                 "unshareableResources",
                 "applicationManagedSecurityResources",
-                "userTransaction", 
+                "userTransaction",
                 "transactionContextManager",
-                "trackedConnectionAssociator", 
+                "trackedConnectionAssociator",
                 "Container",
-                "RoleDesignateSource", 
+                "RoleDesignateSource",
                 "TomcatRealm",
                 "TomcatValveChain",
                 "webServices",
-                "J2EEServer", 
+                "J2EEServer",
                 "J2EEApplication",
-                "kernel" 
+                "kernel"
                 }
         );
 
