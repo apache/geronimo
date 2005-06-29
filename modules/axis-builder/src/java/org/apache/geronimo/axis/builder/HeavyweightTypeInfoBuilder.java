@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.xml.namespace.QName;
 import javax.xml.rpc.encoding.DeserializerFactory;
 import javax.xml.rpc.encoding.SerializerFactory;
@@ -48,12 +47,11 @@ import org.apache.axis.encoding.ser.BeanDeserializerFactory;
 import org.apache.axis.encoding.ser.BeanSerializerFactory;
 import org.apache.axis.encoding.ser.EnumDeserializerFactory;
 import org.apache.axis.encoding.ser.EnumSerializerFactory;
-import org.apache.axis.encoding.ser.SimpleDeserializerFactory;
 import org.apache.axis.encoding.ser.SimpleListDeserializerFactory;
 import org.apache.axis.encoding.ser.SimpleListSerializerFactory;
-import org.apache.axis.encoding.ser.SimpleSerializerFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis.client.ArrayTypeInfo;
 import org.apache.geronimo.axis.client.TypeInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -62,7 +60,10 @@ import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.VariableMappingType;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaParticle;
+import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.soap.SOAPArrayType;
+import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -140,8 +141,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 throw new DeploymentException("Could not load java type", e2);
             }
 
-            TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
-            defineSerializerPair(internalTypeInfo, schemaType, clazz);
+            TypeInfo.UpdatableTypeInfo internalTypeInfo = defineSerializerPair(schemaType, clazz);
 
             populateInternalTypeInfo(clazz, key, schemaType, javaXmlTypeMapping, internalTypeInfo);
 
@@ -197,9 +197,8 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 }
 
                 Class clazz = parameterDesc.getJavaType();
-                TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
+                TypeInfo.UpdatableTypeInfo internalTypeInfo =  defineSerializerPair(schemaType, clazz);
                 setTypeQName(internalTypeInfo, key);
-                defineSerializerPair(internalTypeInfo, schemaType, clazz);
                 internalTypeInfo.setFields(new FieldDesc[0]);
 
                 typeInfoList.add(internalTypeInfo.buildTypeInfo());
@@ -209,15 +208,18 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         return typeInfoList;
     }
 
-    private void defineSerializerPair(TypeInfo.UpdatableTypeInfo internalTypeInfo, SchemaType schemaType, Class clazz)
+    private TypeInfo.UpdatableTypeInfo defineSerializerPair(SchemaType schemaType, Class clazz)
             throws DeploymentException {
+        TypeInfo.UpdatableTypeInfo internalTypeInfo = new TypeInfo.UpdatableTypeInfo();
         Class serializerFactoryClass = null;
         Class deserializerFactoryClass = null;
         if (schemaType.isSimpleType()) {
             if (SchemaType.ATOMIC == schemaType.getSimpleVariety()) {
                 if (clazz.isArray()) {
+                    internalTypeInfo = new ArrayTypeInfo.UpdatableArrayTypeInfo();
                     serializerFactoryClass = ArraySerializerFactory.class;
                     deserializerFactoryClass = ArrayDeserializerFactory.class;
+                    //TODO set componentType, componentQName
                 } else if (null != schemaType.getEnumerationValues()) {
                     serializerFactoryClass = EnumSerializerFactory.class;
                     deserializerFactoryClass = EnumDeserializerFactory.class;
@@ -238,8 +240,56 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
             }
         } else {
             if (clazz.isArray()) {
+                internalTypeInfo = new ArrayTypeInfo.UpdatableArrayTypeInfo();
                 serializerFactoryClass = ArraySerializerFactory.class;
                 deserializerFactoryClass = ArrayDeserializerFactory.class;
+                QName componentType = null;
+                //First, handle case that looks like this:
+//                <complexType name="ArrayOfstring">
+//                    <complexContent>
+//                        <restriction base="soapenc:Array">
+//                            <attribute ref="soapenc:arrayType" wsdl:arrayType="xsd:string[]"/>
+//                        </restriction>
+//                    </complexContent>
+//                </complexType>
+                SchemaLocalAttribute arrayTypeAttribute =  schemaType.getAttributeModel().getAttribute(new QName(SOAP_ENCODING_NS, "arrayType"));
+                if (arrayTypeAttribute != null) {
+                    SchemaWSDLArrayType wsdlArrayType = (SchemaWSDLArrayType) arrayTypeAttribute;
+                    SOAPArrayType soapArrayType = wsdlArrayType.getWSDLArrayType();
+                    if (soapArrayType != null) {
+                        componentType = soapArrayType.getQName();
+                        log.info("extracted componentType " + componentType + " from schemaType " + schemaType);
+                    } else {
+                    log.info("no SOAPArrayType for component from schemaType " + schemaType);
+                    }
+                } else {
+                    log.warn("No soap array info for schematype: " + schemaType);
+                }
+                if (componentType == null) {
+                    //If that didn't work, try to handle case like this:
+//                    <complexType name="ArrayOfstring1">
+//                        <complexContent>
+//                            <restriction base="soapenc:Array">
+//                                <sequence>
+//                                    <element name="string1" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+//                                </sequence>
+//                            </restriction>
+//                        </complexContent>
+//                    </complexType>
+                    //todo consider if we should check for maxOccurs > 1
+                    if (schemaType.getBaseType().getName().equals(new QName(SOAP_ENCODING_NS, "Array"))) {
+                        SchemaProperty[] properties = schemaType.getDerivedProperties();
+                        if (properties.length != 1) {
+                            throw new DeploymentException("more than one element inside array definition: " + schemaType);
+                        }
+                        componentType = properties[0].getType().getName();
+                        log.info("determined component type from element type");
+                    }
+
+                }
+
+                ((ArrayTypeInfo.UpdatableArrayTypeInfo)internalTypeInfo).setComponentType(componentType);
+                //If we understand the axis comments correctly, componentQName is never set for j2ee ws.
             } else {
                 QName typeQName;
                 if (SchemaType.SIMPLE_CONTENT == schemaType.getContentType()) {
@@ -265,6 +315,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
         internalTypeInfo.setClazz(clazz);
         internalTypeInfo.setSerializerClass(serializerFactoryClass);
         internalTypeInfo.setDeserializerClass(deserializerFactoryClass);
+        return internalTypeInfo;
     }
 
     private void setTypeQName(TypeInfo.UpdatableTypeInfo typeInfo, SchemaTypeKey key) {

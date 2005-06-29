@@ -72,7 +72,7 @@ public class TypeInfo implements Serializable {
     public Class getDeserFactoryClass() {
         return deserFactoryClass;
     }
-    
+
     public boolean isCanSearchParents() {
         return canSearchParents;
     }
@@ -80,7 +80,7 @@ public class TypeInfo implements Serializable {
     public FieldDesc[] getFields() {
         return fields;
     }
-    
+
     public TypeDesc buildTypeDesc() {
         TypeDesc typeDesc = new TypeDesc(clazz, canSearchParents);
         typeDesc.setXmlType(qName);
@@ -94,15 +94,15 @@ public class TypeInfo implements Serializable {
 
         typeMapping.register(clazz, qName, ser, deser);
     }
-    
+
     public static class UpdatableTypeInfo {
-        private Class clazz;
-        private QName qName;
-        private Class serializerClass;
-        private Class deserializerClass;
-        private boolean canSearchParents;
-        private FieldDesc[] fields;
-        
+        protected Class clazz;
+        protected QName qName;
+        protected Class serializerClass;
+        protected Class deserializerClass;
+        protected boolean canSearchParents;
+        protected FieldDesc[] fields;
+
         public TypeInfo buildTypeInfo() {
             if (null == clazz) {
                 throw new IllegalStateException("clazz is null");
