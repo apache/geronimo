@@ -442,6 +442,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 String modulePath;
                 ModuleBuilder builder;
 
+                Object moduleContextInfo = null;
                 String moduleTypeName;
                 if (moduleXml.isSetEjb()) {
                     modulePath = moduleXml.getEjb().getStringValue();
@@ -457,6 +458,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     }
                     builder = webConfigBuilder;
                     moduleTypeName = "a war";
+                    moduleContextInfo = moduleXml.getWeb().getContextRoot().getStringValue().trim();
                 } else if (moduleXml.isSetConnector()) {
                     modulePath = moduleXml.getConnector().getStringValue();
                     if (connectorConfigBuilder == null) {
@@ -497,15 +499,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         moduleFile,
                         modulePath,
                         altSpecDD,
-                        URI.create(gerApplication.getConfigId()));
+                        URI.create(gerApplication.getConfigId()),
+                        moduleContextInfo);
 
                 if (module == null) {
                     throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
                 }
 
-                if (module instanceof WebModule) {
-                    ((WebModule) module).setContextRoot(moduleXml.getWeb().getContextRoot().getStringValue());
-                }
+//                if (module instanceof WebModule) {
+//                    ((WebModule) module).setContextRoot(moduleXml.getWeb().getContextRoot().getStringValue());
+//                }
 
                 modules.add(module);
             }

@@ -27,7 +27,7 @@ import java.net.URL;
  */
 public interface WebServiceBuilder {
 
-    Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB) throws DeploymentException;
+    Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException;
 
     //obviously these need the deployment descriptors, but I'm not sure in what form yet.
     /**

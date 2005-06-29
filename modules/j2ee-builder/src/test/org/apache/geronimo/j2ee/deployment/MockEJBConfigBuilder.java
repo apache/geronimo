@@ -40,7 +40,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return new EJBModule(true, null, null, moduleFile, "ejb.jar", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
         return new EJBModule(false, null, null, moduleFile, targetPath, null, null, null);
     }
 

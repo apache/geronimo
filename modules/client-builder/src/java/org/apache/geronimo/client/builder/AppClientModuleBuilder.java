@@ -127,7 +127,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         return createModule(plan, moduleFile, "app-client", null, null, true);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, earConfigId, false);
     }
 
@@ -425,7 +425,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                 }
                             }
                             XmlObject connectorPlan = resource.getConnector();
-                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null);
+                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null, null);
                             resourceModules.add(connectorModule);
                             connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule);
                         }

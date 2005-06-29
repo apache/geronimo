@@ -283,10 +283,11 @@ public class WSDescriptorParser {
      * @param webservicesType
      * @param moduleFile
      * @param isEJB
+     * @param servletLocations
      * @return
      * @throws org.apache.geronimo.common.DeploymentException
      */
-    public static Map parseWebServiceDescriptor(WebservicesType webservicesType, JarFile moduleFile, boolean isEJB) throws DeploymentException {
+    public static Map parseWebServiceDescriptor(WebservicesType webservicesType, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
         Map portMap = new HashMap();
         WebserviceDescriptionType[] webserviceDescriptions = webservicesType.getWebserviceDescriptionArray();
         for (int i = 0; i < webserviceDescriptions.length; i++) {
@@ -314,6 +315,7 @@ public class WSDescriptorParser {
                 seiMappings.put(seiMapping.getServiceEndpointInterface().getStringValue(), seiMapping);
             }
 
+//            Map portLocations = new HashMap();
             PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (int j = 0; j < portComponents.length; j++) {
                 PortComponentType portComponent = portComponents[j];
@@ -327,6 +329,12 @@ public class WSDescriptorParser {
                 String linkName;
                 if (serviceImplBeanType.isSetServletLink()) {
                     linkName = serviceImplBeanType.getServletLink().getStringValue().trim();
+                    String servletLocation = (String) servletLocations.get(linkName);
+                    if (servletLocation == null) {
+                        throw new DeploymentException("No servlet mapping for port " + portQName);
+                    }
+                    schemaInfoBuilder.movePortLocation(portComponentName, servletLocation);
+//                    portLocations.put(portComponentName, servletLocation);
                 } else {
                     linkName = serviceImplBeanType.getEjbLink().getStringValue().trim();
                 }
@@ -351,7 +359,7 @@ public class WSDescriptorParser {
         }
         return portMap;
     }
-    
+
     private static URI getAddressLocation(Port port) throws DeploymentException {
         SOAPAddress soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
         String locationURIString = soapAddress.getLocationURI();
@@ -364,12 +372,12 @@ public class WSDescriptorParser {
         }
     }
 
-    public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB) throws DeploymentException {
+    public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
         try {
             WebservicesDocument webservicesDocument = WebservicesDocument.Factory.parse(wsDDUrl);
             SchemaConversionUtils.validateDD(webservicesDocument);
             WebservicesType webservicesType = webservicesDocument.getWebservices();
-            return parseWebServiceDescriptor(webservicesType, moduleFile, isEJB);
+            return parseWebServiceDescriptor(webservicesType, moduleFile, isEJB, servletLocations);
         } catch (XmlException e) {
             throw new DeploymentException("Could not read descriptor document", e);
         } catch (IOException e) {

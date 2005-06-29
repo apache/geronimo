@@ -40,7 +40,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         return new ConnectorModule(true, null, null, moduleFile, "connector", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
         return new ConnectorModule(false, null, null, moduleFile, targetPath, null, null, null);
     }
 

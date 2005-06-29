@@ -140,7 +140,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         return createModule(plan, moduleFile, "war", null, true);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, false);
     }
 
@@ -177,10 +177,12 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
         //look for a webservices dd
         Map portMap = Collections.EMPTY_MAP;
+        //TODO make this like jetty !!
+        Map servletNameToPathMap = new HashMap();
         if (webServiceBuilder != null) {
             try {
                 URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-                portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false);
+                portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
             } catch (MalformedURLException e) {
                 //no descriptor
             }

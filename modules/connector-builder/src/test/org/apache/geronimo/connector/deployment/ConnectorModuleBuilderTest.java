@@ -324,7 +324,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             Thread.currentThread().setContextClassLoader(cl);
 
             JarFile rarJarFile = DeploymentUtil.createJarFile(rarFile);
-            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeContext.getJ2eeModuleName(), action.getSpecDD(), null);
+            Module module = moduleBuilder.createModule(action.getVendorDD(), rarJarFile, j2eeContext.getJ2eeModuleName(), action.getSpecDD(), null, null);
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }

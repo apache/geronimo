@@ -32,7 +32,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  */
 public class UnavailableWebServiceBuilder implements WebServiceBuilder {
 
-    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB) throws DeploymentException {
+    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map correctedPortLocations) throws DeploymentException {
         return new HashMap();
     }
 

@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
@@ -74,7 +75,7 @@ public class AxisServiceBuilder {
     private static final String SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";
     private static final QName ADDRESS_QNAME = new QName(SOAP_NS, "address");
     private static final QName LOCATION_QNAME = new QName("", "location");
-    private static final String LOCATION_REPLACEMENT_TOKEN = AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN;
+//    private static final String LOCATION_REPLACEMENT_TOKEN = AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN;
 
 
     private static void validateLightweightMapping(Definition definition) throws DeploymentException {
@@ -86,7 +87,8 @@ public class AxisServiceBuilder {
         Map portComponentsMap = null;
         try {
             URL webservicesURL = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
-            portComponentsMap = WSDescriptorParser.parseWebServiceDescriptor(webservicesURL, jarFile, true);
+            //todo make sure ejbs can't be deployed elsewhere
+            portComponentsMap = WSDescriptorParser.parseWebServiceDescriptor(webservicesURL, jarFile, true, Collections.EMPTY_MAP);
         } catch (MalformedURLException e1) {
             throw new DeploymentException("Invalid URL to webservices.xml", e1);
         }
@@ -290,7 +292,7 @@ public class AxisServiceBuilder {
 //                }
 //                wsdlMap.put(key.toString(), definition);
             } else if (value instanceof DefinitionsDocument) {
-                DefinitionsDocument doc = (DefinitionsDocument) value;
+                DefinitionsDocument doc = (DefinitionsDocument) ((DefinitionsDocument) value).copy();
                 TDefinitions definitions = doc.getDefinitions();
                 TImport[] imports = definitions.getImportArray();
                 for (int i = 0; i < imports.length; i++) {
@@ -316,24 +318,25 @@ public class AxisServiceBuilder {
                         typeCursor.dispose();
                     }
                 }
+                //now done in SchemaInfoBuilder
                 //prepare for location substitution
-                TService[] services = definitions.getServiceArray();
-                for (int i = 0; i < services.length; i++) {
-                    TService service = services[i];
-                    TPort[] ports = service.getPortArray();
-                    for (int j = 0; j < ports.length; j++) {
-                        TPort port = ports[j];
-                        XmlCursor portCursor = port.newCursor();
-                        try {
-                            if (portCursor.toChild(ADDRESS_QNAME)) {
-                                //TODO rewrite the path from the actual deployed location, and just replace the schema/host/port
-                                portCursor.setAttributeText(LOCATION_QNAME, LOCATION_REPLACEMENT_TOKEN);
-                            }
-                        } finally {
-                            portCursor.dispose();
-                        }
-                    }
-                }
+//                TService[] services = definitions.getServiceArray();
+//                for (int i = 0; i < services.length; i++) {
+//                    TService service = services[i];
+//                    TPort[] ports = service.getPortArray();
+//                    for (int j = 0; j < ports.length; j++) {
+//                        TPort port = ports[j];
+//                        XmlCursor portCursor = port.newCursor();
+//                        try {
+//                            if (portCursor.toChild(ADDRESS_QNAME)) {
+//                                //TODO rewrite the path from the actual deployed location, and just replace the schema/host/port
+//                                portCursor.setAttributeText(LOCATION_QNAME, LOCATION_REPLACEMENT_TOKEN);
+//                            }
+//                        } finally {
+//                            portCursor.dispose();
+//                        }
+//                    }
+//                }
                 wsdlMap.put(key.toString(), doc.toString());
             } else {
                 throw new DeploymentException("Unexpected element in wsdlMap at location: " + key + ", value: " + value);
@@ -367,11 +370,12 @@ public class AxisServiceBuilder {
             if (importLocationURI.isAbsolute() || importLocationURI.getPath().startsWith("/")) {
                 return importLocationURI;
             }
-            return new URI(null,
+            URI queryURI =  new URI(null,
                     null,
                     contextURI.getPath(),
                     "wsdl=" + key.resolve(importLocationURI),
                     null);
+            return queryURI;
         } catch (URISyntaxException e) {
             throw new DeploymentException("Could not construct wsdl location URI", e);
         }

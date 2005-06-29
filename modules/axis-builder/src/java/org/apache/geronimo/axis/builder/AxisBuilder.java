@@ -102,8 +102,8 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
     //WebServiceBuilder
 
-    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB) throws DeploymentException {
-        return WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB);
+    public Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
+        return WSDescriptorParser.parseWebServiceDescriptor(wsDDUrl, moduleFile, isEJB, servletLocations);
     }
 
     public void configurePOJO(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException {

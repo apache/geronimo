@@ -41,7 +41,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return new WebModule(true, null, null, moduleFile, "war", null, null, null, portMap);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
         return new WebModule(false, null, null, moduleFile, targetPath, null, null, null, portMap);
     }
 

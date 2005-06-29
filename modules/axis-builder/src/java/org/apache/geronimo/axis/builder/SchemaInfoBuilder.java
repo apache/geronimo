@@ -51,6 +51,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
+import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaParticle;
@@ -557,6 +558,20 @@ public class SchemaInfoBuilder {
         }
     }
 
+    public void movePortLocation(String portComponentName, String servletLocation) throws DeploymentException {
+        Map services = definition.getServices();
+        for (Iterator iterator = services.values().iterator(); iterator.hasNext();) {
+            Service service = (Service) iterator.next();
+            Port port = service.getPort(portComponentName);
+            if (port != null) {
+                SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+                soapAddress.setLocationURI(AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + "/" +  servletLocation);
+                return;
+            }
+        }
+        throw new DeploymentException("No port found with name " + portComponentName + " expected at " + servletLocation);
+    }
+
     private class JarEntityResolver implements EntityResolver {
 
         private final static String PROJECT_URL_PREFIX = "project://local/";
@@ -584,12 +599,12 @@ public class SchemaInfoBuilder {
     class JarWSDLLocator implements WSDLLocator {
 
         private final URI wsdlURI;
-        private final WSDLReader wsdlReader;
+//        private final WSDLReader wsdlReader;
         private URI latestImportURI;
 
         public JarWSDLLocator(URI wsdlURI, WSDLReader wsdlReader) {
             this.wsdlURI = wsdlURI;
-            this.wsdlReader = wsdlReader;
+//            this.wsdlReader = wsdlReader;
         }
 
         public InputSource getBaseInputSource() {

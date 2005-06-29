@@ -162,14 +162,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "war", null, true);
+        return createModule(plan, moduleFile, "war", null, true, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -200,17 +200,22 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
         check(webApp);
 
+        // parse vendor dd
+        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        if (contextRoot == null) {
+            contextRoot = jettyWebApp.getContextRoot();
+        }
+
+        Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
+
         //look for a webservices dd
         Map portMap = Collections.EMPTY_MAP;
         try {
             URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-            portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false);
+            portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
         } catch (MalformedURLException e) {
             //no descriptor
         }
-
-        // parse vendor dd
-        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
         URI configId = null;
@@ -232,8 +237,26 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
 
         WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD, portMap);
-        module.setContextRoot(jettyWebApp.getContextRoot());
+        module.setContextRoot(contextRoot);
         return module;
+    }
+
+    /**
+     * Some servlets will have multiple url patterns.  However, webservice servlets
+     * will only have one, which is what this method is intended for.
+     * @param webApp
+     * @param contextRoot
+     * @return
+     */
+    private Map buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
+        Map map = new HashMap();
+        ServletMappingType[] servletMappings = webApp.getServletMappingArray();
+        for (int j = 0; j < servletMappings.length; j++) {
+            ServletMappingType servletMapping = servletMappings[j];
+            String servletName = servletMapping.getServletName().getStringValue().trim();
+            map.put(servletName, contextRoot + servletMapping.getUrlPattern().getStringValue());
+        }
+        return map;
     }
 
     JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {

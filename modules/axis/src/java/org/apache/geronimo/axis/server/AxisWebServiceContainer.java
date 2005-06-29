@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.wsdl.OperationType;
-import javax.wsdl.WSDLException;
 import javax.xml.soap.MimeHeader;
 import javax.xml.soap.MimeHeaders;
 import javax.xml.soap.SOAPMessage;
@@ -60,7 +59,6 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 
     private final ClassLoader classLoader;
     private final Map wsdlMap;
-//    private transient WSDLWriter wsdlWriter;
 
     public AxisWebServiceContainer(URI location, URI wsdlURL, SOAPService service, Map wsdlMap, ClassLoader classLoader) {
         this.location = location;
@@ -68,8 +66,6 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         this.service = service;
         this.wsdlMap = wsdlMap;
         this.classLoader = classLoader;
-//        WSDLFactory wsdlFactory = WSDLFactory.newInstance();
-//        wsdlWriter = wsdlFactory.newWSDLWriter();
     }
 
     public void invoke(Request req, Response res) throws Exception {
@@ -229,6 +225,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 
     public void getWsdl(Request request, Response response) throws Exception {
         URI realLocation = request.getURI();
+//        log.info("Request at " + realLocation);
         String query = realLocation.getQuery();
         if (query == null || !query.toLowerCase().startsWith("wsdl")) {
             throw new IllegalStateException("request must contain a  wsdl or WSDL parameter: " + request.getParameters());
@@ -243,75 +240,19 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         if (wsdl == null) {
             throw new IllegalStateException("No wsdl or schema known at location: " + locationKey);
         }
-//        if (wsdl instanceof String) {
-//            log.info("===========XSD==============" + locationKey);
-//            log.info(wsdl);
             URI updated = new URI(realLocation.getScheme(),
                     realLocation.getUserInfo(),
                     realLocation.getHost(),
                     realLocation.getPort(),
-                    realLocation.getPath(), //TODO this is very wrong for services containing more than one port.
+                    null,  //try null for no path
                     null,
                     null);
             String replaced = ((String)wsdl).replaceAll(LOCATION_REPLACEMENT_TOKEN, updated.toString());
             response.getOutputStream().write(replaced.getBytes());
-//        } else {
-//             Definition definition = (Definition) wsdl;
-//            synchronized (definition) {
-//                Map services = definition.getServices();
-//                for (Iterator iter1 = services.values().iterator(); iter1.hasNext();) {
-//                    Service service = (Service) iter1.next();
-//                    Map ports = service.getPorts();
-//                    for (Iterator iter2 = ports.values().iterator(); iter2.hasNext();) {
-//                        Port port = (Port) iter2.next();
-//                        for (Iterator iter3 = port.getExtensibilityElements().iterator(); iter3.hasNext();) {
-//                            ExtensibilityElement element = (ExtensibilityElement) iter3.next();
-//                            if (element instanceof SOAPAddress) {
-//                                SOAPAddress soapAddress = (SOAPAddress) element;
-//                                // We replace the host and port here.
-//                                String oldLocation = soapAddress.getLocationURI();
-//                                URI oldLocationURI = new URI(oldLocation);
-//                                URI updated = new URI(realLocation.getScheme(),
-//                                        realLocation.getUserInfo(),
-//                                        realLocation.getHost(),
-//                                        realLocation.getPort(),
-//                                        oldLocationURI.getPath(), // Humm is this right?
-//                                        null,
-//                                        null);
-//                                soapAddress.setLocationURI(updated.toString());
-//                            }
-//                        }
-//                    }
-//                }
-//                log.info("===========WSDL==============" + locationKey);
-//                OutputStream baos = new java.io.ByteArrayOutputStream();
-//                wsdlWriter.writeWSDL(definition, baos);
-//                log.info(baos.toString());
-
-                // Dump the WSDL dom to the output stream
-//                OutputStream out = response.getOutputStream();
-//                wsdlWriter.writeWSDL(definition, out);
-//
-//            }
-//        }
     }
 
     public URI getLocation() {
         return location;
     }
-
-//    private void readObject(ObjectInputStream in) throws IOException {
-//        try {
-//            in.defaultReadObject();
-//        } catch (ClassNotFoundException e) {
-//            throw (IOException)new IOException("Could not deserialize!").initCause(e);
-//        }
-//        try {
-//            WSDLFactory wsdlFactory = WSDLFactory.newInstance();
-//            wsdlWriter = wsdlFactory.newWSDLWriter();
-//        } catch (WSDLException e) {
-//            throw (IOException)new IOException("Could not construct transient wsdlWriter").initCause(e);
-//        }
-//    }
 
 }

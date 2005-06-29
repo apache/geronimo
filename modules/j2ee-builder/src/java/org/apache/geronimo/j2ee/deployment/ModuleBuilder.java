@@ -29,7 +29,7 @@ import org.apache.geronimo.common.DeploymentException;
 public interface ModuleBuilder {
     Module createModule(File plan, JarFile moduleFile) throws DeploymentException;
 
-    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId) throws DeploymentException;
+    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException;
 
