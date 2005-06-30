@@ -73,8 +73,6 @@ public class AxisServiceBuilder {
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
     private static final String SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";
-    private static final QName ADDRESS_QNAME = new QName(SOAP_NS, "address");
-    private static final QName LOCATION_QNAME = new QName("", "location");
 //    private static final String LOCATION_REPLACEMENT_TOKEN = AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN;
 
 

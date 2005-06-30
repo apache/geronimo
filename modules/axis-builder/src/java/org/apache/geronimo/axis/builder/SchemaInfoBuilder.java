@@ -51,6 +51,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
+import org.apache.geronimo.xbeans.wsdl.TPort;
+import org.apache.geronimo.xbeans.wsdl.TService;
+import org.apache.geronimo.xbeans.wsdl.TDefinitions;
 import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalElement;
@@ -78,6 +81,9 @@ public class SchemaInfoBuilder {
     private static final Log log = LogFactory.getLog(SchemaInfoBuilder.class);
     private static final SchemaTypeSystem basicTypeSystem;
     private static final String[] errorNames = {"Error", "Warning", "Info"};
+    private static final String SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";
+    private static final QName ADDRESS_QNAME = new QName(SOAP_NS, "address");
+    private static final QName LOCATION_QNAME = new QName("", "location");
 
     static {
         URL url = WSDescriptorParser.class.getClassLoader().getResource("soap_encoding_1_1.xsd");
@@ -504,21 +510,21 @@ public class SchemaInfoBuilder {
         wsdlReaderNoImport.setFeature("javax.wsdl.importDocuments", false);
         ExtensionRegistry extensionRegistry = new PopulatedExtensionRegistry();
         extensionRegistry.mapExtensionTypes(Types.class, SchemaConstants.Q_ELEM_XSD_1999,
-            UnknownExtensibilityElement.class);
+                UnknownExtensibilityElement.class);
         extensionRegistry.registerDeserializer(Types.class, SchemaConstants.Q_ELEM_XSD_1999,
-            extensionRegistry.getDefaultDeserializer());
+                extensionRegistry.getDefaultDeserializer());
         extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_1999,
-            extensionRegistry.getDefaultSerializer());
+                extensionRegistry.getDefaultSerializer());
 
         extensionRegistry.mapExtensionTypes(Types.class, SchemaConstants.Q_ELEM_XSD_2000,
-            UnknownExtensibilityElement.class);
+                UnknownExtensibilityElement.class);
         extensionRegistry.registerDeserializer(Types.class, SchemaConstants.Q_ELEM_XSD_2000,
                 extensionRegistry.getDefaultDeserializer());
         extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_2000,
                 extensionRegistry.getDefaultSerializer());
 
         extensionRegistry.mapExtensionTypes(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
-            UnknownExtensibilityElement.class);
+                UnknownExtensibilityElement.class);
         extensionRegistry.registerDeserializer(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
                 extensionRegistry.getDefaultDeserializer());
         extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
@@ -559,22 +565,47 @@ public class SchemaInfoBuilder {
     }
 
     public void movePortLocation(String portComponentName, String servletLocation) throws DeploymentException {
-        Map services = definition.getServices();
-        for (Iterator iterator = services.values().iterator(); iterator.hasNext();) {
-            Service service = (Service) iterator.next();
-            Port port = service.getPort(portComponentName);
-            if (port != null) {
-                SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
-                soapAddress.setLocationURI(AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + "/" +  servletLocation);
-                return;
+        DefinitionsDocument doc = (DefinitionsDocument) wsdlMap.get(uris.get(0));
+        TDefinitions definitions = doc.getDefinitions();
+        TService[] services = definitions.getServiceArray();
+        for (int i = 0; i < services.length; i++) {
+            TService service = services[i];
+            TPort[] ports = service.getPortArray();
+            for (int j = 0; j < ports.length; j++) {
+                TPort port = ports[j];
+                if (port.getName().trim().equals(portComponentName)) {
+                    XmlCursor portCursor = port.newCursor();
+                    try {
+                        if (portCursor.toChild(ADDRESS_QNAME)) {
+                            //TODO rewrite the path from the actual deployed location, and just replace the schema/host/port
+                            portCursor.setAttributeText(LOCATION_QNAME, AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + "/" + servletLocation);
+                            return;
+                        }
+                    } finally {
+                        portCursor.dispose();
+                    }
+                }
             }
         }
+
+
+//        Map services = definition.getServices();
+//        for (Iterator iterator = services.values().iterator(); iterator.hasNext();) {
+//            Service service = (Service) iterator.next();
+//            Port port = service.getPort(portComponentName);
+//            if (port != null) {
+//                SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+//                soapAddress.setLocationURI(AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + "/" +  servletLocation);
+//                return;
+//            }
+//        }
         throw new DeploymentException("No port found with name " + portComponentName + " expected at " + servletLocation);
     }
 
     private class JarEntityResolver implements EntityResolver {
 
         private final static String PROJECT_URL_PREFIX = "project://local/";
+
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
             //seems like this must be a bug in xmlbeans...
             if (systemId.indexOf(PROJECT_URL_PREFIX) > -1) {
@@ -590,7 +621,7 @@ public class SchemaInfoBuilder {
                 wsdlInputStream.close();
                 wsdlInputStream = moduleFile.getInputStream(entry);
             } catch (XmlException e) {
-                throw (IOException)new IOException("Could not parse schema document").initCause(e);
+                throw (IOException) new IOException("Could not parse schema document").initCause(e);
             }
             return new InputSource(wsdlInputStream);
         }
