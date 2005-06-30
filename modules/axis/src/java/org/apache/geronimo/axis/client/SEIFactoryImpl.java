@@ -119,12 +119,12 @@ public class SEIFactoryImpl implements SEIFactory, Serializable {
                 Constants.XSD_ANYURI,
                 new SimpleSerializerFactory(URI.class, Constants.XSD_ANYURI),
                 new SimpleDeserializerFactory(URI.class, Constants.XSD_ANYURI));
-
-        TypeInfo.register(typeInfo, typeMapping);
+        //It is essential that the types be registered before the typeInfos create the serializer/deserializers.
         for (Iterator iter = typeInfo.iterator(); iter.hasNext();) {
             TypeInfo info = (TypeInfo) iter.next();
             TypeDesc.registerTypeDescForClass(info.getClazz(), info.buildTypeDesc());
         }
+        TypeInfo.register(typeInfo, typeMapping);
     }
 
     public Remote createServiceEndpoint() throws ServiceException {
