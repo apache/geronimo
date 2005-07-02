@@ -1,7 +1,7 @@
 Welcome to Geronimo
 ===================
 
-To build me please install Maven from here - version b10 or later.
+To build me please install Maven from here - version 1.0.2 or later.
 
 	http://maven.apache.org/
 
@@ -18,6 +18,19 @@ repository, simply type maven in the root of the Geronimo source
 tree:
 
         $> maven
+
+That command will compile Geronimo, using recent binary builds of
+OpenEJB and TranQL.  In some cases synchronized changes are made
+to several of the projects at once, and you may have trouble
+building the HEAD code of Geronimo against the older binaries of
+OpenEJB of TranQL.  In that case, you can run:
+
+	$> maven m:co
+	$> maven m:rebuild-all
+
+The first command checks out the latest OpenEJB and TranQL code,
+while the second cleans and previous build output and rebuilds
+Geronimo, OpenEJB, and TranQL from scratch.
 
 To build and run the server, change into the assembly directory and
 type:
