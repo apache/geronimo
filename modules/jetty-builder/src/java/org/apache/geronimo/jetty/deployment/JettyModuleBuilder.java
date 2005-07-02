@@ -249,6 +249,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
      * @return
      */
     private Map buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
+        contextRoot = "/" + contextRoot;
         Map map = new HashMap();
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
         for (int j = 0; j < servletMappings.length; j++) {

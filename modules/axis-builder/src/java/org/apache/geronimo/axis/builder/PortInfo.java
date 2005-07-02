@@ -29,7 +29,7 @@ import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
  * @version $Rev:  $ $Date:  $
  */
 public class PortInfo {
-    private final String portName;
+    private final String portComponentName;
     private final QName portQName;
     private final SchemaInfoBuilder schemaInfoBuilder;
     private final JavaWsdlMappingType javaWsdlMapping;
@@ -41,8 +41,8 @@ public class PortInfo {
 
     private final String wsdlLocation;
 
-    public PortInfo(String portName, QName portQName, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping, String wsdlLocation, URI contextURI) {
-        this.portName = portName;
+    public PortInfo(String portComponentName, QName portQName, SchemaInfoBuilder schemaInfoBuilder, JavaWsdlMappingType javaWsdlMapping, String seiInterfaceName, PortComponentHandlerType[] handlers, Port port, ServiceEndpointInterfaceMappingType seiMapping, String wsdlLocation, URI contextURI) {
+        this.portComponentName = portComponentName;
         this.portQName = portQName;
         this.schemaInfoBuilder = schemaInfoBuilder;
         this.javaWsdlMapping = javaWsdlMapping;
@@ -58,12 +58,8 @@ public class PortInfo {
         return wsdlLocation;
     }
 
-    public String getPortName() {
-        return getPortComponentName();
-    }
-
     public String getPortComponentName() {
-        return portName;
+        return portComponentName;
     }
 
     public QName getPortQName() {

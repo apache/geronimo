@@ -333,10 +333,10 @@ public class WSDescriptorParser {
                     if (servletLocation == null) {
                         throw new DeploymentException("No servlet mapping for port " + portQName);
                     }
-                    schemaInfoBuilder.movePortLocation(portComponentName, servletLocation);
-//                    portLocations.put(portComponentName, servletLocation);
+                    schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), servletLocation);
                 } else {
                     linkName = serviceImplBeanType.getEjbLink().getStringValue().trim();
+                    schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), null);
                 }
                 PortComponentHandlerType[] handlers = portComponent.getHandlerArray();
 

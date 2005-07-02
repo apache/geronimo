@@ -137,14 +137,14 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "war", null, true);
+        return createModule(plan, moduleFile, "war", null, true, null);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -175,18 +175,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         }
         check(webApp);
 
-        //look for a webservices dd
-        Map portMap = Collections.EMPTY_MAP;
-        //TODO make this like jetty !!
-        Map servletNameToPathMap = new HashMap();
-        if (webServiceBuilder != null) {
-            try {
-                URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
-                portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
-            } catch (MalformedURLException e) {
-                //no descriptor
-            }
-        }
 
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
@@ -209,10 +197,44 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         } else {
             parentId = defaultParentId;
         }
+        if (contextRoot == null) {
+            contextRoot = tomcatWebApp.getContextRoot();
+        }
+        //look for a webservices dd
+        Map portMap = Collections.EMPTY_MAP;
+        //TODO Jeff, please review
+        Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
+        if (webServiceBuilder != null) {
+            try {
+                URL wsDDUrl = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/webservices.xml");
+                portMap = webServiceBuilder.parseWebServiceDescriptor(wsDDUrl, moduleFile, false, servletNameToPathMap);
+            } catch (MalformedURLException e) {
+                //no descriptor
+            }
+        }
 
         WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, tomcatWebApp, specDD, portMap);
-        module.setContextRoot(tomcatWebApp.getContextRoot());
+        module.setContextRoot(contextRoot);
         return module;
+    }
+
+    /**
+     * Some servlets will have multiple url patterns.  However, webservice servlets
+     * will only have one, which is what this method is intended for.
+     * @param webApp
+     * @param contextRoot
+     * @return
+     */
+    private Map buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
+        contextRoot = "/" + contextRoot;
+        Map map = new HashMap();
+        ServletMappingType[] servletMappings = webApp.getServletMappingArray();
+        for (int j = 0; j < servletMappings.length; j++) {
+            ServletMappingType servletMapping = servletMappings[j];
+            String servletName = servletMapping.getServletName().getStringValue().trim();
+            map.put(servletName, contextRoot + servletMapping.getUrlPattern().getStringValue());
+        }
+        return map;
     }
 
     TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {

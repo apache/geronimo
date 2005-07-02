@@ -577,28 +577,22 @@ public class SchemaInfoBuilder {
                     XmlCursor portCursor = port.newCursor();
                     try {
                         if (portCursor.toChild(ADDRESS_QNAME)) {
-                            //TODO rewrite the path from the actual deployed location, and just replace the schema/host/port
-                            portCursor.setAttributeText(LOCATION_QNAME, AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + "/" + servletLocation);
+                            if (servletLocation == null) {
+                                String original = portCursor.getAttributeText(LOCATION_QNAME);
+                                URI originalURI = new URI(original);
+                                servletLocation = originalURI.getPath();
+                            }
+                            portCursor.setAttributeText(LOCATION_QNAME, AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + servletLocation);
                             return;
                         }
+                    } catch (URISyntaxException e) {
+                        throw new DeploymentException("Could not construct URI for ejb location in wsdl", e);
                     } finally {
                         portCursor.dispose();
                     }
                 }
             }
         }
-
-
-//        Map services = definition.getServices();
-//        for (Iterator iterator = services.values().iterator(); iterator.hasNext();) {
-//            Service service = (Service) iterator.next();
-//            Port port = service.getPort(portComponentName);
-//            if (port != null) {
-//                SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
-//                soapAddress.setLocationURI(AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + "/" +  servletLocation);
-//                return;
-//            }
-//        }
         throw new DeploymentException("No port found with name " + portComponentName + " expected at " + servletLocation);
     }
 
@@ -666,7 +660,6 @@ public class SchemaInfoBuilder {
                 ZipEntry entry = moduleFile.getEntry(latestImportURI.toString());
                 importInputStream = moduleFile.getInputStream(entry);
                 try {
-//                    Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(importInputStream));
                     DefinitionsDocument definition = DefinitionsDocument.Factory.parse(importInputStream);
                     importInputStream.close();
                     wsdlMap.put(latestImportURI, definition);
