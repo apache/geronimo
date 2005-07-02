@@ -138,13 +138,13 @@ public class AxisWebServiceContainer implements WebServiceContainer {
                 SOAPConstants soapConstants = messageContext.getSOAPConstants();
                 String contentType1 = responseMessage.getContentType(soapConstants);
                 res.setContentType(contentType1);
-                    // Transfer MIME headers to HTTP headers for response message.
-                    MimeHeaders responseMimeHeaders = responseMessage.getMimeHeaders();
-                    for (Iterator i = responseMimeHeaders.getAllHeaders(); i.hasNext(); ) {
-                        MimeHeader responseMimeHeader = (MimeHeader) i.next();
-                        res.setHeader(responseMimeHeader.getName(),
-                                      responseMimeHeader.getValue());
-                    }
+                // Transfer MIME headers to HTTP headers for response message.
+                MimeHeaders responseMimeHeaders = responseMessage.getMimeHeaders();
+                for (Iterator i = responseMimeHeaders.getAllHeaders(); i.hasNext();) {
+                    MimeHeader responseMimeHeader = (MimeHeader) i.next();
+                    res.setHeader(responseMimeHeader.getName(),
+                            responseMimeHeader.getValue());
+                }
                 //TODO discuss this with dims.
 //                // synchronize the character encoding of request and response
 //                String responseEncoding = (String) messageContext.getProperty(
@@ -157,10 +157,10 @@ public class AxisWebServiceContainer implements WebServiceContainer {
 //                        log.info(Messages.getMessage("exception00"), e);
 //                    }
 //                }
-                    //determine content type from message response
-                    contentType = responseMessage.getContentType(messageContext.
-                            getSOAPConstants());
-                    responseMessage.writeTo(res.getOutputStream());
+                //determine content type from message response
+                contentType = responseMessage.getContentType(messageContext.
+                        getSOAPConstants());
+                responseMessage.writeTo(res.getOutputStream());
             } catch (Exception e) {
                 log.info(Messages.getMessage("exception00"), e);
             }
@@ -240,15 +240,16 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         if (wsdl == null) {
             throw new IllegalStateException("No wsdl or schema known at location: " + locationKey);
         }
-            URI updated = new URI(realLocation.getScheme(),
-                    realLocation.getUserInfo(),
-                    realLocation.getHost(),
-                    realLocation.getPort(),
-                    null,  //try null for no path
-                    null,
-                    null);
-            String replaced = ((String)wsdl).replaceAll(LOCATION_REPLACEMENT_TOKEN, updated.toString());
-            response.getOutputStream().write(replaced.getBytes());
+        URI updated = new URI(realLocation.getScheme(),
+                realLocation.getUserInfo(),
+                realLocation.getHost(),
+                realLocation.getPort(),
+                null, //try null for no path
+                null,
+                null);
+        String replaced = ((String) wsdl).replaceAll(LOCATION_REPLACEMENT_TOKEN, updated.toString());
+        response.getOutputStream().write(replaced.getBytes());
+        response.getOutputStream().flush();
     }
 
     public URI getLocation() {
