@@ -49,6 +49,9 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-jetty-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-web-builder-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-client-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
