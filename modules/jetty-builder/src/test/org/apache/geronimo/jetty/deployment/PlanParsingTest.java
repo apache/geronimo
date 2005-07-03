@@ -6,8 +6,8 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 
@@ -23,13 +23,13 @@ public class PlanParsingTest extends TestCase {
     public void testResourceRef() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
         assertTrue(resourcePlan.exists());
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        GerWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
 
     public void testConstructPlan() throws Exception {
-        JettyWebAppDocument jettyWebAppDoc = JettyWebAppDocument.Factory.newInstance();
-        JettyWebAppType jettyWebAppType = jettyWebAppDoc.addNewWebApp();
+        GerWebAppDocument jettyWebAppDoc = GerWebAppDocument.Factory.newInstance();
+        GerWebAppType jettyWebAppType = jettyWebAppDoc.addNewWebApp();
         jettyWebAppType.setConfigId("configId");
         jettyWebAppType.setParentId("parentId");
         jettyWebAppType.setContextPriorityClassloader(false);

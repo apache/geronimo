@@ -53,7 +53,7 @@ import org.apache.geronimo.kernel.jmx.KernelDelegate;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
-import org.apache.geronimo.jetty.deployment.WARConfigurer;
+import org.apache.geronimo.web.deployment.WARConfigurer;
 import org.openejb.deployment.EJBConfigurer;
 
 

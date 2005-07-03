@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.io.File;
 import java.io.InputStream;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
-import org.apache.geronimo.jetty.deployment.WARConfigurer;
+import org.apache.geronimo.web.deployment.WARConfigurer;
 import org.openejb.deployment.EJBConfigurer;
 
 /**

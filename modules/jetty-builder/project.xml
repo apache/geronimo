@@ -94,6 +94,15 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-web-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
+
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty</artifactId>

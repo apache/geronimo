@@ -22,16 +22,6 @@
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
-    xmlns:maven="jelly:maven"
-    xmlns:xmlbeans="geronimo:xmlbeans">
-
-    <preGoal name="java:compile">
-        <xmlbeans:schema2java
-            sourcedir="${basedir}/src"
-            sourceschema="schema/geronimo-jetty.xsd"
-            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"
-            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>
-    </preGoal>
+    xmlns:maven="jelly:maven">
 
 </project>

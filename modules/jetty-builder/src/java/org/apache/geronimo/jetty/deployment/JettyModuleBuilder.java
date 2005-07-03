@@ -80,8 +80,8 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.DispatcherType;
 import org.apache.geronimo.xbeans.j2ee.ErrorPageType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -201,7 +201,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         check(webApp);
 
         // parse vendor dd
-        JettyWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        GerWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
         if (contextRoot == null) {
             contextRoot = jettyWebApp.getContextRoot();
         }
@@ -260,22 +260,22 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return map;
     }
 
-    JettyWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
-        JettyWebAppType jettyWebApp = null;
+    GerWebAppType getJettyWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+        GerWebAppType jettyWebApp = null;
         try {
-            // load the geronimo-jetty.xml from either the supplied plan or from the earFile
+            // load the geronimo-web.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    jettyWebApp = (JettyWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
+                    jettyWebApp = (GerWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
                             "web-app",
-                            JettyWebAppType.type);
+                            GerWebAppType.type);
                 } else {
-                    JettyWebAppDocument jettyWebAppdoc = null;
+                    GerWebAppDocument jettyWebAppdoc = null;
                     if (plan != null) {
-                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse((File) plan);
+                        jettyWebAppdoc = GerWebAppDocument.Factory.parse((File) plan);
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
-                        jettyWebAppdoc = JettyWebAppDocument.Factory.parse(path);
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
+                        jettyWebAppdoc = GerWebAppDocument.Factory.parse(path);
                     }
                     if (jettyWebAppdoc != null) {
                         jettyWebApp = jettyWebAppdoc.getWebApp();
@@ -286,9 +286,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             // if we got one extract and validate it otherwise create a default one
             if (jettyWebApp != null) {
-                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
-                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(jettyWebApp);
-                jettyWebApp = (JettyWebAppType) SchemaConversionUtils.convertToGeronimoServiceSchema(jettyWebApp);
+                jettyWebApp = (GerWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(jettyWebApp);
+                jettyWebApp = (GerWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(jettyWebApp);
+                jettyWebApp = (GerWebAppType) SchemaConversionUtils.convertToGeronimoServiceSchema(jettyWebApp);
                 SchemaConversionUtils.validateDD(jettyWebApp);
             } else {
                 String path;
@@ -307,7 +307,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return jettyWebApp;
     }
 
-    private JettyWebAppType createDefaultPlan(String path, WebAppType webApp) {
+    private GerWebAppType createDefaultPlan(String path, WebAppType webApp) {
         String id = webApp.getId();
         if (id == null) {
             id = path;
@@ -319,7 +319,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             }
         }
 
-        JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
+        GerWebAppType jettyWebApp = GerWebAppType.Factory.newInstance();
 
         // set the parentId, configId and context root
         jettyWebApp.setParentId(defaultParentId.toString());
@@ -353,8 +353,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // and the url class loader will not pick up a manifiest from an unpacked dir
             earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
 
-            // add the dependencies declared in the geronimo-jetty.xml file
-            JettyWebAppType jettyWebApp = (JettyWebAppType) module.getVendorDD();
+            // add the dependencies declared in the geronimo-web.xml file
+            GerWebAppType jettyWebApp = (GerWebAppType) module.getVendorDD();
             DependencyType[] dependencies = jettyWebApp.getDependencyArray();
             ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
@@ -374,7 +374,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
-        JettyWebAppType jettyWebApp = (JettyWebAppType) webModule.getVendorDD();
+        GerWebAppType jettyWebApp = (GerWebAppType) webModule.getVendorDD();
 
         boolean contextPriorityClassLoader = false;
         if (jettyWebApp != null) {
@@ -1129,7 +1129,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, GerWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
                 webModule,
                 userTransaction,

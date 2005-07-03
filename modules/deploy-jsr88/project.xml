@@ -111,7 +111,7 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty-builder</artifactId>
+            <artifactId>geronimo-web-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
