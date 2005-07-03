@@ -25,8 +25,8 @@ import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
-import org.apache.geronimo.xbeans.geronimo.web.WebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.web.WebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
@@ -37,7 +37,7 @@ import org.apache.xmlbeans.XmlException;
 public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderUnion(new SchemaTypeLoader[]{
         XmlBeans.typeLoaderForClassLoader(org.apache.geronimo.xbeans.j2ee.String.class.getClassLoader()),
-        XmlBeans.typeLoaderForClassLoader(WebAppDocument.class.getClassLoader())
+        XmlBeans.typeLoaderForClassLoader(GerWebAppDocument.class.getClassLoader())
     });
 
     private static String[] XPATHS = {
@@ -47,18 +47,18 @@ public class WebAppDConfigRoot extends DConfigBeanRootSupport {
     private WebAppDConfigBean webAppBean;
 
     public WebAppDConfigRoot(DDBeanRoot ddBean) {
-        super(ddBean, WebAppDocument.Factory.newInstance());
-        WebAppType webApp = getWebAppDocument().addNewWebApp();
+        super(ddBean, GerWebAppDocument.Factory.newInstance());
+        GerWebAppType webApp = getWebAppDocument().addNewWebApp();
         replaceWebAppDConfigBean(webApp);
     }
 
-    private void replaceWebAppDConfigBean(WebAppType webApp) {
+    private void replaceWebAppDConfigBean(GerWebAppType webApp) {
         DDBean ddBean = getDDBean();
         webAppBean = new WebAppDConfigBean(ddBean.getChildBean(XPATHS[0])[0], webApp);
     }
 
-    WebAppDocument getWebAppDocument() {
-        return (WebAppDocument) getXmlObject();
+    GerWebAppDocument getWebAppDocument() {
+        return (GerWebAppDocument) getXmlObject();
     }
 
     public String[] getXpaths() {

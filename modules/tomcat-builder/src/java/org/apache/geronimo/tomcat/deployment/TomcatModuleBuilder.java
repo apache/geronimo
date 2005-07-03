@@ -91,8 +91,11 @@ import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerContainerConfigType;
+import org.apache.geronimo.xbeans.geronimo.web.GerConfigParamType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebContainerType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
@@ -177,7 +180,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
 
         // parse vendor dd
-        TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
+        GerWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
         URI configId = null;
@@ -237,22 +240,22 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         return map;
     }
 
-    TomcatWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
-        TomcatWebAppType tomcatWebApp = null;
+    GerWebAppType getTomcatWebApp(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, WebAppType webApp) throws DeploymentException {
+        GerWebAppType tomcatWebApp = null;
         try {
-            // load the geronimo-tomcat.xml from either the supplied plan or from the earFile
+            // load the geronimo-web.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    tomcatWebApp = (TomcatWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
+                    tomcatWebApp = (GerWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
                             "web-app",
-                            TomcatWebAppType.type);
+                            GerWebAppType.type);
                 } else {
-                    TomcatWebAppDocument tomcatWebAppdoc = null;
+                    GerWebAppDocument tomcatWebAppdoc = null;
                     if (plan != null) {
-                        tomcatWebAppdoc = TomcatWebAppDocument.Factory.parse((File) plan);
+                        tomcatWebAppdoc = GerWebAppDocument.Factory.parse((File) plan);
                     } else {
-                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-tomcat.xml");
-                        tomcatWebAppdoc = TomcatWebAppDocument.Factory.parse(path);
+                        URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
+                        tomcatWebAppdoc = GerWebAppDocument.Factory.parse(path);
                     }
                     if (tomcatWebAppdoc != null) {
                         tomcatWebApp = tomcatWebAppdoc.getWebApp();
@@ -263,9 +266,9 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
             // if we got one extract and validate it otherwise create a default one
             if (tomcatWebApp != null) {
-                tomcatWebApp = (TomcatWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(tomcatWebApp);
-                tomcatWebApp = (TomcatWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(tomcatWebApp);
-                tomcatWebApp = (TomcatWebAppType) SchemaConversionUtils.convertToGeronimoServiceSchema(tomcatWebApp);
+                tomcatWebApp = (GerWebAppType) SchemaConversionUtils.convertToGeronimoNamingSchema(tomcatWebApp);
+                tomcatWebApp = (GerWebAppType) SchemaConversionUtils.convertToGeronimoSecuritySchema(tomcatWebApp);
+                tomcatWebApp = (GerWebAppType) SchemaConversionUtils.convertToGeronimoServiceSchema(tomcatWebApp);
                 SchemaConversionUtils.validateDD(tomcatWebApp);
             } else {
                 String path;
@@ -284,7 +287,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         return tomcatWebApp;
     }
 
-    private TomcatWebAppType createDefaultPlan(String path, WebAppType webApp) {
+    private GerWebAppType createDefaultPlan(String path, WebAppType webApp) {
         String id = webApp.getId();
         if (id == null) {
             id = path;
@@ -296,7 +299,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             }
         }
 
-        TomcatWebAppType tomcatWebApp = TomcatWebAppType.Factory.newInstance();
+        GerWebAppType tomcatWebApp = GerWebAppType.Factory.newInstance();
 
         // set the parentId, configId and context root
         tomcatWebApp.setParentId(defaultParentId.toString());
@@ -330,8 +333,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             // and the url class loader will not pick up a manifiest from an unpacked dir
             earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
 
-            // add the dependencies declared in the geronimo-tomcat.xml file
-            TomcatWebAppType tomcatWebApp = (TomcatWebAppType) module.getVendorDD();
+            // add the dependencies declared in the geronimo-web.xml file
+            GerWebAppType tomcatWebApp = (GerWebAppType) module.getVendorDD();
             DependencyType[] dependencies = tomcatWebApp.getDependencyArray();
             ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
@@ -351,7 +354,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
-        TomcatWebAppType tomcatWebApp = (TomcatWebAppType) webModule.getVendorDD();
+        GerWebAppType tomcatWebApp = (GerWebAppType) webModule.getVendorDD();
 
         boolean contextPriorityClassLoader = false;
         if (tomcatWebApp != null) {
@@ -405,24 +408,57 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             webModuleData.setReferencePattern("trackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             webModuleData.setReferencePattern("Container", tomcatContainerObjectName);
 
-            //Is there a Tomcat realm declaration?
-            if (tomcatWebApp != null) {
-                String tomcatRealm = tomcatWebApp.getTomcatRealm();
+            String virtualServer = null;
+            // Process the Tomcat container-config elements
+            if (tomcatWebApp != null && tomcatWebApp.sizeOfContainerConfigArray() > 0) {
+                Map values = new HashMap();
+                GerContainerConfigType[] configs = tomcatWebApp.getContainerConfigArray();
+                for (int i = 0; i < configs.length; i++) {
+                    GerContainerConfigType config = configs[i];
+                    if(config.getContainer().intValue() != GerWebContainerType.INT_TOMCAT) {
+                        continue;
+                    }
+                    GerConfigParamType[] params = config.getConfigParamArray();
+                    for (int j = 0; j < params.length; j++) {
+                        GerConfigParamType param = params[j];
+                        values.put(param.getName(), param.getStringValue());
+                    }
+                }
+
+                //Is there a Tomcat virtual server declaration?
+                virtualServer = (String) values.remove("VirtualServer");
+
+                //Is there a Tomcat realm declaration?
+                String tomcatRealm = (String) values.remove("TomcatRealm");
                 if (tomcatRealm != null) {
                     ObjectName realmName = NameFactory.getComponentName(null, null, null, null, tomcatRealm.trim(), RealmGBean.GBEAN_INFO.getJ2eeType(), moduleJ2eeContext);
                     webModuleData.setReferencePattern("TomcatRealm", realmName);
                 }
-            }
-
-            //Is there a Tomcat Valve Chain declaration?
-            if (tomcatWebApp != null) {
-                String tomcatValveChain = tomcatWebApp.getTomcatValveChain();
+                //Is there a Tomcat Valve Chain declaration?
+                String tomcatValveChain = (String) values.remove("TomcatValveChain");
                 if (tomcatValveChain != null) {
                     ObjectName valveName = NameFactory.getComponentName(null, null, null, null, tomcatValveChain.trim(), ValveGBean.J2EE_TYPE, moduleJ2eeContext);
                     //NameFactory.getComponentName(null, null, null, null, tomcatValveChain.trim(), ValveGbean., moduleJ2eeContext);
                     webModuleData.setReferencePattern("TomcatValveChain", valveName);
                 }
+
+                // Are there any leftover values?  If so, that's a problem.
+                if(values.size() > 0) {
+                    StringBuffer msg = new StringBuffer();
+                    msg.append("Unexpected container-config/config-params found for Tomcat in web app deployment plan (");
+                    boolean first = true;
+                    for (Iterator it = values.keySet().iterator(); it.hasNext();) {
+                        String value = (String) it.next();
+                        if(!first) {
+                            msg.append(",");
+                        }
+                        msg.append(value);
+                    }
+                    msg.append(")");
+                    throw new DeploymentException(msg.toString());
+                }
             }
+
 
             Map portMap = webModule.getPortMap();
 
@@ -489,7 +525,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 webModuleData.setReferencePattern("RoleDesignateSource", earContext.getJaccManagerName());
             }
 
-            String virtualServer = tomcatWebApp.getVirtualServer();
             if (virtualServer != null) {
                 webModuleData.setAttribute("virtualServer", virtualServer);
             }
@@ -797,7 +832,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, TomcatWebAppType tomcatWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, GerWebAppType tomcatWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
                 webModule,
                 userTransaction,

@@ -16,15 +16,17 @@
     limitations under the License.
 -->
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/web/tomcat"
+    xmlns="http://geronimo.apache.org/xml/ns/web"
     xmlns:sec="http://geronimo.apache.org/xml/ns/security"
     configId="org/apache/geronimo/test">
 
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>
-    <tomcat-realm>TomcatRealm</tomcat-realm>
-    <tomcat-valve-chain>FirstValve</tomcat-valve-chain>
-    
+    <container-config container="Tomcat">
+        <config-param name="TomcatRealm" >TomcatRealm</config-param>
+        <config-param name="TomcatValveChain">FirstValve</config-param> 
+    </container-config>
+
     <security-realm-name>test</security-realm-name>
     <security>
         <default-principal realm-name="geronimo-properties-realm">

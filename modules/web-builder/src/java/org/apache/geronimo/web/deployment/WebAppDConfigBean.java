@@ -24,7 +24,7 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.naming.deployment.ENCHelper;
-import org.apache.geronimo.xbeans.geronimo.web.WebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
@@ -33,7 +33,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private final ENCHelper encHelper;
 
-    WebAppDConfigBean(DDBean ddBean, WebAppType webApp) {
+    WebAppDConfigBean(DDBean ddBean, GerWebAppType webApp) {
         super(ddBean, webApp);
 
         ENCHelper.XmlEnvRefs envRefs = new ENCHelper.XmlEnvRefs(webApp.getEjbRefArray(), webApp.getEjbLocalRefArray(), webApp.getResourceRefArray(), webApp.getResourceEnvRefArray()); 
@@ -48,8 +48,8 @@ public class WebAppDConfigBean extends DConfigBeanSupport {
 
     }
 
-    WebAppType getWebApp() {
-        return (WebAppType) getXmlObject();
+    GerWebAppType getWebApp() {
+        return (GerWebAppType) getXmlObject();
     }
 
     public String getContextRoot() {

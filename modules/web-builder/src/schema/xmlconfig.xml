@@ -19,6 +19,6 @@
 <xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
     <xb:namespace uri="http://geronimo.apache.org/xml/ns/web">
         <xb:package>org.apache.geronimo.xbeans.geronimo.web</xb:package>
-<!--        <xb:prefix>Web</xb:prefix> -->
+        <xb:prefix>Ger</xb:prefix>
     </xb:namespace>
 </xb:config>

@@ -106,7 +106,6 @@ public class WebAppDConfigTest extends TestCase {
         super.setUp();
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL warDir = classLoader.getResource("deployables/war1/");
-        System.out.println("WAR DIRECTORY: "+warDir);
         deployable = new WebDeployable(warDir);
         config = new WARConfiguration(deployable);
 

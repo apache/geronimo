@@ -7,8 +7,8 @@ import junit.framework.TestCase;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.tomcat.TomcatWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 
 /**
  */
@@ -20,13 +20,13 @@ public class PlanParsingTest extends TestCase {
     public void testResourceRef() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
         assertTrue(resourcePlan.exists());
-        TomcatWebAppType jettyWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
+        GerWebAppType jettyWebApp = builder.getTomcatWebApp(resourcePlan, null, true, null, null);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
 
     public void testConstructPlan() throws Exception {
-        TomcatWebAppDocument tomcatWebAppDoc = TomcatWebAppDocument.Factory.newInstance();
-        TomcatWebAppType tomcatWebAppType = tomcatWebAppDoc.addNewWebApp();
+        GerWebAppDocument tomcatWebAppDoc = GerWebAppDocument.Factory.newInstance();
+        GerWebAppType tomcatWebAppType = tomcatWebAppDoc.addNewWebApp();
         tomcatWebAppType.setConfigId("configId");
         tomcatWebAppType.setParentId("parentId");
         tomcatWebAppType.setContextPriorityClassloader(false);
