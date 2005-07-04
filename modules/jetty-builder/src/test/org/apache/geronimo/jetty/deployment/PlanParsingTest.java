@@ -1,6 +1,7 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
+import java.util.jar.JarFile;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -10,6 +11,7 @@ import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
+import org.apache.geronimo.deployment.util.UnpackedJarFile;
 
 /**
  */
@@ -20,10 +22,37 @@ public class PlanParsingTest extends TestCase {
     private JettyModuleBuilder builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, pojoWebServiceTemplate, webServiceBuilder, null, null);
     private File basedir = new File(System.getProperty("basedir", "."));
 
-    public void testResourceRef() throws Exception {
+    public void testContents() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
         assertTrue(resourcePlan.exists());
         GerWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        assertEquals(1, jettyWebApp.getResourceRefArray().length);
+        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
+    }
+
+    public void testOldFormat() throws Exception {
+        File resourcePlan = new File(basedir, "src/test-resources/plans/plan2.xml");
+        assertTrue(resourcePlan.exists());
+        GerWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        assertEquals(1, jettyWebApp.getResourceRefArray().length);
+        assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
+    }
+
+    public void testOldFormatExploded() throws Exception {
+        File war = new File(basedir, "src/test-resources/deployables/war5");
+        assertTrue(war.exists());
+        UnpackedJarFile moduleFile = new UnpackedJarFile(war);
+        GerWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
+        moduleFile.close();
+        assertEquals(1, jettyWebApp.getResourceRefArray().length);
+    }
+
+    public void testOldFormatPackaged() throws Exception {
+        File war = new File(basedir, "src/test-resources/deployables/war6.war");
+        assertTrue(war.exists());
+        JarFile moduleFile = new JarFile(war);
+        GerWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
+        moduleFile.close();
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
 

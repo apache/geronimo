@@ -20,6 +20,7 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -109,6 +110,8 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mortbay.http.BasicAuthenticator;
 import org.mortbay.http.ClientCertAuthenticator;
 import org.mortbay.http.DigestAuthenticator;
@@ -119,6 +122,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
  * @version $Rev$ $Date$
  */
 public class JettyModuleBuilder implements ModuleBuilder {
+    private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
     private final URI defaultParentId;
     private final ObjectName jettyContainerObjectName;
     private final ObjectName defaultServlets;
@@ -266,22 +270,32 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    jettyWebApp = (GerWebAppType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                            "web-app",
-                            GerWebAppType.type);
+                    XmlObject object = SchemaConversionUtils.getNestedObject((XmlObject) plan, "web-app");
+                    jettyWebApp = TemporaryPlanAdapter.convertJettyElementToWeb(object);
                 } else {
                     GerWebAppDocument jettyWebAppdoc = null;
                     if (plan != null) {
-                        jettyWebAppdoc = GerWebAppDocument.Factory.parse((File) plan);
+                        XmlObject object = SchemaConversionUtils.parse(((File) plan).toURL());
+                        jettyWebAppdoc = TemporaryPlanAdapter.convertJettyDocumentToWeb(object);
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-web.xml");
-                        jettyWebAppdoc = GerWebAppDocument.Factory.parse(path);
+                        try {
+                            jettyWebAppdoc = GerWebAppDocument.Factory.parse(path);
+                        } catch (FileNotFoundException e) {
+                            path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
+                            XmlObject object = SchemaConversionUtils.parse(path);
+                            if(object != null) {
+                                log.error("Incorrect deployment plan naming: found geronimo-jetty.xml, should be geronimo-web.xml");
+                                jettyWebAppdoc = TemporaryPlanAdapter.convertJettyDocumentToWeb(object);
+                            }
+                        }
                     }
                     if (jettyWebAppdoc != null) {
                         jettyWebApp = jettyWebAppdoc.getWebApp();
                     }
                 }
             } catch (IOException e) {
+                log.warn(e);
             }
 
             // if we got one extract and validate it otherwise create a default one
@@ -302,6 +316,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 jettyWebApp = createDefaultPlan(path, webApp);
             }
         } catch (XmlException e) {
+            e.printStackTrace();
             throw new DeploymentException("xml problem", e);
         }
         return jettyWebApp;
