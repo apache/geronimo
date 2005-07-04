@@ -1,24 +1,44 @@
+/**
+ *
+ * Copyright 2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.IOException;
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * @version $Revision: 1.0$
+ * STRICTLY TEMPORARY!  Support a previous version of the Jetty deployment
+ * plan syntax by converting it to the new unified web deployment plan
+ * syntax.  This should be removed as soon as possible.
+ *
+ * @version $Rev: 159325 $ $Date: 2005-03-28 17:53:03 -0500 (Mon, 28 Mar 2005) $
  */
 public class TemporaryPlanAdapter {
     private final static Log log = LogFactory.getLog(TemporaryPlanAdapter.class);
     private final static String CORRECT_NAMESPACE = "http://geronimo.apache.org/xml/ns/web";
     private final static String WRONG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/jetty";
 
+    /**
+     * Convert a Jetty document to a web document.
+     */
     public static GerWebAppDocument convertJettyDocumentToWeb(XmlObject source) {
         XmlCursor cursor = source.newCursor();
         while(!cursor.isStart()) {
@@ -32,13 +52,14 @@ public class TemporaryPlanAdapter {
 
         XmlObject result = source.changeType(GerWebAppDocument.type);
         if (result != null) {
-//            SchemaConversionUtils.validateDD(result);
             return (GerWebAppDocument) result;
         }
-//        SchemaConversionUtils.validateDD(source);
         return (GerWebAppDocument) source;
     }
 
+    /**
+     * Convert a (presumably nested) Jetty element to a web element.
+     */
     public static GerWebAppType convertJettyElementToWeb(XmlObject source) {
         XmlCursor cursor = source.newCursor();
         while(!cursor.isStart()) {
@@ -74,16 +95,5 @@ public class TemporaryPlanAdapter {
             cursor.toNextToken();
         }
         return false;
-    }
-
-    public static void main(String[] args) {
-        try {
-            convertJettyDocumentToWeb(SchemaConversionUtils.parse(new java.io.File("/home/ammulder/cvs/geronimo/modules/jetty-builder/src/test-resources/deployables/war1/WEB-INF/geronimo-web.xml").toURL()));
-            convertJettyDocumentToWeb(SchemaConversionUtils.parse(new java.io.File("/home/ammulder/cvs/geronimo/modules/jetty-builder/src/test-resources/deployables/war3/WEB-INF/geronimo-web.xml").toURL()));
-        } catch (XmlException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
