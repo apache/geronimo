@@ -183,10 +183,12 @@ public class Deployer {
             }
 
             if (e instanceof Error) {
+                log.error("Deployment failed due to ", e);
                 throw (Error)e;
             } else if (e instanceof DeploymentException) {
                 throw (DeploymentException)e;
             } else if (e instanceof Exception) {
+                log.error("Deployment failed due to ", e);
                 throw new DeploymentException(e);
             }
             throw new Error(e);
