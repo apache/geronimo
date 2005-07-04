@@ -408,6 +408,26 @@ public class SchemaConversionUtils {
         return xmlObject;
     }
 
+    public static XmlObject getNestedObject(XmlObject xmlObject, String desiredElement) {
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            while (cursor.hasNextToken()) {
+                if (cursor.isStart()) {
+                    String localName = cursor.getName().getLocalPart();
+                    if (localName.equals(desiredElement)) {
+                        XmlObject child = cursor.getObject();
+                        //The copy seems to be needed to make the type change work for some documents!
+                        return child.copy();
+                    }
+                }
+                cursor.toNextToken();
+            }
+        } finally {
+            cursor.dispose();
+        }
+        throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "/n" + xmlObject);
+    }
+
     public static XmlObject getNestedObjectAsType(XmlObject xmlObject, String desiredElement, SchemaType type) {
         XmlCursor cursor = xmlObject.newCursor();
         try {
