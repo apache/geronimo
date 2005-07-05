@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.jetty.connector;
 
+import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -57,13 +60,22 @@ public abstract class JettyConnector implements GBeanLifecycle {
     public String getHost() {
         return listener.getHost();
     }
-    
+
+    public void setHost(String host) throws UnknownHostException {
+        // underlying impl treats null as 0.0.0.0
+        listener.setHost(host);
+    }
+
     public int getPort() {
         return listener.getPort();
     }
 
     public void setPort(int port) {
         listener.setPort(port);
+    }
+
+    public InetSocketAddress getAddress() {
+        return new InetSocketAddress(getHost(), getPort());
     }
 
     public void doStart() throws Exception {
@@ -100,8 +112,9 @@ public abstract class JettyConnector implements GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addAttribute("defaultScheme", String.class, false);
-        infoFactory.addAttribute("host", String.class, false);
+        infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[] {"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
