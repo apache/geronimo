@@ -88,7 +88,11 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
     public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo) {
-        setCatalinaHome(catalinaHome);
+
+        if (catalinaHome == null)
+            catalinaHome = DEFAULT_CATALINA_HOME;
+        
+        setCatalinaHome(serverInfo.resolvePath(catalinaHome));
 
         if (classLoader == null){
             throw new IllegalArgumentException("classLoader cannot be null.");
