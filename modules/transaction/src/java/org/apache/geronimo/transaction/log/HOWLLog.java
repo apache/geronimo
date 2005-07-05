@@ -374,7 +374,9 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
                     log.info("recovered branch for resource manager, branchId " + name + ", " + branchXid);
                 }
             } else {
-                log.warn("Received unexpected log record: " + lr);
+                if(recordType != LogRecordType.END_OF_LOG) { // This value crops up every time the server is started
+                    log.warn("Received unexpected log record: " + lr +" ("+recordType+")");
+                }
             }
         }
 
