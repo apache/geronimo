@@ -50,12 +50,15 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
  * @version $Rev$ $Date$
  */
 public class Daemon {
+    private final static String ARGUMENT_NO_PROGRESS="-noprogress";
     private static Log log;
     private static final ObjectName PERSISTENT_CONFIGURATION_LIST_NAME_QUERY = JMXUtil.getObjectName("*:j2eeType=PersistentConfigurationList,*");
 
     static {
+        System.out.println("Booting Geronimo Kernel (in Java "+System.getProperty("java.version")+")...");
+        System.out.flush();
         // This MUST be done before the first log is acquired
-        GeronimoLogging.initialize(GeronimoLogging.INFO);
+        GeronimoLogging.initialize(GeronimoLogging.WARN);
         log = LogFactory.getLog(Daemon.class.getName());
 
         // Install our url factory
@@ -65,25 +68,40 @@ public class Daemon {
         ToolsJarHack.install();
     }
 
-    private Daemon() {
+
+
+    private StartupMonitor monitor;
+    private List configs = new ArrayList();
+
+    private Daemon(String[] args) {
+        long start = System.currentTimeMillis();
+        processArguments(args);
+        log.info("Server startup begun");
+        monitor.systemStarting(start);
+        doStartup();
     }
 
-    /**
-     * Static entry point allowing a Kernel to be run from the command line.
-     * Arguments are:
-     * <li>the filename of the directory to use for the configuration store.
-     * This will be created if it does not exist.</li>
-     * <li>the id of a configuation to load</li>
-     * Once the Kernel is booted and the configuration is loaded, the process
-     * will remain running until the shutdown() method on the kernel is
-     * invoked or until the JVM exits.
-     *
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
+    private void processArguments(String[] args) {
+        for (int i = 0; i < args.length; i++) {
+            if(args[i].equals(ARGUMENT_NO_PROGRESS)) {
+                monitor = new SilentStartupMonitor();
+            } else {
+                try {
+                    configs.add(new URI(args[i]));
+                } catch (URISyntaxException e) {
+                    System.err.println("Invalid configuration-id: " + args[i]);
+                    e.printStackTrace();
+                    System.exit(1);
+                    throw new AssertionError();
+                }
+            }
+        }
+        if(monitor == null) {
+            monitor = new ProgressBarStartupMonitor();
+        }
+    }
 
-        log.info("Server startup begun");
-
+    private void doStartup() {
         try {
             // Determine the geronimo installation directory
             File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
@@ -111,20 +129,8 @@ public class Daemon {
             if (endorsedDirs.length() > 0) {
                 System.setProperty("java.endorsed.dirs", endorsedDirs);
             }
-            log.info("java.endorsed.dirs=" + System.getProperty("java.endorsed.dirs"));
+            log.debug("java.endorsed.dirs=" + System.getProperty("java.endorsed.dirs"));
 
-            // get a list of the configuration uris from the command line
-            List configs = new ArrayList();
-            for (int i = 0; i < args.length; i++) {
-                try {
-                    configs.add(new URI(args[i]));
-                } catch (URISyntaxException e) {
-                    System.err.println("Invalid configuration-id: " + args[i]);
-                    e.printStackTrace();
-                    System.exit(1);
-                    throw new AssertionError();
-                }
-            }
 
             // load this configuration
             ClassLoader classLoader = Daemon.class.getClassLoader();
@@ -163,13 +169,15 @@ public class Daemon {
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
                     log.info("Server shutdown begun");
+                    System.out.println("Server shutdown begun");
                     kernel.shutdown();
                     log.info("Server shutdown completed");
+                    System.out.println("Server shutdown completed");
                 }
             });
 
             // add the jmx bridge
-            ObjectName mbeanServerKernelBridgeName = new ObjectName("geronimo.boot:role=MBeanServerKernelBridge"); 
+            ObjectName mbeanServerKernelBridgeName = new ObjectName("geronimo.boot:role=MBeanServerKernelBridge");
             GBeanData mbeanServerKernelBridge = new GBeanData(mbeanServerKernelBridgeName, MBeanServerKernelBridge.GBEAN_INFO);
             mbeanServerKernelBridge.setAttribute("mbeanServerId", mbeanServerId);
             kernel.loadGBean(mbeanServerKernelBridge, classLoader);
@@ -177,6 +185,7 @@ public class Daemon {
 
             // start this configuration
             kernel.startRecursiveGBean(configuration.getName());
+            monitor.systemStarted(kernel);
 
             if (configs.isEmpty()) {
                 // nothing explicit, see what was running before
@@ -195,20 +204,26 @@ public class Daemon {
                 }
             }
 
+            monitor.foundConfigurations((URI[]) configs.toArray(new URI[configs.size()]));
+
             // load the rest of the configurations
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 for (Iterator i = configs.iterator(); i.hasNext();) {
                     URI configID = (URI) i.next();
+                    monitor.configurationLoading(configID);
                     List list = configurationManager.loadRecursive(configID);
+                    monitor.configurationLoaded(configID);
+                    monitor.configurationStarting(configID);
                     for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                         ObjectName name = (ObjectName) iterator.next();
-                        kernel.startRecursiveGBean(name);
+                         kernel.startRecursiveGBean(name);
                     }
+                    monitor.configurationStarted(configID);
                 }
             } catch (Exception e) {
-                System.err.println("Exception caught when starting configurations, starting kernel shutdown");
-                e.printStackTrace();
+                //Exception caught when starting configurations, starting kernel shutdown
+                monitor.serverStartFailed(e);
                 try {
                     kernel.shutdown();
                 } catch (Exception e1) {
@@ -238,6 +253,10 @@ public class Daemon {
                     log.info("Alleged GBean " + objectName + " is not a GBean");
                 }
             }
+
+            // Startup sequence is finished
+            monitor.startupFinished();
+            monitor = null;
             log.info("Server startup completed");
 
             // capture this thread until the kernel is ready to exit
@@ -251,9 +270,27 @@ public class Daemon {
                 }
             }
         } catch (Exception e) {
+            if(monitor != null) {
+                monitor.serverStartFailed(e);
+            }
             e.printStackTrace();
             System.exit(3);
             throw new AssertionError();
         }
     }
+
+    /**
+     * Static entry point allowing a Kernel to be run from the command line.
+     * Arguments are:
+     * <li>the id of a configuation to load</li>
+     * Once the Kernel is booted and the configuration is loaded, the process
+     * will remain running until the shutdown() method on the kernel is
+     * invoked or until the JVM exits.
+     *
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+        new Daemon(args);
+    }
+
 }

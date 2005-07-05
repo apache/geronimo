@@ -33,7 +33,7 @@ public class AJP13Connector extends JettyConnector {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty AJP13 Connector", AJP13Connector.class, JettyConnector.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Connector AJP13", AJP13Connector.class, JettyConnector.GBEAN_INFO);
         infoFactory.setConstructor(new String[]{"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

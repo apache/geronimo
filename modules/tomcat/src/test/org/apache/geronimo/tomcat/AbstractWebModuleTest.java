@@ -334,8 +334,10 @@ public class AbstractWebModuleTest extends TestCase {
 
         initParams.clear();
         initParams.put("port","8080");
+        initParams.put("address","0.0.0.0");
         connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
         connector.setAttribute("initParams", initParams);
+        connector.setAttribute("name", "HTTP");
         connector.setReferencePattern("TomcatContainer", containerName);
 
         start(container);

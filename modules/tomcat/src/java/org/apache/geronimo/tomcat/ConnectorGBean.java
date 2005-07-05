@@ -17,6 +17,9 @@
 package org.apache.geronimo.tomcat;
 
 import java.util.Map;
+import java.util.Iterator;
+import java.net.InetSocketAddress;
+import java.net.InetAddress;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
@@ -29,22 +32,42 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     
     private final Connector connector;
     private final TomcatContainer container;
+    private String name;
+    private int port;
 
-    public ConnectorGBean(String protocol, Map initParams, TomcatContainer container) throws Exception {
+    public ConnectorGBean(String name, String protocol, Map initParams, TomcatContainer container) throws Exception {
         super(); // TODO: make it an attribute
         
         if (container == null){
             throw new IllegalArgumentException("container cannot be null.");
         }
         
+        this.name = name;
         this.container = container;
-                
+
         //Create the Connector object
         connector = new Connector(protocol);
-        
+
         //Set the parameters
         setParameters(connector, initParams);
         
+    }
+
+    public InetSocketAddress getAddress() {
+        Object port = connector.getAttribute("port");
+        if(port instanceof String) {
+            port = new Integer((String)port);
+        }
+        Object address = connector.getAttribute("address");
+        if(address instanceof InetAddress) {
+            return new InetSocketAddress((InetAddress)address, ((Number)port).intValue());
+        } else if(address instanceof String) {
+            return new InetSocketAddress((String)address, ((Number)port).intValue());
+        } else throw new IllegalStateException("Unexpected address class "+(address == null ? "null" : address.getClass().getName()));
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Object getInternalObject() {
@@ -67,12 +90,14 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatConnector", ConnectorGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Connector", ConnectorGBean.class);
+        infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("protocol", String.class, true);
+        infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "protocol", "initParams", "TomcatContainer"});
+        infoFactory.setConstructor(new String[] { "name", "protocol", "initParams", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

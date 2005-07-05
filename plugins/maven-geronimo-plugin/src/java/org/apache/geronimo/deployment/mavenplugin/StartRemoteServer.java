@@ -134,6 +134,7 @@ public class StartRemoteServer {
         cmd.add("-ea");
         cmd.add("-jar");
         cmd.add(systemFile.getCanonicalPath());
+        cmd.add("-noprogress");
 
         if (getConfigs() != null) {
             for (StringTokenizer st = new StringTokenizer(getConfigs()); st.hasMoreTokens();) {

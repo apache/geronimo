@@ -33,7 +33,7 @@ public class HTTPConnector extends JettyConnector {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty HTTP Connector", HTTPConnector.class, JettyConnector.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Connector HTTP", HTTPConnector.class, JettyConnector.GBEAN_INFO);
         infoFactory.setConstructor(new String[]{"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

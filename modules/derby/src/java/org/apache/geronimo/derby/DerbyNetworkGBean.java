@@ -17,6 +17,7 @@
 package org.apache.geronimo.derby;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +58,10 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
         this.port = port;
     }
 
+    public InetSocketAddress getAddress() {
+        return new InetSocketAddress(getHost(), getPort());
+    }
+
     public void doStart() throws Exception {
         InetAddress address = InetAddress.getByName(host);
         network = new NetworkServerControl(address, port);
@@ -85,9 +90,10 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DerbyNetworkGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Derby Connector", DerbyNetworkGBean.class);
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", Integer.TYPE, true);
+        infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.addReference("derbySystem", DerbySystem.class, "GBean");
         infoFactory.setConstructor(new String[]{"derbySystem"});
         GBEAN_INFO = infoFactory.getBeanInfo();

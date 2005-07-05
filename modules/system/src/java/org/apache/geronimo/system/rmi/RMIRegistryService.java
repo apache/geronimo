@@ -19,6 +19,7 @@ package org.apache.geronimo.system.rmi;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.net.InetSocketAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,11 +64,16 @@ public class RMIRegistryService implements GBeanLifecycle {
         }
     }
 
+    public InetSocketAddress getAddress() {
+        return new InetSocketAddress("0.0.0.0", getPort());
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RMIRegistryService.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("RMI Naming", RMIRegistryService.class);
         infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("address", InetSocketAddress.class, false);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
