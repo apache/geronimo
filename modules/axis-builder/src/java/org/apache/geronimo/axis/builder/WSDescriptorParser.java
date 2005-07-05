@@ -226,7 +226,13 @@ public class WSDescriptorParser {
                 return methodMapping;
             }
         }
-        throw new DeploymentException("No method found for operation named " + operationName);
+        // Build list of available operations for exception
+        StringBuffer availOps = new StringBuffer(128);
+        for (int i = 0; i < methodMappings.length; i++) {
+            if (i != 0) availOps.append(",");
+            availOps.append(methodMappings[i].getWsdlOperation().getStringValue());
+        }
+        throw new DeploymentException("No method found for operation named '" + operationName + "'. Available operations: " + availOps);
     }
 
     public static ServiceEndpointInterfaceMappingType getServiceEndpointInterfaceMapping(ServiceEndpointInterfaceMappingType[] endpointMappings, QName portTypeQName) throws DeploymentException {
