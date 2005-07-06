@@ -371,7 +371,7 @@
             <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
                 <deploy:startRemoteServer
                     geronimoTarget="${distDir}"
-                    vmArgs="-Xmx512m -XX:MaxPermSize=128m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+                    vmArgs="-Xmx512m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
                     configs="org/apache/geronimo/RuntimeDeployer"/>
                 <ant:echo message="Waiting for server at: ${distDir}"/>
                 <deploy:waitForStarted
