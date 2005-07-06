@@ -51,31 +51,31 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
  */
 public class Daemon {
     private final static String ARGUMENT_NO_PROGRESS="-noprogress";
+    private final static String ARGUMENT_VERBOSE="-v";
+    private final static String ARGUMENT_MORE_VERBOSE="-vv";
+    private static boolean started = false;
     private static Log log;
     private static final ObjectName PERSISTENT_CONFIGURATION_LIST_NAME_QUERY = JMXUtil.getObjectName("*:j2eeType=PersistentConfigurationList,*");
-
-    static {
-        System.out.println("Booting Geronimo Kernel (in Java "+System.getProperty("java.version")+")...");
-        System.out.flush();
-        // This MUST be done before the first log is acquired
-        GeronimoLogging.initialize(GeronimoLogging.WARN);
-        log = LogFactory.getLog(Daemon.class.getName());
-
-        // Install our url factory
-        GeronimoURLFactory.install();
-
-        // Install the lame tools jar hack
-        ToolsJarHack.install();
-    }
-
 
 
     private StartupMonitor monitor;
     private List configs = new ArrayList();
+    private String verboseArg = null;
+    private String progressArg = null;
 
     private Daemon(String[] args) {
+        // Very first startup tasks
         long start = System.currentTimeMillis();
+        System.out.println("Booting Geronimo Kernel (in Java "+System.getProperty("java.version")+")...");
+        System.out.flush();
+
+        // Command line arguments affect logging configuration, etc.
         processArguments(args);
+
+        // Initialization tasks that must run before anything else
+        initializeSystem();
+
+        // Now logging is available and
         log.info("Server startup begun");
         monitor.systemStarting(start);
         doStartup();
@@ -84,7 +84,15 @@ public class Daemon {
     private void processArguments(String[] args) {
         for (int i = 0; i < args.length; i++) {
             if(args[i].equals(ARGUMENT_NO_PROGRESS)) {
-                monitor = new SilentStartupMonitor();
+                progressArg = ARGUMENT_NO_PROGRESS;
+            } else if (args[i].equals(ARGUMENT_VERBOSE)) {
+                if(verboseArg == null) {
+                    verboseArg = ARGUMENT_VERBOSE;
+                }
+            } else if (args[i].equals(ARGUMENT_MORE_VERBOSE)) {
+                if(verboseArg == null) {
+                    verboseArg = ARGUMENT_MORE_VERBOSE;
+                }
             } else {
                 try {
                     configs.add(new URI(args[i]));
@@ -96,8 +104,27 @@ public class Daemon {
                 }
             }
         }
-        if(monitor == null) {
-            monitor = new ProgressBarStartupMonitor();
+    }
+
+    private void initializeSystem() {
+        if(!started) {
+            started = true;
+
+            // This MUST be done before the first log is acquired
+            GeronimoLogging.initialize(verboseArg == null ? GeronimoLogging.WARN : verboseArg == ARGUMENT_VERBOSE ? GeronimoLogging.INFO : GeronimoLogging.DEBUG);
+            log = LogFactory.getLog(Daemon.class.getName());
+
+            // Install our url factory
+            GeronimoURLFactory.install();
+
+            // Install the lame tools jar hack
+            ToolsJarHack.install();
+
+            if(verboseArg != null || progressArg != null) {
+                monitor = new SilentStartupMonitor();
+            } else {
+                monitor = new ProgressBarStartupMonitor();
+            }
         }
     }
 

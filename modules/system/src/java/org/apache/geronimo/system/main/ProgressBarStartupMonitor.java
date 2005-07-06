@@ -143,6 +143,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
             Set gbeans = kernel.listGBeans(new ObjectName("*:*"));
             Map beanInfos = new HashMap(); // key = GBeanInfo, value = List (of attribute names)
             List ports = new ArrayList(); // type = AddressHolder
+            ObjectName serverInfo = null;
             boolean firstApp = true;
             for (Iterator it = gbeans.iterator(); it.hasNext();) {
                 ObjectName name = (ObjectName) it.next();
@@ -154,6 +155,9 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     out.println("    "+decodeModule(name.getKeyProperty("j2eeType"))+": "+name.getKeyProperty("name"));
                 }
                 GBeanInfo info = kernel.getGBeanInfo(name);
+                if(info.getClassName().equals("org.apache.geronimo.system.serverinfo.ServerInfo")) {
+                    serverInfo = name;
+                }
                 List list = (List) beanInfos.get(info);
                 if(list == null) {
                     list = new ArrayList(3);
@@ -214,6 +218,12 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     out.println(buf.toString());
                 }
             }
+            StringBuffer msg = new StringBuffer();
+            msg.append("Geronimo Application Server started");
+            if(serverInfo != null) {
+                msg.append(" (version ").append(kernel.getAttribute(serverInfo, "version")+")");
+            }
+            out.println(msg.toString());
             out.flush();
         } catch (MalformedObjectNameException e) {
             e.printStackTrace();

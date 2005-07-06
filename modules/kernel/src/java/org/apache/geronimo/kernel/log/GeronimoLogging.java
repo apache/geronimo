@@ -31,6 +31,7 @@ public class GeronimoLogging {
     public static final GeronimoLogging FATAL = new GeronimoLogging("FATAL");
 
     private static boolean initialized = false;
+    private static GeronimoLogging consoleLogLevel;
     private static GeronimoLogging defaultLevel;
 
     /**
@@ -42,6 +43,7 @@ public class GeronimoLogging {
     public static void initialize(GeronimoLogging level) {
         if (!initialized) {
             defaultLevel = level;
+            consoleLogLevel = level;
 
             // force commons-logging to use our log factory
             System.setProperty(LogFactory.FACTORY_PROPERTY, GeronimoLogFactory.class.getName());
@@ -60,6 +62,15 @@ public class GeronimoLogging {
 
     public static GeronimoLogging getDefaultLevel() {
         return defaultLevel;
+    }
+
+
+    public static GeronimoLogging getConsoleLogLevel() {
+        return consoleLogLevel;
+    }
+
+    public static void setConsoleLogLevel(GeronimoLogging consoleLogLevel) {
+        GeronimoLogging.consoleLogLevel = consoleLogLevel;
     }
 
     private final String level;

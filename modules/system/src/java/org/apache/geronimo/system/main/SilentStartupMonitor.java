@@ -29,14 +29,18 @@ public class SilentStartupMonitor implements StartupMonitor {
     }
 
     public void startupFinished() {
+        System.out.println("Geronimo startup complete");
     }
 
     public void serverStartFailed(Exception problem) {
+        System.out.println("Geronimo startup failed");
     }
 
     public void loadFailed(String configuration, Exception problem) {
+        problem.printStackTrace();
     }
 
     public void startFailed(String configuration, Exception problem) {
+        problem.printStackTrace();
     }
 }

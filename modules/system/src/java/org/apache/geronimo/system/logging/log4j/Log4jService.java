@@ -37,6 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
@@ -303,6 +304,10 @@ public class Log4jService implements GBeanLifecycle {
         if (file == null) {
             return;
         }
+        
+        // Record the default console log level
+        System.setProperty("org.apache.geronimo.log.ConsoleLogLevel", GeronimoLogging.getConsoleLogLevel().toString());
+
         try {
             URLConfigurator.configure(file.toURL());
         } catch (MalformedURLException e) {
