@@ -3,3 +3,4 @@ org/apache/geronimo/Server
 org/apache/geronimo/SystemDatabase
 org/apache/geronimo/SystemJMS
 org/apache/geronimo/RuntimeDeployer
+org/apache/geronimo/juddiServer/1.0-SNAPSHOT

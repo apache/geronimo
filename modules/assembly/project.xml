@@ -1287,6 +1287,16 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-uddi-server</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
         <!-- JBI ServiceMix -->
         <dependency>
             <groupId>geronimo</groupId>

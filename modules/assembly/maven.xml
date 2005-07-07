@@ -529,6 +529,21 @@
                 <ant:arg value="target/plan/j2ee-remote-classloading-deployer-plan.xml"/>
             </ant:java>
 
+            <!-- build the remote class loading deployer configuration "org/apache/geronimo/RemoteClassLoadingDeployer"-->
+            <ant:echo>Building juddi-server configuration</ant:echo>
+            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+                <ant:jvmarg value="-ea"/>
+                <ant:arg value="--user"/>
+                <ant:arg value="system"/>
+                <ant:arg value="--password"/>
+                <ant:arg value="manager"/>
+                <ant:arg value="distribute"/>
+                <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
+            </ant:java>
+
+            <!-- create SystemDatabase -->
+            <attainGoal name="init-database"/>
+
             <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
                 <deploy:stopRemoteServer
                     uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
@@ -544,6 +559,19 @@
                 </ant:copy>
             </j:if>
         </j:if>
+    </goal>
+
+    <goal name="init-database">
+        <j:invokeStatic className="java.lang.System" method="setProperty">
+            <j:arg type="java.lang.String" value="derby.system.home"/>
+            <j:arg type="java.lang.String" value="${derby.system.home}"/>
+        </j:invokeStatic>
+        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:SystemDatabase;create=true" userid="" password="">
+            <ant:fileset dir="src/sql"/>
+            <ant:classpath>
+                <ant:pathelement location="${maven.repo.local}/incubator-derby/jars/derby-${derby_version}.jar"/>
+            </ant:classpath>
+        </ant:sql>
     </goal>
 
     <goal name="cli">
