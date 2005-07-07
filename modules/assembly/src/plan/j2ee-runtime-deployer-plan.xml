@@ -34,6 +34,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>openejb/jars/openejb-pkgen-builder-${openejb_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>

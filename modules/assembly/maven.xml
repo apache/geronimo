@@ -136,8 +136,11 @@
             <ant:fileset dir="${project.root}/modules/client-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
-            <ant:fileset dir="${project.root}">
-                <ant:include name="openejb/modules/openejb-builder/src/schema/openejb-jar.xsd"/>
+            <ant:fileset dir="${project.root}/openejb/modules/pkgen-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/openejb/modules/openejb-builder">
+                <ant:include name="src/schema/openejb-jar.xsd"/>
             </ant:fileset>
             <ant:fileset dir="src/etc"/>
         </ant:copy>

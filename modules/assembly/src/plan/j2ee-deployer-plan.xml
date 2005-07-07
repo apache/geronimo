@@ -40,6 +40,9 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-connector-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>openejb/jars/openejb-pkgen-builder-${openejb_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-j2ee-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
