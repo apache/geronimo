@@ -31,6 +31,7 @@ import java.security.Permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
@@ -731,10 +733,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             ServletType[] servletTypes = webApp.getServletArray();
             Map portMap = webModule.getPortMap();
 
-            for (int i = 0; i < servletTypes.length; i++) {
-                ServletType servletType = servletTypes[i];
-                addServlet(webModuleName, webModule.getModuleFile(), servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
-            }
+            addServlets(webModuleName, webModule.getModuleFile(), servletTypes, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
+
             if (jettyWebApp.isSetSecurityRealmName()) {
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
@@ -801,8 +801,63 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return webClassLoader;
     }
 
+
+    /**
+     * Adds the provided servlets, taking into account the load-on-startup ordering.
+     *
+     * @param webModuleName an <code>ObjectName</code> value
+     * @param moduleFile a <code>JarFile</code> value
+     * @param servletTypes a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
+     * @param servletMappings a <code>Map</code> value
+     * @param securityRoles a <code>Set</code> value
+     * @param rolePermissions a <code>Map</code> value
+     * @param portMap a <code>Map</code> value
+     * @param webClassLoader a <code>ClassLoader</code> value
+     * @param moduleJ2eeContext a <code>J2eeContext</code> value
+     * @param earContext an <code>EARContext</code> value
+     * @exception MalformedObjectNameException if an error occurs
+     * @exception DeploymentException if an error occurs
+     */
+    private void addServlets(ObjectName webModuleName,
+                            JarFile moduleFile,
+                            ServletType[] servletTypes,
+                            Map servletMappings,
+                            Set securityRoles,
+                            Map rolePermissions, Map portMap,
+                            ClassLoader webClassLoader,
+                            J2eeContext moduleJ2eeContext,
+                            EARContext earContext) throws MalformedObjectNameException, DeploymentException {
+
+        // this TreeSet will order the ServletTypes based on whether
+        // they have a load-on-startup element and what its value is
+        TreeSet loadOrder = new TreeSet(new StartupOrderComparator());
+
+        // add all of the servlets to the sorted set
+        for (int i = 0; i < servletTypes.length; i++) {
+            loadOrder.add(servletTypes[i]);
+        }
+
+        // now that they're sorted, read them in order and add them to
+        // the context.  we'll use a GBean reference to enforce the
+        // load order.  Each servlet GBean (except the first) has a
+        // reference to the previous GBean.  The kernel will ensure
+        // that each "previous" GBean is running before it starts any
+        // other GBeans that reference it.  See also
+        // o.a.g.jetty.JettyFilterMapping which provided the example
+        // of how to do this.
+        // http://issues.apache.org/jira/browse/GERONIMO-645
+        ServletType previousServlet = null;
+        for (Iterator servlets = loadOrder.iterator(); servlets.hasNext(); ) {
+            ServletType servletType = (ServletType)servlets.next();
+            addServlet(webModuleName, moduleFile, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
+            previousServlet = servletType;
+        }
+    }
+
+
     private void addServlet(ObjectName webModuleName,
                             JarFile moduleFile,
+                            ServletType previousServlet,
                             ServletType servletType,
                             Map servletMappings,
                             Set securityRoles,
@@ -852,6 +907,16 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } else {
             throw new DeploymentException("Neither servlet class nor jsp file is set for " + servletName);
         }
+
+        // link to previous servlet, if there is one, so that we
+        // preserve the <load-on-startup> ordering.
+        // http://issues.apache.org/jira/browse/GERONIMO-645
+        if (null != previousServlet) {
+            String name = previousServlet.getServletName().getStringValue().trim();
+            ObjectName oName = NameFactory.getWebComponentName(null, null, null, null, name, NameFactory.SERVLET, moduleJ2eeContext);
+            servletData.setReferencePattern("Previous", oName);
+        }
+
         //TODO in init param setter, add classpath if jspFile is not null.
         servletData.setReferencePattern("JettyServletRegistration", webModuleName);
         servletData.setAttribute("servletName", servletName);
@@ -1287,4 +1352,46 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return GBEAN_INFO;
     }
 
+    static class StartupOrderComparator implements Comparator {
+        /**
+         * comparator that compares first on the basis of startup order, and then on the lexicographical
+         * ordering of servlet name.  Since the servlet names have a uniqueness constraint, this should
+         * provide a total ordering consistent with equals.  All servlets with no startup order are after
+         * all servlets with a startup order.
+         * 
+         * @param o1  first ServletType object
+         * @param o2  second ServletType object
+         * @return an int < 0 if o1 precedes o2, 0 if they are equal, and > 0 if o2 preceeds o1.
+         */
+        public int compare(Object o1, Object o2) {
+            ServletType s1 = (ServletType)o1;
+            ServletType s2 = (ServletType)o2;
+
+            // load-on-startup is set for neither.  the
+            // ordering at this point doesn't matter, but we
+            // should return "0" only if the two objects say
+            // they are equal
+            if (!s1.isSetLoadOnStartup() && !s2.isSetLoadOnStartup()) {
+                return s1.equals(s2) ? 0 : s1.getServletName().getStringValue().trim().compareTo(s2.getServletName().getStringValue().trim());
+            }
+
+            // load-on-startup is set for one but not the
+            // other.  whichever one is set will be "less
+            // than", i.e. it will be loaded first
+            if (s1.isSetLoadOnStartup() && !s2.isSetLoadOnStartup()) {
+                return -1;
+            }
+            if (!s1.isSetLoadOnStartup() && s2.isSetLoadOnStartup()) {
+                return 1;
+            }
+
+            // load-on-startup is set for both.  whichever one
+            // has a smaller value is "less than"
+            int comp = s1.getLoadOnStartup().getBigIntegerValue().compareTo(s2.getLoadOnStartup().getBigIntegerValue());
+            if (comp == 0) {
+                return s1.getServletName().getStringValue().trim().compareTo(s2.getServletName().getStringValue().trim());
+            }
+            return comp;
+        }
+    }
 }

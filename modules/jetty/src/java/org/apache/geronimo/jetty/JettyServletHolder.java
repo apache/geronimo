@@ -45,10 +45,11 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  */
 public class JettyServletHolder extends ServletHolder {
     private static final ThreadLocal currentServletName = new ThreadLocal();
+    private final JettyServletHolder previous;
 
     //todo consider interface instead of this constructor for endpoint use.
     public JettyServletHolder() {
-
+        this.previous = null;
     }
 
     public JettyServletHolder(String servletName,
@@ -58,9 +59,12 @@ public class JettyServletHolder extends ServletHolder {
                               Integer loadOnStartup,
                               Set servletMappings,
                               Map webRoleRefPermissions,
+                              JettyServletHolder previous,
                               JettyServletRegistration context) throws Exception {
         super(context == null? null: context.getServletHandler(), servletName, servletClassName, jspFile);
         //context will be null only for use as "default servlet info holder" in deployer.
+
+        this.previous = previous;
 
         if (context != null) {
             putAll(initParams);
@@ -78,6 +82,10 @@ public class JettyServletHolder extends ServletHolder {
 
     public String getServletName() {
         return getName();
+    }
+
+    public JettyServletHolder getPrevious() {
+        return previous;
     }
 
     /**
@@ -120,6 +128,8 @@ public class JettyServletHolder extends ServletHolder {
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
+
+        infoBuilder.addReference("Previous", JettyServletHolder.class, NameFactory.DEFAULT_SERVLET);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
         infoBuilder.setConstructor(new String[] {"servletName",
@@ -129,6 +139,7 @@ public class JettyServletHolder extends ServletHolder {
                                                  "loadOnStartup",
                                                  "servletMappings",
                                                  "webRoleRefPermissions",
+                                                 "Previous",
                                                  "JettyServletRegistration"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
