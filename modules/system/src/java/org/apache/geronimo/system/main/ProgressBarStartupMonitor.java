@@ -172,17 +172,21 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                 }
                 for (int i = 0; i < list.size(); i++) {
                     GAttributeInfo att = (GAttributeInfo) list.get(i);
-                    InetSocketAddress addr = (InetSocketAddress) kernel.getAttribute(name, att.getName());
-                    if(addr == null) {
-                        continue;
+                    try {
+                        InetSocketAddress addr = (InetSocketAddress) kernel.getAttribute(name, att.getName());
+                        if(addr == null) {
+                            continue;
+                        }
+                        String attName = info.getName();
+                        if(list.size() > 1) {
+                            attName += " "+decamelize(att.getName());
+                        } else if(info.getAttribute("name") != null) {
+                            attName += " "+kernel.getAttribute(name, "name");
+                        }
+                        ports.add(new AddressHolder(attName, addr));
+                    } catch (IllegalStateException e) {
+                        // We weren't able to load a port for this service -- that's a bummer
                     }
-                    String attName = info.getName();
-                    if(list.size() > 1) {
-                        attName += " "+decamelize(att.getName());
-                    } else if(info.getAttribute("name") != null) {
-                        attName += " "+kernel.getAttribute(name, "name");
-                    }
-                    ports.add(new AddressHolder(attName, addr));
                 }
             }
             Collections.sort(ports);
