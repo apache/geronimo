@@ -816,12 +816,6 @@
             <artifactId>xbean-apache</artifactId>
             <version>${xmlbeans_version}</version>
             <properties>
-                <lib>true</lib>
-                <deploy>true</deploy>
-                <!--server and client should not be needed, but there are problems ATM removing them -->
-                <!--client is needed for the QName implementation for deserializing axis objects-->
-                <server>true</server>
-<!--                <client>true</client>-->
                 <repository>true</repository>
             </properties>
         </dependency>
