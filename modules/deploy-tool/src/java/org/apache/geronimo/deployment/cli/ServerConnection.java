@@ -17,10 +17,7 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -228,9 +225,7 @@ public class ServerConnection {
                 user = in.readLine();
             }
             if(password == null) {
-                out.print("Password: ");
-                out.flush();
-                password = in.readLine();
+                password = new PasswordPrompt("Password: ", out).getPassword(in);
             }
         } catch(IOException e) {
             throw new DeploymentException("Unable to prompt for login", e);
@@ -287,6 +282,74 @@ public class ServerConnection {
             } catch(Exception e) {
                 throw new DeploymentException("Unable to stop local kernel", e);
             }
+        }
+    }
+
+    /**
+     * Prompts for and grabs a password, trying to suppress any console output
+     * along the way.  Kind of heavy-handed, but we don't have access to any
+     * platform-specific APIs that might make this nicer.
+     */
+    public static class PasswordPrompt implements Runnable {
+        private volatile boolean done = false;
+        private String prompt;
+        private PrintWriter out;
+
+        public PasswordPrompt(String prompt, PrintWriter out) {
+            this.prompt = prompt;
+            this.out = out;
+        }
+
+        /**
+         * Don't call this directly.
+         */
+        public void run() {
+            int priority = Thread.currentThread().getPriority();
+            try {
+                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+                String fullPrompt = "\r"+prompt+"          "+"\r"+prompt;
+                StringBuffer clearline = new StringBuffer();
+                clearline.append('\r');
+                for(int i=prompt.length()+10; i>=0; i--) {
+                    clearline.append(' ');
+                }
+                while(!done) {
+                    out.print(fullPrompt);
+                    out.flush();
+                    Thread.sleep(1);
+                }
+                out.print(clearline.toString());
+                out.flush();
+                out.print('\r');
+                out.flush();
+            } catch (InterruptedException e) {
+            } finally {
+                Thread.currentThread().setPriority(priority);
+            }
+            prompt = null;
+            out = null;
+        }
+
+        /**
+         * Displays the prompt, grabs the password, cleans up, and returns
+         * the entered password.  For this to make sense, the input reader
+         * here must be part of the same console as the output writer passed
+         * to the constructor.
+         *
+         * For higher security, should return a char[], but that will just
+         * be defeated by the JSR-88 call that takes a String anyway, so
+         * why bother?
+         */
+        public String getPassword(BufferedReader in) throws IOException {
+            Thread t = new Thread(this, "Password hiding thread");
+            t.start();
+            String password = in.readLine();
+            done = true;
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+            }
+            return password;
         }
     }
 }
