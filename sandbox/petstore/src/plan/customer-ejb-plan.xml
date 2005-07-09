@@ -54,10 +54,10 @@
         <table-column>bannerPreference</table-column>
       </cmp-field-mapping>
       <primkey-field>id</primkey-field>
-      <key-generator>
+      <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
         <auto-increment-table>
           <sql>insert into sequence_table (dummy) values (1)</sql>
-          <returnType>java.lang.Integer</returnType>
+          <return-type>java.lang.Integer</return-type>
         </auto-increment-table>
       </key-generator>
     </entity>
@@ -82,13 +82,12 @@
         <table-column>cardNumber</table-column>
       </cmp-field-mapping>
       <primkey-field>id</primkey-field>
-<!--      <key-generator>
+      <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
         <auto-increment-table>
           <sql>insert into sequence_table (dummy) values (1)</sql>
-          <returnType>java.lang.Integer</returnType>
+          <return-type>java.lang.Integer</return-type>
         </auto-increment-table>
       </key-generator>
--->
     </entity>
     <entity>
       <ejb-name>ContactInfoEJB</ejb-name>
@@ -115,13 +114,12 @@
         <table-column>email</table-column>
       </cmp-field-mapping>
       <primkey-field>id</primkey-field>
-<!--      <key-generator>
+      <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
         <auto-increment-table>
           <sql>insert into sequence_table (dummy) values (1)</sql>
-          <returnType>java.lang.Integer</returnType>
+          <return-type>java.lang.Integer</return-type>
         </auto-increment-table>
       </key-generator>
--->
     </entity>
     <entity>
       <ejb-name>AddressEJB</ejb-name>
@@ -156,13 +154,13 @@
         <table-column>city</table-column>
       </cmp-field-mapping>
       <primkey-field>id</primkey-field>
-<!--      <key-generator>
+      <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
         <auto-increment-table>
           <sql>insert into sequence_table (dummy) values (1)</sql>
-          <returnType>java.lang.Integer</returnType>
+          <return-type>java.lang.Integer</return-type>
         </auto-increment-table>
       </key-generator>
--->    </entity>
+    </entity>
     <entity>
       <ejb-name>AccountEJB</ejb-name>
       <table-name>ACCOUNTS</table-name>
@@ -171,13 +169,13 @@
         <table-column>status</table-column>
       </cmp-field-mapping>
       <primkey-field>status</primkey-field>
-<!--      <key-generator>
+      <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
         <auto-increment-table>
           <sql>insert into sequence_table (dummy) values (1)</sql>
-          <returnType>java.lang.Integer</returnType>
+          <return-type>java.lang.Integer</return-type>
         </auto-increment-table>
       </key-generator>
--->    </entity>
+    </entity>
   </enterprise-beans>
   <relationships>
     <ejb-relation>
