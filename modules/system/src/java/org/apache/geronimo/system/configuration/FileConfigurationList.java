@@ -37,10 +37,11 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -83,21 +84,44 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
     private boolean kernelFullyStarted = false;
 
     /**
-     * The acutal absolute file where we write the configuration list.
+     * The actual absolute file where we write the configuration list.
      */
     private File configList;
 
     /**
-     * Our hook the kernel calls before shutting down.
+     * Listener to make this GBean save every time a configuration is started
+     * or stopped.
      */
-    private Runnable hook;
+    private LifecycleListener listener;
 
     public FileConfigurationList(Kernel kernel, ServerInfo serverInfo, ConfigurationManager configurationManager, String configDir) {
         this.kernel = kernel;
         this.configurationManager = configurationManager;
         this.serverInfo = serverInfo;
         this.configFile = configDir;
+        this.listener = new LifecycleAdapter() {
+            public void stopped(ObjectName objectName) {
+                if(kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
+                    doSave();
+                }
+            }
+
+            public void running(ObjectName objectName) {
+                if(kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
+                    doSave();
+                }
+            }
+
+            private void doSave() {
+                try {
+                    save();
+                } catch (IOException e) {
+                    log.error("Unable to save list of running configurations", e);
+                }
+            }
+        };
     }
+
 
     public void doStart() throws Exception {
         configList = serverInfo.resolve(configFile);
@@ -107,16 +131,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
                 throw new IOException("Unable to create directory for list:" + parent);
             }
         }
-        hook = new Runnable() {
-            public void run() {
-                try {
-                    save();
-                } catch (IOException e) {
-                    log.error("Unable to save configuration on shutdown", e);
-                }
-            }
-        };
-        kernel.registerShutdownHook(hook);
+        kernel.getLifecycleMonitor().addLifecycleListener(listener, new ObjectName("geronimo.config:*"));
     }
 
     public void doStop() throws Exception {
@@ -124,8 +139,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
     }
 
     public void doFail() {
-        kernel.unregisterShutdownHook(hook);
-        hook = null;
+        kernel.getLifecycleMonitor().removeLifecycleListener(listener);
         configList = null;
     }
 
@@ -139,7 +153,11 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
 
     public synchronized void save() throws IOException {
         if (!kernelFullyStarted) {
-            log.info("Configuration list was not saved.  Kernel was never fully started.");
+            log.debug("Configuration list was not saved.  Kernel was never fully started.");
+            return;
+        }
+        if (!kernel.isRunning()) {
+            log.debug("Configuration list was not saved.  Kernel is shutting down.");
             return;
         }
 
