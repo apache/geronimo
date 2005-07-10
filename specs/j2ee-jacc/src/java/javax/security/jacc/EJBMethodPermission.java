@@ -250,7 +250,7 @@ public final class EJBMethodPermission extends Permission implements Serializabl
             if (methodParams == null) {
                 if (methodInterface == null) {
                     if (methodName == null) {
-                        actions = ",,";
+                        actions = "";
                     } else {
 
                         actions = methodName;

@@ -26,6 +26,10 @@ package javax.security.jacc;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 
 /**
  *
@@ -47,36 +51,54 @@ public class EJBMethodPermissionTest extends TestCase {
     /*
      * Testing EJBMethodPermission(java.lang.String, java.lang.String)
      */
-    public void testConstructorStringString() {
+    public void testConstructorStringString() throws Exception {
 
         // methodSpec ::= null
         EJBMethodPermission permission = new EJBMethodPermission("foo", null);
+        doTestSerialization(permission);
 
         // methodSpec ::= methodNameSpec
         permission = new EJBMethodPermission("foo", "");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat");
+        doTestSerialization(permission);
 
         // methodSpec ::= methodNameSpec comma methodInterface
         permission = new EJBMethodPermission("foo", ",ServiceEndpoint");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,ServiceEndpoint");
+        doTestSerialization(permission);
 
         // methodSpec ::= methodNameSpec comma methodInterfaceSpec comma methodParamsSpec
         permission = new EJBMethodPermission("foo", ",,");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,,");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", ",Home,");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,Home,");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", ",,a,b,c,d");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,,a,b,c,d");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", ",Home,a,b,c,d");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,Home,a,b,c,d");
+        doTestSerialization(permission);
 
 
         // methodInterface ::= "Home" | "LocalHome" | "Remote" | "Local" | "ServiceEndpoint"
         permission = new EJBMethodPermission("foo", "cat,Home,a,b,c,d");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,LocalHome,a,b,c,d");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,Remote,a,b,c,d");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,Local,a,b,c,d");
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat,ServiceEndpoint,a,b,c,d");
+        doTestSerialization(permission);
 
         assertEquals(permission.getName(), "foo");
         assertEquals(permission.getActions(), "cat,ServiceEndpoint,a,b,c,d");
@@ -118,7 +140,7 @@ public class EJBMethodPermissionTest extends TestCase {
         }
     }
 
-    public void testImpliesStringString() {
+    public void testImpliesStringString() throws Exception {
         EJBMethodPermission permissionFooEEE = new EJBMethodPermission("foo", "");
         EJBMethodPermission permissionFooMIP = new EJBMethodPermission("foo", "cat,LocalHome,a,b,c,d");
         EJBMethodPermission permissionBarEEE = new EJBMethodPermission("bar", "");
@@ -150,41 +172,66 @@ public class EJBMethodPermissionTest extends TestCase {
         assertTrue(permissionFooEI.implies(permissionFooEIE));
 
         assertFalse(permissionFooEEE.hashCode() == permissionBarEEE.hashCode());
+
+        doTestSerialization(permissionFooEEE);
+        doTestSerialization(permissionFooMIP);
+        doTestSerialization(permissionBarEEE);
+        doTestSerialization(permissionFooEIP);
+        doTestSerialization(permissionFooEIE);
+        doTestSerialization(permissionFooEI);
     }
 
     /*
      * Testing EJBMethodPermission(String, String, String, String[])
      */
-    public void testConstructorStringStringStringStringArray() {
+    public void testConstructorStringStringStringStringArray() throws Exception {
 
         // methodSpec ::= null
         EJBMethodPermission permission = new EJBMethodPermission("foo", null, null, null);
+        doTestSerialization(permission);
 
         // methodSpec ::= methodNameSpec
         permission = new EJBMethodPermission("foo", "", "", null);
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "", null);
+        doTestSerialization(permission);
 
         // methodSpec ::= methodNameSpec comma methodInterface
         permission = new EJBMethodPermission("foo", "", "ServiceEndpoint", null);
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "ServiceEndpoint", null);
+        doTestSerialization(permission);
 
         // methodSpec ::= methodNameSpec comma methodInterfaceSpec comma methodParamsSpec
         permission = new EJBMethodPermission("foo", "", "", new String[]{});
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "", new String[]{});
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "", "Home", new String[]{});
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "Home", new String[] {});
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "", "", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "", "Home", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "Home", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
 
 
         // methodInterface ::= "Home" | "LocalHome" | "Remote" | "Local" | "ServiceEndpoint"
         permission = new EJBMethodPermission("foo", "cat", "Home", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "LocalHome", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "Remote", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "Local", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "cat", "ServiceEndpoint", new String[] { "a", "b", "c", "d" });
+        doTestSerialization(permission);
 
         assertEquals(permission.getName(), "foo");
         assertEquals(permission.getActions(), "cat,ServiceEndpoint,a,b,c,d");
@@ -198,7 +245,7 @@ public class EJBMethodPermissionTest extends TestCase {
         }
     }
 
-    public void testImpliesStringStringStringStringArray() {
+    public void testImpliesStringStringStringStringArray() throws Exception {
         EJBMethodPermission permissionFooEEE = new EJBMethodPermission("foo", "", "", null);
         EJBMethodPermission permissionFooMIP = new EJBMethodPermission("foo", "cat", "LocalHome", new String[] { "a", "b", "c", "d" });
         EJBMethodPermission permissionBarEEE = new EJBMethodPermission("bar", "", "", new String[] {});
@@ -230,23 +277,37 @@ public class EJBMethodPermissionTest extends TestCase {
         assertTrue(permissionFooEI.implies(permissionFooEIE));
 
         assertFalse(permissionFooEEE.hashCode() == permissionBarEEE.hashCode());
+
+        doTestSerialization(permissionFooEEE);
+        doTestSerialization(permissionFooMIP);
+        doTestSerialization(permissionBarEEE);
+        doTestSerialization(permissionFooEIP);
+        doTestSerialization(permissionFooEIE);
+        doTestSerialization(permissionFooEI);
     }
 
     /*
      * Testing EJBMethodPermission(String, String, Method)
      */
-    public void testConstructorStringStringMethod() {
+    public void testConstructorStringStringMethod() throws Exception {
 
         EJBMethodPermission permission = new EJBMethodPermission("foo", "ServiceEndpoint", method);
-
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", null, method);
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "", method);
+        doTestSerialization(permission);
 
         permission = new EJBMethodPermission("foo", "Home", method);
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "LocalHome", method);
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "Remote", method);
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "Local", method);
+        doTestSerialization(permission);
         permission = new EJBMethodPermission("foo", "ServiceEndpoint", method);
+        doTestSerialization(permission);
 
         assertEquals(permission.getName(), "foo");
         assertEquals(permission.getActions(), "cat,ServiceEndpoint,java.lang.Integer,java.lang.Float,java.lang.Long,java.lang.Double");
@@ -260,6 +321,17 @@ public class EJBMethodPermissionTest extends TestCase {
     }
 
     public void testImpliesStringStringMethod() {
+    }
+
+    private void doTestSerialization(EJBMethodPermission permission) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(permission);
+        oos.flush();
+        ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        Object o = ois.readObject();
+        assertEquals("Permission did not serialize correctly", permission, o);
     }
 
     class TestClass {
