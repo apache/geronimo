@@ -33,9 +33,9 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MBeanException;
 
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
+import org.apache.geronimo.kernel.InternalKernelException;
 
 /**
  * @version $Rev$ $Date$
@@ -114,9 +114,8 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     }
 
     protected void doFail(Exception e) {
-        // todo dain: kernel does not throw any JMX exceptions anymore... do we still need this
-        if (e instanceof MBeanException) {
-            e = ((MBeanException) e).getTargetException();
+        if (e instanceof InternalKernelException) {
+            e = (Exception)((InternalKernelException)e).getCause();
         }
 
         if (commandContext.isLogErrors()) {

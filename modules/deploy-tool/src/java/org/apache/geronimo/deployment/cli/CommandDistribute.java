@@ -56,7 +56,7 @@ public class CommandDistribute extends AbstractCommand {
         super(command, group, helpArgumentList, helpText);
     }
 
-    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, Target[] tlist, File module, File plan) {
+    protected ProgressObject runCommand(DeploymentManager mgr, PrintWriter out, Target[] tlist, File module, File plan) throws DeploymentException {
         return mgr.distribute(tlist, module, plan);
     }
 

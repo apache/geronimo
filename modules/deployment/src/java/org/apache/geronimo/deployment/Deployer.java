@@ -79,11 +79,21 @@ public class Deployer {
             return deploy(planFile, moduleFile, null, true, null, null, null);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile +", module=" + originalModuleFile, e);
-            throw e;
+            throw cleanseDeploymentException(e);
         } finally {
             if (tmpDir != null) {
                 DeploymentUtil.recursiveDelete(tmpDir);
             }
+        }
+    }
+
+    private DeploymentException cleanseDeploymentException(DeploymentException source) {
+        if(source.getCause() != null) {
+            Throwable e = source.getCause();
+            DeploymentException newx = new DeploymentException(source.getMessage()+" caused by "+e.getMessage(), null);
+            return newx;
+        } else {
+            return source;
         }
     }
 
