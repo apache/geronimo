@@ -919,8 +919,8 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
-            <artifactId>tomcat-jk2</artifactId>
-            <version>${tomcat_jk2_version}</version>
+            <artifactId>tomcat-ajp</artifactId>
+            <version>${tomcat_ajp_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
                 <repository>true</repository>

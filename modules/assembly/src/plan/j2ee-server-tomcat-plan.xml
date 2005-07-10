@@ -97,7 +97,7 @@ by the server.
         <uri>tomcat/jars/jasper-runtime-${jasper_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-jk2-${tomcat_jk2_version}.jar</uri>
+        <uri>tomcat/jars/tomcat-ajp-${tomcat_ajp_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
