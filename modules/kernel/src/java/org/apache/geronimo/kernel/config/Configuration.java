@@ -434,7 +434,7 @@ public class Configuration implements GBeanLifecycle {
         return gbeanState;
     }
 
-    public ConfigurationClassLoader getConfigurationClassLoader() {
+    public ClassLoader getConfigurationClassLoader() {
         return configurationClassLoader;
     }
 
@@ -519,7 +519,7 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("dependencies", List.class, true);
         infoFactory.addAttribute("gBeanState", byte[].class, true);
         infoFactory.addAttribute("baseURL", URL.class, true);
-        infoFactory.addAttribute("configurationClassLoader", ConfigurationClassLoader.class, false);
+        infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class, "GBean");

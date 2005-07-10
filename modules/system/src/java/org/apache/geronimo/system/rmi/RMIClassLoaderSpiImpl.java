@@ -27,8 +27,6 @@ import java.util.StringTokenizer;
 import java.rmi.server.RMIClassLoader;
 import java.rmi.server.RMIClassLoaderSpi;
 
-import org.apache.geronimo.kernel.config.ConfigurationClassLoader;
-
 /**
  * An implementation of {@link RMIClassLoaderSpi} which provides normilzation
  * of codebase URLs and delegates to the default {@link RMIClassLoaderSpi}.
@@ -72,9 +70,6 @@ public class RMIClassLoaderSpiImpl
     
     public String getClassAnnotation(Class type) {
         Object obj = type.getClassLoader();
-        if (obj instanceof ConfigurationClassLoader) {
-            obj = new ConfigurationClassLoaderAdapter((ConfigurationClassLoader) obj);
-        }
         if (obj instanceof ClassLoaderServerAware) {
             ClassLoaderServerAware classLoader = (ClassLoaderServerAware) obj;
             URL urls[] = classLoader.getClassLoaderServerURLs();
@@ -168,17 +163,5 @@ public class RMIClassLoaderSpiImpl
     
     public interface ClassLoaderServerAware {
         public URL[] getClassLoaderServerURLs();
-    }
-    
-    private static class ConfigurationClassLoaderAdapter implements ClassLoaderServerAware {
-        private final ConfigurationClassLoader cl;
-        
-        private ConfigurationClassLoaderAdapter(ConfigurationClassLoader cl) {
-            this.cl = cl;
-        }
-
-        public URL[] getClassLoaderServerURLs() {
-            return cl.getClassLoaderServerURLs();
-        }
     }
 }

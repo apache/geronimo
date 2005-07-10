@@ -18,15 +18,12 @@
 package org.apache.geronimo.system.rmi;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.geronimo.kernel.config.ConfigurationClassLoader;
 
 import junit.framework.TestCase;
 
@@ -71,41 +68,6 @@ public class RMIClassLoaderSpiImplTest
                      normalizedBaseURL + "/Apache%20Group/Apache2", normal);
     }
     
-    public void testGetClassAnnotationWithConfigurationCL() throws Exception {
-        final ClassLoader delegate = getClass().getClassLoader();
-        ConfigurationClassLoader cl = new ConfigurationClassLoader(new URI("test"), new URL[] {new URL("http://localhost:8080/")}, delegate) {
-            public Class loadClass(String name) throws ClassNotFoundException {
-                if (name.startsWith("java")) {
-                    return delegate.loadClass(name);
-                }
-                String resourceName = name.replace('.', '/') + ".class";
-                InputStream in = delegate.getResourceAsStream(resourceName);
-                byte[] buffer = new byte[1024];
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                int read = 0;
-                try {
-                    while (0 < (read = in.read(buffer))) {
-                        out.write(buffer, 0, read);
-                    }
-                } catch (IOException e) {
-                    fail();
-                    return null;
-                }
-                return defineClass(name, out.toByteArray(), 0, out.size());
-            }  
-        };
-        String url1 = "http://localhost:8090/Tester1";
-        String url2 = "http://localhost:8090/Tester2";
-        cl.setClassLoaderServerURLs(new URL[] {new URL(url1), new URL(url2)});
-
-        Class clazz = cl.loadClass(RMIClassLoaderSpiImplTest.class.getName());
-        
-        RMIClassLoaderSpiImpl impl = new RMIClassLoaderSpiImpl();
-        String annotations = impl.getClassAnnotation(clazz);
-        assertEquals(url1 + " " + url2, annotations);
-    }
-    
-
     public void testGetClassAnnotationWithClassLoaderServerAware() throws Exception {
         String url1 = "http://localhost:8090/Tester1";
         String url2 = "http://localhost:8090/Tester2";

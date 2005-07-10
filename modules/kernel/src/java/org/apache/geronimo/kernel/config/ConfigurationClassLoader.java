@@ -34,7 +34,6 @@ import org.apache.commons.logging.LogFactory;
  */
 public class ConfigurationClassLoader extends URLClassLoader {
     private final URI id;
-    private URL[] urls;
     
     public ConfigurationClassLoader(URI id, URL[] urls, ClassLoader parent) {
         super(urls, parent);
@@ -43,14 +42,6 @@ public class ConfigurationClassLoader extends URLClassLoader {
     
     public URI getID() {
         return id;
-    }
-
-    public URL[] getClassLoaderServerURLs() {
-        return urls;
-    }
-    
-    public void setClassLoaderServerURLs(URL[] urls) {
-        this.urls = urls;
     }
 
     public void destroy() {
