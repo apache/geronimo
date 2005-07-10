@@ -61,10 +61,23 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     protected ObjectName getDeployerName() {
         Set deployers = kernel.listGBeans(JMXUtil.getObjectName(DEPLOYER_NAME));
         if (deployers.isEmpty()) {
-            fail("No Deployer GBean present in running Geronimo kernel. " +
-                 "The Deployer GBean would've been started up automatically if there hadn't been a Geronimo instance up already. " +
-                 "Stop the running instance and run the deployer again " +
-                 "or see http://issues.apache.org/jira/browse/GERONIMO-671 for possible alternatives");
+            fail("No Deployer GBean present in running Geronimo server. " +
+                 "This usually indicates a very serious problem with the configuration of " +
+                 "your running Geronimo server.  Without a deployer running, you can't " +
+                 "start anything at runtime (including, of course, the deployer itself).  If " +
+                 "the deployer is present but not started, the workaround is to restart " +
+                 "the server and explicitly require the deployer on the command line.  " +
+                 "For a typical Geronimo configuration, use a startup command like: "+
+                 "'java -jar bin/server.jar org/apache/geronimo/RuntimeDeployer "+
+                 "org/apache/geronimo/SystemDatabase'.  This should fix the deployment " +
+                 "problem, but it will reset Geronimo to run no services or applications, " +
+                 "so you'll need to restart anything else that ought to be running.  " +
+                 "If the deployer service is not present at all (it was undeployed) then " +
+                 "you need to either re-install Geronimo or get a deployment plan for the " +
+                 "runtime deployer and distribute it while the server is not running and " +
+                 "then start the server with a command like the above.  For help on this, " +
+                 "write to user@geronimo.apache.org and include the contents of your " +
+                 "config-store/index.properties and var/config/config.list files.");
             return null;
         }
         Iterator j = deployers.iterator();
