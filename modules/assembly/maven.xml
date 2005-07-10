@@ -136,14 +136,24 @@
             <ant:fileset dir="${project.root}/modules/client-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
-            <ant:fileset dir="${project.root}/openejb/modules/pkgen-builder">
-                <ant:include name="src/schema/*.xsd"/>
-            </ant:fileset>
-            <ant:fileset dir="${project.root}/openejb/modules/openejb-builder">
-                <ant:include name="src/schema/openejb-jar.xsd"/>
-            </ant:fileset>
             <ant:fileset dir="src/etc"/>
         </ant:copy>
+        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-pkgen-builder-${openejb_version}.jar" dest="${distDir}">
+          <ant:patternset>
+            <ant:include name="META-INF/schema/openejb-pkgen.xsd" />
+          </ant:patternset>
+        </ant:unzip>
+        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar" dest="${distDir}">
+          <ant:patternset>
+            <ant:include name="META-INF/schema/openejb-jar.xsd" />
+          </ant:patternset>
+        </ant:unzip>
+        <ant:move todir="${distDir}/schema">
+          <ant:fileset dir="${distDir}/META-INF/schema">
+            <ant:include name="*.xsd" />
+          </ant:fileset>
+        </ant:move>
+        <ant:delete dir="${distDir}/META-INF" />
         <ant:fileScanner var="schemaScanner">
             <ant:fileset dir="${distDir}/schema">
                 <ant:include name="geronimo-application.xsd"/>
