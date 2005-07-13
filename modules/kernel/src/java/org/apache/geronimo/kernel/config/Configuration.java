@@ -380,15 +380,17 @@ public class Configuration implements GBeanLifecycle {
 
     private void shutdown() {
         // unregister all GBeans
-        for (Iterator i = objectNames.iterator(); i.hasNext();) {
-            ObjectName name = (ObjectName) i.next();
-            kernel.getDependencyManager().removeDependency(name, objectName);
-            try {
-                log.trace("Unregistering GBean " + name);
-                kernel.unloadGBean(name);
-            } catch (Exception e) {
-                // ignore
-                log.warn("Could not unregister child " + name, e);
+        if (objectNames != null) {
+            for (Iterator i = objectNames.iterator(); i.hasNext();) {
+                ObjectName name = (ObjectName) i.next();
+                kernel.getDependencyManager().removeDependency(name, objectName);
+                try {
+                    log.trace("Unregistering GBean " + name);
+                    kernel.unloadGBean(name);
+                } catch (Exception e) {
+                    // ignore
+                    log.warn("Could not unregister child " + name, e);
+                }
             }
         }
 
