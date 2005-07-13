@@ -62,9 +62,9 @@ import org.apache.geronimo.xbeans.wsdl.TPort;
 import org.apache.geronimo.xbeans.wsdl.TService;
 import org.apache.geronimo.xbeans.wsdl.TTypes;
 import org.apache.xmlbeans.XmlCursor;
-import org.w3.x2001.xmlSchema.ImportDocument;
-import org.w3.x2001.xmlSchema.IncludeDocument;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument;
 
 /**
  * @version $Rev$ $Date$

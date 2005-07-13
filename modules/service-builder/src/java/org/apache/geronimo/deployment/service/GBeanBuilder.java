@@ -92,13 +92,12 @@ public class GBeanBuilder {
         }
     }
 
-    public void setXmlAttribute(String name, XmlCursor xmlCursor) throws DeploymentException {
-        String namespace = xmlCursor.getName().getNamespaceURI();
+    public void setXmlAttribute(String name, XmlObject xmlObject) throws DeploymentException {
+        String namespace = xmlObject.getDomNode().getNamespaceURI();
         XmlAttributeBuilder builder = (XmlAttributeBuilder) xmlAttributeBuilderMap.get(namespace);
         if (builder == null) {
             throw new DeploymentException("No attribute builder deployed for namespace: " + namespace);
         }
-        XmlObject xmlObject = xmlCursor.getObject();
         GAttributeInfo attribute = gbean.getGBeanInfo().getAttribute(name);
         if (attribute == null) {
             throw new DeploymentException("Unknown attribute " + name + " on " + gbean.getName());

@@ -543,7 +543,7 @@
             </ant:java>
 
             <!-- create SystemDatabase -->
-            <attainGoal name="init-database"/>
+<!--            <attainGoal name="init-database"/>-->
 
             <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
                 <deploy:stopRemoteServer

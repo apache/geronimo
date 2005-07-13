@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,8 +36,8 @@ import javax.wsdl.Service;
 import javax.wsdl.Types;
 import javax.wsdl.WSDLException;
 import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.ExtensionRegistry;
+import javax.wsdl.extensions.UnknownExtensibilityElement;
 import javax.wsdl.extensions.schema.Schema;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.factory.WSDLFactory;
@@ -46,15 +45,17 @@ import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import com.ibm.wsdl.extensions.PopulatedExtensionRegistry;
+import com.ibm.wsdl.extensions.schema.SchemaConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
+import org.apache.geronimo.xbeans.wsdl.TDefinitions;
 import org.apache.geronimo.xbeans.wsdl.TPort;
 import org.apache.geronimo.xbeans.wsdl.TService;
-import org.apache.geronimo.xbeans.wsdl.TDefinitions;
-import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaParticle;
@@ -66,13 +67,11 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.w3c.dom.Element;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import com.ibm.wsdl.extensions.PopulatedExtensionRegistry;
-import com.ibm.wsdl.extensions.schema.SchemaConstants;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -86,15 +85,18 @@ public class SchemaInfoBuilder {
     private static final QName LOCATION_QNAME = new QName("", "location");
 
     static {
-        URL url = WSDescriptorParser.class.getClassLoader().getResource("soap_encoding_1_1.xsd");
-        if (url == null) {
+        InputStream is = WSDescriptorParser.class.getClassLoader().getResourceAsStream("META-INF/schema/soap_encoding_1_1.xsd");
+        if (is == null) {
             throw new RuntimeException("Could not locate soap encoding schema");
         }
         Collection errors = new ArrayList();
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setErrorListener(errors);
         try {
-            XmlObject xmlObject = SchemaConversionUtils.parse(url);
+            XmlObject xmlObject = SchemaConversionUtils.parse(is);
+            if (!(xmlObject instanceof SchemaDocument)) {
+                xmlObject = xmlObject.changeType(SchemaDocument.type);
+            }
             basicTypeSystem = XmlBeans.compileXsd(new XmlObject[]{xmlObject}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
             if (errors.size() > 0) {
                 throw new RuntimeException("Could not compile schema type system: errors: " + errors);

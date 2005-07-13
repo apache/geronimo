@@ -44,24 +44,28 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
-            <type>plugin</type>
-        </dependency>
-
-        <!-- what is this for?? -->
-        <dependency>
-            <groupId>maven-plugins</groupId>
-            <artifactId>maven-axis-plugin</artifactId>
-            <version>0.5</version>
+            <artifactId>xmlbeans-maven-plugin</artifactId>
+            <version>${xmlbeans_maven_plugin_version}</version>
             <type>plugin</type>
         </dependency>
 
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
+            <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax</artifactId>
+            <version>${stax_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
         </dependency>
 
         <!-- Module Dependencies -->
@@ -251,37 +255,17 @@
         </dependency>
 
     </dependencies>
-
     <build>
         <resources>
+            <!--n.b. this schema is NOT compiled to xmlobjects.  Do not remove!  Used by SchemaInfoBuilder -->
             <resource>
                 <directory>${basedir}/src/schema</directory>
-            </resource>
-            <resource>
-                <directory>${basedir}/target/xmlbeans</directory>
                 <includes>
-                    <include>schema/**</include>
+                    <include>soap_encoding_1_1.xsd</include>
                 </includes>
+                <targetPath>META-INF/schema</targetPath>
             </resource>
         </resources>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-            <resources>
-                <resource>
-                    <directory>${basedir}/src/schema</directory>
-                    <includes>
-                        <include>*.xsd</include>
-                    </includes>
-                </resource>
-                <resource>
-                    <directory>${basedir}/src/test-resources</directory>
-                </resource>
-            </resources>
-        </unitTest>
     </build>
+
 </project>

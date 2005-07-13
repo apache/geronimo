@@ -804,7 +804,7 @@
 
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
+            <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
             <properties>
                 <repository>true</repository>

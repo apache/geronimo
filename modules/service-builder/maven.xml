@@ -20,7 +20,7 @@
 <!-- $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $ -->
 
 <project default="default"
-    xmlns:xmlbeans="geronimo:xmlbeans">
+    xmlns:xmlbeans="xmlbeans2:maven">
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java

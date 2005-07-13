@@ -28,7 +28,7 @@ Configuration for the Geronimo deployer
     >
 
     <dependency>
-        <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
+        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-corba-${geronimo_spec_corba_version}.jar</uri>
@@ -70,7 +70,13 @@ Configuration for the Geronimo deployer
         <uri>openejb/jars/openejb-builder-${openejb_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>xmlbeans/jars/xbean-apache-${xmlbeans_version}.jar</uri>
+        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-${stax_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
     </dependency>
 
     <dependency>

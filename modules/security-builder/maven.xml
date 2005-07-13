@@ -23,7 +23,7 @@
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
-    xmlns:xmlbeans="geronimo:xmlbeans">
+    xmlns:xmlbeans="xmlbeans2:maven">
 
     <preGoal name="xdoc:jelly-transform">
         <attainGoal name="html2xdoc"/>
@@ -34,8 +34,7 @@
             sourcedir="${basedir}/src"
             sourceschema="schema/geronimo-security.xsd,schema/geronimo-login-config.xsd"
             xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"
-            cataloglocation="${basedir}/../j2ee-schema/src/catalog/resolver-catalog.xml"/>
+            targetdir="${basedir}/target/xmlbeans"/>
     </preGoal>
 
     <!-- Set up the test files -->

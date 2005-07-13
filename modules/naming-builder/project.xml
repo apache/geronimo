@@ -44,8 +44,20 @@
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
+            <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax</artifactId>
+            <version>${stax_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
         </dependency>
 
         <!-- Module Dependencies -->
@@ -113,7 +125,7 @@
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-            
+
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-jta</artifactId>
@@ -128,21 +140,4 @@
 
     </dependencies>
 
-    <build>
-        <resources>
-        </resources>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <resources>
-                <resource>
-                    <directory>${basedir}/src/test-data</directory>
-                    <includes>
-                        <include>*.properties</include>
-                    </includes>
-                </resource>
-            </resources>
-        </unitTest>
-    </build>
 </project>

@@ -64,6 +64,8 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.QNameSet;
 
 /**
  * @version $Rev$ $Date$
@@ -301,13 +303,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             for (int i = 0; i < xmlAttributeArray.length; i++) {
                 XmlAttributeType xmlAttributeType = xmlAttributeArray[i];
                 String name = xmlAttributeType.getName().trim();
-                XmlCursor xmlCursor = xmlAttributeType.newCursor();
-                try {
-                    xmlCursor.toFirstChild();
-                    builder.setXmlAttribute(name, xmlCursor);
-                } finally {
-                    xmlCursor.dispose();
+//                XmlObject[] anys = xmlAttributeType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
+                String uri = "http://geronimo.apache.org/xml/ns/deployment";
+                XmlObject[] anys = xmlAttributeType.selectChildren(QNameSet.forWildcardNamespaceString("##other", uri));
+                if (anys.length != 1) {
+                    throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
                 }
+                builder.setXmlAttribute(name, anys[0]);
             }
         }
 

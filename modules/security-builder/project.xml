@@ -43,16 +43,28 @@
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
+            <artifactId>xmlbeans-maven-plugin</artifactId>
+            <version>${xmlbeans_maven_plugin_version}</version>
             <type>plugin</type>
         </dependency>
 
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
+            <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax</artifactId>
+            <version>${stax_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
         </dependency>
 
         <dependency>
@@ -115,19 +127,4 @@
 
     </dependencies>
 
-
-    <!-- =================== -->
-    <!-- Build Specification -->
-    <!-- =================== -->
-
-    <build>
-        <unitTest>
-            <includes>
-                <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-                <exclude>**/Abstract*.java</exclude>
-            </excludes>
-        </unitTest>
-    </build>
 </project>

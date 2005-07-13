@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+
+<!-- ================================================================== -->
+<!-- Geronimo deployment plugin                                         -->
+<!-- ================================================================== -->
+<project xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
+    xmlns:ant="jelly:ant"
+    xmlns:maven="jelly:maven"
+    xmlns:define="jelly:define"
+    xmlns:xmlbeans="xmlbeans2:maven"
+    >
+
+    <define:taglib uri="xmlbeans2:maven">
+        <define:jellybean
+            name="SchemaCompilerWrapper"
+            className="org.apache.xmlbeans.maven.SchemaCompilerWrapper"
+            method="compileSchemas"/>
+
+
+        <define:tag name="schema2java" xmlns="jelly:ant">
+
+            <j:if test="${targetdir == null}">
+                <fail>Missing required attribute: targetdir</fail>
+            </j:if>
+            <j:if test="${sourcedir == null}">
+                <fail>Missing required attribute: sourcedir</fail>
+            </j:if>
+            <j:if test="${sourceschema == null}">
+                <fail>Missing required attribute: sourceschema</fail>
+            </j:if>
+            <j:if test="${xmlconfigs == null}">
+                <fail>Missing required attribute: xmlconfigs</fail>
+            </j:if>
+
+            <!-- set up classpath for already-compiled schemas -->
+            <j:forEach var="artifact" items="${pom.artifacts}">
+                <j:set var="dependency" value="${artifact.dependency}"/>
+                <j:if test="${dependency.getProperty('xmlbeans') == 'true'}">
+                    <j:set var="xmlbeans.classpath" value="${xmlbeans.classpath},${artifact.path}"/>
+                </j:if>
+            </j:forEach>
+
+            <j:jelly xmlns="jelly:ant">
+
+                <j:set var="uptodatePropName" value="xmlbeans.uptodate"/>
+                <j:expr value="${context.setVariable(uptodatePropName, null)}"/>
+                <j:set var="uptodateFile" value="${targetdir}/tstamp"/>
+
+                <uptodate property="${uptodatePropName}"
+                    targetfile="${uptodateFile}">
+                    <srcfiles dir="${sourcedir}"
+                        includes="${sourceschema}"/>
+                </uptodate>
+
+                <xmlbeans:SchemaCompilerWrapper
+                    sourceDir="${sourcedir}"
+                    sourceSchemas="${sourceschema}"
+                    xmlConfigs="${xmlconfigs}"
+                    javaTargetDir="${targetdir}"
+                    classTargetDir="${maven.build.dest}"
+                    catalogLocation="${cataloglocation}"
+                    classPath="${xmlbeans.classpath}"
+                    resources="${pom.build.resources}"
+                    buildSchemas="${context.getVariable(uptodatePropName) == null}"
+                    />
+                <j:if test="${context.getVariable(uptodatePropName) == null}">
+                    <touch file="${uptodateFile}"/>
+                </j:if>
+
+                <path id="maven.xmlbeans.compile.src.set"
+                    location="${targetdir}"/>
+                <j:if test="${context.antProject.getReference('maven.compile.src.set') != null}">
+                    <maven:addPath id="maven.compile.src.set"
+                        refid="maven.xmlbeans.compile.src.set"/>
+                </j:if>
+                <j:if test="${context.antProject.getReference('maven.compile.src.set') == null}">
+                    <echo message="Maven cannot find the generated sources unless you provide a dummy source directory in project.xml"/>
+                </j:if>
+
+            </j:jelly>
+        </define:tag>
+
+
+    </define:taglib>
+
+</project>

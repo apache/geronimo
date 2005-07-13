@@ -27,9 +27,9 @@
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="../../../naming-builder/src/schema/geronimo-naming.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="../../../security-builder/src/schema/geronimo-security.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="../../../service-builder/src/schema/geronimo-config.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="schema/geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="schema/geronimo-security.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="schema/geronimo-config.xsd"/>
 
     <xs:element name="web-app" type="web:web-appType"/>
 
