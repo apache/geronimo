@@ -181,7 +181,7 @@ public class ServerConnection {
             if(authPrompt && (user == null || password == null)) {
                 doAuthPromptAndRetry(uri, commandContext, user, password);
             } else {
-                throw new DeploymentException("Unable to connect to server", e);
+                throw new DeploymentException("Login Failed");
             }
         } catch(DeploymentManagerCreationException e) {
             if(uri != null) {
@@ -320,7 +320,7 @@ public class ServerConnection {
                 }
                 out.print(clearline.toString());
                 out.flush();
-                out.print('\r');
+                out.println();
                 out.flush();
             } catch (InterruptedException e) {
             } finally {

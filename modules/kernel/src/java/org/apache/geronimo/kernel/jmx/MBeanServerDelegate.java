@@ -118,7 +118,10 @@ public class MBeanServerDelegate implements MBeanServer {
         } catch (NoSuchOperationException e) {
             throw new ReflectionException(new NoSuchMethodException(e.getMessage()));
         } catch (GBeanNotFoundException e) {
-            throw new InstanceNotFoundException(name.getCanonicalName());
+            if(name.equals(e.getGBeanName())) {
+                throw new InstanceNotFoundException(name.getCanonicalName());
+            }
+            throw new MBeanException(e);
         } catch (InternalKernelException e) {
             throw new MBeanException(unwrapInternalKernelException(e));
         } catch (Exception e) {

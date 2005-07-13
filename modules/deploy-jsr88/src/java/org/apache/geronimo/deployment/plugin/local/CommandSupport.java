@@ -62,6 +62,10 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         moduleIDs.add(moduleID);
     }
 
+    protected synchronized int getModuleCount() {
+        return moduleIDs.size();
+    }
+
     public synchronized TargetModuleID[] getResultTargetModuleIDs() {
         return (TargetModuleID[]) moduleIDs.toArray(new TargetModuleID[moduleIDs.size()]);
     }
@@ -113,6 +117,10 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         sendEvent(message, StateType.COMPLETED);
     }
 
+    protected final void updateStatus(String message) {
+        sendEvent(message, state);
+    }
+
     protected void doFail(Exception e) {
         if (e instanceof InternalKernelException) {
             e = (Exception)((InternalKernelException)e).getCause();
@@ -155,6 +163,13 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         for (int i = 0; i < toNotify.length; i++) {
             toNotify[i].handleProgressEvent(event);
         }
+    }
+
+    protected static String clean(String value) {
+        if(value.startsWith("\"") && value.endsWith("\"")) {
+            return value.substring(1, value.length()-1);
+        }
+        return value;
     }
 
     private static class Status implements DeploymentStatus {

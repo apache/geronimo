@@ -20,6 +20,8 @@ package org.apache.geronimo.deployment.cli;
 import org.apache.geronimo.common.DeploymentException;
 
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.enterprise.deploy.spi.status.ProgressListener;
+import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -79,6 +81,16 @@ public abstract class AbstractCommand implements DeployCommand {
      * @param po a <code>ProgressObject</code> value
      */
     protected static void waitForProgress(PrintWriter out, ProgressObject po) {
+        po.addProgressListener(new ProgressListener() {
+            String last = null;
+            public void handleProgressEvent(ProgressEvent event) {
+                String msg = event.getDeploymentStatus().getMessage();
+                if(last != null && !last.equals(msg)) {
+                    System.out.println(DeployUtils.reformat(last,8,72)); //todo: use the same writer as DeployTool
+                }
+                last = msg;
+            }
+        });
         while(po.getDeploymentStatus().isRunning()) {
             try {
                 Thread.sleep(100);
@@ -144,7 +156,7 @@ public abstract class AbstractCommand implements DeployCommand {
             }
         }
         if(list.isEmpty()) {
-            throw new DeploymentException(name+" does not appear to be a module name or a TargetModuleID.  For a TargetModuleID, specify it as TargetName|ModuleName");
+            throw new DeploymentException(name+" does not appear to be a TargetModuleID or the name of a module available on the selected server.  For a TargetModuleID, specify it as TargetName|ModuleName");
         }
         return list;
     }

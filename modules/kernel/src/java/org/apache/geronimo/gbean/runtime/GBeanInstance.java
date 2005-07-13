@@ -323,7 +323,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         synchronized (this) {
             if (dead) {
                 // someone beat us to the punch... this instance should have never been found in the first place
-                throw new GBeanNotFoundException(name);
+                throw new GBeanNotFoundException(objectName);
             }
             dead = true;
         }

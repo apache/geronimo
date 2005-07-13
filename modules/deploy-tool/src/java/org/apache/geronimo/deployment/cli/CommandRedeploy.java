@@ -108,6 +108,12 @@ public class CommandRedeploy extends AbstractCommand {
         for(int i=2; i<args.length; i++) {
             modules.addAll(identifyTargetModuleIDs(allModules, args[i]));
         }
+        if(module != null) {
+            module = module.getAbsoluteFile();
+        }
+        if(plan != null) {
+            plan = plan.getAbsoluteFile();
+        }
         TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
         boolean multiple = isMultipleTargets(ids);
         ProgressObject po = mgr.redeploy(ids, module, plan);
@@ -115,10 +121,10 @@ public class CommandRedeploy extends AbstractCommand {
         TargetModuleID[] done = po.getResultTargetModuleIDs();
         for(int i = 0; i < done.length; i++) {
             TargetModuleID id = done[i];
-            out.println("Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : ""));
+            out.println(DeployUtils.reformat("Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : ""), 4, 72));
         }
         if(po.getDeploymentStatus().isFailed()) {
-            throw new DeploymentException("Deployment failed, Server reports: "+po.getDeploymentStatus().getMessage());
+            throw new DeploymentException("Operation failed: "+po.getDeploymentStatus().getMessage());
         }
     }
 }
