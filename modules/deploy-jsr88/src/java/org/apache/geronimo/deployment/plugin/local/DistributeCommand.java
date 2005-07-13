@@ -59,9 +59,7 @@ public class DistributeCommand extends AbstractDeployCommand {
             if (deployer == null) {
                 return;
             }
-
-            doDeploy(deployer, targetList[0]);
-
+            doDeploy(deployer, targetList[0], true);
         } catch (Exception e) {
             doFail(e);
         } finally {

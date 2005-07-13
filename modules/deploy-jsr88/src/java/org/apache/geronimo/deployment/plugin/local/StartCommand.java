@@ -18,6 +18,7 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
+import java.util.List;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
@@ -25,6 +26,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 
 /**
  *
@@ -48,10 +50,13 @@ public class StartCommand extends CommandSupport {
                 TargetModuleID module = modules[i];
 
                 URI moduleID = URI.create(module.getModuleID());
-                ObjectName configName = configurationManager.load(moduleID);
-                kernel.startRecursiveGBean(configName);
-
-                addModule(module);
+                List list = configurationManager.loadRecursive(moduleID);
+                for (int j = 0; j < list.size(); j++) {
+                    ObjectName name = (ObjectName) list.get(j);
+                    kernel.startRecursiveGBean(name);
+                    String configName = name.getKeyProperty("name");
+                    addModule(new TargetModuleIDImpl(modules[i].getTarget(), configName));
+                }
             }
             complete("Completed");
         } catch (Exception e) {

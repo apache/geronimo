@@ -103,7 +103,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         }
     }
 
-    protected void doDeploy(ObjectName deployer, Target target) throws Exception {
+    protected void doDeploy(ObjectName deployer, Target target, boolean finished) throws Exception {
         Object[] args = {moduleArchive, deploymentPlan};
         List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
         if (objectNames == null || objectNames.isEmpty()) {
@@ -119,6 +119,8 @@ public abstract class AbstractDeployCommand extends CommandSupport {
 
         TargetModuleID moduleID = new TargetModuleIDImpl(target, parentName.toString(), childIDs);
         addModule(moduleID);
-        complete("Completed with id " + parentName);
+        if(finished) {
+            complete("Completed with id " + parentName);
+        }
     }
 }
