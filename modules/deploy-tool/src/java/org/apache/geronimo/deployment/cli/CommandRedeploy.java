@@ -118,7 +118,7 @@ public class CommandRedeploy extends AbstractCommand {
             out.println("Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : ""));
         }
         if(po.getDeploymentStatus().isFailed()) {
-            throw new DeploymentException("Deployment failed, Server reports: "+po.getDeploymentStatus().getMessage());
+            throw new DeploymentException("Operation failed: "+po.getDeploymentStatus().getMessage());
         }
     }
 }

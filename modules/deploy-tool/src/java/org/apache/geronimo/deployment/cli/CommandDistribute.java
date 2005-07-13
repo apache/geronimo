@@ -148,13 +148,13 @@ public class CommandDistribute extends AbstractCommand {
         results = po.getResultTargetModuleIDs();
         for (int i = 0; i < results.length; i++) {
             TargetModuleID result = results[i];
-            out.println(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : ""));
+            out.println(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : ""), 4, 72));
         }
 
         // if any results failed then throw so that we'll return non-0
         // to the operating system
         if(po.getDeploymentStatus().isFailed()) {
-            throw new DeploymentException("Deployment failed, Server reports: "+po.getDeploymentStatus().getMessage());
+            throw new DeploymentException("Operation failed: "+po.getDeploymentStatus().getMessage());
         }
     }
 

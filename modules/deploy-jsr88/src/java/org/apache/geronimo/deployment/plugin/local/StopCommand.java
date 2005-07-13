@@ -18,12 +18,16 @@
 package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -49,11 +53,25 @@ public class StopCommand extends CommandSupport {
 
                 URI moduleID = URI.create(module.getModuleID());
                 ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
-                kernel.stopGBean(configName);
+                try {
+                    kernel.stopGBean(configName);
+                } catch (GBeanNotFoundException e) {
+                    if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
+                        updateStatus("Module "+moduleID+" is not running.");
+                        continue;
+                    } else {
+                        System.out.println("Unmatched name '"+clean(e.getGBeanName().getKeyProperty("name"))+"'");
+                        throw e;
+                    }
+                }
                 configurationManager.unload(moduleID);
                 addModule(module);
             }
-            complete("Completed");
+            if(getModuleCount() < modules.length) {
+                fail("Some modules could not be stopped");
+            } else {
+                complete("Completed");
+            }
         } catch (Exception e) {
             doFail(e);
         }

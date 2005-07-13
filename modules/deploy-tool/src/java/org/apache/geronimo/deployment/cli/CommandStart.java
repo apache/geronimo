@@ -74,10 +74,10 @@ public class CommandStart extends AbstractCommand {
         TargetModuleID[] done = po.getResultTargetModuleIDs();
         for(int i = 0; i < done.length; i++) {
             TargetModuleID id = done[i];
-            out.println(getAction()+" "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : ""));
+            out.println(DeployUtils.reformat(getAction()+" "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : ""),4, 72));
         }
         if(po.getDeploymentStatus().isFailed()) {
-            throw new DeploymentException("Deployment failed, Server reports: "+po.getDeploymentStatus().getMessage());
+            throw new DeploymentException("Operation failed: "+po.getDeploymentStatus().getMessage());
         }
     }
 
