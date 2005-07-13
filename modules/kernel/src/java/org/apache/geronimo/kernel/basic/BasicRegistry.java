@@ -87,7 +87,7 @@ public class BasicRegistry {
      */
     public synchronized void unregister(GBeanName name) throws GBeanNotFoundException, InternalKernelException {
         if (registry.remove(name) == null) {
-            throw new GBeanNotFoundException("No GBean registered: " + name);
+            throw new GBeanNotFoundException(name);
         }
     }
 
@@ -101,7 +101,7 @@ public class BasicRegistry {
     public synchronized GBeanInstance getGBeanInstance(GBeanName name) throws GBeanNotFoundException {
         GBeanInstance instance = (GBeanInstance) registry.get(name);
         if (instance == null) {
-            throw new GBeanNotFoundException("No GBean registered: " + name);
+            throw new GBeanNotFoundException(name);
         }
         return instance;
     }

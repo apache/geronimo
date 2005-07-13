@@ -41,6 +41,7 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
@@ -323,7 +324,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         synchronized (this) {
             if (dead) {
                 // someone beat us to the punch... this instance should have never been found in the first place
-                throw new GBeanNotFoundException(name);
+                throw new GBeanNotFoundException(new GBeanName(objectName));
             }
             dead = true;
         }
