@@ -196,7 +196,7 @@ public class Daemon {
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
                 public void run() {
                     log.info("Server shutdown begun");
-                    System.out.println("Server shutdown begun");
+                    System.out.println("\rServer shutdown begun              ");
                     kernel.shutdown();
                     log.info("Server shutdown completed");
                     System.out.println("Server shutdown completed");

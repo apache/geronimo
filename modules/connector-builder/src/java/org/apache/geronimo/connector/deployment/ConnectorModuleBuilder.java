@@ -201,7 +201,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
             // if we got one extract the validate it otherwise create a default one
             if (gerConnector == null) {
-                throw new DeploymentException("A connector module must be deployed using a plan");
+                throw new DeploymentException("A connector module must be deployed using a Geronimo deployment plan (either META-INF/geronimo-ra.xml in the RAR file or a standalone deployment plan passed to the deployer).");
             }
             gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerConnector);
             //for workmanager
