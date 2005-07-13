@@ -1,12 +1,13 @@
 Welcome to Geronimo
 ===================
 
-To build me please install Maven from here - version 1.0.2 or later.
+To build me please install Maven (version 1.0.2 or later) from:
 
 	http://maven.apache.org/
 
 In addition you should have JDK 1.4.x installed with JAVA_HOME
-environment defined to point to this JDK.
+environment defined to point to this JDK.  The current build of
+Geronimo is known to have problems under JDK 1.5.x.
 
 In the following examples, '$>' is your prompt, so if you see 
 '$> maven', at your prompt, type in 'maven' (without the quotes) 

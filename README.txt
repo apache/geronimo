@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo milestone build M3  (Nov 10, 2004)
+Apache Geronimo milestone build M4  (July, 2005)
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -22,18 +22,30 @@ Release Notes
  not yet functional.  We wrote those up to save you time trying to get
  things to work we know are not implemented.
 
- 
 ___________________
 Installation
 ===================
 
- If you've downloaded and unpacked a binary distribution of Geronimo,
- then you are finished with installation.  Note that the source
- distribution is provided for reference purposes, but you may not
- actually be able to build a working server from it -- it refers to
- snapshot versions of some third-party libraries which might have
- changed since the time M3 was originally built.
-
+ If you've downloaded and unpacked a .zip or .tar.gz binary
+ distribution of Geronimo, then you are finished with installation.
+ These distributions are quite easy to install, but do not allow you
+ to customize the server configuration (such as by changing listen
+ ports).
+ 
+ There is also an installer package available.  This is an executable
+ JAR that you run to start the install routine.  This package lets
+ you customize ports and the default administrative login during the
+ installation process.
+ 
+___________________
+Source Code
+===================
+ 
+ Note that the source distribution is provided for reference purposes,
+ but you may not actually be able to build a working server from it --
+ it refers to snapshot versions of some third-party libraries which
+ might have changed since the time M4 was originally built.  We are
+ attempting to resolve this for future releases.
  
 ___________________
 Geronimo Home
@@ -48,7 +60,6 @@ Geronimo Home
  The GERONIMO_HOME directory is referred to in various parts of the
  documentation, so it's good to remember where it is.
 
-
 ___________________
 Deploying
 ===================
@@ -62,13 +73,12 @@ Deploying
    C:\geronimo> java -jar bin\deployer.jar deploy myWebapp.war
    C:\geronimo> java -jar bin\deployer.jar deploy myApp.ear
 
- Notice that the deployer.jar is capable of handling a number of
- different archive types; rar, war, ejb jar, and EAR.
-
  The deployer will prompt you for a username and password; the
  default administrative account has username "system" and password
  "manager".
 
+ Notice that the deployer.jar is capable of handling a number of
+ different archive types; rar, war, ejb jar, and EAR.
 
 ___________________
 Starting
@@ -85,6 +95,9 @@ Starting
    c:\geronimo> java -jar bin\deployer.jar start \
                           org/apache/geronimo/DebugConsole
 
+ Again, this will prompt you for a username and password, which
+ default to "system" and "manager", respectively.
+
  Then you can access the debug console by pointing your browser to:
 
    http://localhost:8080/debug-tool/
@@ -97,19 +110,37 @@ Starting
  So, no matter what operating system you're on, the URI will always look
  similar to the one above.
 
-
+___________________
+Startup/Log Output
+===================
+ 
+ By default, the server provides a progress indicator while it starts,
+ and generally does not provide very detailed output to the console.  If
+ you'd like more detailed output, you can start the server with a
+ command like this:
+ 
+   C:\geronimo> java -jar bin\server.jar -v      (show INFO to console)
+   C:\geronimo> java -jar bin\server.jar -vv     (show DEBUG to console)
+   
+ Note that all DEBUG and higher out will be saved to the log file
+ $GERONIMO_HOME/var/log/geronimo.log in any case -- the switches above
+ just alter the console output.
+ 
+ You may also suppress the progress bar without altering the default
+ console log level (WARN) by using the -quiet flag on the command line.
+  
 ___________________
 Support
 ===================
  
  Any problems with this release can be reported to the Geronimo
- mailing list or Jira issue tracker.
+ user mailing list or Jira issue tracker.
 
  Mailing list archive:
- http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140
+ http://mail-archives.apache.org/mod_mbox/geronimo-user/
 
  Mailing list subscription:
- dev-subscribe@geronimo.apache.org
+ user-subscribe@geronimo.apache.org
 
  Jira:
  http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220 
