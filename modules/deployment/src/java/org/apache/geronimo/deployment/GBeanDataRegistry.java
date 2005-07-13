@@ -45,7 +45,7 @@ public class GBeanDataRegistry {
     public synchronized GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
         GBeanData gbeanData = (GBeanData) registry.get(name);
         if (gbeanData == null) {
-            throw new GBeanNotFoundException(new GBeanName(name));
+            throw new GBeanNotFoundException(name);
         }
         return gbeanData;
     }

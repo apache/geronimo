@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -87,7 +88,11 @@ public class BasicRegistry {
      */
     public synchronized void unregister(GBeanName name) throws GBeanNotFoundException, InternalKernelException {
         if (registry.remove(name) == null) {
-            throw new GBeanNotFoundException(name);
+            try {
+                throw new GBeanNotFoundException(name.getObjectName());
+            } catch (MalformedObjectNameException e) {
+                throw new InternalKernelException(e);
+            }
         }
     }
 
@@ -101,7 +106,11 @@ public class BasicRegistry {
     public synchronized GBeanInstance getGBeanInstance(GBeanName name) throws GBeanNotFoundException {
         GBeanInstance instance = (GBeanInstance) registry.get(name);
         if (instance == null) {
-            throw new GBeanNotFoundException(name);
+            try {
+                throw new GBeanNotFoundException(name.getObjectName());
+            } catch (MalformedObjectNameException e) {
+                throw new InternalKernelException(e);
+            }
         }
         return instance;
     }

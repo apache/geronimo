@@ -16,25 +16,26 @@
  */
 package org.apache.geronimo.kernel;
 
-import org.apache.geronimo.gbean.GBeanName;
+import javax.management.ObjectName;
+
 
 /**
  * @version $Rev$ $Date$
  */
 public class GBeanNotFoundException extends KernelException {
-    private GBeanName gBeanName;
+    private ObjectName gBeanName;
 
-    public GBeanNotFoundException(GBeanName gBeanName) {
+    public GBeanNotFoundException(ObjectName gBeanName) {
         super(gBeanName+" not found");
         this.gBeanName = gBeanName;
     }
 
-    public GBeanNotFoundException(GBeanName gBeanName, Throwable cause) {
+    public GBeanNotFoundException(ObjectName gBeanName, Throwable cause) {
         super(gBeanName+" not found", cause);
         this.gBeanName = gBeanName;
     }
 
-    public GBeanName getGBeanName() {
+    public ObjectName getGBeanName() {
         return gBeanName;
     }
 }

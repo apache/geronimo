@@ -38,7 +38,6 @@ import javax.management.ObjectName;
 import javax.management.OperationsException;
 import javax.management.QueryExp;
 import javax.management.ReflectionException;
-import javax.management.MalformedObjectNameException;
 import javax.management.loading.ClassLoaderRepository;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -119,12 +118,8 @@ public class MBeanServerDelegate implements MBeanServer {
         } catch (NoSuchOperationException e) {
             throw new ReflectionException(new NoSuchMethodException(e.getMessage()));
         } catch (GBeanNotFoundException e) {
-            try {
-                if(name.equals(e.getGBeanName().getObjectName())) {
-                    throw new InstanceNotFoundException(name.getCanonicalName());
-                }
-            } catch (MalformedObjectNameException e1) {
-                throw new MBeanException(e);
+            if(name.equals(e.getGBeanName())) {
+                throw new InstanceNotFoundException(name.getCanonicalName());
             }
             throw new MBeanException(e);
         } catch (InternalKernelException e) {
