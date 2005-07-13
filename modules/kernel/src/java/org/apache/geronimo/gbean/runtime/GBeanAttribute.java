@@ -224,7 +224,7 @@ public class GBeanAttribute {
                     Method getterMethod = gbeanInstance.getType().getMethod(getterName, null);
 
                     if (!getterMethod.getReturnType().equals(type)) {
-                        throw new InvalidConfigurationException("Getter method not found " +getDescription());
+                        throw new InvalidConfigurationException("Getter method of wrong type: " + getterMethod.getReturnType() + " expected " +getDescription());
                     }
                     getInvoker = new FastMethodInvoker(getterMethod);
                 } catch (NoSuchMethodException e) {
