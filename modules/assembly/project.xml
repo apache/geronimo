@@ -1131,91 +1131,9 @@
             </properties>
         </dependency>
 
-<!--        corba support -->
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
 
         <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb-omg</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-orb-tools</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <lib>true</lib>
-                <deploy>true</deploy>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-tools</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-ins</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-pss</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tmporb</groupId>
-            <artifactId>tmporb-ots</artifactId>
-            <version>${tmporb_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>avalon</groupId>
-            <artifactId>avalon-framework</artifactId>
-            <version>${avalon_framework_version}</version>
-            <properties>
-               <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>avalon</groupId>
-            <artifactId>avalon-logkit</artifactId>
-            <version>${avalon_logkit_version}</version>
-            <properties>
-               <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
+            <!-- used for corba asn1 security decoding -->
             <groupId>bouncycastle</groupId>
             <artifactId>bcprov</artifactId>
             <version>${bouncycastle_version}</version>
@@ -1223,8 +1141,6 @@
                <repository>true</repository>
             </properties>
         </dependency>
-
-        <!-- end corba support-->
 
         <!-- spring support-->
         <dependency>

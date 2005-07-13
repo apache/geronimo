@@ -57,7 +57,6 @@ public class Daemon {
     private static Log log;
     private static final ObjectName PERSISTENT_CONFIGURATION_LIST_NAME_QUERY = JMXUtil.getObjectName("*:j2eeType=PersistentConfigurationList,*");
 
-
     private StartupMonitor monitor;
     private List configs = new ArrayList();
     private String verboseArg = null;
@@ -116,9 +115,6 @@ public class Daemon {
 
             // Install our url factory
             GeronimoURLFactory.install();
-
-            // Install the lame tools jar hack
-            ToolsJarHack.install();
 
             if(verboseArg != null || progressArg != null) {
                 monitor = new SilentStartupMonitor();
