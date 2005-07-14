@@ -43,12 +43,12 @@ public class RedeployCommand extends AbstractDeployCommand {
     private final TargetModuleID[] modules;
 
     public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
-        super(CommandType.DISTRIBUTE, kernel, moduleArchive, deploymentPlan, null, null, false);
+        super(CommandType.REDEPLOY, kernel, moduleArchive, deploymentPlan, null, null, false);
         this.modules = moduleIDList;
     }
 
     public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
-        super(CommandType.START, kernel, null, null, moduleArchive, deploymentPlan, true);
+        super(CommandType.REDEPLOY, kernel, null, null, moduleArchive, deploymentPlan, true);
         this.modules = moduleIDList;
     }
 

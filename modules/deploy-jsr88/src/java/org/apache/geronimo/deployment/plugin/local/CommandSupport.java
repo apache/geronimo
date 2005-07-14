@@ -123,7 +123,10 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
 
     protected void doFail(Exception e) {
         if (e instanceof InternalKernelException) {
-            e = (Exception)((InternalKernelException)e).getCause();
+            Exception test = (Exception)((InternalKernelException)e).getCause();
+            if(test != null) {
+                e = test;
+            }
         }
 
         if (commandContext.isLogErrors()) {

@@ -40,7 +40,7 @@ public class StopCommand extends CommandSupport {
     private final TargetModuleID[] modules;
 
     public StopCommand(Kernel kernel, TargetModuleID modules[]) {
-        super(CommandType.START);
+        super(CommandType.STOP);
         this.kernel = kernel;
         this.modules = modules;
     }

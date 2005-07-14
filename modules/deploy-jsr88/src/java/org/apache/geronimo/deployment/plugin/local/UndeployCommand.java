@@ -41,7 +41,7 @@ public class UndeployCommand extends CommandSupport {
     private final TargetModuleID[] modules;
 
     public UndeployCommand(Kernel kernel, TargetModuleID modules[]) {
-        super(CommandType.START);
+        super(CommandType.UNDEPLOY);
         this.kernel = kernel;
         this.modules = modules;
     }
