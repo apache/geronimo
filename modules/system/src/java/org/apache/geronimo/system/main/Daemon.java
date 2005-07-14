@@ -50,7 +50,7 @@ import org.apache.geronimo.system.url.GeronimoURLFactory;
  * @version $Rev$ $Date$
  */
 public class Daemon {
-    private final static String ARGUMENT_NO_PROGRESS="-noprogress";
+    private final static String ARGUMENT_NO_PROGRESS="-quiet";
     private final static String ARGUMENT_VERBOSE="-v";
     private final static String ARGUMENT_MORE_VERBOSE="-vv";
     private static boolean started = false;
