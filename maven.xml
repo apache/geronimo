@@ -25,7 +25,7 @@
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
     xmlns:modules="local:modules"
-    xmlns:gscm="g:scm">
+    xmlns:gscm="g:scm">  <!-- g:scm is defined in this file! -->
 
     <!-- ============= -->
     <!-- New  m: goals -->
@@ -155,7 +155,7 @@
         <delete dir="${maven.repo.local}/geronimo"/>
         <!--delete dir="${maven.repo.local}/howl"/-->
         <delete dir="${maven.repo.local}/openejb"/>
-        <delete dir="${maven.repo.local}/tranql"/>
+        <!--<delete dir="${maven.repo.local}/tranql"/>-->
         <j:if test="${context.getVariable('geronimo.all') == 'true'}">
             <delete dir="${maven.repo.local}/geronimo-spec"/>
         </j:if>
@@ -205,6 +205,17 @@
                failonerror="true"
             />
         </define:tag>
+        <define:tag name="checkout-tag">
+            <ant:cvs command="checkout -P"
+               quiet="${maven.scm.cvs.quiet}"
+               cvsRsh="ssh"
+               cvsRoot="${root}"
+               dest="${dest}"
+               package="${module}"
+               tag="${tag}"
+               failonerror="true"
+            />
+        </define:tag>
         <define:tag name="update">
             <echo message="updating ${dir}"/>
             <ant:cvs command="update -P -d"
@@ -220,11 +231,12 @@
     <goal name="m:checkout">
         <!--gscm:checkout module="activemq" root="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/-->
         <!--gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/-->
-        <gscm:checkout module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm"/>
-
+        <gscm:checkout-tag module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm" tag="v2_0_G1M4"/>
+<!--
         <mkdir dir="${basedir}/tranql"/>
         <gscm:checkout module="tranql" dest="${basedir}/tranql" root="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
         <gscm:checkout module="connector" dest="${basedir}/tranql" root="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
+-->
     </goal>
 
     <goal name="m:update">
@@ -234,15 +246,17 @@
         <!--gscm:update dir="${basedir}/activemq"/-->
         <!--gscm:update dir="${basedir}/howl/logger"/-->
         <gscm:update dir="${basedir}/openejb"/>
+<!--
         <gscm:update dir="${basedir}/tranql/tranql"/>
         <gscm:update dir="${basedir}/tranql/connector"/>
+-->
     </goal>
 
     <goal name="m:fresh-checkout">
         <!--delete dir="${basedir}/activemq"/-->
         <!--delete dir="${basedir}/howl"/-->
         <delete dir="${basedir}/openejb"/>
-        <delete dir="${basedir}/tranql"/>
+        <!--<delete dir="${basedir}/tranql"/>-->
         <attainGoal name="m:checkout"/>
         <ant:exec dir="${basedir}" executable="svn">
             <ant:arg line="update"/>
