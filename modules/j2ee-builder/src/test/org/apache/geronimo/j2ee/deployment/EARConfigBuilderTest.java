@@ -262,6 +262,78 @@ public class EARConfigBuilderTest extends TestCase {
         }
     }
 
+    public void testBadEJBJARConfiguration() throws Exception {
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+
+        File tempDir = null;
+        try {
+            tempDir = DeploymentUtil.createTempDir();
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            fail("Should have thrown a DeploymentException");
+        } catch (DeploymentException e) {
+            if(e.getCause() instanceof IOException) {
+                fail("Should not be complaining about bad vendor DD for invalid module entry");
+            }
+        } finally {
+            DeploymentUtil.recursiveDelete(tempDir);
+        }
+    }
+
+    public void testBadWARConfiguration() throws Exception {
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+
+        File tempDir = null;
+        try {
+            tempDir = DeploymentUtil.createTempDir();
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            fail("Should have thrown a DeploymentException");
+        } catch (DeploymentException e) {
+            if(e.getCause() instanceof IOException) {
+                fail("Should not be complaining about bad vendor DD for invalid module entry");
+            }
+        } finally {
+            DeploymentUtil.recursiveDelete(tempDir);
+        }
+    }
+
+    public void testBadRARConfiguration() throws Exception {
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+
+        File tempDir = null;
+        try {
+            tempDir = DeploymentUtil.createTempDir();
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            fail("Should have thrown a DeploymentException");
+        } catch (DeploymentException e) {
+            if(e.getCause() instanceof IOException) {
+                fail("Should not be complaining about bad vendor DD for invalid module entry");
+            }
+        } finally {
+            DeploymentUtil.recursiveDelete(tempDir);
+        }
+    }
+
+    public void testBadCARConfiguration() throws Exception {
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
+
+        File tempDir = null;
+        try {
+            tempDir = DeploymentUtil.createTempDir();
+            Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile);
+            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            fail("Should have thrown a DeploymentException");
+        } catch (DeploymentException e) {
+            if(e.getCause() instanceof IOException) {
+                fail("Should not be complaining about bad vendor DD for invalid module entry");
+            }
+        } finally {
+            DeploymentUtil.recursiveDelete(tempDir);
+        }
+    }
+
     public void testNoEJBDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 

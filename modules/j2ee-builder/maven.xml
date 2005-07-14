@@ -47,6 +47,12 @@
         <attainGoal name="setupEar"/>
 
         <attainGoal name="setupUnpackedEar"/>
+
+        <ant:copy todir="${basedir}/target/plans">
+          <ant:fileset dir="${basedir}/src/test-plan">
+            <ant:include name="*.xml" />
+          </ant:fileset>
+        </ant:copy>
     </preGoal>
 
     <goal name="setupEar">

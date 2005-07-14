@@ -396,6 +396,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, Set modules) throws DeploymentException {
         Map altVendorDDs = new HashMap();
         try {
+            ModuleType[] moduleTypes = application.getModuleArray();
+            Set paths = new HashSet();
+            for (int i = 0; i < moduleTypes.length; i++) {
+                ModuleType type = moduleTypes[i];
+                if (type.isSetEjb()) {
+                    paths.add(type.getEjb().getStringValue());
+                } else if (type.isSetWeb()) {
+                    paths.add(type.getWeb().getWebUri().getStringValue());
+                } else if (type.isSetConnector()) {
+                    paths.add(type.getConnector().getStringValue());
+                } else if (type.isSetJava()) {
+                    paths.add(type.getJava().getStringValue());
+                }
+            }
+
             // build map from module path to alt vendor dd
             GerModuleType gerModuleTypes[] = gerApplication.getModuleArray();
             for (int i = 0; i < gerModuleTypes.length; i++) {
@@ -409,6 +424,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     path = gerModule.getConnector().getStringValue();
                 } else if (gerModule.isSetJava()) {
                     path = gerModule.getJava().getStringValue();
+                }
+                if(!paths.contains(path)) {
+                    throw new DeploymentException("Geronimo deployment plan refers to module '"+path+"' but that was not defined in the META-INF/application.xml");
                 }
 
                 if (gerModule.isSetAltDd()) {
@@ -435,7 +453,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
 
             // get a set containing all of the files in the ear that are actually modules
-            ModuleType[] moduleTypes = application.getModuleArray();
             for (int i = 0; i < moduleTypes.length; i++) {
                 ModuleType moduleXml = moduleTypes[i];
 
