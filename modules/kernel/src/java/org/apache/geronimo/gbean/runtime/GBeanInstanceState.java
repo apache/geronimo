@@ -340,6 +340,7 @@ public class GBeanInstanceState {
 
             if (t instanceof Exception) {
                 // ignore - we only rethrow errors
+                return;
             } else if (t instanceof Error) {
                 throw (Error) t;
             } else {
@@ -409,6 +410,7 @@ public class GBeanInstanceState {
 
             if (t instanceof Exception) {
                 // ignore - we only rethrow errors
+                return;
             } else if (t instanceof Error) {
                 throw (Error) t;
             } else {
