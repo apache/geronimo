@@ -525,15 +525,6 @@
         </dependency>
 
         <dependency>
-            <groupId>ews</groupId>
-            <artifactId>ews</artifactId>
-            <version>${ews_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>xfire</groupId>
             <artifactId>xfire</artifactId>
             <version>${xfire_version}</version>
