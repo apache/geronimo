@@ -1204,6 +1204,7 @@
             <type>war</type>
             <properties>
                 <repository>true</repository>
+                <installer>true</installer>
             </properties>
         </dependency>
 
