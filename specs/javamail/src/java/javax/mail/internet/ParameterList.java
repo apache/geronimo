@@ -23,14 +23,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.StringTokenizer;
-
-// Represents lists in things like
+import java.util.List;
+import java.util.ArrayList;// Represents lists in things like
 // Content-Type: text/plain;charset=klingon
 //
 // The ;charset=klingon is the parameter list, may have more of them with ';'
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 179695 $ $Date: 2005-06-02 21:45:02 -0400 (Thu, 02 Jun 2005) $
  */
 public class ParameterList {
     private Map _parameters = new HashMap();
@@ -42,9 +42,9 @@ public class ParameterList {
         if (list == null) {
             return;
         } else {
-            StringTokenizer tokenizer = new StringTokenizer(list, ";");
-            while (tokenizer.hasMoreTokens()) {
-                String parameter = tokenizer.nextToken();
+            String[] tokens = split(list,';');
+            for (int i=0;tokens != null && i<tokens.length;i++) {
+                String parameter = tokens[i];
                 int eq = parameter.indexOf("=");
                 if (eq == -1) {
                     throw new ParseException(parameter);
@@ -93,6 +93,47 @@ public class ParameterList {
         }
         return result.toString();
         // TODO Return in same list as parsed format
+    }
+
+    public static String[] split(String str, char separatorChar) {
+        if (str == null) {
+            return null;
+        }
+        int len = str.length();
+        if (len == 0) {
+            return new String[0];
+        }
+        List list = new ArrayList();
+        int i = 0, start = 0;
+        boolean match = false;
+        while (i < len) {
+            char ch = str.charAt(i);
+            // Skip any separatorChar within quotes
+            if(ch == '\"') {
+                i++;
+                while(i < len && str.charAt(i) != '\"'){
+                    i++;
+                }
+                if(i < len){
+                    i++;
+                    continue;
+                }
+            }
+            if (ch == separatorChar) {
+                if (match) {
+                    list.add(str.substring(start, i));
+                    match = false;
+                }
+                start = ++i;
+                continue;
+            }
+            match = true;
+            i++;
+        }
+        if (match) {
+            list.add(str.substring(start, i));
+        }
+        return (String[]) list.toArray(new String[list.size()]);
     }
 
     public String toString(int lineBreak) {
