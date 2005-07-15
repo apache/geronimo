@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Enumeration;
 import javax.activation.DataHandler;
 import javax.mail.BodyPart;
@@ -28,7 +29,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 154541 $ $Date: 2005-02-20 13:01:49 -0500 (Sun, 20 Feb 2005) $
  */
 public class MimeBodyPart extends BodyPart implements MimePart {
     /**
@@ -55,7 +56,17 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     }
 
     public MimeBodyPart(InputStream in) throws MessagingException {
-        this.contentStream = in;
+        headers = new InternetHeaders(in);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int count;
+        try {
+            while((count = in.read(buffer, 0, 1024)) != -1)
+                baos.write(buffer, 0, count);
+        } catch (IOException e) {
+            throw new MessagingException(e.toString(),e);
+        }
+        content = baos.toByteArray();
     }
 
     public MimeBodyPart(InternetHeaders headers, byte[] content) throws MessagingException {
