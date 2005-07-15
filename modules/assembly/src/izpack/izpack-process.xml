@@ -142,14 +142,14 @@
     </executefile>
     <executeForPack name="Demo Web Application" />
   </job>
-  <job name="Install Remote ClassLoader Configuration">
+  <job name="Install UDDI Server">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/j2ee-remote-classloading-deployer-plan.xml</arg>
+      <arg>$INSTALL_PATH/installer-temp/geronimo-uddi-server-${GeronimoVersion}.war</arg>
     </executefile>
-    <executeForPack name="J2EE Features" />
+    <executeForPack name="UDDI Server" />
   </job>
   <job name="Install Axion Database Configuration">
     <executefile name="$JAVA_HOME/bin/java">
