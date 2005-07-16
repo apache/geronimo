@@ -1,0 +1,2 @@
+text/plain;;		x-java-content-handler=org.apache.geronimo.mail.handlers.TextHandler
+text/xml;;		x-java-content-handler=org.apache.geronimo.mail.handlers.XMLHandler
