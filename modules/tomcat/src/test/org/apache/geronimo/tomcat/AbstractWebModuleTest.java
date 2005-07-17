@@ -303,6 +303,16 @@ public class AbstractWebModuleTest extends TestCase {
             start(realm);
         }
 
+        //Default Host
+        initParams.clear();
+        initParams.put("workDir","work");
+        initParams.put("name","localhost");
+        initParams.put("appBase","");
+        host = new GBeanData(hostName, HostGBean.GBEAN_INFO);
+        host.setAttribute("className", "org.apache.catalina.core.StandardHost");
+        host.setAttribute("initParams", initParams);
+        start(host);
+
         //Default Engine
         initParams.clear();
         initParams.put("name","Geronimo");
@@ -312,18 +322,8 @@ public class AbstractWebModuleTest extends TestCase {
         engine.setAttribute("initParams", initParams);
         if (realmClass != null)
             engine.setReferencePattern("realmGBean", realmName);
+        engine.setReferencePattern("hosts", hostName);
         start(engine);
-
-        //Default Host
-        initParams.clear();
-        initParams.put("workDir","work");
-        initParams.put("name","localhost");
-        initParams.put("appBase","");
-        host = new GBeanData(hostName, HostGBean.GBEAN_INFO);
-        host.setAttribute("className", "org.apache.catalina.core.StandardHost");
-        host.setAttribute("initParams", initParams);
-        host.setReferencePattern("engineGBean", engineName);
-        start(host);
 
         // Need to override the constructor for unit tests
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
@@ -339,6 +339,7 @@ public class AbstractWebModuleTest extends TestCase {
         connector.setAttribute("initParams", initParams);
         connector.setAttribute("name", "HTTP");
         connector.setReferencePattern("TomcatContainer", containerName);
+        connector.setReferencePattern("ServerInfo", serverInfoName);
 
         start(container);
         start(connector);

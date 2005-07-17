@@ -16,26 +16,29 @@
 */
 package org.apache.geronimo.tomcat;
 
-import java.util.ArrayList;
 import java.util.Map;
 
-import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardHost;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
+
+    private static final Log log = LogFactory.getLog(HostGBean.class);
+    
+    public static final String J2EE_TYPE = "Host";
     
     private final Host host;
 
     public HostGBean(String className, 
             Map initParams, 
-            ObjectRetriever engineGBean, 
             ObjectRetriever realmGBean,            
             ValveGBean tomcatValveChain) throws Exception {
         super(); // TODO: make it an attribute
@@ -45,27 +48,18 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
             className = "org.apache.catalina.core.StandardHost";
         }
         
-        if (engineGBean == null){
-            throw new IllegalArgumentException("engineGBean cannot be null.");
-        }
-                
         //Create the Host object
         host = (Host)Class.forName(className).newInstance();
         
         //Set the parameters
         setParameters(host, initParams);
         
-        Engine engine = ((Engine)engineGBean.getInternalObject());
-
         if (realmGBean != null)
             host.setRealm((Realm)realmGBean.getInternalObject());
-        else
-            host.setRealm(engine.getRealm());
 
         //Add the valve list
         if (host instanceof StandardHost){
             if (tomcatValveChain != null){
-                ArrayList chain = new ArrayList();
                 ValveGBean valveGBean = tomcatValveChain;
                 while(valveGBean != null){
                     ((StandardHost)host).addValve((Valve)valveGBean.getInternalObject());
@@ -74,9 +68,6 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
             }
         }
         
-        //Add the host to the engine
-        engine.addChild(host);
-        
     }
 
     public Object getInternalObject() {
@@ -84,25 +75,27 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
     }
 
     public void doFail() {
+        log.info("Falied");
     }
 
     public void doStart() throws Exception {
+        log.info("Started");
     }
 
     public void doStop() throws Exception {
+        log.info("Stopped");
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatHost", HostGBean.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatHost", HostGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
-        infoFactory.addReference("engineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("realmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "className", "initParams", "engineGBean", "realmGBean", "TomcatValveChain" });
+        infoFactory.setConstructor(new String[] { "className", "initParams", "realmGBean", "TomcatValveChain" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

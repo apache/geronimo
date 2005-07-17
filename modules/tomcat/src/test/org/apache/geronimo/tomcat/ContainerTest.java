@@ -19,6 +19,7 @@ package org.apache.geronimo.tomcat;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,6 +31,9 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -254,15 +258,6 @@ public class ContainerTest extends TestCase {
        
        Map initParams = new HashMap();
 
-       //Default Engine
-       initParams.clear();
-       initParams.put("name","Geronimo");
-       initParams.put("defaultHost","localhost");
-       engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
-       engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
-       engine.setAttribute("initParams", initParams);
-       start(engine);
-
        //Default Host
        initParams.clear();
        initParams.put("workDir","work");
@@ -271,8 +266,20 @@ public class ContainerTest extends TestCase {
        host = new GBeanData(hostName, HostGBean.GBEAN_INFO);
        host.setAttribute("className", "org.apache.catalina.core.StandardHost");
        host.setAttribute("initParams", initParams);
-       host.setReferencePattern("engineGBean", engineName);
        start(host);       
+
+       //Default Engine
+//       ReferenceCollection hosts = new TestReferenceCollection();
+//       hosts.add(host);
+       
+       initParams.clear();
+       initParams.put("name","Geronimo");
+       initParams.put("defaultHost","localhost");
+       engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
+       engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
+       engine.setAttribute("initParams", initParams);
+       engine.setReferencePattern("hosts", hostName);
+       start(engine);
 
        container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
        container.setAttribute("classLoader", cl);
@@ -286,6 +293,7 @@ public class ContainerTest extends TestCase {
        connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
        connector.setAttribute("initParams", initParams);
        connector.setReferencePattern("TomcatContainer", containerName);
+       connector.setReferencePattern("ServerInfo", serverInfoName);
        start(connector);       
    }
    
@@ -298,4 +306,33 @@ public class ContainerTest extends TestCase {
        kernel.shutdown();
    }
 
+   private static class TestReferenceCollection extends ArrayList implements ReferenceCollection {
+
+       ReferenceCollectionListener referenceCollectionListener;
+
+       public void addReferenceCollectionListener(ReferenceCollectionListener listener) {
+           this.referenceCollectionListener = listener;
+       }
+
+       public void removeReferenceCollectionListener(ReferenceCollectionListener listener) {
+           this.referenceCollectionListener = null;
+       }
+
+       public boolean add(Object o) {
+           boolean result = super.add(o);
+           if (referenceCollectionListener != null) {
+               referenceCollectionListener.memberAdded(new ReferenceCollectionEvent(null, o));
+           }
+           return result;
+       }
+
+       public boolean remove(Object o) {
+           boolean result = super.remove(o);
+           if (referenceCollectionListener != null) {
+               referenceCollectionListener.memberRemoved(new ReferenceCollectionEvent(null, o));
+           }
+           return result;
+       }
+
+   }   
 }

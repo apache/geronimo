@@ -16,37 +16,53 @@
 */
 package org.apache.geronimo.tomcat;
 
-import java.util.Map;
-import java.util.Iterator;
-import java.net.InetSocketAddress;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.Map;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
+
+    private static final Log log = LogFactory.getLog(ConnectorGBean.class);
     
     private final Connector connector;
     private final TomcatContainer container;
+    private final ServerInfo serverInfo;
     private String name;
     private int port;
 
-    public ConnectorGBean(String name, String protocol, Map initParams, TomcatContainer container) throws Exception {
+    public ConnectorGBean(String name, String protocol, Map initParams, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(); // TODO: make it an attribute
         
         if (container == null){
             throw new IllegalArgumentException("container cannot be null.");
         }
+ 
+        if (serverInfo == null){
+            throw new IllegalArgumentException("classLoader cannot be null.");
+        }
         
         this.name = name;
         this.container = container;
-
+        this.serverInfo = serverInfo;
+        
         //Create the Connector object
         connector = new Connector(protocol);
+
+        //Resolve the keystore file path if we have this parameter
+        String keystoreFile = (String)initParams.get("keystoreFile");
+        if (keystoreFile != null){
+            initParams.put("keystoreFile", serverInfo.resolvePath(keystoreFile));
+        }
 
         //Set the parameters
         setParameters(connector, initParams);
@@ -77,13 +93,21 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public void doStart() throws LifecycleException {
         container.addConnector(connector);
         connector.start();
-    }
+        log.info(name + " connector started");
+   }
 
     public void doStop() {
+        try{
+            connector.stop();
+        } catch (LifecycleException e){
+            log.error(e);
+        }
         container.removeConnector(connector);
+        log.info(name + " connector stopped");
     }
 
     public void doFail() {
+        log.info(name + " connector failed");
         doStop();
     }
 
@@ -97,7 +121,8 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "name", "protocol", "initParams", "TomcatContainer"});
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.setConstructor(new String[] { "name", "protocol", "initParams", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

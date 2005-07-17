@@ -16,6 +16,11 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,21 +66,9 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
     private Engine engine;
 
     /**
-     * Tomcat default Context
-     * 
-     * TODO: Make it a gbean
-     */
-    private Context defaultContext;
-
-    /**
      * Geronimo class loader
      **/
     private ClassLoader classLoader;
-
-    /**
-     * Used only to resolve the paths
-     */
-    private ServerInfo serverInfo;
 
     private final Map webServices = new HashMap();
 
@@ -105,7 +98,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
         this.classLoader = classLoader;
         
         this.engine = (Engine)engineGBean.getInternalObject();
-        this.serverInfo = serverInfo;
     }
 
     public void doFail() {
@@ -144,9 +136,10 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
         embedded.setUseNaming(false);
 
         //Add default contexts
+        TomcatClassLoader tcl = createRootClassLoader(new File(System.getProperty("catalina.home") + "/ROOT"), classLoader);
         Container[] hosts = engine.findChildren();
         for(int i = 0; i < hosts.length; i++){
-            Context defaultContext = embedded.createContext("","", classLoader);
+            Context defaultContext = embedded.createContext("","ROOT", tcl);
             hosts[i].addChild(defaultContext);
         }
         
@@ -256,6 +249,37 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
         webServices.remove(contextPath);
     }
 
+    private TomcatClassLoader createRootClassLoader(File baseDir, ClassLoader cl) throws Exception{
+        ArrayList urls = new ArrayList();
+        
+        File webInfDir = new File(baseDir, "WEB-INF");
+
+        // check for a classes dir
+        File classesDir = new File(webInfDir, "classes");
+        if (classesDir.isDirectory()) {
+            urls.add(classesDir.toURL());
+        }
+
+        // add all of the libs
+        File libDir = new File(webInfDir, "lib");
+        if (libDir.isDirectory()) {
+            File[] libs = libDir.listFiles(new FileFilter() {
+                public boolean accept(File file) {
+                    return file.isFile() && file.getName().endsWith(".jar");
+                }
+            });
+
+            if (libs != null) {
+                for (int i = 0; i < libs.length; i++) {
+                    File lib = libs[i];
+                    urls.add(lib.toURL());
+                }
+            }
+        } 
+        
+        return new TomcatClassLoader((URL[])urls.toArray(new URL[0]), null, cl, false);
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {

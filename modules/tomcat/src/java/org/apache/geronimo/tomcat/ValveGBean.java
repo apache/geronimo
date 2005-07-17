@@ -20,22 +20,30 @@ package org.apache.geronimo.tomcat;
 import java.util.Map;
 
 import org.apache.catalina.Valve;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
+import sun.tools.tree.ThisExpression;
+
 public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
+
+    private static final Log log = LogFactory.getLog(ValveGBean.class);
 
     public static final String J2EE_TYPE = "TomcatValve";
         
     private final Valve valve;
     private final ValveGBean nextValve;
+    private final String className;
  
     
     public ValveGBean(){      
         valve = null;
         nextValve = null;
+        className = null;
     }
     
     public ValveGBean(String className, Map initParams, ValveGBean nextValve) throws Exception{
@@ -55,6 +63,8 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
             this.nextValve = null;
         }
         
+        this.className = className;
+        
         //Create the Valve object
         valve = (Valve)Class.forName(className).newInstance();
 
@@ -64,12 +74,15 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
     }
     
     public void doStart() throws Exception {
+        log.info(className + " started.");
     }
 
     public void doStop() throws Exception {
+        log.info(className + " stopped.");
     }
 
     public void doFail() {
+        log.info(className + " failed.");
     }
 
     public Object getInternalObject() {

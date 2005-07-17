@@ -38,7 +38,9 @@ public class TomcatGeronimoEmbedded extends Embedded{
 
         context.setDocBase(docBase);
         context.setPath(path);
-        context.setParentClassLoader(cl);
+        
+        if (cl != null)
+            context.setParentClassLoader(cl);
         
         ContextConfig config = new ContextConfig();
         config.setCustomAuthenticators(authenticators);
