@@ -54,7 +54,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import sun.misc.BASE64Encoder;
 
 /**
-* @version $Rev: 170494 $ $Date$
+* @version $Rev$ $Date$
 */
 public class ContainerTest extends TestCase {
    private ClassLoader cl = this.getClass().getClassLoader();

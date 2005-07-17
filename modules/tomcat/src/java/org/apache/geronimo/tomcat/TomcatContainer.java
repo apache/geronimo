@@ -44,7 +44,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
  * @see http://wiki.apache.org/geronimo/Tomcat
  * @see http://nagoya.apache.org/jira/browse/GERONIMO-215
  * 
- * @version $Rev: 46019 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class TomcatContainer implements SoapHandler, GBeanLifecycle {
 

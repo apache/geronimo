@@ -57,7 +57,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 
 
 /**
- * @version $Rev: 111239 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
 

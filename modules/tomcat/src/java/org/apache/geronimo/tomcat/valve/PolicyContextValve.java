@@ -25,7 +25,7 @@ import javax.security.jacc.PolicyContext;
 import java.io.IOException;
 
 /**
- * @version $Rev: $ $Date$
+ * @version $Rev$ $Date$
  */
 
 public class PolicyContextValve extends ValveBase{
