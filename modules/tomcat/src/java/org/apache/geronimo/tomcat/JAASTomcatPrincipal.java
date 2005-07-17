@@ -22,7 +22,7 @@ import javax.security.auth.Subject;
 
 
 /**
- * @version $Rev: 122776 $ $Date: 2004-12-19 12:11:07 -0700 (Sun, 19 Dec 2004) $
+ * @version $Rev: 122776 $ $Date$
  */
 public class JAASTomcatPrincipal implements Principal {
     private final String name;

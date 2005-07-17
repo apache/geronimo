@@ -50,7 +50,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
- * @version $Rev: 56022 $ $Date: 2004-10-30 07:16:18 +0200 (Sat, 30 Oct 2004) $
+ * @version $Rev: 56022 $ $Date$
  */
 public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 

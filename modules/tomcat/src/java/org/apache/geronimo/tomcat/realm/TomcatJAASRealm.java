@@ -33,7 +33,7 @@ import org.apache.geronimo.security.ContextManager;
 
 
 /**
- * @version $Rev: 106522 $ $Date: 2004-11-25 01:28:57 +0100 (Thu, 25 Nov 2004) $
+ * @version $Rev: 106522 $ $Date$
  */
 public class TomcatJAASRealm extends JAASRealm implements Cloneable {
     private static final Log log = LogFactory.getLog(TomcatJAASRealm.class);

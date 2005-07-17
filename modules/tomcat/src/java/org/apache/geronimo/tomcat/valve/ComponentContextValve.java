@@ -26,7 +26,7 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev: $ $Date$
  */
 public class ComponentContextValve extends ValveBase {
 

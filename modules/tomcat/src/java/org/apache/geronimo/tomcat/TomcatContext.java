@@ -28,7 +28,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
- * @version $Rev: 106522 $ $Date: 2004-11-25 01:28:57 +0100 (Thu, 25 Nov 2004) $
+ * @version $Rev: 106522 $ $Date$
  */
 public interface TomcatContext {
 

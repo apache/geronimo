@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
  * @see http://wiki.apache.org/geronimo/Tomcat
  * @see http://nagoya.apache.org/jira/browse/GERONIMO-215
  * 
- * @version $Rev: 46019 $ $Date: 2004-09-14 11:56:06 +0200 (Tue, 14 Sep 2004) $
+ * @version $Rev: 46019 $ $Date$
  */
 public class TomcatContainer implements SoapHandler, GBeanLifecycle {
 

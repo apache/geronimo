@@ -30,7 +30,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev: $ $Date$
  */
 public class InstanceContextValve extends ValveBase {
 

@@ -28,7 +28,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 /**
  * Apache Tomcat HTTP 1.1 connector
  * 
- * @version $Rev: 56022 $ $Date: 2004-10-30 07:16:18 +0200 (Sat, 30 Oct 2004) $
+ * @version $Rev: 56022 $ $Date$
  */
 public class HTTPConnector extends Connector implements GBeanLifecycle {
     private final TomcatContainer container;
