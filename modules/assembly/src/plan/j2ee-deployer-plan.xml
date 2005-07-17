@@ -52,9 +52,6 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-naming-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-builder-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
         <uri>geronimo/jars/geronimo-web-builder-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
@@ -97,9 +94,6 @@ Configuration for the Geronimo deployer
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
@@ -154,30 +148,7 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-servicemix-builder-${geronimo_version}.jar</uri>
     </dependency>
 
-
-    <!--
-   - Uncomment this to deploy webapps to Apache Tomcat
-   -
-    <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-builder-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
-    </dependency>
--->
-
+    ${webdeployer}
 
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders"><name>*</name></reference>
@@ -220,84 +191,6 @@ Configuration for the Geronimo deployer
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
-
-   <!--
-   - Comment this section to deploy webapps to Apache Tomcat
-   -
-   -->
-    <gbean name="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
-        <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
-        <attribute name="jettyContainerObjectName">geronimo.server:name=JettyWebContainer,*</attribute>
-        <attribute name="defaultServlets">geronimo.deployer:j2eeType=DefaultServlet,J2EEModule=org/apache/geronimo/J2EEDeployer,*</attribute>
-        <reference name="WebServiceBuilder"><name>WebServiceBuilder</name></reference>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-    </gbean>
-
-<!--
-   - Uncomment this to deploy webapps to Apache Tomcat
-   -
-    <gbean name="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/Tomcat</attribute>
-        <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
-        <reference name="WebServiceBuilder"><name>WebServiceBuilder</name></reference>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-    </gbean>
-   -->
-
-   <!--
-   - Comment this section to deploy webapps to Apache Tomcat
-   -
-   -->
-    <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
-        <attribute name="servletName">default</attribute>
-        <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
-        <attribute name="loadOnStartup">0</attribute>
-        <attribute name="initParams">
- acceptRanges=true
- dirAllowed=true
- putAllowed=false
- delAllowed=false
- redirectWelcome=false
- minGzipLength=8192</attribute>
-        <attribute name="servletMappings">/</attribute>
-    </gbean>
-
-   <!--
-   - Comment this section to deploy webapps to Apache Tomcat
-   -
-   -->
-    <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
-        <attribute name="servletName">jsp</attribute>
-        <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
-        <attribute name="loadOnStartup">0</attribute>
-        <attribute name="initParams">
- logVerbosityLevel=DEBUG
- fork=false
- xpoweredBy=false</attribute>
-        <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
-    </gbean>
-
-   <!--
-   - Comment this section to deploy webapps to Apache Tomcat
-   -
-   -->
-    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-    </gbean>
-
-<!--
-   - Uncomment this to deploy webapps to Apache Tomcat
-   -
-    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=TomcatWebContainer</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-    </gbean>
-    -->
 
     <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder">
     </gbean>

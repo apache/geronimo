@@ -172,7 +172,13 @@
         <ant:copy todir="${distDir}/var">
             <ant:fileset dir="src/var"/>
         </ant:copy>
-        <ant:copy todir="${distDir}/var/catalina/conf" file="${project.root}/modules/tomcat/src/var/web.xml"/>
+
+        <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">
+            <ant:copy todir="${distDir}/var/catalina/conf" file="${project.root}/modules/tomcat/src/var/web.xml"/>
+            <ant:copy todir="${distDir}/var/catalina/ROOT">
+                <ant:fileset dir="${project.root}/modules/tomcat/src/var/ROOT"/>
+            </ant:copy>
+        </j:if>
 
         <!-- Pre-load the server's repository -->
         <ant:mkdir dir="${distDir}/repository"/>
@@ -267,14 +273,30 @@
         <j:set var="PlanORBPort" value="2001" />
         <j:set var="PlanCOSNamingPort" value="1050" />
         <j:set var="PlanClientAddresses" value="127.0.0.1" />
-        <j:set var="PlanJettyHTTPPort" value="8080" />
-        <j:set var="PlanJettyHTTPSPort" value="8443" />
+        <j:set var="PlanHTTPPort" value="8080" />
+        <j:set var="PlanHTTPSPort" value="8443" />
         <j:set var="PlanOpenEJBPort" value="4201" />
-        <j:set var="PlanTomcatHTTPPort" value="8090" />
-        <j:set var="PlanTomcatHTTPSPort" value="8443" />
-        <j:set var="PlanTomcatAJPPort" value="8009" />
+        <j:set var="PlanAJPPort" value="8009" />
         <j:set var="PlanActiveMQPort" value="61616" />
         <j:set var="PlanDerbyPort" value="1527" />
+
+        <!-- Prepare the web container -->
+        <ant:mkdir dir="${basedir}/target/tmp"/>
+        <velocity:merge
+            basedir="${basedir}/src/plan"
+            template="${geronimo.web.container}-config.xml"
+            name="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>
+        <loadfile property="webcontainer" srcFile="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>
+        <velocity:merge
+            basedir="${basedir}/src/plan"
+            template="${geronimo.web.container}-deployer-config.xml"
+            name="${basedir}/target/tmp/${geronimo.web.container}-deployer-config.xml"/>
+        <loadfile property="webdeployer" srcFile="${basedir}/target/tmp/${geronimo.web.container}-deployer-config.xml"/>
+        <velocity:merge
+            basedir="${basedir}/src/plan"
+            template="${geronimo.web.container}-runtime-deployer-config.xml"
+            name="${basedir}/target/tmp/${geronimo.web.container}-runtime-deployer-config.xml"/>
+        <loadfile property="webruntimedeployer" srcFile="${basedir}/target/tmp/${geronimo.web.container}-runtime-deployer-config.xml"/>
 
         <ant:mkdir dir="${basedir}/target/plan"/>
         <j:forEach var="plan" items="${plans.iterator()}">
@@ -489,18 +511,6 @@
                 <ant:arg value="manager"/>
                 <ant:arg value="distribute"/>
                 <ant:arg value="target/plan/j2ee-client-plan.xml"/>
-            </ant:java>
-
-            <!-- build the J2EEServer with Apache Tomcat (as the web container) configuration -->
-            <ant:echo>Building Apache Tomcat server configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/j2ee-server-tomcat-plan.xml"/>
             </ant:java>
 
             <!-- build the Demo configuration -->

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
 Copyright 2004 The Apache Software Foundation
@@ -24,21 +23,6 @@ Configuration for the main ring of a Geronimo server.
 This configuration should contain those services normally provided
 by the server.
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    configId="org/apache/geronimo/Tomcat"
-    parentId="org/apache/geronimo/Server"
-    >
-
-    <dependency>
-        <uri>geronimo/jars/geronimo-web-builder-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-builder-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-web-builder-${geronimo_version}.jar</uri>
-    </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
@@ -108,17 +92,17 @@ by the server.
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">Geronimo</attribute>
         <reference name="LoginModuleConfiguration">
-            <name>properties-login</name>
+            <name>tomcat-properties</name>
         </reference>
         <reference name="ServerInfo">
             <module>org/apache/geronimo/System</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
-    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+
+    <gbean name="tomcat-properties" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
         <attribute name="controlFlag">REQUIRED</attribute>
         <reference name="LoginModule">
-            <module>org/apache/geronimo/Server</module>
             <name>properties-login</name>
         </reference>
     </gbean>
@@ -141,19 +125,23 @@ by the server.
         <attribute name="name">HTTP</attribute>
         <attribute name="initParams">
             address=0.0.0.0
-            port=${PlanTomcatHTTPPort}
+            port=${PlanHTTPPort}
             maxHttpHeaderSize=8192
             maxThreads=150
             minSpareThreads=25
             maxSpareThreads=75
             enableLookups=false
-            redirectPort=${PlanTomcatHTTPSPort}
+            redirectPort=${PlanHTTPSPort}
             acceptCount=100
             connectionTimeout=20000
             disableUploadTimeout=true
         </attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>
+        </reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
         </reference>
     </gbean>
 
@@ -162,29 +150,27 @@ by the server.
         <attribute name="name">AJP</attribute>
         <attribute name="initParams">
             address=0.0.0.0
-            port=${PlanTomcatAJPPort}
+            port=${PlanAJPPort}
             enableLookups=false
-            redirectPort=${PlanTomcatHTTPSPort}
+            redirectPort=${PlanHTTPSPort}
         </attribute>
         <reference name="TomcatContainer">
             <name>TomcatWebContainer</name>
         </reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
-    <!-- Uncomment for SSL support
-    The following parameters assume your keystore resides in your ~/.keystore file and the keystore password is the default
-    "changeit".  To change these values (and is recommended), add the following parameters to the initParams list below:
-
-    keystoreFile=path_to_your_keystore
-    keystorePass=your_keystore_password
-
-    For more information on the specific parameters, see http://jakarta.apache.org/tomcat/tomcat-5.5-doc/ssl-howto.html
-
+    <!-- SSL support
+    NOTE: If keystoreFile is a relative path, it is relative to GERONIMO_HOME
+    -->
     <gbean name="TomcatWebSSLConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
         <attribute name="name">HTTPS</attribute>
         <attribute name="initParams">
             address=0.0.0.0
-            port=${PlanTomcatHTTPSPort}
+            port=${PlanHTTPSPort}
             maxHttpHeaderSize=8192
             maxThreads=150
             minSpareThreads=25
@@ -196,10 +182,15 @@ by the server.
             secure=true
             clientAuth=false
             sslProtocol=TLS
+            keystoreFile=var/security/keystore
+            keystorePass=secret
         </attribute>
         <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
-    -->
 
     <!-- Engine -->
     <gbean name="TomcatEngine" class="org.apache.geronimo.tomcat.EngineGBean">
@@ -208,32 +199,35 @@ by the server.
             name=Geronimo
             defaultHost=${PlanServerHostname}
         </attribute>
+        <references name="hosts">
+            <pattern><gbean-name>geronimo.server:j2eeType=Host,*</gbean-name></pattern>
+        </references>
         <reference name="realmGBean">
             <name>TomcatJAASRealm</name>
         </reference>
-        <!-- Uncomment this to add the valve chain below to the Engine 
         <reference name="TomcatValveChain">
             <name>FirstValve</name>
         </reference> 
-        -->
     </gbean>
 
     <!-- Valve -->
-    <!-- Uncomment this section to add a valve chain.  This example consists of the Tomcat
-          SingleSignOn and AccessLogValve. Notice the dependency that chains the FirstValve with the
-          SecondValve.  The valves will be added in the order that they are chained.
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
-        <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
-        <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SecondValve</name></reference>
-    </gbean>
-    
-    <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
         <attribute name="initParams">
             prefix=${PlanServerHostname}_access_log.
             suffix=.txt
             pattern=common
         </attribute>
+    <!-- Uncomment this section to add second valve for a chain.  This example consists of the Tomcat
+          AccessLogValve and SingleSignOn. Notice the dependency that chains the FirstValve with the
+          SecondValve.  The valves will be added in the order that they are chained.
+        <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SecondValve</name></reference>
+    -->
+    </gbean>
+    <!-- Uncomment this section to add this valve  to the chain.  This example consists of the Tomcat
+          SingleSignOn. 
+    <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
+        <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
     </gbean>
     -->
 
@@ -255,9 +249,6 @@ by the server.
             appBase=
             workDir=work
         </attribute>
-        <reference name="engineGBean">
-            <name>TomcatEngine</name>
-        </reference>
         <!-- You may attach a Realm to a Host as well.  Only attach to the Engine *or* the Host.
              Attempting to add the same Realm GBeans to the Engine *and* Host at the same time
              will result in an error.
@@ -277,5 +268,3 @@ by the server.
         </reference> 
         -->
     </gbean>
-
-</configuration>
