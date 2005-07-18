@@ -39,7 +39,7 @@ public class MimeMultipart extends Multipart {
     /**
      * Indicates if the data has been parsed.
      */
-    protected boolean parsed;
+    protected boolean parsed = true;
 
     private transient ContentType type;
 
