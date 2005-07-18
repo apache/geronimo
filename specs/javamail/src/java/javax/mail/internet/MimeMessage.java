@@ -23,6 +23,8 @@ import java.io.ObjectStreamException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.ByteArrayInputStream;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -190,8 +192,19 @@ public class MimeMessage extends Message implements MimePart {
      * @throws MessagingException if there was a problem parsing the stream
      */
     protected void parse(InputStream in) throws MessagingException {
-        // TODO Implement method
-        throw new UnsupportedOperationException("Method not yet implemented");
+        in = new BufferedInputStream(in);
+        headers = new InternetHeaders(in);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            byte buffer[] = new byte[1024];
+            int count;
+            while ((count = in.read(buffer, 0, 1024)) != -1) {
+                baos.write(buffer, 0, count);
+            }
+        } catch (Exception e) {
+            throw new MessagingException(e.toString(), e);
+        }
+        content = baos.toByteArray();
     }
 
     public Address[] getFrom() throws MessagingException {
