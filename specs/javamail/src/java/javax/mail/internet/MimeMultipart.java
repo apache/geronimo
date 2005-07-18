@@ -20,6 +20,8 @@ package javax.mail.internet;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.BufferedInputStream;
+import java.io.PushbackInputStream;
 import javax.activation.DataSource;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
@@ -137,7 +139,57 @@ public class MimeMultipart extends Multipart {
         if (parsed) {
             return;
         }
+        try {
+            ContentType cType = new ContentType(contentType);
+            byte[] boundary = ("--" + cType.getParameter("boundary")).getBytes();
+            InputStream is = new BufferedInputStream(ds.getInputStream());
+            PushbackInputStream pushbackInStream = new PushbackInputStream(is,
+                    (boundary.length + 2));
+            readTillFirstBoundary(pushbackInStream, boundary);
+            while (pushbackInStream.available()>0){
+                MimeBodyPartInputStream partStream;
+                partStream = new MimeBodyPartInputStream(pushbackInStream,
+                        boundary);
+                addBodyPart(new MimeBodyPart(partStream));
+            }
+        } catch (Exception e){
+            throw new MessagingException(e.toString(),e);
+        }
         parsed = true;
+    }
+
+    /**
+     * Move the read pointer to the begining of the first part
+     * read till the end of first boundary
+     *
+     * @param pushbackInStream
+     * @param boundary
+     * @throws MessagingException
+     */
+    private boolean readTillFirstBoundary(PushbackInputStream pushbackInStream, byte[] boundary) throws MessagingException {
+        try {
+            while (pushbackInStream.available() > 0) {
+                int value = pushbackInStream.read();
+                if ((byte) value == boundary[0]) {
+                    int boundaryIndex = 0;
+                    while (pushbackInStream.available() > 0 && (boundaryIndex < boundary.length)
+                            && ((byte) value == boundary[boundaryIndex])) {
+                        value = pushbackInStream.read();
+                        if (value == -1)
+                            throw new MessagingException(
+                                    "Unexpected End of Stream while searching for first Mime Boundary");
+                        boundaryIndex++;
+                    }
+                    if (boundaryIndex == boundary.length) { // boundary found
+                        pushbackInStream.read();
+                        return true;
+                    }
+                }
+            }
+        } catch (IOException ioe) {
+            throw new MessagingException(ioe.toString(), ioe);
+        }
+        return false;
     }
 
     protected InternetHeaders createInternetHeaders(InputStream in) throws MessagingException {
@@ -162,5 +214,72 @@ public class MimeMultipart extends Multipart {
         StringBuffer buf = new StringBuffer(64);
         buf.append("----=_Part_").append(i).append('.').append(System.currentTimeMillis());
         return buf.toString();
+    }
+
+    public class MimeBodyPartInputStream extends InputStream {
+        PushbackInputStream inStream;
+        boolean boundaryFound = false;
+        byte[] boundary;
+
+        public MimeBodyPartInputStream(PushbackInputStream inStream,
+                                       byte[] boundary) {
+            super();
+            this.inStream = inStream;
+            this.boundary = boundary;
+        }
+
+        public int read() throws IOException {
+            if (boundaryFound) {
+                return -1;
+            }
+            // read the next value from stream
+            int value = inStream.read();
+            // A problem occured because all the mime parts tends to have a /r/n at the end. Making it hard to transform them to correct DataSources.
+            // This logic introduced to handle it
+            //TODO look more in to this && for a better way to do this
+            if (value == 13) {
+                value = inStream.read();
+                if (value != 10) {
+                    inStream.unread(value);
+                    return 13;
+                } else {
+                    value = inStream.read();
+                    if ((byte) value != boundary[0]) {
+                        inStream.unread(value);
+                        inStream.unread(10);
+                        return 13;
+                    }
+                }
+            } else if ((byte) value != boundary[0]) {
+                return value;
+            }
+            // read value is the first byte of the boundary. Start matching the
+            // next characters to find a boundary
+            int boundaryIndex = 0;
+            while ((boundaryIndex < boundary.length)
+                    && ((byte) value == boundary[boundaryIndex])) {
+                value = inStream.read();
+                boundaryIndex++;
+            }
+            if (boundaryIndex == boundary.length) { // boundary found
+                boundaryFound = true;
+                // read the end of line character
+                if (inStream.read() == 45) {
+                    //check whether end of stream
+                    //Last mime boundary should have a succeeding "--"
+                    if (!((value = inStream.read()) == 45) && value != -1) {
+                        inStream.unread(value);
+                    }
+                }
+                return -1;
+            }
+            // Boundary not found. Restoring bytes skipped.
+            // write first skipped byte, push back the rest
+            if (value != -1) { // Stream might have ended
+                inStream.unread(value);
+            }
+            inStream.unread(boundary, 1, boundaryIndex - 1);
+            return boundary[0];
+        }
     }
 }
