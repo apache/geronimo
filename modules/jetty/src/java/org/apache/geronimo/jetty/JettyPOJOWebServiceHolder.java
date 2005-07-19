@@ -65,6 +65,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
                                      Set servletMappings,
                                      Map webRoleRefPermissions,
                                      StoredObject storedWebServiceContainer,
+                                     ServletHolder previous,    //dependency for startup ordering
                                      JettyServletRegistration context) throws Exception {
         super(context == null ? null : context.getServletHandler(), servletName, POJOWebServiceServlet.class.getName(), null);
         //context will be null only for use as "default servlet info holder" in deployer.
@@ -105,38 +106,6 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
         super.handle(request, response);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyPOJOWebServiceHolder.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
-        //todo replace with interface
-        infoBuilder.addInterface(ServletHolder.class);
-
-        infoBuilder.addAttribute("pojoClassName", String.class, true);
-        infoBuilder.addAttribute("servletName", String.class, true);
-        infoBuilder.addAttribute("initParams", Map.class, true);
-        infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
-        infoBuilder.addAttribute("servletMappings", Set.class, true);
-        infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
-        infoBuilder.addAttribute("webServiceContainer", StoredObject.class, true);
-        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
-
-        infoBuilder.setConstructor(new String[]{"pojoClassName",
-                                                "servletName",
-                                                "initParams",
-                                                "loadOnStartup",
-                                                "servletMappings",
-                                                "webRoleRefPermissions",
-                                                "webServiceContainer",
-                                                "JettyServletRegistration"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
     public void doStart() throws Exception {
         if (context != null) {
             Class pojoClass = context.getWebClassLoader().loadClass(pojoClassName);
@@ -169,6 +138,40 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
     }
 
     public void doFail() {
+    }
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyPOJOWebServiceHolder.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
+        //todo replace with interface
+        infoBuilder.addInterface(ServletHolder.class);
+
+        infoBuilder.addAttribute("pojoClassName", String.class, true);
+        infoBuilder.addAttribute("servletName", String.class, true);
+        infoBuilder.addAttribute("initParams", Map.class, true);
+        infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
+        infoBuilder.addAttribute("servletMappings", Set.class, true);
+        infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
+        infoBuilder.addAttribute("webServiceContainer", StoredObject.class, true);
+        infoBuilder.addReference("Previous", ServletHolder.class, NameFactory.SERVLET);
+        infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class);
+
+        infoBuilder.setConstructor(new String[]{"pojoClassName",
+                                                "servletName",
+                                                "initParams",
+                                                "loadOnStartup",
+                                                "servletMappings",
+                                                "webRoleRefPermissions",
+                                                "webServiceContainer",
+                                                "Previous",
+                                                "JettyServletRegistration"});
+
+        GBEAN_INFO = infoBuilder.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
     }
 
 
