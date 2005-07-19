@@ -129,7 +129,9 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
 
             SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
             if (schemaType == null) {
-                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+//                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+                log.warn("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+                continue;
             }
             mappedTypeQNames.add(key.getqName());
 

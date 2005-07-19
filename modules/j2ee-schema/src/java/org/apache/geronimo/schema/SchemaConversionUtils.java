@@ -90,7 +90,7 @@ public class SchemaConversionUtils {
         return parsed;
     }
 
-    private static XmlOptions createXmlOptions(ArrayList errors) {
+    public static XmlOptions createXmlOptions(ArrayList errors) {
         XmlOptions options = new XmlOptions();
         options.setLoadLineNumbers();
         options.setErrorListener(errors);

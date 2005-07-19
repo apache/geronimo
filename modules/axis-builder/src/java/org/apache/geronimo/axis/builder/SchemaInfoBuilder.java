@@ -89,15 +89,15 @@ public class SchemaInfoBuilder {
         if (is == null) {
             throw new RuntimeException("Could not locate soap encoding schema");
         }
-        Collection errors = new ArrayList();
-        XmlOptions xmlOptions = new XmlOptions();
-        xmlOptions.setErrorListener(errors);
+        ArrayList errors = new ArrayList();
+        XmlOptions xmlOptions = SchemaConversionUtils.createXmlOptions(errors);
         try {
-            XmlObject xmlObject = SchemaConversionUtils.parse(is);
-            if (!(xmlObject instanceof SchemaDocument)) {
-                xmlObject = xmlObject.changeType(SchemaDocument.type);
+            SchemaDocument parsed = SchemaDocument.Factory.parse(is, xmlOptions);
+            if (errors.size() != 0) {
+                throw new XmlException(errors.toArray().toString());
             }
-            basicTypeSystem = XmlBeans.compileXsd(new XmlObject[]{xmlObject}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+
+            basicTypeSystem = XmlBeans.compileXsd(new XmlObject[]{parsed}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
             if (errors.size() > 0) {
                 throw new RuntimeException("Could not compile schema type system: errors: " + errors);
             }
@@ -282,7 +282,7 @@ public class SchemaInfoBuilder {
             }
             return schemaTypeSystem;
         } catch (XmlException e) {
-            throw new DeploymentException("Could not compile schema type system", e);
+            throw new DeploymentException("Could not compile schema type system: " + schemaList, e);
         }
     }
 
@@ -354,8 +354,13 @@ public class SchemaInfoBuilder {
     }
 
     static XmlObject parseWithNamespaces(Element element, Map namespaceMap) throws XmlException {
-        XmlObject xmlObject = SchemaConversionUtils.parse(element);
-        XmlCursor cursor = xmlObject.newCursor();
+        ArrayList errors = new ArrayList();
+        XmlOptions xmlOptions = SchemaConversionUtils.createXmlOptions(errors);
+        SchemaDocument parsed = SchemaDocument.Factory.parse(element, xmlOptions);
+        if (errors.size() != 0) {
+            throw new XmlException(errors.toArray().toString());
+        }
+        XmlCursor cursor = parsed.newCursor();
         try {
             cursor.toFirstContentToken();
             for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
@@ -365,7 +370,7 @@ public class SchemaInfoBuilder {
         } finally {
             cursor.dispose();
         }
-        return xmlObject;
+        return parsed;
     }
 
     /**
@@ -532,13 +537,23 @@ public class SchemaInfoBuilder {
         extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
                 extensionRegistry.getDefaultSerializer());
         wsdlReaderNoImport.setExtensionRegistry(extensionRegistry);
-        JarWSDLLocator wsdlLocator = new JarWSDLLocator(wsdlURI, wsdlReaderNoImport);
+
+        JarWSDLLocator wsdlLocator = new JarWSDLLocator(wsdlURI);
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+
+        Thread thread = Thread.currentThread();
+        ClassLoader oldCl = thread.getContextClassLoader();
+        thread.setContextClassLoader(this.getClass().getClassLoader());
         try {
-            definition = wsdlReader.readWSDL(wsdlLocator);
-        } catch (WSDLException e) {
-            throw new DeploymentException("Failed to read wsdl document", e);
+            try {
+                definition = wsdlReader.readWSDL(wsdlLocator);
+            } catch (WSDLException e) {
+                throw new DeploymentException("Failed to read wsdl document", e);
+            }
+        } finally {
+            thread.setContextClassLoader(oldCl);
         }
+
         return definition;
     }
 
@@ -626,12 +641,10 @@ public class SchemaInfoBuilder {
     class JarWSDLLocator implements WSDLLocator {
 
         private final URI wsdlURI;
-//        private final WSDLReader wsdlReader;
         private URI latestImportURI;
 
-        public JarWSDLLocator(URI wsdlURI, WSDLReader wsdlReader) {
+        public JarWSDLLocator(URI wsdlURI) {
             this.wsdlURI = wsdlURI;
-//            this.wsdlReader = wsdlReader;
         }
 
         public InputSource getBaseInputSource() {
@@ -639,7 +652,6 @@ public class SchemaInfoBuilder {
             try {
                 ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
                 wsdlInputStream = moduleFile.getInputStream(entry);
-//                Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(wsdlInputStream));
                 DefinitionsDocument definition = DefinitionsDocument.Factory.parse(wsdlInputStream);
                 wsdlMap.put(wsdlURI, definition);
                 wsdlInputStream.close();
