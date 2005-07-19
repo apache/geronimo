@@ -136,10 +136,20 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
         embedded.setUseNaming(false);
 
         //Add default contexts
-        TomcatClassLoader tcl = createRootClassLoader(new File(System.getProperty("catalina.home") + "/ROOT"), classLoader);
+        File rootContext = new File(System.getProperty("catalina.home") + "/ROOT");
+
+        TomcatClassLoader tcl = null;
+        if (rootContext.exists())
+            tcl = createRootClassLoader(rootContext, classLoader);
+
         Container[] hosts = engine.findChildren();
+        Context defaultContext = null;
         for(int i = 0; i < hosts.length; i++){
-            Context defaultContext = embedded.createContext("","ROOT", tcl);
+            if (rootContext.exists()){
+                defaultContext = embedded.createContext("","ROOT", tcl);
+            } else {
+                defaultContext = embedded.createContext("","", classLoader);
+            }
             hosts[i].addChild(defaultContext);
         }
         
