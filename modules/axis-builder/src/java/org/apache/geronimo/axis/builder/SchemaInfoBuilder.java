@@ -86,16 +86,19 @@ public class SchemaInfoBuilder {
     private static final QName LOCATION_QNAME = new QName("", "location");
 
     static {
-        URL url = WSDescriptorParser.class.getClassLoader().getResource("soap_encoding_1_1.xsd");
-        if (url == null) {
+        InputStream is = WSDescriptorParser.class.getClassLoader().getResourceAsStream("soap_encoding_1_1.xsd");
+        if (is == null) {
             throw new RuntimeException("Could not locate soap encoding schema");
         }
-        Collection errors = new ArrayList();
-        XmlOptions xmlOptions = new XmlOptions();
-        xmlOptions.setErrorListener(errors);
+        ArrayList errors = new ArrayList();
+        XmlOptions xmlOptions = SchemaConversionUtils.createXmlOptions(errors);
         try {
-            XmlObject xmlObject = SchemaConversionUtils.parse(url);
-            basicTypeSystem = XmlBeans.compileXsd(new XmlObject[]{xmlObject}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
+            SchemaDocument parsed = SchemaDocument.Factory.parse(is, xmlOptions);
+            if (errors.size() != 0) {
+                throw new XmlException(errors.toArray().toString());
+            }
+
+            basicTypeSystem = XmlBeans.compileXsd(new XmlObject[]{parsed}, XmlBeans.getBuiltinTypeSystem(), xmlOptions);
             if (errors.size() > 0) {
                 throw new RuntimeException("Could not compile schema type system: errors: " + errors);
             }
