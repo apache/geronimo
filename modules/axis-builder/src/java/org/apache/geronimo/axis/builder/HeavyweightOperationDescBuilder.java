@@ -229,12 +229,21 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
             // schemaType should be complex using xsd:sequence compositor
             SchemaParticle parametersType = operationType.getContentModel();
-            if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
-                expectedInParams.add(parametersType.getName().getLocalPart());
-            } else if (SchemaParticle.SEQUENCE == parametersType.getParticleType()) {
-                SchemaParticle[] parameters = parametersType.getParticleChildren();
-                for (int i = 0; i < parameters.length; i++) {
-                    expectedInParams.add(parameters[i].getName().getLocalPart());
+            //parametersType can be null if the element has empty content such as
+//            <element name="getMarketSummary">
+//             <complexType>
+//              <sequence/>
+//             </complexType>
+//            </element>
+
+            if (parametersType != null) {
+                if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
+                    expectedInParams.add(parametersType.getName().getLocalPart());
+                } else if (SchemaParticle.SEQUENCE == parametersType.getParticleType()) {
+                    SchemaParticle[] parameters = parametersType.getParticleChildren();
+                    for (int i = 0; i < parameters.length; i++) {
+                        expectedInParams.add(parameters[i].getName().getLocalPart());
+                    }
                 }
             }
             if (!inParamNames.equals(expectedInParams)) {
@@ -297,12 +306,15 @@ public class HeavyweightOperationDescBuilder extends OperationDescBuilder {
 
             // schemaType should be complex using xsd:sequence compositor
             SchemaParticle parametersType = operationType.getContentModel();
-            if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
-                expectedOutParams.add(parametersType.getName().getLocalPart());
-            } else if (SchemaParticle.SEQUENCE == parametersType.getParticleType()) {
-                SchemaParticle[] parameters = parametersType.getParticleChildren();
-                for (int i = 0; i < parameters.length; i++) {
-                    expectedOutParams.add(parameters[i].getName().getLocalPart());
+            //again, no output can give null parametersType
+            if (parametersType != null) {
+                if (SchemaParticle.ELEMENT == parametersType.getParticleType()) {
+                    expectedOutParams.add(parametersType.getName().getLocalPart());
+                } else if (SchemaParticle.SEQUENCE == parametersType.getParticleType()) {
+                    SchemaParticle[] parameters = parametersType.getParticleChildren();
+                    for (int i = 0; i < parameters.length; i++) {
+                        expectedOutParams.add(parameters[i].getName().getLocalPart());
+                    }
                 }
             }
             if (!outParamNames.equals(expectedOutParams)) {
