@@ -160,7 +160,6 @@ public class ENCConfigBuilder {
             refMap = Collections.EMPTY_MAP;
         }
         RefContext refContext = earContext.getRefContext();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
 
         for (int i = 0; i < resourceRefs.length; i++) {
             ResourceRefType resourceRef = resourceRefs[i];
@@ -196,7 +195,7 @@ public class ENCConfigBuilder {
                 } else {
                     j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
                 }
-                String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, refContext, j2eeContext, earContext);
+                String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, earContext);
 
                 ref = refContext.getConnectionFactoryRef(containerId, iface);
                 builder.bind(name, ref);
@@ -205,14 +204,15 @@ public class ENCConfigBuilder {
 
     }
 
-    private static String getResourceContainerId(String name, String type, URI uri, GerResourceRefType gerResourceRef, RefContext refContext, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException {
+    private static String getResourceContainerId(String name, String type, URI uri, GerResourceRefType gerResourceRef, EARContext context) throws DeploymentException {
         String containerId = null;
+        RefContext refContext = context.getRefContext();
         if (gerResourceRef == null) {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            containerId = refContext.getConnectionFactoryContainerId(uri, name, type, j2eeContext, context);
+            containerId = refContext.getConnectionFactoryContainerId(uri, name, type, context);
         } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = refContext.getConnectionFactoryContainerId(uri, gerResourceRef.getResourceLink().trim(), type, j2eeContext, context);
+            containerId = refContext.getConnectionFactoryContainerId(uri, gerResourceRef.getResourceLink().trim(), type, context);
         } else if (gerResourceRef.isSetTargetName()) {
             containerId = gerResourceRef.getTargetName().trim();
         } else {
@@ -225,7 +225,7 @@ public class ENCConfigBuilder {
                         getStringValue(gerResourceRef.getModule()),
                         getStringValue(gerResourceRef.getName()),
                         gerResourceRef.getType() == null ? type : gerResourceRef.getType().trim(),
-                        j2eeContext).getCanonicalName();
+                        context.getJ2eeContext()).getCanonicalName();
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for resource", e);
             }
@@ -237,8 +237,6 @@ public class ENCConfigBuilder {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
-        RefContext refContext = earContext.getRefContext();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
 
         for (int i = 0; i < resourceEnvRefArray.length; i++) {
             ResourceEnvRefType resourceEnvRef = resourceEnvRefArray[i];
@@ -251,21 +249,22 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("could not load class " + type, e);
             }
             GerResourceEnvRefType gerResourceEnvRef = (GerResourceEnvRefType) refMap.get(name);
-            String containerId = getAdminObjectContainerId(name, uri, gerResourceEnvRef, refContext, j2eeContext);
-            Reference ref = refContext.getAdminObjectRef(containerId, iface);
+            String containerId = getAdminObjectContainerId(name, uri, gerResourceEnvRef, earContext);
+            Reference ref = earContext.getRefContext().getAdminObjectRef(containerId, iface);
 
             builder.bind(name, ref);
         }
     }
 
-    private static String getAdminObjectContainerId(String name, URI uri, GerResourceEnvRefType gerResourceEnvRef, RefContext refContext, J2eeContext j2eeContext) throws DeploymentException {
+    private static String getAdminObjectContainerId(String name, URI uri, GerResourceEnvRefType gerResourceEnvRef, EARContext context) throws DeploymentException {
         String containerId = null;
+        RefContext refContext = context.getRefContext();
         if (gerResourceEnvRef == null) {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            containerId = refContext.getAdminObjectContainerId(uri, name, j2eeContext);
+            containerId = refContext.getAdminObjectContainerId(uri, name, context);
         } else if (gerResourceEnvRef.isSetMessageDestinationLink()) {
-            containerId = refContext.getAdminObjectContainerId(uri, getStringValue(gerResourceEnvRef.getMessageDestinationLink()), j2eeContext);
+            containerId = refContext.getAdminObjectContainerId(uri, getStringValue(gerResourceEnvRef.getMessageDestinationLink()), context);
         } else if (gerResourceEnvRef.isSetTargetName()) {
             containerId = getStringValue(gerResourceEnvRef.getTargetName());
         } else {
@@ -279,7 +278,7 @@ public class ENCConfigBuilder {
                         getStringValue(gerResourceEnvRef.getName()),
                         NameFactory.JMS_RESOURCE,
                         //gerResourceEnvRef.getType(),
-                        j2eeContext).getCanonicalName();
+                        context.getJ2eeContext()).getCanonicalName();
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for jms resource", e);
             }
@@ -302,7 +301,7 @@ public class ENCConfigBuilder {
             }
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            String containerId = refContext.getAdminObjectContainerId(uri, linkName, earContext.getJ2eeContext());
+            String containerId = refContext.getAdminObjectContainerId(uri, linkName, earContext);
             Reference ref = refContext.getAdminObjectRef(containerId, iface);
             builder.bind(name, ref);
 
@@ -616,8 +615,6 @@ public class ENCConfigBuilder {
 
 
     public static void setResourceEnvironment(EARContext earContext, URI uri, ResourceEnvironmentBuilder builder, ResourceRefType[] resourceRefs, GerResourceRefType[] gerResourceRefs) throws DeploymentException {
-        RefContext refContext = earContext.getRefContext();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
         Map refMap = mapResourceRefs(gerResourceRefs);
         Set unshareableResources = new HashSet();
         Set applicationManagedSecurityResources = new HashSet();
@@ -631,7 +628,7 @@ public class ENCConfigBuilder {
                     && !JAXR_CONNECTION_FACTORY_CLASS.equals(type)) {
 
                 GerResourceRefType gerResourceRef = (GerResourceRefType) refMap.get(resourceRefType.getResRefName().getStringValue());
-                String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef, refContext, j2eeContext, earContext);
+                String containerId = getResourceContainerId(getStringValue(resourceRefType.getResRefName()), NameFactory.JCA_MANAGED_CONNECTION_FACTORY, uri, gerResourceRef, earContext);
 
                 if ("Unshareable".equals(getStringValue(resourceRefType.getResSharingScope()))) {
                     unshareableResources.add(containerId);

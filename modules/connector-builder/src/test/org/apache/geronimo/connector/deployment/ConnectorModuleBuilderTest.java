@@ -131,19 +131,19 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public GBeanData locateActivationSpecInfo(ObjectName resourceAdapterName, String messageListenerInterface)  {
+        public GBeanData locateActivationSpecInfo(GBeanData resourceAdapterModuleData, String messageListenerInterface)  {
             return null;
         }
 
-        public GBeanData locateResourceAdapterGBeanData(ObjectName resourceAdapterModuleName)  {
+        public GBeanData locateResourceAdapterGBeanData(GBeanData resourceAdapterModuleData)  {
             return null;
         }
 
-        public GBeanData locateAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName)  {
+        public GBeanData locateAdminObjectInfo(GBeanData resourceAdapterModuleData, String adminObjectInterfaceName)  {
             return null;
         }
 
-        public GBeanData locateConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) {
+        public GBeanData locateConnectionFactoryInfo(GBeanData resourceAdapterModuleData, String connectionFactoryInterfaceName) {
             return null;
         }
     };

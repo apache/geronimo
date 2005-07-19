@@ -199,6 +199,10 @@ public class DeploymentContext {
         return gbeans.listGBeans(pattern);
     }
 
+    public GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
+        return gbeans.getGBeanInstance(name);
+    }
+
     public void addDependency(URI uri) {
         configurationData.addDependency(uri);
     }

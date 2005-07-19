@@ -145,13 +145,13 @@ public class TomcatModuleBuilderTest extends TestCase {
     public void testDeployWar4() throws Exception {
         deployWar("war4", "org/apache/geronimo/test");
     }
-    
+
     public void testDeployWar5() throws Exception {
         deployWar("war5", "hello");
     }
 
     public void deployWar(String warName, String name) throws Exception {
-        
+
         File outputPath = new File(basedir,
                 "target/test-resources/deployables/" + warName);
         recursiveDelete(outputPath);
@@ -162,7 +162,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
         URI id = new URI(warName);
-        
+
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         PermissionCollection excludedPermissions= new Permissions();
@@ -173,8 +173,8 @@ public class TomcatModuleBuilderTest extends TestCase {
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         jaccBeanData.setAttribute("principalRoleMap", new HashMap());
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
-        start(jaccBeanData);        
-        
+        start(jaccBeanData);
+
         EARContext earContext = createEARContext(outputPath, id);
         earContext.setJaccManagerName(jaccBeanName);
         ObjectName serverName = earContext.getServerObjectName();
@@ -204,7 +204,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         }
 
         //If we got here with no errors, then Tomcat deployed the war and loaded the classes
-        
+
         kernel.stopGBean(configData.getName());
         kernel.unloadGBean(configData.getName());
 
@@ -260,27 +260,27 @@ public class TomcatModuleBuilderTest extends TestCase {
                     }
 
                     public GBeanData locateActivationSpecInfo(
-                            ObjectName resourceAdapterName,
+                            GBeanData resourceAdapterModuleData,
                             String messageListenerInterface)
                             throws DeploymentException {
                         return null;
                     }
 
                     public GBeanData locateResourceAdapterGBeanData(
-                            ObjectName resourceAdapterModuleName)
+                            GBeanData resourceAdapterModuleData)
                             throws DeploymentException {
                         return null;
                     }
 
                     public GBeanData locateAdminObjectInfo(
-                            ObjectName resourceAdapterModuleName,
+                            GBeanData resourceAdapterModuleData,
                             String adminObjectInterfaceName)
                             throws DeploymentException {
                         return null;
                     }
 
                     public GBeanData locateConnectionFactoryInfo(
-                            ObjectName resourceAdapterModuleName,
+                            GBeanData resourceAdapterModuleData,
                             String connectionFactoryInterfaceName)
                             throws DeploymentException {
                         return null;
@@ -306,11 +306,11 @@ public class TomcatModuleBuilderTest extends TestCase {
         }
     }
 
-    public void recursiveCopy(File src, File dest) throws IOException {       
+    public void recursiveCopy(File src, File dest) throws IOException {
         Collection files = FileUtils.listFiles(src,null,true);
         Iterator iterator = files.iterator();
         while(iterator.hasNext()){
-            File file = (File) iterator.next(); 
+            File file = (File) iterator.next();
             if (file.getAbsolutePath().indexOf(".svn") < 0){
                 String pathToFile = file.getPath();
                 String relativePath = pathToFile.substring(src.getPath().length(), pathToFile.length() - (file.getName().length()));
@@ -377,7 +377,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         start(securityServiceGBean);
 
         WebServiceBuilder webServiceBuilder = new AxisBuilder();
-        
+
         builder = new TomcatModuleBuilder(new URI("null"), containerName, webServiceBuilder, null, kernel);
 
         // Default Realm

@@ -36,6 +36,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 
 /**
@@ -52,12 +53,6 @@ public class RefContext {
     private final Map ejbLocalIndex;
     private final Map ejbInterfaceIndex;
 
-    private final Map resourceAdapterIndex;
-    private final Map connectionFactoryIndex;
-    private final Map adminObjectIndex;
-
-    private final Map resourceModuleDataMap;
-
 
     public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
@@ -67,10 +62,6 @@ public class RefContext {
         ejbRemoteIndex = new HashMap();
         ejbLocalIndex = new HashMap();
         ejbInterfaceIndex = new HashMap();
-        resourceAdapterIndex = new HashMap();
-        connectionFactoryIndex = new HashMap();
-        adminObjectIndex = new HashMap();
-        resourceModuleDataMap = new HashMap();
         this.ejbReferenceBuilder = ejbReferenceBuilder;
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
@@ -93,30 +84,6 @@ public class RefContext {
         this.ejbRemoteIndex = refContext.ejbRemoteIndex;
         this.ejbLocalIndex = new HashMap();//no local ejb refs
         this.ejbInterfaceIndex = refContext.ejbInterfaceIndex;
-        resourceAdapterIndex = new HashMap();
-        this.connectionFactoryIndex = new HashMap();
-        this.adminObjectIndex = new HashMap();
-        this.resourceModuleDataMap = new HashMap();
-    }
-
-    public EJBReferenceBuilder getEjbReferenceBuilder() {
-        return ejbReferenceBuilder;
-    }
-
-    public Map getEJBRemoteIndex() {
-        return ejbRemoteIndex;
-    }
-
-    public Map getEJBLocalIndex() {
-        return ejbLocalIndex;
-    }
-
-    public Map getConnectionFactoryIndex() {
-        return connectionFactoryIndex;
-    }
-
-    public Map getAdminObjectIndex() {
-        return adminObjectIndex;
     }
 
     public void addEJBRemoteId(URI modulePath, String name, String containerId, boolean isSession, String home, String remote) throws DeploymentException {
@@ -164,54 +131,6 @@ public class RefContext {
         }
     }
 
-    public void addResourceAdapterId(URI modulePath, String name, String containerId) throws DeploymentException {
-        Map references = (Map) resourceAdapterIndex.get(name);
-        if (references == null || references.isEmpty()) {
-            references = new HashMap();
-            resourceAdapterIndex.put(name, references);
-        }
-
-        try {
-            URI cfURI = new URI(null, null, modulePath.getPath(), name);
-            references.put(cfURI, containerId);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
-        }
-    }
-
-    public void addConnectionFactoryId(URI modulePath, String name, String containerId) throws DeploymentException {
-        Map references = (Map) connectionFactoryIndex.get(name);
-        if (references == null || references.isEmpty()) {
-            references = new HashMap();
-            connectionFactoryIndex.put(name, references);
-        }
-
-        try {
-            URI cfURI = new URI(null, null, modulePath.getPath(), name);
-            references.put(cfURI, containerId);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
-        }
-    }
-
-
-    public void addAdminObjectId(URI modulePath, String name, String containerId) throws DeploymentException {
-        Map references = (Map) adminObjectIndex.get(name);
-        if (references == null || references.isEmpty()) {
-            references = new HashMap();
-            adminObjectIndex.put(name, references);
-        }
-
-        try {
-            URI cfURI = new URI(null, null, modulePath.getPath(), name);
-            references.put(cfURI, containerId);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
-        }
-    }
-
-
-
     //lookup methods
 
     public Reference getEJBRemoteRef(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
@@ -246,33 +165,59 @@ public class RefContext {
         return resourceReferenceBuilder.createResourceRef(containerId, iface);
     }
 
-    public String getResourceAdapterContainerId(URI module, String resourceLink, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
-        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
-        try {
-            return getContainerId(module, resourceLink, (Map) resourceAdapterIndex.get(name));
-        } catch (UnknownEJBRefException e) {
-            ObjectName query = null;
-            try {
-                query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext);
-            } catch (MalformedObjectNameException e1) {
-                throw new DeploymentException("Could not construct resource adapter object name query", e);
-            }
-            ObjectName containerName = locateUniqueName(query, "resource");
-            return containerName.getCanonicalName();
-        }
+    public Reference getAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+        return resourceReferenceBuilder.createAdminObjectRef(containerId, iface);
     }
 
-    public String getConnectionFactoryContainerId(URI module, String resourceLink, String type, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException, UnknownEJBRefException {
+    public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
+        return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, deploymentContext, module, classLoader);
+    }
+
+    public String getResourceAdapterContainerId(URI module, String resourceLink, EARContext context) throws DeploymentException, UnknownEJBRefException {
         String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
-        try {
-            return getContainerId(module, resourceLink, (Map) connectionFactoryIndex.get(name));
-        } catch (UnknownEJBRefException e) {
-            ObjectName containerName = locateComponent(name, type, j2eeContext, context, "connection factory");
-            return containerName.getCanonicalName();
-        }
+        J2eeContext j2eeContext = context.getJ2eeContext();
+        ObjectName containerName = locateComponent(name, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext, context, "resource adapter");
+        return containerName.getCanonicalName();
+    }
+
+    public String getConnectionFactoryContainerId(URI module, String resourceLink, String type, EARContext context) throws DeploymentException, UnknownEJBRefException {
+        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
+        ObjectName containerName = locateComponent(name, type, context.getJ2eeContext(), context, "connection factory");
+        return containerName.getCanonicalName();
+    }
+
+
+    public String getAdminObjectContainerId(URI module, String resourceLink, EARContext context) throws DeploymentException, UnknownEJBRefException {
+        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
+
+        J2eeContext j2eeContext = context.getJ2eeContext();
+        ObjectName containerName = locateComponent(name, NameFactory.JCA_ADMIN_OBJECT, j2eeContext, context, "admin object");
+        return containerName.getCanonicalName();
     }
 
     public ObjectName locateComponent(String name, String type, J2eeContext j2eeContext, DeploymentContext context, String queryType) throws DeploymentException {
+        ObjectName match = locateNameInContext(name, type, j2eeContext, queryType, context);
+        if (match == null) {
+            //no matches in current context, look in other modules with J2EEApplication=null
+            return locateNameInKernel(name, type, j2eeContext, queryType);
+        }
+        return match;
+    }
+
+    public GBeanData locateComponentData(ObjectName name, DeploymentContext context) throws DeploymentException {
+        try {
+            return context.getGBeanInstance(name);
+        } catch (GBeanNotFoundException e) {
+        }
+        try {
+            return kernel.getGBeanData(name);
+        } catch (GBeanNotFoundException e) {
+            throw new DeploymentException("GBean name: " + name + " not found in DeploymentContext: " + context.getConfigID() + " or in kernel");
+        }
+    }
+
+    private ObjectName locateNameInContext(String name, String type, J2eeContext j2eeContext, String queryType, DeploymentContext context) throws DeploymentException {
+        ObjectName match = null;
         ObjectName query = null;
         try {
             query = NameFactory.getComponentNameQuery(null, null, null, name, type, j2eeContext);
@@ -284,39 +229,19 @@ public class RefContext {
             throw new DeploymentException("More than one match for query " + matches);
         }
         if (matches.size() == 1) {
-            return (ObjectName) matches.iterator().next();
+            match = (ObjectName) matches.iterator().next();
         }
-        //no matches in current context, look in other modules with J2EEApplication=null
+        return match;
+    }
+
+    private ObjectName locateNameInKernel(String name, String type, J2eeContext j2eeContext, String queryType) throws DeploymentException {
+        ObjectName query;
         try {
             query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
         } catch (MalformedObjectNameException e1) {
             throw new DeploymentException("Could not construct " + queryType + " object name query", e1);
         }
         return locateUniqueName(query, queryType);
-    }
-
-    public Reference getAdminObjectRef(String containerId, Class iface) throws DeploymentException {
-        return resourceReferenceBuilder.createAdminObjectRef(containerId, iface);
-    }
-
-    public String getAdminObjectContainerId(URI module, String resourceLink, J2eeContext j2eeContext) throws DeploymentException, UnknownEJBRefException {
-        String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
-        try {
-            return getContainerId(module, resourceLink, (Map) adminObjectIndex.get(name));
-        } catch (UnknownEJBRefException e) {
-            ObjectName query = null;
-            try {
-                query = NameFactory.getComponentRestrictedQueryName(null, null, name, NameFactory.JCA_ADMIN_OBJECT, j2eeContext);
-            } catch (MalformedObjectNameException e1) {
-                throw new DeploymentException("Could not construct admin object object name query", e);
-            }
-            ObjectName containerName = locateUniqueName(query, "resource");
-            return containerName.getCanonicalName();
-        }
-    }
-
-    public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {
-        return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, deploymentContext, module, classLoader);
     }
 
     private String getContainerId(URI module, String ejbLink, Map references) throws AmbiguousEJBRefException, UnknownEJBRefException {
@@ -394,50 +319,25 @@ public class RefContext {
 
     //Resource adapter/activationspec support
 
-    public void addResourceAdapterModuleInfo(ObjectName resourceModuleName, GBeanData resourceModuleData) throws DeploymentException {
-        Object old = resourceModuleDataMap.put(resourceModuleName, resourceModuleData);
-        if (old != null) {
-            throw new DeploymentException("Duplicate resource adapter module name: " + resourceModuleName);
-        }
+    public GBeanData getResourceAdapterGBeanData(ObjectName resourceAdapterModuleName, DeploymentContext context) throws DeploymentException {
+        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
+        return resourceReferenceBuilder.locateResourceAdapterGBeanData(resourceModuleData);
     }
 
-    public GBeanData getResourceAdapterGBeanData(ObjectName resourceAdapterModuleName) throws DeploymentException {
-        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
-        if (resourceModuleData != null) {
-            return (GBeanData) resourceModuleData.getAttribute("resourceAdapterGBeanData");
-        }
-        return resourceReferenceBuilder.locateResourceAdapterGBeanData(resourceAdapterModuleName);
+    public GBeanData getActivationSpecInfo(ObjectName resourceAdapterModuleName, String messageListenerInterfaceName, DeploymentContext context) throws DeploymentException {
+        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
+        return resourceReferenceBuilder.locateActivationSpecInfo(resourceModuleData, messageListenerInterfaceName);
     }
 
-    public GBeanData getActivationSpecInfo(ObjectName resourceAdapterModuleName, String messageListenerInterfaceName) throws DeploymentException {
-        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
-        if (resourceModuleData != null) {
-            Map activationSpecInfoMap = (Map) resourceModuleData.getAttribute("activationSpecInfoMap");
-            return (GBeanData) activationSpecInfoMap.get(messageListenerInterfaceName);
-        }
-        return resourceReferenceBuilder.locateActivationSpecInfo(resourceAdapterModuleName, messageListenerInterfaceName);
+    //this relies on finding the resource adapter, not the admin object.
+    public GBeanData getAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName, DeploymentContext context) throws DeploymentException {
+        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
+        return resourceReferenceBuilder.locateAdminObjectInfo(resourceModuleData, adminObjectInterfaceName);
     }
 
-    public GBeanData getAdminObjectInfo(ObjectName resourceAdapterModuleName, String adminObjectInterfaceName) throws DeploymentException {
-        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
-        if (resourceModuleData != null) {
-            Map adminObjectInfoMap = (Map) resourceModuleData.getAttribute("adminObjectInfoMap");
-            return (GBeanData) adminObjectInfoMap.get(adminObjectInterfaceName);
-        }
-        return resourceReferenceBuilder.locateAdminObjectInfo(resourceAdapterModuleName, adminObjectInterfaceName);
-    }
-
-    public GBeanData getConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName) throws DeploymentException {
-        GBeanData resourceModuleData = (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
-        if (resourceModuleData != null) {
-            Map managedConnectionFactoryInfoMap = (Map) resourceModuleData.getAttribute("managedConnectionFactoryInfoMap");
-            return (GBeanData) managedConnectionFactoryInfoMap.get(connectionFactoryInterfaceName);
-        }
-        return resourceReferenceBuilder.locateConnectionFactoryInfo(resourceAdapterModuleName, connectionFactoryInterfaceName);
-    }
-
-    public GBeanData getResourceAdapterModuleData(ObjectName resourceAdapterModuleName) {
-        return (GBeanData) resourceModuleDataMap.get(resourceAdapterModuleName);
+    public GBeanData getConnectionFactoryInfo(ObjectName resourceAdapterModuleName, String connectionFactoryInterfaceName, DeploymentContext context) throws DeploymentException {
+        GBeanData resourceModuleData = locateComponentData(resourceAdapterModuleName, context);
+        return resourceReferenceBuilder.locateConnectionFactoryInfo(resourceModuleData, connectionFactoryInterfaceName);
     }
 
     public String getMEJBName() throws DeploymentException {
