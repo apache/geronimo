@@ -274,6 +274,14 @@ Configuration for the Geronimo deployer
         <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
     </gbean>
 
+    <!--
+    - Comment this section to deploy webapps to Apache Tomcat
+    -
+    -->
+    <gbean name="POJOTemplate" class="org.apache.geronimo.jetty.JettyPOJOWebServiceHolder">
+        <attribute name="servletName">dummy</attribute>
+    </gbean>
+
    <!--
    - Comment this section to deploy webapps to Apache Tomcat
    -
