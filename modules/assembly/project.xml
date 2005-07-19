@@ -508,15 +508,6 @@
             </properties>
         </dependency>
 
-        <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>${ant_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
         <!-- jdbc timer WorkerPersistence -->
         <dependency>
             <groupId>xstream</groupId>

@@ -60,13 +60,13 @@
             <artifactId>stax</artifactId>
             <version>${stax_version}</version>
         </dependency>
-    
+
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
         </dependency>
-    
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -267,12 +267,6 @@
             <artifactId>commons-el</artifactId>
             <version>${commons_el_version}</version>
             <url>http://jakarta.apache.org/commons/el/</url>
-        </dependency>
-
-        <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>${ant_version}</version>
         </dependency>
 
         <dependency>
