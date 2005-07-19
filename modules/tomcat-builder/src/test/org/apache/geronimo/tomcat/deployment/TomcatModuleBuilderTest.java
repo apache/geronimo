@@ -88,8 +88,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * @version $Rev: 159325 $ $Date: 2005-03-28 15:53:03 -0700 (Mon, 28 Mar 2005) $
  */
 public class TomcatModuleBuilderTest extends TestCase {
-    public void testRemoveMeWhenTestsBelowAreFixed() {}
-/*
+
     protected Kernel kernel;
 
     private GBeanData container;
@@ -394,16 +393,6 @@ public class TomcatModuleBuilderTest extends TestCase {
         realm.setAttribute("initParams", initParams);
         start(realm);
 
-        // Default Engine
-        initParams.clear();
-        initParams.put("name", "Geronimo");
-        initParams.put("defaultHost", "localhost");
-        engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
-        engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
-        engine.setAttribute("initParams", initParams);
-        engine.setReferencePattern("realmGBean", realmName);
-        start(engine);
-
         // Default Host
         initParams.clear();
         initParams.put("workDir", "work");
@@ -412,8 +401,18 @@ public class TomcatModuleBuilderTest extends TestCase {
         host = new GBeanData(hostName, HostGBean.GBEAN_INFO);
         host.setAttribute("className", "org.apache.catalina.core.StandardHost");
         host.setAttribute("initParams", initParams);
-        host.setReferencePattern("engineGBean", engineName);
         start(host);
+
+        // Default Engine
+        initParams.clear();
+        initParams.put("name", "Geronimo");
+        initParams.put("defaultHost", "localhost");
+        engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
+        engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
+        engine.setAttribute("initParams", initParams);
+        engine.setReferencePattern("realmGBean", realmName);
+        engine.setReferencePattern("hosts", hostName);
+        start(engine);
 
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("classLoader", cl);
@@ -426,6 +425,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
         connector.setAttribute("initParams", initParams);
         connector.setReferencePattern("TomcatContainer", containerName);
+        connector.setReferencePattern("ServerInfo", serverInfoName);
 
         start(container);
         start(connector);
@@ -546,5 +546,5 @@ public class TomcatModuleBuilderTest extends TestCase {
                 throw new RuntimeException(e);
             }
         }
-    }*/
+    }
 }
