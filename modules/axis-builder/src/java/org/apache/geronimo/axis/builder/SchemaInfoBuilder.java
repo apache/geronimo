@@ -538,13 +538,23 @@ public class SchemaInfoBuilder {
         extensionRegistry.registerSerializer(Types.class, SchemaConstants.Q_ELEM_XSD_2001,
                 extensionRegistry.getDefaultSerializer());
         wsdlReaderNoImport.setExtensionRegistry(extensionRegistry);
-        JarWSDLLocator wsdlLocator = new JarWSDLLocator(wsdlURI, wsdlReaderNoImport);
+
+        JarWSDLLocator wsdlLocator = new JarWSDLLocator(wsdlURI);
         WSDLReader wsdlReader = wsdlFactory.newWSDLReader();
+
+        Thread thread = Thread.currentThread();
+        ClassLoader oldCl = thread.getContextClassLoader();
+        thread.setContextClassLoader(this.getClass().getClassLoader());
         try {
-            definition = wsdlReader.readWSDL(wsdlLocator);
-        } catch (WSDLException e) {
-            throw new DeploymentException("Failed to read wsdl document", e);
+            try {
+                definition = wsdlReader.readWSDL(wsdlLocator);
+            } catch (WSDLException e) {
+                throw new DeploymentException("Failed to read wsdl document", e);
+            }
+        } finally {
+            thread.setContextClassLoader(oldCl);
         }
+
         return definition;
     }
 
@@ -632,12 +642,10 @@ public class SchemaInfoBuilder {
     class JarWSDLLocator implements WSDLLocator {
 
         private final URI wsdlURI;
-//        private final WSDLReader wsdlReader;
         private URI latestImportURI;
 
-        public JarWSDLLocator(URI wsdlURI, WSDLReader wsdlReader) {
+        public JarWSDLLocator(URI wsdlURI) {
             this.wsdlURI = wsdlURI;
-//            this.wsdlReader = wsdlReader;
         }
 
         public InputSource getBaseInputSource() {
@@ -645,7 +653,6 @@ public class SchemaInfoBuilder {
             try {
                 ZipEntry entry = moduleFile.getEntry(wsdlURI.toString());
                 wsdlInputStream = moduleFile.getInputStream(entry);
-//                Definition definition = wsdlReader.readWSDL(wsdlURI.toString(), new InputSource(wsdlInputStream));
                 DefinitionsDocument definition = DefinitionsDocument.Factory.parse(wsdlInputStream);
                 wsdlMap.put(wsdlURI, definition);
                 wsdlInputStream.close();
