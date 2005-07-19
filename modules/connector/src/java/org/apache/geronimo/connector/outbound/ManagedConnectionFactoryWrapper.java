@@ -77,6 +77,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     private final Kernel kernel;
     private final String objectName;
     private final boolean isProxyable;
+    private final ClassLoader classLoader;
 
     //default constructor for enhancement proxy endpoint
     public ManagedConnectionFactoryWrapper() {
@@ -90,6 +91,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         objectName = null;
         allImplementedInterfaces = null;
         isProxyable = false;
+        classLoader = null;
     }
 
     public ManagedConnectionFactoryWrapper(String managedConnectionFactoryClass,
@@ -133,6 +135,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         this.connectionManagerContainer = connectionManagerContainer;
 
         //set up that must be done before start
+        classLoader = cl;
         Class clazz = cl.loadClass(managedConnectionFactoryClass);
         managedConnectionFactory = (ManagedConnectionFactory) clazz.newInstance();
         delegate = new DynamicGBeanDelegate();
@@ -255,11 +258,25 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     //DynamicGBean implementation
     public Object getAttribute(String name) throws Exception {
-        return delegate.getAttribute(name);
+        Thread thread = Thread.currentThread();
+        ClassLoader oldTCL = thread.getContextClassLoader();
+        thread.setContextClassLoader(classLoader);
+        try {
+            return delegate.getAttribute(name);
+        } finally {
+            thread.setContextClassLoader(oldTCL);
+        }
     }
 
     public void setAttribute(String name, Object value) throws Exception {
-        delegate.setAttribute(name, value);
+        Thread thread = Thread.currentThread();
+        ClassLoader oldTCL = thread.getContextClassLoader();
+        thread.setContextClassLoader(classLoader);
+        try {
+            delegate.setAttribute(name, value);
+        } finally {
+            thread.setContextClassLoader(oldTCL);
+        }
     }
 
     public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
