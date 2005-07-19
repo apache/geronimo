@@ -355,8 +355,13 @@ public class SchemaInfoBuilder {
     }
 
     static XmlObject parseWithNamespaces(Element element, Map namespaceMap) throws XmlException {
-        XmlObject xmlObject = SchemaConversionUtils.parse(element);
-        XmlCursor cursor = xmlObject.newCursor();
+        ArrayList errors = new ArrayList();
+        XmlOptions xmlOptions = SchemaConversionUtils.createXmlOptions(errors);
+        SchemaDocument parsed = SchemaDocument.Factory.parse(element, xmlOptions);
+        if (errors.size() != 0) {
+            throw new XmlException(errors.toArray().toString());
+        }
+        XmlCursor cursor = parsed.newCursor();
         try {
             cursor.toFirstContentToken();
             for (Iterator namespaces = namespaceMap.entrySet().iterator(); namespaces.hasNext();) {
@@ -366,7 +371,7 @@ public class SchemaInfoBuilder {
         } finally {
             cursor.dispose();
         }
-        return xmlObject;
+        return parsed;
     }
 
     /**
