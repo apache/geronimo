@@ -46,7 +46,11 @@ public class TemporaryPlanAdapter {
         }
 
         if(WRONG_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
-            log.error("WAR includes a file using the old geronimo-jetty.xml format (including namespace http://geronimo.apache.org/xml/ns/web/jetty).  This is no longer supported.  Please change to the new geronimo-web.xml format.  The main difference is that it uses the namespace http://geronimo.apache.org/xml/ns/web");
+            log.error("WAR includes a file using the old geronimo-jetty.xml format "+
+                "(including namespace http://geronimo.apache.org/xml/ns/web/jetty). "+
+                "While we're still using your file for now, the next release will not, "+
+                "and you should change to the new geronimo-web.xml format immediately. "+
+                "The main difference is that it uses the namespace http://geronimo.apache.org/xml/ns/web");
             swapNamespace(cursor, CORRECT_NAMESPACE, WRONG_NAMESPACE);
         }
 
@@ -67,7 +71,11 @@ public class TemporaryPlanAdapter {
         }
 
         if(WRONG_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
-            log.error("EAR includes WAR deployment content using the old geronimo-jetty.xml format (including namespace http://geronimo.apache.org/xml/ns/web/jetty).  This is no longer supported.  Please change to the new geronimo-web.xml format.  The main difference is that it uses the namespace http://geronimo.apache.org/xml/ns/web");
+            log.error("EAR includes WAR deployment content using the old geronimo-jetty.xml format "+
+                "(including namespace http://geronimo.apache.org/xml/ns/web/jetty). "+
+                "While we're still using your WAR deployment content for now, the next release will not, "+
+                "and you should change to the new geronimo-web.xml format immediately. "+
+                "The main difference is that it uses the namespace http://geronimo.apache.org/xml/ns/web");
             swapNamespace(cursor, CORRECT_NAMESPACE, WRONG_NAMESPACE);
         }
 
