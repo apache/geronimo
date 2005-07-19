@@ -138,6 +138,10 @@ Configuration for the Geronimo deployer
     </dependency>
 
     <dependency>
+         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
+    </dependency>
+
+    <dependency>
         <uri>geronimo/jars/geronimo-interop-${geronimo_version}.jar</uri>
     </dependency>
 
