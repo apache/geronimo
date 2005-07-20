@@ -28,11 +28,11 @@ by the server.
     </dependency>
 
     <!-- default WAR container using Jetty -->
-    <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
+    <gbean name="WebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
     </gbean>
 
     <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
-        <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
+        <reference name="JettyContainer"><name>WebContainer</name></reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
         <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
         <attribute name="logDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>
@@ -41,7 +41,7 @@ by the server.
 
     <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
         <attribute name="port">${PlanHTTPPort}</attribute>
-        <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
+        <reference name="JettyContainer"><name>WebContainer</name></reference>
         <!--        <attribute name="MaxConnections">10</attribute>-->
         <!--        <attribute name="MaxIdleTime">10</attribute>-->
     </gbean>
@@ -54,6 +54,6 @@ by the server.
         <attribute name="keyPassword">secret</attribute>
         <attribute name="needClientAuth">false</attribute>
         <attribute name="protocol">TLS</attribute>
-        <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
+        <reference name="JettyContainer"><name>WebContainer</name></reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>

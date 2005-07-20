@@ -110,7 +110,7 @@ by the server.
     <!-- The following is the equivalent of the server.xml file, but done with GBeans -->
 
     <!-- The TomcatContainer/Service -->
-    <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
+    <gbean name="WebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
         <reference name="engineGBean">
             <name>TomcatEngine</name>
@@ -137,7 +137,7 @@ by the server.
             disableUploadTimeout=true
         </attribute>
         <reference name="TomcatContainer">
-            <name>TomcatWebContainer</name>
+            <name>WebContainer</name>
         </reference>
         <reference name="ServerInfo">
             <module>org/apache/geronimo/System</module>
@@ -155,7 +155,7 @@ by the server.
             redirectPort=${PlanHTTPSPort}
         </attribute>
         <reference name="TomcatContainer">
-            <name>TomcatWebContainer</name>
+            <name>WebContainer</name>
         </reference>
         <reference name="ServerInfo">
             <module>org/apache/geronimo/System</module>
@@ -185,7 +185,7 @@ by the server.
             keystoreFile=var/security/keystore
             keystorePass=secret
         </attribute>
-        <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
+        <reference name="TomcatContainer"><name>WebContainer</name></reference>
         <reference name="ServerInfo">
             <module>org/apache/geronimo/System</module>
             <name>ServerInfo</name>

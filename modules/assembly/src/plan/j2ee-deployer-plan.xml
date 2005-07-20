@@ -222,6 +222,13 @@ Configuration for the Geronimo deployer
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
     </gbean>
 
+    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
 
     <gbean name="JBIBuilder" class="org.apache.geronimo.servicemix.deployment.ServiceMixConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
