@@ -227,7 +227,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
+        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=TomcatWebContainer</attribute>
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
     -->
