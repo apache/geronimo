@@ -128,6 +128,7 @@ public class DeployTool {
             }
         }
         out.flush();
+        System.out.flush();
         return !failed;
     }
 
