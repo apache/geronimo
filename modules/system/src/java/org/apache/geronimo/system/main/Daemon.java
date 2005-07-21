@@ -109,7 +109,7 @@ public class Daemon {
         if(!started) {
             started = true;
 
-            // This MUST be done before the first log is acquired
+            // This MUST be done before the first log is acquired (WHICH THE STARTUP MONITOR 5 LINES LATER DOES!)
             GeronimoLogging.initialize(verboseArg == null ? GeronimoLogging.WARN : verboseArg == ARGUMENT_VERBOSE ? GeronimoLogging.INFO : GeronimoLogging.DEBUG);
             log = LogFactory.getLog(Daemon.class.getName());
 
@@ -262,19 +262,6 @@ public class Daemon {
             for (Iterator i = configLists.iterator(); i.hasNext();) {
                 ObjectName configListName = (ObjectName) i.next();
                 kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
-            }
-
-            Set allGBeans = kernel.listGBeans(JMXUtil.getObjectName("*:*"));
-            for (Iterator iterator = allGBeans.iterator(); iterator.hasNext();) {
-                ObjectName objectName = (ObjectName) iterator.next();
-                try {
-                    int state = kernel.getGBeanState(objectName);
-                    if (state != State.RUNNING_INDEX) {
-                        log.info("GBean " + objectName + " is not running. Current state: " + State.fromInt(state).getName());
-                    }
-                } catch (GBeanNotFoundException e) {
-                    log.info("Alleged GBean " + objectName + " is not a GBean");
-                }
             }
 
             // Startup sequence is finished

@@ -15,8 +15,12 @@ import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A startup monitor that shows progress using line feeds
@@ -24,6 +28,7 @@ import org.apache.geronimo.gbean.GAttributeInfo;
  * @version $Revision: 1.0$
  */
 public class ProgressBarStartupMonitor implements StartupMonitor {
+    private final static Log log = LogFactory.getLog(ProgressBarStartupMonitor.class.getName());
     private final static char STATUS_NOT_READY=' ';
     private final static char STATUS_LOADING='-';
     private final static char STATUS_LOADED='>';
@@ -139,25 +144,50 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     private void wrapUp() {
         repaint();
         out.println();
+
+        List apps = new ArrayList();  // type = String (message)
+        List ports = new ArrayList(); // type = AddressHolder
+        Map failed = new HashMap();   // key = ObjectName, value = String (message)
+        String serverInfo = null;
         try {
-            Set gbeans = kernel.listGBeans(new ObjectName("*:*"));
+            Set gbeans = kernel.listGBeans(ObjectName.getInstance("*:*"));
             Map beanInfos = new HashMap(); // key = GBeanInfo, value = List (of attribute names)
-            List ports = new ArrayList(); // type = AddressHolder
-            ObjectName serverInfo = null;
-            boolean firstApp = true;
             for (Iterator it = gbeans.iterator(); it.hasNext();) {
                 ObjectName name = (ObjectName) it.next();
                 if(isApplicationModule(name)) {
-                    if(firstApp) {
-                        firstApp = false;
-                        out.println("  Started Application Modules:");
-                    }
-                    out.println("    "+decodeModule(name.getKeyProperty("j2eeType"))+": "+name.getKeyProperty("name"));
+                    apps.add("    "+decodeModule(name.getKeyProperty("j2eeType"))+": "+name.getKeyProperty("name"));
                 }
+
+                int stateValue = kernel.getGBeanState(name);
+                if (stateValue != State.RUNNING_INDEX) {
+                    GBeanData data = kernel.getGBeanData(name);
+                    State state = State.fromInt(stateValue);
+                    StringBuffer buf = new StringBuffer();
+                    buf.append("(").append(state.getName());
+                    // Since it's not unusual for a failure to be caused by a port binding failure
+                    //    we'll see if there's a likely looking port attribute in the config data
+                    //    for the GBean.  It's a long shot, but hey.
+                    if(data != null && data.getAttributes() != null) {
+                        Map map = data.getAttributes();
+                        for (Iterator it2 = map.keySet().iterator(); it2.hasNext();) {
+                            String att = (String) it2.next();
+                            if(att.equals("port") || att.indexOf("Port") > -1) {
+                                buf.append(",").append(att).append("=").append(map.get(att));
+                            }
+                        }
+                    }
+                    buf.append(")");
+                    failed.put(name, buf.toString());
+                    continue;
+                }
+
+                // Check if this is ServerInfo
                 GBeanInfo info = kernel.getGBeanInfo(name);
                 if(info.getClassName().equals("org.apache.geronimo.system.serverinfo.ServerInfo")) {
-                    serverInfo = name;
+                    serverInfo = (String) kernel.getAttribute(name, "version");
                 }
+
+                // Look for any SocketAddress properties
                 List list = (List) beanInfos.get(info);
                 if(list == null) {
                     list = new ArrayList(3);
@@ -189,46 +219,6 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     }
                 }
             }
-            Collections.sort(ports);
-            if(ports.size() > 0) {
-                System.out.println("  Listening on Ports:");
-                int max = 0;
-                for (int i = 0; i < ports.size(); i++) {
-                    AddressHolder holder = (AddressHolder) ports.get(i);
-                    max = Math.max(max, holder.getAddress().getAddress().getHostAddress().length());
-                }
-                for (int i = 0; i < ports.size(); i++) {
-                    AddressHolder holder = (AddressHolder) ports.get(i);
-                    StringBuffer buf = new StringBuffer();
-                    buf.append("   ");
-                    if(holder.getAddress().getPort() < 10) {
-                        buf.append(' ');
-                    }
-                    if(holder.getAddress().getPort() < 100) {
-                        buf.append(' ');
-                    }
-                    if(holder.getAddress().getPort() < 1000) {
-                        buf.append(' ');
-                    }
-                    if(holder.getAddress().getPort() < 10000) {
-                        buf.append(' ');
-                    }
-                    buf.append(holder.getAddress().getPort()).append(' ');
-                    buf.append(holder.getAddress().getAddress().getHostAddress());
-                    for(int j=holder.getAddress().getAddress().getHostAddress().length(); j<=max; j++) {
-                        buf.append(' ');
-                    }
-                    buf.append(holder.getName());
-                    out.println(buf.toString());
-                }
-            }
-            StringBuffer msg = new StringBuffer();
-            msg.append("Geronimo Application Server started");
-            if(serverInfo != null) {
-                msg.append(" (version ").append(kernel.getAttribute(serverInfo, "version")+")");
-            }
-            out.println(msg.toString());
-            out.flush();
         } catch (MalformedObjectNameException e) {
             e.printStackTrace();
         } catch (GBeanNotFoundException e) {
@@ -238,6 +228,70 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         } catch (Exception e) { // required by Kernel.getAttribute
             e.printStackTrace();
         }
+
+        // Helpful output: list of applications started
+        if(apps.size() > 0) {
+            out.println("  Started Application Modules:");
+            for (int i = 0; i < apps.size(); i++) {
+                out.println((String)apps.get(i));
+            }
+        }
+        // Helpful output: list of ports we listen on
+        if(ports.size() > 0) {
+            Collections.sort(ports);
+            System.out.println("  Listening on Ports:");
+            int max = 0;
+            for (int i = 0; i < ports.size(); i++) {
+                AddressHolder holder = (AddressHolder) ports.get(i);
+                max = Math.max(max, holder.getAddress().getAddress().getHostAddress().length());
+            }
+            for (int i = 0; i < ports.size(); i++) {
+                AddressHolder holder = (AddressHolder) ports.get(i);
+                StringBuffer buf = new StringBuffer();
+                buf.append("   ");
+                if(holder.getAddress().getPort() < 10) {
+                    buf.append(' ');
+                }
+                if(holder.getAddress().getPort() < 100) {
+                    buf.append(' ');
+                }
+                if(holder.getAddress().getPort() < 1000) {
+                    buf.append(' ');
+                }
+                if(holder.getAddress().getPort() < 10000) {
+                    buf.append(' ');
+                }
+                buf.append(holder.getAddress().getPort()).append(' ');
+                buf.append(holder.getAddress().getAddress().getHostAddress());
+                for(int j=holder.getAddress().getAddress().getHostAddress().length(); j<=max; j++) {
+                    buf.append(' ');
+                }
+                buf.append(holder.getName());
+                out.println(buf.toString());
+            }
+        }
+        // Helpful output: list of GBeans that did not start
+        if(failed.size() > 0) {
+            out.println("  WARNING: Some GBeans were not started successfully:");
+            for (Iterator it = failed.keySet().iterator(); it.hasNext();) {
+                ObjectName name = (ObjectName) it.next();
+                String state = (String) failed.get(name);
+                if(name.getKeyProperty("name") != null) {
+                    log.debug("Unable to start "+name+" "+state);
+                    out.println("    "+name.getKeyProperty("name")+" "+state);
+                } else {
+                    out.println("    "+name+" "+state);
+                }
+            }
+        }
+
+        StringBuffer msg = new StringBuffer();
+        msg.append("Geronimo Application Server started");
+        if(serverInfo != null) {
+            msg.append(" (version ").append(serverInfo).append(")");
+        }
+        out.println(msg.toString());
+        out.flush();
     }
 
     public synchronized void loadFailed(String configuration, Exception problem) {
