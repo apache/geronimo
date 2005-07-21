@@ -26,7 +26,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     configId="org/apache/geronimo/RuntimeDeployer"
     parentId="org/apache/geronimo/Server"
     >
- 
+
     <dependency>
         <uri>geronimo/jars/geronimo-j2ee-schema-${geronimo_version}.jar</uri>
     </dependency>
@@ -151,12 +151,18 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
+        <reference name="WebServiceLinkTemplate">
+            <name>WebServiceEJBLinkTemplate</name>
+        </reference>
         <reference name="WebServiceBuilder">
             <name>WebServiceBuilder</name>
         </reference>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
+    </gbean>
+
+    <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean">
     </gbean>
 
     <gbean name="JBIBuilder" class="org.apache.geronimo.servicemix.deployment.ServiceMixConfigBuilder">
