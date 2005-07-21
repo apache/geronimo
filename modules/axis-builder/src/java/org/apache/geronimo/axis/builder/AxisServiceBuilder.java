@@ -17,10 +17,8 @@
 package org.apache.geronimo.axis.builder;
 
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,12 +27,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import java.util.jar.JarFile;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
-import javax.wsdl.Definition;
 import javax.wsdl.Port;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBinding;
@@ -47,27 +42,22 @@ import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.client.TypeInfo;
-import org.apache.geronimo.axis.server.AxisWebServiceContainer;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.xbeans.j2ee.JavaXmlTypeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointMethodMappingType;
 import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
 import org.apache.geronimo.xbeans.wsdl.TDefinitions;
 import org.apache.geronimo.xbeans.wsdl.TImport;
-import org.apache.geronimo.xbeans.wsdl.TPort;
-import org.apache.geronimo.xbeans.wsdl.TService;
 import org.apache.geronimo.xbeans.wsdl.TTypes;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 /**
  * @version $Rev$ $Date$
@@ -77,27 +67,6 @@ public class AxisServiceBuilder {
 
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
-
-
-    private static void validateLightweightMapping(Definition definition) throws DeploymentException {
-        // TODO Plum in the validator
-    }
-
-
-    public static ServiceInfo createServiceInfo(JarFile jarFile, String ejbName, ClassLoader classLoader) throws DeploymentException {
-        Map portComponentsMap = null;
-        try {
-            URL webservicesURL = DeploymentUtil.createJarURL(jarFile, "META-INF/webservices.xml");
-            //todo make sure ejbs can't be deployed elsewhere
-            portComponentsMap = WSDescriptorParser.parseWebServiceDescriptor(webservicesURL, jarFile, true, Collections.EMPTY_MAP);
-        } catch (MalformedURLException e1) {
-            throw new DeploymentException("Invalid URL to webservices.xml", e1);
-        }
-
-        // Grab the portInfo for this ejb
-        PortInfo portInfo = (PortInfo) portComponentsMap.get(ejbName);
-        return createServiceInfo(portInfo, classLoader);
-    }
 
 
     public static ServiceInfo createServiceInfo(PortInfo portInfo, ClassLoader classLoader) throws DeploymentException {
@@ -147,9 +116,9 @@ public class AxisServiceBuilder {
 
         boolean isLightweight = portInfo.getServiceEndpointInterfaceMapping() == null;
 
-        if (isLightweight) {
-            validateLightweightMapping(portInfo.getDefinition());
-        }
+//        if (isLightweight) {
+//            validateLightweightMapping(portInfo.getDefinition());
+//        }
 
         Collection operations = new ArrayList();
         Set wrapperElementQNames = buildOperations(binding, serviceEndpointInterface, isLightweight, portInfo, exceptionMap, classLoader, operations);

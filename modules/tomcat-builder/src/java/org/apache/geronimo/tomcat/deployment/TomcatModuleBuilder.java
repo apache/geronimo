@@ -36,26 +36,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
-import javax.wsdl.WSDLException;
 
-import org.apache.axis.description.JavaServiceDesc;
-import org.apache.axis.handlers.HandlerInfoChainFactory;
-import org.apache.axis.handlers.soap.SOAPService;
-import org.apache.axis.providers.java.RPCProvider;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.axis.builder.AxisServiceBuilder;
-import org.apache.geronimo.axis.builder.PortInfo;
-import org.apache.geronimo.axis.server.AxisWebServiceContainer;
-import org.apache.geronimo.axis.server.POJOProvider;
-import org.apache.geronimo.axis.server.ServiceInfo;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -72,7 +59,6 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.ClassLoaderReference;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -90,11 +76,10 @@ import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.webservices.WebServiceContainer;
+import org.apache.geronimo.xbeans.geronimo.web.GerConfigParamType;
+import org.apache.geronimo.xbeans.geronimo.web.GerContainerConfigType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.geronimo.web.GerContainerConfigType;
-import org.apache.geronimo.xbeans.geronimo.web.GerConfigParamType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebContainerType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
@@ -116,7 +101,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev: 161588 $ $Date: 2005-04-16 12:06:59 -0600 (Sat, 16 Apr 2005) $
  */
 public class TomcatModuleBuilder implements ModuleBuilder {
-    private static Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
     private final URI defaultParentId;
     private final ObjectName tomcatContainerObjectName;
@@ -124,19 +108,15 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     private final WebServiceBuilder webServiceBuilder;
 
     private final Repository repository;
-    private final Kernel kernel;
 
     public TomcatModuleBuilder(URI defaultParentId,
                                ObjectName tomcatContainerObjectName,
                                WebServiceBuilder webServiceBuilder,
-                               Repository repository,
-                               Kernel kernel) {
+                               Repository repository) {
         this.defaultParentId = defaultParentId;
         this.tomcatContainerObjectName = tomcatContainerObjectName;
         this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
-        this.kernel = kernel;
-
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -494,7 +474,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             if (tomcatWebApp.isSetSecurityRealmName()) {
 
                 SecurityHolder securityHolder = new SecurityHolder();
-                String securityRealmName = tomcatWebApp.getSecurityRealmName().trim();
+//                String securityRealmName = tomcatWebApp.getSecurityRealmName().trim();
 
                 /**
                  * TODO - go back to commented version when possible.
@@ -563,7 +543,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     private void processRoleRefPermissions(ServletType servletType,
                                            Set securityRoles,
-                                           Map rolePermissions) throws MalformedObjectNameException, DeploymentException {
+                                           Map rolePermissions) {
         String servletName = servletType.getServletName().getStringValue().trim();
 
         //WebRoleRefPermissions
@@ -907,44 +887,13 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     }
 
     public StoredObject configurePOJO(JarFile moduleFile, Object portInfoObject, String seiClassName, ClassLoader classLoader) throws DeploymentException, IOException {
+        //the reason to configure a gbeandata rather than just fetch the WebServiceContainer is that fetching the WSContainer ties us to that
+        //ws implementation.  By configuring a servlet gbean, you can provide a different servlet for each combination of
+        //web container and ws implementation while assuming almost nothing about their relationship.
 
-        PortInfo portInfo = (PortInfo) portInfoObject;
-        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
-        JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
-
-        try {
-            classLoader.loadClass(seiClassName);
-        } catch (ClassNotFoundException e) {
-            throw new DeploymentException("Unable to load servlet class for pojo webservice: " + seiClassName, e);
-        }
-
-        RPCProvider provider = new POJOProvider();
-
-        SOAPService service = new SOAPService(null, provider, null);
-        service.setServiceDescription(serviceDesc);
-        service.setOption("className", seiClassName);
-
-        HandlerInfoChainFactory handlerInfoChainFactory = new HandlerInfoChainFactory(serviceInfo.getHandlerInfos());
-        service.setOption(org.apache.axis.Constants.ATTR_HANDLERINFOCHAIN, handlerInfoChainFactory);
-
-        URI location = null;
-        try {
-            location = new URI(serviceDesc.getEndpointURL());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid webservice endpoint URI", e);
-        }
-        URI wsdlURI = null;
-        try {
-            wsdlURI = new URI(serviceDesc.getWSDLFile());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid wsdl URI", e);
-
-        }
-
-        classLoader = new ClassLoaderReference(classLoader);
-        AxisWebServiceContainer axisWebServiceContainer = new AxisWebServiceContainer(location, wsdlURI, service, serviceInfo.getWsdlMap(), classLoader);
-
-        return new StoredObject(axisWebServiceContainer);
+        GBeanData fakeData = new GBeanData();
+        webServiceBuilder.configurePOJO(fakeData, moduleFile, portInfoObject, seiClassName, classLoader);
+        return (StoredObject) fakeData.getAttribute("webServiceContainer");
     }
 
     class UncheckedItem {
@@ -1012,8 +961,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             "defaultParentId",
             "tomcatContainerObjectName",
             "WebServiceBuilder",
-            "Repository",
-            "kernel"});
+            "Repository"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

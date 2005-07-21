@@ -46,8 +46,10 @@ public interface WebServiceBuilder {
      * configure the supplied EJBContainer gbeandata to implement the ejb web service described in the deployment descriptor
      * N.B. this method is a complete guess and should be replaced by something useable right away!
      * @param targetGBean
+     * @param moduleFile
+     * @param classLoader
      * @throws DeploymentException
      */
-    void configureEJB(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException;
+    void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfo, ClassLoader classLoader) throws DeploymentException;
 
 }

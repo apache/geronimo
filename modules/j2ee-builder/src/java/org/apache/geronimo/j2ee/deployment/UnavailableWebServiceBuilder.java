@@ -40,7 +40,7 @@ public class UnavailableWebServiceBuilder implements WebServiceBuilder {
         throw new DeploymentException("Web services are not available in this configuration");
     }
 
-    public void configureEJB(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
+    public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
         throw new DeploymentException("Web services are not available in this configuration");
     }
 

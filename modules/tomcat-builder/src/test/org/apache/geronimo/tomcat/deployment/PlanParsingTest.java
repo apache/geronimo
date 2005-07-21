@@ -14,7 +14,7 @@ import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
  */
 public class PlanParsingTest extends TestCase {
     ObjectName tomcatContainerObjectName = JMXUtil.getObjectName("test:type=TomcatContainer");
-    private TomcatModuleBuilder builder = new TomcatModuleBuilder(null, tomcatContainerObjectName, null, null, null);
+    private TomcatModuleBuilder builder = new TomcatModuleBuilder(null, tomcatContainerObjectName, null, null);
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public void testResourceRef() throws Exception {

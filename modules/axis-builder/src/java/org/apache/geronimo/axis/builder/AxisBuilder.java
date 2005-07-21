@@ -151,8 +151,25 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         }
     }
 
-    public void configureEJB(GBeanData targetGBean, Object portInfoObject, String seiClassName) throws DeploymentException {
-
+    public void configureEJB(GBeanData targetGBean, JarFile moduleFile, Object portInfoObject, ClassLoader classLoader) throws DeploymentException {
+        PortInfo portInfo = (PortInfo) portInfoObject;
+        ServiceInfo serviceInfo = AxisServiceBuilder.createServiceInfo(portInfo, classLoader);
+        targetGBean.setAttribute("serviceInfo", serviceInfo);
+        JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
+        URI location = null;
+        try {
+            location = new URI(serviceDesc.getEndpointURL());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid webservice endpoint URI", e);
+        }
+        targetGBean.setAttribute("location", location);
+        URI wsdlURI = null;
+        try {
+            wsdlURI = new URI(serviceDesc.getWSDLFile());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid wsdl URI", e);
+        }
+        targetGBean.setAttribute("wsdlURI", wsdlURI);
     }
 
 
