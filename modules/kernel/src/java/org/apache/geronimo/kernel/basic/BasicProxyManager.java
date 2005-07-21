@@ -56,7 +56,7 @@ public class BasicProxyManager implements ProxyManager {
             return;
         }
 
-        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.remove(proxy);
+        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.get(proxy);
         if (methodInterceptor != null) {
             methodInterceptor.destroy();
         }
