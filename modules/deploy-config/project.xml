@@ -49,12 +49,6 @@
             <version>${xmlbeans_version}</version>
         </dependency>
 
-       <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax</artifactId>
-            <version>${stax_version}</version>
-        </dependency>
-
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>

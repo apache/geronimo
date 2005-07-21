@@ -1106,15 +1106,6 @@
 
         <dependency>
             <groupId>stax</groupId>
-            <artifactId>stax</artifactId>
-            <version>${stax_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
             <properties>

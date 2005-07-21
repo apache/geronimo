@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -56,6 +56,8 @@ public class SchemaCompilerWrapper {
     private String classPath;
     private List resources;
     private boolean buildSchemas;
+    //this copy should not end in /
+    private String baseSchemaLocation = "schemaorg_apache_xmlbeans/src";
 
     public String getSourceDir() {
         return sourceDir;
@@ -118,7 +120,6 @@ public class SchemaCompilerWrapper {
     }
 
     public void setResources(List resources) {
-        System.out.println("setResources: " + resources);
         this.resources = resources;
     }
 
@@ -127,8 +128,17 @@ public class SchemaCompilerWrapper {
     }
 
     public void setBuildSchemas(boolean buildSchemas) {
-        System.out.println("setBuildSchemas: " + buildSchemas);
         this.buildSchemas = buildSchemas;
+    }
+
+    public String getBaseSchemaLocation() {
+        return baseSchemaLocation;
+    }
+
+    public void setBaseSchemaLocation(String baseSchemaLocation) {
+        if (baseSchemaLocation != null && !(baseSchemaLocation.length() == 0)) {
+            this.baseSchemaLocation = baseSchemaLocation;
+        }
     }
 
     public void compileSchemas() throws Exception {
@@ -136,7 +146,7 @@ public class SchemaCompilerWrapper {
         File base = new File(sourceDir);
         Resource resource = new Resource();
         resource.setDirectory(sourceDir);
-        resource.setTargetPath("META-INF");
+        resource.setTargetPath(baseSchemaLocation);
         for (StringTokenizer st = new StringTokenizer(sourceSchemas, ","); st.hasMoreTokens();) {
             String schemaName = st.nextToken();
             schemas.add(new File(base, schemaName));
@@ -171,7 +181,7 @@ public class SchemaCompilerWrapper {
                 entityResolver = new CatalogResolver();
             }
             URI sourceDirURI = new File(sourceDir).toURI();
-            entityResolver = new PassThroughResolver(cl, entityResolver, sourceDirURI);
+            entityResolver = new PassThroughResolver(cl, entityResolver, sourceDirURI, baseSchemaLocation);
 
             SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
             params.setBaseDir(null);
@@ -216,12 +226,15 @@ public class SchemaCompilerWrapper {
     private static class PassThroughResolver implements EntityResolver {
         private final ClassLoader cl;
         private final EntityResolver delegate;
-        private URI sourceDir;
+        private final URI sourceDir;
+        //this copy has an / appended
+        private final String baseSchemaLocation;
 
-        public PassThroughResolver(ClassLoader cl, EntityResolver delegate, URI sourceDir) {
+        public PassThroughResolver(ClassLoader cl, EntityResolver delegate, URI sourceDir, String baseSchemaLocation) {
             this.cl = cl;
             this.delegate = delegate;
             this.sourceDir = sourceDir;
+            this.baseSchemaLocation = baseSchemaLocation + "/";
         }
         public InputSource resolveEntity(String publicId,
                                          String systemId)
@@ -244,12 +257,12 @@ public class SchemaCompilerWrapper {
                 System.out.println("found in classpath at: " + localSystemId);
                 return new InputSource(in);
             }
-            in = cl.getResourceAsStream("META-INF/" + localSystemId);
+            in = cl.getResourceAsStream(baseSchemaLocation + localSystemId);
             if (in != null) {
                 System.out.println("found in classpath at: META-INF/" + localSystemId);
                 return new InputSource(in);
             }
-            System.out.println("Not found in classpath, looking in current director: " + systemId);
+            System.out.println("Not found in classpath, looking in current directory: " + systemId);
             return new InputSource(systemId);
         }
 

@@ -28,9 +28,6 @@ Configuration for the Geronimo deployer
     >
 
     <dependency>
-        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
-    </dependency>
-    <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-corba-${geronimo_spec_corba_version}.jar</uri>
     </dependency>
     <dependency>
@@ -68,9 +65,6 @@ Configuration for the Geronimo deployer
     </dependency>
     <dependency>
         <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>stax/jars/stax-${stax_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
@@ -225,6 +219,9 @@ Configuration for the Geronimo deployer
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>

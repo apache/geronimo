@@ -31,10 +31,7 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourcedir="${basedir}/src"
-            sourceschema="schema/geronimo-security.xsd,schema/geronimo-login-config.xsd"
-            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"/>
+            maven.xmlbeans2.sourceschema="schema/geronimo-security.xsd,schema/geronimo-login-config.xsd"/>
     </preGoal>
 
     <!-- Set up the test files -->

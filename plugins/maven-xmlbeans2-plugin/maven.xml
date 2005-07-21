@@ -72,37 +72,6 @@
             dest="${maven.plugin.unpacked.dir}/${pom.artifactId}-${pom.currentVersion}/"/>
     </goal>
 
-    <goal name="clover.wrapper">
-        <!-- no src/test, don't run clover -->
-        <!--attainGoal name="clover"/-->
-    </goal>
-
-    <!-- Remove the log files -->
-    <goal name="clobber"
-        description="Removes all (non-repository installed) build generated files">
-
-        <!-- Let clean:clean do some work first -->
-        <attainGoal name="clean:clean"/>
-
-        <j:jelly xmlns="jelly:ant">
-            <delete quiet="false" failonerror="false">
-                <fileset dir="${basedir}">
-                    <include name="maven.log"/>
-                    <include name="velocity.log*"/>
-                    <include name="junit*.properties"/>
-                </fileset>
-            </delete>
-        </j:jelly>
-    </goal>
-
-    <goal name="java-src"
-        description="Creates an archive containing only java source.">
-
-        <ant:mkdir dir="${basedir}/target"/>
-        <ant:jar destfile="${basedir}/target/${pom.artifactId}-${pom.currentVersion}-java-src.jar">
-            <fileset dir="${basedir}/src/java"/>
-        </ant:jar>
-    </goal>
 
     <goal name="jar:deploy">
         <attainGoal name="plugin:repository-deploy"/>

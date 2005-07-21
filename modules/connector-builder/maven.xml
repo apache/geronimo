@@ -28,10 +28,7 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourcedir="${basedir}/src"
-            sourceschema="schema/geronimo-connector_1_5.xsd"
-            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"/>
+            maven.xmlbeans2.sourceschema="schema/geronimo-connector_1_5.xsd"/>
     </preGoal>
 
     <preGoal name="test:compile">

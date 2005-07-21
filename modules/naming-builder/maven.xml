@@ -24,10 +24,7 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            sourcedir="${basedir}/src"
-            sourceschema="schema/geronimo-naming.xsd"
-            xmlconfigs="${basedir}/src/schema/xmlconfig.xml"
-            targetdir="${basedir}/target/xmlbeans"/>
+            maven.xmlbeans2.sourceschema="schema/geronimo-naming.xsd"/>
     </preGoal>
 
 </project>
