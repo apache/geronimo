@@ -954,7 +954,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[]{
