@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!DOCTYPE mapping PUBLIC "-//EXOLAB/Castor Mapping DTD Version 1.0//EN"
+                           "http://castor.exolab.org/mapping.dtd">
+<!-- 
+Copyright 2004 The Apache Software Foundation
+Licensed  under the  Apache License,  Version 2.0  (the "License");
+you may not use  this file  except in  compliance with the License.
+You may obtain a copy of the License at 
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed  under the  License is distributed on an "AS IS" BASIS,
+WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<mapping>
+
+  <class name="org.apache.pluto.portalImpl.om.page.impl.PropertyImpl">
+
+    <field name="name" type="java.lang.String" required="true">
+      <bind-xml name="name" node="attribute"/>
+    </field>
+
+    <field name="value" type="java.lang.String" required="true">
+      <bind-xml name="value" node="attribute"/>
+    </field>
+
+  </class>
+
+  <class name="org.apache.pluto.portalImpl.om.page.impl.NavigationImpl">
+
+    <field name="title" type="java.lang.String" required="true">
+      <bind-xml name="title" node="element"/>
+    </field>
+
+    <field name="description" type="java.lang.String" required="false">
+      <bind-xml name="description" node="element"/>
+    </field>
+
+  </class>
+
+  <class name="org.apache.pluto.portalImpl.om.page.impl.FragmentImpl">
+
+    <field name="name" type="java.lang.String" required="true">
+      <bind-xml name="name" node="attribute"/>
+    </field>
+    <field name="classname" type="java.lang.String">
+      <bind-xml name="class" node="attribute"/>
+    </field>
+    <field name="type" type="java.lang.String">
+      <bind-xml name="type" node="attribute"/>
+    </field>
+
+    <field name="navigation"
+           type="org.apache.pluto.portalImpl.om.page.impl.NavigationImpl"
+           required="false">
+      <bind-xml name="navigation" node="element"/>
+    </field>
+
+    <field name="properties"
+           type="org.apache.pluto.portalImpl.om.page.impl.PropertyImpl"
+           collection="collection">
+      <bind-xml name="property" node="element"/>
+    </field>
+
+    <field name="fragments"
+           type="org.apache.pluto.portalImpl.om.page.impl.FragmentImpl"
+           collection="collection">
+      <bind-xml name="fragment" node="element"/>
+    </field>
+
+  </class>
+
+  <class name="org.apache.pluto.portalImpl.om.page.impl.PortalImpl">
+    <map-to xml="portal"/>
+
+    <field name="fragments"
+           type="org.apache.pluto.portalImpl.om.page.impl.FragmentImpl"
+           collection="collection"
+           required="true">
+      <bind-xml name="fragment" node="element"/>
+    </field>
+
+  </class>
+
+</mapping>

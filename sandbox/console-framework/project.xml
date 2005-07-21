@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../etc/project.xml</extend>
+
+    <id>geronimo-console-framework</id>
+    <name>Geronimo :: Console :: Portal Framework</name>
+
+    <dependencies>
+    <!-- JARs needed to compile JSPs -->
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${ant_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-el</groupId>
+            <artifactId>commons-el</artifactId>
+            <version>${commons_el_version}</version>
+            <url>http://jakarta.apache.org/commons/el/</url>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>       
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+            <properties>
+                <lib>true</lib>
+                <server>true</server>
+                <deploy>true</deploy>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee</artifactId>
+            <version>${geronimo_spec_j2ee_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>portlet-api</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>${portlet_api_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pluto</groupId>
+            <artifactId>pluto</artifactId>
+            <version>${pluto_version}</version>
+         </dependency>
+         <dependency>
+            <groupId>pluto</groupId>
+            <artifactId>pluto-portal</artifactId>
+            <version>${pluto_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>castor</groupId>
+            <artifactId>castor</artifactId>
+            <version>${castor_version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+                
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
+            <version>${jasper_version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-compiler</artifactId>
+            <version>${jasper_version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+
+    </dependencies>
+</project>
+

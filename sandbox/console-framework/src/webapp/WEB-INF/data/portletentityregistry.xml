@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+Copyright 2004 The Apache Software Foundation
+Licensed  under the  Apache License,  Version 2.0  (the "License");
+you may not use  this file  except in  compliance with the License.
+You may obtain a copy of the License at 
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed  under the  License is distributed on an "AS IS" BASIS,
+WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<portlet-entity-registry>
+    <application id="5">
+        <definition-id>console-standard</definition-id>
+        <portlet id="1">
+            <definition-id>console-standard.Applications</definition-id>
+        </portlet>
+        <portlet id="2">
+            <definition-id>console-standard.Databases</definition-id>
+        </portlet>
+        <portlet id="3">
+            <definition-id>console-standard.SEUsers</definition-id>
+        </portlet>
+        <portlet id="4">
+            <definition-id>console-standard.SEGroups</definition-id>
+        </portlet>
+        <portlet id="8">
+            <definition-id>console-standard.ServerInfo</definition-id>
+        </portlet>
+        <portlet id="10">
+            <definition-id>console-standard.LogManager</definition-id>
+        </portlet>
+        <portlet id="17">
+            <definition-id>console-standard.JMSManager</definition-id>
+        </portlet>
+
+        <portlet id="18">
+            <definition-id>console-standard.WebServerManager</definition-id>
+        </portlet>
+        <portlet id="19">
+            <definition-id>console-standard.HTTPConnectorManager</definition-id>
+        </portlet>
+        <portlet id="20">
+            <definition-id>console-standard.HTTPSConnectorManager</definition-id>
+        </portlet>
+        <portlet id="21">
+            <definition-id>console-standard.AJP13ConnectorManager</definition-id>
+        </portlet>
+        <portlet id="22">
+            <definition-id>console-standard.Deployment</definition-id>
+        </portlet>
+        <portlet id="24">
+            <definition-id>console-standard.JavaSysInfo</definition-id>
+        </portlet>
+
+        <portlet id="26">
+             <definition-id>console-standard.LogViewer</definition-id>
+         </portlet>
+        <portlet id="27">
+             <definition-id>console-standard.DerbyLogViewer</definition-id>
+         </portlet>
+        <portlet id="28">
+             <definition-id>console-standard.WebAccessLogViewer</definition-id>
+         </portlet>
+
+        <portlet id="29">
+             <definition-id>console-standard.RepositoryViewer</definition-id>
+         </portlet>
+        <portlet id="30">
+             <definition-id>console-standard.ServerManager</definition-id>
+         </portlet>
+        <portlet id="31">
+             <definition-id>console-standard.JMSConnections</definition-id>
+         </portlet>
+        <portlet id="32">
+            <definition-id>console-standard.InternalDB</definition-id>
+        </portlet>
+        <portlet id="33">
+            <definition-id>console-standard.DBViewer</definition-id>
+        </portlet>
+        <portlet id="34">
+            <definition-id>console-standard.RunSQL</definition-id>
+        </portlet>
+    </application>
+</portlet-entity-registry>

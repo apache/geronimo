@@ -1,0 +1,1 @@
+The AJP13 (Apache Jserv Protocol version 1.3) listener connections is not presently implemented, but is planned for a future release. It will allow the user to integrate the Apache web server with the Geronimo Platform.

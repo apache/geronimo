@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../etc/project.xml</extend>
+
+    <id>geronimo-console</id>
+    <name>Geronimo :: Console :: Application EAR</name>
+    <type>ear</type>
+
+    <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console-framework</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <ear.bundle>true</ear.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console-standard</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <ear.bundle>true</ear.bundle>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>pluto</groupId>
+            <artifactId>pluto</artifactId>
+            <version>${pluto_version}</version>
+        </dependency>
+
+         <dependency>
+            <groupId>pluto</groupId>
+            <artifactId>pluto-portal</artifactId>
+            <version>${pluto_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console-core</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>portlet-api</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>${portlet_api_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>castor</groupId>
+            <artifactId>castor</artifactId>
+            <version>${castor_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jstl</groupId>
+            <artifactId>jstl</artifactId>
+            <version>${jstl_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>taglibs</groupId>
+            <artifactId>standard</artifactId>
+            <version>${standard_taglibs_version}</version>
+        </dependency>
+    </dependencies>
+</project>
+

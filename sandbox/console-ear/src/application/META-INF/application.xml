@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/application_1_4.xsd"
+    version="1.4">
+    <display-name>Geronimo Console Application</display-name>
+    <module>
+        <web>
+            <web-uri>geronimo-console-framework-${pom.currentVersion}.war</web-uri>
+            <context-root>/console</context-root>
+        </web>
+    </module>
+    <module>
+        <web>
+            <web-uri>geronimo-console-standard-${pom.currentVersion}.war</web-uri>
+            <context-root>/console-standard</context-root>
+        </web>
+    </module>
+</application>

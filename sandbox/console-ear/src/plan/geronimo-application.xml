@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    configId="org/apache/geronimo/Console"
+    parentId="org/apache/geronimo/RuntimeDeployer">
+    
+	<!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
+    <dependency>
+        <uri>portlet-api/jars/portlet-api-${portlet_api_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>pluto/jars/pluto-${pluto_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>pluto/jars/pluto-portal-${pluto_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>castor/jars/castor-${castor_version}.jar</uri>
+    </dependency>
+	<!-- Active MQ dependencies -->
+    <dependency>
+        <uri>activemq/jars/activemq-core-${activemq_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>activemq/jars/activemq-gbean-${activemq_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+    </dependency>
+    
+     <!-- Deployer dependencies -->    
+    <dependency>
+        <uri>geronimo/jars/geronimo-deployment-${pom.currentVersion}.jar</uri>
+    </dependency>        
+    <dependency>    
+        <uri>geronimo/jars/geronimo-common-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-connector-builder-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>    
+        <!-- <uri>geronimo/jars/geronimo-derby-connector-${pom.currentVersion}.jar</uri> -->
+        <uri>geronimo/jars/geronimo-connector-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-builder-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-naming-builder-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-jetty-builder-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-client-builder-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-security-builder-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-service-builder-${pom.currentVersion}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-schema-${pom.currentVersion}.jar</uri>
+    </dependency>
+ 
+    <dependency>
+        <uri>geronimo/jars/geronimo-console-core-${pom.currentVersion}.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>incubator-derby/jars/derby-${derby_version}.jar</uri> 
+    </dependency>
+    <dependency>
+        <uri>incubator-derby/jars/derbynet-${derby_version}.jar</uri>
+    </dependency>
+    
+    <dependency>
+        <uri>geronimo/jars/geronimo-derby-${pom.currentVersion}.jar</uri> 
+    </dependency>
+
+    <module>
+        <web>geronimo-console-framework-${pom.currentVersion}.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="console">
+            <context-root>/console</context-root>
+            <context-priority-classloader>false</context-priority-classloader>
+            <security-realm-name>geronimo-properties-realm</security-realm-name>
+            <security>
+                <default-principal realm-name="geronimo-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="system"/>
+                </default-principal>
+                <role-mappings>
+                    <role role-name="admin">
+                        <realm realm-name="geronimo-properties-realm">
+                            <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" designated-run-as="true"/>
+                        </realm>
+                    </role>
+                </role-mappings>
+            </security>
+        </web-app>
+    </module>
+    
+    <module>
+        <web>geronimo-console-standard-${pom.currentVersion}.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="console-standard">
+            <context-root>/console-standard</context-root>
+            <context-priority-classloader>false</context-priority-classloader>
+        </web-app>
+    </module>
+
+    <!-- Console specific server info
+    <gbean name="SEServerInfo" class="org.apache.geronimo.console.core.system.serverinfo.SEServerInfo"/>-->
+    <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
+        <reference name="ServerInfo"><gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name></reference>
+        <reference name="LoginModule">
+                <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
+	</reference>
+    </gbean>		
+</application>

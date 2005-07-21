@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2004 The Apache Software Foundation
+Licensed  under the  Apache License,  Version 2.0  (the "License");
+you may not use  this file  except in  compliance with the License.
+You may obtain a copy of the License at 
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed  under the  License is distributed on an "AS IS" BASIS,
+WITHOUT  WARRANTIES OR CONDITIONS  OF ANY KIND, either  express  or
+implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <display-name>Gluecode SE Console Standard Portlets</display-name>
+
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Applications Portlet</display-name>
+        <servlet-name>Applications</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.Applications</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Applications Portlet</display-name>
+        <servlet-name>Deployment</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.configmanager.DeploymentPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.Deployment</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Database Portlet</display-name>
+        <servlet-name>Databases</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.databasemanager.DatabaseManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.Databases</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for JMS ConnectionFactory Portlet</display-name>
+        <servlet-name>JMSConnections</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.jmsmanager.JMSConnectionFactoryManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JMSConnections</param-value>
+        </init-param>
+    </servlet>
+    
+   <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Gluecode SE Users Portlet</display-name>
+        <servlet-name>SEUsers</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.securitymanager.SEUsersPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.SEUsers</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Gluecode SE Groups Portlet</display-name>
+        <servlet-name>SEGroups</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.securitymanager.SEGroupsPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.SEGroups</param-value>
+        </init-param>
+    </servlet>
+
+  
+      <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Log Manager Portlet</display-name>
+        <servlet-name>LogManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.logmanager.LogManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.LogManager</param-value>
+        </init-param>
+   </servlet>
+   <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Log Viewer Portlet</display-name>
+        <servlet-name>LogViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.logmanager.LogViewerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.LogViewer</param-value>
+        </init-param>
+    </servlet>
+   <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Derby Log Viewer Portlet</display-name>
+        <servlet-name>DerbyLogViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.derbylogmanager.DerbyLogViewerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.DerbyLogViewer</param-value>
+        </init-param>
+    </servlet>
+   <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Web Access Viewer Portlet</display-name>
+        <servlet-name>WebAccessLogViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.logmanager.WebAccessLogViewerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.WebAccessLogViewer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Servlet Info Portlet</display-name>
+        <servlet-name>ServerInfo</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.infomanager.ServerInfoPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ServerInfo</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Java System Info Portlet</display-name>
+        <servlet-name>JavaSysInfo</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.infomanager.JavaSystemInfoPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JavaSysInfo</param-value>
+        </init-param>
+    </servlet>
+
+    <!--
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Mail Managemer Portlet</display-name>
+        <servlet-name>MailManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.mailmanager.MailManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.MailManager</param-value>
+        </init-param>
+    </servlet>
+    -->
+
+    <!-- BPM Portlets -->
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for BPM Deployment Portlet</display-name>
+        <servlet-name>BPMDeployment</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>com.gluecode.se.console.standard.bpmmanager.BPMDeploymentPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.BPMDeployment</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for BPM Instance Portlet</display-name>
+        <servlet-name>BPMInstance</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>com.gluecode.se.console.standard.bpmmanager.BPMInstancePortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.BPMInstance</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for BPM Task List Portlet</display-name>
+        <servlet-name>BPMTaskList</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>com.gluecode.se.console.standard.bpmmanager.BPMTaskListPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.BPMTaskList</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for BPM Notification Portlet</display-name>
+        <servlet-name>BPMNotification</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>com.gluecode.se.console.standard.bpmmanager.BPMNotificationPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.BPMNotification</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for BPM Operational Statistics Portlet</display-name>
+        <servlet-name>BPMStatistics</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>com.gluecode.se.console.standard.bpmmanager.BPMStatisticsPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.BPMStatistics</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for JMS Portlet</display-name>
+        <servlet-name>JMSManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.jmsmanager.JMSManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JMSManager</param-value>
+        </init-param>
+    </servlet>
+
+    <!-- Web Server Manager Portlet -->
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Web Server Management Portlet</display-name>
+        <servlet-name>WebServerManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.webmanager.WebManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.WebServerManager</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for HTTP Connector Management Portlet</display-name>
+        <servlet-name>HTTPConnectorManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.webmanager.HttpConnectorPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.HTTPConnectorManager</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for HTTP Connector Management Portlet</display-name>
+        <servlet-name>HTTPSConnectorManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.webmanager.HttpsConnectorPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.HTTPSConnectorManager</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for AJP13 Connector Management Portlet</display-name>
+        <servlet-name>AJP13ConnectorManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.webmanager.AJP13ConnectorPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.AJP13ConnectorManager</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for JNDI Portlet</display-name>
+        <servlet-name>JNDI</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.jndimanager.JNDIInfoPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JNDI</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Repository Viewer Portlet</display-name>
+        <servlet-name>RepositoryViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.repository.RepositoryViewPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.RepositoryViewer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Server Manager Portlet</display-name>
+        <servlet-name>ServerManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.servermanager.ServerManagerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ServerManager</param-value>
+        </init-param>
+    </servlet>
+ 
+    <!-- DB manager servlets -->
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Internal DB Portlet</display-name>
+        <servlet-name>InternalDB</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.internaldb.InternalDBPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.InternalDB</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for DB Viewer Portlet</display-name>
+        <servlet-name>DBViewer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.internaldb.DBViewerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.DBViewer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Run SQL Portlet</display-name>
+        <servlet-name>RunSQL</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.internaldb.RunSQLPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.RunSQL</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Applications</servlet-name>
+        <url-pattern>/Applications/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Deployment</servlet-name>
+        <url-pattern>/Deployment/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Databases</servlet-name>
+        <url-pattern>/Databases/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SEUsers</servlet-name>
+        <url-pattern>/SEUsers/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SEGroups</servlet-name>
+        <url-pattern>/SEGroups/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>DerbyUsers</servlet-name>
+        <url-pattern>/DerbyUsers/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DerbyGroups</servlet-name>
+        <url-pattern>/DerbyGroups/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SecurityRealms</servlet-name>
+        <url-pattern>/SecurityRealms/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogManager</servlet-name>
+        <url-pattern>/LogManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LogViewer</servlet-name>
+        <url-pattern>/LogViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DerbyLogViewer</servlet-name>
+        <url-pattern>/DerbyLogViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WebAccessLogViewer</servlet-name>
+        <url-pattern>/WebAccessLogViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServerInfo</servlet-name>
+        <url-pattern>/ServerInfo/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>JavaSysInfo</servlet-name>
+        <url-pattern>/JavaSysInfo/*</url-pattern>
+    </servlet-mapping>
+    <!--
+    <servlet-mapping>
+        <servlet-name>MailManager</servlet-name>
+        <url-pattern>/MailManager/*</url-pattern>
+    </servlet-mapping>
+    -->
+    <!-- BPM Servlet Mappings -->
+    <servlet-mapping>
+        <servlet-name>BPMDeployment</servlet-name>
+        <url-pattern>/BPMDeployment/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BPMInstance</servlet-name>
+        <url-pattern>/BPMInstance/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BPMTaskList</servlet-name>
+        <url-pattern>/BPMTaskList/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BPMNotification</servlet-name>
+        <url-pattern>/BPMNotification/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>BPMStatistics</servlet-name>
+        <url-pattern>/BPMStatistics/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>JMSManager</servlet-name>
+        <url-pattern>/JMSManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>JMSConnections</servlet-name>
+        <url-pattern>/JMSConnections/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WebServerManager</servlet-name>
+        <url-pattern>/WebServerManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HTTPConnectorManager</servlet-name>
+        <url-pattern>/HTTPConnectorManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HTTPSConnectorManager</servlet-name>
+        <url-pattern>/HTTPSConnectorManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AJP13ConnectorManager</servlet-name>
+        <url-pattern>/AJP13ConnectorManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>JNDI</servlet-name>
+        <url-pattern>/JNDI/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CertManager</servlet-name>
+        <url-pattern>/CertManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RepositoryViewer</servlet-name>
+        <url-pattern>/RepositoryViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ServerManager</servlet-name>
+        <url-pattern>/ServerManager/*</url-pattern>
+    </servlet-mapping>
+    <!-- DB manager servlet mappings -->
+    <servlet-mapping>
+        <servlet-name>InternalDB</servlet-name>
+        <url-pattern>/InternalDB/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DBViewer</servlet-name>
+        <url-pattern>/DBViewer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RunSQL</servlet-name>
+        <url-pattern>/RunSQL/*</url-pattern>
+    </servlet-mapping>
+
+<!-- org.apache.geronimo.console.core.securitymanager.SecurityRealmsPortlet
+    <security-role>
+        <role-name>tomcat</role-name>
+    </security-role>
+    -->
+
+    <jsp-config>
+        <taglib>
+            <taglib-uri>http://java.sun.com/portlet</taglib-uri>
+            <taglib-location>/WEB-INF/tld/portlet.tld</taglib-location>
+        </taglib>
+    </jsp-config>
+<!--
+    <taglib>
+        <taglib-uri>http://java.sun.com/portlet</taglib-uri>
+        <taglib-location>/WEB-INF/tld/portlet.tld</taglib-location>
+    </taglib>
+-->
+
+<!--    <resource-ref>
+        <res-ref-name>SystemDatasource</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
+        <res-ref-name>GCMSSQLDataSource</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref> -->
+
+</web-app>

@@ -1,0 +1,425 @@
+body {
+	/*background-color: #9999CC;*/
+}
+
+td
+{
+	font-size: 11px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+}
+
+a:link, a:visited
+{
+	color: #204486;
+}
+
+a:hover 
+{
+	color: #CF820A;
+}
+
+.Logo
+{
+	/*background-image:url("images/joe_logo.gif");*/
+	width: 200px;
+	height: 100px;
+    color: #FFFFFF;
+	font-size: 35px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	text-align: right;
+	/*vertical-align: bottom;*/
+	line-height: 30px;
+	background-color: #909DB8;
+	font-weight: bold;
+}
+
+.Top
+{
+	/*background-image: url("images/mgmtconsole.jpg");*/
+	background-repeat: no-repeat;
+	color: #FFFFFF;
+	font-size: 11px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	text-align: right;
+	vertical-align: bottom;
+	line-height: 30px;
+	background-color: #909DB8;
+	font-weight: bold;
+}
+
+.Top a:link, .Top a:visited, .Top a:hover
+{
+	color: #FFFFFF;
+	font-size: 11px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: underline;
+	text-align: left;
+	vertical-align: bottom;
+	line-height: 30px;
+	font-weight: bold;
+}
+
+.TopSpacer
+{
+	height: 20px;
+}
+
+.Hidden
+{
+	visibility: hidden;
+	height: 0px;
+	line-height: 0px;
+	display: none;
+}
+
+.Menu .Selection
+{
+	font-size: 12px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+}
+
+.Menu .Selection .CollapsedLeft
+{
+	width: 12px;
+	height: 12px;
+  background-color: #919FBC;
+}
+
+.Menu .Selection .Indent
+{
+	width: 2px;
+  background-color: #919FBC;
+}
+
+.Menu .Selection .CollapsedRight
+{
+	width: 8px;
+	height: 12px;
+  background-color: #919FBC;
+}
+
+.Menu .Selection .TopLeft
+{
+	width: 8px;
+	height: 16px;
+  background-color: #919FBC;
+}
+
+.Menu .Selection .TopMiddle
+{
+	color: #333333;
+	text-decoration: none;
+  background-color: #919FBC;
+}
+
+.Menu .Selection .TopMiddle a:link, 
+.Menu .Selection .TopMiddle a:visited, 
+.Menu .Selection .TopMiddle a:hover
+{
+	color: #FFFFFF;
+	line-height: 20px;
+  background-color: #919FBC;
+}
+
+.Menu .Selection .TopRight
+{
+	width: 8px;
+	height: 16px;
+  background-color: #919FBC;
+}
+
+.Menu .Selection .Spacer
+{
+	height: 5px;
+}
+
+.Menu .Hidden
+{
+	visibility: hidden;
+	height: 0px;
+	display: none;
+}
+
+.Menu .Subselection .Left
+{
+	width: 12px;
+  background-color: #919FBC;
+}
+
+.Menu .Subselection .Indent
+{
+	width: 2px;
+  background-color: #919FBC;
+}
+
+.Menu .Subselection .Middle
+{
+	font-size: 12px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+  background-color: #919FBC;
+	color:#333333;
+}
+
+.Menu .Subselection .Middle a:link, 
+.Menu .Subselection .Middle a:visited, 
+.Menu .Subselection .Middle a:hover
+{
+	line-height: 20px;
+	color: #FFFFFF;
+}
+
+.Menu .Subselection .Right
+{
+	width: 8px;
+  background-color: #919FBC;
+}
+
+.Menu .Subselection .BottomLeft
+{
+	width: 8px;
+	height: 8px;
+  background-color: #919FBC;
+}
+
+.Menu .Subselection .BottomMiddle
+{
+	height: 8px;
+  background-color: #919FBC;
+}
+
+.Menu .Subselection .BottomRight
+{
+	width: 8px;
+	height: 8px;
+  background-color: #919FBC;
+}
+
+.Gutter
+{
+	width: 5px;
+}
+
+.Content .TopLeft
+{
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+  background-color:#333366;
+}
+
+.Content .Title
+{
+	font-size: 12px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	background-color: #333366;
+	color: #FCFCFC;
+	height: 18px;
+	line-height: 18px;
+}
+
+.Content .Title a:link, .Content .Title a:hover, .Content .Title a:visited
+{
+	font-size: 12px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	background-color: #333366;
+	color:#CCCCFF;
+	height: 18px;
+	line-height: 18px;
+}
+
+.Content .Title .Indent
+{
+	width: 20px;
+}
+
+.Content .TopRight
+{
+	width: 18px;
+	height: 18px;
+  background-color:#333366;
+}
+
+.Content .CollapsedLeft
+{
+	width: 18px;
+	height: 18px;
+  background-color:#000000;
+}
+
+.Content .CollapsedRight
+{
+	width: 18px;
+	height: 18px;
+  background-color:#000000;
+}
+
+.Content .Left
+{
+	width: 18px;
+	/*background-color: #333366;*/
+	background-color: #DADEE9;
+}
+
+.Content .Body, .Content .Body td
+{
+	font-size: 12px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	background-color: #DADEE9;
+	color: #1E1E52;
+}
+
+.Content .Body strong
+{
+	font-weight: bold;  
+	font-size: 12px;
+}
+
+.Content .Body th
+{
+	font-weight: bold;  
+	font-size: 12px;
+}
+
+.Content .Body .LightBackground
+{
+	background-color: #E8E8F7;
+	color:#333333;
+}
+
+.Content .Body .LightBackground .InputField
+{
+  width: 150px;
+}
+.Content .Body .MediumBackground
+{
+	background-color: #CCCCCC;
+	color:#000000;
+}
+
+.Content .Body .DarkBackground, 
+.Content .Body .DarkBackground a:link, 
+.Content .Body .DarkBackground a:visited,
+.Content .Body .DarkBackground a:hover
+{
+	background-color: #5C6B8D;
+	color:#FCFCFC;
+}
+
+.Content .Body .IndentedTitle
+{
+	background-color: #919FBC;
+	color:#FFFFFF;
+}
+
+.Content .Body .LightIndentedBG
+{
+	background-color: #FFFFFF;
+	color:#000000;
+}
+
+.Content .Body .MediumIndentedBG
+{
+	background-color: #DDDDDD;
+	color:#000000;
+}
+
+
+.Content .Body a:link,
+.Content .Body a:visited,
+.Content .Body a:hover
+{
+	font-size: 10px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	text-decoration: underline;
+	color: #546BC7;
+	font-weight: bold;
+}
+
+.Content .Buttons {
+	border-top-width: thin;
+	border-right-width: thin;
+	border-bottom-width: thin;
+	border-left-width: thin;
+	border-top-style: solid;
+	border-right-style: solid;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-top-color: #7B7BAE;
+	border-right-color: #7B7BAE;
+	border-bottom-color: #141336;
+	border-left-color: #141336;
+	background-color: #23224C;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+  text-decoration: underline;
+	color: #CCCCCC;
+}
+
+.Content .Right
+{
+	width: 18px;
+	background-color: #DADEE9;
+}
+
+.Content .BottomLeft
+{
+	width: 18px;
+	height: 12px;
+	line-height: 12px;
+	background-color:#333366;
+}
+
+.Content .Footer
+{
+	line-height: 12px;
+	height: 12px;
+	font-size: 9px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	background-color:#333366;
+	color:#FFFFFF;
+}
+
+.Content .Footer a:link,
+.Content .Footer a:visited,
+.Content .Footer a:hover
+{
+	color:#FF9900;
+}
+
+.Content .BottomRight
+{
+	width: 18px;
+	line-height: 12px;
+	height: 12px;
+	background-color:#333366;
+}
+
+.Content .Spacer
+{
+	height: 10px;
+}
+
+.BottomSpacer
+{
+}
+
+.Footer
+{
+	font-size: 9px;
+	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	height: 20px;
+	background-color: #CCCCCC;
+}
+
+.Footer a:link, 
+.Footer a:visited, 
+.Footer a:hover
+{
+	color:#006699;
+	text-decoration: underline;	
+}
+
+.Box
+{
+	border: thin solid #333333;
+}

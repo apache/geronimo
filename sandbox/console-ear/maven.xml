@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="ear:install"
+    xmlns:ant="jelly:ant"
+    xmlns:velocity="jelly:velocity"
+    >
+
+    <pre-goal name="ear:ear">
+        <ant:mkdir dir="${basedir}/target/plan"/>        
+        <velocity:merge basedir="${basedir}/src/application/META-INF" template="application.xml" name="${basedir}/target/plan/application.xml"/>
+        <velocity:merge basedir="${basedir}/src/plan" template="geronimo-application.xml" name="${basedir}/src/application/META-INF/geronimo-application.xml"/>        
+    </pre-goal>
+</project>
