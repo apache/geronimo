@@ -280,8 +280,6 @@ by the server.
     </gbean>
 
 
-    <!-- HTTP/SOAP Protocol is now run through jetty-->
-
     <!-- JSR77 Management Objects -->
     <gbean gbeanName="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
     <gbean gbeanName="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
