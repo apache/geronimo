@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -249,7 +250,7 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.startGBean(baseConfigName);
 
         ObjectName defaultServlets = ObjectName.getInstance("test:name=test,type=none,*");
-        ObjectName pojoWebServiceTemplate = null;
+        Object pojoWebServiceTemplate = null;
         WebServiceBuilder webServiceBuilder = new UnavailableWebServiceBuilder();
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");

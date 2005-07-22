@@ -19,8 +19,8 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -50,6 +50,8 @@ import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -61,8 +63,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -83,8 +85,8 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.j2ee.DispatcherType;
 import org.apache.geronimo.xbeans.j2ee.ErrorPageType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -112,8 +114,6 @@ import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mortbay.http.BasicAuthenticator;
 import org.mortbay.http.ClientCertAuthenticator;
 import org.mortbay.http.DigestAuthenticator;
@@ -130,7 +130,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final ObjectName defaultServlets;
     private final ObjectName defaultFilters;
     private final ObjectName defaultFilterMappings;
-    private final ObjectName pojoWebServiceTemplate;
+    private final GBeanData pojoWebServiceTemplate;
 
     private final WebServiceBuilder webServiceBuilder;
 
@@ -147,17 +147,17 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               ObjectName defaultServlets,
                               ObjectName defaultFilters,
                               ObjectName defaultFilterMappings,
-                              ObjectName pojoWebServiceTemplate,
+                              Object pojoWebServiceTemplate,
                               WebServiceBuilder webServiceBuilder,
                               Repository repository,
-                              Kernel kernel) {
+                              Kernel kernel) throws GBeanNotFoundException {
         this.defaultParentId = defaultParentId;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.jettyContainerObjectName = jettyContainerObjectName;
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
-        this.pojoWebServiceTemplate = pojoWebServiceTemplate;
+        this.pojoWebServiceTemplate = getServletData(kernel, pojoWebServiceTemplate);
         this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
         this.kernel = kernel;
@@ -165,6 +165,15 @@ public class JettyModuleBuilder implements ModuleBuilder {
         //todo locale mappings
 
         this.defaultWelcomeFiles = defaultWelcomeFiles;
+    }
+
+    private static GBeanData getServletData(Kernel kernel, Object template) throws GBeanNotFoundException {
+        if (template == null) {
+            return null;
+        }
+        ObjectName templateName = kernel.getProxyManager().getProxyTarget(template);
+        GBeanData templateData = kernel.getGBeanData(templateName);
+        return templateData;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -250,6 +259,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
      * will only have one, which is what this method is intended for.
+     *
      * @param webApp
      * @param contextRoot
      * @return
@@ -286,7 +296,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                         } catch (FileNotFoundException e) {
                             path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
                             XmlObject object = SchemaConversionUtils.parse(path);
-                            if(object != null) {
+                            if (object != null) {
                                 log.error("Incorrect deployment plan naming: found geronimo-jetty.xml, should be geronimo-web.xml");
                                 jettyWebAppdoc = TemporaryPlanAdapter.convertJettyDocumentToWeb(object);
                             }
@@ -805,28 +815,28 @@ public class JettyModuleBuilder implements ModuleBuilder {
     /**
      * Adds the provided servlets, taking into account the load-on-startup ordering.
      *
-     * @param webModuleName an <code>ObjectName</code> value
-     * @param moduleFile a <code>JarFile</code> value
-     * @param servletTypes a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
-     * @param servletMappings a <code>Map</code> value
-     * @param securityRoles a <code>Set</code> value
-     * @param rolePermissions a <code>Map</code> value
-     * @param portMap a <code>Map</code> value
-     * @param webClassLoader a <code>ClassLoader</code> value
+     * @param webModuleName     an <code>ObjectName</code> value
+     * @param moduleFile        a <code>JarFile</code> value
+     * @param servletTypes      a <code>ServletType[]</code> value, contains the <code>servlet</code> entries from <code>web.xml</code>.
+     * @param servletMappings   a <code>Map</code> value
+     * @param securityRoles     a <code>Set</code> value
+     * @param rolePermissions   a <code>Map</code> value
+     * @param portMap           a <code>Map</code> value
+     * @param webClassLoader    a <code>ClassLoader</code> value
      * @param moduleJ2eeContext a <code>J2eeContext</code> value
-     * @param earContext an <code>EARContext</code> value
-     * @exception MalformedObjectNameException if an error occurs
-     * @exception DeploymentException if an error occurs
+     * @param earContext        an <code>EARContext</code> value
+     * @throws MalformedObjectNameException if an error occurs
+     * @throws DeploymentException          if an error occurs
      */
     private void addServlets(ObjectName webModuleName,
-                            JarFile moduleFile,
-                            ServletType[] servletTypes,
-                            Map servletMappings,
-                            Set securityRoles,
-                            Map rolePermissions, Map portMap,
-                            ClassLoader webClassLoader,
-                            J2eeContext moduleJ2eeContext,
-                            EARContext earContext) throws MalformedObjectNameException, DeploymentException {
+                             JarFile moduleFile,
+                             ServletType[] servletTypes,
+                             Map servletMappings,
+                             Set securityRoles,
+                             Map rolePermissions, Map portMap,
+                             ClassLoader webClassLoader,
+                             J2eeContext moduleJ2eeContext,
+                             EARContext earContext) throws MalformedObjectNameException, DeploymentException {
 
         // this TreeSet will order the ServletTypes based on whether
         // they have a load-on-startup element and what its value is
@@ -847,8 +857,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
         // of how to do this.
         // http://issues.apache.org/jira/browse/GERONIMO-645
         ServletType previousServlet = null;
-        for (Iterator servlets = loadOrder.iterator(); servlets.hasNext(); ) {
-            ServletType servletType = (ServletType)servlets.next();
+        for (Iterator servlets = loadOrder.iterator(); servlets.hasNext();) {
+            ServletType servletType = (ServletType) servlets.next();
             addServlet(webModuleName, moduleFile, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
             previousServlet = servletType;
         }
@@ -886,11 +896,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 servletData = new GBeanData(servletObjectName, JettyServletHolder.GBEAN_INFO);
                 servletData.setAttribute("servletClass", servletClassName);
             } else {
-                try {
-                    servletData = kernel.getGBeanData(pojoWebServiceTemplate);
-                } catch (GBeanNotFoundException e) {
-                    throw new DeploymentException("No POJO web service template gbean found at object name: " + pojoWebServiceTemplate, e);
-                }
+                servletData = new GBeanData(pojoWebServiceTemplate);
                 servletData.setName(servletObjectName);
                 //let the web service builder deal with configuring the gbean with the web service stack
                 Object portInfo = portMap.get(servletName);
@@ -1327,7 +1333,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultServlets", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
         infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
-        infoBuilder.addAttribute("pojoWebServiceTemplate", ObjectName.class, true);
+        infoBuilder.addReference("PojoWebServiceTemplate", Object.class);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
@@ -1341,7 +1347,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             "defaultServlets",
             "defaultFilters",
             "defaultFilterMappings",
-            "pojoWebServiceTemplate",
+            "PojoWebServiceTemplate",
             "WebServiceBuilder",
             "Repository",
             "kernel"});
@@ -1358,14 +1364,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
          * ordering of servlet name.  Since the servlet names have a uniqueness constraint, this should
          * provide a total ordering consistent with equals.  All servlets with no startup order are after
          * all servlets with a startup order.
-         * 
-         * @param o1  first ServletType object
-         * @param o2  second ServletType object
+         *
+         * @param o1 first ServletType object
+         * @param o2 second ServletType object
          * @return an int < 0 if o1 precedes o2, 0 if they are equal, and > 0 if o2 preceeds o1.
          */
         public int compare(Object o1, Object o2) {
-            ServletType s1 = (ServletType)o1;
-            ServletType s2 = (ServletType)o2;
+            ServletType s1 = (ServletType) o1;
+            ServletType s2 = (ServletType) o2;
 
             // load-on-startup is set for neither.  the
             // ordering at this point doesn't matter, but we

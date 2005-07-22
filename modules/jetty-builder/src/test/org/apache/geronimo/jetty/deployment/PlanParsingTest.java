@@ -2,6 +2,7 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
 import java.util.jar.JarFile;
+import java.util.Collections;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -19,8 +20,12 @@ public class PlanParsingTest extends TestCase {
     ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
     ObjectName pojoWebServiceTemplate = null;
     WebServiceBuilder webServiceBuilder = null;
-    private JettyModuleBuilder builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, pojoWebServiceTemplate, webServiceBuilder, null, null);
+    private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
+
+    public PlanParsingTest() throws Exception {
+        builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, pojoWebServiceTemplate, webServiceBuilder, null, null);
+    }
 
     public void testContents() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
