@@ -61,7 +61,7 @@ public class GeronimoURLFactory implements GBeanLifecycle {
      *
      * @param protocol the prototcol name
      * @param handler the url handler for the protocol
-     * @throws IllegalStateException if a handler is alreayd assigned to the protocol
+     * @throws IllegalStateException if a handler is already assigned to the protocol
      */
     public void registerHandler(String protocol, URLStreamHandler handler) {
         factory.registerHandler(protocol, handler);
