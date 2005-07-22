@@ -97,8 +97,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private String displayName;
     private final String[] welcomeFiles;
 
-    private final  BeforeAfter chain;
-    private final  int contextLength;
+    private final BeforeAfter chain;
+    private final int contextLength;
     private final SecurityContextBeforeAfter securityInterceptor;
     private static final String[] J2EE_TYPES = {NameFactory.SERVLET};
 
@@ -188,7 +188,13 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         setConfigurationClassNames(new String[]{});
 
-        URI root = URI.create(configurationBaseUrl.toString());
+        URI root = null;
+        //TODO is there a simpler way to do this?
+        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
+            root = new URI("file", configurationBaseUrl.getPath(), null);
+        } else {
+            root = URI.create(configurationBaseUrl.toString());
+        }
         webAppRoot = root.resolve(uri);
         URL webAppRootURL = webAppRoot.toURL();
 
@@ -264,7 +270,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         FilterHolder jsr154FilterHolder = new FilterHolder(handler, "jsr154", JSR154Filter.class.getName());
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
-        handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR );
+        handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR);
     }
 
     public String getObjectName() {
@@ -309,7 +315,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             return;
         }
 
-        ((AbstractSessionManager)getServletHandler().getSessionManager()).setUseRequestedId(true);
+        ((AbstractSessionManager) getServletHandler().getSessionManager()).setUseRequestedId(true);
 
         setWAR(webAppRoot.toString());
 
@@ -478,6 +484,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             throw new InvalidObjectNameException("WebModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
         }
     }
+
     public void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, Map webRoleRefPermissions) throws Exception {
         //TODO filters
         handler.addServletHolder(servletHolder);
@@ -499,11 +506,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public boolean checkSecurityConstraints(String pathInContext, HttpRequest request, HttpResponse response) throws HttpException, IOException {
-         if (securityInterceptor != null) {
-             return securityInterceptor.checkSecurityConstraints(pathInContext, request, response);
-         }
-         return super.checkSecurityConstraints(pathInContext, request, response);
-     }
+        if (securityInterceptor != null) {
+            return securityInterceptor.checkSecurityConstraints(pathInContext, request, response);
+        }
+        return super.checkSecurityConstraints(pathInContext, request, response);
+    }
 
 
     public static final GBeanInfo GBEAN_INFO;
