@@ -55,6 +55,11 @@
         <attainGoal name="build"/>
     </goal>
 
+    <goal name="tomcat">
+        <j:set var="geronimo.web.container" value="tomcat"/>
+        <attainGoal name="rebuild"/>
+    </goal>
+
     <preGoal name="jar:jar">
         <attainGoal name="assemble"/>
         <j:if test="${context.getVariable('geronimo.assemble.delete.logs') == 'true'}">
