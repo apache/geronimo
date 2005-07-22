@@ -17,6 +17,7 @@
 package org.apache.geronimo.kernel.proxy;
 
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 /**
  * Manages kernel proxies
@@ -42,6 +43,19 @@ public interface ProxyManager {
     public Object createProxy(ObjectName target);
 
     /**
+     * Create proxies for the specified targets.  The proxies will implement
+     * all of the interfaces that the underlying GBeans specify in their
+     * GBeanInfo.  If there are no interfaces in the GBeanInfo, this method
+     * will return a null in that spot in the array.
+     *
+     * @param objectNameStrings An array of ObjectNames, each in String form
+     * @return an array of proxies of the same length as the argument array,
+     *         where each value is a proxy or null if the corresponding
+     *         GBeanInfo declares no interfaces
+     */
+    public Object[] createProxies(String[] objectNameStrings) throws MalformedObjectNameException;
+
+    /**
      * Create a proxy for the specified target, implementing the specified
      * interface.
      *
@@ -60,7 +74,9 @@ public interface ProxyManager {
      * @param target the target object name
      * @param required an interface that the proxy must implement.  This may be
      *                 null in which case only the optional interfaces will be
-     *                 evaluated.
+     *                 evaluated.  However, it's recommended that you always
+     *                 provide one in case none of the optional interfaces
+     *                 are a match.
      * @param optional Interfaces that the proxy may implement.  For each
      *                 of these interfaces, the proxy must implement it if the
      *                 underlying GBean declares that it implements it (by
@@ -70,6 +86,32 @@ public interface ProxyManager {
      *         none of the optional interfaces match the GBeanInfo
      */
     public Object createProxy(ObjectName target, Class required, Class[] optional);
+
+    /**
+     * Create a proxy for the specified target, implementing a variable
+     * number of interfaces.  It's possible to specify one interface that must
+     * be included, and also to specify a number of variable interfaces that
+     * the proxy should implement if the underlying GBean supports them.
+     *
+     * @param objectNameStrings An array of ObjectNames, each in String form
+     * @param required an interface that the proxies must implement.  This may
+     *                 be null in which case only the optional interfaces will
+     *                 be evaluated.  However, it's recommended that you
+     *                 always provide one in case none of the optional
+     *                 interfaces are a match for a particular target.
+     * @param optional Interfaces that the proxies may implement.  For each
+     *                 proxy for each of these interfaces, the proxy must
+     *                 implement it if the underlying GBean declares that it
+     *                 implements it (by declaring the interface in its
+     *                 GBeanInfo), and otherwise the interface will be
+     *                 ignored for that GBean.  Note that different result
+     *                 proxies may implement different interfaces, depending
+     *                 on the underlyings GBeans.
+     * @return an array of proxies of the same length as the argument array,
+     *         where each value is a proxy or null if no required interface
+     *         was provided and none of the optional interfaces match.
+     */
+    public Object[] createProxies(String[] objectNameStrings, Class required, Class[] optional) throws MalformedObjectNameException;
 
     /**
      * Cleans up and resources associated with the proxy

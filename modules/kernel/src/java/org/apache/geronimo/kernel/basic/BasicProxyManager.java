@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
@@ -104,6 +105,22 @@ public class BasicProxyManager implements ProxyManager {
             }
         }
         return createProxyFactory((Class[]) list.toArray(new Class[list.size()])).createProxy(target);
+    }
+
+    public Object[] createProxies(String[] objectNameStrings) throws MalformedObjectNameException {
+        Object[] result = new Object[objectNameStrings.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]));
+        }
+        return result;
+    }
+
+    public Object[] createProxies(String[] objectNameStrings, Class required, Class[] optional) throws MalformedObjectNameException {
+        Object[] result = new Object[objectNameStrings.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]), required, optional);
+        }
+        return result;
     }
 
     public synchronized void destroyProxy(Object proxy) {
