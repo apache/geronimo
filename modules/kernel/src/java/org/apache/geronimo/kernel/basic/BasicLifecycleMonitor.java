@@ -61,7 +61,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
 
     private synchronized void addSource(ObjectName source) {
         if (boundListeners.containsKey(source)) {
-            // alreayd registered
+            // already registered
             return;
         }
 

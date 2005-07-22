@@ -327,7 +327,7 @@ public class GBeanInstanceState {
             // try to create the instance
             if (!gbeanInstance.createInstance()) {
                 // instance is not ready to start... this is normally caused by references
-                // not being available, but could be because someone alreayd started the gbean.
+                // not being available, but could be because someone already started the gbean.
                 // in another thread.  The reference will log a debug message about why
                 // it could not start
                 return;
