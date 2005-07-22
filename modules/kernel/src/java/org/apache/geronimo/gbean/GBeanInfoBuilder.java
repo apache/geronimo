@@ -51,6 +51,8 @@ public class GBeanInfoBuilder {
 
     private final Map references = new HashMap();
 
+    private final Set interfaces = new HashSet();
+
     public GBeanInfoBuilder(Class gbeanType) {
         this(checkNotNull(gbeanType).getName(), gbeanType, null, null);
     }
@@ -177,6 +179,9 @@ public class GBeanInfoBuilder {
                 addOperation(new GOperationInfo(method.getName(), method.getParameterTypes()));
             }
         }
+        if(intf.isInterface()) {
+            interfaces.add(intf);
+        }
     }
 
     public void addAttribute(String name, Class type, boolean persistent) {
@@ -269,7 +274,7 @@ public class GBeanInfoBuilder {
         }
 
 
-        return new GBeanInfo(name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos);
+        return new GBeanInfo(name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces);
     }
 
     private Map getConstructorTypes() throws InvalidConfigurationException {

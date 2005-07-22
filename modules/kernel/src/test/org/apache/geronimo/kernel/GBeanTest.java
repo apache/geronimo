@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanLifecycleController;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
 
 /**
  * @version $Rev$ $Date$
@@ -81,6 +82,111 @@ public class GBeanTest extends TestCase {
         kernel.startGBean(name2);
 
         assertEquals("endpointCheck", kernel.invoke(name2, "checkEndpoint", null, null));
+    }
+
+    public void testProxiesInterfaces() throws Exception {
+        ClassLoader cl = getClass().getClassLoader();
+        ClassLoader myCl = new URLClassLoader(new URL[0], cl);
+        GBeanData gbean = new GBeanData(name, MockGBean.getGBeanInfo());
+        gbean.setAttribute("name", "Test");
+        gbean.setAttribute("finalInt", new Integer(123));
+        kernel.loadGBean(gbean, myCl);
+        kernel.startGBean(name);
+        ProxyManager mgr = kernel.getProxyManager();
+
+        Object test = mgr.createProxy(name);
+        assertTrue(test instanceof MockEndpoint);
+        assertTrue(test instanceof MockParentInterface1);
+        assertTrue(test instanceof MockParentInterface2);
+        assertTrue(test instanceof MockChildInterface1);
+        assertTrue(test instanceof MockChildInterface2);
+        assertFalse(test instanceof Comparable);
+        ((MockEndpoint)test).doNothing();
+        assertEquals("Foo", ((MockEndpoint)test).echo("Foo"));
+        ((MockParentInterface1)test).setValue("Foo");
+        assertEquals("Foo", ((MockParentInterface1)test).getValue());
+        ((MockParentInterface1)test).setMutableInt(6);
+        assertEquals(6, ((MockParentInterface1)test).getMutableInt());
+        ((MockParentInterface2)test).doNothing();
+        assertEquals("Foo", ((MockParentInterface2)test).echo("Foo"));
+        ((MockParentInterface2)test).setValue("Foo");
+        assertEquals("Foo", ((MockParentInterface2)test).getValue());
+        ((MockChildInterface1)test).getFinalInt();
+        ((MockChildInterface2)test).doNothing();
+        assertEquals("Foo", ((MockChildInterface2)test).doSomething("Foo"));
+
+        test = mgr.createProxy(name, MockEndpoint.class);
+        assertTrue(test instanceof MockEndpoint);
+        assertFalse(test instanceof MockParentInterface1);
+        assertFalse(test instanceof MockParentInterface2);
+        assertFalse(test instanceof MockChildInterface1);
+        assertFalse(test instanceof MockChildInterface2);
+        assertFalse(test instanceof Comparable);
+
+        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{MockParentInterface2.class, MockChildInterface2.class});
+        assertTrue(test instanceof MockEndpoint);
+        assertTrue(test instanceof MockParentInterface1);
+        assertTrue(test instanceof MockParentInterface2);
+        assertTrue(test instanceof MockChildInterface1);
+        assertTrue(test instanceof MockChildInterface2);
+        assertFalse(test instanceof Comparable);
+
+        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{MockParentInterface1.class, MockChildInterface1.class});
+        assertTrue(test instanceof MockEndpoint);
+        assertTrue(test instanceof MockParentInterface1);
+        assertFalse(test instanceof MockParentInterface2);
+        assertTrue(test instanceof MockChildInterface1);
+        assertFalse(test instanceof MockChildInterface2);
+        assertFalse(test instanceof Comparable);
+
+        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{MockParentInterface1.class, MockChildInterface1.class, Comparable.class});
+        assertTrue(test instanceof MockEndpoint);
+        assertTrue(test instanceof MockParentInterface1);
+        assertFalse(test instanceof MockParentInterface2);
+        assertTrue(test instanceof MockChildInterface1);
+        assertFalse(test instanceof MockChildInterface2);
+        assertFalse(test instanceof Comparable);
+
+        test = mgr.createProxy(name, null, new Class[]{MockParentInterface1.class, MockChildInterface1.class, Comparable.class});
+        assertFalse(test instanceof MockEndpoint);
+        assertTrue(test instanceof MockParentInterface1);
+        assertFalse(test instanceof MockParentInterface2);
+        assertTrue(test instanceof MockChildInterface1);
+        assertFalse(test instanceof MockChildInterface2);
+        assertFalse(test instanceof Comparable);
+
+        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{Comparable.class});
+        assertTrue(test instanceof MockEndpoint);
+        assertFalse(test instanceof MockParentInterface1);
+        assertFalse(test instanceof MockParentInterface2);
+        assertFalse(test instanceof MockChildInterface1);
+        assertFalse(test instanceof MockChildInterface2);
+        assertFalse(test instanceof Comparable);
+
+        try {
+            test = mgr.createProxy(name, null, new Class[]{Comparable.class}); // no implementable interface
+            fail();
+        }catch(IllegalArgumentException e) {}
+
+        try {
+            test = mgr.createProxy(name, null, new Class[0]); // no interface
+            fail();
+        }catch(IllegalArgumentException e) {}
+
+        try {
+            test = mgr.createProxy(name, null, null); // no interface
+            fail();
+        }catch(IllegalArgumentException e) {}
+
+        try {
+            test = mgr.createProxy(name, Class.class, null); // class not interface
+            fail();
+        }catch(IllegalArgumentException e) {}
+
+        try {
+            test = mgr.createProxy(name, null, new Class[]{Class.class}); // class not interface
+            fail();
+        }catch(IllegalArgumentException e) {}
     }
 
     protected void setUp() throws Exception {

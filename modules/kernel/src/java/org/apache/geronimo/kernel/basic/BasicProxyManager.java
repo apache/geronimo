@@ -17,14 +17,19 @@
 package org.apache.geronimo.kernel.basic;
 
 import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
 import javax.management.ObjectName;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.gbean.GBeanInfo;
 
 /**
  * @version $Rev$ $Date$
@@ -44,6 +49,11 @@ public class BasicProxyManager implements ProxyManager {
         return new ManagedProxyFactory(type);
     }
 
+    public synchronized ProxyFactory createProxyFactory(Class[] type) {
+        assert type != null: "type is null";
+        return new ManagedProxyFactory(type);
+    }
+
     public synchronized Object createProxy(ObjectName target, Class type) {
         assert type != null: "type is null";
         assert target != null: "target is null";
@@ -51,12 +61,57 @@ public class BasicProxyManager implements ProxyManager {
         return createProxyFactory(type).createProxy(target);
     }
 
+    public Object createProxy(ObjectName target) {
+        assert target != null: "target is null";
+        try {
+            GBeanInfo info = kernel.getGBeanInfo(target);
+            if(info.getInterfaces().size() == 0) {
+                return null;
+            }
+            Class[] intfs = (Class[]) info.getInterfaces().toArray(new Class[0]);
+            return createProxyFactory(intfs).createProxy(target);
+        } catch (GBeanNotFoundException e) {
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
+        }
+    }
+
+    public Object createProxy(ObjectName target, Class required, Class[] optional) {
+        assert target != null: "target is null";
+        if(required == null && (optional == null || optional.length == 0)) {
+            throw new IllegalArgumentException("Cannot create proxy for no interfaces");
+        }
+        if(required != null && !required.isInterface()) {
+            throw new IllegalArgumentException("Cannot create a proxy for a class (only interfaces) -- "+required.getName());
+        }
+        List list = new ArrayList();
+        if(required != null) {
+            list.add(required);
+        }
+        if (optional != null) {
+            try {
+                GBeanInfo info = kernel.getGBeanInfo(target);
+                Set set = info.getInterfaces();
+                for (int i = 0; i < optional.length; i++) {
+                    if (!optional[i].isInterface()) {
+                        throw new IllegalArgumentException("Cannot create a proxy for a class (only interfaces) -- " + optional[i].getName());
+                    }
+                    if (set.contains(optional[i])) {
+                        list.add(optional[i]);
+                    }
+                }
+            } catch (GBeanNotFoundException e) {
+                throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
+            }
+        }
+        return createProxyFactory((Class[]) list.toArray(new Class[list.size()])).createProxy(target);
+    }
+
     public synchronized void destroyProxy(Object proxy) {
         if (proxy == null) {
             return;
         }
 
-        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.get(proxy);
+        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.remove(proxy);
         if (methodInterceptor != null) {
             methodInterceptor.destroy();
         }
@@ -67,7 +122,7 @@ public class BasicProxyManager implements ProxyManager {
     }
 
     public synchronized ObjectName getProxyTarget(Object proxy) {
-        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.remove(proxy);
+        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.get(proxy);
         if (methodInterceptor == null) {
             return null;
         }
@@ -75,28 +130,93 @@ public class BasicProxyManager implements ProxyManager {
     }
 
     private class ManagedProxyFactory implements ProxyFactory {
-        private final Class type;
+        private final Class proxyType;
         private final Enhancer enhancer;
 
         public ManagedProxyFactory(Class type) {
+            this(new Class[]{type});
+        }
+
+        public ManagedProxyFactory(Class[] type) {
             enhancer = new Enhancer();
-            enhancer.setSuperclass(type);
+            if(type.length > 1) { // shrink first -- may reduce from many to one
+                type = reduceInterfaces(type);
+            }
+            if(type.length == 0) {
+                throw new IllegalArgumentException("Cannot generate proxy for 0 interfaces!");
+            } else if(type.length == 1) {
+                enhancer.setSuperclass(type[0]);
+            } else {
+                enhancer.setSuperclass(Object.class);
+                enhancer.setInterfaces(type);
+            }
             enhancer.setCallbackType(MethodInterceptor.class);
             enhancer.setUseFactory(false);
-            this.type = enhancer.createClass();
+            proxyType = enhancer.createClass();
         }
 
         public synchronized Object createProxy(ObjectName target) {
             assert target != null: "target is null";
 
-            ProxyMethodInterceptor interceptor = new ProxyMethodInterceptor(type, kernel, target);
+            Callback callback = getMethodInterceptor(proxyType, kernel, target);
 
             // @todo trap CodeGenerationException indicating missing no-arg ctr
-            enhancer.setCallbacks(new Callback[]{interceptor});
+            enhancer.setCallbacks(new Callback[]{callback});
             Object proxy = enhancer.create();
 
-            interceptors.put(proxy, interceptor);
+            interceptors.put(proxy, callback);
             return proxy;
         }
+
+        /**
+         * If there are multiple interfaces, and some of them extend each other,
+         * eliminate the superclass in favor of the subclasses that extend them.
+         * @param source the original list of interfaces
+         * @return the equal or smaller list of interfaces
+         */
+        private Class[] reduceInterfaces(Class[] source) {
+            boolean changed = false;
+            for (int i = 0; i < source.length-1; i++) {
+                Class original = source[i];
+                if(original == null) {
+                    continue;
+                }
+                if(!original.isInterface()) {
+                    throw new IllegalArgumentException(original.getName()+" is not an interface; cannot generate proxy");
+                }
+                for (int j = i+1; j < source.length; j++) {
+                    Class other = source[j];
+                    if(other == null) {
+                        continue;
+                    }
+                    if(!other.isInterface()) {
+                        throw new IllegalArgumentException(other.getName()+" is not an interface; cannot generate proxy");
+                    }
+                    if(other.isAssignableFrom(original)) {
+                        other = null;
+                        changed = true;
+                    } else if(original.isAssignableFrom(other)) {
+                        original = null;
+                        changed = true;
+                        break; // the original has been eliminated; move on to the next original
+                    }
+                }
+            }
+
+            if(!changed) {
+                return source;
+            }
+            List list = new ArrayList(source.length-1);
+            for (int i = 0; i < source.length; i++) {
+                if(source[i] != null) {
+                    list.add(source[i]);
+                }
+            }
+            return (Class[]) list.toArray(new Class[list.size()]);
+        }
+    }
+
+    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, ObjectName target) {
+        return new ProxyMethodInterceptor(proxyType, kernel, target);
     }
 }

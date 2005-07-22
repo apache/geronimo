@@ -31,12 +31,45 @@ public interface ProxyManager {
     public ProxyFactory createProxyFactory(Class type);
 
     /**
-     * Create a proxy implementing the class to the specified target.
+     * Create a proxy for the specified target.  The proxy will implement
+     * all of the interfaces that the underlying GBean specifies in its
+     * GBeanInfo.  If there are no interfaces in the GBeanInfo, this method
+     * will return null.
+     *
+     * @param target the target object name
+     * @return the proxy, or null if the GBeanInfo declares no interfaces
+     */
+    public Object createProxy(ObjectName target);
+
+    /**
+     * Create a proxy for the specified target, implementing the specified
+     * interface.
+     *
      * @param target the target object name
      * @param type the type of the proxy to create
      * @return the proxy
      */
     public Object createProxy(ObjectName target, Class type);
+
+    /**
+     * Create a proxy for the specified target, implementing a variable
+     * number of interfaces.  It's possible to specify one interface that must
+     * be included, and also to specify a number of variable interfaces that
+     * the proxy should implement if the underlying GBean supports them. 
+     *
+     * @param target the target object name
+     * @param required an interface that the proxy must implement.  This may be
+     *                 null in which case only the optional interfaces will be
+     *                 evaluated.
+     * @param optional Interfaces that the proxy may implement.  For each
+     *                 of these interfaces, the proxy must implement it if the
+     *                 underlying GBean declares that it implements it (by
+     *                 declaring the interface in its GBeanInfo), and otherwise
+     *                 the interface will be ignored.
+     * @return the proxy, or null if no required interfaces was specified and
+     *         none of the optional interfaces match the GBeanInfo
+     */
+    public Object createProxy(ObjectName target, Class required, Class[] optional);
 
     /**
      * Cleans up and resources associated with the proxy

@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.GBeanLifecycleController;
 /**
  * @version $Rev$ $Date$
  */
-public class MockGBean implements MockEndpoint {
+public class MockGBean implements MockEndpoint, MockParentInterface1, MockParentInterface2, MockChildInterface1, MockChildInterface2 {
 
     private static final GBeanInfo GBEAN_INFO;
 
@@ -80,6 +80,10 @@ public class MockGBean implements MockEndpoint {
         infoFactory.addOperation("doSomething", new Class[]{String.class});
 
         infoFactory.addInterface(MockEndpoint.class, new String[]{"mutableInt"});
+        infoFactory.addInterface(MockParentInterface1.class, new String[]{"value"});
+        infoFactory.addInterface(MockParentInterface2.class, new String[]{"value"});
+        infoFactory.addInterface(MockChildInterface1.class, new String[]{"finalInt"});
+        infoFactory.addInterface(MockChildInterface2.class, new String[]{});
 
         infoFactory.addReference("MockEndpoint", MockEndpoint.class, null);
         infoFactory.addReference("EndpointCollection", MockEndpoint.class, null);

@@ -104,6 +104,11 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
     private final GBeanLifecycleController gbeanLifecycleController;
 
     /**
+     * Interfaces for this GBean
+     */
+    private final Class[] interfaces;
+
+    /**
      * Attributes lookup table
      */
     private final GBeanAttribute[] attributes;
@@ -213,6 +218,9 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
         //
         Set constructorArgs = new HashSet(gbeanInfo.getConstructor().getAttributeNames());
+
+        // interfaces
+        interfaces = (Class[]) gbeanInfo.getInterfaces().toArray(new Class[0]);
 
         // attributes
         Map attributesMap = new HashMap();
@@ -1191,13 +1199,19 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
             referenceInfos.add(references[i].getReferenceInfo());
         }
 
+        Set interfaceInfos = new HashSet();
+        for (int i = 0; i < interfaces.length; i++) {
+            interfaceInfos.add(interfaces[i]);
+        }
+
         return new GBeanInfo(name,
                 type.getName(),
                 j2eeType,
                 attributeInfos,
                 constructor,
                 operationInfos,
-                referenceInfos);
+                referenceInfos,
+                interfaceInfos);
     }
 
     public static final class GBeanInstanceLifecycleController implements GBeanLifecycleController {

@@ -77,26 +77,27 @@ public final class GBeanInfo implements Serializable {
     private final Set operations;
     private final Set notifications;
     private final Set references;
+    private final Set interfaces;
 
-    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references) {
-        this(className, className, j2eeType, attributes, constructor, operations, references, DEFAULT_NOTIFICATIONS);
+    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
+        this(className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
     }
 
-    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references) {
-        this(name, className, j2eeType, attributes, constructor, operations, references, DEFAULT_NOTIFICATIONS);
-    }
-
-    /**
-     * @deprecated
-     */
-    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set notifications) {
-        this(className, className, j2eeType, attributes, constructor, operations, references, notifications);
+    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
+        this(name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
     }
 
     /**
      * @deprecated
      */
-    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set notifications) {
+    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
+        this(className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications);
+    }
+
+    /**
+     * @deprecated
+     */
+    public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
         this.name = name;
         this.className = className;
         this.j2eeType = j2eeType;
@@ -126,6 +127,11 @@ public final class GBeanInfo implements Serializable {
             this.references = Collections.EMPTY_SET;
         } else {
             this.references = Collections.unmodifiableSet(new HashSet(references));
+        }
+        if (interfaces == null) {
+            this.interfaces = Collections.EMPTY_SET;
+        } else {
+            this.interfaces = Collections.unmodifiableSet(new HashSet(interfaces));
         }
         if (notifications == null) {
             this.notifications = Collections.EMPTY_SET;
@@ -179,6 +185,10 @@ public final class GBeanInfo implements Serializable {
 
     public Set getReferences() {
         return references;
+    }
+
+    public Set getInterfaces() {
+        return interfaces;
     }
 
     public String toString() {
