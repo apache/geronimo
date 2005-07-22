@@ -41,6 +41,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.WebModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.jetty.interceptor.BeforeAfter;
@@ -78,7 +79,7 @@ import org.mortbay.jetty.servlet.WebApplicationHandler;
  *
  * @version $Rev$ $Date$
  */
-public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration {
+public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration, WebModule {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
     private final Kernel kernel;
@@ -101,6 +102,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final SecurityContextBeforeAfter securityInterceptor;
     private static final String[] J2EE_TYPES = {NameFactory.SERVLET};
 
+    private final String objectName;
+
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
@@ -118,6 +121,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         contextLength = 0;
         securityInterceptor = null;
         welcomeFiles = null;
+        objectName = null;
 
     }
 
@@ -173,6 +177,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.kernel = kernel;
         this.server = server;
         this.application = application;
+        this.objectName = objectName;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
         moduleContext = J2eeContextImpl.newContext(myObjectName, NameFactory.WEB_MODULE);
@@ -260,6 +265,22 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
         handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR );
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
@@ -422,8 +443,13 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         return server.getJavaVMs();
     }
 
-    public String[] getServlets() throws MalformedObjectNameException {
-        return Util.getObjectNames(kernel, moduleContext, J2EE_TYPES);
+    public String[] getServlets() {
+        try {
+            return Util.getObjectNames(kernel, moduleContext, J2EE_TYPES);
+        } catch (MalformedObjectNameException e) {
+            log.error(e);
+            return new String[0];
+        }
     }
 
     /**
@@ -537,6 +563,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("application", String.class, false);
         infoBuilder.addAttribute("javaVMs", String[].class, false);
         infoBuilder.addAttribute("servlets", String[].class, false);
+
+        infoBuilder.addInterface(WebModule.class);
 
         infoBuilder.setConstructor(new String[]{
             "objectName",

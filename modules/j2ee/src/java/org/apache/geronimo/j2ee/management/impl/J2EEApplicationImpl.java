@@ -22,7 +22,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEServer;
-import org.apache.geronimo.j2ee.management.J2EEApplication;
+import org.apache.geronimo.j2ee.management.geronimo.J2EEApplication;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -99,6 +99,12 @@ public class J2EEApplicationImpl implements J2EEApplication {
                 new String[]{"AppClientModule", "EJBModule", "WebModule", "ResourceAdapterModule"});
     }
 
+    public String[] getResources() {
+        return Util.getObjectNames(kernel,
+                baseName,
+                new String[]{"JavaMailResource", "JCAConnectionFactory", "JDBCResource", "JDBCDriver", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
+    }
+
     public String getDeploymentDescriptor() {
         return deploymentDescriptor;
     }
@@ -117,6 +123,8 @@ public class J2EEApplicationImpl implements J2EEApplication {
         infoFactory.addAttribute("deploymentDescriptor", String.class, true);
         infoFactory.addAttribute("server", String.class, false);
         infoFactory.addAttribute("modules", String[].class, false);
+        infoFactory.addAttribute("resources", String[].class, false);
+        infoFactory.addInterface(J2EEApplication.class);
 
         infoFactory.setConstructor(new String[]{
             "kernel",

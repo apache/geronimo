@@ -31,11 +31,14 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class BasicProxyManager implements ProxyManager {
+    private final static Log log = LogFactory.getLog(BasicProxyManager.class);
     private final Kernel kernel;
 
     // todo use weak keys for this
@@ -67,6 +70,7 @@ public class BasicProxyManager implements ProxyManager {
         try {
             GBeanInfo info = kernel.getGBeanInfo(target);
             if(info.getInterfaces().size() == 0) {
+                log.warn("No interfaces found for "+target+" ("+info.getClassName()+")");
                 return null;
             }
             Class[] intfs = (Class[]) info.getInterfaces().toArray(new Class[0]);

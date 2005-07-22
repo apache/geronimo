@@ -128,6 +128,7 @@ public class JVMImpl implements JVM {
         infoFactory.addAttribute("maxMemory", Long.TYPE, false);
         infoFactory.addAttribute("totalMemory", Long.TYPE, false);
         infoFactory.addAttribute("availableProcessors", Integer.TYPE, false);
+        infoFactory.addInterface(JVM.class);
         infoFactory.setConstructor(new String[] {"objectName"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

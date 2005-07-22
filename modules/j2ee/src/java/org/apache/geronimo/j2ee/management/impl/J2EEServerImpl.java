@@ -126,6 +126,7 @@ public class J2EEServerImpl implements J2EEServer {
         infoFactory.addAttribute("javaVMs", String[].class, false);
         infoFactory.addAttribute("serverVendor", String.class, false);
         infoFactory.addAttribute("serverVersion", String.class, false);
+        infoFactory.addInterface(J2EEServer.class);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 

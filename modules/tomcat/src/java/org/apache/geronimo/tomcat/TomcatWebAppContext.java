@@ -38,6 +38,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.WebModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -52,7 +53,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  *
  * @version $Rev$ $Date$
  */
-public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
+public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebModule {
 
     private static Log log = LogFactory.getLog(TomcatWebAppContext.class);
 
@@ -96,6 +97,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
 
     private final Map webServices;
 
+    private final String objectName;
+
+    private final String originalSpecDD;
+
     public TomcatWebAppContext(
             ClassLoader classLoader,
             String objectName,
@@ -131,8 +136,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         assert componentContext != null;
         assert container != null;
 
+
+        this.objectName = objectName;
         this.webAppRoot = webAppRoot;
         this.container = container;
+        this.originalSpecDD = originalSpecDD;
 
         this.setDocBase(this.webAppRoot.getPath());
         this.virtualServer = virtualServer;
@@ -196,6 +204,22 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         userTransaction.setUp(transactionContextManager,
                 trackedConnectionAssociator);
 
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     public String getServer() {
@@ -311,6 +335,19 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         }
     }
 
+
+    public String[] getServlets() {
+        return new String[0]; //todo: implement me: ObjectNames (as Strings) of the Servlets in this Web App
+    }
+
+    public String[] getJavaVMs() {
+        return server.getJavaVMs();
+    }
+
+    public String getDeploymentDescriptor() {
+        return originalSpecDD;
+    }
+
     public void doStart() throws Exception {
 
         // See the note of TomcatContainer::addContext
@@ -372,6 +409,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext {
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
+
+        infoBuilder.addInterface(WebModule.class);
 
         infoBuilder.setConstructor(new String[] {
                 "classLoader",

@@ -23,14 +23,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
-import org.apache.geronimo.j2ee.management.J2EEAppClientModule;
+import org.apache.geronimo.j2ee.management.AppClientModule;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * @version $Revision$ $Date$
  */
-public class J2EEAppClientModuleImpl implements J2EEAppClientModule {
+public class J2EEAppClientModuleImpl implements AppClientModule {
     private final String deploymentDescriptor;
     private final J2EEServer server;
     private final J2EEApplication application;
@@ -128,6 +128,7 @@ public class J2EEAppClientModuleImpl implements J2EEAppClientModule {
         infoFactory.addAttribute("application", String.class, false);
         infoFactory.addAttribute("javaVMs", String[].class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addInterface(AppClientModule.class);
 
 
         infoFactory.setConstructor(new String[]{

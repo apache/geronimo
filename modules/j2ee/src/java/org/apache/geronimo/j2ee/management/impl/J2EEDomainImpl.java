@@ -92,6 +92,7 @@ public class J2EEDomainImpl implements J2EEDomain {
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("servers", String[].class, false);
+        infoFactory.addInterface(J2EEDomain.class);
 
         infoFactory.setConstructor(new String[]{"kernel", "objectName"});
 

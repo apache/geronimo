@@ -27,13 +27,14 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.ResourceAdapterModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ResourceAdapterModuleImpl {
+public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
@@ -43,6 +44,7 @@ public class ResourceAdapterModuleImpl {
     private final Map activationSpecInfoMap;
     private final Map adminObjectInfoMap;
     private final Map managedConnectionFactoryInfoMap;
+    private final String objectName;
 
     public ResourceAdapterModuleImpl(String resourceAdapter,
                                      String objectName, 
@@ -53,6 +55,7 @@ public class ResourceAdapterModuleImpl {
                                      Map activationSpecInfoMap,
                                      Map adminObjectInfoMap,
                                      Map managedConnectionFactoryInfoMap) {
+        this.objectName = objectName;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
@@ -66,6 +69,22 @@ public class ResourceAdapterModuleImpl {
         this.activationSpecInfoMap = activationSpecInfoMap;
         this.adminObjectInfoMap = adminObjectInfoMap;
         this.managedConnectionFactoryInfoMap = managedConnectionFactoryInfoMap;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     public String getDeploymentDescriptor() {
@@ -87,7 +106,7 @@ public class ResourceAdapterModuleImpl {
         return server.getJavaVMs();
     }
 
-    public String[] getResourceAdapters() throws MalformedObjectNameException {
+    public String[] getResourceAdapters() {
         return resourceAdapters;
     }
 
@@ -152,8 +171,9 @@ public class ResourceAdapterModuleImpl {
 
         infoBuilder.addAttribute("resourceAdapterGBeanData", GBeanData.class, true);
         infoBuilder.addAttribute("activationSpecInfoMap", Map.class, true);
-         infoBuilder.addAttribute("adminObjectInfoMap", Map.class, true);
+        infoBuilder.addAttribute("adminObjectInfoMap", Map.class, true);
         infoBuilder.addAttribute("managedConnectionFactoryInfoMap", Map.class, true);
+        infoBuilder.addInterface(ResourceAdapterModule.class);
 
         infoBuilder.setConstructor(new String[]{
             "resourceAdapter",
