@@ -20,77 +20,260 @@ limitations under the License.
     <fragment name="navigation" class="org.apache.pluto.portalImpl.aggregation.navigation.TabNavigation">
     </fragment>
 
-    <fragment name="info" type="page">
-        <navigation>
-            <title>Server Info</title>
-            <description>Show info about this server</description>
-        </navigation>
-
-        <fragment name="row2" type="row">
-            <fragment name="col2" type="column">
-                <fragment name="p7" type="portlet">
-                    <property name="portlet" value="5.8"/>
-                </fragment>
-            </fragment>
-        </fragment>
-        <fragment name="row3" type="row">
-            <fragment name="col2" type="column">
-                <fragment name="p7" type="portlet">
-                    <property name="portlet" value="5.24"/>
-                </fragment>
-            </fragment>
-        </fragment>
-    </fragment>
-
     <fragment name="server" type="page">
         <navigation>
-            <title>Server Management</title>
-            <description>Manage this server</description>
+            <title>Server</title>
+            <description>Holds all settings about the running server</description>
         </navigation>
 
-        <fragment name="row2" type="row">
-            <fragment name="col2" type="column">
-                <fragment name="p7" type="portlet">
-                    <property name="portlet" value="5.30"/>
+        <fragment name="info" type="page">
+            <navigation>
+                <title>Information</title>
+                <description>Shows various information on the current server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.8"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="jvm" type="page">
+            <navigation>
+                <title>JVM</title>
+                <description>Shows JVM properties for the current server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.24"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="logs" type="page">
+            <navigation>
+                <title>Server Logs</title>
+                <description>View Log Files</description>
+            </navigation>
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.10"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row2" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.26"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row3" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.27"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row4" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.28"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+
+        </fragment>
+
+        <fragment name="mgmt" type="page">
+            <navigation>
+                <title>Shutdown/Restart</title>
+                <description>Manage this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.30"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="web" type="page">
+            <navigation>
+                <title>Web Server</title>
+                <description>Configure Web Server</description>
+            </navigation>
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.18"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row2" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.19"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row3" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p3" type="portlet">
+                        <property name="portlet" value="5.20"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row4" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p4" type="portlet">
+                        <property name="portlet" value="5.21"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="ejb" type="page">
+            <navigation>
+                <title>EJB Server</title>
+                <description>Configures the EJB server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.50"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="j2ca" type="page">
+            <navigation>
+                <title>J2EE Connectors</title>
+                <description>Configures the J2EE Connector server features</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.51"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="corba" type="page">
+            <navigation>
+                <title>CORBA/IIOP</title>
+                <description>Configures the CORBA/IIOP server features</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.52"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="uddi" type="page">
+            <navigation>
+                <title>UDDI Server</title>
+                <description>Configures the UDDI Server application</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.53"/>
+                    </fragment>
                 </fragment>
             </fragment>
         </fragment>
     </fragment>
 
-    <fragment name="logs" type="page">
+    <fragment name="services" type="page">
         <navigation>
-            <title>Logs</title>
-            <description>View Log Files</description>
+            <title>Services</title>
+            <description>Manage services available on this server</description>
         </navigation>
-        <fragment name="row1" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p2" type="portlet">
-                <property name="portlet" value="5.10"/>
-                </fragment>
-            </fragment>
-        </fragment>
-        <fragment name="row2" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p2" type="portlet">
-                <property name="portlet" value="5.26"/>
-                </fragment>
-            </fragment>
-        </fragment>
-        <fragment name="row3" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p2" type="portlet">
-                <property name="portlet" value="5.27"/>
-                </fragment>
-            </fragment>
-        </fragment>
-        <fragment name="row4" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p2" type="portlet">
-                <property name="portlet" value="5.28"/>
+
+        <fragment name="repo" type="page">
+            <navigation>
+                <title>Common Libraries</title>
+                <description>View Repository</description>
+            </navigation>
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.29"/>
+                    </fragment>
                 </fragment>
             </fragment>
         </fragment>
 
+        <fragment name="jdbc" type="page">
+            <navigation>
+                <title>Database Pools</title>
+                <description>Manage database connections</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.2"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="jms" type="page">
+            <navigation>
+                <title>JMS</title>
+                <description>Configure Java Message Service</description>
+            </navigation>
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.31"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row2" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.17"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+
+        <fragment name="mail" type="page">
+            <navigation>
+                <title>Java Mail</title>
+                <description>Configure Java Mail service</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.54"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
     </fragment>
 
     <fragment name="apps" type="page">
@@ -99,170 +282,222 @@ limitations under the License.
             <description>Manage applications on this server</description>
         </navigation>
 
-        <fragment name="row2" type="row">
-            <fragment name="col2" type="column">
-                <fragment name="p3" type="portlet">
-                    <property name="portlet" value="5.1"/>
+        <fragment name="all" type="page">
+            <navigation>
+                <title>All Configurations</title>
+                <description>This should be replaced</description>
+            </navigation>
+
+            <fragment name="row2" type="row">
+                <fragment name="col2" type="column">
+                    <fragment name="p3" type="portlet">
+                        <property name="portlet" value="5.1"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row3" type="row">
+                <fragment name="col2" type="column">
+                    <fragment name="p3" type="portlet">
+                        <property name="portlet" value="5.22"/>
+                    </fragment>
                 </fragment>
             </fragment>
         </fragment>
-        <fragment name="row3" type="row">
-            <fragment name="col2" type="column">
-                <fragment name="p3" type="portlet">
-                    <property name="portlet" value="5.22"/>
-                </fragment>
-            </fragment>
-        </fragment>
-    </fragment>
 
-    <fragment name="repo" type="page">
-        <navigation>
-            <title>Repository</title>
-            <description>View Repository</description>
-        </navigation>
-        <fragment name="row2" type="row">
-            <fragment name="col2" type="column">
-                <fragment name="p3" type="portlet">
-                    <property name="portlet" value="5.29"/>
-                </fragment>
-            </fragment>
-        </fragment>
-    </fragment>
+        <fragment name="ear" type="page">
+            <navigation>
+                <title>Application EARs</title>
+                <description>Manage EARs on this server</description>
+            </navigation>
 
-    <fragment name="jdbc" type="page">
-        <navigation>
-            <title>Databases</title>
-            <description>Manage database connections</description>
-        </navigation>
-
-        <fragment name="row3" type="row">
-            <fragment name="col3" type="column">
-                <fragment name="p4" type="portlet">
-                    <property name="portlet" value="5.2"/>
-                </fragment>
-            </fragment>
-        </fragment>
-    </fragment>
-
-    <fragment name="jms" type="page">
-        <navigation>
-            <title>JMS</title>
-            <description>Configure Java Message Service</description>
-        </navigation>
-        <fragment name="row3" type="row">
-            <fragment name="col3" type="column">
-                <fragment name="p4" type="portlet">
-                    <property name="portlet" value="5.31"/>
-                </fragment>
-            </fragment>
-        </fragment>           
-        <fragment name="row4" type="row">
-            <fragment name="col4" type="column">
-                <fragment name="p5" type="portlet">
-                    <property name="portlet" value="5.17"/>
-                </fragment>
-            </fragment>
-        </fragment>
-    </fragment>
-
-   <fragment name="Security" type="page">
-      <navigation>
-         <title>Security</title>
-         <description>Manage security on this server</description>
-      </navigation>
-        <fragment name="Console" type="page">
-           <navigation>
-              <title>Console Realm</title>
-              <description>Manage the console security realm on this server</description>
-           </navigation>
             <fragment name="row1" type="row">
-               <fragment name="col1" type="column">
-                  <fragment name="p2" type="portlet">
-                     <property name="portlet" value="5.3"/>
-                  </fragment>
-               </fragment>
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.55"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="war" type="page">
+            <navigation>
+                <title>Web App WARs</title>
+                <description>Manage EARs on this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.56"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="ejb" type="page">
+            <navigation>
+                <title>EJB JARs</title>
+                <description>Manage EJB JARs on this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.57"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="rar" type="page">
+            <navigation>
+                <title>J2EE Connectors</title>
+                <description>Manage RARs on this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.58"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="client" type="page">
+            <navigation>
+                <title>App Clients</title>
+                <description>Manage client JARs on this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.59"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+        <fragment name="system" type="page">
+            <navigation>
+                <title>System Modules</title>
+                <description>Manage system deployments on this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.60"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
+    </fragment>
+
+    <fragment name="Security" type="page">
+        <navigation>
+            <title>Security</title>
+            <description>Manage security on this server</description>
+        </navigation>
+        <fragment name="Console" type="page">
+            <navigation>
+                <title>Console Realm</title>
+                <description>Manage the console security realm on this server</description>
+            </navigation>
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.3"/>
+                    </fragment>
+                </fragment>
             </fragment>
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
                     <fragment name="p3" type="portlet">
-                        <property name="portlet" value="5.4" />
+                        <property name="portlet" value="5.4"/>
                     </fragment>
                 </fragment>
             </fragment>
-         </fragment>
-    </fragment>
-    <fragment name="web" type="page">
-        <navigation>
-            <title>Web Server</title>
-            <description>Configure Web Server</description>
-        </navigation>
-        <fragment name="row1" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p1" type="portlet">
-                    <property name="portlet" value="5.18"/>
+        </fragment>
+
+        <fragment name="realms" type="page">
+            <navigation>
+                <title>All Realms</title>
+                <description>Manage all security realms on this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.61"/>
+                    </fragment>
                 </fragment>
             </fragment>
         </fragment>
-        <fragment name="row2" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p2" type="portlet">
-                    <property name="portlet" value="5.19"/>
-                </fragment>
-            </fragment>
-        </fragment>
-        <fragment name="row3" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p3" type="portlet">
-                    <property name="portlet" value="5.20"/>
-                </fragment>
-            </fragment>
-        </fragment>
-        <fragment name="row4" type="row">
-            <fragment name="col1" type="column">
-                <fragment name="p4" type="portlet">
-                    <property name="portlet" value="5.21"/>
+
+        <fragment name="keystore" type="page">
+            <navigation>
+                <title>Keystore</title>
+                <description>Manage the keystore for this server</description>
+            </navigation>
+
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.62"/>
+                    </fragment>
                 </fragment>
             </fragment>
         </fragment>
     </fragment>
-    <fragment name="internalDB" type="page">
+
+    <fragment name="misc" type="page">
         <navigation>
-            <title>Internal DB</title>
-            <description>Show info about the server's internal database</description>
+            <title>Misc</title>
+            <description>Other management features</description>
         </navigation>
 
-        <fragment name="DBInfo" type="page">
+        <fragment name="internalDB" type="page">
             <navigation>
-                <title>DB Info</title>
-                <description>Information about the internal database/s</description>
+                <title>Embedded DB</title>
+                <description>Show info about the server's internal database</description>
             </navigation>
 
-            <fragment name="row2" type="row">
-                <fragment name="col2" type="column">
-                    <fragment name="p8" type="portlet">
-                        <property name="portlet" value="5.32"/>
+            <fragment name="DBInfo" type="page">
+                <navigation>
+                    <title>DB Info</title>
+                    <description>Information about the internal database/s</description>
+                </navigation>
+
+                <fragment name="row2" type="row">
+                    <fragment name="col2" type="column">
+                        <fragment name="p8" type="portlet">
+                            <property name="portlet" value="5.32"/>
+                        </fragment>
                     </fragment>
                 </fragment>
             </fragment>
-        </fragment>
 
-        <fragment name="DBManager" type="page">
-            <navigation>
-                <title>DB Manager</title>
-                <description>Manage the internal database/s</description>
-            </navigation>
+            <fragment name="DBManager" type="page">
+                <navigation>
+                    <title>DB Manager</title>
+                    <description>Manage the internal database/s</description>
+                </navigation>
 
-            <fragment name="row3" type="row">
-                <fragment name="col2" type="column">
-                    <fragment name="p9" type="portlet">
-                        <property name="portlet" value="5.33"/>
+                <fragment name="row3" type="row">
+                    <fragment name="col2" type="column">
+                        <fragment name="p9" type="portlet">
+                            <property name="portlet" value="5.33"/>
+                        </fragment>
                     </fragment>
                 </fragment>
-            </fragment>
-            <fragment name="row2" type="row">
-                <fragment name="col2" type="column">
-                    <fragment name="p9" type="portlet">
-                        <property name="portlet" value="5.34"/>
+                <fragment name="row2" type="row">
+                    <fragment name="col2" type="column">
+                        <fragment name="p9" type="portlet">
+                            <property name="portlet" value="5.34"/>
+                        </fragment>
                     </fragment>
                 </fragment>
             </fragment>

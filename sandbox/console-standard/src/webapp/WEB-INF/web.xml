@@ -20,7 +20,178 @@ limitations under the License.
          xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
          version="2.4">
 
-    <display-name>Gluecode SE Console Standard Portlets</display-name>
+    <display-name>Geronimo Management Console Portlets</display-name>
+
+    <servlet>
+        <display-name>Pluto Wrapper for EJB Server Portlet</display-name>
+        <servlet-name>EJBServer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.EJBServer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for J2CA Server Portlet</display-name>
+        <servlet-name>J2CAServer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.J2CAServer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for CORBA Server Portlet</display-name>
+        <servlet-name>CORBAServer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.CORBAServer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for UDDI Server Portlet</display-name>
+        <servlet-name>UDDIServer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.UDDIServer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for Mail Server Portlet</display-name>
+        <servlet-name>MailServer</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.MailServer</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for EARModules Portlet</display-name>
+        <servlet-name>EARModules</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.EARModules</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for WARModules Portlet</display-name>
+        <servlet-name>WARModules</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.WARModules</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for EJBModules Portlet</display-name>
+        <servlet-name>EJBModules</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.EJBModules</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for RARModules Portlet</display-name>
+        <servlet-name>RARModules</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.RARModules</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for ClientModules Portlet</display-name>
+        <servlet-name>ClientModules</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.ClientModules</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for SystemModules Portlet</display-name>
+        <servlet-name>SystemModules</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.SystemModules</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for SecurityRealms Portlet</display-name>
+        <servlet-name>SecurityRealms</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.SecurityRealms</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <display-name>Pluto Wrapper for Keystore Portlet</display-name>
+        <servlet-name>Keystore</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.Keystore</param-value>
+        </init-param>
+    </servlet>
+
 
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
@@ -443,6 +614,62 @@ limitations under the License.
         </init-param>
     </servlet>
 
+
+
+    <servlet-mapping>
+        <servlet-name>EJBServer</servlet-name>
+        <url-pattern>/EJBServer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>J2CAServer</servlet-name>
+        <url-pattern>/J2CAServer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CORBAServer</servlet-name>
+        <url-pattern>/CORBAServer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UDDIServer</servlet-name>
+        <url-pattern>/UDDIServer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MailServer</servlet-name>
+        <url-pattern>/MailServer/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EARModules</servlet-name>
+        <url-pattern>/EARModules/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WARModules</servlet-name>
+        <url-pattern>/WARModules/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EJBModules</servlet-name>
+        <url-pattern>/EJBModules/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RARModules</servlet-name>
+        <url-pattern>/RARModules/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ClientModules</servlet-name>
+        <url-pattern>/ClientModules/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SystemModules</servlet-name>
+        <url-pattern>/SystemModules/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SecurityRealms</servlet-name>
+        <url-pattern>/SecurityRealms/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Keystore</servlet-name>
+        <url-pattern>/Keystore/*</url-pattern>
+    </servlet-mapping>
+
+
     <servlet-mapping>
         <servlet-name>Applications</servlet-name>
         <url-pattern>/Applications/*</url-pattern>
@@ -594,6 +821,13 @@ limitations under the License.
             <taglib-location>/WEB-INF/tld/portlet.tld</taglib-location>
         </taglib>
     </jsp-config>
+<!--
+    <env-entry>
+        <env-entry-name>GeronimoKernel</env-entry-name>
+        <env-entry-type>org.apache.geronimo.kernel.Kernel</env-entry-type>
+    </env-entry>
+-->
+
 <!--
     <taglib>
         <taglib-uri>http://java.sun.com/portlet</taglib-uri>

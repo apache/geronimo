@@ -87,5 +87,47 @@ limitations under the License.
         <portlet id="34">
             <definition-id>console-standard.RunSQL</definition-id>
         </portlet>
+
+<!-- Aaron Added -->
+        <portlet id="50">
+            <definition-id>console-standard.EJBServer</definition-id>
+        </portlet>
+        <portlet id="51">
+            <definition-id>console-standard.J2CAServer</definition-id>
+        </portlet>
+        <portlet id="52">
+            <definition-id>console-standard.CORBAServer</definition-id>
+        </portlet>
+        <portlet id="53">
+            <definition-id>console-standard.UDDIServer</definition-id>
+        </portlet>
+
+        <portlet id="54">
+            <definition-id>console-standard.MailServer</definition-id>
+        </portlet>
+        <portlet id="55">
+            <definition-id>console-standard.EARModules</definition-id>
+        </portlet>
+        <portlet id="56">
+            <definition-id>console-standard.WARModules</definition-id>
+        </portlet>
+        <portlet id="57">
+            <definition-id>console-standard.EJBModules</definition-id>
+        </portlet>
+        <portlet id="58">
+            <definition-id>console-standard.RARModules</definition-id>
+        </portlet>
+        <portlet id="59">
+            <definition-id>console-standard.ClientModules</definition-id>
+        </portlet>
+        <portlet id="60">
+            <definition-id>console-standard.SystemModules</definition-id>
+        </portlet>
+        <portlet id="61">
+            <definition-id>console-standard.SecurityRealms</definition-id>
+        </portlet>
+        <portlet id="62">
+            <definition-id>console-standard.Keystore</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

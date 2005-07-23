@@ -18,29 +18,45 @@ package org.apache.geronimo.console.util;
 
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.management.J2EEDomain;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class PortletManager {
+    private final static Log log = LogFactory.getLog(PortletManager.class);
     private final static String HELPER_KEY = "org.apache.geronimo.console.ManagementHelper";
     private final static String DOMAIN_KEY = "org.apache.geronimo.console.J2EEDomain";
     private final static String SERVER_KEY = "org.apache.geronimo.console.J2EEServer";
     private final static String JVM_KEY = "org.apache.geronimo.console.JVM";
 
-    private static ManagementHelper createHelper() {
+    private static ManagementHelper createHelper(PortletRequest request) {
         //todo: consider making this configurable; we could easily connect to a remote kernel if we wanted to
-        return new KernelManagementHelper(KernelRegistry.getSingleKernel());
+        Kernel kernel = null;
+        try {
+            kernel = (Kernel) new InitialContext().lookup("java:comp/env/GeronimoKernel");
+        } catch (NamingException e) {
+//            log.error("Unable to look up kernel in JNDI", e);
+        }
+        if(kernel == null) {
+            log.warn("Unable to find kernel in JNDI; using KernelRegistry instead");
+            kernel = KernelRegistry.getSingleKernel();
+        }
+        return new KernelManagementHelper(kernel);
     }
 
     public static ManagementHelper getManagementHelper(PortletRequest request) {
         ManagementHelper helper = (ManagementHelper) request.getPortletSession(true).getAttribute(HELPER_KEY, PortletSession.APPLICATION_SCOPE);
         if(helper == null) {
-            helper = createHelper();
+            helper = createHelper(request);
             request.getPortletSession().setAttribute(HELPER_KEY, helper, PortletSession.APPLICATION_SCOPE);
         }
         return helper;

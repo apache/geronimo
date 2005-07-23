@@ -21,55 +21,396 @@ limitations under the License.
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd
                         http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd">
-	<portlet>
-        <description>Portlet for managing applications</description>
-        <portlet-name>Applications</portlet-name>
-        <display-name>Applications Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
 
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
+<!-- Server Tab -->
 
-        <supported-locale>en</supported-locale>        
+    <portlet>
+        <description>Portlet for displaying server info</description>
+        <portlet-name>ServerInfo</portlet-name>
+        <display-name>Server Info Portlet</display-name>
 
-		<portlet-info>
-			<title>Installed Applications</title>
-			<short-title>Applications</short-title>
-			<keywords>Applications</keywords>
-        </portlet-info>
-	</portlet>
-
-	<portlet>
-        <description>Portlet for deploying applications</description>
-        <portlet-name>Deployment</portlet-name>
-        <display-name>Application Deployment Portlet</display-name>
-
-        <portlet-class>org.apache.geronimo.console.configmanager.DeploymentPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.infomanager.ServerInfoPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 
         <supports>
-			<mime-type>text/html</mime-type>
+            <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
             <portlet-mode>HELP</portlet-mode>
-		</supports>
+        </supports>
 
         <supported-locale>en</supported-locale>
 
-		<portlet-info>
-			<title>Install New Applications</title>
-			<short-title>Install Application</short-title>
-			<keywords>Deployment</keywords>
+        <portlet-info>
+            <title>Server Info</title>
+            <short-title>ServerInfo</short-title>
+            <keywords>ServerInfo</keywords>
         </portlet-info>
-	</portlet>
+    </portlet>
 
-	<portlet>
+    <portlet>
+        <description>Portlet for displaying java system info</description>
+        <portlet-name>JavaSysInfo</portlet-name>
+        <display-name>Java System Info Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.infomanager.JavaSystemInfoPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>System Property values for the Server JVM</title>
+            <short-title>System</short-title>
+            <keywords>System Properties</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing Logging.</description>
+        <portlet-name>LogManager</portlet-name>
+        <display-name>Log Manager Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.logmanager.LogManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Log Manager</title>
+            <short-title>Log Manager</short-title>
+            <keywords>Log, Manager</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for viewing the server logs.</description>
+        <portlet-name>LogViewer</portlet-name>
+        <display-name>Server Log Viewer Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.logmanager.LogViewerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Server Log Viewer</title>
+            <short-title>Server Log Viewer</short-title>
+            <keywords>Log, Viewer</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for viewing the derby System database logs.</description>
+        <portlet-name>DerbyLogViewer</portlet-name>
+        <display-name>Derby Log Viewer Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.derbylogmanager.DerbyLogViewerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Derby Log Viewer</title>
+            <short-title>Derby Log Viewer</short-title>
+            <keywords>Derby, Log, Viewer</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for viewing the web access logs.</description>
+        <portlet-name>WebAccessLogViewer</portlet-name>
+        <display-name>Web Access Viewer Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.logmanager.WebAccessLogViewerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Web Access Log Viewer</title>
+            <short-title>Web Access Log Viewer</short-title>
+            <keywords>Web, Access, Log, Viewer</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for Stopping or Rebooting the server</description>
+        <portlet-name>ServerManager</portlet-name>
+        <display-name>Server Management Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.servermanager.ServerManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Server Manager</title>
+            <short-title>Server Manager</short-title>
+            <keywords>Server</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing the web server</description>
+        <portlet-name>WebServerManager</portlet-name>
+        <display-name>Web Server Mangement Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.webmanager.WebManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Web Server Manager</title>
+            <short-title>Web Servers</short-title>
+            <keywords>Web Servers</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing HTTP connectors</description>
+        <portlet-name>HTTPConnectorManager</portlet-name>
+        <display-name>HTTP Connector Mangement Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.webmanager.HttpManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>HTTP Connectors</title>
+            <short-title>HTTP Connectors</short-title>
+            <keywords>HTTP Connectors</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing HTTPS connectors</description>
+        <portlet-name>HTTPSConnectorManager</portlet-name>
+        <display-name>HTTPS Connector Mangement Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.webmanager.HttpsManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>HTTPS Connectors</title>
+            <short-title>HTTPS Connectors</short-title>
+            <keywords>HTTPS Connectors</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing AJP13 connectors</description>
+        <portlet-name>AJP13ConnectorManager</portlet-name>
+        <display-name>AJP13 Connector Mangement Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.webmanager.AJP13ManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>AJP13 Connectors</title>
+            <short-title>AJP13 Connectors</short-title>
+            <keywords>AJP13 Connectors</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying EJB server info</description>
+        <portlet-name>EJBServer</portlet-name>
+        <display-name>EJB Server Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>EJB Server</title>
+            <short-title>EJB Server</short-title>
+            <keywords>EJB Server</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying J2CA server info</description>
+        <portlet-name>J2CAServer</portlet-name>
+        <display-name>J2CA Server Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>J2EE Connector Server Coniguration</title>
+            <short-title>J2CA Server</short-title>
+            <keywords>J2CA Server</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying CORBA/IIOP server info</description>
+        <portlet-name>CORBAServer</portlet-name>
+        <display-name>CORBA/IIOP Server Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>CORBA/IIOP Server Configuration</title>
+            <short-title>CORBA Server</short-title>
+            <keywords>CORBA IIOP Server</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying UDDI server info</description>
+        <portlet-name>UDDIServer</portlet-name>
+        <display-name>UDDI Server Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>UDDI Server Configuration</title>
+            <short-title>UDDI Server</short-title>
+            <keywords>UDDI Server</keywords>
+        </portlet-info>
+    </portlet>
+
+<!-- Services Tab -->
+
+    <portlet>
+        <description>Portlet for viewing Repository</description>
+        <portlet-name>RepositoryViewer</portlet-name>
+        <display-name>Repository Viewer Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.repository.RepositoryViewPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Repository Viewer</title>
+            <short-title>Repository Viewer</short-title>
+            <keywords>Repository</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <description>Portlet for managing database connections</description>
         <portlet-name>Databases</portlet-name>
         <display-name>Database Portlet</display-name>
@@ -79,19 +420,20 @@ limitations under the License.
         <expiration-cache>-1</expiration-cache>
 
         <supports>
-			<mime-type>text/html</mime-type>
+            <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
             <portlet-mode>HELP</portlet-mode>
-		</supports>
+        </supports>
 
         <supported-locale>en</supported-locale>
 
-		<portlet-info>
-			<title>Database Connections</title>
-			<short-title>Databases</short-title>
-			<keywords>Databases</keywords>
+        <portlet-info>
+            <title>Database Connections</title>
+            <short-title>Databases</short-title>
+            <keywords>Databases</keywords>
         </portlet-info>
-	</portlet>
+    </portlet>
+
     <portlet>
         <description>Portlet for managing JMS connections</description>
         <portlet-name>JMSConnections</portlet-name>
@@ -115,420 +457,16 @@ limitations under the License.
             <keywords>JMS</keywords>
         </portlet-info>
     </portlet>
-    
-    <portlet>
-        <description>Portlet for managing users from the Geronimo Console realm.</description>
-        <portlet-name>SEUsers</portlet-name>
-        <display-name>Geronimo Console Users Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.securitymanager.SEUsersPortlet</portlet-class>
 
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>Console Realm Users</title>
-			<short-title>Users</short-title>
-			<keywords>Console Realm Users</keywords>
-        </portlet-info>
-	</portlet>
-
-
-	<portlet>
-        <description>Portlet for managing groups from the Console realm.</description>
-        <portlet-name>SEGroups</portlet-name>
-        <display-name>Console Realm Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.securitymanager.SEGroupsPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>Console Realm Groups</title>
-			<short-title>Groups</short-title>
-			<keywords>Console Realm Groups</keywords>
-        </portlet-info>
-	</portlet>
-	
-        <!-- log manager portlets -->
-	<portlet>
-        <description>Portlet for managing Logging.</description>
-        <portlet-name>LogManager</portlet-name>
-        <display-name>Log Manager Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.logmanager.LogManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>Log Manager</title>
-			<short-title>Log Manager</short-title>
-			<keywords>Log, Manager</keywords>
-        </portlet-info>
-	</portlet>
-	<portlet>
-        <description>Portlet for viewing the server logs.</description>
-        <portlet-name>LogViewer</portlet-name>
-        <display-name>Server Log Viewer Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.logmanager.LogViewerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>Server Log Viewer</title>
-			<short-title>Server Log Viewer</short-title>
-			<keywords>Log, Viewer</keywords>
-        </portlet-info>
-	</portlet>
-	<portlet>
-        <description>Portlet for viewing the derby System database logs.</description>
-        <portlet-name>DerbyLogViewer</portlet-name>
-        <display-name>Derby Log Viewer Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.derbylogmanager.DerbyLogViewerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>Derby Log Viewer</title>
-			<short-title>Derby Log Viewer</short-title>
-			<keywords>Derby, Log, Viewer</keywords>
-        </portlet-info>
-	</portlet>
-	<portlet>
-        <description>Portlet for viewing the web access logs.</description>
-        <portlet-name>WebAccessLogViewer</portlet-name>
-        <display-name>Web Access Viewer Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.logmanager.WebAccessLogViewerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>Web Access Log Viewer</title>
-			<short-title>Web Access Log Viewer</short-title>
-			<keywords>Web, Access, Log, Viewer</keywords>
-        </portlet-info>
-	</portlet>
-    <portlet>
-        <description>Portlet for displaying server info</description>
-        <portlet-name>ServerInfo</portlet-name>
-        <display-name>Server Info Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.infomanager.ServerInfoPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			      <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		    </supports>
-
-        <supported-locale>en</supported-locale>
-
-		    <portlet-info>
-			      <title>Server Info</title>
-			      <short-title>ServerInfo</short-title>
-			      <keywords>ServerInfo</keywords>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
-        <description>Portlet for displaying java system info</description>
-        <portlet-name>JavaSysInfo</portlet-name>
-        <display-name>Java System Info Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.infomanager.JavaSystemInfoPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			      <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		    </supports>
-
-        <supported-locale>en</supported-locale>
-
-		    <portlet-info>
-			      <title>System Property values for the Server JVM</title>
-			      <short-title>System</short-title>
-			      <keywords>System Properties</keywords>
-        </portlet-info>
-    </portlet>
-
-	<!--  JMS Management Portlet -->
     <portlet>
         <description>Portlet for managing JMS Topics and Queues.</description>
         <portlet-name>JMSManager</portlet-name>
         <display-name>JMS Portlet</display-name>
-		
+
         <portlet-class>org.apache.geronimo.console.jmsmanager.JMSManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-	    <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-	</supports>
 
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>JMS Destination Manager</title>
-			<short-title>JMSManager</short-title>
-			<keywords>JMS Manager</keywords>
-                </portlet-info>
-    </portlet>
-
-	<portlet>
-        <description>Portlet for managing the web server</description>
-        <portlet-name>WebServerManager</portlet-name>
-        <display-name>Web Server Mangement Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.webmanager.WebManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>Web Server Manager</title>
-			<short-title>Web Servers</short-title>
-			<keywords>Web Servers</keywords>
-        </portlet-info>
-	</portlet>
-	<portlet>
-        <description>Portlet for managing HTTP connectors</description>
-        <portlet-name>HTTPConnectorManager</portlet-name>
-        <display-name>HTTP Connector Mangement Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.webmanager.HttpManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>HTTP Connectors</title>
-			<short-title>HTTP Connectors</short-title>
-			<keywords>HTTP Connectors</keywords>
-        </portlet-info>
-	</portlet>
-	<portlet>
-        <description>Portlet for managing HTTPS connectors</description>
-        <portlet-name>HTTPSConnectorManager</portlet-name>
-        <display-name>HTTPS Connector Mangement Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.webmanager.HttpsManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>HTTPS Connectors</title>
-			<short-title>HTTPS Connectors</short-title>
-			<keywords>HTTPS Connectors</keywords>
-        </portlet-info>
-	</portlet>
-	<portlet>
-        <description>Portlet for managing AJP13 connectors</description>
-        <portlet-name>AJP13ConnectorManager</portlet-name>
-        <display-name>AJP13 Connector Mangement Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.webmanager.AJP13ManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>        
-
-		<portlet-info>
-			<title>AJP13 Connectors</title>
-			<short-title>AJP13 Connectors</short-title>
-			<keywords>AJP13 Connectors</keywords>
-        </portlet-info>
-	</portlet>
-
-    <portlet>
-        <description>Portlet for viewing Repository</description>
-        <portlet-name>RepositoryViewer</portlet-name>
-        <display-name>Repository Viewer Portlet</display-name>
-
-        <portlet-class>org.apache.geronimo.console.repository.RepositoryViewPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>
-
-		<portlet-info>
-			<title>Repository Viewer</title>
-			<short-title>Repository Viewer</short-title>
-			<keywords>Repository</keywords>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
-        <description>Portlet for ManagingServer</description>
-        <portlet-name>ServerManager</portlet-name>
-        <display-name>Server Management Portlet</display-name>
-
-        <portlet-class>org.apache.geronimo.console.servermanager.ServerManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-
-        <supports>
-			<mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		</supports>
-
-        <supported-locale>en</supported-locale>
-
-		<portlet-info>
-			<title>Server Manager</title>
-			<short-title>Server Manager</short-title>
-			<keywords>Server</keywords>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
-        <description>Portlet for displaying internal DB info</description>
-        <portlet-name>InternalDB</portlet-name>
-        <display-name>Internal Database Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.internaldb.InternalDBPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			      <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		    </supports>
-
-        <supported-locale>en</supported-locale>
-
-		    <portlet-info>
-			      <title>DB Info</title>
-			      <short-title>DB Info</short-title>
-			      <keywords>DB Info</keywords>
-        </portlet-info>
-    </portlet>
-    
-    <portlet>
-        <description>Portlet for viewing database contents</description>
-        <portlet-name>DBViewer</portlet-name>
-        <display-name>Database Viewer Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.internaldb.DBViewerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
-        <supports>
-			      <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-		    </supports>
-
-        <supported-locale>en</supported-locale>
-
-		    <portlet-info>
-			      <title>DB Viewer</title>
-			      <short-title>DB Viewer</short-title>
-			      <keywords>DB Viewer</keywords>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
-        <description>Portlet for running SQL commands</description>
-        <portlet-name>RunSQL</portlet-name>
-        <display-name>Run SQL Portlet</display-name>
-		
-        <portlet-class>org.apache.geronimo.console.internaldb.RunSQLPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-		        
         <supports>
             <mime-type>text/html</mime-type>
             <portlet-mode>VIEW</portlet-mode>
@@ -537,10 +475,402 @@ limitations under the License.
 
         <supported-locale>en</supported-locale>
 
-		    <portlet-info>
-			      <title>Run SQL</title>
-			      <short-title>Run SQL</short-title>
-			      <keywords>Run SQL</keywords>
+        <portlet-info>
+            <title>JMS Destination Manager</title>
+            <short-title>JMSManager</short-title>
+            <keywords>JMS Manager</keywords>
         </portlet-info>
     </portlet>
- </portlet-app>
+
+    <portlet>
+        <description>Portlet for displaying JavaMail info</description>
+        <portlet-name>MailServer</portlet-name>
+        <display-name>Java Mail Server Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Java Mail Configuration</title>
+            <short-title>Mail Server</short-title>
+            <keywords>Java Mail Server</keywords>
+        </portlet-info>
+    </portlet>
+
+<!-- Applications Tab -->
+
+    <portlet>
+        <description>Portlet that lists and starts/stops/uninstalls applications</description>
+        <portlet-name>Applications</portlet-name>
+        <display-name>Applications Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed Applications</title>
+            <short-title>Applications</short-title>
+            <keywords>Applications</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for deploying applications</description>
+        <portlet-name>Deployment</portlet-name>
+        <display-name>Application Deployment Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.configmanager.DeploymentPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Install New Applications</title>
+            <short-title>Install Application</short-title>
+            <keywords>Deployment</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying EAR modules</description>
+        <portlet-name>EARModules</portlet-name>
+        <display-name>EAR Modules Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed Application EARs</title>
+            <short-title>EAR Modules</short-title>
+            <keywords>Application EAR Module</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying WAR modules</description>
+        <portlet-name>WARModules</portlet-name>
+        <display-name>WAR Modules Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed Web Applications</title>
+            <short-title>WAR Modules</short-title>
+            <keywords>Web Application WAR Module</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying EJB modules</description>
+        <portlet-name>EJBModules</portlet-name>
+        <display-name>EJB Modules Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed EJB JARs</title>
+            <short-title>EJB Modules</short-title>
+            <keywords>EJB JAR Module</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying J2EE Connector modules</description>
+        <portlet-name>RARModules</portlet-name>
+        <display-name>RAR Modules Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed J2EE Connectors</title>
+            <short-title>RAR Modules</short-title>
+            <keywords>J2EE Connector RAR Module</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying Client JAR modules</description>
+        <portlet-name>ClientModules</portlet-name>
+        <display-name>Client Modules Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed Application Clients</title>
+            <short-title>Client Modules</short-title>
+            <keywords>Application Client JAR Module</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying System modules</description>
+        <portlet-name>SystemModules</portlet-name>
+        <display-name>System Modules Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed System Modules</title>
+            <short-title>System Modules</short-title>
+            <keywords>System Module</keywords>
+        </portlet-info>
+    </portlet>
+
+<!-- Security Tab -->
+
+    <portlet>
+        <description>Portlet for managing users from the Geronimo Console realm.</description>
+        <portlet-name>SEUsers</portlet-name>
+        <display-name>Geronimo Console Users Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.securitymanager.SEUsersPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Console Realm Users</title>
+            <short-title>Users</short-title>
+            <keywords>Console Realm Users</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing groups from the Console realm.</description>
+        <portlet-name>SEGroups</portlet-name>
+        <display-name>Console Realm Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.securitymanager.SEGroupsPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Console Realm Groups</title>
+            <short-title>Groups</short-title>
+            <keywords>Console Realm Groups</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for displaying security realms</description>
+        <portlet-name>SecurityRealms</portlet-name>
+        <display-name>Security Realms Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Installed Security Realms</title>
+            <short-title>Security Realms</short-title>
+            <keywords>Security Realms</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for configuring the server keystore</description>
+        <portlet-name>Keystore</portlet-name>
+        <display-name>Keystore Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+<!--            <portlet-mode>HELP</portlet-mode>-->
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Keystore Configuration</title>
+            <short-title>Keystore</short-title>
+            <keywords>Keystore SSL</keywords>
+        </portlet-info>
+    </portlet>
+
+<!-- Other tab -->
+
+    <portlet>
+        <description>Portlet for displaying internal DB info</description>
+        <portlet-name>InternalDB</portlet-name>
+        <display-name>Internal Database Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.internaldb.InternalDBPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>DB Info</title>
+            <short-title>DB Info</short-title>
+            <keywords>DB Info</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for viewing database contents</description>
+        <portlet-name>DBViewer</portlet-name>
+        <display-name>Database Viewer Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.internaldb.DBViewerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>DB Viewer</title>
+            <short-title>DB Viewer</short-title>
+            <keywords>DB Viewer</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for running SQL commands</description>
+        <portlet-name>RunSQL</portlet-name>
+        <display-name>Run SQL Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.internaldb.RunSQLPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Run SQL</title>
+            <short-title>Run SQL</short-title>
+            <keywords>Run SQL</keywords>
+        </portlet-info>
+    </portlet>
+
+    <!-- End of console portlets -->
+</portlet-app>

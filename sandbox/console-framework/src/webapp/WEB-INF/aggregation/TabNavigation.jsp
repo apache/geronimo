@@ -32,6 +32,32 @@ limitations under the License.
 <%
     PortalURL url = PortalEnvironment.getPortalEnvironment(request).getRequestedPortalURL();
     NavigationTreeBean[] tree = fragment.getNavigationView(url);
+
+    // Aaron's code -- to force the navigation tree to render fully expanded, and not offer links to non-leaf nodes
+    //                 todo this is pretty bad and should be replaced by a subclass of TabNavigation
+    //                 see http://svn.apache.org/repos/asf/portals/pluto/trunk/portal/src/java/org/apache/pluto/portalImpl/aggregation/navigation/
+    java.util.List list = new java.util.ArrayList();
+    java.util.Stack stack = new java.util.Stack();
+    Navigation root = fragment.getRootNavigation();
+    java.util.List childList = (java.util.List)root.getChildren();
+    java.util.Map map = new java.util.HashMap();
+    for(int i=childList.size()-1; i>=0; i--) {
+        stack.push(childList.get(i));
+        map.put(stack.peek(), new Integer(0));
+    }
+    while(!stack.isEmpty()) {
+        Navigation nav = (Navigation) stack.pop();
+        Integer depth = (Integer) map.get(nav);
+        list.add(new NavigationTreeBean(nav, nav.getChildren().size() > 0 || url.isPartOfGlobalNavigation(nav.getLinkedFragment().getId()), depth.intValue()));
+        childList = (java.util.List)nav.getChildren();
+        for(int i=childList.size()-1; i>=0; i--) {
+            stack.push(childList.get(i));
+            map.put(stack.peek(), new Integer(depth.intValue()+1));
+        }
+    }
+    tree = (NavigationTreeBean[]) list.toArray(new NavigationTreeBean[list.size()]);
+    // End Aaron's Code
+
     for (int i=0; i<tree.length; i++) {
 %>
 <%
