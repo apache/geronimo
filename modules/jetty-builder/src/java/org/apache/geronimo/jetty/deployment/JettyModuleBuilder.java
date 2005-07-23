@@ -295,10 +295,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
                             jettyWebAppdoc = GerWebAppDocument.Factory.parse(path);
                         } catch (FileNotFoundException e) {
                             path = DeploymentUtil.createJarURL(moduleFile, "WEB-INF/geronimo-jetty.xml");
-                            XmlObject object = SchemaConversionUtils.parse(path);
-                            if (object != null) {
-                                log.error("Incorrect deployment plan naming: found geronimo-jetty.xml, should be geronimo-web.xml");
-                                jettyWebAppdoc = TemporaryPlanAdapter.convertJettyDocumentToWeb(object);
+                            try {
+                                XmlObject object = SchemaConversionUtils.parse(path);
+                                if (object != null) {
+                                    log.error("Incorrect deployment plan naming: found geronimo-jetty.xml, should be geronimo-web.xml");
+                                    jettyWebAppdoc = TemporaryPlanAdapter.convertJettyDocumentToWeb(object);
+                                }
+                            } catch (FileNotFoundException e1) {
+                                log.warn("Web application does not contain a WEB-INF/geronimo-web.xml deployment plan.  This may or may not be a problem, depending on whether you have things like resource references that need to be resolved.  You can also give the deployer a separate deployment plan file on the command line.");
                             }
                         }
                     }
