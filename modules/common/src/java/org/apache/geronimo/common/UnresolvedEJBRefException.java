@@ -17,6 +17,8 @@
 package org.apache.geronimo.common;
 
 /**
+ * A problem with an EJB reference
+ *
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
 public class UnresolvedEJBRefException extends DeploymentException {

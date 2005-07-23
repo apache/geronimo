@@ -36,6 +36,7 @@ import javax.transaction.UserTransaction;
 import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -195,10 +196,14 @@ public class ENCConfigBuilder {
                 } else {
                     j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
                 }
-                String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, earContext);
+                try {
+                    String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, earContext);
 
-                ref = refContext.getConnectionFactoryRef(containerId, iface);
-                builder.bind(name, ref);
+                    ref = refContext.getConnectionFactoryRef(containerId, iface);
+                    builder.bind(name, ref);
+                } catch (UnresolvedReferenceException e) {
+                    throw new DeploymentException("Unable to resolve resource reference '"+name+"' ("+(e.isMultiple() ? "found multiple matching resources" : "no matching resources found")+")");
+                }
             }
         }
 
@@ -249,10 +254,14 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("could not load class " + type, e);
             }
             GerResourceEnvRefType gerResourceEnvRef = (GerResourceEnvRefType) refMap.get(name);
-            String containerId = getAdminObjectContainerId(name, uri, gerResourceEnvRef, earContext);
-            Reference ref = earContext.getRefContext().getAdminObjectRef(containerId, iface);
+            try {
+                String containerId = getAdminObjectContainerId(name, uri, gerResourceEnvRef, earContext);
+                Reference ref = earContext.getRefContext().getAdminObjectRef(containerId, iface);
 
-            builder.bind(name, ref);
+                builder.bind(name, ref);
+            } catch (UnresolvedReferenceException e) {
+                throw new DeploymentException("Unable to resolve resource env reference '"+name+"' ("+(e.isMultiple() ? "found multiple matching resources" : "no matching resources found")+")");
+            }
         }
     }
 

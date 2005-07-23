@@ -31,6 +31,7 @@ import org.apache.geronimo.common.AmbiguousEJBRefException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnknownEJBRefException;
 import org.apache.geronimo.common.UnresolvedEJBRefException;
+import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -354,7 +355,7 @@ public class RefContext {
     private ObjectName locateUniqueName(ObjectName query, String type) throws DeploymentException {
         Set names = kernel.listGBeans(query);
         if (names.size() != 1) {
-            throw new DeploymentException("Unknown or ambiguous " + type + " name query: " + query + " match count: " + names.size());
+            throw new UnresolvedReferenceException(type, names.size() > 1, query.toString());
         }
         return (ObjectName) names.iterator().next();
     }
