@@ -30,6 +30,7 @@ import javax.management.ObjectName;
 import org.apache.catalina.Context;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
+import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -299,6 +300,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return webServices;
     }
 
+    public String[] getServlets(){
+        String[] result = null;
+        if ((context != null) && (context instanceof StandardContext))
+            result = ((StandardContext)context).getServlets();
+        
+        return result;
+    }
+    
     /**
      * ObjectName must match this pattern: <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication
@@ -333,11 +342,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                     "WebModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties",
                     objectName);
         }
-    }
-
-
-    public String[] getServlets() {
-        return new String[0]; //todo: implement me: ObjectNames (as Strings) of the Servlets in this Web App
     }
 
     public String[] getJavaVMs() {
