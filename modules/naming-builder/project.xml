@@ -41,6 +41,14 @@
     <!-- ============ -->
 
     <dependencies>
+
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xmlbeans-maven-plugin</artifactId>
+            <version>${xmlbeans_maven_plugin_version}</version>
+            <type>plugin</type>
+        </dependency>
+
         <!-- needed for xmlbeans runtime-->
         <dependency>
             <groupId>xmlbeans</groupId>
