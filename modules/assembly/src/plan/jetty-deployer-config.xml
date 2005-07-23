@@ -24,10 +24,6 @@
     <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
 </dependency>
 
-<dependency>
-     <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
-</dependency>
-
 
 <gbean name="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
     <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
