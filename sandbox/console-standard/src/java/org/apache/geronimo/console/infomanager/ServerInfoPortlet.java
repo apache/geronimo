@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
@@ -33,55 +32,21 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.geronimo.console.util.ObjectNameConstants;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.j2ee.management.geronimo.JVM;
 
+/**
+ * Calculates various information about the server to display in the server
+ * info portlet view (on of several JSPs depending on the portlet state).
+ *
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ */
 public class ServerInfoPortlet extends GenericPortlet {
-
-    public static final String SVRINFO_BASEDIR = "baseDirectory";
-
-    public static final String SVRINFO_VERSION = "version";
-
-    public static final String SVRINFO_BUILDDATE = "buildDate";
-
-    public static final String SVRINFO_BUILDTIME = "buildTime";
-
-    public static final String SVRINFO_COPYRIGHT = "copyright";
-
-    public static final String SVRINFO_PLATFORMARCH = "platformArch";
-
-    public static final String SVRINFO_GERONIMO_BUILD_VERSION = "geronimoBuildVersion";
-
-    public static final String SVRINFO_GERONIMO_SPEC_VERSION = "geronimoSpecVersion";
-
-    public static final String SVRINFO_PORTAL_CORE_VERSION = "portalCoreVersion";
-
-    public static final String JVMIMPL_JAVAVER = "javaVersion";
-
-    public static final String JVMIMPL_JAVAVENDOR = "javaVendor";
-
-    public static final String JVMIMPL_NODE = "node";
-
-    public static final String JVMIMPL_FREEMEM = "freeMemory";
-
-    public static final String JVMIMPL_MAXMEM = "maxMemory";
-
-    public static final String JVMIMPL_TOTALMEM = "totalMemory";
-
-    public static final String JVMIMPL_AVAILABLEPROCS = "availableProcessors";
-
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/infomanager/svrInfoNormal.jsp";
 
     private static final String MAXIMIZEDVIEW_JSP = "/WEB-INF/view/infomanager/svrInfoMaximized.jsp";
 
     private static final String HELPVIEW_JSP = "/WEB-INF/view/infomanager/svrInfoHelp.jsp";
-
-    private static Map svrProps = new HashMap();
-
-    private static Map jvmProps = new HashMap();
-
-    private Kernel kernel;
 
     private PortletRequestDispatcher normalView;
 
@@ -99,64 +64,27 @@ public class ServerInfoPortlet extends GenericPortlet {
             return;
         }
 
-        try {
-            Object o = null;
+        Map svrProps = new HashMap();
+        Map jvmProps = new HashMap();
 
-            // Kernel boot time
-            Date bootDate = kernel.getBootTime();
-            long bootTime = bootDate.getTime() / 1000;
-            long currentTime = System.currentTimeMillis() / 1000;
-            long elapsedTime = currentTime - bootTime;
-            svrProps.put("Kernel Boot Time", bootDate);
-            svrProps.put("Kernel Up Time", calcElapsedTime(elapsedTime));
+        JVM jvm = PortletManager.getCurrentJVM(renderRequest);
 
-            // Server info
-            /*
-             * ObjectName svrInfo = new
-             * ObjectName(ObjectNameConstants.SERVER_INFO_OBJECT_NAME); o =
-             * kernel.getAttribute(svrInfo, SVRINFO_BASEDIR); svrProps.put("Base
-             * Directory", o); ObjectName joeSvrInfo = new
-             * ObjectName(ObjectNameConstants.SE_SERVER_INFO_NAME); o =
-             * kernel.getAttribute(joeSvrInfo, SVRINFO_PLATFORMARCH);
-             * svrProps.put("Platform Architecture", o); o =
-             * kernel.getAttribute(joeSvrInfo, SVRINFO_VERSION);
-             * svrProps.put("Version", o); o = kernel.getAttribute(joeSvrInfo,
-             * SVRINFO_GERONIMO_BUILD_VERSION); svrProps.put("Apache Geronimo
-             * Build Version", o); o = kernel.getAttribute(joeSvrInfo,
-             * SVRINFO_GERONIMO_SPEC_VERSION); svrProps.put("J2EE Specifications
-             * Version", o); o = kernel.getAttribute(joeSvrInfo,
-             * SVRINFO_PORTAL_CORE_VERSION); svrProps.put("JSR 168 Portal
-             * Version", o); o = kernel.getAttribute(joeSvrInfo,
-             * SVRINFO_BUILDDATE); svrProps.put("Build Date", o); o =
-             * kernel.getAttribute(joeSvrInfo, SVRINFO_BUILDTIME);
-             * svrProps.put("Build Time", o); o =
-             * kernel.getAttribute(joeSvrInfo, SVRINFO_COPYRIGHT);
-             * svrProps.put("Copyright", o);
-             */
-            renderRequest.setAttribute("svrProps", svrProps);
+        Date bootDate = jvm.getKernelBootTime();
+        long bootTime = bootDate.getTime() / 1000;
+        long currentTime = System.currentTimeMillis() / 1000;
+        long elapsedTime = currentTime - bootTime;
+        svrProps.put("Kernel Boot Time", bootDate);
+        svrProps.put("Kernel Up Time", calcElapsedTime(elapsedTime));
+        renderRequest.setAttribute("svrProps", svrProps);
 
-            // JVM info
-            ObjectName jvmImpl = new ObjectName(
-                    ObjectNameConstants.JVM_IMPL_NAME);
-            o = kernel.getAttribute(jvmImpl, JVMIMPL_JAVAVER);
-            jvmProps.put("Java Version", o);
-            o = kernel.getAttribute(jvmImpl, JVMIMPL_JAVAVENDOR);
-            jvmProps.put("Java Vendor", o);
-            o = kernel.getAttribute(jvmImpl, JVMIMPL_NODE);
-            jvmProps.put("Node", o);
-            o = kernel.getAttribute(jvmImpl, JVMIMPL_MAXMEM);
-            jvmProps.put("Max Memory", calcMemory((Long) o));
-            o = kernel.getAttribute(jvmImpl, JVMIMPL_TOTALMEM);
-            jvmProps.put("Total Memory", calcMemory((Long) o));
-            o = kernel.getAttribute(jvmImpl, JVMIMPL_FREEMEM);
-            jvmProps.put("Free Memory", calcMemory((Long) o));
-            o = kernel.getAttribute(jvmImpl, JVMIMPL_AVAILABLEPROCS);
-            jvmProps.put("Available Processors", o);
-            renderRequest.setAttribute("jvmProps", jvmProps);
-        } catch (Exception e) {
-            e.printStackTrace();
-            //throw new PortletException(e);
-        }
+        jvmProps.put("Java Version", jvm.getJavaVersion());
+        jvmProps.put("Java Vendor", jvm.getJavaVendor());
+        jvmProps.put("Node", jvm.getNode());
+        jvmProps.put("Max Memory", calcMemory(jvm.getMaxMemory()));
+        jvmProps.put("Total Memory", calcMemory(jvm.getTotalMemory()));
+        jvmProps.put("Free Memory", calcMemory(jvm.getFreeMemory()));
+        jvmProps.put("Available Processors", new Integer(jvm.getAvailableProcessors()));
+        renderRequest.setAttribute("jvmProps", jvmProps);
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
@@ -172,7 +100,6 @@ public class ServerInfoPortlet extends GenericPortlet {
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
-        kernel = KernelRegistry.getSingleKernel();
         normalView = portletConfig.getPortletContext().getRequestDispatcher(
                 NORMALVIEW_JSP);
         maximizedView = portletConfig.getPortletContext().getRequestDispatcher(
@@ -182,22 +109,13 @@ public class ServerInfoPortlet extends GenericPortlet {
     }
 
     public void destroy() {
-        kernel = null;
         normalView = null;
         maximizedView = null;
         helpView = null;
         super.destroy();
     }
 
-    public static Map getServerInfo() {
-        return svrProps;
-    }
-
-    public static Map getJVMInfo() {
-        return jvmProps;
-    }
-
-    private String calcElapsedTime(long timeInSeconds) {
+    private static String calcElapsedTime(long timeInSeconds) {
         long days, hrs, mins, secs;
         days = timeInSeconds / 86400;
         timeInSeconds = timeInSeconds - (days * 86400);
@@ -220,9 +138,8 @@ public class ServerInfoPortlet extends GenericPortlet {
         return sb.toString();
     }
 
-    private String calcMemory(Long memory) {
+    private static String calcMemory(long mem) {
         long mb, kb;
-        long mem = memory.longValue();
         mb = mem / 1048576;
         // If less than 10MB return as KB
         if (mb < 10) {

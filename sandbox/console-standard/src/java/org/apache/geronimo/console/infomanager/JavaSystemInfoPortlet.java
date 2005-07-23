@@ -20,8 +20,8 @@ package org.apache.geronimo.console.infomanager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Properties;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -32,6 +32,7 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+import org.apache.geronimo.console.util.PortletManager;
 
 public class JavaSystemInfoPortlet extends GenericPortlet {
 
@@ -40,8 +41,6 @@ public class JavaSystemInfoPortlet extends GenericPortlet {
     private static final String MAXIMIZEDVIEW_JSP = "/WEB-INF/view/infomanager/javaSysMaximized.jsp";
 
     private static final String HELPVIEW_JSP = "/WEB-INF/view/infomanager/javaSysHelp.jsp";
-
-    private static Map javaSysProps;
 
     private PortletRequestDispatcher normalView;
 
@@ -59,7 +58,8 @@ public class JavaSystemInfoPortlet extends GenericPortlet {
             return;
         }
 
-        javaSysProps = System.getProperties();
+        Properties javaSysProps = PortletManager.getCurrentJVM(renderRequest).getSystemProperties();
+
         renderRequest.setAttribute("javaSysProps", javaSysProps);
 
         String sep = (String) javaSysProps.get("path.separator");
