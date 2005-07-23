@@ -19,11 +19,14 @@ package org.apache.geronimo.j2ee.management.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Date;
+import java.util.Properties;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  *
@@ -47,9 +50,11 @@ public class JVMImpl implements JVM {
     }
 
     private final String objectName;
+    private final Kernel kernel;
 
-    public JVMImpl(String objectName) {
+    public JVMImpl(String objectName, Kernel kernel) {
         this.objectName = objectName;
+        this.kernel = kernel;
     }
 
     public String getObjectName() {
@@ -115,21 +120,23 @@ public class JVMImpl implements JVM {
         return runtime.availableProcessors();
     }
 
+    public Date getKernelBootTime() {
+        return kernel.getBootTime();
+    }
+
+    public Properties getSystemProperties() {
+        return System.getProperties();
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JVMImpl.class, NameFactory.JVM);
 
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("javaVersion", String.class, false);
-        infoFactory.addAttribute("javaVendor", String.class, false);
-        infoFactory.addAttribute("node", String.class, false);
-        infoFactory.addAttribute("freeMemory", Long.TYPE, false);
-        infoFactory.addAttribute("maxMemory", Long.TYPE, false);
-        infoFactory.addAttribute("totalMemory", Long.TYPE, false);
-        infoFactory.addAttribute("availableProcessors", Integer.TYPE, false);
+//        infoFactory.addAttribute("objectName", String.class, false);
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(JVM.class);
-        infoFactory.setConstructor(new String[] {"objectName"});
+        infoFactory.setConstructor(new String[] {"objectName", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

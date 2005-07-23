@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.j2ee.management.geronimo;
 
+import java.util.Date;
+import java.util.Properties;
+
 /**
  *
  *
@@ -27,4 +30,7 @@ public interface JVM extends org.apache.geronimo.j2ee.management.JVM {
     long getTotalMemory();
     long getMaxMemory();
     int getAvailableProcessors();
+
+    Date getKernelBootTime();
+    Properties getSystemProperties();
 }
