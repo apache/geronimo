@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
@@ -59,7 +60,6 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -377,7 +377,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
             //classpath may have been augmented with enhanced classes
-            webModuleData.setAttribute("webClassPath", getFinalWebClasspath(webModule));
+            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
@@ -855,23 +855,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 }
             }
         }
-    }
-
-    private static URI[] getFinalWebClasspath(WebModule webModule) throws Exception {
-
-        URI oldClassPath[] = webModule.getWebClasspath();
-        String target = webModule.getTargetPath();
-        URI cleanClassPath[] = new URI[oldClassPath.length];
-
-        for (int i = 0; i < oldClassPath.length; i++) {
-            String uri = oldClassPath[i].toString();
-            if (uri.startsWith(target)) {
-                cleanClassPath[i] = new URI(uri.substring(target.length() + 1));
-            } else {
-                cleanClassPath[i] = oldClassPath[i];
-            }
-        }
-        return cleanClassPath;
     }
 
     private static void checkString(String pattern) throws DeploymentException {
