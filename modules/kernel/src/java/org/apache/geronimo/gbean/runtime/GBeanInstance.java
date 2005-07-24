@@ -597,7 +597,11 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         if (state != DESTROYED || attribute.isFramework()) {
             return attribute.getValue(instance);
         } else {
-            return attribute.getPersistentValue();
+            if(attribute.isPersistent()) {
+                return attribute.getPersistentValue();
+            } else {
+                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute "+attribute.getName()+" when GBeanInstance is DESTROYED");
+            }
         }
     }
 
