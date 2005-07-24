@@ -18,6 +18,8 @@
 package org.apache.geronimo.console.logmanager;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.io.File;
 
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
@@ -27,12 +29,13 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
+import javax.portlet.PortletSession;
 
-import org.apache.geronimo.console.util.LogHelper;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.system.logging.SystemLog;
 
 public class LogViewerPortlet extends GenericPortlet {
-
-    public static final int LOGS_PER_PAGE = 10;
+    private final static String CRITERIA_KEY = "org.apache.geronimo.console.log.CRITERIA";
 
     protected PortletRequestDispatcher searchView;
 
@@ -50,32 +53,60 @@ public class LogViewerPortlet extends GenericPortlet {
         }
         String action = renderRequest.getParameter("action");
 
+        SystemLog log = PortletManager.getCurrentSystemLog(renderRequest);
+        String[] logFiles = log.getLogFileNames();
+        LogFile[] files = new LogFile[logFiles.length];
+        for (int i = 0; i < files.length; i++) {
+            files[i] = new LogFile(logFiles[i]);
+        }
+        Criteria criteria;
         if ("refresh".equals(action)) {
-            LogHelper.refresh();
+            criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
+        } else {
+            String startPos = renderRequest.getParameter("startPos");
+            String endPos = renderRequest.getParameter("endPos");
+            String maxRows = renderRequest.getParameter("maxRows");
+            String logLevel = renderRequest.getParameter("logLevel");
+            String searchString = renderRequest.getParameter("searchString");
+            String stackTraces = renderRequest.getParameter("stackTraces");
+            String logFile = renderRequest.getParameter("logFile");
+            if(logFile == null || logFile.equals("")) {
+                logFile = logFiles[0];
+            }
+            if(logLevel == null || logLevel.equals("")) {
+                logLevel = "WARN";
+            }
+            if(maxRows == null || maxRows.equals("")) {
+                maxRows = "10";
+            }
+            criteria = new Criteria();
+            criteria.max = Integer.parseInt(maxRows);
+            criteria.start = startPos == null || startPos.equals("") ? null : new Integer(startPos);
+            criteria.stop = endPos == null || endPos.equals("") ? null : new Integer(endPos);
+            criteria.logFile = logFile;
+            criteria.stackTraces = stackTraces != null && !stackTraces.equals("");
+            criteria.level = logLevel;
+            criteria.text = searchString == null || searchString.equals("") ? null : searchString;
+            renderRequest.getPortletSession(true).setAttribute(CRITERIA_KEY, criteria, PortletSession.PORTLET_SCOPE);
         }
 
-        String startPos = renderRequest.getParameter("startPos");
-        String endPos = renderRequest.getParameter("endPos");
-        String logLevel = renderRequest.getParameter("logLevel");
-        String searchString = renderRequest.getParameter("searchString");
-
-        int lines = LogHelper.getLineCount();
-        int sPos = (startPos != null && startPos.length() > 0) ? Integer
-                .parseInt(startPos) : (lines - LOGS_PER_PAGE);
-        int ePos = (endPos != null && endPos.length() > 0) ? Integer
-                .parseInt(endPos) : lines;
-
-        try {
-            renderRequest.setAttribute("searchResults", LogHelper.searchLogs(
-                    sPos, ePos, logLevel, searchString));
-        } catch (IOException e) {
-            throw new PortletException(e.getMessage());
+        SystemLog.SearchResults results = log.getMatchingItems(criteria.logFile, criteria.start, criteria.stop,
+                        criteria.level, criteria.text, criteria.max, criteria.stackTraces);
+        renderRequest.setAttribute("searchResults", results.getResults());
+        renderRequest.setAttribute("lineCount", new Integer(results.getLineCount()));
+        renderRequest.setAttribute("startPos", criteria.start);
+        renderRequest.setAttribute("endPos", criteria.stop);
+        renderRequest.setAttribute("logLevel", criteria.level);
+        renderRequest.setAttribute("searchString", criteria.text);
+        renderRequest.setAttribute("maxRows", Integer.toString(criteria.max));
+        renderRequest.setAttribute("logFile", criteria.logFile);
+        renderRequest.setAttribute("logFiles", files);
+        if(criteria.stackTraces) {
+            renderRequest.setAttribute("stackTraces", Boolean.TRUE);
         }
-        renderRequest.setAttribute("lineCount", new Integer(lines));
-        renderRequest.setAttribute("startPos", new Integer(sPos));
-        renderRequest.setAttribute("endPos", new Integer(ePos));
-        renderRequest.setAttribute("logLevel", logLevel);
-        renderRequest.setAttribute("searchString", searchString);
+        if(results.isCapped()) {
+            renderRequest.setAttribute("capped", Boolean.TRUE);
+        }
 
         searchView.include(renderRequest, renderRespose);
     }
@@ -89,4 +120,37 @@ public class LogViewerPortlet extends GenericPortlet {
         super.init(portletConfig);
     }
 
+    private static class Criteria implements Serializable {
+        int max;
+        Integer start;
+        Integer stop;
+        String text;
+        String level;
+        String logFile;
+        boolean stackTraces;
+    }
+
+    public static class LogFile {
+        private String fullName;
+        private String name;
+
+        public LogFile(String fullName) {
+            this.fullName = fullName;
+            //todo: what if portla JVM has different separator than server JVM?
+            int pos = fullName.lastIndexOf(File.separatorChar);
+            if(pos > -1) {
+                name = fullName.substring(pos+1);
+            } else {
+                name = fullName;
+            }
+        }
+
+        public String getFullName() {
+            return fullName;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
 }

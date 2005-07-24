@@ -65,8 +65,8 @@ specific services - those should be provided by children.
 
     <!-- Logging service -->
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="configurationFile">var/log/server-log4j.properties</attribute>
-        <attribute name="refreshPeriod">60</attribute>
+        <attribute name="configFileName">var/log/server-log4j.properties</attribute>
+        <attribute name="refreshPeriodSeconds">60</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 

@@ -46,6 +46,7 @@ import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -234,6 +235,18 @@ public class KernelManagementHelper implements ManagementHelper {
             Object[] temp = pm.createProxies(names);
             result = new JVM[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error(e);
+        }
+        return result;
+    }
+
+    public SystemLog getSystemLog(JVM jvm) {
+        SystemLog result = null;
+        try {
+            String name = jvm.getSystemLog();
+            Object temp = pm.createProxy(ObjectName.getInstance(name));
+            result = (SystemLog)temp;
         } catch (Exception e) {
             log.error(e);
         }

@@ -21,12 +21,17 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Properties;
+import java.util.Hashtable;
 
+import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
 
 /**
  *
@@ -34,6 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
  * @version $Rev$ $Date$
  */
 public class JVMImpl implements JVM {
+    private final static Log log = LogFactory.getLog(JVMImpl.class);
     public static final String JAVA_VERSION = System.getProperty("java.version");
     public static final String JAVA_VENDOR = System.getProperty("java.vendor");
     public static final String NODE;
@@ -51,10 +57,42 @@ public class JVMImpl implements JVM {
 
     private final String objectName;
     private final Kernel kernel;
+    private final String baseName;
 
     public JVMImpl(String objectName, Kernel kernel) {
         this.objectName = objectName;
         this.kernel = kernel;
+        ObjectName myObjectName = JMXUtil.getObjectName(this.objectName);
+        verifyObjectName(myObjectName);
+
+        // build the base name used to query the server for related modules
+        Hashtable keyPropertyList = myObjectName.getKeyPropertyList();
+        String serverName = (String) keyPropertyList.get("J2EEServer");
+        baseName = myObjectName.getDomain() + ":J2EEServer=" + serverName + ",";
+    }
+
+    /**
+     * ObjectName must match this pattern:
+     * <p/>
+     * domain:j2eeType=JVM,name=MyName
+     */
+    private void verifyObjectName(ObjectName objectName) {
+        if (objectName.isPattern()) {
+            throw new InvalidObjectNameException("ObjectName can not be a pattern", objectName);
+        }
+        Hashtable keyPropertyList = objectName.getKeyPropertyList();
+        if (!"JVM".equals(keyPropertyList.get("j2eeType"))) {
+            throw new InvalidObjectNameException("JVM object name j2eeType property must be 'JVM'", objectName);
+        }
+        if (!keyPropertyList.containsKey("name")) {
+            throw new InvalidObjectNameException("JVM object must contain a name property", objectName);
+        }
+        if (!keyPropertyList.containsKey("J2EEServer")) {
+            throw new InvalidObjectNameException("JVM object must contain a J2EEServer property", objectName);
+        }
+        if (keyPropertyList.size() != 3) {
+            throw new InvalidObjectNameException("J2EEServer object name can only have J2EEServer, j2eeType, and name", objectName);
+        }
     }
 
     public String getObjectName() {
@@ -126,6 +164,15 @@ public class JVMImpl implements JVM {
 
     public Properties getSystemProperties() {
         return System.getProperties();
+    }
+
+    public String getSystemLog() {
+        String[] logs = Util.getObjectNames(kernel, baseName, new String[]{NameFactory.SYSTEM_LOG});
+        if(logs.length != 1) {
+            log.error("Unable to resolve ObjectName for system log; got "+logs.length+" results!");
+            return null;
+        }
+        return logs[0];
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -51,8 +51,8 @@ Configuration for the system layer of the Geronimo deployer
 
     <!-- Logging service -->
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
-        <attribute name="configurationFile">var/log/deployer-log4j.properties</attribute>
-        <attribute name="refreshPeriod">60</attribute>
+        <attribute name="configFileName">var/log/deployer-log4j.properties</attribute>
+        <attribute name="refreshPeriodSeconds">60</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 </configuration>

@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.Properties;
 
 /**
- *
+ * Geronimo extensions to the standard JSR-77 JVM type.
  *
  * @version $Rev$ $Date$
  */
@@ -31,6 +31,17 @@ public interface JVM extends org.apache.geronimo.j2ee.management.JVM {
     long getMaxMemory();
     int getAvailableProcessors();
 
+    /**
+     * Gets the date at which the kernel was most recently started in this JVM
+     */
     Date getKernelBootTime();
+    /**
+     * Gets the system properties for this JVM
+     */
     Properties getSystemProperties();
+
+    /**
+     * Gets the ObjectName of the system log for this JVM
+     */
+    String getSystemLog();
 }

@@ -24,11 +24,23 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.RandomAccessFile;
 import java.net.MalformedURLException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
+import java.nio.channels.FileChannel;
+import java.nio.MappedByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogConfigurationException;
@@ -39,16 +51,38 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.log.GeronimoLogFactory;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.FileAppender;
 
 /**
  * A Log4j logging service.
  *
  * @version $Rev$ $Date$
  */
-public class Log4jService implements GBeanLifecycle {
+public class Log4jService implements GBeanLifecycle, SystemLog {
+    // A substitution variable in the file path in the config file
+    private final static Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{.*?\\}");
+    // Next 6 are patterns that identify log messages in our default format
+    private final static Pattern DEFAULT_ANY_START = Pattern.compile("^\\d\\d\\:\\d\\d\\:\\d\\d\\,\\d\\d\\d (TRACE|DEBUG|INFO|WARN|ERROR|FATAL) .*");
+    private final static Pattern DEFAULT_FATAL_START = Pattern.compile("^\\d\\d\\:\\d\\d\\:\\d\\d\\,\\d\\d\\d FATAL .*");
+    private final static Pattern DEFAULT_ERROR_START = Pattern.compile("^\\d\\d\\:\\d\\d\\:\\d\\d\\,\\d\\d\\d (ERROR|FATAL) .*");
+    private final static Pattern DEFAULT_WARN_START = Pattern.compile("^\\d\\d\\:\\d\\d\\:\\d\\d\\,\\d\\d\\d (WARN|ERROR|FATAL) .*");
+    private final static Pattern DEFAULT_INFO_START = Pattern.compile("^\\d\\d\\:\\d\\d\\:\\d\\d\\,\\d\\d\\d (INFO|WARN|ERROR|FATAL) .*");
+    private final static Pattern DEFAULT_DEBUG_START = Pattern.compile("^\\d\\d\\:\\d\\d\\:\\d\\d\\,\\d\\d\\d (DEBUG|INFO|WARN|ERROR|FATAL) .*");
+    // Next 6 are patterns that identify log messages if the user changed the format -- but we assume the log level is in there somewhere
+    private final static Pattern UNKNOWN_ANY_START = Pattern.compile("(TRACE|DEBUG|INFO|WARN|ERROR|FATAL)");
+    private final static Pattern UNKNOWN_FATAL_START = Pattern.compile("FATAL");
+    private final static Pattern UNKNOWN_ERROR_START = Pattern.compile("(ERROR|FATAL)");
+    private final static Pattern UNKNOWN_WARN_START = Pattern.compile("(WARN|ERROR|FATAL)");
+    private final static Pattern UNKNOWN_INFO_START = Pattern.compile("(INFO|WARN|ERROR|FATAL)");
+    private final static Pattern UNKNOWN_DEBUG_START = Pattern.compile("(DEBUG|INFO|WARN|ERROR|FATAL)");
+    // Pattern that matches a single line  (used to calculate line numbers and check for follow-on stack traces)
+    private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
+
+
     /**
      * The URL to the configuration file.
      */
@@ -178,7 +212,7 @@ public class Log4jService implements GBeanLifecycle {
      *
      * @return the refresh period (in seconds)
      */
-    public synchronized int getRefreshPeriod() {
+    public synchronized int getRefreshPeriodSeconds() {
         return refreshPeriod;
     }
 
@@ -188,7 +222,7 @@ public class Log4jService implements GBeanLifecycle {
      * @param period the refresh period (in seconds)
      * @throws IllegalArgumentException if refresh period is <= 0
      */
-    public synchronized void setRefreshPeriod(final int period) {
+    public synchronized void setRefreshPeriodSeconds(final int period) {
         if (period < 1) {
             throw new IllegalArgumentException("Refresh period must be > 0");
         }
@@ -204,7 +238,7 @@ public class Log4jService implements GBeanLifecycle {
      *
      * @return the logging configuration URL
      */
-    public synchronized String getConfigurationFile() {
+    public synchronized String getConfigFileName() {
         return configurationFile;
     }
 
@@ -213,8 +247,8 @@ public class Log4jService implements GBeanLifecycle {
      *
      * @param configurationFile the logging configuration file
      */
-    public synchronized void setConfigurationFile(final String configurationFile) {
-        if (this.configurationFile == null) {
+    public synchronized void setConfigFileName(final String configurationFile) {
+        if (configurationFile == null) {
             throw new IllegalArgumentException("configurationFile is null");
         }
 
@@ -294,6 +328,169 @@ public class Log4jService implements GBeanLifecycle {
                 }
             }
         }
+    }
+
+    public synchronized String[] getLogFileNames() {
+        List list = new ArrayList();
+        for (Enumeration e = Logger.getRootLogger().getAllAppenders(); e.hasMoreElements();) {
+            Object appender = e.nextElement();
+            if (appender instanceof FileAppender) {
+                list.add(((FileAppender) appender).getFile());
+            }
+        }
+        return (String[]) list.toArray(new String[list.size()]);
+    }
+
+    private static SearchResults searchFile(File file, String targetLevel, Pattern textSearch, Integer start, Integer stop, int max, boolean stacks) {
+        List list = new LinkedList();
+        boolean capped = false;
+        int lineCount = 0;
+        try {
+            RandomAccessFile raf = new RandomAccessFile(file, "r");
+            FileChannel fc = raf.getChannel();
+            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+            CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Log4J use a different charset on a foreign PC?
+            Matcher target = null;
+            Matcher any = null;
+            Matcher lines = FULL_LINE_PATTERN.matcher(cb);
+            Matcher text = textSearch == null ? null : textSearch.matcher("");
+            boolean hit = false;
+            max = Math.min(max, MAX_SEARCH_RESULTS);
+            while(lines.find()) {
+                ++lineCount;
+                if(target == null) {
+                    if(DEFAULT_ANY_START.matcher(cb.subSequence(lines.start(), lines.end())).find()) {
+                        target = getDefaultPatternForLevel(targetLevel).matcher("");
+                        any = DEFAULT_ANY_START.matcher("");
+                    } else {
+                        target = getUnknownPatternForLevel(targetLevel).matcher("");
+                        any = UNKNOWN_ANY_START.matcher("");
+                    }
+                }
+                if(start != null && start.intValue() > lineCount) {
+                    continue;
+                }
+                if(stop != null && stop.intValue() < lineCount) {
+                    continue;
+                }
+                CharSequence line = cb.subSequence(lines.start(), lines.end());
+                target.reset(line);
+                if(target.find()) {
+                    if(text != null) {
+                        text.reset(line);
+                        if(!text.find()) {
+                            hit = false;
+                            continue;
+                        }
+                    }
+                    list.add(new LogMessage(lineCount,line.toString()));
+                    if(list.size() > max) {
+                        list.remove(0);
+                        capped = true;
+                    }
+                    hit = true;
+                } else if(stacks && hit) {
+                    any.reset(line);
+                    if(!any.find()) {
+                        list.add(new LogMessage(lineCount,line.toString()));
+                        if(list.size() > max) {
+                            list.remove(0);
+                            capped = true;
+                        }
+                    } else {
+                        hit = false;
+                    }
+                }
+            }
+            fc.close();
+            raf.close();
+        } catch (Exception e) {}
+        return new SearchResults(lineCount, (LogMessage[]) list.toArray(new LogMessage[list.size()]), capped);
+    }
+
+    private static String substituteSystemProps(String source) {
+        StringBuffer buf = new StringBuffer();
+        int last = 0;
+        Matcher m = VARIABLE_PATTERN.matcher(source);
+        while(m.find()) {
+            buf.append(source.substring(last, m.start()));
+            String prop = source.substring(m.start()+2, m.end()-1);
+            buf.append(System.getProperty(prop));
+            last = m.end();
+        }
+        buf.append(source.substring(last));
+        return buf.toString();
+    }
+
+    private static Pattern getDefaultPatternForLevel(String targetLevel) {
+        if(targetLevel.equals("FATAL")) {
+            return DEFAULT_FATAL_START;
+        } else if(targetLevel.equals("ERROR")) {
+            return DEFAULT_ERROR_START;
+        } else if(targetLevel.equals("WARN")) {
+            return DEFAULT_WARN_START;
+        } else if(targetLevel.equals("INFO")) {
+            return DEFAULT_INFO_START;
+        } else if(targetLevel.equals("DEBUG")) {
+            return DEFAULT_DEBUG_START;
+        } else {
+            return DEFAULT_ANY_START;
+        }
+    }
+
+    private static Pattern getUnknownPatternForLevel(String targetLevel) {
+        if(targetLevel.equals("FATAL")) {
+            return UNKNOWN_FATAL_START;
+        } else if(targetLevel.equals("ERROR")) {
+            return UNKNOWN_ERROR_START;
+        } else if(targetLevel.equals("WARN")) {
+            return UNKNOWN_WARN_START;
+        } else if(targetLevel.equals("INFO")) {
+            return UNKNOWN_INFO_START;
+        } else if(targetLevel.equals("DEBUG")) {
+            return UNKNOWN_DEBUG_START;
+        } else {
+            return UNKNOWN_ANY_START;
+        }
+    }
+
+    public SearchResults getMatchingItems(String logFile, Integer firstLine, Integer lastLine, String minLevel, String text, int maxResults, boolean includeStackTraces) {
+        // Ensure the file argument is really a log file!
+        if(logFile == null) {
+            throw new IllegalArgumentException("Must specify a log file");
+        }
+        String[] files = getLogFileNames();
+        boolean found = false;
+        for (int i = 0; i < files.length; i++) {
+            if(files[i].equals(logFile)) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            throw new IllegalArgumentException("Not a log file!");
+        }
+        // Check for valid log level
+        if(minLevel == null) {
+            minLevel = "TRACE";
+        } else if(!minLevel.equals("FATAL") && !minLevel.equals("ERROR") && !minLevel.equals("WARN") &&
+                !minLevel.equals("INFO") && !minLevel.equals("DEBUG") && !minLevel.equals("TRACE")) {
+            throw new IllegalArgumentException("Not a valid log level");
+        }
+        // Check that the text pattern is valid
+        Pattern textPattern = null;
+        try {
+            textPattern = text == null || text.equals("") ? null : Pattern.compile(text);
+        } catch (PatternSyntaxException e) {
+            throw new IllegalArgumentException("Bad regular expression '"+text+"'");
+        }
+        // Make sure we can find the log file
+        File log = new File(substituteSystemProps(logFile));
+        if(!log.exists()) {
+            throw new IllegalArgumentException("Log file "+log.getAbsolutePath()+" does not exist");
+        }
+        // Run the search
+        return searchFile(log, minLevel, textPattern, firstLine, lastLine, maxResults, includeStackTraces);
     }
 
     /**
@@ -454,10 +651,10 @@ public class Log4jService implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Log4jService.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Log4jService.class, "SystemLog");
 
-        infoFactory.addAttribute("configurationFile", String.class, true);
-        infoFactory.addAttribute("refreshPeriod", int.class, true);
+        infoFactory.addAttribute("configFileName", String.class, true);
+        infoFactory.addAttribute("refreshPeriodSeconds", int.class, true);
         infoFactory.addAttribute("configuration", String.class, false);
         infoFactory.addAttribute("rootLoggerLevel", String.class, false);
 
@@ -467,8 +664,9 @@ public class Log4jService implements GBeanLifecycle {
         infoFactory.addOperation("setLoggerLevel", new Class[]{String.class, String.class});
         infoFactory.addOperation("getLoggerLevel", new Class[]{String.class});
         infoFactory.addOperation("getLoggerEffectiveLevel", new Class[]{String.class});
+        infoFactory.addInterface(SystemLog.class);
 
-        infoFactory.setConstructor(new String[]{"configurationFile", "refreshPeriod", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"configFileName", "refreshPeriodSeconds", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

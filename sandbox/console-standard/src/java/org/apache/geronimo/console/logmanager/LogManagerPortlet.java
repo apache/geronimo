@@ -30,7 +30,8 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.geronimo.console.util.LogHelper;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.system.logging.SystemLog;
 
 public class LogManagerPortlet extends GenericPortlet {
 
@@ -48,26 +49,25 @@ public class LogManagerPortlet extends GenericPortlet {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
-        renderRequest.setAttribute("configFile", LogHelper.getConfigFile());
-        renderRequest.setAttribute("configuration", LogHelper
-                .getConfiguration());
-        renderRequest.setAttribute("logLevel", LogHelper.getLogLevel());
-        renderRequest.setAttribute("refreshPeriod", LogHelper
-                .getRefreshPeriod());
+        SystemLog log = PortletManager.getCurrentSystemLog(renderRequest);
+        renderRequest.setAttribute("configFile", log.getConfigFileName());
+//        renderRequest.setAttribute("configuration", LogHelper.getConfiguration());
+        renderRequest.setAttribute("logLevel", log.getRootLoggerLevel());
+        renderRequest.setAttribute("refreshPeriod", new Integer(log.getRefreshPeriodSeconds()));
 
         normalView.include(renderRequest, renderRespose);
     }
 
     public void init(PortletConfig portletConfig) throws PortletException {
         PortletContext pc = portletConfig.getPortletContext();
-        normalView = pc
-                .getRequestDispatcher("/WEB-INF/view/logmanager/view.jsp");
+        normalView = pc.getRequestDispatcher("/WEB-INF/view/logmanager/view.jsp");
         helpView = pc.getRequestDispatcher("/WEB-INF/view/logmanager/help.jsp");
         super.init(portletConfig);
     }
 
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
+        SystemLog log = PortletManager.getCurrentSystemLog(actionRequest);
 
         String action = actionRequest.getParameter("action");
         String logLevel = actionRequest.getParameter("logLevel");
@@ -77,12 +77,10 @@ public class LogManagerPortlet extends GenericPortlet {
 
         if ("update".equals(action)) {
             if (refreshPeriod != null) {
-                LogHelper.setRefreshPeriod(Integer.parseInt(refreshPeriod));
+                log.setRefreshPeriodSeconds(Integer.parseInt(refreshPeriod));
             }
-            LogHelper.setConfigFile(configFile);
-            LogHelper.setLogLevel(logLevel);
-
+            log.setConfigFileName(configFile);
+            log.setRootLoggerLevel(logLevel);
         }
     }
-
 }

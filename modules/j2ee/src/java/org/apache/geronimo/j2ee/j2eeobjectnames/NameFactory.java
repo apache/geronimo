@@ -82,6 +82,8 @@ public class NameFactory {
     public static final String CORBA_SERVICE = "CORBABean";
     public static final String JACC_MANAGER = "JACCManager";
 
+    public static final String SYSTEM_LOG = "SystemLog";
+
     public static String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
 
     public static final String CONFIG_BUILDER = "ConfigBuilder";

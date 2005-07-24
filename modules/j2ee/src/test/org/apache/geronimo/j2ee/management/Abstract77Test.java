@@ -31,6 +31,10 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.PatternLayout;
 
 /**
  * @version $Rev$ $Date$
@@ -41,11 +45,13 @@ public abstract class Abstract77Test extends TestCase {
     protected static final String DOMAIN = "geronimo.test";
     protected static final ObjectName DOMAIN_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=J2EEDomain,name=" + DOMAIN);
     protected static final ObjectName SERVER_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=J2EEServer,name=Test");
-    protected static final ObjectName JVM_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=JVM,J2EEServer=Test");
+    protected static final ObjectName JVM_NAME = JMXUtil.getObjectName(DOMAIN + ":j2eeType=JVM,J2EEServer=Test,name=JVM");
 
     protected Kernel kernel;
 
     protected void setUp() throws Exception {
+        Logger.getRootLogger().setLevel(Level.WARN);
+        Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
         super.setUp();
         kernel = KernelFactory.newInstance().createKernel(DOMAIN);
         kernel.boot();

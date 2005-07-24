@@ -25,6 +25,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.management.J2EEDomain;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
+import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -33,21 +34,25 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PortletManager {
     private final static Log log = LogFactory.getLog(PortletManager.class);
+    // The following are currently static due to having only one server/JVM/etc. per Geronimo
     private final static String HELPER_KEY = "org.apache.geronimo.console.ManagementHelper";
     private final static String DOMAIN_KEY = "org.apache.geronimo.console.J2EEDomain";
     private final static String SERVER_KEY = "org.apache.geronimo.console.J2EEServer";
     private final static String JVM_KEY = "org.apache.geronimo.console.JVM";
+    private final static String SYSTEM_LOG_KEY = "org.apache.geronimo.console.SystemLog";
+    // The following may change based on the user's selections
+        // nothing yet
 
     private static ManagementHelper createHelper(PortletRequest request) {
         //todo: consider making this configurable; we could easily connect to a remote kernel if we wanted to
         Kernel kernel = null;
         try {
-            kernel = (Kernel) new InitialContext().lookup("java:comp/env/GeronimoKernel");
+            kernel = (Kernel) new InitialContext().lookup("java:comp/GeronimoKernel");
         } catch (NamingException e) {
 //            log.error("Unable to look up kernel in JNDI", e);
         }
         if(kernel == null) {
-            log.warn("Unable to find kernel in JNDI; using KernelRegistry instead");
+            log.debug("Unable to find kernel in JNDI; using KernelRegistry instead");
             kernel = KernelRegistry.getSingleKernel();
         }
         return new KernelManagementHelper(kernel);
@@ -90,5 +95,15 @@ public class PortletManager {
             request.getPortletSession().setAttribute(JVM_KEY, jvm, PortletSession.APPLICATION_SCOPE);
         }
         return jvm;
+    }
+
+    public static SystemLog getCurrentSystemLog(PortletRequest request) {
+        SystemLog log = (SystemLog) request.getPortletSession(true).getAttribute(SYSTEM_LOG_KEY, PortletSession.APPLICATION_SCOPE);
+        if(log == null) {
+            ManagementHelper helper = getManagementHelper(request);
+            log = helper.getSystemLog(getCurrentJVM(request));
+            request.getPortletSession().setAttribute(SYSTEM_LOG_KEY, log, PortletSession.APPLICATION_SCOPE);
+        }
+        return log;
     }
 }

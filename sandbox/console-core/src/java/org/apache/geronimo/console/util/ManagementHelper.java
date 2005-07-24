@@ -37,6 +37,7 @@ import org.apache.geronimo.j2ee.management.Servlet;
 import org.apache.geronimo.j2ee.management.ResourceAdapter;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
 import org.apache.geronimo.j2ee.management.geronimo.J2EEApplication;
+import org.apache.geronimo.system.logging.SystemLog;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -64,7 +65,10 @@ public interface ManagementHelper {
     JDBCResource[] getJDBCResources(J2EEServer server);
     JMSResource[] getJMSResources(J2EEServer server);
     JVM[] getJavaVMs(J2EEServer server);
-    //todo: repository, logs, embedded database
+    //todo: repository, embedded database
+
+    // JVM properties
+    SystemLog getSystemLog(JVM jvm);
 
     // application properties
     J2EEModule[] getModules(J2EEApplication application);

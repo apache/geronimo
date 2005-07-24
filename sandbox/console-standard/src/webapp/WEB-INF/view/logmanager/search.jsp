@@ -28,40 +28,20 @@ function <portlet:namespace/>isNumeric(candidate){
 function <portlet:namespace/>validateForm(){
     var startPos = document.<portlet:namespace/>searchForm.startPos.value;
     var endPos = document.<portlet:namespace/>searchForm.endPos.value;
-    if(startPos.length < 1){
-        alert("Please input a start position.");
-        document.<portlet:namespace/>searchForm.startPos.focus();
-        return false;
-    }
-    if(endPos.length < 1){
-        alert("Please input an end position.");
-        document.<portlet:namespace/>searchForm.endPos.focus();
-        return false;
-    }
+    var maxRows = document.<portlet:namespace/>searchForm.maxRows.value;
     if(!<portlet:namespace/>isNumeric(startPos)){
-        alert("Start Position must be a positive integer.");
+        alert("Start Position must be a number.");
         document.<portlet:namespace/>searchForm.startPos.focus();
         return false;
     }
-    if(parseInt(startPos) < 1){
-        alert("Start Position must be a non-zero positive integer.");
-        document.<portlet:namespace/>searchForm.startPos.focus();
-        return false;
-     }
-    if(!<portlet:namespace/>isNumeric(endPos) ||
-            parseInt(endPos) > ${lineCount}){
-        alert("End Position must be a positive integer less than or equal to ${lineCount}.");
+    if(!<portlet:namespace/>isNumeric(endPos)){
+        alert("End Position must be a number.");
         document.<portlet:namespace/>searchForm.endPos.focus();
         return false;
     }
-    if(parseInt(endPos) < 1){
-        alert("End Position must be a non-zero positive integer.");
-        document.<portlet:namespace/>searchForm.endPos.focus();
-        return false;
-     }
-    if(parseInt(startPos) > parseInt(endPos)){
-        alert("Start position must be less than or equal to end position.");
-        document.<portlet:namespace/>searchForm.startPos.focus();
+    if(!<portlet:namespace/>isNumeric(maxRows)){
+        alert("Maximum results must be a number.");
+        document.<portlet:namespace/>searchForm.maxRows.focus();
         return false;
     }
     return true;
@@ -80,39 +60,44 @@ function <portlet:namespace/>validateForm(){
     <form action="<portlet:renderURL/>" name="<portlet:namespace/>searchForm" onsubmit="return <portlet:namespace/>validateForm();">
     <b>Filter results:</b>
     <input type="hidden" value="search" name="action"/>
+    File <select name="logFile">
+        <c:forEach var="file" items="${logFiles}">
+            <option value="${file.fullName}" <c:if test="${logFile eq file.fullName}"> selected</c:if>>${file.name}</option>
+        </c:forEach>
+    </select>
     Lines <input type="text" name="startPos" value="${startPos}" size="3"/>
     to <input type="text" name="endPos" value="${endPos}" size="3"/>
-    Level 
+    Max Results <input type="text" name="maxRows" value="${maxRows}" size="3"/>
+    Level
     <select name="logLevel">
-        <option value=""<c:if test="${logLevel eq ''}"> selected</c:if>>ALL</option>
+        <option<c:if test="${logLevel eq 'TRACE' || logLevel eq ''}"> selected</c:if>>TRACE</option>
         <option<c:if test="${logLevel eq 'DEBUG'}"> selected</c:if>>DEBUG</option>
         <option<c:if test="${logLevel eq 'INFO'}"> selected</c:if>>INFO</option>
         <option<c:if test="${logLevel eq 'WARN'}"> selected</c:if>>WARN</option>
         <option<c:if test="${logLevel eq 'ERROR'}"> selected</c:if>>ERROR</option>
         <option<c:if test="${logLevel eq 'FATAL'}"> selected</c:if>>FATAL</option>
-        <option<c:if test="${logLevel eq 'TRACE'}"> selected</c:if>>TRACE</option>
     </select>
     Containing text <input type="text" name="searchString" value="${searchString}"/>
+    With Exceptions <input type="checkbox" name="stackTraces" <c:if test="${!empty stackTraces}">CHECKED </c:if>/>
     <input type="submit" value="Go"/>
     </form>
     </td>
-</tr>    
+</tr>
 <tr>
-    <td>     
-
+    <td>
 <c:choose>
 <c:when test="${searchResults != null && fn:length(searchResults) > 0}">
     <table>
         <tr>
             <td class="Smaller">
-            <b>${lineCount} total message(s) in log file. ${fn:length(searchResults)} matched your criteria.</b>
+            <b>${lineCount} total message(s) in log file. ${fn:length(searchResults)} matched your criteria<c:if test="${!empty capped}"> (number of results capped)</c:if>.</b>
             </td>
         </tr>    
             
     <c:forEach var="line" items="${searchResults}">
         <tr>
             <td class="Smaller">
-            ${line}
+            ${line.lineNumber}:&nbsp;${line.lineContent}
             </td>
         </tr>
     </c:forEach>
@@ -122,6 +107,6 @@ function <portlet:namespace/>validateForm(){
  No logs found with the specified criteria.
 </c:otherwise>
 </c:choose>  
-</td>     
+</td>
 </tr>
 </table>
