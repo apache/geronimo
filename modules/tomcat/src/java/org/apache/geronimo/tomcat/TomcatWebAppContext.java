@@ -182,15 +182,20 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.webServices = webServices;
 
         URI root = URI.create(configurationBaseUrl.toString());
-//        webAppRoot = root.resolve(webAppRoot);
+        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
+            root = new URI("file", configurationBaseUrl.getPath(), null);
+        } else {
+            root = URI.create(configurationBaseUrl.toString());
+        }
         URL webAppRootURL = webAppRoot.toURL();
 
         URL[] urls = new URL[webClassPath.length];
         for (int i = 0; i < webClassPath.length; i++) {
             URI classPathEntry = webClassPath[i];
-            classPathEntry = webAppRoot.resolve(classPathEntry);
+            classPathEntry = root.resolve(classPathEntry);
             urls[i] = classPathEntry.toURL();
         }
+        
         this.webClassLoader = new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
 
         this.kernel = kernel;
