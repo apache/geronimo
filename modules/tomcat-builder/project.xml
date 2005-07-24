@@ -42,9 +42,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-xmlbeans-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xmlbeans-maven-plugin</artifactId>
+            <version>${xmlbeans_maven_plugin_version}</version>
             <type>plugin</type>
         </dependency>
 
