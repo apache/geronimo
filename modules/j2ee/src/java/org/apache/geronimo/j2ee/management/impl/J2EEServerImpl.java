@@ -82,7 +82,7 @@ public class J2EEServerImpl implements J2EEServer {
             throw new InvalidObjectNameException("J2EEServer object name j2eeType property must be 'J2EEServer'", objectName);
         }
         if (!keyPropertyList.containsKey("name")) {
-            throw new InvalidObjectNameException("J2EEServer object must contain a J2EEServer property", objectName);
+            throw new InvalidObjectNameException("J2EEServer object must contain a name property", objectName);
         }
         if (keyPropertyList.size() != 2) {
             throw new InvalidObjectNameException("J2EEServer object name can only have j2eeType, and name", objectName);
