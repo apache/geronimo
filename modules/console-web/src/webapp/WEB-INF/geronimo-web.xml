@@ -17,7 +17,7 @@
 -->
   
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/web/jetty"
+    xmlns="http://geronimo.apache.org/xml/ns/web"
     configId="org/apache/geronimo/DebugConsole"
     parentId="org/apache/geronimo/Server"
     >
