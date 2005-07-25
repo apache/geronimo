@@ -122,7 +122,7 @@
       <arg>distribute</arg>
       <arg>$INSTALL_PATH/installer-temp/j2ee-server-tomcat-plan.xml</arg>
     </executefile>
-    <executeForPack name="J2EE Features" />
+    <executeForPack name="Tomcat Web Container" />
   </job>
   <job name="Install JMX Debug Tool Web App Configuration">
     <executefile name="$JAVA_HOME/bin/java">
