@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/web/tomcat"
+    xmlns="http://geronimo.apache.org/xml/ns/web"
     configId="org/apache/geronimo/DebugConsole"
-    parentId="org/apache/geronimo/Tomcat"
+    parentId="org/apache/geronimo/Server"
     >
 
     <dependency>
         <uri>commons-collections/jars/commons-collections-3.1.jar</uri>
     </dependency>
-    
+
     <context-root>/debug-tool</context-root>
     <context-priority-classloader>false</context-priority-classloader>
 </web-app>
