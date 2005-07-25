@@ -1,5 +1,5 @@
 <portlet:defineObjects/>
-<p>This portlet allows the user to deploy new applications on Geronimo. Web applications require deployment plans, which are either packaged with the war file or kept in a separate file which is typically called geronimo-jetty.xml.<br>
+<p>This portlet allows the user to deploy new applications on Geronimo. Web applications require deployment plans, which are either packaged with the war file or kept in a separate file which is typically called geronimo-web.xml.<br>
 </p>
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>

@@ -6,7 +6,7 @@
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>Message Destination Name</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The name of the queue or topic. This is the name used in the admin object gbean name and is linked to by &lt;message-destination-link&gt; in the geronimo-jetty.xml plan.</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The name of the queue or topic. This is the name used in the admin object gbean name and is linked to by &lt;message-destination-link&gt; in the geronimo-web.xml plan.</td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>Destination Physical Name</strong></td>
@@ -18,11 +18,11 @@
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>Application Name</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">This is the &quot;configID&quot; in the geronimo-jetty.xml file. Or this can be set to the string &quot;null&quot; if the admin object is deployed stand-alone. By default this field contains the string &quot;null.&quot;</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">This is the &quot;configID&quot; in the geronimo-web.xml file. Or this can be set to the string &quot;null&quot; if the admin object is deployed stand-alone. By default this field contains the string &quot;null.&quot;</td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>Module Name</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">If the module is deployed stand-alone this field is the &quot;configID&quot; in the geronimo-jetty.xml file. If it is deployed in an application (ear) this field should be the path of the module inside the ear, such as, myResourceAdapter.rar. By default this field contains &quot;defaultJMS.&quot;</td>
+    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">If the module is deployed stand-alone this field is the &quot;configID&quot; in the geronimo-web.xml file. If it is deployed in an application (ear) this field should be the path of the module inside the ear, such as, myResourceAdapter.rar. By default this field contains &quot;defaultJMS.&quot;</td>
   </tr>
   <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><img src="/console/images/submit.gif" /></td>
