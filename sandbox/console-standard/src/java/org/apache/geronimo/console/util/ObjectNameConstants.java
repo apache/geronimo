@@ -34,7 +34,7 @@ public interface ObjectNameConstants {
 
     public static final String REPO_OBJECT_NAME = "geronimo.server:name=Repository,J2EEServer=geronimo,J2EEApplication=null,j2eeType=GBean,J2EEModule=org/apache/geronimo/System";
 
-    public static final String WEBCONTAINER_OBJECT_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer";
+    public static final String WEBCONTAINER_OBJECT_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer";
 
     public static final String SERVER_INFO_OBJECT_NAME = "geronimo.server:name=ServerInfo,J2EEServer=geronimo,J2EEApplication=null,j2eeType=GBean,J2EEModule=org/apache/geronimo/System";
 
