@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev: 54661 $ $Date: 2005-07-10 01:59:24 +1000 (Sun, 10 Jul 2005) $ -->
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    parentId="org/apache/geronimo/PetStoreDataSource1.3.2" 
+    configId="org/apache/geronimo/PetStore1.3.2">
+
+    <module>
+        <ejb>customer-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+          <naming:cmp-connection-factory>
+            <naming:resource-link>PetStoreDataSource</naming:resource-link>
+          </naming:cmp-connection-factory>
+          <enterprise-beans>
+            <entity>
+              <ejb-name>CustomerEJB</ejb-name>
+              <table-name>CUSTOMERS</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>userId</cmp-field-name>
+                <table-column>USERID</table-column>
+              </cmp-field-mapping>
+            </entity>
+            <entity>
+              <ejb-name>ProfileEJB</ejb-name>
+              <table-name>PROFILES</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <cmp-field-class>java.lang.Integer</cmp-field-class>
+                <table-column>ID</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>preferredLanguage</cmp-field-name>
+                <table-column>PREFERREDLANGUAGE</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>myListPreference</cmp-field-name>
+                <table-column>MYLISTPREFERENCE</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>favoriteCategory</cmp-field-name>
+                <table-column>FAVORITECATEGORY</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>bannerPreference</cmp-field-name>
+                <table-column>BANNERPREFERENCE</table-column>
+              </cmp-field-mapping>
+              <primkey-field>id</primkey-field>
+              <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <auto-increment-table>
+                  <sql>INSERT INTO PROFILES (PREFERREDLANGUAGE) VALUES (NULL)</sql>
+                  <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+              </key-generator>
+            </entity>
+            <entity>
+              <ejb-name>CreditCardEJB</ejb-name>
+              <table-name>CREDITCARDS</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <cmp-field-class>java.lang.Integer</cmp-field-class>
+                <table-column>ID</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>cardType</cmp-field-name>
+                <table-column>CARDTYPE</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>expiryDate</cmp-field-name>
+                <table-column>EXPIRYDATE</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>cardNumber</cmp-field-name>
+                <table-column>CARDNUMBER</table-column>
+              </cmp-field-mapping>
+              <primkey-field>id</primkey-field>
+              <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <auto-increment-table>
+                  <sql>INSERT INTO CREDITCARDS (CARDTYPE) VALUES (NULL)</sql>
+                  <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+              </key-generator>
+            </entity>
+            <entity>
+              <ejb-name>ContactInfoEJB</ejb-name>
+              <table-name>CONTACTINFOS</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <cmp-field-class>java.lang.Integer</cmp-field-class>
+                <table-column>ID</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>familyName</cmp-field-name>
+                <table-column>FAMILYNAME</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>telephone</cmp-field-name>
+                <table-column>TELEPHONE</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>givenName</cmp-field-name>
+                <table-column>GIVENNAME</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>email</cmp-field-name>
+                <table-column>EMAIL</table-column>
+              </cmp-field-mapping>
+              <primkey-field>id</primkey-field>
+              <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <auto-increment-table>
+                  <sql>INSERT INTO CONTACTINFOS (FAMILYNAME) VALUES (NULL)</sql>
+                  <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+              </key-generator>
+            </entity>
+            <entity>
+              <ejb-name>AddressEJB</ejb-name>
+              <table-name>ADDRESSES</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <cmp-field-class>java.lang.Integer</cmp-field-class>
+                <table-column>ID</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>zipCode</cmp-field-name>
+                <table-column>ZIPCODE</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>state</cmp-field-name>
+                <table-column>STATE</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>streetName2</cmp-field-name>
+                <table-column>STREETNAME2</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>streetName1</cmp-field-name>
+                <table-column>STREETNAME1</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>country</cmp-field-name>
+                <table-column>COUNTRY</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>city</cmp-field-name>
+                <table-column>CITY</table-column>
+              </cmp-field-mapping>
+              <primkey-field>id</primkey-field>
+              <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <auto-increment-table>
+                  <sql>INSERT INTO ADDRESSES (ZIPCODE) VALUES (NULL)</sql>
+                  <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+              </key-generator>
+            </entity>
+            <entity>
+              <ejb-name>AccountEJB</ejb-name>
+              <table-name>ACCOUNTS</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>id</cmp-field-name>
+                <cmp-field-class>java.lang.Integer</cmp-field-class>
+                <table-column>ID</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>status</cmp-field-name>
+                <table-column>STATUS</table-column>
+              </cmp-field-mapping>
+              <primkey-field>id</primkey-field>
+              <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                <auto-increment-table>
+                  <sql>INSERT INTO ACCOUNTS (STATUS) VALUES (NULL)</sql>
+                  <return-type>java.lang.Integer</return-type>
+                </auto-increment-table>
+              </key-generator>
+            </entity>
+          </enterprise-beans>
+          <relationships>
+            <ejb-relation>
+              <ejb-relationship-role>
+                <relationship-role-source>
+                  <ejb-name>CustomerEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                  <cmr-field-name>account</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                  <cmr-field-mapping>
+                    <key-column>USERID</key-column>
+                    <foreign-key-column>FK_USERID</foreign-key-column>
+                  </cmr-field-mapping>
+                </role-mapping>
+              </ejb-relationship-role>
+            </ejb-relation>
+            <ejb-relation>
+              <ejb-relationship-role>
+                <relationship-role-source>
+                  <ejb-name>ContactInfoEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                  <cmr-field-name>address</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                  <cmr-field-mapping>
+                    <key-column>ID</key-column>
+                    <foreign-key-column>FK_CONTACTINFOID</foreign-key-column>
+                  </cmr-field-mapping>
+                </role-mapping>
+              </ejb-relationship-role>
+            </ejb-relation>
+            <ejb-relation>
+              <ejb-relationship-role>
+                <relationship-role-source>
+                  <ejb-name>CustomerEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                  <cmr-field-name>profile</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                  <cmr-field-mapping>
+                    <key-column>USERID</key-column>
+                    <foreign-key-column>FK_USERID</foreign-key-column>
+                  </cmr-field-mapping>
+                </role-mapping>
+              </ejb-relationship-role>
+            </ejb-relation>
+            <ejb-relation>
+              <ejb-relationship-role>
+                <relationship-role-source>
+                  <ejb-name>AccountEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                  <cmr-field-name>contactInfo</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                  <cmr-field-mapping>
+                    <key-column>ID</key-column>
+                    <foreign-key-column>FK_ACCOUNTID</foreign-key-column>
+                  </cmr-field-mapping>
+                </role-mapping>
+              </ejb-relationship-role>
+            </ejb-relation>
+            <ejb-relation>
+              <ejb-relationship-role>
+                <relationship-role-source>
+                  <ejb-name>AccountEJB</ejb-name>
+                </relationship-role-source>
+                <cmr-field>
+                  <cmr-field-name>creditCard</cmr-field-name>
+                </cmr-field>
+                <role-mapping>
+                  <cmr-field-mapping>
+                    <key-column>ID</key-column>
+                    <foreign-key-column>FK_ACCOUNTID</foreign-key-column>
+                  </cmr-field-mapping>
+                </role-mapping>
+              </ejb-relationship-role>
+            </ejb-relation>
+          </relationships>
+        </openejb-jar>
+    </module>
+
+    <module>
+        <ejb>asyncsender-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+          <enterprise-beans>
+            <session>
+              <ejb-name>AsyncSenderEJB</ejb-name>
+              <naming:resource-ref>
+                <naming:ref-name>jms/QueueConnectionFactory</naming:ref-name>
+                <naming:resource-link>PetstoreConnectionFactory</naming:resource-link>
+              </naming:resource-ref>
+              <naming:resource-env-ref>
+                <naming:ref-name>jms/AsyncSenderQueue</naming:ref-name>
+                <naming:message-destination-link>AsyncSenderQueue</naming:message-destination-link>
+              </naming:resource-env-ref>
+            </session>
+          </enterprise-beans>
+        </openejb-jar>
+    </module>
+
+    <module>
+        <ejb>signon-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+
+          <naming:cmp-connection-factory>
+            <naming:resource-link>PetStoreDataSource</naming:resource-link>
+          </naming:cmp-connection-factory>
+          <enterprise-beans>
+            <entity>
+              <ejb-name>UserEJB</ejb-name>
+              <table-name>USERS</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>password</cmp-field-name>
+                <table-column>PASSWORD</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>userName</cmp-field-name>
+                <table-column>USERNAME</table-column>
+              </cmp-field-mapping>
+            </entity>
+          </enterprise-beans>
+        </openejb-jar>
+    </module>
+
+    <module>
+        <ejb>uidgen-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+
+          <naming:cmp-connection-factory>
+            <naming:resource-link>PetStoreDataSource</naming:resource-link>
+          </naming:cmp-connection-factory>
+          <enterprise-beans>
+            <entity>
+              <ejb-name>CounterEJB</ejb-name>
+              <table-name>COUNTERS</table-name>
+              <cmp-field-mapping>
+                <cmp-field-name>counter</cmp-field-name>
+                <table-column>COUNTER</table-column>
+              </cmp-field-mapping>
+              <cmp-field-mapping>
+                <cmp-field-name>name</cmp-field-name>
+                <table-column>NAME</table-column>
+              </cmp-field-mapping>
+            </entity>
+          </enterprise-beans>
+        </openejb-jar>
+    </module>
+
+    <module>
+        <ejb>catalog-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+
+          <enterprise-beans>
+            <session>
+              <ejb-name>CatalogEJB</ejb-name>
+              <naming:resource-ref>
+                <naming:ref-name>jdbc/CatalogDB</naming:ref-name>
+                <naming:resource-link>PetStoreDataSource</naming:resource-link>
+              </naming:resource-ref>
+              <naming:resource-ref>
+                <naming:ref-name>url/CatalogDAOSQLURL</naming:ref-name>
+                <naming:url>http://localhost:8080/petstore/CatalogDAOSQL.xml</naming:url>
+              </naming:resource-ref>
+            </session>
+          </enterprise-beans>
+        </openejb-jar>
+    </module>
+
+    <module>
+        <web>petstore.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/web"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+
+          <context-priority-classloader>false</context-priority-classloader>
+
+          <naming:ejb-local-ref>
+            <naming:ref-name>ShoppingControllerEJB</naming:ref-name>
+            <naming:ejb-link>#ShoppingControllerEJB</naming:ejb-link>
+          </naming:ejb-local-ref>
+          <naming:resource-ref>
+            <naming:ref-name>jdbc/CatalogDB</naming:ref-name>
+            <naming:resource-link>PetStoreDataSource</naming:resource-link>
+          </naming:resource-ref>
+          <naming:resource-ref>
+            <naming:ref-name>url/CatalogDAOSQLURL</naming:ref-name>
+            <naming:url>http://localhost:8080/petstore/CatalogDAOSQL.xml</naming:url>
+          </naming:resource-ref>
+        </web-app>
+    </module>
+
+</application>

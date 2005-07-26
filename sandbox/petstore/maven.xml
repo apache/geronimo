@@ -16,64 +16,128 @@
     limitations under the License.
 -->
 <!-- $Rev: 54661 $ $Date$ -->
-<project default="default" xmlns:i="jelly:interaction" xmlns:j="jelly:core" xmlns:u="jelly:util" xmlns:ant="jelly:ant" xmlns:deploy="geronimo:deploy">
-  <goal name="default">
-    <attainGoal name="petstore:deploy"/>
-  </goal>
-  <goal name="petstore:deploy" description="Deploys PetStore">
-    <ant:echo>Building PetStore configuration</ant:echo>
-    <echo/>
-    <echo>Using petstore.ear at ${petstore.ear.path} (petstore.ear.path variable)</echo>
-    <echo/>
-    <unjar src="${petstore.ear.path}" dest="target/petstore-ear"/>
-    <copy file="src/plan/petstore-plan.xml" tofile="target/petstore-ear/META-INF/geronimo-application.xml"/>
-    <unjar src="target/petstore-ear/customer-ejb.jar" dest="target/petstore-ear/customer-ejb"/>
-    <unjar src="target/petstore-ear/petstore.war" dest="target/petstore-ear/petstore-war"/>
-    <ant/>
-    <jar destfile="target/petstore-ear/petstore.war" basedir="target/petstore-ear/petstore-war"/>
-    <delete dir="target/petstore-ear/petstore-war"/>
-    <jar destfile="target/petstore-ear/customer-ejb.jar" basedir="target/petstore-ear/customer-ejb"/>
-    <delete dir="target/petstore-ear/customer-ejb"/>
-    <copy todir="target/petstore-ear">
-      <fileset dir="src/plan">
-        <exclude name="petstore-plan.xml"/>
-      </fileset>
-    </copy>
-    <!-- find a better way, e.g. Maven dependencies or GBean dependencies -->
-    <copy file="../../modules/assembly/target/geronimo-1.0-SNAPSHOT/repository/geronimo/rars/geronimo-derby-connector-1.0-SNAPSHOT.rar" todir="target/petstore-ear"/>
-    <copy file="../../modules/assembly/target/geronimo-1.0-SNAPSHOT/repository/activemq/rars/activemq-ra-3.1-SNAPSHOT.rar" todir="target/petstore-ear"/>
-    <!-- end of find a better way -->
-    <ant:echo>Deploying PetStore</ant:echo>
-    <ant:java fork="true" jar="../../modules/assembly/target/geronimo-1.0-SNAPSHOT/bin/deployer.jar" failonerror="true">
-      <ant:jvmarg value="-ea"/>
-      <ant:arg value="--user"/>
-      <ant:arg value="system"/>
-      <ant:arg value="--password"/>
-      <ant:arg value="manager"/>
-      <ant:arg value="distribute"/>
-      <ant:arg value="target/petstore-ear"/>
-    </ant:java>
-  </goal>
-  <goal name="petstore:start" description="Starts PetStore">
-    <deploy:startRemoteServer geronimoTarget="../../modules/assembly/target/geronimo-1.0-SNAPSHOT" vmArgs="" configs="petstore"/>
-    <ant:echo message="Waiting for server at: ../../modules/assembly/target/geronimo-1.0-SNAPSHOT"/>
-    <deploy:waitForStarted uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector" maxtries="125" username="system" password="manager" id="petstore"/>
-    <echo message="server has started"/>
-  </goal>
-  <goal name="petstore:stop" description="Stops PetStore">
-    <deploy:stopRemoteServer uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector" username="system" password="manager"/>
-    <echo message="server has stopped"/>
-  </goal>
-  <goal name="petstore:initdb" description="Initializes database">
-    <j:invokeStatic className="java.lang.System" method="setProperty">
-      <j:arg type="java.lang.String" value="derby.system.home"/>
-      <j:arg type="java.lang.String" value="../../modules/assembly/target/geronimo-1.0-SNAPSHOT/var/derby"/>
-    </j:invokeStatic>
-    <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:PetStoreDB;create=true" userid="" password="">
-      <ant:fileset dir="src/sql"/>
-      <ant:classpath>
-        <ant:pathelement location="${maven.repo.local}/incubator-derby/jars/derby-10.0.2.1.jar"/>
-      </ant:classpath>
-    </ant:sql>
-  </goal>
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:deploy="geronimo:deploy"
+    >
+
+    <j:set var="instDir" value="${maven.build.dir}/geronimo_${geronimo_version}"/>
+
+    <goal name="default">
+        <attainGoal name="petstore:deploy"/>
+    </goal>
+
+    <goal name="petstore:deploy" description="Deploys PetStore">
+        <ant:delete dir="${instDir}"/>
+
+        <ant:echo>Unpacking Geronimo Server at: ${instDir}</ant:echo>
+        <deploy:unpackServer
+            geronimoVersion="${geronimo_version}"
+            geronimoName="geronimo"
+            targetDir="${instDir}"/>
+
+        <ant:echo>Building JMS Configuration</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="src/plan/petstore1.3.2-jms-ra-plan.xml"/>
+            <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
+        </ant:java>
+
+        <ant:echo>Building Database Configuration</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="src/plan/petstore1.3.2-db-ra-plan.xml"/>
+            <ant:arg value="${maven.repo.local}/geronimo/rars/geronimo-derby-connector-${pom.currentVersion}.rar"/>
+        </ant:java>
+
+    <ant:echo>Distributing Java Pet Store Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="src/plan/petstore1.3.2.ear-plan.xml"/>
+            <ant:arg value="${petstore.home}/src/apps/petstore/build/petstore.ear"/>
+        </ant:java>
+
+        <ant:echo>Distributing Java Pet Store Supplier Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="src/plan/supplier1.3.2.ear-plan.xml"/>
+            <ant:arg value="${petstore.home}/src/apps/supplier/build/supplier.ear"/>
+        </ant:java>
+
+        <ant:echo>Creating Java Pet Store Database Schema</ant:echo>
+        <j:invokeStatic className="java.lang.System" method="setProperty">
+            <j:arg type="java.lang.String" value="derby.system.home"/>
+            <j:arg type="java.lang.String" value="${instDir}/var/derby"/>
+        </j:invokeStatic>
+        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver"
+            url="jdbc:derby:PetStoreDB;create=true" userid="" password="">
+            <ant:fileset dir="src/sql"/>
+            <ant:classpath>
+                <ant:pathelement location="${maven.repo.local}/incubator-derby/jars/derby-10.0.2.1.jar"/>
+            </ant:classpath>
+        </ant:sql>
+    </goal>
+
+    <goal name="db">
+        <ant:echo>Creating PetStore Database Schema</ant:echo>
+        <j:invokeStatic className="java.lang.System" method="setProperty">
+            <j:arg type="java.lang.String" value="derby.system.home"/>
+            <j:arg type="java.lang.String" value="{instDir}/var/derby"/>
+        </j:invokeStatic>
+        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver"
+            url="jdbc:derby:PetStoreDB;create=true" userid="" password="">
+            <ant:fileset dir="src/sql"/>
+            <ant:classpath>
+                <ant:pathelement location="${maven.repo.local}/incubator-derby/jars/derby-10.0.2.1.jar"/>
+            </ant:classpath>
+        </ant:sql>
+    </goal>
+
+    <goal name="petstore:start" description="Start PetStore">
+        <deploy:startRemoteServer
+            geronimoTarget="${instDir}"
+            configs="org/apache/geronimo/PetStore1.3.2 org/apache/geronimo/Supplier1.3.2 org/apache/geronimo/RuntimeDeployer"/>
+        <ant:echo message="Waiting for server at: ${instDir}"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/PetStore1.3.2"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/Supplier1.3.2"/>
+        <echo message="PetStore has started"/>
+    </goal>
+
+    <goal name="petstore:stop" description="Stop PetStore">
+        <deploy:stopRemoteServer
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"/>
+        <echo message="server has stopped"/>
+    </goal>
+
 </project>

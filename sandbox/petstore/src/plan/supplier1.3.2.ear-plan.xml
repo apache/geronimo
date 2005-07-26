@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev: 54661 $ $Date: 2005-07-10 01:59:24 +1000 (Sun, 10 Jul 2005) $ -->
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    parentId="org/apache/geronimo/PetStoreDataSource1.3.2" 
+    configId="org/apache/geronimo/Supplier1.3.2">
+
+    <module>
+        <ejb>supplierpo-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+          <naming:cmp-connection-factory>
+            <naming:resource-link>PetStoreDataSource</naming:resource-link>
+          </naming:cmp-connection-factory>
+          <enterprise-beans>
+              <entity>
+                  <ejb-name>SupplierOrderEJB</ejb-name>
+                  <table-name>SUPPLIERORDERS</table-name>
+                  <cmp-field-mapping>
+                      <cmp-field-name>poId</cmp-field-name>
+                      <table-column>POID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>poDate</cmp-field-name>
+                      <table-column>PODATE</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>poStatus</cmp-field-name>
+                      <table-column>POSTATUS</table-column>
+                  </cmp-field-mapping>
+              </entity>
+              <entity>
+                  <ejb-name>ContactInfoEJB</ejb-name>
+                  <table-name>CONTACTINFOS</table-name>
+                  <cmp-field-mapping>
+                      <cmp-field-name>id</cmp-field-name>
+                        <cmp-field-class>java.lang.Integer</cmp-field-class>
+                      <table-column>ID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>telephone</cmp-field-name>
+                      <table-column>TELEPHONE</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>familyName</cmp-field-name>
+                      <table-column>FAMILYNAME</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>email</cmp-field-name>
+                      <table-column>EMAIL</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>givenName</cmp-field-name>
+                      <table-column>GIVENNAME</table-column>
+                  </cmp-field-mapping>
+                  <primkey-field>id</primkey-field>
+                  <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                      <auto-increment-table>
+                          <sql>INSERT INTO CONTACTINFOS (FAMILYNAME) VALUES (NULL)</sql>
+                          <return-type>java.lang.Integer</return-type>
+                      </auto-increment-table>
+              </key-generator>
+              </entity>
+              <entity>
+                  <ejb-name>AddressEJB</ejb-name>
+                  <table-name>ADDRESSES</table-name>
+                  <cmp-field-mapping>
+                      <cmp-field-name>id</cmp-field-name>
+                      <cmp-field-class>java.lang.Integer</cmp-field-class>
+                      <table-column>ID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>zipCode</cmp-field-name>
+                      <table-column>ZIPCODE</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>streetName2</cmp-field-name>
+                      <table-column>STREETNAME2</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>state</cmp-field-name>
+                      <table-column>STATE</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>streetName1</cmp-field-name>
+                      <table-column>STREETNAME1</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>city</cmp-field-name>
+                      <table-column>CITY</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>country</cmp-field-name>
+                      <table-column>COUNTRY</table-column>
+                  </cmp-field-mapping>
+                  <primkey-field>id</primkey-field>
+                  <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                      <auto-increment-table>
+                          <sql>INSERT INTO ADDRESSES (ZIPCODE) VALUES (NULL)</sql>
+                          <return-type>java.lang.Integer</return-type>
+                      </auto-increment-table>
+                  </key-generator>
+              </entity>
+              <entity>
+                  <ejb-name>LineItemEJB</ejb-name>
+                  <table-name>LINEITEMS</table-name>
+                  <cmp-field-mapping>
+                      <cmp-field-name>id</cmp-field-name>
+                      <cmp-field-class>java.lang.Integer</cmp-field-class>
+                      <table-column>ID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>categoryId</cmp-field-name>
+                      <table-column>CATEGORYID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>productId</cmp-field-name>
+                      <table-column>PRODUCTID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>itemId</cmp-field-name>
+                      <table-column>ITEMID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>lineNumber</cmp-field-name>
+                      <table-column>LINENUMBER</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>quantity</cmp-field-name>
+                      <table-column>QUANTITY</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>unitPrice</cmp-field-name>
+                      <table-column>UNITPRICE</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>quantityShipped</cmp-field-name>
+                      <table-column>QUANTITYSHIPPED</table-column>
+                  </cmp-field-mapping>
+                  <primkey-field>id</primkey-field>
+                  <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+                      <auto-increment-table>
+                          <sql>INSERT INTO LINEITEMS (CATEGORYID) VALUES (NULL)</sql>
+                          <return-type>java.lang.Integer</return-type>
+                      </auto-increment-table>
+                  </key-generator>
+              </entity>
+          </enterprise-beans>
+          <relationships>
+              <ejb-relation>
+                  <ejb-relationship-role>
+                      <relationship-role-source>
+                        <ejb-name>SupplierOrderEJB</ejb-name>
+                      </relationship-role-source>
+                      <cmr-field>
+                          <cmr-field-name>contactInfo</cmr-field-name>
+                      </cmr-field>
+                      <role-mapping>
+                          <cmr-field-mapping>
+                              <key-column>POID</key-column>
+                               <foreign-key-column>FK_POID</foreign-key-column>
+                          </cmr-field-mapping>
+                      </role-mapping>
+                  </ejb-relationship-role>
+              </ejb-relation>    
+              <ejb-relation>
+                  <ejb-relationship-role>
+                      <relationship-role-source>
+                        <ejb-name>ContactInfoEJB</ejb-name>
+                      </relationship-role-source>
+                      <cmr-field>
+                          <cmr-field-name>address</cmr-field-name>
+                      </cmr-field>
+                      <role-mapping>
+                          <cmr-field-mapping>
+                              <key-column>ID</key-column>
+                              <foreign-key-column>FK_CONTACTINFOID</foreign-key-column>
+                          </cmr-field-mapping>
+                      </role-mapping>
+                  </ejb-relationship-role>
+              </ejb-relation>    
+              <ejb-relation>
+                  <ejb-relationship-role>
+                      <relationship-role-source>
+                        <ejb-name>SupplierOrderEJB</ejb-name>
+                      </relationship-role-source>
+                      <cmr-field>
+                          <cmr-field-name>lineItems</cmr-field-name>
+                      </cmr-field>
+                      <role-mapping>
+                          <cmr-field-mapping>
+                              <key-column>POID</key-column>
+                              <foreign-key-column>FK_POID</foreign-key-column>
+                          </cmr-field-mapping>
+                      </role-mapping>
+                  </ejb-relationship-role>
+              </ejb-relation>    
+          </relationships>
+        </openejb-jar>
+    </module>
+
+    <module>
+        <web>supplier.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/web"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+
+          <context-priority-classloader>false</context-priority-classloader>
+
+          <naming:resource-ref>
+              <naming:ref-name>jms/TopicConnectionFactory</naming:ref-name>
+              <naming:resource-link>PetstoreConnectionFactory</naming:resource-link>
+          </naming:resource-ref>
+          <naming:resource-env-ref>
+              <naming:ref-name>jms/opc/InvoiceTopic</naming:ref-name>
+              <naming:message-destination-link>InvoiceTopic</naming:message-destination-link>
+          </naming:resource-env-ref>
+
+        </web-app>
+    </module>
+
+    <module>
+        <ejb>supplier-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+          <naming:cmp-connection-factory>
+            <naming:resource-link>PetStoreDataSource</naming:resource-link>
+          </naming:cmp-connection-factory>
+          <enterprise-beans>
+              <entity>
+                  <ejb-name>InventoryEJB</ejb-name>
+                  <table-name>INVENTORY</table-name>
+                  <cmp-field-mapping>
+                      <cmp-field-name>itemId</cmp-field-name>
+                      <table-column>ITEMID</table-column>
+                  </cmp-field-mapping>
+                  <cmp-field-mapping>
+                      <cmp-field-name>quantity</cmp-field-name>
+                      <table-column>QUANTITY</table-column>
+                  </cmp-field-mapping>
+              </entity>
+              <message-driven>
+                  <ejb-name>SupplierOrderMDB</ejb-name>
+                  <resource-adapter>
+                      <resource-link>PetStore JMS Resources</resource-link>
+                  </resource-adapter>
+                  <naming:resource-ref>
+                      <naming:ref-name>jms/QueueConnectionFactory</naming:ref-name>
+                      <naming:resource-link>PetstoreConnectionFactory</naming:resource-link>
+                  </naming:resource-ref>
+                  <naming:resource-ref>
+                      <naming:ref-name>jms/TopicConnectionFactory</naming:ref-name>
+                      <naming:resource-link>PetstoreConnectionFactory</naming:resource-link>
+                  </naming:resource-ref>
+                  <naming:resource-env-ref>
+                      <naming:ref-name>jms/opc/InvoiceTopic</naming:ref-name>
+                      <naming:message-destination-link>InvoiceTopic</naming:message-destination-link>
+                  </naming:resource-env-ref>
+              </message-driven>
+              <session>
+                  <ejb-name>OrderFulfillmentFacadeEJB</ejb-name>
+                  <naming:resource-ref>
+                      <naming:ref-name>url/EntityCatalogURL</naming:ref-name>
+                      <naming:url>http://localhost:8080/opc/EntityCatalog.jsp</naming:url>
+                  </naming:resource-ref>
+              </session>
+            </enterprise-beans>
+        </openejb-jar>
+    </module>
+
+</application>

@@ -1,0 +1,328 @@
+diff -cr petstore1.3.2/src/apps/petstore/src/docroot/CatalogDAOSQL.xml petstore1.3.2_PATCHED/src/apps/petstore/src/docroot/CatalogDAOSQL.xml
+*** petstore1.3.2/src/apps/petstore/src/docroot/CatalogDAOSQL.xml	Wed Jul 30 00:26:44 2003
+--- petstore1.3.2_PATCHED/src/apps/petstore/src/docroot/CatalogDAOSQL.xml	Tue Jul 26 14:53:40 2005
+***************
+*** 60,65 ****
+--- 60,131 ----
+  ]>
+  
+  <DAOConfiguration>
++     <DAOStatements database="derby">
++         <SQLStatement method="GET_CATEGORY">
++             <SQLFragment parameterNb="2">
++                 select name, descn
++                     from (category a join category_details b on a.catid=b.catid)
++                     where locale = ? and a.catid = ?
++             </SQLFragment>
++         </SQLStatement>
++         <SQLStatement method="GET_CATEGORIES">
++             <SQLFragment parameterNb="1">
++                 select a.catid, name, descn
++                     from (category a join category_details b on a.catid=b.catid) 
++                     where locale = ?  order by name
++             </SQLFragment>
++         </SQLStatement>
++         <SQLStatement method="GET_PRODUCT">
++             <SQLFragment parameterNb="2">
++                 select name, descn
++                     from (product a join product_details b on a.productid=b.productid)
++                     where locale = ? and a.productid = ? 
++             </SQLFragment>
++         </SQLStatement>
++         <SQLStatement method="GET_PRODUCTS">
++             <SQLFragment parameterNb="2">
++                 select a.productid, name, descn
++                     from (product a join product_details b on a.productid=b.productid)
++                     where locale = ? and a.catid = ? order by name
++             </SQLFragment>
++         </SQLStatement>
++         <SQLStatement method="GET_ITEM">
++             <SQLFragment parameterNb="2">
++                 select catid, a.productid, name, b.image, b.descn, attr1, attr2, attr3,
++                         attr4, attr5, listprice, unitcost
++                     from (((item a join item_details b on a.itemid=b.itemid)
++                         join product_details c on a.productid=c.productid)
++                         join product d on d.productid=c.productid and b.locale = c.locale)
++                     where b.locale = ? and a.itemid = ?
++             </SQLFragment>
++         </SQLStatement>
++         <SQLStatement method="GET_ITEMS">
++             <SQLFragment parameterNb="2">
++                 select catid, name, a.itemid, b.image, b.descn, attr1, attr2, attr3,
++                         attr4, attr5, listprice, unitcost
++                     from (((item a join item_details b on a.itemid=b.itemid)
++                         join product_details c on a.productid=c.productid)
++                         join product d on d.productid=c.productid and b.locale = c.locale)
++                     where b.locale = ? and a.productid = ?
++             </SQLFragment>
++         </SQLStatement>
++         <SQLStatement method="SEARCH_ITEMS">
++             <SQLFragment parameterNb="4">
++                 select catid, a.productid, name, a.itemid, b.image, b.descn, attr1, 
++                         attr2, attr3, attr4, attr5, listprice, unitcost 
++                     from (((item a join item_details b on a.itemid=b.itemid)
++                         join product_details c on a.productid=c.productid)
++                         join product d on d.productid=c.productid and b.locale = c.locale)
++                     where b.locale = ? and ((lower(name) like ? or lower(catid) like ? or lower(b.descn) like ?)
++             </SQLFragment>
++             <SQLFragment parameterNb="3" occurrence="VARIABLE">
++                 or (lower(name) like ? or lower(catid) like ? or lower(b.descn) like ?)  
++             </SQLFragment>
++             <SQLFragment parameterNb="0">
++                 )
++             </SQLFragment>
++         </SQLStatement>
++     </DAOStatements>
+      <DAOStatements database="cloudscape">
+          <SQLStatement method="GET_CATEGORY">
+              <SQLFragment parameterNb="2">
+diff -cr petstore1.3.2/src/apps/petstore/src/docroot/WEB-INF/web.xml petstore1.3.2_PATCHED/src/apps/petstore/src/docroot/WEB-INF/web.xml
+*** petstore1.3.2/src/apps/petstore/src/docroot/WEB-INF/web.xml	Wed Jul 30 00:26:40 2003
+--- petstore1.3.2_PATCHED/src/apps/petstore/src/docroot/WEB-INF/web.xml	Tue Jul 26 14:54:38 2005
+***************
+*** 132,138 ****
+      </init-param>
+      <init-param>
+        <param-name>Database</param-name>
+!       <param-value>cloudscape</param-value>
+        <!--param-value>oracle</param-value-->
+      </init-param>
+    </servlet>
+--- 132,138 ----
+      </init-param>
+      <init-param>
+        <param-name>Database</param-name>
+!       <param-value>derby</param-value>
+        <!--param-value>oracle</param-value-->
+      </init-param>
+    </servlet>
+***************
+*** 183,189 ****
+  
+    <env-entry>
+      <env-entry-name>param/CatalogDAODatabase</env-entry-name>
+!     <env-entry-value>cloudscape</env-entry-value>
+      <!--env-entry-value>oracle</env-entry-value-->
+      <env-entry-type>java.lang.String</env-entry-type>
+    </env-entry>
+--- 183,189 ----
+  
+    <env-entry>
+      <env-entry-name>param/CatalogDAODatabase</env-entry-name>
+!     <env-entry-value>derby</env-entry-value>
+      <!--env-entry-value>oracle</env-entry-value-->
+      <env-entry-type>java.lang.String</env-entry-type>
+    </env-entry>
+diff -cr petstore1.3.2/src/apps/petstore/src/docroot/populate/PopulateSQL.xml petstore1.3.2_PATCHED/src/apps/petstore/src/docroot/populate/PopulateSQL.xml
+*** petstore1.3.2/src/apps/petstore/src/docroot/populate/PopulateSQL.xml	Wed Jul 30 00:26:22 2003
+--- petstore1.3.2_PATCHED/src/apps/petstore/src/docroot/populate/PopulateSQL.xml	Tue Jul 26 15:38:44 2005
+***************
+*** 42,47 ****
+--- 42,175 ----
+  
+  
+  <PopulateSQL>
++   <DatabaseStatements database="derby">
++     <TableStatements table="category">
++       <CheckStatement>
++         select * from category
++       </CheckStatement>
++       <CreateStatement>
++         create table category (catid char(10) not null,
++           constraint pk_category primary key (catid))
++       </CreateStatement>
++       <InsertStatement>
++         insert into category values (?)
++       </InsertStatement>
++       <DropStatement>
++         drop table category
++       </DropStatement>
++     </TableStatements>
++     <TableStatements table="category_details">
++       <CheckStatement>
++         select * from category_details
++       </CheckStatement>
++       <CreateStatement>
++         create table category_details (catid char(10) not null,
++           name varchar(80) not null, image varchar(255),
++           descn varchar(255), locale char(10) not null,
++           constraint pk_cat_det primary key (catid, locale),
++             constraint fk_cat_det_1 foreign key (catid)
++             references category (catid))
++       </CreateStatement>
++       <InsertStatement>
++         insert into category_details values (?, ?, ?, ?, ?)
++       </InsertStatement>
++       <DropStatement>
++         drop table category_details
++       </DropStatement>
++     </TableStatements>
++     <TableStatements table="product">
++       <CheckStatement>
++         select * from product
++       </CheckStatement>
++       <CreateStatement>
++         create table product (
++           productid char(10) not null,
++           catid char(10) not null,
++           constraint pk_product primary key (productid),
++             constraint fk_product_1 foreign key (catid)
++             references category (catid))
++       </CreateStatement>
++       <InsertStatement>
++         insert into product values (?, ?)
++       </InsertStatement>
++       <DropStatement>
++         drop table product
++       </DropStatement>
++     </TableStatements>
++     <TableStatements table="product_details">
++       <CheckStatement>
++         select * from product_details
++       </CheckStatement>
++       <CreateStatement>
++         create table product_details (
++           productid char(10) not null,
++           locale char(10) not null,
++           name varchar(80) not null,
++           image varchar(255),
++           descn varchar(255),
++           constraint pk_prod_det primary key (productid, locale),
++             constraint fk_prod_det_1 foreign key (productid)
++             references product (productid))
++       </CreateStatement>
++       <InsertStatement>
++         insert into product_details values (?, ?, ?, ?, ?)
++       </InsertStatement>
++       <DropStatement>
++         drop table product_details
++       </DropStatement>
++     </TableStatements>
++     <TableStatements table="item">
++       <CheckStatement>
++         select * from item
++       </CheckStatement>
++       <CreateStatement>
++         create table item (
++           itemid char(10) not null,
++           productid char(10) not null,
++           constraint pk_item primary key (itemid),
++             constraint fk_item_1 foreign key (productid)
++             references product (productid)
++         )
++       </CreateStatement>
++       <InsertStatement>
++         insert into item (itemid, productid) values (? , ?)
++       </InsertStatement>
++       <DropStatement>
++         drop table item
++       </DropStatement>
++     </TableStatements>
++     <TableStatements table="item_details">
++       <CheckStatement>
++         select * from item_details
++       </CheckStatement>
++       <CreateStatement>
++         create table item_details (
++           itemid char(10) not null,
++           listprice decimal(10,2) not null,
++           unitcost decimal(10,2) not null,
++           locale char(10) not null,
++           image char(100) not null,
++           descn varchar(255) not null,
++           attr1 varchar(80),
++           attr2 varchar(80),
++           attr3 varchar(80),
++           attr4 varchar(80),
++           attr5 varchar(80),
++           constraint pk_item_details primary key (itemid, locale),
++               constraint fk_item_details_1 foreign key (itemid)
++               references item (itemid)
++         )
++       </CreateStatement>
++       <InsertStatement>
++         insert into item_details 
++           (itemid, listprice, unitcost, locale, attr1, attr2, attr3, attr4, attr5, image, descn) 
++           values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
++       </InsertStatement>
++       <DropStatement>
++         drop table item_details
++       </DropStatement>
++     </TableStatements>
++   </DatabaseStatements>
+    <DatabaseStatements database="cloudscape">
+      <TableStatements table="category">
+        <CheckStatement>
+diff -cr petstore1.3.2/src/components/catalog/src/ejb-jar.xml petstore1.3.2_PATCHED/src/components/catalog/src/ejb-jar.xml
+*** petstore1.3.2/src/components/catalog/src/ejb-jar.xml	Wed Jul 30 00:26:04 2003
+--- petstore1.3.2_PATCHED/src/components/catalog/src/ejb-jar.xml	Tue Jul 26 14:55:05 2005
+***************
+*** 64,70 ****
+          <env-entry-name>param/CatalogDAODatabase</env-entry-name>
+          <env-entry-type>java.lang.String</env-entry-type>
+          <!--env-entry-value>oracle</env-entry-value-->
+!         <env-entry-value>cloudscape</env-entry-value>
+        </env-entry>
+        <resource-ref>
+          <res-ref-name>jdbc/CatalogDB</res-ref-name>
+--- 64,70 ----
+          <env-entry-name>param/CatalogDAODatabase</env-entry-name>
+          <env-entry-type>java.lang.String</env-entry-type>
+          <!--env-entry-value>oracle</env-entry-value-->
+!         <env-entry-value>derby</env-entry-value>
+        </env-entry>
+        <resource-ref>
+          <res-ref-name>jdbc/CatalogDB</res-ref-name>
+diff -cr petstore1.3.2/src/components/customer/src/ejb-jar.xml petstore1.3.2_PATCHED/src/components/customer/src/ejb-jar.xml
+*** petstore1.3.2/src/components/customer/src/ejb-jar.xml	Wed Jul 30 00:26:30 2003
+--- petstore1.3.2_PATCHED/src/components/customer/src/ejb-jar.xml	Tue Jul 26 14:51:49 2005
+***************
+*** 263,269 ****
+    </enterprise-beans>
+    <relationships>
+      <ejb-relation>
+-       <ejb-relation-name></ejb-relation-name>
+        <ejb-relationship-role>
+          <ejb-relationship-role-name>CustomerEJB</ejb-relationship-role-name>
+          <multiplicity>One</multiplicity>
+--- 263,268 ----
+***************
+*** 284,290 ****
+        </ejb-relationship-role>
+      </ejb-relation>
+      <ejb-relation>
+-       <ejb-relation-name></ejb-relation-name>
+        <ejb-relationship-role>
+          <ejb-relationship-role-name>ContactInfoEJB</ejb-relationship-role-name>
+          <multiplicity>One</multiplicity>
+--- 283,288 ----
+***************
+*** 305,311 ****
+        </ejb-relationship-role>
+      </ejb-relation>
+      <ejb-relation>
+-       <ejb-relation-name></ejb-relation-name>
+        <ejb-relationship-role>
+          <ejb-relationship-role-name>CustomerEJB</ejb-relationship-role-name>
+          <multiplicity>One</multiplicity>
+--- 303,308 ----
+***************
+*** 326,332 ****
+        </ejb-relationship-role>
+      </ejb-relation>
+      <ejb-relation>
+-       <ejb-relation-name></ejb-relation-name>
+        <ejb-relationship-role>
+          <ejb-relationship-role-name>AccountEJB</ejb-relationship-role-name>
+          <multiplicity>One</multiplicity>
+--- 323,328 ----
+***************
+*** 347,353 ****
+        </ejb-relationship-role>
+      </ejb-relation>
+      <ejb-relation>
+-       <ejb-relation-name></ejb-relation-name>
+        <ejb-relationship-role>
+          <ejb-relationship-role-name>AccountEJB</ejb-relationship-role-name>
+          <multiplicity>One</multiplicity>
+--- 343,348 ----
