@@ -1,39 +1,55 @@
 Release Notes -- Apache Geronimo -- Version 1.0-M4
 
-NOTE: THIS IS A PLACEHOLDER.  THERE HAS NOT BEEN AN OFFICIAL M4 RELEASE
-YET.  YOU MAY LOOK AT THE FILE RELEASE-NOTES-1.0-M3.txt IN YOUR
-GERONIMO DISTRIBUTION FOR THE RELEASE NOTES FROM THE LAST MILESTONE, BUT
-THOSE ARE SOMEWHAT OUT OF DATE.
+NOTE: RELEASE NOTES ARE NOT YET FINAL!!!
 
 
 Geronimo URLs
 -------------
 Home Page:     http://geronimo.apache.org/
-Downloads:     http://geronimo.apache.org/download.html
+Downloads:     http://geronimo.apache.org/downloads.html
 Documentation: http://geronimo.apache.org/documentation.html
 Mailing Lists: http://geronimo.apache.org/mailing.html
-Source Code:   http://geronimo.apache.org/source.html
+Source Code:   http://geronimo.apache.org/svn.html
 Bug Tracking:  http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
 Wiki:          http://wiki.apache.org/geronimo
 
 
 System Requirements
 -------------------
-You need a platform that supports JDK 1.4 or JDK 1.5 (and some
-features such as HTTPS currently depend on Sun implementation
-classes, so a Sun JVM would be the best bet).
+You need a platform that supports JDK 1.4 (and some features
+such as CORBA currently depend on Sun implementation classes and
+are known to not work under 1.5, so a Sun 1.4.x JVM would be the
+best bet).
 
-Most testing has been done on Linux, Mac OS X, and Windows.  For a
-list of notes on specific configurations, see
-http://wiki.apache.org/geronimo/KnownWorkingConfigurations
+Most testing has been done on Linux, Mac OS X, and Windows.
+
 
 Installing & Starting Geronimo
 ------------------------------
-To install, simply unpack the zip or tar file containing Geronimo.
+To install, simply unpack the zip or tar file containing Geronimo,
+or run the installer package for a more interactive installation
+process (including the ability to change ports and the default
+administrator account)
 
 To start Geronimo, change to the Geronimo directory and run
 
    java -jar bin/server.jar
+
+
+Deploying Applications
+------------------------------
+To deploy a J2EE module or application, start Geronimo and then
+run (for example):
+
+   java -jar bin/deployer.jar deploy my-web-app.war [deploy plan]
+
+You will need to use the username "system" and password "manager"
+unless you customized those during the install process.
+
+For more information on the commands and options supported by the
+deploy tool, run
+
+   java -jar bin/deployer.jar help [command]
 
 
 Current Project Status at a Glance
@@ -43,33 +59,85 @@ http://wiki.apache.org/geronimo/RoadMap
 
 Significant Changes Since the M3 Release
 ----------------------------------------
-  == FILL ME IN ==
+ * EJB support is complete
+ * Web Services support is complete
+ * JSR-77 support, including the Management EJB
+ * Securty configuration has changed dramatically
+ * The current Geronimo code passes the J2EE TCK tests, but has not
+   yet been certified.
 
 
 Significant Missing Features
 ----------------------------
-  == FILL ME IN ==
+ * A web management console
+ * Deployment from a machine other than the server
+ * A build that uses Tomcat by default (Tomcat can be activated as a
+   manual process, but as of M5 we will be distributing both Jetty and
+   Tomcat builds)
+ * A hot deploy directory (though the deploy tool can hot deploy)
+ * JSR-88 support for Geronimo deployment plan configuration
+ * Full functionality on non-Sun JVMs (a portable CORBA implementation
+   is not expected for version 1.0)
+ * Clustering (not expected for version 1.0)
 
 
 Overall Project Status
 ----------------------
-Geronimo is currently undergoing TCK testing.  Many features work, but
-it is not fully J2EE compliant yet.  Geronimo has also not been
-extensively performance tested.  Your help would be appreciated!
+Geronimo has passed the TCK certification tests, meaning that all J2EE
+features should work as expected. Many of the remaining changes are
+focused on usability at this time.  However, Geronimo has also not
+been extensively performance tested.  Your help would be appreciated!
 
 Documentation efforts are underway, and freely available documentation
-covers many of the more stable aspects of the product.
+covers many aspects of the product.
 
 For more information on specific bugs or features, or to help with
 testing efforts, please visit JIRA, our bug/issue tracking system, at
 http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
 
 
-Specific Issues Addressed in M4 Release
+Specific Issues Addressed in M4 Release (finished -> 472 as of 7/26)
 ---------------------------------------
+    * [GERONIMO-] - 
 
 ** New Features
+    * [GERONIMO-172] - EJB 2.1 ServiceEndpoint interface support
+    * [GERONIMO-175] - Web to EJB security integration
+    * [GERONIMO-186] - Complete EJB-QL support
+    * [GERONIMO-192] - ejbSelect method support
+    * [GERONIMO-228] - EJB 2.1 Home methods
+    * [GERONIMO-312] - Support web application deployment to Tomcat
+    * [GERONIMO-315] - Message Destination References in web.xml in Tomcat
+    * [GERONIMO-317] - Support for method-permissions in the web.xml in Tomcat
+    * [GERONIMO-318] - Support for ejb-refs in a web.xml in Tomcat
+    * [GERONIMO-319] - Access to UserTransaction from webapp in Tomcat
+    * [GERONIMO-332] - Support for service-ref in J2EE App Client
+    * [GERONIMO-333] - Support for JAAS callback-handlers in J2EE App Clients
+    * [GERONIMO-391] - jsr-77 MEJB needed
 
 ** Improvements
+    * [GERONIMO-347] - TransactionContext usage is confused and confusing
+    * [GERONIMO-375] - DeploymentException: Module was not a war: foo.war
+    * [GERONIMO-380] - eliminate TransactionManagerProxy and TransactionProxy
+    * [GERONIMO-410] - Revise SecurityRealm getUserPrincipals/getGroupPrincipals
+    * [GERONIMO-415] - Improve on Subject.doAs for client invoking secure EJB
+    * [GERONIMO-422] - Redundant security realm configuration options
+    * [GERONIMO-423] - Add role mapping to EAR geronimo-application.xsd
+    * [GERONIMO-424] - ConfigurationEntry support for multiple LoginModules
+    * [GERONIMO-430] - Generalize security realms, consolidate logic into Login Modules
+    * [GERONIMO-450] - GBeans should use jsr-77 naming conventions
+    * [GERONIMO-451] - geronimo connector xsd refers to Sun schemas
+    * [GERONIMO-456] - Rename LocalLoginRemoteLocalModuleLocalRealmRemote...
 
 ** Bug Fixes
+    * [GERONIMO-181] - Transaction propogation accross calls to stateful session beans
+    * [GERONIMO-264] - Startup exceptions are suppressed
+    * [GERONIMO-290] - static content with spaces in path or name can't be deployed
+    * [GERONIMO-334] - cannot find tools.jar at server startup
+    * [GERONIMO-336] - Invalid dd does not cause web deployment to fail
+    * [GERONIMO-355] - tx policies call tm.rollback on committed transactions
+    * [GERONIMO-359] - Do not convert RB exceptions to TransactionRolledBackException
+    * [GERONIMO-374] - Reject duplicate RA names in same deployment
+    * [GERONIMO-421] - Better handling for null/empty users in default LoginModules
+    * [GERONIMO-442] - Demo module isn't started properly
+    * [GERONIMO-472] - MDB Deployment Fails
