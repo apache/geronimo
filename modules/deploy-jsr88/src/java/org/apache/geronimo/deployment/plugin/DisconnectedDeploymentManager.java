@@ -67,51 +67,6 @@ public class DisconnectedDeploymentManager implements DeploymentManager {
         throw new InvalidModuleException("Not supported");
     }
 
-    public static void main(String[] args) {
-        try {
-            Object o = new DisconnectedDeploymentManager().createConfiguration(new DeployableObject() {
-                public ModuleType getType() {
-                    return ModuleType.EJB;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public DDBeanRoot getDDBeanRoot() {
-                    return null;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public DDBean[] getChildBean(String s) {
-                    return new DDBean[0];  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public String[] getText(String s) {
-                    return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public Class getClassFromScope(String s) {
-                    return null;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public String getModuleDTDVersion() {
-                    return null;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public DDBeanRoot getDDBeanRoot(String s) throws FileNotFoundException, DDBeanCreateException {
-                    return null;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public Enumeration entries() {
-                    return null;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-
-                public InputStream getEntry(String s) {
-                    return null;  //To change body of implemented methods use File | Settings | File Templates.
-                }
-            });
-            System.out.println("Class "+o.getClass().getName());
-        } catch (InvalidModuleException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-    }
-
     public Locale[] getSupportedLocales() {
         return new Locale[]{getDefaultLocale()};
     }
