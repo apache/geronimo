@@ -54,7 +54,6 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
 import org.apache.geronimo.web.deployment.WARConfigurer;
-import org.openejb.deployment.EJBConfigurer;
 
 
 /**
@@ -276,7 +275,13 @@ public class JMXDeploymentManager implements DeploymentManager {
         } else if(dObj.getType().equals(ModuleType.EAR)) {
             //todo: need an EAR configurer
         } else if(dObj.getType().equals(ModuleType.EJB)) {
-            return new EJBConfigurer().createConfiguration(dObj);
+            try {
+                Class cls = Class.forName("org.openejb.deployment.EJBConfigurer");
+                return (DeploymentConfiguration)cls.getMethod("createConfiguration", new Class[]{DeployableObject.class}).invoke(cls.newInstance(), new Object[]{dObj});
+            } catch (Exception e) {
+                System.err.println("Unable to invoke EJB deployer");
+                e.printStackTrace();
+            }
         } else if(dObj.getType().equals(ModuleType.RAR)) {
             return new RARConfigurer().createConfiguration(dObj);
         } else if(dObj.getType().equals(ModuleType.WAR)) {

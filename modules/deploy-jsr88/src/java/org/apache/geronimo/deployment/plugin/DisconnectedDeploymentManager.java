@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.InputStream;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
 import org.apache.geronimo.web.deployment.WARConfigurer;
-import org.openejb.deployment.EJBConfigurer;
 
 /**
  * Implementation of a disconnected JSR88 DeploymentManager.
@@ -41,14 +40,19 @@ import org.openejb.deployment.EJBConfigurer;
  * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
  */
 public class DisconnectedDeploymentManager implements DeploymentManager {
-
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {
         if(dObj.getType().equals(ModuleType.CAR)) {
             //todo: need a client configurer
         } else if(dObj.getType().equals(ModuleType.EAR)) {
             //todo: need an EAR configurer
         } else if(dObj.getType().equals(ModuleType.EJB)) {
-            return new EJBConfigurer().createConfiguration(dObj);
+            try {
+                Class cls = Class.forName("org.openejb.deployment.EJBConfigurer");
+                return (DeploymentConfiguration)cls.getMethod("createConfiguration", new Class[]{DeployableObject.class}).invoke(cls.newInstance(), new Object[]{dObj});
+            } catch (Exception e) {
+                System.err.println("Unable to invoke EJB deployer");
+                e.printStackTrace();
+            }
         } else if(dObj.getType().equals(ModuleType.RAR)) {
             return new RARConfigurer().createConfiguration(dObj);
         } else if(dObj.getType().equals(ModuleType.WAR)) {
