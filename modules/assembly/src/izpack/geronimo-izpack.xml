@@ -77,11 +77,6 @@
         <pack name="Jetty Web Container" required="yes">
             <description>Geronimo uses the Jetty web container by default.  It is currently required for J2EE configurations.</description>
         </pack>
-        <pack name="Tomcat Web Container" required="no" preselected="no">
-            <description>Geronimo uses the Jetty web container by default.  If you'd like Tomcat to be available as well, select this package.  It is currently in addition to Jetty, not instead of Jetty.</description>
-            <file src="plan-src/j2ee-server-tomcat-plan.xml" targetdir="$INSTALL_PATH/installer-temp" />
-            <parsable targetfile="$INSTALL_PATH/installer-temp/j2ee-server-tomcat-plan.xml" type="xml"/>
-        </pack>
         <pack name="Spring Integration" required="no">
             <description>Features to run Spring applications in Geronimo without any additional J2EE packaging</description>
             <file src="plan-src/spring-runtime-plan.xml" targetdir="$INSTALL_PATH/installer-temp" />

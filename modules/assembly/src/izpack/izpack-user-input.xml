@@ -88,23 +88,5 @@
       <validator class="com.izforge.izpack.util.NotEmptyValidator" />
       <createForPack name="J2EE Features" />
     </field>
-    <field type="rule" variable="PlanTomcatHTTPPort">
-      <description txt="The standard network port that Tomcat should use" />
-      <spec txt="Tomcat Port:" layout="N:5:5" set="0:8090" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="Tomcat Web Container" />
-    </field>
-    <field type="rule" variable="PlanTomcatHTTPSPort">
-      <description txt="The secure network port that Tomcat should use" />
-      <spec txt="Tomcat Secure Port:" layout="N:5:5" set="0:8453" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="Tomcat Web Container" />
-    </field>
-    <field type="rule" variable="PlanTomcatAJPPort">
-      <description txt="The network port that the Tomcat/Apache connector should use" />
-      <spec txt="Tomcat Apache Port:" layout="N:5:5" set="0:8009" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="Tomcat Web Container" />
-    </field>
   </panel>
 </userInput>
