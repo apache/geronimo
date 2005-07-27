@@ -36,10 +36,15 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityCollection;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.valves.ValveBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 public class TomcatEJBWebServiceContext extends StandardContext{
+
+    private static final Log log = LogFactory.getLog(TomcatEJBWebServiceContext.class);
+
     private final String contextPath;
     private final WebServiceContainer webServiceContainer;
     private final boolean isSecureTransportGuarantee;
@@ -55,6 +60,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.setDocBase("");
         this.setParentClassLoader(classLoader);
         
+        log.info("EJB Webservice Context = " + contextPath);        
         if (securityRealmName != null) {
             
             TomcatJAASRealm realm = new TomcatJAASRealm();
@@ -131,6 +137,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
                 } catch (IOException e) {
                     throw e;
                 } catch (Exception e) {
+                    log.error(e);
                     res.sendError(500,"Could not fetch wsdl!");
                     return;
                 }
@@ -176,7 +183,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         public java.net.URI getURI() {
             if (uri == null) {
                 try {
-                    String uriString = request.getScheme() + "://" + request.getHost() + ":" + request.getLocalPort() + request.getRequestURI();
+                    String uriString = request.getScheme() + "://" + request.getServerName() + ":" + request.getLocalPort() + request.getRequestURI();
                     //return new java.net.URI(uri.getScheme(),uri.getHost(),uri.getPath(),uri.);
                     uri = new java.net.URI(uriString);
                 } catch (URISyntaxException e) {

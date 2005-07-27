@@ -49,6 +49,7 @@ public class TomcatGeronimoEmbedded extends Embedded{
         config.setCustomAuthenticators(authenticators);
         ((Lifecycle) context).addLifecycleListener(config);
 
+        context.setDelegate(true);
         return (context);
 
     }
