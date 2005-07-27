@@ -68,8 +68,8 @@ Significant Changes Since the M3 Release
  * Web Services support is complete
  * JSR-77 support, including the Management EJB
  * Securty configuration has changed dramatically
- * The current Geronimo code passes the J2EE TCK tests, but has not
-   yet been certified.
+ * The current Geronimo code passes the J2EE TCK test suite, but
+    full certification is not yet complete.
 
 
 Significant Missing Features
@@ -88,10 +88,13 @@ Significant Missing Features
 
 Overall Project Status
 ----------------------
-Geronimo has passed the TCK certification tests, meaning that all J2EE
-features should work as expected. Many of the remaining changes are
-focused on usability at this time.  However, Geronimo has also not
-been extensively performance tested.  Your help would be appreciated!
+Geronimo is now feature complete with respect to J2EE 1.4,
+and has passed the automated TCK test suite.  However, full
+certification has not yet been completed.
+
+Many of the remaining changes are focused on usability at 
+this time.  However, Geronimo has also not been extensively 
+performance tested.  Your help would be appreciated!
 
 Documentation efforts are underway, and freely available documentation
 covers many aspects of the product.
