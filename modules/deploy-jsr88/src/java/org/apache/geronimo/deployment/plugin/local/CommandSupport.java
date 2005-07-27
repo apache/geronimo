@@ -70,7 +70,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         return (TargetModuleID[]) moduleIDs.toArray(new TargetModuleID[moduleIDs.size()]);
     }
 
-    public DeploymentStatus getDeploymentStatus() {
+    public synchronized DeploymentStatus getDeploymentStatus() {
         return new Status(command, action, state, message);
     }
 
@@ -158,7 +158,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         synchronized (this) {
             this.message = message;
             this.state = state;
-            newStatus = getDeploymentStatus();
+            newStatus = new Status(command, action, state, message);
             toNotify = (ProgressListener[]) listeners.toArray(new ProgressListener[listeners.size()]);
             event = new ProgressEvent(this, null, newStatus);
         }
