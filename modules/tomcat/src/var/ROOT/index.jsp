@@ -107,7 +107,7 @@
 
             <p>where "$GERONIMO_HOME" is the root of the Geronimo installation directory. If you're seeing this page, and you don't think you should be, then either you're either a user who has arrived at new installation of Geronimo, or you're an administrator who hasn't got his/her setup quite right. Providing the latter is the case, please refer to the <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a> for more detailed setup and administration information.</p>
 
-            <p>Geronimo mailing lists are available at the Jakarta project web site:</p>
+            <p>Geronimo mailing lists are available at the Geronimo project web site:</p>
 
            <ul>
                <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b> for general questions related to configuring and using Geronimo</li>
@@ -116,7 +116,7 @@
 
             <p>Thanks for using Geronimo!</p>
 
-            <p align="right"><font size=-1><img src="tomcat-power.gif" width="77" height="80"></font><br>
+            <p align="right"><font size=-1><img src="geronimo-power.gif"></font><br>
             &nbsp;
             <font size=-1>Copyright &copy; 1999-2005 Apache Software Foundation</font><br>
             <font size=-1>All Rights Reserved</font> <br>
