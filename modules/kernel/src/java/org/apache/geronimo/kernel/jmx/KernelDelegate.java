@@ -55,7 +55,7 @@ public class KernelDelegate implements Kernel {
         return (String) getKernelAttribute("kernelName");
     }
 
-    public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException {
+    public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException {
         try {
             invokeKernel("loadGBean", new Object[] {gbeanData, classLoader}, new String[] {GBeanData.class.getName(), ClassLoader.class.getName()});
         } catch (GBeanAlreadyExistsException e) {
@@ -67,7 +67,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public void startGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public void startGBean(ObjectName name) throws GBeanNotFoundException {
         try {
             invokeKernel("startGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
         } catch (GBeanNotFoundException e) {
@@ -79,7 +79,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException {
         try {
             invokeKernel("startRecursiveGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
         } catch (GBeanNotFoundException e) {
@@ -91,7 +91,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public void stopGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+    public void stopGBean(ObjectName name) throws GBeanNotFoundException {
         try {
             invokeKernel("stopGBean", new Object[] {name}, new String[] {ObjectName.class.getName()});
         } catch (GBeanNotFoundException e) {
@@ -164,43 +164,19 @@ public class KernelDelegate implements Kernel {
     }
 
     public Object getAttribute(ObjectName objectName, String attributeName) throws Exception {
-        try {
-            return invokeKernel("getAttribute", new Object[]{objectName, attributeName}, new String[]{ObjectName.class.getName(), String.class.getName()});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
+        return invokeKernel("getAttribute", new Object[]{objectName, attributeName}, new String[]{ObjectName.class.getName(), String.class.getName()});
     }
 
     public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception {
-        try {
-            invokeKernel("setAttribute", new Object[]{objectName, attributeName, attributeValue}, new String[]{ObjectName.class.getName(), String.class.getName(), Object.class.getName()});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
+        invokeKernel("setAttribute", new Object[]{objectName, attributeName, attributeValue}, new String[]{ObjectName.class.getName(), String.class.getName(), Object.class.getName()});
     }
 
     public Object invoke(ObjectName objectName, String methodName) throws Exception {
-        try {
-            return invokeKernel("invoke", new Object[]{objectName, methodName}, new String[]{ObjectName.class.getName(), String.class.getName()});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
+        return invokeKernel("invoke", new Object[]{objectName, methodName}, new String[]{ObjectName.class.getName(), String.class.getName()});
     }
 
     public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception {
-        try {
-            return invokeKernel("invoke", new Object[]{objectName, methodName, args, types}, new String[]{ObjectName.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InternalKernelException(e);
-        }
+        return invokeKernel("invoke", new Object[]{objectName, methodName, args, types}, new String[]{ObjectName.class.getName(), String.class.getName(), Object[].class.getName(), String[].class.getName()});
     }
 
     public boolean isLoaded(ObjectName name) {
@@ -225,7 +201,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public Set listGBeans(ObjectName pattern) throws InternalKernelException {
+    public Set listGBeans(ObjectName pattern) {
         try {
             return (Set) invokeKernel("listGBeans", new Object[] {pattern}, new String[] {ObjectName.class.getName()});
         } catch (RuntimeException e) {
@@ -235,7 +211,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public Set listGBeans(Set patterns) throws InternalKernelException {
+    public Set listGBeans(Set patterns) {
         try {
             return (Set) invokeKernel("listGBeans", new Object[] {patterns}, new String[] {Set.class.getName()});
         } catch (RuntimeException e) {
@@ -275,7 +251,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
+    public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException {
         try {
             return (ClassLoader) invokeKernel("getClassLoaderFor", new Object[] {name}, new String[] {ObjectName.class.getName()});
         } catch (GBeanNotFoundException e) {
@@ -287,7 +263,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
+    public GBeanData getGBeanData(ObjectName name) throws GBeanNotFoundException {
         try {
             return (GBeanData) invokeKernel("getGBeanData", new Object[] {name}, new String[] {ObjectName.class.getName()});
         } catch (GBeanNotFoundException e) {
@@ -299,7 +275,36 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    private Object getKernelAttribute(String attributeName) throws InternalKernelException {
+    public boolean isRunning() {
+        return ((Boolean) getKernelAttribute("running")).booleanValue();
+    }
+
+    /**
+     * Throws UnsupportedOperationException.  The dependency manager is not accesable over a remote connection.
+     */
+    public DependencyManager getDependencyManager() {
+        throw new UnsupportedOperationException("Dependency manager is not accessable by way of a remote connection");
+    }
+
+    /**
+     * Throws UnsupportedOperationException.  The lifecycle monitor is not accesable over a remote connection.
+     */
+    public LifecycleMonitor getLifecycleMonitor() {
+        throw new UnsupportedOperationException("Lifecycle monitor is not accessable by way of a remote connection");
+    }
+
+    public ProxyManager getProxyManager() {
+        return proxyManager;
+    }
+
+    /**
+     * Throws UnsupportedOperationException.  A remote kernel will alreayd be booted.
+     */
+    public void boot() throws Exception {
+        throw new UnsupportedOperationException("A remote kernel can not be booted");
+    }
+
+    private Object getKernelAttribute(String attributeName) {
         try {
             return mbeanServer.getAttribute(Kernel.KERNEL, attributeName);
         } catch (Exception e) {
@@ -314,7 +319,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    private Object invokeKernel(String methodName, Object[] args, String[] types) throws InternalKernelException, Exception {
+    private Object invokeKernel(String methodName, Object[] args, String[] types) throws Exception {
         try {
             return mbeanServer.invoke(Kernel.KERNEL, methodName, args, types);
         } catch (Exception e) {
@@ -335,26 +340,6 @@ public class KernelDelegate implements Kernel {
                 throw new InternalKernelException("Unknown throwable", cause);
             }
         }
-    }
-
-    public boolean isRunning() {
-        return ((Boolean) getKernelAttribute("running")).booleanValue();
-    }
-
-    public DependencyManager getDependencyManager() {
-        throw new UnsupportedOperationException("Dependency manager is not accessable by way of a remote connection");
-    }
-
-    public LifecycleMonitor getLifecycleMonitor() {
-        throw new UnsupportedOperationException("Lifecycle monitor is not accessable by way of a remote connection");
-    }
-
-    public ProxyManager getProxyManager() {
-        return proxyManager;
-    }
-
-    public void boot() throws Exception {
-        throw new UnsupportedOperationException("A remote kernel can not be booted");
     }
 
     private Throwable unwrapJMException(Throwable cause) {
