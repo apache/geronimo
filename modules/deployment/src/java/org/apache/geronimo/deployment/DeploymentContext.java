@@ -466,7 +466,7 @@ public class DeploymentContext {
     }
 
     public void addChildConfiguration(ConfigurationData configurationData) {
-        configurationData.addChildConfiguration(configurationData);
+        this.configurationData.addChildConfiguration(configurationData);
     }
 
     public ConfigurationData getConfigurationData() {
