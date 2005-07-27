@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.http.HttpListener;
+import org.mortbay.http.SocketListener;
 import org.mortbay.util.ThreadedServer;
 
 /**
@@ -45,12 +46,12 @@ public abstract class JettyConnector implements GBeanLifecycle {
 
     public JettyConnector(JettyContainer container) {
         this.container = container;
-        this.listener = null;
+        this.listener = null; 
     }
 
     public JettyConnector(JettyContainer container, HttpListener listener) {
         this.container = container;
-        this.listener = listener;
+        this.listener = listener; 
     }
 
     public String getDefaultScheme() {
@@ -74,6 +75,32 @@ public abstract class JettyConnector implements GBeanLifecycle {
         listener.setPort(port);
     }
 
+
+    public void setMinThreads(int minThreads) {
+      ((ThreadedServer)listener).setMinThreads(minThreads);
+    }
+
+    public int getMinThreads() {
+      return ((ThreadedServer)listener).getMinThreads();
+    }
+
+
+    public void setMaxThreads(int maxThreads) {
+      ((ThreadedServer)listener).setMaxThreads(maxThreads);
+    }
+
+    public int getMaxThreads() {
+      return ((ThreadedServer)listener).getMaxThreads();
+    }
+
+    public int getThreads() {
+      return ((ThreadedServer)listener).getThreads();
+    }
+
+    public int getIdlethreads() {
+      return ((ThreadedServer)listener).getIdleThreads();
+    }
+    
     public InetSocketAddress getAddress() {
         return new InetSocketAddress(getHost(), getPort());
     }
@@ -114,6 +141,10 @@ public abstract class JettyConnector implements GBeanLifecycle {
         infoFactory.addAttribute("defaultScheme", String.class, false);
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
+        infoFactory.addAttribute("minThreads", int.class, true);
+        infoFactory.addAttribute("maxThreads", int.class, true);
+        infoFactory.addAttribute("threads", int.class, false);
+        infoFactory.addAttribute("idleThreads", int.class, false);
         infoFactory.addAttribute("address", InetSocketAddress.class, false);
         infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[] {"JettyContainer"});

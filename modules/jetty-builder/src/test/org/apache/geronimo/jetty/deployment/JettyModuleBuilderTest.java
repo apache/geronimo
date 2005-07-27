@@ -273,6 +273,8 @@ public class JettyModuleBuilderTest extends TestCase {
 
         connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
         connector.setAttribute("port", new Integer(5678));
+        connector.setAttribute("maxThreads", new Integer(50));
+        connector.setAttribute("minThreads", new Integer(10));
         connector.setReferencePattern("JettyContainer", containerName);
 
         start(container);

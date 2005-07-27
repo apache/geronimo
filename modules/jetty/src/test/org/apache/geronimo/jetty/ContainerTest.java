@@ -52,6 +52,8 @@ public class ContainerTest extends TestCase {
     public void testHTTPConnector() throws Exception {
         GBeanData connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
         connector.setAttribute("port", new Integer(5678));
+        connector.setAttribute("maxThreads", new Integer(50));
+        connector.setAttribute("minThreads", new Integer(10));
         connector.setReferencePatterns("JettyContainer", containerPatterns);
         start(connector);
 
@@ -72,6 +74,8 @@ public class ContainerTest extends TestCase {
     public void testWebServiceHandler() throws Exception {
         GBeanData connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
         connector.setAttribute("port", new Integer(5678));
+        connector.setAttribute("maxThreads", new Integer(50));
+        connector.setAttribute("minThreads", new Integer(10));
         connector.setReferencePatterns("JettyContainer", containerPatterns);
         start(connector);
 
