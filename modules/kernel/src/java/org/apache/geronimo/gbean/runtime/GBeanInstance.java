@@ -35,7 +35,6 @@ import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GBeanLifecycleController;
 import org.apache.geronimo.gbean.GConstructorInfo;
 import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.GOperationSignature;
@@ -97,11 +96,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * The single listener to which we broadcast lifecycle change events.
      */
     private final LifecycleBroadcaster lifecycleBroadcaster;
-
-    /**
-     * The lifecycle controller given to the instance
-     */
-    private final GBeanLifecycleController gbeanLifecycleController;
 
     /**
      * Interfaces for this GBean
@@ -204,7 +198,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         this.lifecycleBroadcaster = lifecycleBroadcaster;
         this.gbeanInstanceState = new GBeanInstanceState(objectName, kernel, dependencyManager, this, lifecycleBroadcaster);
         this.classLoader = classLoader;
-        gbeanLifecycleController = new GBeanInstanceLifecycleController(this);
 
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         try {
@@ -251,7 +244,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
         // operations
         Map operationsMap = new HashMap();
-        addManagedObjectOperations(operationsMap);
         for (Iterator iterator = gbeanInfo.getOperations().iterator(); iterator.hasNext();) {
             GOperationInfo operationInfo = (GOperationInfo) iterator.next();
             GOperationSignature signature = new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList());
@@ -306,7 +298,11 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                 Map.Entry entry = (Map.Entry) iterator.next();
                 String attributeName = (String) entry.getKey();
                 Object attributeValue = entry.getValue();
-                setAttribute(attributeName, attributeValue);
+                if ("gbeanEnabled".equals(attributeName)) {
+                    enabled = ((Boolean)attributeValue).booleanValue();
+                } else {
+                    setAttribute(attributeName, attributeValue);
+                }
             }
 
             // add the references
@@ -1040,26 +1036,12 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                         String.class,
                         getObjectName()));
 
-        attributesMap.put("gbeanInfo",
-                GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("gbeanInfo"),
-                        this,
-                        "gbeanInfo",
-                        GBeanInfo.class,
-                        gbeanInfo));
-
         attributesMap.put("classLoader",
                 GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("classLoader"),
                         this,
                         "classLoader",
                         ClassLoader.class,
                         classLoader));
-
-        attributesMap.put("gbeanLifecycleController",
-                GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("gbeanLifecycleController"),
-                        this,
-                        "gbeanLifecycleController",
-                        GBeanLifecycleController.class,
-                        gbeanLifecycleController));
 
         attributesMap.put("kernel",
                 GBeanAttribute.createSpecialAttribute((GBeanAttribute) attributesMap.get("kernel"),
@@ -1068,123 +1050,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                         Kernel.class,
                         kernel));
 
-        //
-        // Framework attributes
-        //
-        attributesMap.put("state",
-                GBeanAttribute.createFrameworkAttribute(this,
-                        "state",
-                        Integer.TYPE,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                return new Integer(getState());
-                            }
-                        }));
-
-        attributesMap.put("startTime",
-                GBeanAttribute.createFrameworkAttribute(this,
-                        "startTime",
-                        Long.TYPE,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                return new Long(getStartTime());
-                            }
-                        }));
-
-        attributesMap.put("stateManageable",
-                GBeanAttribute.createFrameworkAttribute(this,
-                        "stateManageable",
-                        Boolean.TYPE,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                return new Boolean(isStateManageable());
-                            }
-                        }));
-
-        attributesMap.put("statisticsProvider",
-                GBeanAttribute.createFrameworkAttribute(this,
-                        "statisticsProvider",
-                        Boolean.TYPE,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                return new Boolean(isStatisticsProvider());
-                            }
-                        }));
-
-
-        attributesMap.put("eventProvider",
-                GBeanAttribute.createFrameworkAttribute(this,
-                        "eventProvider",
-                        Boolean.TYPE,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                return new Boolean(isEventProvider());
-                            }
-                        }));
-
-        attributesMap.put("eventTypes",
-                GBeanAttribute.createFrameworkAttribute(this,
-                        "eventTypes",
-                        Boolean.TYPE,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                return getEventTypes();
-                            }
-                        }));
-
-        attributesMap.put("gbeanEnabled",
-                GBeanAttribute.createFrameworkAttribute(this,
-                        "gbeanEnabled",
-                        Boolean.TYPE,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                return new Boolean(isEnabled());
-                            }
-                        },
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                Boolean enabled = (Boolean) arguments[0];
-                                setEnabled(enabled.booleanValue());
-                                return null;
-                            }
-                        },
-                        true,
-                        Boolean.TRUE));
-    }
-
-    private void addManagedObjectOperations(Map operationsMap) {
-        operationsMap.put(new GOperationSignature("start", Collections.EMPTY_LIST),
-                GBeanOperation.createFrameworkOperation(this,
-                        "start",
-                        Collections.EMPTY_LIST,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                start();
-                                return null;
-                            }
-                        }));
-
-        operationsMap.put(new GOperationSignature("startRecursive", Collections.EMPTY_LIST),
-                GBeanOperation.createFrameworkOperation(this,
-                        "startRecursive",
-                        Collections.EMPTY_LIST,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                startRecursive();
-                                return null;
-                            }
-                        }));
-
-        operationsMap.put(new GOperationSignature("stop", Collections.EMPTY_LIST),
-                GBeanOperation.createFrameworkOperation(this,
-                        "stop",
-                        Collections.EMPTY_LIST,
-                        new MethodInvoker() {
-                            public Object invoke(Object target, Object[] arguments) throws Exception {
-                                stop();
-                                return null;
-                            }
-                        }));
     }
 
     private GBeanInfo rebuildGBeanInfo(GConstructorInfo constructor, String j2eeType) {
@@ -1216,56 +1081,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                 operationInfos,
                 referenceInfos,
                 interfaceInfos);
-    }
-
-    public static final class GBeanInstanceLifecycleController implements GBeanLifecycleController {
-        /**
-         * The GeronimoInstance which owns the target.
-         */
-        private final GBeanInstance gbeanInstance;
-
-        /**
-         * Creates a new context for a target.
-         *
-         * @param gbeanInstance the GeronimoInstance
-         */
-        public GBeanInstanceLifecycleController(GBeanInstance gbeanInstance) {
-            this.gbeanInstance = gbeanInstance;
-        }
-
-        /**
-         * Gets the state of this component as an int.
-         * The int return is required by the JSR77 specification.
-         *
-         * @return the current state of this component
-         */
-        public int getState() {
-            return gbeanInstance.getState();
-        }
-
-        /**
-         * Attempt to bring the component into the fully stopped state. If an exception occurs while
-         * stopping the component, tthe component is automaticaly failed.
-         * <p/>
-         * There is no guarantee that the Geronimo MBean will be stopped when the method returns.
-         *
-         * @throws Exception if a problem occurs while stopping the component
-         */
-        public void stop() throws Exception {
-            synchronized(gbeanInstance) {
-                if (gbeanInstance.instanceState == CREATING) {
-                    throw new IllegalStateException("Stop can not be called until instance is fully started");
-                } else if (gbeanInstance.instanceState == DESTROYING) {
-                    log.debug("Stop ignored.  GBean is already being stopped");
-                    return;
-                } else if (gbeanInstance.instanceState == DESTROYED) {
-                    log.debug("Stop ignored.  GBean is already stopped");
-                    return;
-                }
-            }
-            gbeanInstance.stop();
-        }
-
     }
 
     public boolean equals(Object obj) {

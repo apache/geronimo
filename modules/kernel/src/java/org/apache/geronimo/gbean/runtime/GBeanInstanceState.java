@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
@@ -137,11 +136,9 @@ public class GBeanInstanceState {
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
             ObjectName dependent = (ObjectName) iterator.next();
             try {
-                if (((Boolean) kernel.getAttribute(dependent, "gbeanEnabled")).booleanValue()) {
+                if (kernel.isGBeanEnabled(dependent)) {
                     kernel.startRecursiveGBean(dependent);
                 }
-            } catch (NoSuchAttributeException e) {
-                // this is ok didn't have the attribute....
             } catch (GBeanNotFoundException e) {
                 // this is ok the gbean died before we could start it
                 continue;
@@ -377,14 +374,11 @@ public class GBeanInstanceState {
                 if (kernel.isLoaded(child)) {
                     try {
                         log.trace("Checking if child is stopped: child=" + child);
-                        int state = ((Integer) kernel.getAttribute(child, "State")).intValue();
+                        int state = kernel.getGBeanState(child);
                         if (state == State.RUNNING_INDEX) {
                             log.trace("Cannot stop because child is still running: child=" + child);
                             return;
                         }
-                    } catch (NoSuchAttributeException e) {
-                        // ok -- dependect bean is not state manageable
-                        log.trace("Child does not have a State attibute");
                     } catch (GBeanNotFoundException e) {
                         // depended on instance was removed between the register check and the invoke
                     } catch (Exception e) {

@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.kernel;
 
-import org.apache.geronimo.gbean.GBeanLifecycleController;
-
 /**
  * @version $Rev$ $Date$
  */
@@ -35,6 +33,4 @@ public interface MockEndpoint {
     void doNothing();
 
     String echo(String message);
-
-    GBeanLifecycleController getGbeanLifecycleController();
 }

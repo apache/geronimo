@@ -24,7 +24,6 @@ import java.util.Iterator;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycleController;
 
 /**
  * @version $Rev$ $Date$
@@ -52,7 +51,6 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
     private MockEndpoint endpoint;
 
     private Collection endpointCollection = Collections.EMPTY_SET;
-    private GBeanLifecycleController gbeanLifecycleController;
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
@@ -63,7 +61,6 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("actualObjectName", String.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("gbeanLifecycleController", GBeanLifecycleController.class, false);
         infoFactory.addAttribute("actualClassLoader", ClassLoader.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("actualKernel", Kernel.class, false);
@@ -88,7 +85,7 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         infoFactory.addReference("MockEndpoint", MockEndpoint.class, null);
         infoFactory.addReference("EndpointCollection", MockEndpoint.class, null);
 
-        infoFactory.setConstructor(new String[]{"name", "finalInt", "objectName", "classLoader", "gbeanLifecycleController", "kernel"});
+        infoFactory.setConstructor(new String[]{"name", "finalInt", "objectName", "classLoader", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
@@ -98,12 +95,11 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         this.finalInt = finalInt;
     }
 
-    public MockGBean(String name, int finalInt, String objectName, ClassLoader classLoader, GBeanLifecycleController gbeanLifecycleController, Kernel kernel) {
+    public MockGBean(String name, int finalInt, String objectName, ClassLoader classLoader, Kernel kernel) {
         this.name = name;
         this.finalInt = finalInt;
         this.objectName = objectName;
         this.classLoader = classLoader;
-        this.gbeanLifecycleController = gbeanLifecycleController;
         this.kernel = kernel;
     }
 
@@ -121,10 +117,6 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
 
     public ClassLoader getClassLoader() {
         return classLoader;
-    }
-
-    public GBeanLifecycleController getGbeanLifecycleController() {
-        return gbeanLifecycleController;
     }
 
     public Kernel getActualKernel() {

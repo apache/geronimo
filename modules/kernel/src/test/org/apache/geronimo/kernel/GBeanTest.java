@@ -25,7 +25,6 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanLifecycleController;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
@@ -56,10 +55,6 @@ public class GBeanTest extends TestCase {
         // the MockGBean implemmentation of getConfigurationClassLoader will throw an exception, but since the GBean architecture
         // handles this directly the implementation method will never be called
         kernel.getAttribute(name, "classLoader");
-
-        GBeanLifecycleController gbeanLifecycleController = (GBeanLifecycleController) kernel.getAttribute(name, "gbeanLifecycleController");
-        assertNotNull(gbeanLifecycleController);
-        assertEquals(State.RUNNING_INDEX, gbeanLifecycleController.getState());
 
         assertSame(kernel, kernel.getAttribute(name, "kernel"));
         assertSame(kernel, kernel.getAttribute(name, "actualKernel"));
