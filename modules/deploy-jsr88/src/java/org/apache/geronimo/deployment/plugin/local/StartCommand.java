@@ -54,7 +54,7 @@ public class StartCommand extends CommandSupport {
                 for (int j = 0; j < list.size(); j++) {
                     ObjectName name = (ObjectName) list.get(j);
                     kernel.startRecursiveGBean(name);
-                    String configName = name.getKeyProperty("name");
+                    String configName = ObjectName.unquote(name.getKeyProperty("name"));
                     addModule(new TargetModuleIDImpl(modules[i].getTarget(), configName));
                 }
             }
