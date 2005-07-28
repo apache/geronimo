@@ -39,7 +39,6 @@ public class JaasLoginModuleConfiguration implements Serializable {
     private LoginModuleControlFlag flag;
     private String loginModuleName;
     private Map options;
-    private transient LoginModule loginModule;
 
     public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide, String loginDomainName) {
         this.serverSide = serverSide;
@@ -48,6 +47,7 @@ public class JaasLoginModuleConfiguration implements Serializable {
         this.options = options;
         this.loginDomainName = loginDomainName;
     }
+
     public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide) {
         this(loginModuleName, flag, options, serverSide, null);
     }
@@ -57,14 +57,11 @@ public class JaasLoginModuleConfiguration implements Serializable {
     }
 
     public LoginModule getLoginModule(ClassLoader loader) throws GeronimoSecurityException {
-        if(loginModule == null) {
-            try {
-                loginModule = (LoginModule) loader.loadClass(loginModuleName).newInstance();
-            } catch (Exception e) {
-                throw new GeronimoSecurityException("Unable to instantiate login module", e);
-            }
+        try {
+            return (LoginModule) loader.loadClass(loginModuleName).newInstance();
+        } catch (Exception e) {
+            throw new GeronimoSecurityException("Unable to instantiate login module", e);
         }
-        return loginModule;
     }
 
     public boolean isServerSide() {
@@ -92,7 +89,7 @@ public class JaasLoginModuleConfiguration implements Serializable {
         for (Iterator it = options.keySet().iterator(); it.hasNext();) {
             String key = (String) it.next();
             Object value = options.get(key);
-            if(value instanceof Serializable || value instanceof Externalizable || value instanceof Remote) {
+            if (value instanceof Serializable || value instanceof Externalizable || value instanceof Remote) {
                 other.put(key, value);
             }
         }

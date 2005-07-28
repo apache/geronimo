@@ -33,7 +33,7 @@ import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 public class MultipleLoginDomainTest extends TestCase {
 
     public void testDummy() throws Exception { }
-    
+
     /** this test demonstrates that naming login domains does not actually separate principals from different login domains.
      * The crucial line is commented out so as to avoid breaking the build.
      * @throws Exception
@@ -42,7 +42,7 @@ public class MultipleLoginDomainTest extends TestCase {
         JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1");
         JaasLoginModuleConfiguration m2 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D2");
         JaasLoginModuleConfiguration m3 = new JaasLoginModuleConfiguration(MockLoginModule2.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D3");
-        JaasSecurityContext c = new JaasSecurityContext("realm", new JaasLoginModuleConfiguration[] {m1, m2});
+        JaasSecurityContext c = new JaasSecurityContext("realm", new JaasLoginModuleConfiguration[] {m1, m2}, this.getClass().getClassLoader());
         ClassLoader cl = this.getClass().getClassLoader();
         Subject s = c.getSubject();
         m1.getLoginModule(cl).initialize(s, null, null, null);
