@@ -404,6 +404,14 @@
             <ant:arg value="${distDir}/bin/client.jar"/>
         </ant:java>
 
+        <!-- Copy the scripts to the bin dir -->
+        <ant:copy todir="${distDir}/bin" overwrite="true">
+            <ant:fileset dir="src/scripts">
+                <include name="*.sh"/>
+            </ant:fileset>
+        </ant:copy>
+        <ant:chmod dir="${distDir}/bin" perm="ugo+x" includes="*.sh" />
+
         <j:if test="${context.getVariable('geronimo.assemble.minimal') != 'true'}">
             <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
                 <deploy:startRemoteServer
