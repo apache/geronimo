@@ -18,8 +18,7 @@
 # $Rev$ $Date$
 # --------------------------------------------------------------------
 
-BIN_DIR=bin
-SERVER_JAR=$BIN_DIR/server.jar
+SERVER_JAR=server.jar
 ARGS='-Djava.endorsed.dirs=lib/endorsed'
 
 if [ -z "$JAVA_HOME" ]; then
@@ -34,14 +33,9 @@ fi
 
 JAVA=$JAVA_HOME/bin/java
 
-if [ ! -d "$BIN_DIR" ]; then 
-    echo "Unable to locate the $BIN_DIR directory"
-    exit 1
-fi
-
 if [ ! -f "$SERVER_JAR" ]; then 
     echo "Unable to locate the $SERVER_JAR jar"
     exit 1
 fi
 
-$JAVA $ARGS -jar $SERVER_JAR "$@"
+$JAVA $ARGS -jar $SERVER_JAR "$@" &
