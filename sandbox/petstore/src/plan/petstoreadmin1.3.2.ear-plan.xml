@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev: 54661 $ $Date: 2005-07-10 01:59:24 +1000 (Sun, 10 Jul 2005) $ -->
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    parentId="org/apache/geronimo/PetStoreDataSource1.3.2" 
+    configId="org/apache/geronimo/PetStoreAdmin1.3.2">
+
+    <module>
+        <web>petstoreadmin.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/web"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+
+          <context-priority-classloader>false</context-priority-classloader>
+
+          <security-realm-name>petstore-realm</security-realm-name>
+          <security>
+              <default-principal realm-name="petstore-realm">
+                  <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="jps_admin"/>
+              </default-principal>
+              <role-mappings>
+                  <role role-name="administrator">
+                      <realm realm-name="petstore-realm">
+                          <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="jps_admin"/>
+                      </realm>
+                  </role>
+              </role-mappings>
+          </security>
+
+          <naming:ejb-ref>
+            <naming:ref-name>ejb/OPCAdminFacadeRemote</naming:ref-name>
+            <naming:application>org/apache/geronimo/OPC1.3.2</naming:application>
+            <naming:module>opc-ejb.jar</naming:module>
+            <naming:type>StatelessSessionBean</naming:type>
+            <naming:name>OPCAdminFacadeEJB</naming:name>
+          </naming:ejb-ref>
+        </web-app>
+    </module>
+
+    <module>
+        <ejb>asyncsender-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+            configId="NOT_USED">
+          <enterprise-beans>
+            <session>
+              <ejb-name>AsyncSenderEJB</ejb-name>
+              <naming:resource-ref>
+                <naming:ref-name>jms/QueueConnectionFactory</naming:ref-name>
+                <naming:resource-link>PetstoreConnectionFactory</naming:resource-link>
+              </naming:resource-ref>
+              <naming:resource-env-ref>
+                <naming:ref-name>jms/AsyncSenderQueue</naming:ref-name>
+                <naming:message-destination-link>jms/opc/OrderApprovalQueue</naming:message-destination-link>
+              </naming:resource-env-ref>
+            </session>
+          </enterprise-beans>
+        </openejb-jar>
+    </module>
+
+</application>

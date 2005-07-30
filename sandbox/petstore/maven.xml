@@ -37,6 +37,21 @@
             geronimoName="geronimo"
             targetDir="${instDir}"/>
 
+        <ant:copy todir="${instDir}/var">
+            <ant:fileset dir="src/var"/>
+        </ant:copy>
+
+        <ant:echo>Building Security Configuration</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="src/plan/petstore1.3.2-security-plan.xml"/>
+        </ant:java>
+
         <ant:echo>Building JMS Configuration</ant:echo>
         <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
@@ -85,6 +100,30 @@
             <ant:arg value="${petstore.home}/src/apps/supplier/build/supplier.ear"/>
         </ant:java>
 
+        <ant:echo>Distributing Java Pet Store OPC Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="src/plan/opc1.3.2.ear-plan.xml"/>
+            <ant:arg value="${petstore.home}/src/apps/opc/build/opc.ear"/>
+        </ant:java>
+
+        <ant:echo>Distributing Java Pet Store Admin Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--user"/>
+            <ant:arg value="system"/>
+            <ant:arg value="--password"/>
+            <ant:arg value="manager"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="src/plan/petstoreadmin1.3.2.ear-plan.xml"/>
+            <ant:arg value="${petstore.home}/src/apps/admin/build/petstoreadmin.ear"/>
+        </ant:java>
+
         <ant:echo>Creating Java Pet Store Database Schema</ant:echo>
         <j:invokeStatic className="java.lang.System" method="setProperty">
             <j:arg type="java.lang.String" value="derby.system.home"/>
@@ -99,25 +138,10 @@
         </ant:sql>
     </goal>
 
-    <goal name="db">
-        <ant:echo>Creating PetStore Database Schema</ant:echo>
-        <j:invokeStatic className="java.lang.System" method="setProperty">
-            <j:arg type="java.lang.String" value="derby.system.home"/>
-            <j:arg type="java.lang.String" value="{instDir}/var/derby"/>
-        </j:invokeStatic>
-        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver"
-            url="jdbc:derby:PetStoreDB;create=true" userid="" password="">
-            <ant:fileset dir="src/sql"/>
-            <ant:classpath>
-                <ant:pathelement location="${maven.repo.local}/incubator-derby/jars/derby-10.0.2.1.jar"/>
-            </ant:classpath>
-        </ant:sql>
-    </goal>
-
     <goal name="petstore:start" description="Start PetStore">
         <deploy:startRemoteServer
             geronimoTarget="${instDir}"
-            configs="org/apache/geronimo/PetStore1.3.2 org/apache/geronimo/Supplier1.3.2 org/apache/geronimo/RuntimeDeployer"/>
+	    configs="org/apache/geronimo/PetStore1.3.2 org/apache/geronimo/Supplier1.3.2 org/apache/geronimo/PetStoreSecurity1.3.2 org/apache/geronimo/OPC1.3.2 org/apache/geronimo/PetStoreAdmin1.3.2 org/apache/geronimo/RuntimeDeployer"/>
         <ant:echo message="Waiting for server at: ${instDir}"/>
         <deploy:waitForStarted
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
@@ -129,6 +153,21 @@
             username="system"
             password="manager"
             id="org/apache/geronimo/Supplier1.3.2"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/PetStoreSecurity1.3.2"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/OPC1.3.2"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/PetStoreAdmin1.3.2"/>
         <echo message="PetStore has started"/>
     </goal>
 

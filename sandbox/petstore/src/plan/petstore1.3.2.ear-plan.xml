@@ -289,7 +289,7 @@
               </naming:resource-ref>
               <naming:resource-env-ref>
                 <naming:ref-name>jms/AsyncSenderQueue</naming:ref-name>
-                <naming:message-destination-link>AsyncSenderQueue</naming:message-destination-link>
+                <naming:message-destination-link>jms/opc/OrderQueue</naming:message-destination-link>
               </naming:resource-env-ref>
             </session>
           </enterprise-beans>

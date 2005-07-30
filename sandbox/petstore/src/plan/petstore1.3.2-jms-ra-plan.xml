@@ -61,16 +61,56 @@
         <adminobject-interface>javax.jms.Queue</adminobject-interface>
         <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
         <adminobject-instance>
-            <message-destination-name>AsyncSenderQueue</message-destination-name>
-            <config-property-setting name="PhysicalName">AsyncSenderQueue</config-property-setting>
+            <message-destination-name>jms/opc/OrderQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/opc/OrderQueue</config-property-setting>
         </adminobject-instance>
     </adminobject>
     <adminobject>
         <adminobject-interface>javax.jms.Topic</adminobject-interface>
         <adminobject-class>org.codehaus.activemq.message.ActiveMQTopic</adminobject-class>
         <adminobject-instance>
-            <message-destination-name>InvoiceTopic</message-destination-name>
-            <config-property-setting name="PhysicalName">InvoiceTopic</config-property-setting>
+            <message-destination-name>jms/opc/InvoiceTopic</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/opc/InvoiceTopic</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>jms/opc/OrderApprovalQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/opc/OrderApprovalQueue</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>jms/opc/MailCompletedOrderQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/opc/MailCompletedOrderQueue</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>jms/opc/MailOrderApprovalQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/opc/MailOrderApprovalQueue</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>jms/supplier/PurchaseOrderQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/supplier/PurchaseOrderQueue</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>jms/opc/MailQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/opc/MailQueue</config-property-setting>
         </adminobject-instance>
     </adminobject>
 </connector>

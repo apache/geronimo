@@ -75,7 +75,7 @@
                           <sql>INSERT INTO CONTACTINFOS (FAMILYNAME) VALUES (NULL)</sql>
                           <return-type>java.lang.Integer</return-type>
                       </auto-increment-table>
-              </key-generator>
+                  </key-generator>
               </entity>
               <entity>
                   <ejb-name>AddressEJB</ejb-name>
@@ -223,13 +223,15 @@
 
           <context-priority-classloader>false</context-priority-classloader>
 
+          <security-realm-name>petstore-realm</security-realm-name>
+
           <naming:resource-ref>
               <naming:ref-name>jms/TopicConnectionFactory</naming:ref-name>
               <naming:resource-link>PetstoreConnectionFactory</naming:resource-link>
           </naming:resource-ref>
           <naming:resource-env-ref>
               <naming:ref-name>jms/opc/InvoiceTopic</naming:ref-name>
-              <naming:message-destination-link>InvoiceTopic</naming:message-destination-link>
+              <naming:message-destination-link>jms/opc/InvoiceTopic</naming:message-destination-link>
           </naming:resource-env-ref>
 
         </web-app>
@@ -261,6 +263,16 @@
                   <resource-adapter>
                       <resource-link>PetStore JMS Resources</resource-link>
                   </resource-adapter>
+                  <activation-config>
+                      <activation-config-property>
+                          <activation-config-property-name>destination</activation-config-property-name>
+                          <activation-config-property-value>jms/supplier/PurchaseOrderQueue</activation-config-property-value>
+                      </activation-config-property>
+                      <activation-config-property>
+                          <activation-config-property-name>destinationType</activation-config-property-name>
+                          <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+                      </activation-config-property>
+                  </activation-config>
                   <naming:resource-ref>
                       <naming:ref-name>jms/QueueConnectionFactory</naming:ref-name>
                       <naming:resource-link>PetstoreConnectionFactory</naming:resource-link>
@@ -271,7 +283,7 @@
                   </naming:resource-ref>
                   <naming:resource-env-ref>
                       <naming:ref-name>jms/opc/InvoiceTopic</naming:ref-name>
-                      <naming:message-destination-link>InvoiceTopic</naming:message-destination-link>
+                      <naming:message-destination-link>jms/opc/InvoiceTopic</naming:message-destination-link>
                   </naming:resource-env-ref>
               </message-driven>
               <session>
@@ -284,5 +296,18 @@
             </enterprise-beans>
         </openejb-jar>
     </module>
+
+    <security>
+        <default-principal realm-name="petstore-realm">
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
+        </default-principal>
+        <role-mappings>
+            <role role-name="administrator">
+                <realm realm-name="petstore-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
+                </realm>
+            </role>
+        </role-mappings>
+    </security>
 
 </application>
