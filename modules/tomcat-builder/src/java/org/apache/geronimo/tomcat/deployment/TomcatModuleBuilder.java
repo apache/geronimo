@@ -469,6 +469,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                     }
                 }
             }
+            
+            // JACC v1.0 secion B.19
+            addUnmappedJSPPermissions(securityRoles, rolePermissions);
+            
             webModuleData.setAttribute("webServices", webServices);
 
             if (tomcatWebApp.isSetSecurityRealmName()) {
@@ -539,6 +543,13 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
         ClassLoader webClassLoader = new TomcatClassLoader(webClassPathURLs, baseUrl, cl, contextPriorityClassLoader);
         return webClassLoader;
+    }
+
+    private void addUnmappedJSPPermissions(Set securityRoles, Map rolePermissions) {
+        for (Iterator iter = securityRoles.iterator(); iter.hasNext();) {
+            String roleName = (String) iter.next();
+            addPermissionToRole(roleName, new WebRoleRefPermission("", roleName), rolePermissions);
+        }
     }
 
     private void processRoleRefPermissions(ServletType servletType,

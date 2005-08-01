@@ -135,7 +135,12 @@ public class JAASJettyRealm implements UserRealm {
         
         AccessControlContext acc = ContextManager.getCurrentContext();
         try {
-            acc.checkPermission(new WebRoleRefPermission(JettyServletHolder.getCurrentServletName(), role));
+            // JACC v1.0 secion B.19
+            String servletName = JettyServletHolder.getCurrentServletName();
+            if (servletName.equals("jsp")) {
+                servletName = "";
+            }
+            acc.checkPermission(new WebRoleRefPermission(servletName, role));
         } catch (AccessControlException e) {
             return false;
         }

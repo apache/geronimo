@@ -866,9 +866,18 @@ public class JettyModuleBuilder implements ModuleBuilder {
             addServlet(webModuleName, moduleFile, previousServlet, servletType, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
             previousServlet = servletType;
         }
+
+        // JACC v1.0 secion B.19
+        addUnmappedJSPPermissions(securityRoles, rolePermissions);
     }
 
-
+    private void addUnmappedJSPPermissions(Set securityRoles, Map rolePermissions) {
+        for (Iterator iter = securityRoles.iterator(); iter.hasNext();) {
+            String roleName = (String) iter.next();
+            addPermissionToRole(roleName, new WebRoleRefPermission("", roleName), rolePermissions);
+        }
+    }
+    
     private void addServlet(ObjectName webModuleName,
                             JarFile moduleFile,
                             ServletType previousServlet,
