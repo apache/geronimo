@@ -30,42 +30,37 @@ import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class MultipleLoginDomainTest extends TestCase {
+public class NoLoginModuleReuseTest extends TestCase {
 
-    public void testDummy() throws Exception { }
-
-    /** this test demonstrates that naming login domains does not actually separate principals from different login domains.
-     * The crucial line is commented out so as to avoid breaking the build.
-     * @throws Exception
-     */
-    public void testMultipleLoginDomains() throws Exception {
+    public void testNoLoginModuleReuse() throws Exception {
         JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1");
-        JaasLoginModuleConfiguration m2 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D2");
-        JaasSecurityContext c = new JaasSecurityContext("realm", new JaasLoginModuleConfiguration[] {m1, m2}, this.getClass().getClassLoader());
+        doSecurityContextLogin(m1);
+        doSecurityContextLogin(m1);
+    }
+
+    private void doSecurityContextLogin(JaasLoginModuleConfiguration m1) throws LoginException {
+        JaasSecurityContext c = new JaasSecurityContext("realm", new JaasLoginModuleConfiguration[] {m1}, this.getClass().getClassLoader());
         Subject s = c.getSubject();
         c.getLoginModule(0).initialize(s, null, null, null);
-        c.getLoginModule(1).initialize(s, null, null, null);
         c.getLoginModule(0).login();
-        c.getLoginModule(1).login();
         c.getLoginModule(0).commit();
         c.processPrincipals("D1");
-        assertEquals(2, s.getPrincipals().size());
-        c.getLoginModule(1).commit();
-        c.processPrincipals("D2");
-        //Uncomment the following line to verify that the subject will have only 2 principals rather than the desired 3 after both
-        //login modules have tried to add the same principal to the subject.
-//        assertEquals(3, s.getPrincipals().size());
     }
 
     public static class MockLoginModule implements LoginModule {
 
-        Subject subject;
+        private Subject subject;
+        private boolean used = false;
 
         public void initialize(Subject subject, CallbackHandler callbackHandler, Map map, Map map1) {
             this.subject = subject;
         }
 
         public boolean login() throws LoginException {
+            if (used) {
+                throw new LoginException("already used");
+            }
+            used = true;
             return true;
         }
 

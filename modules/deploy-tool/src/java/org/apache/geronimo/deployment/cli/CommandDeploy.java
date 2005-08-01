@@ -41,8 +41,8 @@ public class CommandDeploy extends CommandDistribute {
                 "not need to be provided.\n" +
                 "If the server is not currently running, the module will be marked " +
                 "to start next time the server is started.\n" +
-                "If no targets are provided, the module is deployed to all available" +
-                "targets.  Geronimo only provides one target (ever), so this is primarily" +
+                "If no targets are provided, the module is deployed to all available " +
+                "targets.  Geronimo only provides one target (ever), so this is primarily " +
                 "useful when using a different driver.");
     }
 

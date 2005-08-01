@@ -45,10 +45,10 @@ public class CommandDistribute extends AbstractCommand {
                 "the plan may be omitted.  Sometimes the plan references a module already " +
                 "deployed in the Geronimo server environment, in which case a module does " +
                 "not need to be provided.\n" +
-                "If no targets are provided, the module is distributed to all available" +
-                "targets.  Geronimo only provides one target (ever), so this is primarily" +
+                "If no targets are provided, the module is distributed to all available " +
+                "targets.  Geronimo only provides one target (ever), so this is primarily " +
                 "useful when using a different driver.\n" +
-                "If the server is not running when this command is invoked, no targets may be" +
+                "If the server is not running when this command is invoked, no targets may be " +
                 "specified.");
     }
 

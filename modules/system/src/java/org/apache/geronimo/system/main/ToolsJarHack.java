@@ -66,7 +66,7 @@ public class ToolsJarHack {
         try {
             toolsJarURL = toolsJarFile.toURL();
         } catch (MalformedURLException e) {
-            log.warn("Could not all find java compiler: tools.jar file not a regular file: " + toolsJarFile.getAbsolutePath(), e);
+            log.warn("Could not find java compiler: tools.jar file not a regular file: " + toolsJarFile.getAbsolutePath(), e);
             return;
         }
         addJarToPath(toolsJarURL);
@@ -94,7 +94,7 @@ public class ToolsJarHack {
             return toolsJarFile;
         }
 
-        log.warn("Could not all find java compiler: lib" + File.separator + "tools.jar file not found in " +
+        log.warn("Could not find java compiler: lib" + File.separator + "tools.jar file not found in " +
                 javaHomeDir.getAbsolutePath() + " or " + javaHomeDir.getParentFile().getAbsolutePath());
         return null;
     }

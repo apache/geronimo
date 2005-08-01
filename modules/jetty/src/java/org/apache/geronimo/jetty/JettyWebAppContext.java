@@ -183,7 +183,13 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         setConfigurationClassNames(new String[]{});
 
-        URI root = URI.create(configurationBaseUrl.toString());
+        URI root = null;
+        //TODO is there a simpler way to do this?
+        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
+            root = new URI("file", configurationBaseUrl.getPath(), null);
+        } else {
+            root = URI.create(configurationBaseUrl.toString());
+        }
         webAppRoot = root.resolve(uri);
         URL webAppRootURL = webAppRoot.toURL();
 

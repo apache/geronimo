@@ -22,7 +22,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.RealmPrincipal;
@@ -34,20 +37,25 @@ import org.apache.geronimo.security.RealmPrincipal;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class JaasSecurityContext {
-    private String realmName;
-    private Subject subject;
-    private long created;
+    private final String realmName;
+    private final Subject subject;
+    private final long created;
     private boolean done;
-    private JaasLoginModuleConfiguration[] modules;
+    private final JaasLoginModuleConfiguration[] modules;
+    private final LoginModule[] loginModules;
     private DecouplingCallbackHandler handler;
-    private Set processedPrincipals = new HashSet();
+    private final Set processedPrincipals = new HashSet();
 
-    public JaasSecurityContext(String realmName, JaasLoginModuleConfiguration[] modules) {
+    public JaasSecurityContext(String realmName, JaasLoginModuleConfiguration[] modules, ClassLoader classLoader) {
         this.realmName = realmName;
         this.created = System.currentTimeMillis();
         this.done = false;
         this.modules = modules;
         subject = new Subject();
+        loginModules = new LoginModule[modules.length];
+        for (int i = 0; i < modules.length; i++) {
+            loginModules[i] = modules[i].getLoginModule(classLoader);
+        }
     }
 
     public Subject getSubject() {
@@ -70,6 +78,31 @@ public class JaasSecurityContext {
         return modules;
     }
 
+    public LoginModule getLoginModule(int index) throws LoginException {
+        checkRange(index);
+        return loginModules[index];
+    }
+
+    private void checkRange(int index) throws LoginException {
+        if (index < 0 || index >= loginModules.length) {
+            throw new LoginException("Invalid index: " + index);
+        }
+    }
+
+    public boolean isServerSide(int index) throws LoginException {
+        checkRange(index);
+        return modules[index].isServerSide();
+    }
+
+    public String getLoginDomainName(int index) throws LoginException {
+        checkRange(index);
+        return modules[index].getLoginDomainName();
+    }
+
+    public Map getOptions(int index) throws LoginException {
+        checkRange(index);
+        return modules[index].getOptions();
+    }
     public DecouplingCallbackHandler getHandler() {
         if(handler == null) { //lazy create
             handler = new DecouplingCallbackHandler();

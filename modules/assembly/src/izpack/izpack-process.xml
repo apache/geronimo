@@ -115,15 +115,6 @@
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Install Tomcat Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/j2ee-server-tomcat-plan.xml</arg>
-    </executefile>
-    <executeForPack name="J2EE Features" />
-  </job>
   <job name="Install JMX Debug Tool Web App Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
