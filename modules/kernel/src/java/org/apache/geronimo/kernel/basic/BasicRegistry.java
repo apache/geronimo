@@ -21,15 +21,17 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.regex.Pattern;
 
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 
 /**
@@ -37,23 +39,27 @@ import org.apache.geronimo.gbean.runtime.GBeanInstance;
  */
 public class BasicRegistry {
     private final Map registry = new HashMap();
-    private String kernelName = "";
+    private final Map domainIndex = new HashMap();
+    private String defaultDomainName;
+
+    public BasicRegistry(String defaultDomainName) {
+        this.defaultDomainName = defaultDomainName;
+    }
 
     /**
-     * Start the registry and associate it with a kernel.
-     *
-     * @param kernel the kernel to associate with
+     * Start the registry.
      */
     public void start(Kernel kernel) {
-        kernelName = kernel.getKernelName();
     }
 
     /**
      * Shut down the registry and unregister any GBeans
      */
-    public synchronized void stop() {
-        registry.clear();
-        kernelName = "";
+    public void stop() {
+        synchronized (this) {
+            registry.clear();
+            domainIndex.clear();
+        }
     }
 
     /**
@@ -62,8 +68,10 @@ public class BasicRegistry {
      * @param name the name of the GBean to check for
      * @return true if there is a GBean registered with that name
      */
-    public synchronized boolean isRegistered(GBeanName name) {
-        return registry.containsKey(name);
+    public boolean isRegistered(ObjectName name) {
+        synchronized (this) {
+            return registry.containsKey(name);
+        }
     }
 
     /**
@@ -73,11 +81,30 @@ public class BasicRegistry {
      * @throws GBeanAlreadyExistsException if there is already a GBean registered with the instance's name
      */
     public synchronized void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException {
-        GBeanName name = createGBeanName(gbeanInstance.getObjectNameObject());
+        // do as much work as possible outside of the synchronized block
+        ObjectName name = gbeanInstance.getObjectNameObject();
         if (registry.containsKey(name)) {
-            throw new GBeanAlreadyExistsException("GBean already registered: " + name);
+            throw new GBeanAlreadyExistsException("GBean already registered: " + name.getCanonicalName());
         }
-        registry.put(name, gbeanInstance);
+
+        String domainName = name.getDomain();
+        if (domainName.length() == 0) {
+            domainName = defaultDomainName;
+        }
+
+        // convert properties list to a HashMap as it is more efficient then the synchronized Hashtable
+        Map properties = new HashMap(name.getKeyPropertyList());
+
+        synchronized (this) {
+            registry.put(name, gbeanInstance);
+
+            Map nameToProperties = (Map) domainIndex.get(domainName);
+            if (nameToProperties == null) {
+                nameToProperties = new HashMap();
+                domainIndex.put(domainName, nameToProperties);
+            }
+            nameToProperties.put(name, properties);
+        }
     }
 
     /**
@@ -86,12 +113,15 @@ public class BasicRegistry {
      * @param name the name of the GBean to unregister
      * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
      */
-    public synchronized void unregister(GBeanName name) throws GBeanNotFoundException, InternalKernelException {
-        if (registry.remove(name) == null) {
-            try {
-                throw new GBeanNotFoundException(name.getObjectName());
-            } catch (MalformedObjectNameException e) {
-                throw new InternalKernelException(e);
+    public synchronized void unregister(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
+        String domainName = name.getDomain();
+        synchronized (this) {
+            registry.remove(name);
+
+            // just leave the an empty nameToProperty map
+            Map nameToProperties = (Map) domainIndex.get(domainName);
+            if (nameToProperties != null) {
+                nameToProperties.remove(name);
             }
         }
     }
@@ -103,14 +133,13 @@ public class BasicRegistry {
      * @return the GBeanInstance
      * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
      */
-    public synchronized GBeanInstance getGBeanInstance(GBeanName name) throws GBeanNotFoundException {
-        GBeanInstance instance = (GBeanInstance) registry.get(name);
+    public synchronized GBeanInstance getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
+        GBeanInstance instance;
+        synchronized (this) {
+            instance = (GBeanInstance) registry.get(name);
+        }
         if (instance == null) {
-            try {
-                throw new GBeanNotFoundException(name.getObjectName());
-            } catch (MalformedObjectNameException e) {
-                throw new InternalKernelException(e);
-            }
+            throw new GBeanNotFoundException(name);
         }
         return instance;
     }
@@ -119,31 +148,131 @@ public class BasicRegistry {
     /**
      * Search the registry for GBeans matching a name pattern.
      *
-     * @param domain the domain to query in; null indicates all
-     * @param properties the properties the GBeans must have
+     * @param pattern object name pattern
      * @return an unordered Set<GBeanInstance> of GBeans that matched the pattern
      */
-    public Set listGBeans(String domain, Map properties) {
-        // fairly dumb implementation that iterates the list of all registered GBeans
-        Map clone;
-        synchronized(this) {
-            clone = new HashMap(registry);
-        }
-        Set result = new HashSet(clone.size());
-        for (Iterator i = clone.entrySet().iterator(); i.hasNext();) {
-            Map.Entry entry = (Map.Entry) i.next();
-            GBeanName name = (GBeanName) entry.getKey();
-            if (name.matches(domain, properties)) {
-                result.add(entry.getValue());
+    public Set listGBeans(ObjectName pattern) {
+        if (pattern == null) {
+            synchronized (this) {
+                return new HashSet(registry.keySet());
             }
         }
-        return result;
+
+        String patternDomain = pattern.getDomain();
+        if (patternDomain.length() == 0) {
+            patternDomain = defaultDomainName;
+        }
+
+        // work with a copy of the registry key set
+        List nameToProperties;
+        if (!pattern.isDomainPattern()) {
+            synchronized (this) {
+                // create an array list big enough to match all names... extra space is better than resizing
+                nameToProperties = new ArrayList(registry.size());
+
+                // find we are only matching one specific domain, so
+                // just grab it directly from the index
+                Map map = (Map) domainIndex.get(patternDomain);
+                if (map != null) {
+                    nameToProperties.addAll(map.entrySet());
+                }
+            }
+        } else if (patternDomain.equals("*")) {
+            // this
+            //  is very commmon, so support it directly
+            synchronized (this) {
+                // create an array list big enough to match all names... extra space is better than resizing
+                nameToProperties = new ArrayList(registry.size());
+
+                // find we are matching all domain, so just grab all of them directly
+                for (Iterator iterator = domainIndex.values().iterator(); iterator.hasNext();) {
+                    Map map = (Map) iterator.next();
+
+                    // we can just copy the entry set directly into the list we don't
+                    // have to worry about duplicates as the maps are mutually exclusive
+                    nameToProperties.addAll(map.entrySet());
+                }
+            }
+        } else {
+            String perl5Pattern = domainPatternToPerl5(patternDomain);
+            Pattern domainPattern = Pattern.compile(perl5Pattern);
+
+            synchronized (this) {
+                // create an array list big enough to match all names... extra space is better than resizing
+                nameToProperties = new ArrayList(registry.size());
+
+                // find all of the matching domains
+                for (Iterator iterator = domainIndex.entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    String domain = (String) entry.getKey();
+                    if (domainPattern.matcher(domain).matches()) {
+                        // we can just copy the entry set directly into the list we don't
+                        // have to worry about duplicates as the maps are mutually exclusive
+                        Map map = (Map) entry.getValue();
+                        nameToProperties.addAll(map.entrySet());
+                    }
+                }
+            }
+        }
+
+        if (nameToProperties.isEmpty()) {
+            return Collections.EMPTY_SET;
+        }
+
+        // convert the pattern property list to a HashMap as it is not synchronized
+        Map patternProperties = new HashMap(pattern.getKeyPropertyList());
+        patternProperties.remove("*");
+        boolean isMatchAll = patternProperties.isEmpty();
+        boolean isPropertyPattern = pattern.isPropertyPattern();
+
+        Set matchingNames = new HashSet();
+        for (Iterator iterator = nameToProperties.iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            Map properties = (Map) entry.getValue();
+
+            if (isMatchAll) {
+                matchingNames.add(entry.getKey());
+            } else if (isPropertyPattern) {
+                if (properties.entrySet().containsAll(patternProperties.entrySet())) {
+                    matchingNames.add(entry.getKey());
+                }
+            } else {
+                if (properties.entrySet().equals(patternProperties.entrySet())) {
+                    matchingNames.add(entry.getKey());
+                }
+            }
+        }
+        return matchingNames;
     }
 
-    private GBeanName createGBeanName(ObjectName objectName) {
-        if (objectName.getDomain().length() == 0) {
-            return new GBeanName(kernelName, objectName.getKeyPropertyList());
+    private static String domainPatternToPerl5(String pattern) {
+        char[] patternCharacters = pattern.toCharArray();
+        StringBuffer buffer = new StringBuffer(2 * patternCharacters.length);
+        for (int position = 0; position < patternCharacters.length; position++) {
+            char character = patternCharacters[position];
+            switch (character) {
+                case '*':
+                    // replace '*' with '.*'
+                    buffer.append(".*");
+                    break;
+                case '?':
+                    // replace '?' with '.'
+                    buffer.append('.');
+                    break;
+                default:
+                    // escape any perl5 characters with '\'
+                    if (isPerl5MetaCharacter(character)) {
+                        buffer.append('\\');
+                    }
+                    buffer.append(character);
+                    break;
+            }
         }
-        return new GBeanName(objectName);
+
+        return buffer.toString();
+    }
+
+    private static boolean isPerl5MetaCharacter(char character) {
+        return ("'*?+[]()|^$.{}\\".indexOf(character) >= 0);
     }
 }

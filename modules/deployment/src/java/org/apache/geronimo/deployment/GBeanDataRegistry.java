@@ -25,7 +25,6 @@ import java.util.Iterator;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 /**
