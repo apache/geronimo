@@ -8,7 +8,7 @@
         <target-name>DefaultDatabase</target-name>
     </resource-ref>
     <resource>
-        <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT</external-rar>
+        <external-rar>tranql/rars/tranql-connector-${tranql_connector_version}</external-rar>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             version="1.5"
             configId="org/apache/geronimo/DefaultDatabase"

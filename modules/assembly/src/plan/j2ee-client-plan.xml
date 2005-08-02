@@ -87,22 +87,6 @@ by the app client.
         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
     </dependency>
 
-<!--    <dependency>-->
-<!--        <uri>scout/jars/jaxr-api-1.0-SNAPSHOT.jar</uri>-->
-<!--    </dependency>-->
-<!---->
-<!--    <dependency>-->
-<!--        <uri>scout/jars/scout-1.0-SNAPSHOT.jar</uri>-->
-<!--    </dependency>-->
-<!---->
-<!--    <dependency>-->
-<!--        <uri>juddi/jars/juddi-SNAPSHOT.jar</uri>-->
-<!--    </dependency>-->
-<!---->
-<!--    <dependency>-->
-<!--        <uri>jdom/jars/jdom-1.0.jar</uri>-->
-<!--    </dependency>-->
-<!---->
     <!--client connector support-->
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>

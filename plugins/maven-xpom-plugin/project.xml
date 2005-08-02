@@ -19,7 +19,7 @@
 <project>
     <pomVersion>3</pomVersion>
     <!--extend>${basedir}/../../etc/project.xml</extend-->
-    
+
     <groupId>geronimo</groupId>
     <id>geronimo-xpom-plugin</id>
     <name>Geronimo maven xpom plugin</name>
@@ -32,8 +32,8 @@
     <package>org.apache.geronimo</package>
     <logo></logo>
 
-    <currentVersion>1.0-SNAPSHOT</currentVersion>
-    
+    <currentVersion>1.0-M4</currentVersion>
+
     <dependencies>
 
       <dependency>

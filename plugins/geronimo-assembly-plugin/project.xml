@@ -23,18 +23,18 @@
     <id>geronimo-assembly-plugin</id>
     <name>Geronimo Assembly Plugin</name>
     <description>A plugin used to assemble a distribution of Geronimo</description>
-    <currentVersion>SNAPSHOT</currentVersion>
+    <currentVersion>1.0-M4</currentVersion>
 
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0-M4</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.0-M4-SNAPSHOT</version>
+            <version>${pom.currentVersion}</version>
         </dependency>
     </dependencies>
 
