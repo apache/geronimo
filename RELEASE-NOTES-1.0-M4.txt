@@ -1,7 +1,4 @@
-Release Notes -- Apache Geronimo -- Version 1.0-M4
-
-NOTE: RELEASE NOTES ARE NOT YET FINAL!!!
-
+Release Notes -- Apache Geronimo -- Version 1.0 Milestone 4
 
 Geronimo URLs
 -------------
@@ -83,18 +80,18 @@ Significant Missing Features
  * JSR-88 support for Geronimo deployment plan configuration
  * Full functionality on non-Sun JVMs (a portable CORBA implementation
    is not expected for version 1.0)
- * Clustering (not expected for version 1.0)
+ * Clustering (also not expected for version 1.0)
 
 
 Overall Project Status
 ----------------------
-Geronimo is now feature complete with respect to J2EE 1.4,
-and has passed the automated TCK test suite.  However, full
-certification has not yet been completed.
+Geronimo is now feature complete with respect to J2EE 1.4, and has
+passed the automated TCK test suite.  However, full certification
+has not yet been completed.
 
-Many of the remaining changes are focused on usability at 
-this time.  However, Geronimo has also not been extensively 
-performance tested.  Your help would be appreciated!
+Many of the remaining changes are focused on usability at this time.
+However, Geronimo has also not been extensively performance tested.
+Your help would be appreciated!
 
 Documentation efforts are underway, and freely available documentation
 covers many aspects of the product.
@@ -106,18 +103,11 @@ http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
 
 Certification Status
 --------------------
-Geronimo is pursuing full J2EE certification (it's not enough to just pass
-the tests).  Stay tuned!
-
-In the mean time, we've determined that we can share the Geronimo plans
-used to run the TCK tests with other J2EE licensees.  If you are interested
-in extending or customizing Geronimo and certifying your altered version,
-please contact us on the dev@geronimo.apache.org mailing list (or contact
-a committer privately if you'd like to discuss this with the Geronimo PMC
-without making it public).
+Geronimo is pursuing full J2EE certification (it's not enough to just
+pass the automated tests).  Stay tuned!
 
 
-Specific Issues Addressed in M4 Release (finished -> 819 as of 7/26)
+Specific Issues Addressed in M4 Release
 ---------------------------------------
 
 ** New Features
@@ -185,10 +175,15 @@ Specific Issues Addressed in M4 Release (finished -> 819 as of 7/26)
     * [GERONIMO-732] - Change Geronimo Build to use current version of Tomcat AJP JAR
     * [GERONIMO-740] - Move from ActiveMQ 3.1-SNAPSHOT to a formal release
     * [GERONIMO-741] - Move from ActiveIO 1.0 to ActiveIO 1.1
+    * [GERONIMO-745] - Move from Axis 1.3-SNAPSHOT to formal version
     * [GERONIMO-746] - Move from commons_discovery SNAPSHOT to formal version
     * [GERONIMO-747] - Remove ews dependency
+    * [GERONIMO-755] - Move from Scout/JAXR version 1.0-SNAPSHOT to a formal version
+    * [GERONIMO-756] - Move ServiceMix from 1.0-SNAPSHOT to a formal or dated release
+    * [GERONIMO-757] - Move from jUDDI SNAPSHOT to formal version
     * [GERONIMO-758] - Move geronimo_spec_activation from 1.0.2-SNAPSHOT to 1.0.2-rc4
     * [GERONIMO-759] - Move geronimo_spec_javamail from 1.3.1-SNAPSHOT to a 1.3.1-rc4
+    * [GERONIMO-760] - Move tmporb SNAPSHOT dependency to a dated version in M4
     * [GERONIMO-761] - Move from custom cglib build version to cglib-nodep-2.1_2.jar
     * [GERONIMO-772] - Move OpenEJB from jelly velocity tags SNAPSHOT to version 1.0
     * [GERONIMO-773] - Improve Error messages in the Jetty TemporaryPlanAdapter
@@ -278,6 +273,7 @@ Specific Issues Addressed in M4 Release (finished -> 819 as of 7/26)
     * [GERONIMO-661] - "Unchecked" permissions for all EJB methods ("*") do not work
     * [GERONIMO-662] - Cannot find root context without geronimo-tomcat.xml
     * [GERONIMO-672] - EJB Web Service Endpoint WSDL problem
+    * [GERONIMO-677] - Login Modules are being reused
     * [GERONIMO-678] - Bad SOAP response when complexTypes are involved
     * [GERONIMO-685] - Too many open files from CORBA compiler
     * [GERONIMO-691] - OpenEJB assumes optional messaging-type is in ejb-jar.xml
@@ -291,9 +287,15 @@ Specific Issues Addressed in M4 Release (finished -> 819 as of 7/26)
     * [GERONIMO-769] - TCL not correct when setting connector properties
     * [GERONIMO-779] - SchemaInfoBuilder class cannot be loaded (xmlbeans problems)
     * [GERONIMO-780] - MDB builder needs jms message listener as default
+    * [GERONIMO-785] - Web services error on startup
     * [GERONIMO-792] - Typo in ToolsJarHack message at startup in M4
     * [GERONIMO-808] - multiline cmp-field-name in openejb-jar cause error
     * [GERONIMO-809] - Some bundled Web Applications still use geronimo-jetty.xml
     * [GERONIMO-812] - TargetModuleId sometimes has quotes and sometimes no quotes
+    * [GERONIMO-813] - ServiceContextInterceptor assumes tcp transport
     * [GERONIMO-816] - Spaces missing in help for deploy and distribute commands
     * [GERONIMO-819] - DeploymentContext doesn't actually track childConfigurations
+    * [GERONIMO-820] - CommandSupport does not adequately synchronize access
+    * [GERONIMO-821] - Invalid sigantures in JavaMail API jar
+    * [GERONIMO-824] - MdbBuilder sets the Listener Type incorrectly causing NPEs
+    * [GERONIMO-831] - TSSBean with no ssl config produces stack trace on startup
