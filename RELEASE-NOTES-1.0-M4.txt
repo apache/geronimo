@@ -15,7 +15,7 @@ System Requirements
 -------------------
 You need a platform that supports JDK 1.4 (and some features
 such as CORBA currently depend on Sun implementation classes and
-are known to not work under 1.5, so a Sun 1.4.x JVM would be the
+are known to not work under 1.5, so a Sun 1.4.2_08 JVM would be the
 best bet).
 
 Most testing has been done on Linux, Mac OS X, and Windows.
@@ -73,6 +73,7 @@ Significant Missing Features
 ----------------------------
  * A web management console
  * Deployment from a machine other than the server
+ * J2EE Application Client that works from a machine other than the server
  * A build that uses Tomcat by default (Tomcat can be activated as a
    manual process, but as of M5 we will be distributing both Jetty and
    Tomcat builds)
@@ -216,7 +217,7 @@ Specific Issues Addressed in M4 Release
     * [GERONIMO-521] - Maven Plugin is missing dependency to geronimo-common
     * [GERONIMO-524] - Axis module is not consistent with new jetty deployer
     * [GERONIMO-531] - XercesImpl-2.6.0.jar and DocumentBuilderFactoryImpl not found
-    * [GERONIMO-537] - NullPointerException in OpenEJBModuleBuilder.java    
+    * [GERONIMO-537] - NullPointerException in OpenEJBModuleBuilder.java
     * [GERONIMO-539] - ClassCastException at shutdown
     * [GERONIMO-540] - Unable to login to server when using jdk 1.5
     * [GERONIMO-542] - Kernel.listGBeans returns mbeans that are not gbeans
