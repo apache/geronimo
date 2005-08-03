@@ -139,11 +139,11 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
     }
 
     protected void startWebApp() throws Exception {
-        appName = setUpJAASSecureAppContext();
+        setUpJAASSecureAppContext();
     }
 
     protected void stopWebApp() throws Exception {
-        stop(appName);
+        tearDownJAASWebApp();
     }
 
     protected void setUp() throws Exception {

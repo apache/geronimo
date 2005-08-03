@@ -29,6 +29,7 @@ public class SecurityHolder implements Serializable
     private DefaultPrincipal defaultPrincipal;
     private PermissionCollection checked;
     private PermissionCollection excluded;
+    private String securityRealm;
 
     public SecurityHolder()
     {
@@ -36,6 +37,15 @@ public class SecurityHolder implements Serializable
         defaultPrincipal = null;
         checked = null;
         excluded = null;
+        securityRealm = null;
+    }
+
+    public String getSecurityRealm() {
+        return securityRealm;
+    }
+
+    public void setSecurityRealm(String securityRealm) {
+        this.securityRealm = securityRealm;
     }
 
     public PermissionCollection getChecked()

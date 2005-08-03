@@ -62,7 +62,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 public class AbstractWebModuleTest extends TestCase {
 
     protected static final String POLICY_CONTEXT_ID = "securetest";
-
+    protected static final String REALM_NAME = "usable-realm";
 
     protected Kernel kernel;
     private GBeanData container;
@@ -76,6 +76,7 @@ public class AbstractWebModuleTest extends TestCase {
     private ObjectName realmName;
     private GBeanData realm;
     private ObjectName webModuleName;
+    private ObjectName contextRealmName;
     private ObjectName tmName;
     private ObjectName ctcName;
     private GBeanData tm;
@@ -94,6 +95,8 @@ public class AbstractWebModuleTest extends TestCase {
     protected ObjectName propertiesLMName;
     protected ObjectName propertiesRealmName;
     private GBeanData propertiesRealmGBean;
+    protected ObjectName propertiesRealmName2;
+    private GBeanData propertiesRealmGBean2;
     private ObjectName serverInfoName;
     private GBeanData serverInfoGBean;
 
@@ -114,7 +117,8 @@ public class AbstractWebModuleTest extends TestCase {
         start(app);
     }
 
-    protected ObjectName setUpJAASSecureAppContext() throws Exception {
+    protected void setUpJAASSecureAppContext() throws Exception {
+        //Will use Context Level Security
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         PermissionCollection excludedPermissions= new Permissions();
@@ -127,11 +131,28 @@ public class AbstractWebModuleTest extends TestCase {
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
         start(jaccBeanData);
 
+        //Set a context level Realm and ignore the Engine level to test that
+        //the override along with a Security Realm Name set overrides the Engine
+        Map initParams = new HashMap();
+        initParams.put("userClassNames","org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        initParams.put("roleClassNames","org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        contextRealmName = NameFactory.getWebComponentName(null, null, null, null, "tomcatContextRealm", "WebResource", moduleContext);
+        GBeanData contextRealm = new GBeanData(contextRealmName, RealmGBean.GBEAN_INFO);
+        contextRealm.setAttribute("className", "org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
+        contextRealm.setAttribute("initParams", initParams);
+        start(contextRealm);
+        
+        //Force a new realm name and ignore the application name
+        SecurityHolder securityHolder = new SecurityHolder();
+        securityHolder.setSecurityRealm(REALM_NAME);
+
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
         app.setAttribute("webClassPath", new URI[]{});
+        app.setAttribute("securityHolder", securityHolder);
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("path", "/securetest");
+        app.setReferencePattern("TomcatRealm",contextRealmName);
         app.setReferencePattern("RoleDesignateSource", jaccBeanName);
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
@@ -144,8 +165,6 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("kernel", null);
 
         start(app);
-
-        return webModuleName;
     }
 
     protected ObjectName setUpSecureAppContext(Map roleDesignates,
@@ -155,6 +174,7 @@ public class AbstractWebModuleTest extends TestCase {
                                                PermissionCollection checked)
             throws Exception {
 
+        //Will use the Engine level security
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         Map contextIDToPermissionsMap = new HashMap();
@@ -169,6 +189,7 @@ public class AbstractWebModuleTest extends TestCase {
         securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
         securityHolder.setPolicyContextID(POLICY_CONTEXT_ID);
         securityHolder.setDefaultPrincipal(defaultPrincipal);
+        securityHolder.setSecurityRealm(REALM_NAME);
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("classLoader", cl);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());
@@ -236,16 +257,32 @@ public class AbstractWebModuleTest extends TestCase {
         principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
+        propertiesRealmName2 = new ObjectName("geronimo.server:j2eeType=SecurityRealm,name=geronimo-properties-realm-2");
+        propertiesRealmGBean2 = new GBeanData(propertiesRealmName2, GenericSecurityRealm.GBEAN_INFO);
+        propertiesRealmGBean2.setReferencePattern("ServerInfo", serverInfoName);
+        propertiesRealmGBean2.setAttribute("realmName", REALM_NAME);
+        propertiesRealmGBean2.setReferencePattern("LoginModuleConfiguration", testUseName);
+        Principal.PrincipalEditor principalEditor2 = new Principal.PrincipalEditor();
+        principalEditor2.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        propertiesRealmGBean2.setAttribute("defaultPrincipal", principalEditor2.getValue());
+        
         start(loginConfigurationGBean);
         start(securityServiceGBean);
         start(loginServiceGBean);
         start(propertiesLMGBean);
         start(lmUseGBean);
         start(propertiesRealmGBean);
+        start(propertiesRealmGBean2);
 
     }
-
+    
+    protected void tearDownJAASWebApp() throws Exception{
+        stop(webModuleName);
+        stop(contextRealmName);
+    }
+    
     protected void tearDownSecurity() throws Exception {
+        stop(propertiesRealmName2);
         stop(propertiesRealmName);
         stop(propertiesLMName);
         stop(loginServiceName);

@@ -27,7 +27,9 @@ import java.util.Map;
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
+import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Connector;
+import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -35,6 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
@@ -199,11 +202,29 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
             throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matchiing Host entry in the plan?");
         }
         
-        if (ctx.getRealm() != null)
-            anotherCtxObj.setRealm(ctx.getRealm());
-        else
+        //Get the security-realm-name if the is one
+        String securityRealmName = null;
+        SecurityHolder secHolder = ctx.getSecurityHolder();
+        if (secHolder != null)
+            securityRealmName = secHolder.getSecurityRealm();
+        
+        if (ctx.getRealm() != null){
+            Realm realm = ctx.getRealm();
+                       
+            //Allow for the <security-realm-name> override from the
+            //geronimo-web.xml file to be used if our Realm is a JAAS type
+            if (securityRealmName != null){
+                if (realm instanceof JAASRealm){
+                    ((JAASRealm)realm).setAppName(secHolder.getSecurityRealm());
+                }
+            }
+            anotherCtxObj.setRealm(realm);
+        } else {
+            if (securityRealmName != null){
+                log.warn("security-realm-name was specified but no RealmGBean was configured for this context.  Ignoring security-realm-name.");
+            }
             anotherCtxObj.setRealm(host.getRealm());
-            
+        }            
 
         host.addChild(anotherCtxObj);
     }
