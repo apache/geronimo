@@ -478,7 +478,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             if (tomcatWebApp.isSetSecurityRealmName()) {
 
                 SecurityHolder securityHolder = new SecurityHolder();
-//                String securityRealmName = tomcatWebApp.getSecurityRealmName().trim();
+                securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
 
                 /**
                  * TODO - go back to commented version when possible.
