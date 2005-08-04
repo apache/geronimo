@@ -70,7 +70,7 @@ public class ServerConnection {
         return OPTION_HELP;
     }
 
-    private final static String DEFAULT_URI = "deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector";
+    private final static String DEFAULT_URI = "deployer:geronimo:jmx:rmi:///jndi/rmi://localhost:1099/JMXConnector";
     
     private DeploymentManager manager;
     private KernelWrapper kernel;
