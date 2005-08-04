@@ -51,8 +51,8 @@ public class ServerConnection {
                 "Geronimo server running on the standard port on localhost, or if nothing " +
                 "is available there, then the Geronimo server installation that the " +
                 "deployer JAR is part of.\n" +
-                "A URI to connect to Geronimo has the form: " +
-                "deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector");
+                "A URI to connect to Geronimo (including optional host and port parameters) has the form: " +
+                "deployer:geronimo:jmx:rmi:///jndi/rmi:[//host[:port]]/JMXConnector");
         OPTION_HELP.put("--driver", "If you want to use this tool with a server other than Geronimo, " +
                 "then you must provide the path to its driver JAR.  Currently, manifest " +
                 "Class-Path entries in that JAR are ignored.");
