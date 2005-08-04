@@ -132,9 +132,11 @@ public class PropertiesFileLoginModule implements LoginModule {
         if(username == null || username.equals("")) {
             return false;
         }
-        password = users.getProperty(username);
-
-        return new String(((PasswordCallback) callbacks[1]).getPassword()).equals(password);
+        String realPassword = users.getProperty(username);
+        char[] entered = ((PasswordCallback) callbacks[1]).getPassword();
+        password = entered == null ? null : new String(entered);
+        return (realPassword == null && password == null) ||
+                (realPassword != null && password != null && realPassword.equals(password));
     }
 
     public boolean commit() throws LoginException {

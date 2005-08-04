@@ -103,7 +103,8 @@ public class SQLLoginModule implements LoginModule {
         if(cbUsername == null || cbUsername.equals("")) {
             return false;
         }
-        cbPassword = new String(((PasswordCallback) callbacks[1]).getPassword());
+        char[] provided = ((PasswordCallback) callbacks[1]).getPassword();
+        cbPassword = provided == null ? null : new String(provided);
 
         boolean found = false;
         try {
@@ -119,7 +120,8 @@ public class SQLLoginModule implements LoginModule {
                             String userName = result.getString(1);
                             String userPassword = result.getString(2);
 
-                            if (cbUsername.equals(userName) && cbPassword.equals(userPassword)) {
+                            if (cbUsername.equals(userName) && ((cbPassword == null && userPassword == null) ||
+                                     (cbPassword != null && userPassword != null && cbPassword.equals(userPassword)))) {
                                 found = true;
                                 break;
                             }

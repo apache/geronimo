@@ -24,6 +24,7 @@ import java.util.Properties;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
@@ -151,5 +152,25 @@ public class LoginSQLTest extends AbstractTest {
         assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);
 
         context.logout();
+    }
+
+    public void testNullUserLogin() throws Exception {
+        LoginContext context = new LoginContext("sql", new UsernamePasswordCallback(null, "starcraft"));
+
+        try {
+            context.login();
+            fail("Should not allow this login with null username");
+        } catch (LoginException e) {
+        }
+    }
+
+    public void testNullPasswordLogin() throws Exception {
+        LoginContext context = new LoginContext("sql", new UsernamePasswordCallback("alan", null));
+
+        try {
+            context.login();
+            fail("Should not allow this login with null password");
+        } catch (LoginException e) {
+        }
     }
 }
