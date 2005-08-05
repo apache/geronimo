@@ -50,11 +50,12 @@
             <artifactId>pluto</artifactId>
             <version>${pluto_version}</version>
          </dependency>
-         <dependency>
+        <dependency>
             <groupId>pluto</groupId>
-            <artifactId>pluto-portal</artifactId>
+            <artifactId>pluto-driver</artifactId>
+            <type>war</type>
             <version>${pluto_version}</version>
-        </dependency>
+         </dependency>
         <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>

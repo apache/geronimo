@@ -107,11 +107,6 @@
             <version>${pluto_version}</version>
         </dependency>
         <dependency>
-            <groupId>pluto</groupId>
-            <artifactId>pluto-portal</artifactId>
-            <version>${pluto_version}</version>
-        </dependency>
-        <dependency>
             <groupId>castor</groupId>
             <artifactId>castor</artifactId>
             <version>${castor_version}</version>

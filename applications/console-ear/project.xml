@@ -33,12 +33,6 @@
             <version>${pluto_version}</version>
         </dependency>
 
-         <dependency>
-            <groupId>pluto</groupId>
-            <artifactId>pluto-portal</artifactId>
-            <version>${pluto_version}</version>
-        </dependency>
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-console-core</artifactId>

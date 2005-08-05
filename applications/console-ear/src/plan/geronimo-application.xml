@@ -11,12 +11,7 @@
     <dependency>
         <uri>pluto/jars/pluto-${pluto_version}.jar</uri>
     </dependency>
-    <dependency>
-        <uri>pluto/jars/pluto-portal-${pluto_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>castor/jars/castor-${castor_version}.jar</uri>
-    </dependency>
+
 	<!-- Active MQ dependencies -->
     <dependency>
         <uri>activemq/jars/activemq-core-${activemq_version}.jar</uri>

@@ -1190,6 +1190,44 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>ear</type>
+            <properties>
+                <repository>true</repository>
+                <installer>true</installer>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console-core</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>portlet-api</groupId>
+            <artifactId>portlet-api</artifactId>
+            <version>${portlet_api_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>pluto</groupId>
+            <artifactId>pluto</artifactId>
+            <version>${pluto_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
         <!-- JBI ServiceMix -->
         <dependency>
             <groupId>geronimo</groupId>

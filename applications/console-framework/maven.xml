@@ -6,6 +6,14 @@
     xmlns:velocity="jelly:velocity"
     xmlns:util="jelly:util">
 
+    <postGoal name="war:war">
+        <ant:unjar dest="${basedir}/target/${pom.artifactId}" src="${maven.repo.local}/pluto/wars/pluto-driver-${pluto_version}.war" overwrite="true">
+           <patternset>
+              <include name="WEB-INF/classes/**"/>
+           </patternset>
+        </ant:unjar>
+    </postGoal>
+    
     <preGoal name="war:install">
         <attainGoal name="preCompile"/>
     </preGoal>
@@ -26,7 +34,7 @@
     <goal name="preCompile">
         <ant:path id="jspc.classpath">
             <ant:path refid="maven.dependency.classpath"/>
-            <ant:pathelement path="${maven.build.dest}"/>
+            <ant:pathelement path="${basedir}/target/${pom.artifactId}/WEB-INF/classes"/>
         </ant:path>
         <ant:echo>Pre-compiling JSPs from ${basedir}/src/webapp to ${outDir}.</ant:echo>
         <ant:java classname="org.apache.jasper.JspC" fork="true" failonerror="true" classpathref="jspc.classpath">
