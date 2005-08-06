@@ -19,7 +19,6 @@ package org.apache.geronimo.console.webmanager;
 
 import java.io.IOException;
 
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
@@ -30,34 +29,32 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import org.apache.geronimo.console.util.ObjectNameConstants;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
+import org.apache.geronimo.jetty.JettyContainer;
 
 public class WebManagerPortlet extends GenericPortlet {
-
-    private Kernel kernel;
-
     private PortletRequestDispatcher normalView;
 
     private PortletRequestDispatcher maximizedView;
 
     private PortletRequestDispatcher helpView;
 
-    private ObjectName jettyObjectName;
-
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         try {
+            WebContainer container = PortletManager.getCurrentWebContainer(actionRequest);
             String action = actionRequest.getParameter("stats");
             if (action != null) {
-                Boolean stats = Boolean.valueOf(action);
-                kernel
-                        .setAttribute(jettyObjectName, "collectStatistics",
-                                stats);
+                boolean stats = action.equals("true");
+                if(container instanceof JettyContainer) {
+                    ((JettyContainer)container).setCollectStatistics(stats);
+                }
             }
             if (actionRequest.getParameter("resetStats") != null) {
-                kernel.invoke(jettyObjectName, "resetStatistics");
+                if(container instanceof JettyContainer) {
+                    ((JettyContainer)container).resetStatistics();
+                }
             }
         } catch (Exception e) {
             throw new PortletException(e);
@@ -70,42 +67,26 @@ public class WebManagerPortlet extends GenericPortlet {
             return;
         }
         try {
-            Boolean statsOn = (Boolean) kernel.getAttribute(jettyObjectName,
-                    "collectStatistics");
-            renderRequest.setAttribute("statsOn", statsOn);
-            if (statsOn.booleanValue()) {
-                renderRequest.setAttribute("connections", (Integer) kernel
-                        .getAttribute(jettyObjectName, "connections"));
-                renderRequest.setAttribute("connectionsOpen", (Integer) kernel
-                        .getAttribute(jettyObjectName, "connectionsOpen"));
-                renderRequest.setAttribute("connectionsOpenMax",
-                        (Integer) kernel.getAttribute(jettyObjectName,
-                                "connectionsOpenMax"));
-                renderRequest.setAttribute("connectionsDurationAve",
-                        (Long) kernel.getAttribute(jettyObjectName,
-                                "connectionsDurationAve"));
-                renderRequest.setAttribute("connectionsDurationMax",
-                        (Long) kernel.getAttribute(jettyObjectName,
-                                "connectionsDurationMax"));
-                renderRequest.setAttribute("connectionsRequestsAve",
-                        (Integer) kernel.getAttribute(jettyObjectName,
-                                "connectionsRequestsAve"));
-                renderRequest.setAttribute("connectionsRequestsMax",
-                        (Integer) kernel.getAttribute(jettyObjectName,
-                                "connectionsRequestsMax"));
-                renderRequest.setAttribute("errors", (Integer) kernel
-                        .getAttribute(jettyObjectName, "errors"));
-                renderRequest.setAttribute("requests", (Integer) kernel
-                        .getAttribute(jettyObjectName, "requests"));
-                renderRequest.setAttribute("requestsActive", (Integer) kernel
-                        .getAttribute(jettyObjectName, "requestsActive"));
-                renderRequest.setAttribute("requestsActiveMax",
-                        (Integer) kernel.getAttribute(jettyObjectName,
-                                "requestsActiveMax"));
-                renderRequest.setAttribute("requestsDurationAve", (Long) kernel
-                        .getAttribute(jettyObjectName, "requestsDurationAve"));
-                renderRequest.setAttribute("requestsDurationMax", (Long) kernel
-                        .getAttribute(jettyObjectName, "requestsDurationMax"));
+            WebContainer container = PortletManager.getCurrentWebContainer(renderRequest);
+            if(container instanceof JettyContainer) {
+                JettyContainer jetty = ((JettyContainer)container);
+                boolean statsOn = jetty.getCollectStatistics();
+                renderRequest.setAttribute("statsOn", statsOn ? Boolean.TRUE : Boolean.FALSE);
+                if (statsOn) {
+                    renderRequest.setAttribute("connections", new Integer(jetty.getConnections()));
+                    renderRequest.setAttribute("connectionsOpen", new Integer(jetty.getConnectionsOpen()));
+                    renderRequest.setAttribute("connectionsOpenMax", new Integer(jetty.getConnectionsOpenMax()));
+                    renderRequest.setAttribute("connectionsDurationAve", new Long(jetty.getConnectionsDurationAve()));
+                    renderRequest.setAttribute("connectionsDurationMax", new Long(jetty.getConnectionsDurationMax()));
+                    renderRequest.setAttribute("connectionsRequestsAve", new Integer(jetty.getConnectionsRequestsAve()));
+                    renderRequest.setAttribute("connectionsRequestsMax", new Integer(jetty.getConnectionsRequestsMax()));
+                    renderRequest.setAttribute("errors", new Integer(jetty.getErrors()));
+                    renderRequest.setAttribute("requests", new Integer(jetty.getRequests()));
+                    renderRequest.setAttribute("requestsActive", new Integer(jetty.getRequestsActive()));
+                    renderRequest.setAttribute("requestsActiveMax", new Integer(jetty.getRequestsActiveMax()));
+                    renderRequest.setAttribute("requestsDurationAve", new Long(jetty.getRequestsDurationAve()));
+                    renderRequest.setAttribute("requestsDurationMax", new Long(jetty.getRequestsDurationMax()));
+                }
             }
         } catch (Exception e) {
             throw new PortletException(e);
@@ -124,13 +105,6 @@ public class WebManagerPortlet extends GenericPortlet {
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
-        kernel = KernelRegistry.getSingleKernel();
-        try {
-            jettyObjectName = new ObjectName(
-                    ObjectNameConstants.WEBCONTAINER_OBJECT_NAME);
-        } catch (Exception e) {
-            throw new AssertionError();
-        }
 
         normalView = portletConfig.getPortletContext().getRequestDispatcher(
                 "/WEB-INF/view/webmanager/normal.jsp");
@@ -143,7 +117,6 @@ public class WebManagerPortlet extends GenericPortlet {
     public void destroy() {
         normalView = null;
         maximizedView = null;
-        kernel = null;
         super.destroy();
     }
 

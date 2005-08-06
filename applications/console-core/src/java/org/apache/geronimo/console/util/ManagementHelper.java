@@ -17,7 +17,6 @@
 package org.apache.geronimo.console.util;
 
 import org.apache.geronimo.j2ee.management.J2EEDomain;
-import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.J2EEDeployedObject;
 import org.apache.geronimo.j2ee.management.J2EEResource;
 import org.apache.geronimo.j2ee.management.AppClientModule;
@@ -37,7 +36,13 @@ import org.apache.geronimo.j2ee.management.Servlet;
 import org.apache.geronimo.j2ee.management.ResourceAdapter;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
 import org.apache.geronimo.j2ee.management.geronimo.J2EEApplication;
+import org.apache.geronimo.j2ee.management.geronimo.J2EEServer;
+import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
+import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
+import org.apache.geronimo.j2ee.management.geronimo.EJBConnector;
+import org.apache.geronimo.j2ee.management.geronimo.EJBContainer;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -65,6 +70,13 @@ public interface ManagementHelper {
     JDBCResource[] getJDBCResources(J2EEServer server);
     JMSResource[] getJMSResources(J2EEServer server);
     JVM[] getJavaVMs(J2EEServer server);
+    WebContainer getWebContainer(J2EEServer server);
+    WebConnector[] getWebConnectors(WebContainer container, String protocol);
+    WebConnector[] getWebConnectors(WebContainer container);
+    EJBContainer getEJBContainer(J2EEServer server);
+    EJBConnector[] getEJBConnectors(EJBContainer container, String protocol);
+    EJBConnector[] getEJBConnectors(EJBContainer container);
+    GeronimoExecutor[] getThreadPools(J2EEServer server);
     //todo: repository, embedded database
 
     // JVM properties
@@ -94,4 +106,8 @@ public interface ManagementHelper {
     JDBCDriver[] getDriver(JDBCDataSource dataSource);
     JCAConnectionFactory[] getConnectionFactories(JCAResource resource);
     JCAManagedConnectionFactory getManagedConnectionFactory(JCAConnectionFactory factory);
+
+    // Generic utility methods
+    Object getObject(String objectName);
+    String getGBeanDescription(String objectName);
 }

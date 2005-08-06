@@ -24,18 +24,33 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.management.State;
 
 public class ConnectorInfo implements Serializable {
-
-    private ObjectName objectName;
-
+    private String description;
+    private String objectName;
+    private String protocol;
     private int port;
-
     private int state;
 
-    public ObjectName getObjectName() {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getObjectName() {
         return objectName;
     }
 
-    public void setObjectName(ObjectName objectName) {
+    public void setObjectName(String objectName) {
         this.objectName = objectName;
     }
 

@@ -23,8 +23,12 @@ import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
 import org.apache.geronimo.j2ee.management.geronimo.J2EEApplication;
+import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
+import org.apache.geronimo.j2ee.management.geronimo.J2EEServer;
+import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
+import org.apache.geronimo.j2ee.management.geronimo.EJBContainer;
+import org.apache.geronimo.j2ee.management.geronimo.EJBConnector;
 import org.apache.geronimo.j2ee.management.J2EEDomain;
-import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.J2EEDeployedObject;
 import org.apache.geronimo.j2ee.management.AppClientModule;
 import org.apache.geronimo.j2ee.management.WebModule;
@@ -45,8 +49,10 @@ import org.apache.geronimo.j2ee.management.JCAManagedConnectionFactory;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -74,7 +80,7 @@ public class KernelManagementHelper implements ManagementHelper {
             try {
                 domains[i] = (J2EEDomain)kernel.getProxyManager().createProxy(ObjectName.getInstance(names[i]), J2EEDomain.class);
             } catch (MalformedObjectNameException e) {
-                log.error(e);
+                log.error("Unable to look up related GBean", e);
             }
         }
         return domains;
@@ -84,11 +90,11 @@ public class KernelManagementHelper implements ManagementHelper {
         J2EEServer[] servers = new J2EEServer[0];
         try {
             String[] names = domain.getServers();
-            Object[] temp = pm.createProxies(names);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             servers = new J2EEServer[temp.length];
             System.arraycopy(temp, 0, servers, 0, temp.length);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return servers;
     }
@@ -97,11 +103,11 @@ public class KernelManagementHelper implements ManagementHelper {
         J2EEDeployedObject[] result = new J2EEDeployedObject[0];
         try {
             String[] names = server.getDeployedObjects();
-            Object[] temp = pm.createProxies(names);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new J2EEDeployedObject[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return result;
     }
@@ -114,11 +120,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.J2EE_APPLICATION)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (J2EEApplication[]) list.toArray(new J2EEApplication[list.size()]);
     }
@@ -131,11 +137,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.APP_CLIENT_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (AppClientModule[]) list.toArray(new AppClientModule[list.size()]);
     }
@@ -148,11 +154,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.WEB_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (WebModule[]) list.toArray(new WebModule[list.size()]);
     }
@@ -165,11 +171,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.EJB_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (EJBModule[]) list.toArray(new EJBModule[list.size()]);
     }
@@ -182,11 +188,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.RESOURCE_ADAPTER_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
     }
@@ -195,11 +201,11 @@ public class KernelManagementHelper implements ManagementHelper {
         J2EEResource[] result = new J2EEResource[0];
         try {
             String[] names = server.getResources();
-            Object[] temp = pm.createProxies(names);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new J2EEResource[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return result;
     }
@@ -215,7 +221,7 @@ public class KernelManagementHelper implements ManagementHelper {
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (JCAResource[]) list.toArray(new JCAResource[list.size()]);
     }
@@ -232,11 +238,100 @@ public class KernelManagementHelper implements ManagementHelper {
         JVM[] result = new JVM[0];
         try {
             String[] names = server.getJavaVMs();
-            Object[] temp = pm.createProxies(names);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JVM[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public WebContainer getWebContainer(J2EEServer server) {
+        WebContainer result = null;
+        try {
+            String name = server.getWebContainer();
+            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+            result = (WebContainer)temp;
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public WebConnector[] getWebConnectors(WebContainer container, String protocol) {
+        WebConnector[] result = new WebConnector[0];
+        try {
+            String[] names = container.getConnectors(protocol);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new WebConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public WebConnector[] getWebConnectors(WebContainer container) {
+        WebConnector[] result = new WebConnector[0];
+        try {
+            String[] names = container.getConnectors();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new WebConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public EJBContainer getEJBContainer(J2EEServer server) {
+        EJBContainer result = null;
+        try {
+            String name = server.getEJBContainer();
+            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+            result = (EJBContainer)temp;
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public EJBConnector[] getEJBConnectors(EJBContainer container, String protocol) {
+        EJBConnector[] result = new EJBConnector[0];
+        try {
+            String[] names = container.getConnectors(protocol);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new EJBConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public EJBConnector[] getEJBConnectors(EJBContainer container) {
+        EJBConnector[] result = new EJBConnector[0];
+        try {
+            String[] names = container.getConnectors();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new EJBConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public GeronimoExecutor[] getThreadPools(J2EEServer server) {
+        GeronimoExecutor[] result = new GeronimoExecutor[0];
+        try {
+            String[] names = server.getThreadPools();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new GeronimoExecutor[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
         }
         return result;
     }
@@ -245,10 +340,10 @@ public class KernelManagementHelper implements ManagementHelper {
         SystemLog result = null;
         try {
             String name = jvm.getSystemLog();
-            Object temp = pm.createProxy(ObjectName.getInstance(name));
+            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
             result = (SystemLog)temp;
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return result;
     }
@@ -258,11 +353,11 @@ public class KernelManagementHelper implements ManagementHelper {
         J2EEModule[] result = new J2EEModule[0];
         try {
             String[] names = application.getModules();
-            Object[] temp = pm.createProxies(names);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new J2EEModule[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return result;
     }
@@ -275,11 +370,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.APP_CLIENT_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (AppClientModule[]) list.toArray(new AppClientModule[list.size()]);
     }
@@ -292,11 +387,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.WEB_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (WebModule[]) list.toArray(new WebModule[list.size()]);
     }
@@ -309,11 +404,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.EJB_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (EJBModule[]) list.toArray(new EJBModule[list.size()]);
     }
@@ -326,11 +421,11 @@ public class KernelManagementHelper implements ManagementHelper {
                 ObjectName name = ObjectName.getInstance(names[i]);
                 String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
                 if(type.equals(NameFactory.RESOURCE_ADAPTER_MODULE)) {
-                    list.add(pm.createProxy(name));
+                    list.add(pm.createProxy(name, KernelManagementHelper.class.getClassLoader()));
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
     }
@@ -340,11 +435,11 @@ public class KernelManagementHelper implements ManagementHelper {
         J2EEResource[] result = new J2EEResource[0];
         try {
             String[] names = application.getResources();
-            Object[] temp = pm.createProxies(names);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new J2EEResource[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return result;
     }
@@ -360,7 +455,7 @@ public class KernelManagementHelper implements ManagementHelper {
                 }
             }
         } catch (Exception e) {
-            log.error(e);
+            log.error("Unable to look up related GBean", e);
         }
         return (JCAResource[]) list.toArray(new JCAResource[list.size()]);
     }
@@ -406,6 +501,25 @@ public class KernelManagementHelper implements ManagementHelper {
 
     public JCAManagedConnectionFactory getManagedConnectionFactory(JCAConnectionFactory factory) {
         return null;  //todo
+    }
+
+    public Object getObject(String objectName) {
+        try {
+            return kernel.getProxyManager().createProxy(ObjectName.getInstance(objectName), KernelManagementHelper.class.getClassLoader());
+        } catch (MalformedObjectNameException e) {
+            log.error("Unable to look up related GBean", e);
+            return null;
+        }
+    }
+
+    public String getGBeanDescription(String objectName) {
+        try {
+            return kernel.getGBeanInfo(ObjectName.getInstance(objectName)).getName();
+        } catch (GBeanNotFoundException e) {
+            return null;
+        } catch (MalformedObjectNameException e) {
+            return "Invalid object name";
+        }
     }
 
     /**

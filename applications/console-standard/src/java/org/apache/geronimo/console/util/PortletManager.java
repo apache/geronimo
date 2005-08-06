@@ -23,9 +23,14 @@ import javax.naming.NamingException;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.management.J2EEDomain;
-import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.geronimo.JVM;
+import org.apache.geronimo.j2ee.management.geronimo.J2EEServer;
+import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
+import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
+import org.apache.geronimo.j2ee.management.geronimo.EJBContainer;
+import org.apache.geronimo.j2ee.management.geronimo.EJBConnector;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,6 +44,8 @@ public class PortletManager {
     private final static String DOMAIN_KEY = "org.apache.geronimo.console.J2EEDomain";
     private final static String SERVER_KEY = "org.apache.geronimo.console.J2EEServer";
     private final static String JVM_KEY = "org.apache.geronimo.console.JVM";
+    private final static String WEB_CONTAINER_KEY = "org.apache.geronimo.console.WebContainer";
+    private final static String EJB_CONTAINER_KEY = "org.apache.geronimo.console.EJBContainer";
     private final static String SYSTEM_LOG_KEY = "org.apache.geronimo.console.SystemLog";
     // The following may change based on the user's selections
         // nothing yet
@@ -95,6 +102,70 @@ public class PortletManager {
             request.getPortletSession().setAttribute(JVM_KEY, jvm, PortletSession.APPLICATION_SCOPE);
         }
         return jvm;
+    }
+
+    public static WebContainer getCurrentWebContainer(PortletRequest request) {
+        WebContainer container = (WebContainer) request.getPortletSession(true).getAttribute(WEB_CONTAINER_KEY, PortletSession.APPLICATION_SCOPE);
+        if(container == null) {
+            ManagementHelper helper = getManagementHelper(request);
+            container = helper.getWebContainer(getCurrentServer(request));
+            request.getPortletSession().setAttribute(WEB_CONTAINER_KEY, container, PortletSession.APPLICATION_SCOPE);
+        }
+        return container;
+    }
+
+    public static WebConnector createWebConnector(PortletRequest request, String name, String protocol, String host, int port) {
+        WebContainer container = getCurrentWebContainer(request);
+        String objectName = container.addConnector(name, protocol, host, port);
+        ManagementHelper helper = getManagementHelper(request);
+        return (WebConnector)helper.getObject(objectName);
+    }
+
+    public static WebConnector[] getWebConnectors(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getWebConnectors(getCurrentWebContainer(request));
+    }
+
+    public static WebConnector[] getWebConnectors(PortletRequest request, String protocol) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getWebConnectors(getCurrentWebContainer(request),protocol);
+    }
+
+    public static EJBContainer getCurrentEJBContainer(PortletRequest request) {
+        EJBContainer container = (EJBContainer) request.getPortletSession(true).getAttribute(EJB_CONTAINER_KEY, PortletSession.APPLICATION_SCOPE);
+        if(container == null) {
+            ManagementHelper helper = getManagementHelper(request);
+            container = helper.getEJBContainer(getCurrentServer(request));
+            request.getPortletSession().setAttribute(EJB_CONTAINER_KEY, container, PortletSession.APPLICATION_SCOPE);
+        }
+        return container;
+    }
+
+    public static EJBConnector createEJBConnector(PortletRequest request, String name, String protocol, String threadPoolObjectName, String host, int port) {
+        EJBContainer container = getCurrentEJBContainer(request);
+        String objectName = container.addConnector(name, protocol, threadPoolObjectName, host, port);
+        ManagementHelper helper = getManagementHelper(request);
+        return (EJBConnector)helper.getObject(objectName);
+    }
+
+    public static EJBConnector[] getEJBConnectors(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getEJBConnectors(getCurrentEJBContainer(request));
+    }
+
+    public static EJBConnector[] getEJBConnectors(PortletRequest request, String protocol) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getEJBConnectors(getCurrentEJBContainer(request), protocol);
+    }
+
+    public static GeronimoExecutor[] getThreadPools(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getThreadPools(getCurrentServer(request));
+    }
+
+    public static String getGBeanDescription(PortletRequest request, String objectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getGBeanDescription(objectName);
     }
 
     public static SystemLog getCurrentSystemLog(PortletRequest request) {

@@ -265,9 +265,9 @@ limitations under the License.
     </portlet>
 
     <portlet>
-        <description>Portlet for managing AJP13 connectors</description>
+        <description>Portlet for managing Network Listeners</description>
         <portlet-name>AJP13ConnectorManager</portlet-name>
-        <display-name>AJP13 Connector Mangement Portlet</display-name>
+        <display-name>Network Listener Portlet</display-name>
 
         <portlet-class>org.apache.geronimo.console.webmanager.AJP13ManagerPortlet</portlet-class>
 
@@ -282,9 +282,9 @@ limitations under the License.
         <supported-locale>en</supported-locale>
 
         <portlet-info>
-            <title>AJP13 Connectors</title>
-            <short-title>AJP13 Connectors</short-title>
-            <keywords>AJP13 Connectors</keywords>
+            <title>Network Listeners</title>
+            <short-title>Listeners</short-title>
+            <keywords>HTTP HTTPS AJP Network Listeners Connectors</keywords>
         </portlet-info>
     </portlet>
 
