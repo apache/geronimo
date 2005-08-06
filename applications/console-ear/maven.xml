@@ -4,6 +4,10 @@
     xmlns:velocity="jelly:velocity"
     >
 
+    <goal name="default">
+        <attainGoal name="ear:install"/>
+    </goal>
+
     <pre-goal name="ear:ear">
         <ant:mkdir dir="${basedir}/target/plan"/>        
         <velocity:merge basedir="${basedir}/src/application/META-INF" template="application.xml" name="${basedir}/target/plan/application.xml"/>
