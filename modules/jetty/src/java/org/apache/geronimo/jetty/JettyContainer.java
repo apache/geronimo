@@ -21,11 +21,12 @@ import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.RequestLog;
 import org.mortbay.http.UserRealm;
+import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 
 /**
  * @version $Rev$ $Date$
  */
-public interface JettyContainer {
+public interface JettyContainer extends WebContainer {
     void addListener(HttpListener listener);
 
     void removeListener(HttpListener listener);

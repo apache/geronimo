@@ -30,11 +30,11 @@ public class HTTPConnectorTest extends TestCase {
     public void testAddress() throws UnknownHostException {
         connector.setHost("localhost");
         connector.setPort(1234);
-        assertEquals(new InetSocketAddress("localhost", 1234), connector.getAddress());
+        assertEquals(new InetSocketAddress("localhost", 1234), connector.getListenAddress());
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        connector = new HTTPConnector(null);
+        connector = new HTTPConnector(null, "foo:bar=baz", null);
     }
 }

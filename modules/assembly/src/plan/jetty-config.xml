@@ -53,7 +53,7 @@ by the server.
         <attribute name="password">secret</attribute>
         <attribute name="keyPassword">secret</attribute>
         <attribute name="needClientAuth">false</attribute>
-        <attribute name="protocol">TLS</attribute>
+        <attribute name="secureProtocol">TLS</attribute>
         <attribute name="maxThreads">50</attribute>
         <attribute name="minThreads">10</attribute>
         <reference name="JettyContainer"><name>WebContainer</name></reference>

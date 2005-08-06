@@ -24,8 +24,10 @@ import org.mortbay.http.SslListener;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Implementation of a HTTPS connector based on Jetty's SslConnector (which uses pure JSSE).
@@ -38,10 +40,14 @@ public class HTTPSConnector extends JettyConnector {
     private String keystore;
     private String algorithm;
 
-    public HTTPSConnector(JettyContainer container, ServerInfo serverInfo) {
-        super(container, new SslListener());
+    public HTTPSConnector(JettyContainer container, ServerInfo serverInfo, String objectName, Kernel kernel) {
+        super(container, new SslListener(), objectName, kernel);
         this.serverInfo = serverInfo;
         https = (SslListener) listener;
+    }
+
+    public String getProtocol() {
+        return WebContainer.PROTOCOL_HTTPS;
     }
 
     public String getKeystore() {
@@ -82,11 +88,11 @@ public class HTTPSConnector extends JettyConnector {
         https.setKeyPassword(password);
     }
 
-    public String getProtocol() {
+    public String getSecureProtocol() {
         return https.getProtocol();
     }
 
-    public void setProtocol(String protocol) {
+    public void setSecureProtocol(String protocol) {
         https.setProtocol(protocol);
     }
 
@@ -121,9 +127,9 @@ public class HTTPSConnector extends JettyConnector {
         infoFactory.addAttribute("keystoreType", String.class, true);
         infoFactory.addAttribute("needClientAuth", boolean.class, true);
         infoFactory.addAttribute("password", String.class, true);
-        infoFactory.addAttribute("protocol", String.class, true);
+        infoFactory.addAttribute("secureProtocol", String.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo", "objectName", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

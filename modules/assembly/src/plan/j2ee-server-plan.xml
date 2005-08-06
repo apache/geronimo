@@ -228,7 +228,7 @@ by the server.
     <gbean gbeanName="openejb:type=NetworkService,name=EJB" class="org.openejb.server.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
-        <attribute name="address">${PlanServerHostname}</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="allowHosts">${PlanClientAddresses}</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
