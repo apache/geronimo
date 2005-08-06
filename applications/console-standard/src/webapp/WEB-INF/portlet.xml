@@ -561,7 +561,7 @@ limitations under the License.
         <portlet-name>EARModules</portlet-name>
         <display-name>EAR Modules Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 
@@ -578,6 +578,12 @@ limitations under the License.
             <short-title>EAR Modules</short-title>
             <keywords>Application EAR Module</keywords>
         </portlet-info>
+        
+        <init-param>
+            <name>config-type</name>
+            <value>EAR</value>
+        </init-param>
+        
     </portlet>
 
     <portlet>
@@ -585,7 +591,7 @@ limitations under the License.
         <portlet-name>WARModules</portlet-name>
         <display-name>WAR Modules Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 
@@ -602,6 +608,11 @@ limitations under the License.
             <short-title>WAR Modules</short-title>
             <keywords>Web Application WAR Module</keywords>
         </portlet-info>
+        
+        <init-param>
+            <name>config-type</name>
+            <value>WAR</value>
+        </init-param>
     </portlet>
 
     <portlet>
@@ -609,7 +620,7 @@ limitations under the License.
         <portlet-name>EJBModules</portlet-name>
         <display-name>EJB Modules Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 
@@ -626,6 +637,11 @@ limitations under the License.
             <short-title>EJB Modules</short-title>
             <keywords>EJB JAR Module</keywords>
         </portlet-info>
+        
+        <init-param>
+            <name>config-type</name>
+            <value>EJB</value>
+        </init-param>
     </portlet>
 
     <portlet>
@@ -633,7 +649,7 @@ limitations under the License.
         <portlet-name>RARModules</portlet-name>
         <display-name>RAR Modules Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 
@@ -650,6 +666,11 @@ limitations under the License.
             <short-title>RAR Modules</short-title>
             <keywords>J2EE Connector RAR Module</keywords>
         </portlet-info>
+        
+        <init-param>
+            <name>config-type</name>
+            <value>RAR</value>
+        </init-param>
     </portlet>
 
     <portlet>
@@ -657,7 +678,7 @@ limitations under the License.
         <portlet-name>ClientModules</portlet-name>
         <display-name>Client Modules Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 
@@ -674,6 +695,11 @@ limitations under the License.
             <short-title>Client Modules</short-title>
             <keywords>Application Client JAR Module</keywords>
         </portlet-info>
+        
+        <init-param>
+            <name>config-type</name>
+            <value>CAR</value>
+        </init-param>        
     </portlet>
 
     <portlet>
@@ -681,7 +707,7 @@ limitations under the License.
         <portlet-name>SystemModules</portlet-name>
         <display-name>System Modules Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.configmanager.ConfigManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 
@@ -698,6 +724,11 @@ limitations under the License.
             <short-title>System Modules</short-title>
             <keywords>System Module</keywords>
         </portlet-info>
+
+        <init-param>
+            <name>config-type</name>
+            <value>SERVICE</value>
+        </init-param>
     </portlet>
 
 <!-- Security Tab -->

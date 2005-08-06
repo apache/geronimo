@@ -66,6 +66,8 @@ public class ConfigManagerPortlet extends GenericPortlet {
 
     private static final String QUEUETOPIC_URI = "runtimedestination/";
 
+    private static final String CONFIG_INIT_PARAM = "config-type";
+    
     private static final ObjectName deployer = JMXUtil
             .getObjectName(ObjectNameConstants.DEPLOYER_OBJECT_NAME);
 
@@ -134,7 +136,7 @@ public class ConfigManagerPortlet extends GenericPortlet {
             throw new PortletException("Exception", e);
         }
     }
-
+	
     /**
      * Uninstall an application configuration
      *
@@ -175,6 +177,15 @@ public class ConfigManagerPortlet extends GenericPortlet {
             }
         }
     }
+    /**
+     * Check if a configuration should be listed here. This method depends on the "config-type" portlet parameter 
+     * which is set in portle.xml.
+     */
+    private boolean shouldListConfig(ConfigurationInfo info){
+	    String configType = getInitParameter(CONFIG_INIT_PARAM);
+	    if(configType!=null && !info.getType().getName().equalsIgnoreCase(configType)) return false;
+	    else return true;
+    }
 
     /*
      * private URI getConfigID(ActionRequest actionRequest) throws
@@ -205,7 +216,7 @@ public class ConfigManagerPortlet extends GenericPortlet {
                 List infos = configManager.listConfigurations(storeName);
                 for (Iterator j = infos.iterator(); j.hasNext();) {
                     ConfigurationInfo info = (ConfigurationInfo) j.next();
-                    if (!EXCLUDED.contains(info.getConfigID())) {
+                    if (shouldListConfig(info)) {
                         // TODO: Check if this is the right solution
                         // Disregard JMS Queues and Topics &&
                         if (!info.getConfigID().getPath().startsWith(
@@ -225,7 +236,7 @@ public class ConfigManagerPortlet extends GenericPortlet {
             }
         }
         renderRequest.setAttribute("configurations", configInfo);
-        messageInstalled = configInfo.size() == 0 ? "No Installed Applications<br /><br />"
+        messageInstalled = configInfo.size() == 0 ? "No modules found of this type<br /><br />"
                 : "";
         renderRequest.setAttribute("messageInstalled", messageInstalled);
         renderRequest.setAttribute("messageStatus", messageStatus);
