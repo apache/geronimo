@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.j2ee.management.geronimo;
 
-import java.net.InetSocketAddress;
-
 /**
  * The common configuration settings for a web container network connector --
  * that is, the protocol and network settings used to connect to the web
@@ -28,35 +26,7 @@ import java.net.InetSocketAddress;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface WebConnector {
-    /**
-     * Gets the network port that this connector listens on.
-     */
-    public int getPort();
-    /**
-     * Sets the network port that this connector listens on.
-     */
-    public void setPort(int port);
-    /**
-     * Gets the hostname/IP that this connector listens on.
-     */
-    public String getHost();
-    /**
-     * Sets the hostname/IP that this connector listens on.  This is typically
-     * most useful for machines with multiple network cards, but can be used
-     * to limit a connector to only listen for connections from the local
-     * machine (127.0.0.1).  To listen on all available network interfaces,
-     * specify an address of 0.0.0.0.
-     */
-    public void setHost(String host);
-    /**
-     * Every connector must specify a property of type InetSocketAddress
-     * because we use that to identify the network services to print a list
-     * during startup.  However, this can be read-only since the host and port
-     * are set separately using setHost and setPort.
-     */
-    public InetSocketAddress getListenAddress();
-
+public interface WebConnector extends NetworkConnector {
     /**
      * Gets the size of the buffer used to handle network data for this
      * connector.
@@ -126,4 +96,5 @@ public interface WebConnector {
      * be used as they all fail equally well.  :)
      */
     public void setRedirectPort(int port);
+
 }

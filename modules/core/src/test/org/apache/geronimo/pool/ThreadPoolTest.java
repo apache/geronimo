@@ -63,7 +63,7 @@ public class ThreadPoolTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        threadPool = new ThreadPool(1, "foo", Long.MAX_VALUE, ThreadPoolTest.class.getClassLoader());
+        threadPool = new ThreadPool(1, "foo", Long.MAX_VALUE, ThreadPoolTest.class.getClassLoader(), "foo:bar=baz");
         threadPool.doStart();
     }
 

@@ -86,6 +86,12 @@
 
 
         <!-- Thirdparty -->
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>${mx4j_version}</version>
+        </dependency>
+
         <!-- jdbc timer WorkerPersistence -->
         <dependency>
             <groupId>xstream</groupId>

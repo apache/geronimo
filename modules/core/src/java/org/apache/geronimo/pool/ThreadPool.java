@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.pool;
 
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
@@ -27,21 +29,34 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 /**
  * @version $Rev$ $Date$
  */
-public class ThreadPool implements Executor, GBeanLifecycle {
+public class ThreadPool implements GeronimoExecutor, GBeanLifecycle {
     private PooledExecutor executor;
     private ClassLoader classLoader;
+    private ObjectName objectName;
 
-    public ThreadPool(int poolSize, String poolName, long keepAliveTime, ClassLoader classLoader) {
+    public ThreadPool(int poolSize, String poolName, long keepAliveTime, ClassLoader classLoader, String objectName) {
         PooledExecutor p = new PooledExecutor(poolSize);
         p.abortWhenBlocked();
         p.setKeepAliveTime(keepAliveTime);
         p.setMinimumPoolSize(poolSize);
         p.setThreadFactory(new ThreadPoolThreadFactory(poolName, classLoader));
+        try {
+            this.objectName = ObjectName.getInstance(objectName);
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException("Bad object name injected: "+e.getMessage());
+        }
 
         executor = p;
         this.classLoader = classLoader;
     }
 
+    public String getName() {
+        return objectName.getKeyProperty("name");
+    }
+
+    public String getObjectName() {
+        return objectName.getCanonicalName();
+    }
 
     public void execute(Runnable command) throws InterruptedException {
         PooledExecutor p;
@@ -137,11 +152,12 @@ public class ThreadPool implements Executor, GBeanLifecycle {
         infoFactory.addAttribute("poolName", String.class, true);
         infoFactory.addAttribute("keepAliveTime", long.class, true);
 
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoFactory.addInterface(Executor.class);
+        infoFactory.addInterface(GeronimoExecutor.class);
 
-        infoFactory.setConstructor(new String[] {"poolSize", "poolName", "keepAliveTime", "classLoader"});
+        infoFactory.setConstructor(new String[] {"poolSize", "poolName", "keepAliveTime", "classLoader", "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

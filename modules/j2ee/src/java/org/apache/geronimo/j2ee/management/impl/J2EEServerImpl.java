@@ -18,15 +18,21 @@
 package org.apache.geronimo.j2ee.management.impl;
 
 import java.util.Hashtable;
+import java.util.Set;
+import java.util.Iterator;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.j2ee.management.geronimo.J2EEServer;
+import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
+import org.apache.geronimo.j2ee.management.geronimo.EJBContainer;
+import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
  * @version $Rev$ $Date$
@@ -104,6 +110,38 @@ public class J2EEServerImpl implements J2EEServer {
 
     public String[] getJavaVMs() {
         return Util.getObjectNames(kernel, baseName, new String[]{"JVM"});
+    }
+
+    public String getWebContainer() {
+        GBeanQuery query = new GBeanQuery(null, WebContainer.class.getName());
+        Set set = kernel.listGBeans(query);
+        if(set.size() == 0) {
+            return null;
+        } else { // ignore possibility of multiple results
+            return ((ObjectName)set.iterator().next()).getCanonicalName();
+        }
+    }
+
+    public String getEJBContainer() {
+        GBeanQuery query = new GBeanQuery(null, EJBContainer.class.getName());
+        Set set = kernel.listGBeans(query);
+        if(set.size() == 0) {
+            return null;
+        } else { // ignore possibility of multiple results
+            return ((ObjectName)set.iterator().next()).getCanonicalName();
+        }
+    }
+
+    public String[] getThreadPools() {
+        GBeanQuery query = new GBeanQuery(null, GeronimoExecutor.class.getName());
+        Set set = kernel.listGBeans(query);
+        String[] names = new String[set.size()];
+        int i=0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            names[i++] = name.getCanonicalName();
+        }
+        return names;
     }
 
     public String getServerVendor() {

@@ -30,8 +30,8 @@ public interface SecureConnector extends WebConnector {
     public final static String KEYSTORE_TYPE_PKCS12 = "PKCS12";
     public final static String ALGORITHM_TYPE_SUN = "SunX509";
     public final static String ALGORITHM_TYPE_IBM = "IbmX509";
-    public final static String PROTOCOL_TYPE_TLS = "TLS";
-    public final static String PROTOCOL_TYPE_SSL = "SSL";
+    public final static String SECURE_PROTOCOL_TYPE_TLS = "TLS";
+    public final static String SECURE_PROTOCOL_TYPE_SSL = "SSL";
 
     /**
      * Gets the name of the keystore file that holds the server certificate
@@ -88,14 +88,14 @@ public interface SecureConnector extends WebConnector {
      * may not be compatible with popular browsers unless this is changed to
      * SSL.
      */
-    public String getProtocol();
+    public String getSecureProtocol();
     /**
      * Gets the protocol used for secure communication.  This should usually
      * be TLS, though some JVM implementations (particularly some of IBM's)
      * may not be compatible with popular browsers unless this is changed to
      * SSL.  Don't change it if you're not having problems.
      */
-    public void setProtocol(String protocol);
+    public void setSecureProtocol(String protocol);
     /**
      * Checks whether clients are required to authenticate using client
      * certificates in order to connect using this connector.  If enabled,
