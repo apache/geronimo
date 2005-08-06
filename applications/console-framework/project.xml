@@ -46,15 +46,25 @@
             <version>${portlet_api_version}</version>
         </dependency>
         <dependency>
-            <groupId>pluto</groupId>
+            <groupId>org.apache.pluto</groupId>
             <artifactId>pluto</artifactId>
             <version>${pluto_version}</version>
          </dependency>
         <dependency>
-            <groupId>pluto</groupId>
-            <artifactId>pluto-driver</artifactId>
-            <type>war</type>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto-portal</artifactId>
             <version>${pluto_version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+         </dependency>
+        <dependency>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto-descriptors</artifactId>
+            <version>${pluto_version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
          </dependency>
         <dependency>
             <groupId>castor</groupId>

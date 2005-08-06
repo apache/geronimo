@@ -76,6 +76,10 @@
 
   </class>
 
+  <class name="org.apache.pluto.portalImpl.om.servlet.impl.SecurityConstraintImpl">
+
+  </class>
+
   <class name="org.apache.pluto.portalImpl.om.common.impl.DescriptionImpl">
 
     <field name="description" type="java.lang.String">
@@ -262,9 +266,14 @@
         <bind-xml name="error-page" node="element"/>
     </field>
     
-    <field name="securityConstraint" transient="true" direct="true">
-        <bind-xml name="security-constraint" node="element"/>
-    </field>
+      <field name="securityConstraints"
+          transient="true"
+          required="false"
+          type="org.apache.pluto.portalImpl.om.servlet.impl.SecurityConstraintImpl"
+          collection="collection">
+          <bind-xml name="security-constraint" node="element"/>
+      </field>
+
     <field name="loginConfig" transient="true" direct="true">
         <bind-xml name="login-config" node="element"/>
     </field>

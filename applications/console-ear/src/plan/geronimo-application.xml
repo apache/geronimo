@@ -9,7 +9,7 @@
         <uri>portlet-api/jars/portlet-api-${portlet_api_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>pluto/jars/pluto-${pluto_version}.jar</uri>
+        <uri>org.apache.pluto/jars/pluto-${pluto_version}.jar</uri>
     </dependency>
 
 	<!-- Active MQ dependencies -->

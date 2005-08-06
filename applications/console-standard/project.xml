@@ -102,7 +102,7 @@
         </dependency>
         <!-- Portlet services manager dependencies -->
         <dependency>
-            <groupId>pluto</groupId>
+            <groupId>org.apache.pluto</groupId>
             <artifactId>pluto</artifactId>
             <version>${pluto_version}</version>
         </dependency>
