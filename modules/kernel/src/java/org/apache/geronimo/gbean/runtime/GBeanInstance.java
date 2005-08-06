@@ -100,7 +100,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
     /**
      * Interfaces for this GBean
      */
-    private final Class[] interfaces;
+    private final String[] interfaces;
 
     /**
      * Attributes lookup table
@@ -213,7 +213,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         Set constructorArgs = new HashSet(gbeanInfo.getConstructor().getAttributeNames());
 
         // interfaces
-        interfaces = (Class[]) gbeanInfo.getInterfaces().toArray(new Class[0]);
+        interfaces = (String[]) gbeanInfo.getInterfaces().toArray(new String[0]);
 
         // attributes
         Map attributesMap = new HashMap();
@@ -242,8 +242,23 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
             referenceIndex.put(references[i].getName(), new Integer(i));
         }
 
+        // framework operations
+        GBeanOperation opStart = GBeanOperation.createFrameworkOperation(this, "start", Collections.EMPTY_LIST, new MethodInvoker() {
+            public Object invoke(Object target, Object[] arguments) throws Exception {
+                GBeanInstance.this.kernel.startGBean(objectName);
+                return null;
+            }
+        });
+        GBeanOperation opStartRecursive = GBeanOperation.createFrameworkOperation(this, "startRecursive", Collections.EMPTY_LIST, new MethodInvoker() {
+            public Object invoke(Object target, Object[] arguments) throws Exception {
+                GBeanInstance.this.kernel.startRecursiveGBean(objectName);
+                return null;
+            }
+        });
         // operations
         Map operationsMap = new HashMap();
+        operationsMap.put(new GOperationSignature("start", new String[0]), opStart);
+        operationsMap.put(new GOperationSignature("startRecursive", new String[0]), opStartRecursive);
         for (Iterator iterator = gbeanInfo.getOperations().iterator(); iterator.hasNext();) {
             GOperationInfo operationInfo = (GOperationInfo) iterator.next();
             GOperationSignature signature = new GOperationSignature(operationInfo.getName(), operationInfo.getParameterList());

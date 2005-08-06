@@ -38,9 +38,11 @@ public interface ProxyManager {
      * will return null.
      *
      * @param target the target object name
+     * @param loader the ClassLoader used to load the interfaces used by the
+     *        proxy
      * @return the proxy, or null if the GBeanInfo declares no interfaces
      */
-    public Object createProxy(ObjectName target);
+    public Object createProxy(ObjectName target, ClassLoader loader);
 
     /**
      * Create proxies for the specified targets.  The proxies will implement
@@ -49,11 +51,13 @@ public interface ProxyManager {
      * will return a null in that spot in the array.
      *
      * @param objectNameStrings An array of ObjectNames, each in String form
+     * @param loader the ClassLoader used to load the interfaces used by the
+     *               proxies
      * @return an array of proxies of the same length as the argument array,
      *         where each value is a proxy or null if the corresponding
      *         GBeanInfo declares no interfaces
      */
-    public Object[] createProxies(String[] objectNameStrings) throws MalformedObjectNameException;
+    public Object[] createProxies(String[] objectNameStrings, ClassLoader loader) throws MalformedObjectNameException;
 
     /**
      * Create a proxy for the specified target, implementing the specified

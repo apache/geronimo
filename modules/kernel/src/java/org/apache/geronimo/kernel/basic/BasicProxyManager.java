@@ -65,7 +65,7 @@ public class BasicProxyManager implements ProxyManager {
         return createProxyFactory(type).createProxy(target);
     }
 
-    public Object createProxy(ObjectName target) {
+    public Object createProxy(ObjectName target, ClassLoader loader) {
         assert target != null: "target is null";
         try {
             GBeanInfo info = kernel.getGBeanInfo(target);
@@ -73,10 +73,16 @@ public class BasicProxyManager implements ProxyManager {
                 log.warn("No interfaces found for "+target+" ("+info.getClassName()+")");
                 return null;
             }
-            Class[] intfs = (Class[]) info.getInterfaces().toArray(new Class[0]);
+            String[] names = (String[]) info.getInterfaces().toArray(new String[0]);
+            Class[] intfs = new Class[names.length];
+            for (int i = 0; i < intfs.length; i++) {
+                intfs[i] = loader.loadClass(names[i]);
+            }
             return createProxyFactory(intfs).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Could not load interface in provided ClassLoader: " + e.getMessage());
         }
     }
 
@@ -100,7 +106,7 @@ public class BasicProxyManager implements ProxyManager {
                     if (!optional[i].isInterface()) {
                         throw new IllegalArgumentException("Cannot create a proxy for a class (only interfaces) -- " + optional[i].getName());
                     }
-                    if (set.contains(optional[i])) {
+                    if (set.contains(optional[i].getName())) {
                         list.add(optional[i]);
                     }
                 }
@@ -111,10 +117,10 @@ public class BasicProxyManager implements ProxyManager {
         return createProxyFactory((Class[]) list.toArray(new Class[list.size()])).createProxy(target);
     }
 
-    public Object[] createProxies(String[] objectNameStrings) throws MalformedObjectNameException {
+    public Object[] createProxies(String[] objectNameStrings, ClassLoader loader) throws MalformedObjectNameException {
         Object[] result = new Object[objectNameStrings.length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]));
+            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]), loader);
         }
         return result;
     }

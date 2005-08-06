@@ -23,6 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
@@ -138,6 +139,10 @@ public class KernelGBean implements Kernel{
 
     public Set listGBeans(Set patterns) throws InternalKernelException {
         return kernel.listGBeans(patterns);
+    }
+
+    public Set listGBeans(GBeanQuery query) {
+        return kernel.listGBeans(query);
     }
 
     public void registerShutdownHook(Runnable hook) {

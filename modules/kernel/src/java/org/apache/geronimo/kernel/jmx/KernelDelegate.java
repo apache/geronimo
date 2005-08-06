@@ -27,6 +27,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -214,6 +215,16 @@ public class KernelDelegate implements Kernel {
     public Set listGBeans(Set patterns) {
         try {
             return (Set) invokeKernel("listGBeans", new Object[] {patterns}, new String[] {Set.class.getName()});
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalKernelException(e);
+        }
+    }
+
+    public Set listGBeans(GBeanQuery query) {
+        try {
+            return (Set) invokeKernel("listGBeans", new Object[] {query}, new String[] {GBeanQuery.class.getName()});
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

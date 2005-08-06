@@ -23,13 +23,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanName;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -258,6 +261,59 @@ public class BasicKernel implements Kernel {
             gbeans.addAll(listGBeans(pattern));
         }
         return gbeans;
+    }
+
+    public Set listGBeans(String[] patterns) {
+        Set gbeans = new HashSet();
+        for(int i=0; i<patterns.length; i++) {
+            ObjectName pattern = null;
+            try {
+                pattern = ObjectName.getInstance(patterns[i]);
+            } catch (MalformedObjectNameException e) {}
+            gbeans.addAll(listGBeans(pattern));
+        }
+        return gbeans;
+    }
+
+    public Set listGBeansByInterface(String[] interfaces) {
+        Set gbeans = new HashSet();
+        Set all = null;
+        try {
+            all = listGBeans(ObjectName.getInstance("*:*"));
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException("How can *:* be an invalid pattern");
+        }
+        for (Iterator it = all.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            try {
+                GBeanInfo info = getGBeanData(name).getGBeanInfo();
+                Set intfs = info.getInterfaces();
+                for (int i = 0; i < interfaces.length; i++) {
+                    String candidate = interfaces[i];
+                    if(intfs.contains(candidate)) {
+                        gbeans.add(name);
+                        break;
+                    }
+                }
+            } catch (GBeanNotFoundException e) {}
+        }
+        return gbeans;
+    }
+
+    /**
+     * Returns a Set of all GBeans matching the specified criteria
+     *
+     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
+     */
+    public Set listGBeans(GBeanQuery query) {
+        Set results = new HashSet();
+        if(query.getGBeanNames() != null && query.getGBeanNames().length > 0) {
+            results.addAll(listGBeans(query.getGBeanNames()));
+        }
+        if(query.getInterfaces() != null && query.getInterfaces().length > 0) {
+            results.addAll(listGBeansByInterface(query.getInterfaces()));
+        }
+        return results;
     }
 
     /**

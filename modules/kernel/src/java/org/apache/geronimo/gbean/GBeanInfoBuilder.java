@@ -108,6 +108,11 @@ public class GBeanInfoBuilder {
                 references.put(referenceInfo.getName(), new RefInfo(referenceInfo.getReferenceType(), referenceInfo.getNameTypeName()));
             }
 
+            for (Iterator iterator = source.getInterfaces().iterator(); iterator.hasNext();) {
+                String intf = (String) iterator.next();
+                interfaces.add(intf);
+            }
+
             //in case subclass constructor has same parameters as superclass.
             constructor = source.getConstructor();
         }
@@ -180,7 +185,19 @@ public class GBeanInfoBuilder {
             }
         }
         if(intf.isInterface()) {
-            interfaces.add(intf);
+            addInterface(interfaces, intf);
+        }
+    }
+
+    private static void addInterface(Set set, Class intf) {
+        String name = intf.getName();
+        if(set.contains(name)) {
+            return;
+        }
+        set.add(name);
+        Class cls[] = intf.getInterfaces();
+        for (int i = 0; i < cls.length; i++) {
+            addInterface(set, cls[i]);
         }
     }
 

@@ -91,6 +91,46 @@ public class ConfigTest extends TestCase {
         assertFalse(kernel.isLoaded(configName));
     }
 
+    public void testAddToConfig() throws Exception {
+        URI id = new URI("test");
+        ObjectName configName = Configuration.getConfigurationObjectName(id);
+
+        // create the config gbean data
+        GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
+        config.setAttribute("id", id);
+        config.setReferencePatterns("Parent", null);
+        config.setAttribute("classPath", Collections.EMPTY_LIST);
+        config.setAttribute("gBeanState", state);
+        config.setAttribute("dependencies", Collections.EMPTY_LIST);
+        config.setName(configName);
+
+        // load and start the config
+        kernel.loadGBean(config, this.getClass().getClassLoader());
+        kernel.startRecursiveGBean(configName);
+
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
+        assertNotNull(kernel.getAttribute(configName, "configurationClassLoader"));
+
+        ObjectName gbeanName3 = new ObjectName("geronimo.test:name=MyMockGMBean3");
+        try {
+            kernel.getGBeanState(gbeanName3);
+            fail("Gbean should not be found yet");
+        } catch (GBeanNotFoundException e) {
+        }
+        GBeanData mockBean3 = new GBeanData(gbeanName3, MockGBean.getGBeanInfo());
+        mockBean3.setAttribute("value", "1234");
+        mockBean3.setAttribute("name", "child");
+        mockBean3.setAttribute("finalInt", new Integer(1));
+        kernel.invoke(configName, "addGBean", new Object[]{mockBean3,Boolean.TRUE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
+
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName3));
+        assertEquals(new Integer(1), kernel.getAttribute(gbeanName3, "finalInt"));
+        assertEquals("1234", kernel.getAttribute(gbeanName3, "value"));
+        assertEquals("child", kernel.getAttribute(gbeanName3, "name"));
+
+        
+    }
+
     protected void setUp() throws Exception {
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();

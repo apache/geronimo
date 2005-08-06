@@ -89,7 +89,7 @@ public class GBeanTest extends TestCase {
         kernel.startGBean(name);
         ProxyManager mgr = kernel.getProxyManager();
 
-        Object test = mgr.createProxy(name);
+        Object test = mgr.createProxy(name, myCl);
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertTrue(test instanceof MockParentInterface2);

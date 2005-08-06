@@ -22,6 +22,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
@@ -186,6 +187,12 @@ public interface Kernel {
      * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
      */
     Set listGBeans(Set patterns);
+
+    /**
+     * Returns a Set of all GBeans matching any of the specified criteria
+     * @return a List of javax.management.ObjectName of matching GBeans registered with this kernel
+     */
+    Set listGBeans(GBeanQuery query);
 
     /**
      * Gets the value of an attribute on the specified gbean

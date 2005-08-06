@@ -47,6 +47,10 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -131,7 +135,7 @@ public class Configuration implements GBeanLifecycle {
     private Set objectNames;
 
     /**
-     * The classloadeder used to load the child GBeans contained in this configuration.
+     * The classloader used to load the child GBeans contained in this configuration.
      */
     private ConfigurationClassLoader configurationClassLoader;
 
@@ -268,22 +272,14 @@ public class Configuration implements GBeanLifecycle {
             // create and initialize GBeans
             Collection gbeans = loadGBeans(gbeanState, configurationClassLoader);
 
-            // set configurationBaseUrl attribute on each gbean
-            for (Iterator i = gbeans.iterator(); i.hasNext();) {
-                GBeanData gbeanData = (GBeanData) i.next();
-                setGBeanBaseUrl(gbeanData, baseURL);
-            }
-
             // register all the GBeans
             Set objectNames = new HashSet();
             for (Iterator i = gbeans.iterator(); i.hasNext();) {
                 GBeanData gbeanData = (GBeanData) i.next();
-                ObjectName name = gbeanData.getName();
-                log.trace("Registering GBean " + name);
-                kernel.loadGBean(gbeanData, configurationClassLoader);
-                objectNames.add(name);
-                // todo change this to a dependency on the gbeanData itself as soon as we add that feature
-                kernel.getDependencyManager().addDependency(name, this.objectName);
+                // set configurationBaseUrl attribute on each gbean
+                setGBeanBaseUrl(gbeanData, baseURL);
+                // add the GBean to the kernel
+                loadGBean(gbeanData, objectNames);
             }
             this.objectNames = objectNames;
         } finally {
@@ -338,27 +334,10 @@ public class Configuration implements GBeanLifecycle {
         }
     }
 
-    public void doStop() throws Exception {
+    public synchronized void doStop() throws Exception {
         log.info("Stopping configuration " + id);
 
-        // get the gbean data for all gbeans
-        GBeanData[] gbeans = new GBeanData[objectNames.size()];
-        Iterator iterator = objectNames.iterator();
-        for (int i = 0; i < gbeans.length; i++) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            try {
-                gbeans[i] = kernel.getGBeanData(objectName);
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to serialize GBeanData for " + objectName, e);
-            }
-        }
-
-        // save state
-        try {
-            gbeanState = storeGBeans(gbeans);
-        } catch (InvalidConfigException e) {
-            log.info("Unable to update persistent state during shutdown", e);
-        }
+        GBeanData[] gbeans = storeCurrentGBeans();
 
         // shutdown the configuration and unload all beans
         shutdown();
@@ -440,6 +419,51 @@ public class Configuration implements GBeanLifecycle {
         return configurationClassLoader;
     }
 
+    public synchronized void addGBean(GBeanData beanData, boolean start) throws InvalidConfigException, GBeanAlreadyExistsException {
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(configurationClassLoader);
+            ObjectName name = loadGBean(beanData, objectNames);
+            if(start) {
+                try {
+                    kernel.startRecursiveGBean(name);
+                } catch (GBeanNotFoundException e) {
+                    throw new IllegalStateException("How could we not find a GBean that we just loaded ('"+name+"')?");
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
+        }
+        storeCurrentGBeans();
+    }
+
+    public synchronized void removeGBean(ObjectName name) throws GBeanNotFoundException {
+        if(!objectNames.contains(name)) {
+            throw new GBeanNotFoundException(name);
+        }
+        kernel.getDependencyManager().removeDependency(name, this.objectName);
+        try {
+            if(kernel.getGBeanState(name) == State.RUNNING_INDEX) {
+                kernel.stopGBean(name);
+            }
+            kernel.unloadGBean(name);
+        } catch (GBeanNotFoundException e) {
+            // Bean is no longer loaded
+        }
+        objectNames.remove(name);
+    }
+
+    private ObjectName loadGBean(GBeanData beanData, Set objectNames) throws GBeanAlreadyExistsException {
+        ObjectName name = beanData.getName();
+        setGBeanBaseUrl(beanData, baseURL);
+        log.trace("Registering GBean " + name);
+        kernel.loadGBean(beanData, configurationClassLoader);
+        objectNames.add(name);
+        // todo change this to a dependency on the gbeanData itself as soon as we add that feature
+        kernel.getDependencyManager().addDependency(name, this.objectName);
+        return name;
+    }
+
     /**
      * Load GBeans from the supplied byte array using the supplied ClassLoader
      *
@@ -469,6 +493,34 @@ public class Configuration implements GBeanLifecycle {
         } catch (Exception e) {
             throw new InvalidConfigException("Unable to deserialize GBeanState", e);
         }
+    }
+
+    /**
+     * Return a byte array containing the persisted form of the supplied GBeans
+     *
+     * @return the persisted GBeans
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
+     */
+    public synchronized GBeanData[] storeCurrentGBeans() throws InvalidConfigException {
+        // get the gbean data for all gbeans
+        GBeanData[] gbeans = new GBeanData[objectNames.size()];
+        Iterator iterator = objectNames.iterator();
+        for (int i = 0; i < gbeans.length; i++) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            try {
+                gbeans[i] = kernel.getGBeanData(objectName);
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to serialize GBeanData for " + objectName, e);
+            }
+        }
+
+        // save state
+        try {
+            gbeanState = storeGBeans(gbeans);
+        } catch (InvalidConfigException e) {
+            log.info("Unable to update persistent state during shutdown", e);
+        }
+        return gbeans;
     }
 
     /**
@@ -526,6 +578,9 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addReference("ConfigurationStore", ConfigurationStore.class);
+
+        infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
+        infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
 
         infoFactory.setConstructor(new String[]{
             "kernel",
