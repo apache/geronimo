@@ -212,9 +212,7 @@ public abstract class AbstractConnectionFactoryManagerPortlet extends
             try {
                 info.setJndiName((String) kernel.getAttribute(gbeanName,
                         "globalJNDIName"));
-                info
-                        .setState((Integer) kernel.getAttribute(gbeanName,
-                                "state"));
+                info.setState(new Integer(kernel.getGBeanState(gbeanName)));
                 //check if user asked this connection to be tested
                 if ((gbeanName.toString().equals(name)) && (check)) {
                     info.setWorking(true);
