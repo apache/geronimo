@@ -6,13 +6,13 @@
     xmlns:velocity="jelly:velocity"
     xmlns:util="jelly:util">
 
-    <postGoal name="war:war">
+    <preGoal name="war:war">
         <ant:unjar dest="${basedir}/target/${pom.artifactId}" src="${maven.repo.local}/pluto/wars/pluto-driver-${pluto_version}.war" overwrite="true">
            <patternset>
               <include name="WEB-INF/classes/**"/>
            </patternset>
         </ant:unjar>
-    </postGoal>
+    </preGoal>
     
     <preGoal name="war:install">
         <attainGoal name="preCompile"/>
