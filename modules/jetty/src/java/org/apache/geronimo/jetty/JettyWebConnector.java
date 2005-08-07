@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,14 +21,16 @@ import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
 /**
  * A Jetty-specific extension to the standard Geronimo web connector interface.
  *
- * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface JettyWebConnector extends WebConnector {
+
     /**
      * Gets the minimum number of threads used to service connections from
      * this connector.
      */
     public int getMinThreads();
+
     /**
      * Sets the minimum number of threads used to service connections from
      * this connector.
