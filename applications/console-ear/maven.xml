@@ -8,9 +8,9 @@
         <attainGoal name="ear:install"/>
     </goal>
 
-    <pre-goal name="ear:ear">
+    <preGoal name="ear:ear">
         <ant:mkdir dir="${basedir}/target/plan"/>        
         <velocity:merge basedir="${basedir}/src/application/META-INF" template="application.xml" name="${basedir}/target/plan/application.xml"/>
         <velocity:merge basedir="${basedir}/src/plan" template="geronimo-application.xml" name="${basedir}/src/application/META-INF/geronimo-application.xml"/>        
-    </pre-goal>
+    </preGoal>
 </project>
