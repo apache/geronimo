@@ -30,7 +30,7 @@
         <uri>geronimo-spec/jars/geronimo-spec-activation-1.0.2-rc4.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-javamail-1.3.1-rc4.jar</uri>
+        <uri>geronimo-spec/jars/geronimo-spec-javamail-1.3.1-rc5.jar</uri>
     </dependency>
 
     <module>
