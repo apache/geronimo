@@ -18,7 +18,6 @@
 # $Rev$ $Date$
 # --------------------------------------------------------------------
 
-DEPLOYER_JAR=deployer.jar
 ARGS=
 
 if [ -z "$JAVA_HOME" ]; then
@@ -32,6 +31,20 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 JAVA=$JAVA_HOME/bin/java
+
+PRG="$0"
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`/"$link"
+    fi
+done
+
+PRGDIR=`dirname "$PRG"`
+DEPLOYER_JAR=$PRGDIR/deployer.jar
 
 if [ ! -f "$DEPLOYER_JAR" ]; then 
     echo "Unable to locate the $DEPLOYER_JAR jar"
