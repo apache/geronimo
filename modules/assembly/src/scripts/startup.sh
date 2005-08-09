@@ -18,7 +18,7 @@
 # $Rev$ $Date$
 # --------------------------------------------------------------------
 
-ARGS='-Djava.endorsed.dirs=lib/endorsed'
+ARGS=
 
 if [ -z "$JAVA_HOME" ]; then
     JAVA=`which java`
@@ -51,4 +51,4 @@ if [ ! -f "$SERVER_JAR" ]; then
     exit 1
 fi
 
-$JAVA $ARGS -jar $SERVER_JAR "$@" &
+$JAVA $ARGS -jar $SERVER_JAR "$@" 
