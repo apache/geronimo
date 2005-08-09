@@ -18,7 +18,6 @@
 # $Rev$ $Date$
 # --------------------------------------------------------------------
 
-SERVER_JAR=server.jar
 ARGS='-Djava.endorsed.dirs=lib/endorsed'
 
 if [ -z "$JAVA_HOME" ]; then
