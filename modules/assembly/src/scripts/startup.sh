@@ -33,6 +33,20 @@ fi
 
 JAVA=$JAVA_HOME/bin/java
 
+PRG="$0"
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '.*/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`/"$link"
+    fi
+done
+
+PRGDIR=`dirname "$PRG"`
+SERVER_JAR=$PRGDIR/server.jar
+
 if [ ! -f "$SERVER_JAR" ]; then 
     echo "Unable to locate the $SERVER_JAR jar"
     exit 1
