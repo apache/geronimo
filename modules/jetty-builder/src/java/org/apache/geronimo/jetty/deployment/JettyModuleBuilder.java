@@ -877,7 +877,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             addPermissionToRole(roleName, new WebRoleRefPermission("", roleName), rolePermissions);
         }
     }
-    
+
     private void addServlet(ObjectName webModuleName,
                             JarFile moduleFile,
                             ServletType previousServlet,
@@ -1230,6 +1230,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, GerWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
+                earContext,
                 webModule,
                 userTransaction,
                 webApp.getEnvEntryArray(),

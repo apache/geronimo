@@ -50,6 +50,7 @@ import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -155,11 +156,11 @@ public class JettyModuleBuilderTest extends TestCase {
                 null,
                 null, new RefContext(new EJBReferenceBuilder() {
 
-                    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+                    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
                         return null;
                     }
 
-                    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+                    public Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException {
                         return null;
                     }
 
@@ -168,6 +169,14 @@ public class JettyModuleBuilderTest extends TestCase {
                     }
 
                     public Object createHandleDelegateReference() {
+                        return null;
+                    }
+
+                    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
+                        return null;
+                    }
+
+                    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
                         return null;
                     }
                 },

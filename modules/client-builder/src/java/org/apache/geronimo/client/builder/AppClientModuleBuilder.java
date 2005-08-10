@@ -55,6 +55,7 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
@@ -452,7 +453,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 ObjectName jndiContextName = ObjectName.getInstance("geronimo.client:type=StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
-                    componentContext = buildComponentContext(appClientDeploymentContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
+                    componentContext = buildComponentContext(appClientDeploymentContext, earContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
                     jndiContextGBeanData.setAttribute("context", componentContext);
                 } catch (DeploymentException e) {
                     throw e;
@@ -594,9 +595,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private Map buildComponentContext(EARContext earContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {
+    private Map buildComponentContext(EARContext appClientContext, NamingContext ejbContext, AppClientModule appClientModule, ApplicationClientType appClient, GerApplicationClientType geronimoAppClient, ClassLoader cl) throws DeploymentException {
 
-        return ENCConfigBuilder.buildComponentContext(earContext,
+        return ENCConfigBuilder.buildComponentContext(appClientContext,
+                ejbContext,
                 appClientModule,
                 null, //no user transaction yet
                 appClient.getEnvEntryArray(),

@@ -21,6 +21,7 @@ import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 
 
 /**
@@ -28,12 +29,16 @@ import org.apache.geronimo.common.DeploymentException;
  */
 public interface EJBReferenceBuilder {
 
-    Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException;
+    Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException;
 
-    Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException;
+    Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException;
 
     Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException;
 
-    Object createHandleDelegateReference();
+    Object createHandleDelegateReference() throws DeploymentException;
+
+    Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException;
+
+    Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException;
 
 }

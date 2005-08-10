@@ -26,6 +26,7 @@ import javax.naming.Reference;
 import junit.framework.Assert;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
 
 
 /**
@@ -70,11 +71,11 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         assertEquals(this.cl, cl);
     }
 
-    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
         return null;
     }
 
-    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+    public Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException {
         return null;
     }
 
@@ -83,6 +84,14 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
     }
 
     public Object createHandleDelegateReference() {
+        return null;
+    }
+
+    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
+        return null;
+    }
+
+    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
         return null;
     }
 }

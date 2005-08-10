@@ -42,6 +42,7 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -156,7 +157,7 @@ public class ENCConfigBuilder {
 
     }
 
-    public static void addResourceRefs(EARContext earContext, URI uri, ResourceRefType[] resourceRefs, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    public static void addResourceRefs(EARContext earContext, URI moduleURI, ResourceRefType[] resourceRefs, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
@@ -197,7 +198,7 @@ public class ENCConfigBuilder {
                     j2eeType = NameFactory.JCA_MANAGED_CONNECTION_FACTORY;
                 }
                 try {
-                    String containerId = getResourceContainerId(name, j2eeType, uri, gerResourceRef, earContext);
+                    String containerId = getResourceContainerId(name, j2eeType, moduleURI, gerResourceRef, earContext);
 
                     ref = refContext.getConnectionFactoryRef(containerId, iface);
                     builder.bind(name, ref);
@@ -209,15 +210,15 @@ public class ENCConfigBuilder {
 
     }
 
-    private static String getResourceContainerId(String name, String type, URI uri, GerResourceRefType gerResourceRef, EARContext context) throws DeploymentException {
+    private static String getResourceContainerId(String name, String type, URI moduleURI, GerResourceRefType gerResourceRef, EARContext context) throws DeploymentException {
         String containerId = null;
         RefContext refContext = context.getRefContext();
         if (gerResourceRef == null) {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            containerId = refContext.getConnectionFactoryContainerId(uri, name, type, context);
+            containerId = refContext.getConnectionFactoryContainerId(moduleURI, name, type, context);
         } else if (gerResourceRef.isSetResourceLink()) {
-            containerId = refContext.getConnectionFactoryContainerId(uri, gerResourceRef.getResourceLink().trim(), type, context);
+            containerId = refContext.getConnectionFactoryContainerId(moduleURI, gerResourceRef.getResourceLink().trim(), type, context);
         } else if (gerResourceRef.isSetTargetName()) {
             containerId = gerResourceRef.getTargetName().trim();
         } else {
@@ -238,7 +239,7 @@ public class ENCConfigBuilder {
         return containerId;
     }
 
-    public static void addResourceEnvRefs(EARContext earContext, URI uri, ResourceEnvRefType[] resourceEnvRefArray, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    public static void addResourceEnvRefs(EARContext earContext, URI moduleURI, ResourceEnvRefType[] resourceEnvRefArray, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
@@ -255,7 +256,7 @@ public class ENCConfigBuilder {
             }
             GerResourceEnvRefType gerResourceEnvRef = (GerResourceEnvRefType) refMap.get(name);
             try {
-                String containerId = getAdminObjectContainerId(name, uri, gerResourceEnvRef, earContext);
+                String containerId = getAdminObjectContainerId(name, moduleURI, gerResourceEnvRef, earContext);
                 Reference ref = earContext.getRefContext().getAdminObjectRef(containerId, iface);
 
                 builder.bind(name, ref);
@@ -295,7 +296,7 @@ public class ENCConfigBuilder {
         return containerId;
     }
 
-    public static void addMessageDestinationRefs(EARContext earContext, URI uri, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    public static void addMessageDestinationRefs(EARContext earContext, URI moduleURI, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         RefContext refContext = earContext.getRefContext();
         for (int i = 0; i < messageDestinationRefs.length; i++) {
             MessageDestinationRefType messageDestinationRef = messageDestinationRefs[i];
@@ -310,7 +311,7 @@ public class ENCConfigBuilder {
             }
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            String containerId = refContext.getAdminObjectContainerId(uri, linkName, earContext);
+            String containerId = refContext.getAdminObjectContainerId(moduleURI, linkName, earContext);
             Reference ref = refContext.getAdminObjectRef(containerId, iface);
             builder.bind(name, ref);
 
@@ -318,9 +319,8 @@ public class ENCConfigBuilder {
 
     }
 
-    public static void addEJBRefs(EARContext earContext, URI uri, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        RefContext refContext = earContext.getRefContext();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
+    public static void addEJBRefs(NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        J2eeContext j2eeContext = ejbContext.getJ2eeContext();
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
 
@@ -349,7 +349,7 @@ public class ENCConfigBuilder {
                 }
 
                 if (ejbLink != null) {
-                    ejbReference = refContext.getEJBRemoteRef(uri, ejbLink, isSession, home, remote);
+                    ejbReference = refContext.getEJBRemoteRef(moduleURI, ejbLink, isSession, home, remote, ejbContext);
                 } else if (remoteRef != null) {
                     if (remoteRef.isSetTargetName()) {
                         ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
@@ -360,7 +360,9 @@ public class ENCConfigBuilder {
                                 cssBean = ObjectName.getInstance(getStringValue(remoteRef.getCssName()));
                             } else if (remoteRef.isSetCssLink()) {
                                 String cssLink = remoteRef.getCssLink().trim();
-                                cssBean = refContext.locateComponent(cssLink, NameFactory.CORBA_CSS, j2eeContext, earContext, "css gbean");
+                                //TODO is this correct?
+                                String moduleType = null;
+                                cssBean = refContext.locateComponentName(cssLink, moduleURI, moduleType, NameFactory.CORBA_CSS, j2eeContext, ejbContext, "css gbean");
                             } else {
                                 GerCssType css = remoteRef.getCss();
                                 cssBean = NameFactory.getComponentName(getStringValue(css.getDomain()),
@@ -397,16 +399,15 @@ public class ENCConfigBuilder {
 
                     }
                 } else {
-                    ejbReference = refContext.getImplicitEJBRemoteRef(uri, ejbRefName, isSession, home, remote);
+                    ejbReference = refContext.getImplicitEJBRemoteRef(moduleURI, ejbRefName, isSession, home, remote, ejbContext);
                 }
             }
             builder.bind(ejbRefName, ejbReference);
         }
     }
 
-    public static void addEJBLocalRefs(EARContext earContext, URI uri, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        RefContext refContext = earContext.getRefContext();
-        J2eeContext j2eeContext = earContext.getJ2eeContext();
+    public static void addEJBLocalRefs(NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+        J2eeContext j2eeContext = ejbContext.getJ2eeContext();
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
 
@@ -430,7 +431,7 @@ public class ENCConfigBuilder {
 
             Reference ejbReference;
             if (ejbLink != null) {
-                ejbReference = refContext.getEJBLocalRef(uri, ejbLink, isSession, localHome, local);
+                ejbReference = refContext.getEJBLocalRef(moduleURI, ejbLink, isSession, localHome, local, ejbContext);
             } else if (localRef != null) {
                 if (localRef.isSetTargetName()) {
                     ejbReference = refContext.getEJBLocalRef(getStringValue(localRef.getTargetName()), isSession, localHome, local);
@@ -451,7 +452,7 @@ public class ENCConfigBuilder {
 
                 }
             } else {
-                ejbReference = refContext.getImplicitEJBLocalRef(uri, ejbLink, isSession, localHome, local);
+                ejbReference = refContext.getImplicitEJBLocalRef(moduleURI, ejbLink, isSession, localHome, local, ejbContext);
             }
             builder.bind(ejbRefName, ejbReference);
         }
@@ -565,23 +566,23 @@ public class ENCConfigBuilder {
         return handlerInfos;
     }
 
-    public static void assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
-        assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
+    public static Class assureEJBObjectInterface(String remote, ClassLoader cl) throws DeploymentException {
+        return assureInterface(remote, "javax.ejb.EJBObject", "Remote", cl);
     }
 
-    public static void assureEJBHomeInterface(String home, ClassLoader cl) throws DeploymentException {
-        assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
+    public static Class assureEJBHomeInterface(String home, ClassLoader cl) throws DeploymentException {
+        return assureInterface(home, "javax.ejb.EJBHome", "Home", cl);
     }
 
-    public static void assureEJBLocalObjectInterface(String local, ClassLoader cl) throws DeploymentException {
-        assureInterface(local, "javax.ejb.EJBLocalObject", "Local", cl);
+    public static Class assureEJBLocalObjectInterface(String local, ClassLoader cl) throws DeploymentException {
+        return assureInterface(local, "javax.ejb.EJBLocalObject", "Local", cl);
     }
 
-    public static void assureEJBLocalHomeInterface(String localHome, ClassLoader cl) throws DeploymentException {
-        assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
+    public static Class assureEJBLocalHomeInterface(String localHome, ClassLoader cl) throws DeploymentException {
+        return assureInterface(localHome, "javax.ejb.EJBLocalHome", "LocalHome", cl);
     }
 
-    public static void assureInterface(String interfaceName, String superInterfaceName, String interfaceType, ClassLoader cl) throws DeploymentException {
+    public static Class assureInterface(String interfaceName, String superInterfaceName, String interfaceType, ClassLoader cl) throws DeploymentException {
         Class clazz = null;
         try {
             clazz = cl.loadClass(interfaceName);
@@ -600,6 +601,7 @@ public class ENCConfigBuilder {
         if (!superInterface.isAssignableFrom(clazz)) {
             throw new DeploymentException(interfaceType + " interface does not extend " + superInterfaceName + ": " + interfaceName);
         }
+        return clazz;
     }
 
     private static String getStringValue(org.apache.geronimo.xbeans.j2ee.String string) {
@@ -652,6 +654,7 @@ public class ENCConfigBuilder {
     }
 
     public static Map buildComponentContext(EARContext earContext,
+                                            NamingContext ejbContext,
                                             Module module,
                                             UserTransaction userTransaction,
                                             EnvEntryType[] envEntries,
@@ -683,23 +686,28 @@ public class ENCConfigBuilder {
             builder.addHandleDelegateReference(handleDelegateReference);
         }
 
-        URI uri = module.getConfigId();
+        URI moduleURI = module.getConfigId();
 
         addEnvEntries(envEntries, builder, cl);
 
+        if (ejbContext == null) {
+            ejbContext = earContext;
+        }
+
+        RefContext refContext = earContext.getRefContext();
         // ejb-ref
-        addEJBRefs(earContext, uri, ejbRefs, mapEjbRefs(gerEjbRefs), cl, builder);
+        addEJBRefs(ejbContext, refContext, moduleURI, ejbRefs, mapEjbRefs(gerEjbRefs), cl, builder);
 
         // ejb-local-ref
-        addEJBLocalRefs(earContext, uri, ejbLocalRefs, mapEjbLocalRefs(gerEjbLocalRef), cl, builder);
+        addEJBLocalRefs(ejbContext, refContext, moduleURI, ejbLocalRefs, mapEjbLocalRefs(gerEjbLocalRef), cl, builder);
 
         // resource-ref
-        addResourceRefs(earContext, uri, resourceRefs, mapResourceRefs(gerResourceRef), cl, builder);
+        addResourceRefs(earContext, moduleURI, resourceRefs, mapResourceRefs(gerResourceRef), cl, builder);
 
         // resource-env-ref
-        addResourceEnvRefs(earContext, uri, resourceEnvRefs, mapResourceEnvRefs(gerResourceEnvRef), cl, builder);
+        addResourceEnvRefs(earContext, moduleURI, resourceEnvRefs, mapResourceEnvRefs(gerResourceEnvRef), cl, builder);
 
-        addMessageDestinationRefs(earContext, uri, messageDestinationRefs, cl, builder);
+        addMessageDestinationRefs(earContext, moduleURI, messageDestinationRefs, cl, builder);
 
 //        Map serviceRefMap = new HashMap();
 //        Map serviceRefCredentialsNameMap = new HashMap();

@@ -111,7 +111,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
         <reference name="EJBConfigBuilder"><name>EJBBuilder</name></reference>
-        <reference name="EJBReferenceBuilder"><name>EJBBuilder</name></reference>
+        <reference name="EJBReferenceBuilder"><name>ServerEJBReferenceBuilder</name></reference>
         <reference name="WebConfigBuilder"><name>WebBuilder</name></reference>
         <reference name="ConnectorConfigBuilder"><name>ConnectorBuilder</name></reference>
         <reference name="ResourceReferenceBuilder"><name>ConnectorBuilder</name></reference>
@@ -120,6 +120,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
     </gbean>
 
     <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
+
+    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder">
+    </gbean>
 
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>

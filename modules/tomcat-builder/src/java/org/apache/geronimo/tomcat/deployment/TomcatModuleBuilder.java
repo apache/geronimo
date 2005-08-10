@@ -469,10 +469,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                     }
                 }
             }
-            
+
             // JACC v1.0 secion B.19
             addUnmappedJSPPermissions(securityRoles, rolePermissions);
-            
+
             webModuleData.setAttribute("webServices", webServices);
 
             if (tomcatWebApp.isSetSecurityRealmName()) {
@@ -825,6 +825,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, GerWebAppType tomcatWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
+                earContext, 
                 webModule,
                 userTransaction,
                 webApp.getEnvEntryArray(),

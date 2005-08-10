@@ -201,7 +201,11 @@ public class NameFactory {
         if (query) {
             buffer.append(sep).append("*");
         }
-        return ObjectName.getInstance(buffer.toString());
+        try {
+            return ObjectName.getInstance(buffer.toString());
+        } catch (MalformedObjectNameException e) {
+            throw (MalformedObjectNameException)new MalformedObjectNameException("Could not construct object name: " + buffer.toString()).initCause(e);
+        }
     }
 
     public static ObjectName getComponentNameQuery(String domainName, String serverName, String applicationName, String name, String type, J2eeContext context) throws MalformedObjectNameException {

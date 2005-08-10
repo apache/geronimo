@@ -23,6 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
@@ -30,11 +31,11 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  */
 public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
 
-    public Reference createEJBLocalReference(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
+    public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Reference createEJBRemoteReference(String objectName, boolean isSession, String home, String remote) throws DeploymentException {
+    public Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
@@ -42,8 +43,16 @@ public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Object createHandleDelegateReference() {
-        return null;
+    public Object createHandleDelegateReference() throws DeploymentException {
+        throw new DeploymentException("EJB references are unavailable in this configuration");
+    }
+
+    public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
+        throw new DeploymentException("EJB references are unavailable in this configuration");
+    }
+
+    public Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException {
+        throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
     public static final GBeanInfo GBEAN_INFO;

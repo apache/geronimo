@@ -35,7 +35,7 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
 /**
  * @version $Rev$ $Date$
  */
-public class EARContext extends DeploymentContext {
+public class EARContext extends DeploymentContext implements NamingContext {
     private final ObjectName domainObjectName;
     private final ObjectName serverObjectName;
     private final ObjectName applicationObjectName;
