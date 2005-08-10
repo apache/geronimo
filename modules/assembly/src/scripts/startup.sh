@@ -31,6 +31,10 @@ if [ -z "$JAVA_HOME" ]; then
 fi
 
 JAVA=$JAVA_HOME/bin/java
+if [ ! -f "$JAVA" ]; then 
+    echo "Unable to locate Java"
+    exit 1
+fi
 
 PRG="$0"
 while [ -h "$PRG" ] ; do
