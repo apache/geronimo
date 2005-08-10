@@ -17,7 +17,9 @@
 package org.apache.geronimo.kernel.jmx;
 
 import javax.management.ObjectName;
+
 import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicProxyManager;
 
@@ -35,4 +37,13 @@ public class JMXProxyManager extends BasicProxyManager {
     protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, ObjectName target) {
         return new JMXProxyMethodInterceptor(proxyType, kernel, target);
     }
+
+    protected void doDestroy(MethodInterceptor methodInterceptor) {
+         ((JMXProxyMethodInterceptor)methodInterceptor).destroy();
+    }
+
+    protected ObjectName getObjectName(MethodInterceptor methodInterceptor) {
+        return ((JMXProxyMethodInterceptor)methodInterceptor).getObjectName();
+    }
+
 }

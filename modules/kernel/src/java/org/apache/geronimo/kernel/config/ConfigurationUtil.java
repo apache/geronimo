@@ -56,4 +56,9 @@ public final class ConfigurationUtil {
         ObjectName configurationManagerName = (ObjectName) names.iterator().next();
         return (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
     }
+
+    public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
+        kernel.getProxyManager().destroyProxy(configurationManager);
+    }
+    
 }

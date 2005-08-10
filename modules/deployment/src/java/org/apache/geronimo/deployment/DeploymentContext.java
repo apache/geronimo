@@ -73,7 +73,7 @@ public class DeploymentContext {
     private final ClassLoader parentCL;
 
     public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
-        this(baseDir, configId,  type, parentID, null, null, kernel);
+        this(baseDir, configId, type, parentID, null, null, kernel);
     }
 
     public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI parentId, String domain, String server, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
@@ -104,6 +104,8 @@ public class DeploymentContext {
                 loadedAncestors = configurationManager.loadRecursive(parentId);
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
 
             try {
@@ -480,8 +482,8 @@ public class DeploymentContext {
     }
 
     /**
-     * @deprecated Currently used only in some tests, and may not be appropriate as a public method.
      * @return a copy of the configurations GBeanData
+     * @deprecated Currently used only in some tests, and may not be appropriate as a public method.
      */
     public GBeanData getConfigurationGBeanData() throws MalformedObjectNameException, InvalidConfigException {
         URI id = configurationData.getId();
@@ -507,8 +509,8 @@ public class DeploymentContext {
     }
 
     /**
-     * @deprecated REALLY deprecated.  Only use in tests, please.
      * @return
+     * @deprecated REALLY deprecated.  Only use in tests, please.
      */
     public GBeanData[] getGBeans() {
         return gbeans.getGBeans();

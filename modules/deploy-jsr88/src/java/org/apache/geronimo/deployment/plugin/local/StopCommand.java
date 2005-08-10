@@ -48,24 +48,28 @@ public class StopCommand extends CommandSupport {
     public void run() {
         try {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            for (int i = 0; i < modules.length; i++) {
-                TargetModuleID module = modules[i];
+            try {
+                for (int i = 0; i < modules.length; i++) {
+                    TargetModuleID module = modules[i];
 
-                URI moduleID = URI.create(module.getModuleID());
-                ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
-                try {
-                    kernel.stopGBean(configName);
-                } catch (GBeanNotFoundException e) {
-                    if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
-                        updateStatus("Module "+moduleID+" is not running.");
-                        continue;
-                    } else {
-                        System.out.println("Unmatched name '"+clean(e.getGBeanName().getKeyProperty("name"))+"'");
-                        throw e;
+                    URI moduleID = URI.create(module.getModuleID());
+                    ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
+                    try {
+                        kernel.stopGBean(configName);
+                    } catch (GBeanNotFoundException e) {
+                        if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
+                            updateStatus("Module "+moduleID+" is not running.");
+                            continue;
+                        } else {
+                            System.out.println("Unmatched name '"+clean(e.getGBeanName().getKeyProperty("name"))+"'");
+                            throw e;
+                        }
                     }
+                    configurationManager.unload(moduleID);
+                    addModule(module);
                 }
-                configurationManager.unload(moduleID);
-                addModule(module);
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
             if(getModuleCount() < modules.length) {
                 fail("Some modules could not be stopped");

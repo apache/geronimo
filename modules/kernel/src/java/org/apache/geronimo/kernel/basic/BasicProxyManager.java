@@ -138,9 +138,9 @@ public class BasicProxyManager implements ProxyManager {
             return;
         }
 
-        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.remove(proxy);
+        MethodInterceptor methodInterceptor = (MethodInterceptor) interceptors.remove(proxy);
         if (methodInterceptor != null) {
-            methodInterceptor.destroy();
+            doDestroy(methodInterceptor);
         }
     }
 
@@ -149,11 +149,11 @@ public class BasicProxyManager implements ProxyManager {
     }
 
     public synchronized ObjectName getProxyTarget(Object proxy) {
-        ProxyMethodInterceptor methodInterceptor = (ProxyMethodInterceptor) interceptors.get(proxy);
+        MethodInterceptor methodInterceptor = (MethodInterceptor) interceptors.get(proxy);
         if (methodInterceptor == null) {
             return null;
         }
-        return methodInterceptor.getObjectName();
+        return getObjectName(methodInterceptor);
     }
 
     private class ManagedProxyFactory implements ProxyFactory {
@@ -246,4 +246,13 @@ public class BasicProxyManager implements ProxyManager {
     protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, ObjectName target) {
         return new ProxyMethodInterceptor(proxyType, kernel, target);
     }
+
+    protected void doDestroy(MethodInterceptor methodInterceptor) {
+         ((ProxyMethodInterceptor)methodInterceptor).destroy();
+    }
+
+     protected ObjectName getObjectName(MethodInterceptor methodInterceptor) {
+        return ((ProxyMethodInterceptor)methodInterceptor).getObjectName();
+    }
+
 }

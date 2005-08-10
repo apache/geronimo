@@ -71,47 +71,51 @@ public class RedeployCommand extends AbstractDeployCommand {
             }
 
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            for (int i = 0; i < modules.length; i++) {
-                TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
+            try {
+                for (int i = 0; i < modules.length; i++) {
+                    TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
-                URI configID = URI.create(module.getModuleID());
-                ObjectName configName = Configuration.getConfigurationObjectName(configID);
-                try {
-                    kernel.stopGBean(configName);
-                    updateStatus("Stopped "+configID);
-                } catch (GBeanNotFoundException e) {
-                    if(e.getGBeanName().equals(configName)) {
-                        // The module isn't running -- that's OK
-                    } else throw e;
-                }
-                try {
-                    configurationManager.unload(configID);
-                    updateStatus("Unloaded "+configID);
-                } catch(InternalKernelException e) {
-                    Exception cause = (Exception)e.getCause();
-                    if(cause instanceof NoSuchConfigException) {
-                        // The modules isn't loaded -- that's OK
-                    } else {
-                        throw cause;
+                    URI configID = URI.create(module.getModuleID());
+                    ObjectName configName = Configuration.getConfigurationObjectName(configID);
+                    try {
+                        kernel.stopGBean(configName);
+                        updateStatus("Stopped "+configID);
+                    } catch (GBeanNotFoundException e) {
+                        if(e.getGBeanName().equals(configName)) {
+                            // The module isn't running -- that's OK
+                        } else throw e;
                     }
-                } catch (NoSuchConfigException e) {
-                    // The modules isn't loaded -- that's OK
+                    try {
+                        configurationManager.unload(configID);
+                        updateStatus("Unloaded "+configID);
+                    } catch(InternalKernelException e) {
+                        Exception cause = (Exception)e.getCause();
+                        if(cause instanceof NoSuchConfigException) {
+                            // The modules isn't loaded -- that's OK
+                        } else {
+                            throw cause;
+                        }
+                    } catch (NoSuchConfigException e) {
+                        // The modules isn't loaded -- that's OK
+                    }
+
+                    TargetImpl target = (TargetImpl) module.getTarget();
+                    ObjectName storeName = target.getObjectName();
+                    kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
+                    updateStatus("Uninstalled "+configID);
+
+                    doDeploy(deployer, module.getTarget(), false);
+                    updateStatus("Deployed "+configID);
+
+                    List list = configurationManager.loadRecursive(configID);
+                    for (int j = 0; j < list.size(); j++) {
+                        ObjectName name = (ObjectName) list.get(j);
+                        kernel.startRecursiveGBean(name);
+                        updateStatus("Started "+clean(name.getKeyProperty("name")));
+                    }
                 }
-
-                TargetImpl target = (TargetImpl) module.getTarget();
-                ObjectName storeName = target.getObjectName();
-                kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
-                updateStatus("Uninstalled "+configID);
-
-                doDeploy(deployer, module.getTarget(), false);
-                updateStatus("Deployed "+configID);
-
-                List list = configurationManager.loadRecursive(configID);
-                for (int j = 0; j < list.size(); j++) {
-                    ObjectName name = (ObjectName) list.get(j);
-                    kernel.startRecursiveGBean(name);
-                    updateStatus("Started "+clean(name.getKeyProperty("name")));
-                }
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
             complete("Completed");
         } catch (Exception e) {

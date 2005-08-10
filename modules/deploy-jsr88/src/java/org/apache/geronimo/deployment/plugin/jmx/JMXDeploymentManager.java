@@ -78,6 +78,7 @@ public class JMXDeploymentManager implements DeploymentManager {
 
     public void release() {
         try {
+            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             jmxConnector.close();
         } catch (IOException e) {
             throw (IllegalStateException) new IllegalStateException("Unable to close connection").initCause(e);

@@ -49,40 +49,44 @@ public class UndeployCommand extends CommandSupport {
     public void run() {
         try {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            for (int i = 0; i < modules.length; i++) {
-                TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
+            try {
+                for (int i = 0; i < modules.length; i++) {
+                    TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
-                URI moduleID = URI.create(module.getModuleID());
-                try {
-                    ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
+                    URI moduleID = URI.create(module.getModuleID());
                     try {
-                        kernel.stopGBean(configName);
-                        updateStatus("Module "+moduleID+" stopped.");
-                    } catch (GBeanNotFoundException e) {
-                        if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
-                            // the module is not running
-                        } else {
-                            throw e;
+                        ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
+                        try {
+                            kernel.stopGBean(configName);
+                            updateStatus("Module "+moduleID+" stopped.");
+                        } catch (GBeanNotFoundException e) {
+                            if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
+                                // the module is not running
+                            } else {
+                                throw e;
+                            }
                         }
+                        configurationManager.unload(moduleID);
+                        updateStatus("Module "+moduleID+" unloaded.");
+                    } catch (InternalKernelException e) {
+                        // this is cause by the kernel being already shutdown
+                    } catch (NoSuchConfigException e) {
+                        // module was already undeployed - just continue
                     }
-                    configurationManager.unload(moduleID);
-                    updateStatus("Module "+moduleID+" unloaded.");
-                } catch (InternalKernelException e) {
-                    // this is cause by the kernel being already shutdown
-                } catch (NoSuchConfigException e) {
-                    // module was already undeployed - just continue
-                }
 
-                try {
-                    TargetImpl target = (TargetImpl) module.getTarget();
-                    ObjectName storeName = target.getObjectName();
-                    URI configID = URI.create(module.getModuleID());
-                    kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
-                    updateStatus("Module "+moduleID+" uninstalled.");
-                    addModule(module);
-                } catch (NoSuchConfigException e) {
-                    // module was already undeployed - just continue
+                    try {
+                        TargetImpl target = (TargetImpl) module.getTarget();
+                        ObjectName storeName = target.getObjectName();
+                        URI configID = URI.create(module.getModuleID());
+                        kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
+                        updateStatus("Module "+moduleID+" uninstalled.");
+                        addModule(module);
+                    } catch (NoSuchConfigException e) {
+                        // module was already undeployed - just continue
+                    }
                 }
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
             if(getModuleCount() < modules.length) {
                 updateStatus("Some of the modules to undeploy were not previously deployed.  This is not treated as an error.");

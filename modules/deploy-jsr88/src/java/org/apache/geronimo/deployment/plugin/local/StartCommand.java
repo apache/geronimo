@@ -46,17 +46,21 @@ public class StartCommand extends CommandSupport {
     public void run() {
         try {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            for (int i = 0; i < modules.length; i++) {
-                TargetModuleID module = modules[i];
+            try {
+                for (int i = 0; i < modules.length; i++) {
+                    TargetModuleID module = modules[i];
 
-                URI moduleID = URI.create(module.getModuleID());
-                List list = configurationManager.loadRecursive(moduleID);
-                for (int j = 0; j < list.size(); j++) {
-                    ObjectName name = (ObjectName) list.get(j);
-                    kernel.startRecursiveGBean(name);
-                    String configName = ObjectName.unquote(name.getKeyProperty("name"));
-                    addModule(new TargetModuleIDImpl(modules[i].getTarget(), configName));
+                    URI moduleID = URI.create(module.getModuleID());
+                    List list = configurationManager.loadRecursive(moduleID);
+                    for (int j = 0; j < list.size(); j++) {
+                        ObjectName name = (ObjectName) list.get(j);
+                        kernel.startRecursiveGBean(name);
+                        String configName = ObjectName.unquote(name.getKeyProperty("name"));
+                        addModule(new TargetModuleIDImpl(modules[i].getTarget(), configName));
+                    }
                 }
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
             complete("Completed");
         } catch (Exception e) {

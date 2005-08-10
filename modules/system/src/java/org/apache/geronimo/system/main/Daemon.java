@@ -232,17 +232,21 @@ public class Daemon {
             // load the rest of the configurations
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-                for (Iterator i = configs.iterator(); i.hasNext();) {
-                    URI configID = (URI) i.next();
-                    monitor.configurationLoading(configID);
-                    List list = configurationManager.loadRecursive(configID);
-                    monitor.configurationLoaded(configID);
-                    monitor.configurationStarting(configID);
-                    for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                        ObjectName name = (ObjectName) iterator.next();
-                         kernel.startRecursiveGBean(name);
+                try {
+                    for (Iterator i = configs.iterator(); i.hasNext();) {
+                        URI configID = (URI) i.next();
+                        monitor.configurationLoading(configID);
+                        List list = configurationManager.loadRecursive(configID);
+                        monitor.configurationLoaded(configID);
+                        monitor.configurationStarting(configID);
+                        for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                            ObjectName name = (ObjectName) iterator.next();
+                             kernel.startRecursiveGBean(name);
+                        }
+                        monitor.configurationStarted(configID);
                     }
-                    monitor.configurationStarted(configID);
+                } finally {
+                    ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
                 }
             } catch (Exception e) {
                 //Exception caught when starting configurations, starting kernel shutdown
