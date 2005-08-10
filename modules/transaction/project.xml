@@ -117,5 +117,11 @@
             <version>${tranql_version}</version>
             <url>http://tranql.codehaus.org</url>
         </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>${mx4j_version}</version>
+        </dependency>
     </dependencies>
 </project>
