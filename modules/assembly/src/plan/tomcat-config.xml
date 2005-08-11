@@ -23,6 +23,9 @@ Configuration for the main ring of a Geronimo server.
 This configuration should contain those services normally provided
 by the server.
 -->
+
+<!-- TOMCAT CONFIGURATION STARTS HERE -->
+
     <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
     </dependency>
@@ -268,3 +271,6 @@ by the server.
         </reference> 
         -->
     </gbean>
+
+<!-- TOMCAT CONFIGURATION ENDS HERE -->
+
