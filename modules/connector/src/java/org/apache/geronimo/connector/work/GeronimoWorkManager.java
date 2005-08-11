@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,26 +17,24 @@
 
 package org.apache.geronimo.connector.work;
 
+import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
-import javax.resource.spi.XATerminator;
 
-import EDU.oswego.cs.dl.util.concurrent.Executor;
 import org.apache.geronimo.connector.work.pool.NullWorkExecutorPool;
 import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutor;
 import org.apache.geronimo.connector.work.pool.StartWorkExecutor;
 import org.apache.geronimo.connector.work.pool.SyncWorkExecutor;
 import org.apache.geronimo.connector.work.pool.WorkExecutor;
 import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+
+import EDU.oswego.cs.dl.util.concurrent.Executor;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
@@ -249,33 +247,5 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
             throw wcj;
         }
     }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoWorkManager.class, NameFactory.JCA_WORK_MANAGER);
-        infoFactory.addInterface(WorkManager.class);
-
-        infoFactory.addAttribute("syncMaximumPoolSize", Integer.TYPE, true);
-        infoFactory.addAttribute("startMaximumPoolSize", Integer.TYPE, true);
-        infoFactory.addAttribute("scheduledMaximumPoolSize", Integer.TYPE, true);
-
-        infoFactory.addOperation("getXATerminator");
-
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
-
-        infoFactory.setConstructor(new String[]{
-            "syncMaximumPoolSize",
-            "startMaximumPoolSize",
-            "scheduledMaximumPoolSize",
-            "TransactionContextManager"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 
 }

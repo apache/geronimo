@@ -34,6 +34,7 @@ import org.activemq.message.ActiveMQTopic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.AdminObjectWrapper;
+import org.apache.geronimo.connector.AdminObjectWrapperGBean;
 import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
@@ -61,12 +62,12 @@ public class CreateDestinationHandler extends AbstractJMSManager implements
 
     static {
         GBeanInfoBuilder queueInfoBuilder = new GBeanInfoBuilder(
-                AdminObjectWrapper.class, AdminObjectWrapper.GBEAN_INFO);
+                AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
         queueInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
                 String.class.getName(), true, true, true));
         QUEUE_INFO = queueInfoBuilder.getBeanInfo();
         GBeanInfoBuilder topicInfoBuilder = new GBeanInfoBuilder(
-                AdminObjectWrapper.class, AdminObjectWrapper.GBEAN_INFO);
+                AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
         topicInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
                 String.class.getName(), true, true, true));
         TOPIC_INFO = topicInfoBuilder.getBeanInfo();

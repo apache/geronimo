@@ -43,7 +43,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
@@ -447,7 +447,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         tcm = new GBeanData(tcmName, TransactionContextManager.GBEAN_INFO);
         tcm.setReferencePattern("TransactionManager", tmName);
         start(tcm);
-        ctc = new GBeanData(ctcName, ConnectionTrackingCoordinator.GBEAN_INFO);
+        ctc = new GBeanData(ctcName, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
         start(ctc);
 
     }

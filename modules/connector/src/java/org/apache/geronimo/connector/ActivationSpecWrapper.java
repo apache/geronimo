@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2004-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,12 +26,9 @@ import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Wrapper for ActivationSpec instances.
@@ -170,35 +167,5 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
     public void returnResource(NamedXAResource xaResource) {
         //do nothing, no way to return anything.
     }
-
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapper.class, NameFactory.JCA_ACTIVATION_SPEC);
-        infoBuilder.addAttribute("activationSpecClass", String.class, true);
-        infoBuilder.addAttribute("containerId", String.class, true);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoBuilder.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
-
-        infoBuilder.addOperation("activate", new Class[]{MessageEndpointFactory.class});
-        infoBuilder.addOperation("deactivate", new Class[]{MessageEndpointFactory.class});
-
-        infoBuilder.addInterface(ResourceManager.class);
-
-        infoBuilder.setConstructor(new String[]{
-            "activationSpecClass",
-            "containerId",
-            "ResourceAdapterWrapper",
-            "classLoader"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 
 }

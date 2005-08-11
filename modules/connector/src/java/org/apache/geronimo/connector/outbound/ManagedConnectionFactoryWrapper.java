@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import javax.transaction.SystemException;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ConnectorMethodInterceptor;
@@ -33,14 +34,11 @@ import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryListener;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -304,52 +302,4 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     public void returnResource(NamedXAResource xaResource) {
         ((ConnectionManagerContainer.ReturnableXAResource) xaResource).returnConnection();
     }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
-
-        infoFactory.addAttribute("managedConnectionFactoryClass", String.class, true);
-        infoFactory.addAttribute("connectionFactoryInterface", String.class, true);
-        infoFactory.addAttribute("implementedInterfaces", String[].class, true);
-        infoFactory.addAttribute("connectionFactoryImplClass", String.class, true);
-        infoFactory.addAttribute("connectionInterface", String.class, true);
-        infoFactory.addAttribute("connectionImplClass", String.class, true);
-        infoFactory.addAttribute("globalJNDIName", String.class, true);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoFactory.addOperation("$getResource");
-        infoFactory.addOperation("$getConnectionFactory");
-
-        infoFactory.addInterface(ResourceManager.class);
-
-        infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
-        infoFactory.addReference("ConnectionManagerContainer", ConnectionManagerContainer.class, NameFactory.JCA_CONNECTION_MANAGER);
-        infoFactory.addReference("ManagedConnectionFactoryListener", ManagedConnectionFactoryListener.class, NameFactory.SECURITY_REALM);
-
-        infoFactory.setConstructor(new String[]{
-            "managedConnectionFactoryClass",
-            "connectionFactoryInterface",
-            "implementedInterfaces",
-            "connectionFactoryImplClass",
-            "connectionInterface",
-            "connectionImplClass",
-            "globalJNDIName",
-            "ResourceAdapterWrapper",
-            "ConnectionManagerContainer",
-            "ManagedConnectionFactoryListener",
-            "kernel",
-            "objectName",
-            "classLoader"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
-
 }

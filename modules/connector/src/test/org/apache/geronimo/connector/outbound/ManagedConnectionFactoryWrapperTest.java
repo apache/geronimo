@@ -151,7 +151,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         kernel.loadGBean(ctc, cl);
 
         cmfName = ObjectName.getInstance("test:role=ConnectionManagerContainer");
-        GBeanData cmf = new GBeanData(cmfName, GenericConnectionManager.getGBeanInfo());
+        GBeanData cmf = new GBeanData(cmfName, GenericConnectionManagerGBean.getGBeanInfo());
         cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         cmf.setAttribute("pooling", new NoPool());
         cmf.setReferencePatterns("ConnectionTracker", Collections.singleton(ctcName));
@@ -160,7 +160,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         J2eeContext j2eeContext = new J2eeContextImpl("test.domain", "geronimo", "testapplication", "noModuleType", "testmodule", TARGET_NAME, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         managedConnectionFactoryName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, null, null, j2eeContext);
 
-        GBeanData mcfw = new GBeanData(managedConnectionFactoryName, ManagedConnectionFactoryWrapper.getGBeanInfo());
+        GBeanData mcfw = new GBeanData(managedConnectionFactoryName, ManagedConnectionFactoryWrapperGBean.getGBeanInfo());
         mcfw.setAttribute("managedConnectionFactoryClass", MockManagedConnectionFactory.class.getName());
         mcfw.setAttribute("connectionFactoryInterface", ConnectionFactory.class.getName());
         mcfw.setAttribute("implementedInterfaces", new String[] {Serializable.class.getName(), ConnectionFactoryExtension.class.getName()});

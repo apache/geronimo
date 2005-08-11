@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,13 +18,10 @@ package org.apache.geronimo.connector;
 
 import java.util.Hashtable;
 import java.util.Map;
-import javax.management.MalformedObjectNameException;
+
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.J2EEApplication;
 import org.apache.geronimo.j2ee.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.ResourceAdapterModule;
@@ -151,46 +148,5 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
         if (keyPropertyList.size() != 4) {
             throw new InvalidObjectNameException("ResourceAdapterModule object name can only have j2eeType, name, J2EEApplication, and J2EEServer properties", objectName);
         }
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class, NameFactory.RESOURCE_ADAPTER_MODULE);
-        infoBuilder.addReference("J2EEServer", J2EEServer.class, null);
-        infoBuilder.addReference("J2EEApplication", J2EEApplication.class, null);
-
-        infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
-
-        infoBuilder.addAttribute("resourceAdapter", String.class, true);
-        infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("server", String.class, false);
-        infoBuilder.addAttribute("application", String.class, false);
-        infoBuilder.addAttribute("javaVMs", String[].class, false);
-        infoBuilder.addAttribute("resourceAdapters", String[].class, false);
-
-        infoBuilder.addAttribute("resourceAdapterGBeanData", GBeanData.class, true);
-        infoBuilder.addAttribute("activationSpecInfoMap", Map.class, true);
-        infoBuilder.addAttribute("adminObjectInfoMap", Map.class, true);
-        infoBuilder.addAttribute("managedConnectionFactoryInfoMap", Map.class, true);
-        infoBuilder.addInterface(ResourceAdapterModule.class);
-
-        infoBuilder.setConstructor(new String[]{
-            "resourceAdapter",
-            "objectName",
-            "J2EEServer",
-            "J2EEApplication",
-            "deploymentDescriptor",
-            "resourceAdapterGBeanData",
-            "activationSpecInfoMap",
-            "adminObjectInfoMap",
-            "managedConnectionFactoryInfoMap"
-        });
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 }

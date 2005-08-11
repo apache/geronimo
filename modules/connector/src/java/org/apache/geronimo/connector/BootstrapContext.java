@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,9 +22,6 @@ import java.util.Timer;
 import javax.resource.spi.UnavailableException;
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.WorkManager;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
  * GBean BootstrapContext implementation that refers to externally configured WorkManager
@@ -74,29 +71,6 @@ public class BootstrapContext implements javax.resource.spi.BootstrapContext {
      */
     public Timer createTimer() throws UnavailableException {
         return new Timer();
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(BootstrapContext.class);
-          //adding interface does not work, creates attributes for references???
-//        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
-
-        infoFactory.addOperation("createTimer");
-        infoFactory.addOperation("getWorkManager");
-        infoFactory.addOperation("getXATerminator");
-
-        infoFactory.addReference("WorkManager", WorkManager.class);
-        infoFactory.addReference("XATerminator", XATerminator.class);
-
-        infoFactory.setConstructor(new String[]{"WorkManager", "XATerminator"});
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

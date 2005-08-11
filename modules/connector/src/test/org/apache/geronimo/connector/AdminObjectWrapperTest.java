@@ -107,7 +107,7 @@ public class AdminObjectWrapperTest extends TestCase {
         kernel.boot();
         selfName = NameFactory.getComponentName(null, null, null, NameFactory.JCA_RESOURCE, null, null, null, j2eeContext);
 
-        GBeanData aow = new GBeanData(selfName, AdminObjectWrapper.getGBeanInfo());
+        GBeanData aow = new GBeanData(selfName, AdminObjectWrapperGBean.getGBeanInfo());
         aow.setAttribute("adminObjectInterface", MockAdminObject.class.getName());
         aow.setAttribute("adminObjectClass", MockAdminObjectImpl.class.getName());
         kernel.loadGBean(aow, this.getClass().getClassLoader());

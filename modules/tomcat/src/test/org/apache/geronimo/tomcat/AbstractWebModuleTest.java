@@ -32,6 +32,7 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
@@ -390,7 +391,7 @@ public class AbstractWebModuleTest extends TestCase {
         tcm = new GBeanData(tcmName, TransactionContextManager.GBEAN_INFO);
         tcm.setReferencePattern("TransactionManager", tmName);
         start(tcm);
-        ctc = new GBeanData(ctcName, ConnectionTrackingCoordinator.GBEAN_INFO);
+        ctc = new GBeanData(ctcName, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
         start(ctc);
     }
 

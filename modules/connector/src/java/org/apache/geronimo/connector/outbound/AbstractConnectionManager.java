@@ -23,11 +23,8 @@ import javax.resource.spi.ConnectionRequestInfo;
 import javax.resource.spi.LazyAssociatableConnectionManager;
 import javax.resource.spi.ManagedConnectionFactory;
 
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.transaction.manager.NamedXAResource;
 
 /**
  * @version $Rev$ $Date$
@@ -158,19 +155,6 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
         ConnectionInterceptor getRecoveryStack();
 
         PoolingSupport getPoolingAttributes();
-    }
-
-    protected static final GBeanInfo GBEAN_INFO;
-
-
-    static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AbstractConnectionManager.class, NameFactory.JCA_CONNECTION_MANAGER);
-
-        infoBuilder.addInterface(ConnectionManagerContainer.class);
-        //these attributes are persisted via the pooling state.
-        infoBuilder.addInterface(PoolingAttributes.class);
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
 }

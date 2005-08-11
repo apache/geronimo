@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,11 +28,8 @@ import javax.resource.ResourceException;
 import org.apache.geronimo.connector.outbound.ConnectionInfo;
 import org.apache.geronimo.connector.outbound.ConnectionTrackingInterceptor;
 import org.apache.geronimo.connector.outbound.ManagedConnectionInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * ConnectionTrackingCoordinator tracks connections that are in use by
@@ -51,8 +48,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev$ $Date$
  */
 public class ConnectionTrackingCoordinator implements TrackedConnectionAssociator, ConnectionTracker {
-
-    public final static GBeanInfo GBEAN_INFO;
 
     private final ThreadLocal currentInstanceContexts = new ThreadLocal();
 
@@ -143,17 +138,6 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
             boolean applicationManagedSecurity = applicationManagedSecurityResources.contains(key);
             connectionInfo.setApplicationManagedSecurity(applicationManagedSecurity);
         }
-    }
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectionTrackingCoordinator.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoFactory.addInterface(TrackedConnectionAssociator.class);
-        infoFactory.addInterface(ConnectionTracker.class);
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,10 +29,7 @@ import javax.transaction.xa.XAResource;
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
@@ -41,8 +38,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev$ $Date$
  */
 public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, ResourceAdapter {
-
-    public static final GBeanInfo GBEAN_INFO;
 
     private final String resourceAdapterClass;
 
@@ -127,24 +122,5 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         return null;
     }
 
-    static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
-        infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
-        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-
-        infoBuilder.addReference("WorkManager", GeronimoWorkManager.class, NameFactory.JCA_WORK_MANAGER);
-
-        infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
-
-        infoBuilder.addInterface(ResourceAdapter.class);
-
-        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "WorkManager", "classLoader"});
-
-        GBEAN_INFO = infoBuilder.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 
 }
