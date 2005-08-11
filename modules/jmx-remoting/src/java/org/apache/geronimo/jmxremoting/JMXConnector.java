@@ -21,7 +21,10 @@ import java.util.Map;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.JMXConnectionNotification;
 import javax.management.MBeanServer;
+import javax.management.NotificationFilter;
+import javax.management.NotificationFilterSupport;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +45,7 @@ public class JMXConnector implements GBeanLifecycle {
     private final ClassLoader classLoader;
     private String url;
     private String applicationConfigName;
+    private Authenticator authenticator;
 
     private JMXConnectorServer server;
 
@@ -103,12 +107,18 @@ public class JMXConnector implements GBeanLifecycle {
         JMXServiceURL serviceURL = new JMXServiceURL(url);
         Map env = new HashMap();
         if (applicationConfigName != null) {
-            env.put(JMXConnectorServer.AUTHENTICATOR, new Authenticator(applicationConfigName, classLoader));
+            authenticator = new Authenticator(applicationConfigName, classLoader);
+            env.put(JMXConnectorServer.AUTHENTICATOR, authenticator);
         } else {
             log.warn("Starting unauthenticating JMXConnector for " + serviceURL);
         }
         MBeanServer mbeanServer = new MBeanServerDelegate(kernel);
         server = JMXConnectorServerFactory.newJMXConnectorServer(serviceURL, env, mbeanServer);
+        NotificationFilterSupport filter = new NotificationFilterSupport();
+        filter.enableType(JMXConnectionNotification.OPENED);
+        filter.enableType(JMXConnectionNotification.CLOSED);
+        filter.enableType(JMXConnectionNotification.FAILED);
+        server.addNotificationListener(authenticator, filter, null);
         server.start();
         log.info("Started JMXConnector " + server.getAddress());
     }

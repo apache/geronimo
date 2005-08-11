@@ -16,7 +16,13 @@
  */
 package org.apache.geronimo.jmxremoting;
 
+import java.util.Map;
+import java.util.Collections;
+import java.util.HashMap;
 import javax.management.remote.JMXAuthenticator;
+import javax.management.remote.JMXConnectionNotification;
+import javax.management.NotificationListener;
+import javax.management.Notification;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -26,9 +32,11 @@ import javax.security.auth.login.LoginException;
  *
  * @version $Rev$ $Date$
  */
-public class Authenticator implements JMXAuthenticator {
+public class Authenticator implements JMXAuthenticator, NotificationListener {
     private final String configName;
     private final ClassLoader cl;
+    private ThreadLocal threadContext = new ThreadLocal();
+    private Map contextMap = Collections.synchronizedMap(new HashMap());
 
     /**
      * Constructor indicating which JAAS Application Configuration Entry to use.
@@ -55,6 +63,7 @@ public class Authenticator implements JMXAuthenticator {
             thread.setContextClassLoader(cl);
             LoginContext context = new LoginContext(configName, credentials);
             context.login();
+            threadContext.set(context);
             return context.getSubject();
         } catch (LoginException e) {
             // do not propogate cause - we don't know what information is may contain
@@ -62,6 +71,28 @@ public class Authenticator implements JMXAuthenticator {
         } finally {
             credentials.clear();
             thread.setContextClassLoader(oldCL);
+        }
+    }
+
+    public void handleNotification(Notification notification, Object o) {
+        if (notification instanceof JMXConnectionNotification) {
+            JMXConnectionNotification cxNotification = (JMXConnectionNotification) notification;
+            String type = cxNotification.getType();
+            String connectionId = cxNotification.getConnectionId();
+            if (JMXConnectionNotification.OPENED.equals(type)) {
+                LoginContext context = (LoginContext) threadContext.get();
+                threadContext.set(null);
+                contextMap.put(connectionId, context);
+            } else {
+                LoginContext context = (LoginContext) contextMap.remove(connectionId);
+                if (context != null) {
+                    try {
+                        context.logout();
+                    } catch (LoginException e) {
+                        //nothing we can do here...
+                    }
+                }
+            }
         }
     }
 }

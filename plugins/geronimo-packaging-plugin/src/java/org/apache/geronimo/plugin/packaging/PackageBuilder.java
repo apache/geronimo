@@ -193,13 +193,17 @@ public class PackageBuilder {
         Kernel kernel = createKernel();
 
         // start the Configuration we're going to use for this deployment
-        ConfigurationManager configMgr = ConfigurationUtil.getConfigurationManager(kernel);
-        if (!configMgr.isLoaded(deploymentConfig)) {
-            List configs = configMgr.loadRecursive(deploymentConfig);
-            for (int i = 0; i < configs.size(); i++) {
-                ObjectName configName = (ObjectName) configs.get(i);
-                kernel.startRecursiveGBean(configName);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        try {
+            if (!configurationManager.isLoaded(deploymentConfig)) {
+                List configs = configurationManager.loadRecursive(deploymentConfig);
+                for (int i = 0; i < configs.size(); i++) {
+                    ObjectName configName = (ObjectName) configs.get(i);
+                    kernel.startRecursiveGBean(configName);
+                }
             }
+        } finally {
+            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
         }
 
         ObjectName deployer = locateDeployer(kernel);

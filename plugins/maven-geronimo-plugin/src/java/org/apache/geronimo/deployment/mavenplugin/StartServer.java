@@ -121,14 +121,18 @@ public class StartServer {
 
         // load the rest of the configuration listed on the command line
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        for (Iterator i = configList.iterator(); i.hasNext();) {
-            URI configID = (URI) i.next();
-            List list = configurationManager.loadRecursive(configID);
-            for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                ObjectName name = (ObjectName) iterator.next();
-                kernel.startRecursiveGBean(name);
-                System.out.println("started gbean: " + name);
+        try {
+            for (Iterator i = configList.iterator(); i.hasNext();) {
+                URI configID = (URI) i.next();
+                List list = configurationManager.loadRecursive(configID);
+                for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                    ObjectName name = (ObjectName) iterator.next();
+                    kernel.startRecursiveGBean(name);
+                    System.out.println("started gbean: " + name);
+                }
             }
+        } finally {
+            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
         }
 
 
