@@ -190,7 +190,7 @@ public class AbstractWebModuleTest extends TestCase {
         securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
         securityHolder.setPolicyContextID(POLICY_CONTEXT_ID);
         securityHolder.setDefaultPrincipal(defaultPrincipal);
-        securityHolder.setSecurityRealm(REALM_NAME);
+        securityHolder.setSecurityRealm("Geronimo");
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
         app.setAttribute("classLoader", cl);
         app.setAttribute("webAppRoot", new File("target/var/catalina/webapps/war3/").toURI());

@@ -364,7 +364,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // Is it necessary - doesn't Tomcat Embedded take care of it?
         // super.start();
 
-        log.info("TomcatWebAppContext started");
+        log.info("TomcatWebAppContext started for " + path);
     }
 
     public void doStop() throws Exception {
