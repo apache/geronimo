@@ -24,10 +24,10 @@
     parentId="org/apache/geronimo/Server">
 
     <dependency>
-        <uri>incubator-derby/jars/derby-${derby_version}.jar</uri>
+        <uri>org.apache.derby/jars/derby-${derby_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>incubator-derby/jars/derbynet-${derby_version}.jar</uri>
+        <uri>org.apache.derby/jars/derbynet-${derby_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>

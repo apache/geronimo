@@ -569,7 +569,7 @@
         </dependency>
 
         <dependency>
-            <groupId>incubator-derby</groupId>
+            <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
             <version>${derby_version}</version>
             <properties>
@@ -578,8 +578,26 @@
         </dependency>
 
         <dependency>
-            <groupId>incubator-derby</groupId>
+            <groupId>org.apache.derby</groupId>
             <artifactId>derbynet</artifactId>
+            <version>${derby_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>${derby_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
             <version>${derby_version}</version>
             <properties>
                 <repository>true</repository>

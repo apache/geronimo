@@ -12,69 +12,8 @@
         <uri>org.apache.pluto/jars/pluto-${pluto_version}.jar</uri>
     </dependency>
 
-	<!-- Active MQ dependencies -->
-    <dependency>
-        <uri>activemq/jars/activemq-core-${activemq_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>activemq/jars/activemq-gbean-${activemq_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
-    </dependency>
-    
-     <!-- Deployer dependencies -->    
-    <dependency>
-        <uri>geronimo/jars/geronimo-deployment-${pom.currentVersion}.jar</uri>
-    </dependency>        
-    <dependency>    
-        <uri>geronimo/jars/geronimo-common-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-connector-builder-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>    
-        <!-- <uri>geronimo/jars/geronimo-derby-connector-${pom.currentVersion}.jar</uri> -->
-        <uri>geronimo/jars/geronimo-connector-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-builder-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-naming-builder-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-jetty-builder-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-client-builder-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-security-builder-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-service-builder-${pom.currentVersion}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-schema-${pom.currentVersion}.jar</uri>
-    </dependency>
- 
     <dependency>
         <uri>geronimo/jars/geronimo-console-core-${pom.currentVersion}.jar</uri>
-    </dependency>
-
-    <dependency>
-        <uri>incubator-derby/jars/derby-${derby_version}.jar</uri> 
-    </dependency>
-    <dependency>
-        <uri>incubator-derby/jars/derbynet-${derby_version}.jar</uri>
-    </dependency>
-    
-    <dependency>
-        <uri>geronimo/jars/geronimo-derby-${pom.currentVersion}.jar</uri> 
     </dependency>
 
     <module>
@@ -106,8 +45,7 @@
         </web-app>
     </module>
 
-    <!-- Console specific server info
-    <gbean name="SEServerInfo" class="org.apache.geronimo.console.core.system.serverinfo.SEServerInfo"/>-->
+    <!-- Console specific server info -->
     <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
         <reference name="ServerInfo"><gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name></reference>
         <reference name="LoginModule">
