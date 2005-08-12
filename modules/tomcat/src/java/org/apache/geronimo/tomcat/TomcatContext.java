@@ -62,5 +62,7 @@ public interface TomcatContext {
     
     public List getValveChain();    
     
+    public boolean isCrossContext();
+    
     public Map getWebServices();
 }

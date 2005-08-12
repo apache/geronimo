@@ -139,6 +139,8 @@ public class GeronimoStandardContext extends StandardContext{
         }
 
         this.webServiceMap = ctx.getWebServices();
+        
+        this.setCrossContext(ctx.isCrossContext());
     }
 
     public synchronized void start() throws LifecycleException {

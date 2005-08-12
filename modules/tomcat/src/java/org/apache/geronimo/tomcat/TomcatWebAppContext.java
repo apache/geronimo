@@ -75,6 +75,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Realm realm;
 
     private final List valveChain;
+    
+    private final boolean crossContext;
 
     private final Map componentContext;
 
@@ -122,6 +124,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             RoleDesignateSource roleDesignateSource,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
+            boolean crossContext,
             Map webServices,
             J2EEServer server,
             J2EEApplication application,
@@ -178,6 +181,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             valveChain = null;
         }
+        
+        this.crossContext = crossContext;
 
         this.webServices = webServices;
 
@@ -301,6 +306,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return valveChain;
     }
 
+    public boolean isCrossContext() {
+        return crossContext;
+    }
+
     public Map getWebServices(){
         return webServices;
     }
@@ -414,6 +423,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 RoleDesignateSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
+        infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class);
@@ -441,6 +451,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "RoleDesignateSource",
                 "TomcatRealm",
                 "TomcatValveChain",
+                "crossContext",
                 "webServices",
                 "J2EEServer",
                 "J2EEApplication",
