@@ -70,8 +70,8 @@ limitations under the License.
         <auth-method>FORM</auth-method>
         <realm-name>geronimo-properties-realm</realm-name>
         <form-login-config>
-            <form-login-page>/login.html</form-login-page>
-            <form-error-page>/loginerror.html</form-error-page>
+            <form-login-page>/login.jsp</form-login-page>
+            <form-error-page>/loginerror.jsp</form-error-page>
       </form-login-config>
     </login-config>
     <security-role>

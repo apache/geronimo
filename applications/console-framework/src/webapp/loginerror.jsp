@@ -1,8 +1,8 @@
 <html>
 <head>
 <title>Geronimo Console Login</title>
-<link href="main.css" rel="stylesheet" type="text/css">
-<link rel="SHORTCUT ICON" href="favicon.ico" type="image/x-icon"/>
+<link href="<%=request.getContextPath()%>/main.css" rel="stylesheet" type="text/css">
+<link rel="SHORTCUT ICON" href="<%=request.getContextPath()%>/favicon.ico" type="image/x-icon"/>
 </head>
 
 <body onload="document.login.j_username.focus()" leftmargin="0" topmargin="0" rightmargin="0">
@@ -178,13 +178,13 @@
           <td width="300" valign="top">            <table width="100%"  border="0" cellspacing="0" cellpadding="0">
               <tr>
                 <td width="10">&nbsp;</td>
-                <td><img src="images/related_links.gif"></td>
+                <td><img src="<%=request.getContextPath()%>/images/related_links.gif"></td>
                 <td width="10">&nbsp;</td>
               </tr>
               <tr>
-                <td height="7"><img src="images/spacer.gif"></td>
-                <td height="7" class="Body"><img src="images/spacer.gif"></td>
-                <td height="7"><img src="images/spacer.gif"></td>
+                <td height="7"><img src="<%=request.getContextPath()%>/images/spacer.gif"></td>
+                <td height="7" class="Body"><img src="<%=request.getContextPath()%>/images/spacer.gif"></td>
+                <td height="7"><img src="<%=request.getContextPath()%>/images/spacer.gif"></td>
               </tr>
               <tr>
                 <td width="10">&nbsp;</td>
@@ -195,7 +195,7 @@
                     <td>&nbsp;</td>
                   </tr>
                   <tr>
-                    <td width="20" align="center"><img src="images/bullet.gif"></td>
+                    <td width="20" align="center"><img src="<%=request.getContextPath()%>/images/bullet.gif"></td>
                     <td><a href="http://">Technical Support</a></td>
                     <td width="10">&nbsp;</td>
                   </tr>
@@ -205,7 +205,7 @@
                     <td>&nbsp;</td>
                   </tr>
                   <tr>
-                    <td width="20" align="center"><img src="images/bullet.gif"></td>
+                    <td width="20" align="center"><img src="<%=request.getContextPath()%>/images/bullet.gif"></td>
                     <td><a href="http://">Download Updates</a> </td>
                     <td width="10">&nbsp;</td>
                   </tr>
@@ -215,7 +215,7 @@
                     <td>&nbsp;</td>
                   </tr>
                   <tr>
-                    <td width="20" align="center"><img src="images/bullet.gif"></td>
+                    <td width="20" align="center"><img src="<%=request.getContextPath()%>/images/bullet.gif"></td>
                     <td><a href="http://">Mailing List</a></td>
                     <td width="10">&nbsp;</td>
                   </tr>
