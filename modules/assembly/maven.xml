@@ -313,6 +313,13 @@
                 name="${basedir}/target/plan/${planName}"/>
         </j:forEach>
 
+        <!-- copy the final plans -->
+        <ant:mkdir dir="${distDir}/doc"/>
+        <ant:mkdir dir="${distDir}/doc/plan"/>
+        <ant:copy todir="${distDir}/doc/plan">
+            <ant:fileset dir="${basedir}/target/plan"/>
+        </ant:copy>
+
         <!-- bootstrap the deployer -->
         <ant:echo>Bootstrapping service deployer</ant:echo>
         <ant:mkdir dir="${distDir}/bin"/>
