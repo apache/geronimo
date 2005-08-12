@@ -408,6 +408,14 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 //Is there a Tomcat virtual server declaration?
                 virtualServer = (String) values.remove("VirtualServer");
 
+                //Is there a Tomcat crossContext declaration?
+                String strCrossContext = (String) values.remove("CrossContext");
+                if (strCrossContext != null){
+                    if (strCrossContext.trim().toLowerCase().equals("true")){
+                        webModuleData.setAttribute("crossContext",new Boolean(true));
+                    }
+                }
+                
                 //Is there a Tomcat realm declaration?
                 String tomcatRealm = (String) values.remove("TomcatRealm");
                 if (tomcatRealm != null) {
