@@ -601,7 +601,7 @@
         <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:SystemDatabase;create=true" userid="" password="">
             <ant:fileset dir="src/sql"/>
             <ant:classpath>
-                <ant:pathelement location="${maven.repo.local}/incubator-derby/jars/derby-${derby_version}.jar"/>
+                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>
             </ant:classpath>
         </ant:sql>
     </goal>

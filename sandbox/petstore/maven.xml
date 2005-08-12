@@ -133,7 +133,7 @@
             url="jdbc:derby:PetStoreDB;create=true" userid="" password="">
             <ant:fileset dir="src/sql"/>
             <ant:classpath>
-                <ant:pathelement location="${maven.repo.local}/incubator-derby/jars/derby-10.0.2.1.jar"/>
+                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-10.1.1.0.jar"/>
             </ant:classpath>
         </ant:sql>
     </goal>
