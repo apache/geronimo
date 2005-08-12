@@ -21,6 +21,9 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="console">
             <context-root>/console</context-root>
             <context-priority-classloader>false</context-priority-classloader>
+            <container-config container="Tomcat">
+                <config-param name="CrossContext">true</config-param>
+            </container-config>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
             <security>
                 <default-principal realm-name="geronimo-properties-realm">
@@ -42,6 +45,9 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="console-standard">
             <context-root>/console-standard</context-root>
             <context-priority-classloader>false</context-priority-classloader>
+            <container-config container="Tomcat">
+                <config-param name="CrossContext">true</config-param>
+            </container-config>
         </web-app>
     </module>
 
