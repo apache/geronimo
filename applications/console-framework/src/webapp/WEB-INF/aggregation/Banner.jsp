@@ -22,7 +22,7 @@ limitations under the License.
         <tr> 
           <td class="Logo" width="200">GERONIMO CONSOLE</td>
           <td class="Top">
-<a href="http://">Mailing List</a>
+<a href="mailto:user@geronimo.apache.org">Mailing List</a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
 <a href="<%=request.getContextPath()%>/about.jsp">About</a>
 &nbsp;&nbsp;|&nbsp;&nbsp;
