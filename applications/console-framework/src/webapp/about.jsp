@@ -17,7 +17,7 @@
 			
 			function viewInitial()
 			{
-			  frames['licenseviewer'].location.href="doc/license/Apache_License-1.1.txt";
+			  frames['licenseviewer'].location.href="doc/license/Apache_License-2.0.txt";
 			}
 		// -->
 	</script>	
@@ -75,14 +75,42 @@
                     </div>
 									</td> 
 								</tr>
-                <tr> 
+                <tr>
                   <td>
 									  <div class="Selection"> 
                       <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
                         <tr> 
                           <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                           <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle"><a href="javascript:setFilename('Apache_License-1.1.txt')">Apache_License-1.1.txt</a></td> 
+                          <td class="TopMiddle"><a href="javascript:setFilename('Apache_License-2.0.txt')">Apache License V2.0</a></td>
+                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                        </tr> 
+                      </table> 
+                    </div>
+									</td> 
+								</tr>
+                <tr>
+                  <td>
+									  <div class="Selection">
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
+                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
+                          <td class="TopMiddle"><a href="javascript:setFilename('Apache_License-1.1.txt')">Apache License V1.1</a></td>
+                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
+                        </tr>
+                      </table>
+                    </div>
+									</td>
+								</tr>
+                <tr>
+                  <td>
+									  <div class="Selection"> 
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+                        <tr> 
+                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="TopMiddle"><a href="javascript:setFilename('Castor_License.txt')">Castor License</a></td>
                           <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                         </tr> 
                       </table> 
@@ -96,7 +124,7 @@
                         <tr> 
                           <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                           <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle"><a href="javascript:setFilename('Apache_License-2.0.txt')">Apache_License-2.0.txt</a></td> 
+                          <td class="TopMiddle"><a href="javascript:setFilename('dom4j_License.txt')">dom4j License</a></td>
                           <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                         </tr> 
                       </table> 
@@ -110,7 +138,7 @@
                         <tr> 
                           <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                           <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle"><a href="javascript:setFilename('Castor_License.txt')">Castor_License.txt</a></td> 
+                          <td class="TopMiddle"><a href="javascript:setFilename('HOWL_License.txt')">HOWL License</a></td>
                           <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                         </tr> 
                       </table> 
@@ -124,56 +152,14 @@
                         <tr> 
                           <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                           <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle"><a href="javascript:setFilename('dom4j_License.txt')">dom4j_License.txt</a></td> 
+                          <td class="TopMiddle"><a href="javascript:setFilename('jdbm_License.txt')">jdbm License</a></td>
                           <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                         </tr> 
                       </table> 
                     </div>
 									</td> 
 								</tr>
-                <tr> 
-                  <td>
-									  <div class="Selection"> 
-                      <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
-                        <tr> 
-                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle"><a href="javascript:setFilename('HOWL_License.txt')">HOWL_License.txt</a></td> 
-                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                        </tr> 
-                      </table> 
-                    </div>
-									</td> 
-								</tr>
-                <tr> 
-                  <td>
-									  <div class="Selection"> 
-                      <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
-                        <tr> 
-                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle"><a href="javascript:setFilename('jdbm_License.txt')">jdbm_License.txt</a></td> 
-                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                        </tr> 
-                      </table> 
-                    </div>
-									</td> 
-								</tr>
-                <tr> 
-                  <td>
-									  <div class="Selection"> 
-                      <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
-                        <tr> 
-                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle"><a href="javascript:setFilename('Sun_Binary_Code_License.txt')">Sun_Binary_Code_License.txt</a></td> 
-                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                        </tr> 
-                      </table> 
-                    </div>
-									</td> 
-								</tr>
-                <tr> 
+                <tr>
                   <td>
 									  <div class="Selection"> 
                       <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
@@ -230,7 +216,7 @@
   </table>
 
 	<form name="license">
-	  <input type="hidden" name="filename" value="doc/license/Apache_License-1.1.txt">
+	  <input type="hidden" name="filename" value="doc/license/Apache_License-2.0.txt">
 	</form>
  
 </body>
