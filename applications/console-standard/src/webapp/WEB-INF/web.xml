@@ -692,14 +692,6 @@ limitations under the License.
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>DerbyUsers</servlet-name>
-        <url-pattern>/DerbyUsers/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>DerbyGroups</servlet-name>
-        <url-pattern>/DerbyGroups/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>SecurityRealms</servlet-name>
         <url-pattern>/SecurityRealms/*</url-pattern>
     </servlet-mapping>
@@ -782,10 +774,6 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>JNDI</servlet-name>
         <url-pattern>/JNDI/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>CertManager</servlet-name>
-        <url-pattern>/CertManager/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>RepositoryViewer</servlet-name>
