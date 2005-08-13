@@ -36,8 +36,10 @@ import org.apache.geronimo.gbean.GOperationInfo;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 
 /**
  * @version $Rev: 106345 $ $Date: 2004-11-23 12:37:03 -0800 (Tue, 23 Nov 2004) $
@@ -108,6 +110,15 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
             invokers[getSuperIndex(proxyType, proxyType.getMethod("equals", new Class[]{Object.class}))] = new EqualsInvoke(kernel.getProxyManager());
             invokers[getSuperIndex(proxyType, proxyType.getMethod("hashCode", null))] = new HashCodeInvoke();
             invokers[getSuperIndex(proxyType, proxyType.getMethod("toString", null))] = new ToStringInvoke(proxyType.getName());
+            if(GeronimoManagedBean.class.isAssignableFrom(proxyType)) {
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("getState", null))] = new GetStateInvoke(kernel);
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("getStateInstance", null))] = new GetStateInstanceInvoke(kernel);
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("start", null))] = new StartInvoke(kernel);
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("startRecursive", null))] = new StartRecursiveInvoke(kernel);
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("stop", null))] = new StopInvoke(kernel);
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("getStartTime", null))] = new GetStartTimeInvoke(kernel);
+                invokers[getSuperIndex(proxyType, proxyType.getMethod("getObjectName", null))] = new GetObjectNameInvoke();
+            }
         } catch (Exception e) {
             // this can not happen... all classes must implement equals, hashCode and toString
             throw new AssertionError(e);
@@ -303,6 +314,87 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
 
         public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
             return interfaceName + objectName + "]";
+        }
+    }
+
+    static final class GetStateInvoke implements ProxyInvoker {
+        private Kernel kernel;
+
+        public GetStateInvoke(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return new Integer(kernel.getGBeanState(objectName));
+        }
+    }
+
+    static final class GetStateInstanceInvoke implements ProxyInvoker {
+        private Kernel kernel;
+
+        public GetStateInstanceInvoke(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return State.fromInt(kernel.getGBeanState(objectName));
+        }
+    }
+
+    static final class StartInvoke implements ProxyInvoker {
+        private Kernel kernel;
+
+        public StartInvoke(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            kernel.startRecursiveGBean(objectName);
+            return null;
+        }
+    }
+
+    static final class StartRecursiveInvoke implements ProxyInvoker {
+        private Kernel kernel;
+
+        public StartRecursiveInvoke(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            kernel.startRecursiveGBean(objectName);
+            return null;
+        }
+    }
+
+    static final class GetStartTimeInvoke implements ProxyInvoker {
+        private Kernel kernel;
+
+        public GetStartTimeInvoke(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return new Long(kernel.getGBeanStartTime(objectName));
+        }
+    }
+
+    static final class StopInvoke implements ProxyInvoker {
+        private Kernel kernel;
+
+        public StopInvoke(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            kernel.stopGBean(objectName);
+            return null;
+        }
+    }
+
+    static final class GetObjectNameInvoke implements ProxyInvoker {
+        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+            return objectName.getCanonicalName();
         }
     }
 }

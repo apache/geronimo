@@ -35,6 +35,6 @@ public class HTTPConnectorTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        connector = new HTTPConnector(null, "foo:bar=baz", null);
+        connector = new HTTPConnector(null);
     }
 }

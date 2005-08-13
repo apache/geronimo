@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.basic.BasicProxyManager;
 
 /**
  * @version $Rev$ $Date$
@@ -158,10 +159,8 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof MockChildInterface2);
         assertFalse(test instanceof Comparable);
 
-        try {
-            test = mgr.createProxy(name, null, new Class[]{Comparable.class}); // no implementable interface
-            fail();
-        }catch(IllegalArgumentException e) {}
+        test = mgr.createProxy(name, null, new Class[]{Comparable.class}); // no implementable interface
+        assertNull(test);
 
         try {
             test = mgr.createProxy(name, null, new Class[0]); // no interface
@@ -173,15 +172,15 @@ public class GBeanTest extends TestCase {
             fail();
         }catch(IllegalArgumentException e) {}
 
-        try {
-            test = mgr.createProxy(name, Class.class, null); // class not interface
-            fail();
-        }catch(IllegalArgumentException e) {}
+        test = mgr.createProxy(name, MockGBean.class, null); // class not interface
+        test = mgr.createProxy(name, MockGBean.class, new Class[]{MockEndpoint.class}); // class and interface
 
-        try {
-            test = mgr.createProxy(name, null, new Class[]{Class.class}); // class not interface
-            fail();
-        }catch(IllegalArgumentException e) {}
+        if(mgr instanceof BasicProxyManager) {
+            try { // two classes
+                test = ((BasicProxyManager)mgr).createProxyFactory(new Class[]{MockGBean.class, Object.class}).createProxy(name);
+                fail();
+            }catch(IllegalArgumentException e) {}
+        }
     }
 
     protected void setUp() throws Exception {

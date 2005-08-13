@@ -20,7 +20,6 @@ package org.apache.geronimo.jetty.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty.JettyContainer;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 import org.mortbay.http.ajp.AJP13Listener;
 
@@ -28,8 +27,8 @@ import org.mortbay.http.ajp.AJP13Listener;
  * @version $Rev$ $Date$
  */
 public class AJP13Connector extends JettyConnector {
-    public AJP13Connector(JettyContainer container, String objectName, Kernel kernel) {
-        super(container, new AJP13Listener(), objectName, kernel);
+    public AJP13Connector(JettyContainer container) {
+        super(container, new AJP13Listener());
     }
 
     public String getProtocol() {
@@ -40,7 +39,7 @@ public class AJP13Connector extends JettyConnector {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Connector AJP13", AJP13Connector.class, JettyConnector.GBEAN_INFO);
-        infoFactory.setConstructor(new String[]{"JettyContainer","objectName","kernel"});
+        infoFactory.setConstructor(new String[]{"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

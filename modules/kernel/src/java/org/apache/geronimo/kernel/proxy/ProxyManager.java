@@ -20,12 +20,18 @@ import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
 /**
- * Manages kernel proxies
+ * Manages kernel proxies.  Note that all proxies will include an
+ * implementation of GeronimoManagedBean.
+ *
+ * @see org.apache.geronimo.kernel.proxy.GeronimoManagedBean
+ *
  * @version $Rev$ $Date$
  */
 public interface ProxyManager {
     /**
-     * Create a proxy factory which will generate proxies of the specified type
+     * Create a proxy factory which will generate proxies of the specified type,
+     * plus GeronimoManagedBean.
+     *
      * @param type the type of the proxies to create
      * @return the proxy factory
      */
@@ -34,8 +40,8 @@ public interface ProxyManager {
     /**
      * Create a proxy for the specified target.  The proxy will implement
      * all of the interfaces that the underlying GBean specifies in its
-     * GBeanInfo.  If there are no interfaces in the GBeanInfo, this method
-     * will return null.
+     * GBeanInfo, plus GeronimoManagedBean.  If there are no interfaces in
+     * the GBeanInfo, this method will return null.
      *
      * @param target the target object name
      * @param loader the ClassLoader used to load the interfaces used by the
@@ -47,8 +53,8 @@ public interface ProxyManager {
     /**
      * Create proxies for the specified targets.  The proxies will implement
      * all of the interfaces that the underlying GBeans specify in their
-     * GBeanInfo.  If there are no interfaces in the GBeanInfo, this method
-     * will return a null in that spot in the array.
+     * GBeanInfo, plus GeronimoManagedBean.  If there are no interfaces in the
+     * GBeanInfo, this method will return a null in that spot in the array.
      *
      * @param objectNameStrings An array of ObjectNames, each in String form
      * @param loader the ClassLoader used to load the interfaces used by the
@@ -61,7 +67,7 @@ public interface ProxyManager {
 
     /**
      * Create a proxy for the specified target, implementing the specified
-     * interface.
+     * interface, plus GeronimoManagedBean.
      *
      * @param target the target object name
      * @param type the type of the proxy to create
@@ -73,7 +79,9 @@ public interface ProxyManager {
      * Create a proxy for the specified target, implementing a variable
      * number of interfaces.  It's possible to specify one interface that must
      * be included, and also to specify a number of variable interfaces that
-     * the proxy should implement if the underlying GBean supports them. 
+     * the proxy should implement if the underlying GBean supports them.  Each
+     * proxy will also implement GeronimoManagedBean in addition to any
+     * interfaces provided as arguments.
      *
      * @param target the target object name
      * @param required an interface that the proxy must implement.  This may be
@@ -95,7 +103,9 @@ public interface ProxyManager {
      * Create a proxy for the specified target, implementing a variable
      * number of interfaces.  It's possible to specify one interface that must
      * be included, and also to specify a number of variable interfaces that
-     * the proxy should implement if the underlying GBean supports them.
+     * the proxy should implement if the underlying GBean supports them.  Each
+     * proxy will also implement GeronimoManagedBean in addition to any
+     * interfaces provided as arguments.
      *
      * @param objectNameStrings An array of ObjectNames, each in String form
      * @param required an interface that the proxies must implement.  This may

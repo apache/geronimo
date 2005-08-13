@@ -27,7 +27,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.kernel.Kernel;
 
 /**
  * Implementation of a HTTPS connector based on Jetty's SslConnector (which uses pure JSSE).
@@ -40,8 +39,8 @@ public class HTTPSConnector extends JettyConnector {
     private String keystore;
     private String algorithm;
 
-    public HTTPSConnector(JettyContainer container, ServerInfo serverInfo, String objectName, Kernel kernel) {
-        super(container, new SslListener(), objectName, kernel);
+    public HTTPSConnector(JettyContainer container, ServerInfo serverInfo) {
+        super(container, new SslListener());
         this.serverInfo = serverInfo;
         https = (SslListener) listener;
     }
@@ -129,7 +128,7 @@ public class HTTPSConnector extends JettyConnector {
         infoFactory.addAttribute("password", String.class, true);
         infoFactory.addAttribute("secureProtocol", String.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo", "objectName", "kernel"});
+        infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

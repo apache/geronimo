@@ -52,7 +52,7 @@ import org.mortbay.jetty.Server;
 /**
  * @version $Rev$ $Date$
  */
-public class JettyContainerImpl implements JettyContainer, SoapHandler, StateManageable, GBeanLifecycle {
+public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(JettyContainerImpl.class);
     private final Server server;
     private final Map webServices = new HashMap();
@@ -234,6 +234,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, StateMan
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);
         } else if(protocol.equals(PROTOCOL_HTTPS)) {
             connector = new GBeanData(name, HTTPSConnector.GBEAN_INFO);
+            //todo: default HTTPS settings
         } else if(protocol.equals(PROTOCOL_AJP)) {
             connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);
         } else {
@@ -241,6 +242,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, StateMan
         }
         connector.setAttribute("host", host);
         connector.setAttribute("port", new Integer(port));
+        connector.setAttribute("minThreads", new Integer(10));
+        connector.setAttribute("maxThreads", new Integer(50));
         connector.setReferencePattern("JettyContainer", myName);
         ObjectName config = Util.getConfiguration(kernel, myName);
         try {
@@ -324,38 +327,6 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, StateMan
         }
     }
 
-    public int getState() {
-        try {
-            return kernel.getGBeanState(myName);
-        } catch (GBeanNotFoundException e) {
-            return State.STOPPED_INDEX;
-        }
-    }
-
-    public State getStateInstance() {
-        return State.fromInt(getState());
-    }
-
-    public long getStartTime() {
-        try {
-            return kernel.getGBeanStartTime(myName);
-        } catch (GBeanNotFoundException e) {
-            return -1;
-        }
-    }
-
-    public void start() throws Exception, IllegalStateException {
-        // Kernel intercepts this
-    }
-
-    public void startRecursive() throws Exception, IllegalStateException {
-        // Kernel intercepts this
-    }
-
-    public void stop() throws Exception, IllegalStateException {
-        kernel.stopGBean(myName);
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -390,7 +361,6 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, StateMan
 
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
-        infoBuilder.addInterface(StateManageable.class);
         infoBuilder.setConstructor(new String[]{"kernel","objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

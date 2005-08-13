@@ -20,18 +20,12 @@ package org.apache.geronimo.jetty.connector;
 import java.net.UnknownHostException;
 import java.net.InetSocketAddress;
 
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.jetty.JettyWebConnector;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.management.StateManageable;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
 import org.mortbay.http.HttpListener;
 import org.mortbay.util.ThreadedServer;
 
@@ -41,8 +35,6 @@ import org.mortbay.util.ThreadedServer;
 public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector {
     private final JettyContainer container;
     protected final HttpListener listener;
-    private final ObjectName objectName;
-    private final Kernel kernel;
 
     /**
      * Only used to allow declaration as a reference.
@@ -50,34 +42,16 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     public JettyConnector() {
         container = null;
         listener = null;
-        objectName = null;
-        kernel = null;
     }
 
-    public JettyConnector(JettyContainer container, String objectName, Kernel kernel) {
+    public JettyConnector(JettyContainer container) {
         this.container = container;
         this.listener = null;
-        this.kernel = kernel;
-        try {
-            this.objectName = ObjectName.getInstance(objectName);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
     }
 
-    public JettyConnector(JettyContainer container, HttpListener listener, String objectName, Kernel kernel) {
+    public JettyConnector(JettyContainer container, HttpListener listener) {
         this.container = container;
         this.listener = listener;
-        this.kernel = kernel;
-        try {
-            this.objectName = ObjectName.getInstance(objectName);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
-    }
-
-    public String getObjectName() {
-        return objectName.getCanonicalName();
     }
 
     public String getDefaultScheme() {
@@ -203,45 +177,11 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         }
     }
 
-    public int getState() {
-        try {
-            return kernel.getGBeanState(objectName);
-        } catch (GBeanNotFoundException e) {
-            return State.STOPPED_INDEX;
-        }
-    }
-
-    public State getStateInstance() {
-        return State.fromInt(getState());
-    }
-
-    public long getStartTime() {
-        try {
-            return kernel.getGBeanStartTime(objectName);
-        } catch (GBeanNotFoundException e) {
-            return -1;
-        }
-    }
-
-    public void start() throws Exception, IllegalStateException {
-        // Kernel intercepts this
-    }
-
-    public void startRecursive() throws Exception, IllegalStateException {
-        // Kernel intercepts this
-    }
-
-    public void stop() throws Exception, IllegalStateException {
-        kernel.stopGBean(objectName);
-    }
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addAttribute("defaultScheme", String.class, false);
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("host", String.class, true);
         infoFactory.addAttribute("port", int.class, true);
         infoFactory.addAttribute("minThreads", int.class, true);
@@ -251,8 +191,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false);
         infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(JettyWebConnector.class);
-        infoFactory.addInterface(StateManageable.class);
-        infoFactory.setConstructor(new String[] {"JettyContainer","objectName","kernel"});
+        infoFactory.setConstructor(new String[] {"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

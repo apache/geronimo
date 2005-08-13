@@ -20,7 +20,6 @@ package org.apache.geronimo.jetty.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty.JettyContainer;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 import org.mortbay.http.SocketListener;
 
@@ -28,8 +27,8 @@ import org.mortbay.http.SocketListener;
  * @version $Rev$ $Date$
  */
 public class HTTPConnector extends JettyConnector {
-    public HTTPConnector(JettyContainer container, String objectName, Kernel kernel) {
-        super(container, new SocketListener(), objectName, kernel);
+    public HTTPConnector(JettyContainer container) {
+        super(container, new SocketListener());
     }
 
     public String getProtocol() {
@@ -40,7 +39,7 @@ public class HTTPConnector extends JettyConnector {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Connector HTTP", HTTPConnector.class, JettyConnector.GBEAN_INFO);
-        infoFactory.setConstructor(new String[]{"JettyContainer","objectName","kernel"});
+        infoFactory.setConstructor(new String[]{"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

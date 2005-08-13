@@ -90,6 +90,11 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
+    public MockGBean() { // present so we can test creating a class-based proxy
+        name = null;
+        finalInt = 0;
+    }
+
     public MockGBean(String name, int finalInt) {
         this.name = name;
         this.finalInt = finalInt;

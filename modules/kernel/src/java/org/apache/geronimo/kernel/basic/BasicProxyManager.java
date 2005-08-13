@@ -35,9 +35,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * Creates proxies that communicate directly with a Kernel located in the same
+ * JVM as the client.
+ *
  * @version $Rev$ $Date$
  */
 public class BasicProxyManager implements ProxyManager {
+    private final String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
     private final static Log log = LogFactory.getLog(BasicProxyManager.class);
     private final Kernel kernel;
 
@@ -50,11 +54,42 @@ public class BasicProxyManager implements ProxyManager {
 
     public synchronized ProxyFactory createProxyFactory(Class type) {
         assert type != null: "type is null";
-        return new ManagedProxyFactory(type);
+        if(type.getClassLoader() == null) {
+            // Can't load GeronimoManagedBean if the incoming type doesn't have a ClassLoader set
+            log.debug("Unable to add GeronimoManagedBean to proxy for "+type.getName()+" (no CL)");
+            return new ManagedProxyFactory(type);
+        } else {
+            try {
+                final Class managedBean = type.getClassLoader().loadClass(MANAGED_BEAN_NAME);
+                return new ManagedProxyFactory(new Class[]{type, managedBean});
+            } catch (ClassNotFoundException e) {
+                log.debug("Unable to add GeronimoManagedBean to proxy for "+type.getName()+" (not in CL)");
+                return new ManagedProxyFactory(type);
+            }
+        }
     }
 
     public synchronized ProxyFactory createProxyFactory(Class[] type) {
         assert type != null: "type is null";
+        assert type.length > 0: "interface list is empty";
+        Class managedBean = null;
+        for (int i = 0; i < type.length; i++) {
+            if(type[i].getClassLoader() != null) {
+                try {
+                    managedBean = type[i].getClassLoader().loadClass(MANAGED_BEAN_NAME);
+                    break;
+                } catch (ClassNotFoundException e) {} // OK, we'll try the next one
+            }
+        }
+        if(managedBean != null) {
+            Class[] adjusted = new Class[type.length+1];
+            System.arraycopy(type, 0, adjusted, 0, type.length);
+            adjusted[type.length] = managedBean;
+            type = adjusted;
+        } else {
+            // Can't load GeronimoManagedBean if the incoming type doesn't have a ClassLoader set
+            log.debug("Unable to add GeronimoManagedBean to proxy (no proxy classes have ClassLoaders)");
+        }
         return new ManagedProxyFactory(type);
     }
 
@@ -91,9 +126,6 @@ public class BasicProxyManager implements ProxyManager {
         if(required == null && (optional == null || optional.length == 0)) {
             throw new IllegalArgumentException("Cannot create proxy for no interfaces");
         }
-        if(required != null && !required.isInterface()) {
-            throw new IllegalArgumentException("Cannot create a proxy for a class (only interfaces) -- "+required.getName());
-        }
         List list = new ArrayList();
         if(required != null) {
             list.add(required);
@@ -103,9 +135,6 @@ public class BasicProxyManager implements ProxyManager {
                 GBeanInfo info = kernel.getGBeanInfo(target);
                 Set set = info.getInterfaces();
                 for (int i = 0; i < optional.length; i++) {
-                    if (!optional[i].isInterface()) {
-                        throw new IllegalArgumentException("Cannot create a proxy for a class (only interfaces) -- " + optional[i].getName());
-                    }
                     if (set.contains(optional[i].getName())) {
                         list.add(optional[i]);
                     }
@@ -113,6 +142,9 @@ public class BasicProxyManager implements ProxyManager {
             } catch (GBeanNotFoundException e) {
                 throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
             }
+        }
+        if(list.size() == 0) {
+            return null;
         }
         return createProxyFactory((Class[]) list.toArray(new Class[list.size()])).createProxy(target);
     }
@@ -171,11 +203,18 @@ public class BasicProxyManager implements ProxyManager {
             }
             if(type.length == 0) {
                 throw new IllegalArgumentException("Cannot generate proxy for 0 interfaces!");
-            } else if(type.length == 1) {
+            } else if(type.length == 1) { // Unlikely (as a result of GeronimoManagedBean)
                 enhancer.setSuperclass(type[0]);
             } else {
-                enhancer.setSuperclass(Object.class);
-                enhancer.setInterfaces(type);
+                if(type[0].isInterface()) {
+                    enhancer.setSuperclass(Object.class);
+                    enhancer.setInterfaces(type);
+                } else { // there's a class and reduceInterfaces put the class in the first spot
+                    Class[] intfs = new Class[type.length-1];
+                    System.arraycopy(type, 1, intfs, 0, intfs.length);
+                    enhancer.setSuperclass(type[0]);
+                    enhancer.setInterfaces(intfs);
+                }
             }
             enhancer.setCallbackType(MethodInterceptor.class);
             enhancer.setUseFactory(false);
@@ -198,18 +237,28 @@ public class BasicProxyManager implements ProxyManager {
         /**
          * If there are multiple interfaces, and some of them extend each other,
          * eliminate the superclass in favor of the subclasses that extend them.
+         *
+         * If one of the entries is a class (not an interface), make sure it's
+         * the first one in the array.  If more than one of the entries is a
+         * class, throws an IllegalArgumentException
+         *
          * @param source the original list of interfaces
          * @return the equal or smaller list of interfaces
          */
         private Class[] reduceInterfaces(Class[] source) {
             boolean changed = false;
+            Class cls = null;
             for (int i = 0; i < source.length-1; i++) {
                 Class original = source[i];
                 if(original == null) {
                     continue;
                 }
                 if(!original.isInterface()) {
-                    throw new IllegalArgumentException(original.getName()+" is not an interface; cannot generate proxy");
+                    if(cls != null) {
+                        throw new IllegalArgumentException(original.getName()+" is not an interface (already have "+cls.getName()+"); can only have one non-interface class for proxy");
+                    } else {
+                        cls = original;
+                    }
                 }
                 for (int j = i+1; j < source.length; j++) {
                     Class other = source[j];
@@ -217,23 +266,41 @@ public class BasicProxyManager implements ProxyManager {
                         continue;
                     }
                     if(!other.isInterface()) {
-                        throw new IllegalArgumentException(other.getName()+" is not an interface; cannot generate proxy");
+                        if(cls != null) {
+                            throw new IllegalArgumentException(other.getName()+" is not an interface (already have "+cls.getName()+"); can only have one non-interface class for proxy");
+                        } else {
+                            cls = other;
+                        }
                     }
                     if(other.isAssignableFrom(original)) {
-                        other = null;
+                        source[j] = null; // clear out "other"
                         changed = true;
                     } else if(original.isAssignableFrom(other)) {
-                        original = null;
+                        source[i] = null; // clear out "original"
                         changed = true;
                         break; // the original has been eliminated; move on to the next original
                     }
                 }
             }
 
+            if(cls != null) {
+                if(cls != source[0]) {
+                    for (int i = 0; i < source.length; i++) {
+                        if(cls == source[i]) {
+                            Class temp = source[0];
+                            source[0] = source[i];
+                            source[i] = temp;
+                            break;
+                        }
+                    }
+                    changed = true;
+                }
+            }
+
             if(!changed) {
                 return source;
             }
-            List list = new ArrayList(source.length-1);
+            List list = new ArrayList(source.length);
             for (int i = 0; i < source.length; i++) {
                 if(source[i] != null) {
                     list.add(source[i]);

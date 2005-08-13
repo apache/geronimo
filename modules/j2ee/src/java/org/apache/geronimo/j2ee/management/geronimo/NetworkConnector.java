@@ -26,7 +26,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  *
  * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
  */
-public interface NetworkConnector extends StateManageable {
+public interface NetworkConnector {
     /**
      * Gets the network protocol that this connector handles.
      */
@@ -63,12 +63,4 @@ public interface NetworkConnector extends StateManageable {
      * are set separately using setHost and setPort.
      */
     InetSocketAddress getListenAddress();
-
-    /**
-     * Gets the unique name of this object.  The object name must comply with
-     * the ObjectName specification in the JMX specification.
-     *
-     * @return the unique name of this object within the server
-     */
-    String getObjectName();
 }
