@@ -51,11 +51,11 @@ by the server.
 
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
         <attribute name="port">${PlanHTTPSPort}</attribute>
-        <attribute name="keystore">var/security/keystore</attribute>
+        <attribute name="keystoreFileName">var/security/keystore</attribute>
         <attribute name="keystoreType">JKS</attribute>
-        <attribute name="password">secret</attribute>
+        <attribute name="keystorePassword">secret</attribute>
         <attribute name="keyPassword">secret</attribute>
-        <attribute name="needClientAuth">false</attribute>
+        <attribute name="clientAuthRequired">false</attribute>
         <attribute name="secureProtocol">TLS</attribute>
         <attribute name="maxThreads">50</attribute>
         <attribute name="minThreads">10</attribute>

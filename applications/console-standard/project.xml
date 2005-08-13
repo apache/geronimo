@@ -35,6 +35,16 @@
             <artifactId>geronimo-jetty</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-tomcat</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>

@@ -46,11 +46,6 @@ public interface SecureConnector extends WebConnector {
      */
     public void setKeystoreFileName(String name);
     /**
-     * Gets the password used to access the keystore, and by default, used to
-     * access the server private key inside the keystore.
-     */
-    public String getKeystorePassword();
-    /**
      * Sets the password used to access the keystore, and by default, used to
      * access the server private key inside the keystore.  Not all connectors
      * support configuring different passwords for those two features; if so,
@@ -119,6 +114,6 @@ public interface SecureConnector extends WebConnector {
      */
     public void setClientAuthRequired(boolean clientCert);
 
-    // Jetty: key password, integral/confidential separation
+    // Jetty: integral/confidential separation
     // Tomcat: trust keystore, trust password, trust keystore type, ciphers
 }

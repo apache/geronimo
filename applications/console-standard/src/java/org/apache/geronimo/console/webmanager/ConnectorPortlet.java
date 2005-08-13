@@ -36,9 +36,12 @@ import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
+import org.apache.geronimo.j2ee.management.geronimo.SecureConnector;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.jetty.JettyWebConnector;
+import org.apache.geronimo.jetty.JettySecureConnector;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -61,6 +64,8 @@ public class ConnectorPortlet extends GenericPortlet {
         String server = "generic";
         if(container instanceof JettyContainer) {
             server = "jetty";
+        } else if (container instanceof TomcatContainer) {
+            server = "tomcat";
         }
         actionResponse.setRenderParameter("server", server);
         if(mode.equals("new")) {
@@ -87,7 +92,23 @@ public class ConnectorPortlet extends GenericPortlet {
                 }
             }
             if(protocol.equals(WebContainer.PROTOCOL_HTTPS)) {
-                //todo: HTTPS values
+                String keystoreType = actionRequest.getParameter("keystoreType");
+                String keystoreFile = actionRequest.getParameter("keystoreFile");
+                String privateKeyPass = actionRequest.getParameter("privateKeyPassword");
+                String keystorePass = actionRequest.getParameter("keystorePassword");
+                String secureProtocol = actionRequest.getParameter("secureProtocol");
+                String algorithm = actionRequest.getParameter("algorithm");
+                boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
+                SecureConnector secure = (SecureConnector) connector;
+                if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
+                if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
+                if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
+                if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
+                if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
+                secure.setClientAuthRequired(clientAuth);
+                if(secure instanceof JettySecureConnector) {
+                    if(isValid(privateKeyPass)) {((JettySecureConnector)secure).setKeyPassword(privateKeyPass);}
+                }
             }
             // Start the connector
             try {
@@ -121,6 +142,25 @@ public class ConnectorPortlet extends GenericPortlet {
                 if(connector instanceof JettyWebConnector) {
                     if(minThreads != null) {
                         ((JettyWebConnector)connector).setMinThreads(minThreads.intValue());
+                    }
+                }
+                if(connector instanceof SecureConnector) {
+                    String keystoreType = actionRequest.getParameter("keystoreType");
+                    String keystoreFile = actionRequest.getParameter("keystoreFile");
+                    String privateKeyPass = actionRequest.getParameter("privateKeyPassword");
+                    String keystorePass = actionRequest.getParameter("keystorePassword");
+                    String secureProtocol = actionRequest.getParameter("secureProtocol");
+                    String algorithm = actionRequest.getParameter("algorithm");
+                    boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
+                    SecureConnector secure = (SecureConnector) connector;
+                    if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
+                    if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
+                    if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
+                    if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
+                    if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
+                    secure.setClientAuthRequired(clientAuth);
+                    if(secure instanceof JettySecureConnector) {
+                        if(isValid(privateKeyPass)) {((JettySecureConnector)secure).setKeyPassword(privateKeyPass);}
                     }
                 }
             }
@@ -243,6 +283,18 @@ public class ConnectorPortlet extends GenericPortlet {
                     renderRequest.setAttribute("minThreads", String.valueOf(minThreads));
                 }
                 renderRequest.setAttribute("mode", "save");
+
+                if(connector instanceof SecureConnector) {
+                    SecureConnector secure = (SecureConnector) connector;
+                    renderRequest.setAttribute("keystoreFile",secure.getKeystoreFileName());
+                    renderRequest.setAttribute("keystoreType",secure.getKeystoreType());
+                    renderRequest.setAttribute("algorithm",secure.getAlgorithm());
+                    renderRequest.setAttribute("secureProtocol",secure.getSecureProtocol());
+                    if(secure.isClientAuthRequired()) {
+                        renderRequest.setAttribute("clientAuth", Boolean.TRUE);
+                    }
+                }
+
                 if(connector.getProtocol().equals(WebContainer.PROTOCOL_HTTPS)) {
                     editHttpsView.include(renderRequest, renderResponse);
                 } else {
@@ -301,12 +353,16 @@ public class ConnectorPortlet extends GenericPortlet {
         maximizedView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/maximized.jsp");
         helpView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/help.jsp");
         editHttpView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/editHTTP.jsp");
-        editHttpsView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/editHTTP.jsp"); //todo: HTTPS args
+        editHttpsView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/editHTTPS.jsp");
     }
 
     public void destroy() {
         normalView = null;
         maximizedView = null;
         super.destroy();
+    }
+
+    public final static boolean isValid(String s) {
+        return s != null && !s.equals("");
     }
 }

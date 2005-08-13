@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 import org.apache.geronimo.jetty.JettyContainer;
+import org.apache.geronimo.jetty.JettySecureConnector;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -33,7 +34,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  *
  * @version $Rev$ $Date$
  */
-public class HTTPSConnector extends JettyConnector {
+public class HTTPSConnector extends JettyConnector implements JettySecureConnector {
     private final SslListener https;
     private final ServerInfo serverInfo;
     private String keystore;
@@ -49,12 +50,12 @@ public class HTTPSConnector extends JettyConnector {
         return WebContainer.PROTOCOL_HTTPS;
     }
 
-    public String getKeystore() {
+    public String getKeystoreFileName() {
         // this does not delegate to https as it needs to be resolved against ServerInfo
         return keystore;
     }
 
-    public void setKeystore(String keystore) {
+    public void setKeystoreFileName(String keystore) {
         // this does not delegate to https as it needs to be resolved against ServerInfo
         this.keystore = keystore;
     }
@@ -79,7 +80,7 @@ public class HTTPSConnector extends JettyConnector {
         https.setAlgorithm(algorithm);
     }
 
-    public void setPassword(String password) {
+    public void setKeystorePassword(String password) {
         https.setPassword(password);
     }
 
@@ -103,11 +104,11 @@ public class HTTPSConnector extends JettyConnector {
         https.setKeystoreType(keystoreType);
     }
 
-    public void setNeedClientAuth(boolean needClientAuth) {
+    public void setClientAuthRequired(boolean needClientAuth) {
         https.setNeedClientAuth(needClientAuth);
     }
 
-    public boolean getNeedClientAuth() {
+    public boolean isClientAuthRequired() {
         return https.getNeedClientAuth();
     }
 
@@ -120,14 +121,15 @@ public class HTTPSConnector extends JettyConnector {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Connector HTTPS", HTTPSConnector.class, JettyConnector.GBEAN_INFO);
-        infoFactory.addAttribute("keystore", String.class, true);
+        infoFactory.addAttribute("keystoreFileName", String.class, true);
         infoFactory.addAttribute("algorithm", String.class, true);
+        infoFactory.addAttribute("keystorePassword", String.class, true);
         infoFactory.addAttribute("keyPassword", String.class, true);
-        infoFactory.addAttribute("keystoreType", String.class, true);
-        infoFactory.addAttribute("needClientAuth", boolean.class, true);
-        infoFactory.addAttribute("password", String.class, true);
         infoFactory.addAttribute("secureProtocol", String.class, true);
+        infoFactory.addAttribute("keystoreType", String.class, true);
+        infoFactory.addAttribute("clientAuthRequired", boolean.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addInterface(JettySecureConnector.class);
         infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
