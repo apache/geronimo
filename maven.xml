@@ -169,6 +169,12 @@
     <goal name="m:eclipse" prereqs="m:init">
         <j:set var="goal" value="eclipse"/>
         <attainGoal name="multiproject:goal"/>
+        <echo>Fixing up xmlbeans classpath in .classpath files...</echo>
+        <replace dir="${basedir}" 
+            value="&lt;classpathentry kind=&quot;lib&quot; path=&quot;target/xmlbeans-classes&quot;&gt;"
+            token="&lt;classpathentry kind=&quot;src&quot; path=&quot;target/xmlbeans-classes&quot;&gt;">
+            <include name="**/.classpath"/>
+        </replace>
     </goal>
 
     <goal name="m:jar:deploy" prereqs="m:init">

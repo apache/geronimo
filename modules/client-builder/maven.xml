@@ -28,5 +28,10 @@
     <preGoal name="java:compile">
         <xmlbeans:schema2java
             maven.xmlbeans2.sourceschema="schema/geronimo-application-client.xsd"/>
+        <mkdir dir="${basedir}/target/xmlbeans-classes"/>
+        <mkdir dir="${basedir}/target/xmlbeans-classes/schemaorg_apache_xmlbeans"/>
+        <copy todir="${basedir}/target/xmlbeans-classes/schemaorg_apache_xmlbeans">
+            <ant:fileset dir="${basedir}/target/classes/schemaorg_apache_xmlbeans"/>
+        </copy>
     </preGoal>
 </project>
