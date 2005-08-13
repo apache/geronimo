@@ -266,10 +266,10 @@ limitations under the License.
 
     <portlet>
         <description>Portlet for managing Network Listeners</description>
-        <portlet-name>AJP13ConnectorManager</portlet-name>
+        <portlet-name>ConnectorManager</portlet-name>
         <display-name>Network Listener Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.webmanager.AJP13ManagerPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.webmanager.ConnectorPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 

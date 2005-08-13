@@ -25,6 +25,7 @@ import org.apache.geronimo.kernel.management.State;
 
 public class ConnectorInfo implements Serializable {
     private String description;
+    private String displayName;
     private String objectName;
     private String protocol;
     private int port;
@@ -50,8 +51,16 @@ public class ConnectorInfo implements Serializable {
         return objectName;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
     public void setObjectName(String objectName) {
         this.objectName = objectName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public int getPort() {

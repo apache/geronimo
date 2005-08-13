@@ -43,14 +43,8 @@ limitations under the License.
         <portlet id="18">
             <definition-id>console-standard.WebServerManager</definition-id>
         </portlet>
-        <portlet id="19">
-            <definition-id>console-standard.HTTPConnectorManager</definition-id>
-        </portlet>
-        <portlet id="20">
-            <definition-id>console-standard.HTTPSConnectorManager</definition-id>
-        </portlet>
         <portlet id="21">
-            <definition-id>console-standard.AJP13ConnectorManager</definition-id>
+            <definition-id>console-standard.ConnectorManager</definition-id>
         </portlet>
         <portlet id="22">
             <definition-id>console-standard.Deployment</definition-id>

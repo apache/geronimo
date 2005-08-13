@@ -121,20 +121,6 @@ limitations under the License.
             </fragment>
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
-                        <property name="portlet" value="5.19"/>
-                    </fragment>
-                </fragment>
-            </fragment>
-            <fragment name="row3" type="row">
-                <fragment name="col1" type="column">
-                    <fragment name="p3" type="portlet">
-                        <property name="portlet" value="5.20"/>
-                    </fragment>
-                </fragment>
-            </fragment>
-            <fragment name="row4" type="row">
-                <fragment name="col1" type="column">
                     <fragment name="p4" type="portlet">
                         <property name="portlet" value="5.21"/>
                     </fragment>

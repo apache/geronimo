@@ -5,6 +5,9 @@
 <form name="<portlet:namespace/>" action="<portlet:actionURL/>">
 <input type="hidden" name="mode" value="${mode}">
 <input type="hidden" name="protocol" value="${protocol}">
+<c:if test="${mode eq 'save'}">
+  <input type="hidden" name="objectName" value="${objectName}">
+</c:if>
 <table width="100%%"  border="0">
 
 <!-- Name Field -->

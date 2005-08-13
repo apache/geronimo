@@ -515,16 +515,16 @@ limitations under the License.
     </servlet>
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
-        <display-name>Pluto Wrapper for AJP13 Connector Management Portlet</display-name>
-        <servlet-name>AJP13ConnectorManager</servlet-name>
+        <display-name>Pluto Wrapper for Connector Management Portlet</display-name>
+        <servlet-name>ConnectorManager</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-class</param-name>
-            <param-value>org.apache.geronimo.console.webmanager.AJP13ConnectorPortlet</param-value>
+            <param-value>org.apache.geronimo.console.webmanager.ConnectorPortlet</param-value>
         </init-param>
         <init-param>
             <param-name>portlet-guid</param-name>
-            <param-value>console-standard.AJP13ConnectorManager</param-value>
+            <param-value>console-standard.ConnectorManager</param-value>
         </init-param>
     </servlet>
     <servlet>
@@ -768,8 +768,8 @@ limitations under the License.
         <url-pattern>/HTTPSConnectorManager/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AJP13ConnectorManager</servlet-name>
-        <url-pattern>/AJP13ConnectorManager/*</url-pattern>
+        <servlet-name>ConnectorManager</servlet-name>
+        <url-pattern>/ConnectorManager/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>JNDI</servlet-name>

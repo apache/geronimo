@@ -31,16 +31,19 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.portlet.PortletContext;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
 import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
 import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.jetty.JettyWebConnector;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class AJP13ConnectorPortlet extends GenericPortlet {
-    private final static Log log = LogFactory.getLog(AJP13ConnectorPortlet.class);
+public class ConnectorPortlet extends GenericPortlet {
+    private final static Log log = LogFactory.getLog(ConnectorPortlet.class);
 
     private PortletRequestDispatcher normalView;
 
@@ -86,18 +89,95 @@ public class AJP13ConnectorPortlet extends GenericPortlet {
             if(protocol.equals(WebContainer.PROTOCOL_HTTPS)) {
                 //todo: HTTPS values
             }
-
             // Start the connector
             try {
-                connector.startRecursive();
+                ((GeronimoManagedBean)connector).startRecursive();
             } catch (Exception e) {
                 log.error("Unable to start connector", e); //todo: get into rendered page somehow?
             }
             actionResponse.setRenderParameter("mode", "list");
+        } else if(mode.equals("save")) { // User just submitted the form to update a connector
+            // Get submitted values
+            //todo: lots of validation
+            String host = actionRequest.getParameter("host");
+            int port = Integer.parseInt(actionRequest.getParameter("port"));
+            int maxThreads = Integer.parseInt(actionRequest.getParameter("maxThreads"));
+            Integer minThreads = getInteger(actionRequest, "minThreads");
+            String objectName = actionRequest.getParameter("objectName");
+            // Identify and update the connector
+            WebConnector connector = null;
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest);
+            for (int i = 0; i < all.length; i++) {
+                WebConnector conn = all[i];
+                if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
+                    connector = conn;
+                    break;
+                }
+            }
+            if(connector != null) {
+                connector.setHost(host);
+                connector.setPort(port);
+                connector.setMaxThreads(maxThreads);
+                if(connector instanceof JettyWebConnector) {
+                    if(minThreads != null) {
+                        ((JettyWebConnector)connector).setMinThreads(minThreads.intValue());
+                    }
+                }
+            }
+            actionResponse.setRenderParameter("mode", "list");
+        } else if(mode.equals("start")) {
+            String objectName = actionRequest.getParameter("name");
+            // work with the current connector to start it.
+            WebConnector connector = null;
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest);
+            for (int i = 0; i < all.length; i++) {
+                WebConnector conn = all[i];
+                if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
+                    connector = conn;
+                    break;
+                }
+            }
+            if(connector != null) {
+                try {
+                    ((GeronimoManagedBean)connector).startRecursive();
+                } catch (Exception e) {
+                    log.error("Unable to start connector", e); //todo: get into rendered page somehow?
+                }
+            }
+            else {
+                log.error("Incorrect connector reference"); //Replace this with correct error processing
+            }
+            actionResponse.setRenderParameter("name", objectName);
+            actionResponse.setRenderParameter("mode", "list");
+        } else if(mode.equals("stop")) {
+            String objectName = actionRequest.getParameter("name");
+            // work with the current connector to stop it.
+            WebConnector connector = null;
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest);
+            for (int i = 0; i < all.length; i++) {
+                WebConnector conn = all[i];
+                if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
+                    connector = conn;
+                    break;
+                }
+            }
+            if(connector != null) {
+                try {
+                    ((GeronimoManagedBean)connector).stop();
+                } catch (Exception e) {
+                    log.error("Unable to stop connector", e); //todo: get into rendered page somehow?
+                }
+            }
+            else {
+                log.error("Incorrect connector reference"); //Replace this with correct error processing
+            }
+            actionResponse.setRenderParameter("name", objectName);
+            actionResponse.setRenderParameter("mode", "list");
         } else if(mode.equals("edit")) {
             String objectName = actionRequest.getParameter("name");
-            actionResponse.setRenderParameter("name", objectName);
+            actionResponse.setRenderParameter("objectName", objectName);
             actionResponse.setRenderParameter("mode", "edit");
+
         } else if(mode.equals("delete")) { // User chose to delete a connector
             String objectName = actionRequest.getParameter("name");
             PortletManager.getCurrentWebContainer(actionRequest).removeConnector(objectName);
@@ -124,6 +204,7 @@ public class AJP13ConnectorPortlet extends GenericPortlet {
         }
         renderRequest.setAttribute("server", renderRequest.getParameter("server"));
         WebContainer container = PortletManager.getCurrentWebContainer(renderRequest);
+
         if(mode.equals("new")) {
             String protocol = renderRequest.getParameter("protocol");
             renderRequest.setAttribute("maxThreads", "50");
@@ -137,13 +218,14 @@ public class AJP13ConnectorPortlet extends GenericPortlet {
             } else {
                 editHttpView.include(renderRequest, renderResponse);
             }
+
         } else if(mode.equals("edit")) {
-            String objectName = renderRequest.getParameter("name");
+            String objectName = renderRequest.getParameter("objectName");
             WebConnector connector = null;
             WebConnector all[] = PortletManager.getWebConnectors(renderRequest);
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
-                if(conn.getObjectName().equals(objectName)) {
+                if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
                     connector = conn;
                     break;
                 }
@@ -151,14 +233,16 @@ public class AJP13ConnectorPortlet extends GenericPortlet {
             if(connector == null) {
                 doList(renderRequest, container, renderResponse);
             } else {
-                renderRequest.setAttribute("protocol", connector.getProtocol());
+                renderRequest.setAttribute("objectName", objectName);
                 renderRequest.setAttribute("port", new Integer(connector.getPort()));
                 renderRequest.setAttribute("host", connector.getHost());
-                renderRequest.setAttribute("maxThreads", "50");
-                if(container instanceof JettyWebConnector) {
-                    renderRequest.setAttribute("minThreads", "10");
+                int maxThreads = connector.getMaxThreads();
+                renderRequest.setAttribute("maxThreads", Integer.toString(maxThreads));
+                if(connector instanceof JettyWebConnector) {
+                    int minThreads = ((JettyWebConnector)connector).getMinThreads();
+                    renderRequest.setAttribute("minThreads", String.valueOf(minThreads));
                 }
-                renderRequest.setAttribute("mode", "edit");
+                renderRequest.setAttribute("mode", "save");
                 if(connector.getProtocol().equals(WebContainer.PROTOCOL_HTTPS)) {
                     editHttpsView.include(renderRequest, renderResponse);
                 } else {
@@ -176,11 +260,23 @@ public class AJP13ConnectorPortlet extends GenericPortlet {
         for (int i = 0; i < connectors.length; i++) {
             WebConnector connector = connectors[i];
             ConnectorInfo info = new ConnectorInfo();
-            info.setObjectName(connector.getObjectName());
-            info.setState(connector.getState());
-            info.setPort(connector.getPort());
-            info.setProtocol(connector.getProtocol());
-            info.setDescription(PortletManager.getGBeanDescription(renderRequest, connector.getObjectName()));
+                String objectName = ((GeronimoManagedBean)connector).getObjectName();
+                info.setObjectName(objectName);
+                info.setDescription(PortletManager.getGBeanDescription(renderRequest, objectName));
+                try {
+                    ObjectName realName = ObjectName.getInstance(objectName);
+                    info.setDisplayName(realName.getKeyProperty("name"));
+                } catch (MalformedObjectNameException e) {
+                    log.error("Bad object name for web connector", e);
+                    info.setDisplayName(info.getDescription());
+                }
+                info.setState(((GeronimoManagedBean)connector).getState());
+                info.setPort(connector.getPort());
+            try {
+                info.setProtocol(connector.getProtocol());
+            } catch (java.lang.IllegalStateException e) {
+                info.setProtocol("unknown");
+            }
             beans.add(info);
         }
         renderRequest.setAttribute("connectors", beans);
@@ -201,11 +297,11 @@ public class AJP13ConnectorPortlet extends GenericPortlet {
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         PortletContext pc = portletConfig.getPortletContext();
-        normalView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/ajp13/normal.jsp");
-        maximizedView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/ajp13/maximized.jsp");
-        helpView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/ajp13/help.jsp");
-        editHttpView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/editHTTP.jsp");
-        editHttpsView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/editHTTP.jsp"); //todo: HTTPS args
+        normalView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/normal.jsp");
+        maximizedView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/maximized.jsp");
+        helpView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/help.jsp");
+        editHttpView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/editHTTP.jsp");
+        editHttpsView = pc.getRequestDispatcher("/WEB-INF/view/webmanager/connector/editHTTP.jsp"); //todo: HTTPS args
     }
 
     public void destroy() {
