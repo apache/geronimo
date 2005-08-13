@@ -115,12 +115,12 @@ public class Daemon {
 
             // Install our url factory
             GeronimoURLFactory.install();
+        }
 
-            if(verboseArg != null || progressArg != null) {
-                monitor = new SilentStartupMonitor();
-            } else {
-                monitor = new ProgressBarStartupMonitor();
-            }
+        if(verboseArg != null || progressArg != null) {
+            monitor = new SilentStartupMonitor();
+        } else {
+            monitor = new ProgressBarStartupMonitor();
         }
     }
 
