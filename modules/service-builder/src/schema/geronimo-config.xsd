@@ -60,6 +60,7 @@
         <xs:choice>
             <xs:sequence>
                 <xs:element name="groupId" type="xs:string"/>
+                <xs:element name="type" type="xs:string" minOccurs="0"/>
                 <xs:element name="artifactId" type="xs:string"/>
                 <xs:element name="version" type="xs:string"/>
             </xs:sequence>

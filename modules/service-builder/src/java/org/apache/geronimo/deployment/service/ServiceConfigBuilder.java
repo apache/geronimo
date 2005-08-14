@@ -27,9 +27,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.ArrayList;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
@@ -64,11 +62,10 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSet;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 216115 $ $Date: 2005-07-12 22:22:18 -0700 (Tue, 12 Jul 2005) $
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final URI defaultParentId;
@@ -358,8 +355,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
             }
         } else {
-            // @todo support more than just jars
-            String id = dep.getGroupId() + "/jars/" + dep.getArtifactId() + '-' + dep.getVersion() + ".jar";
+            String groupId = dep.getGroupId();
+            String type = dep.isSetType() ? dep.getType() : "jar";
+            String artifactId = dep.getArtifactId();
+            String version = dep.getVersion();
+            String id = groupId + "/" + type + "s/" + artifactId + '-' + version + "." + type;
             try {
                 uri = new URI(id);
             } catch (URISyntaxException e) {
