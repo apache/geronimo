@@ -107,13 +107,12 @@ public class GBeanBuilder {
         gbean.setAttribute(name, value);
     }
 
-    public void setXmlReference(String name, XmlCursor xmlCursor) throws DeploymentException {
-        String namespace = xmlCursor.getName().getNamespaceURI();
+    public void setXmlReference(String name, XmlObject xmlObject) throws DeploymentException {
+        String namespace = xmlObject.getDomNode().getNamespaceURI();
         XmlReferenceBuilder builder = (XmlReferenceBuilder) xmlReferenceBuilderMap.get(namespace);
         if (builder == null) {
             throw new DeploymentException("No reference builder deployed for namespace: " + namespace);
         }
-        XmlObject xmlObject = xmlCursor.getObject();
         Set references = builder.getReferences(xmlObject, context, j2eeContext, classLoader);
         if (references != null && !references.isEmpty()) {
             gbean.setReferencePatterns(name, references);

@@ -65,7 +65,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.QNameSet;
 
 /**
- * @version $Rev: 216115 $ $Date: 2005-07-12 22:22:18 -0700 (Tue, 12 Jul 2005) $
+ * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final URI defaultParentId;
@@ -300,9 +300,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             for (int i = 0; i < xmlAttributeArray.length; i++) {
                 XmlAttributeType xmlAttributeType = xmlAttributeArray[i];
                 String name = xmlAttributeType.getName().trim();
-//                XmlObject[] anys = xmlAttributeType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
-                String uri = "http://geronimo.apache.org/xml/ns/deployment";
-                XmlObject[] anys = xmlAttributeType.selectChildren(QNameSet.forWildcardNamespaceString("##other", uri));
+                XmlObject[] anys = xmlAttributeType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
                 if (anys.length != 1) {
                     throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
                 }
@@ -331,13 +329,18 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             for (int i = 0; i < xmlReferenceArray.length; i++) {
                 XmlAttributeType xmlAttributeType = xmlReferenceArray[i];
                 String name = xmlAttributeType.getName().trim();
-                XmlCursor xmlCursor = xmlAttributeType.newCursor();
-                try {
-                    xmlCursor.toFirstChild();
-                    builder.setXmlReference(name, xmlCursor);
-                } finally {
-                    xmlCursor.dispose();
+                XmlObject[] anys = xmlAttributeType.selectChildren(XmlAttributeType.type.qnameSetForWildcardElements());
+                if (anys.length != 1) {
+                    throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
                 }
+                builder.setXmlReference(name, anys[0]);
+//                XmlCursor xmlCursor = xmlAttributeType.newCursor();
+//                try {
+//                    xmlCursor.toFirstChild();
+//                    builder.setXmlReference(name, anys[0]);
+//                } finally {
+//                    xmlCursor.dispose();
+//                }
             }
         }
 
