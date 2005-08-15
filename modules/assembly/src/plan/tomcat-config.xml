@@ -115,7 +115,7 @@ by the server.
     <!-- The TomcatContainer/Service -->
     <gbean name="WebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
-        <reference name="engineGBean">
+        <reference name="EngineGBean">
             <name>TomcatEngine</name>
         </reference>
         <reference name="ServerInfo">
@@ -202,10 +202,10 @@ by the server.
             name=Geronimo
             defaultHost=${PlanServerHostname}
         </attribute>
-        <references name="hosts">
+        <references name="Hosts">
             <pattern><gbean-name>geronimo.server:j2eeType=Host,*</gbean-name></pattern>
         </references>
-        <reference name="realmGBean">
+        <reference name="RealmGBean">
             <name>TomcatJAASRealm</name>
         </reference>
         <reference name="TomcatValveChain">
@@ -257,7 +257,7 @@ by the server.
              will result in an error.
 
              Uncomment this to add the Realm to the Host 
-        <reference name="realmGBean">
+        <reference name="RealmGBean">
             <name>TomcatJAASRealm</name>
         </reference>
         -->
