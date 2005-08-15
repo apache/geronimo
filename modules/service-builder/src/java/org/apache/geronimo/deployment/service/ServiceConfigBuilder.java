@@ -62,7 +62,6 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.QNameSet;
 
 /**
  * @version $Rev$ $Date$
@@ -334,13 +333,6 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                     throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
                 }
                 builder.setXmlReference(name, anys[0]);
-//                XmlCursor xmlCursor = xmlAttributeType.newCursor();
-//                try {
-//                    xmlCursor.toFirstChild();
-//                    builder.setXmlReference(name, anys[0]);
-//                } finally {
-//                    xmlCursor.dispose();
-//                }
             }
         }
 
