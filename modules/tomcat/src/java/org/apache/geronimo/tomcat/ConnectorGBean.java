@@ -46,6 +46,10 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public ConnectorGBean(String name, String protocol, Map initParams, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(); // TODO: make it an attribute
         
+        if (name == null){
+            throw new IllegalArgumentException("name cannot be null.");
+        }
+
         if (container == null){
             throw new IllegalArgumentException("container cannot be null.");
         }
