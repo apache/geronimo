@@ -396,7 +396,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             String path;
                             JarFile connectorFile;
                             if (resource.isSetExternalRar()) {
-                                path = resource.getExternalRar();
+                                path = resource.getExternalRar().trim();
                                 URI pathURI = null;
                                 try {
                                     pathURI = new URI(path);

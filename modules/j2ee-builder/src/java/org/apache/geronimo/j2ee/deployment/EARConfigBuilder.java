@@ -58,6 +58,7 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
+import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
 import org.apache.xmlbeans.XmlCursor;
@@ -218,7 +219,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         try {
             addModules(earFile, application, gerApplication, moduleLocations, modules);
         } catch (Throwable e) {
-            // close al the modules
+            // close all the modules
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
                 module.close();
@@ -523,12 +524,136 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
                 }
 
-//                if (module instanceof WebModule) {
-//                    ((WebModule) module).setContextRoot(moduleXml.getWeb().getContextRoot().getStringValue());
+                modules.add(module);
+            }
+
+            //deploy the extension modules
+            GerExtModuleType gerExtModuleTypes[] = gerApplication.getExtModuleArray();
+            for (int i = 0; i < gerExtModuleTypes.length; i++) {
+                GerExtModuleType gerExtModule = gerExtModuleTypes[i];
+                String moduleName = null;
+                ModuleBuilder builder;
+                Object moduleContextInfo = null;
+                String moduleTypeName;
+
+                if (gerExtModule.isSetEjb()) {
+                    moduleName = gerExtModule.getEjb().getStringValue();
+                    if (ejbConfigBuilder == null) {
+                        throw new DeploymentException("Cannot deploy ejb application; No ejb deployer defined: " + moduleName);
+                    }
+                    builder = ejbConfigBuilder;
+                    moduleTypeName = "an EJB";
+                } else if (gerExtModule.isSetWeb()) {
+                    moduleName = gerExtModule.getWeb().getStringValue();
+                    if (webConfigBuilder == null) {
+                        throw new DeploymentException("Cannot deploy web application; No war deployer defined: " + moduleName);
+                    }
+                    builder = webConfigBuilder;
+                    moduleTypeName = "a war";
+                    //ext modules must use vendor plan to set context-root
+//                    moduleContextInfo = gerExtModule.getWeb().getContextRoot().getStringValue().trim();
+                } else if (gerExtModule.isSetConnector()) {
+                    moduleName = gerExtModule.getConnector().getStringValue();
+                    if (connectorConfigBuilder == null) {
+                        throw new DeploymentException("Cannot deploy resource adapter; No rar deployer defined: " + moduleName);
+                    }
+                    builder = connectorConfigBuilder;
+                    moduleTypeName = "a connector";
+                } else if (gerExtModule.isSetJava()) {
+                    moduleName = gerExtModule.getJava().getStringValue();
+                    if (appClientConfigBuilder == null) {
+                        throw new DeploymentException("Cannot deploy app client; No app client deployer defined: " + moduleName);
+                    }
+                    builder = appClientConfigBuilder;
+                    moduleTypeName = "an application client";
+                } else {
+                    throw new DeploymentException("Could not find a module builder for module: " + gerExtModule);
+                }
+                Object altVendorDD;
+                if (gerExtModule.isSetAltDd()) {
+                    // the the url of the alt dd
+                    try {
+                        altVendorDD =  DeploymentUtil.toTempFile(earFile, gerExtModule.getAltDd().getStringValue());
+                        altVendorDDs.put(moduleName, altVendorDD);
+                    } catch (IOException e) {
+                        throw new DeploymentException("Invalid alt vendor dd url: " + gerExtModule.getAltDd().getStringValue(), e);
+                    }
+                } else {
+                    //dd is included explicitly
+                    XmlCursor cursor = gerExtModule.newCursor();
+                    try {
+                        cursor.toFirstChild();
+                        cursor.toNextSibling();
+                        //should be at the "any" element
+                        XmlObject any = cursor.getObject();
+                        altVendorDD = any;
+                    } finally {
+                        cursor.dispose();
+                    }
+                }
+
+                JarFile moduleFile = null;
+                if (gerExtModule.isSetInternalPath()) {
+                    String modulePath = gerExtModule.getInternalPath().trim();
+                    moduleLocations.add(modulePath);
+                    try {
+                        moduleFile = new NestedJarFile(earFile, modulePath);
+                    } catch (IOException e) {
+                        throw new DeploymentException("Invalid moduleFile: " + modulePath, e);
+                    }
+                } else {
+                    String path = gerExtModule.getExternalPath().trim();
+                    URI pathURI = null;
+                    try {
+                        pathURI = new URI(path);
+                    } catch (URISyntaxException e) {
+                        throw new DeploymentException("Bad path to external module, " + moduleTypeName, e);
+                    }
+                    if (!repository.hasURI(pathURI)) {
+                        throw new DeploymentException(moduleTypeName + " is missing in repository: " + path);
+                    }
+                    URL pathURL = null;
+                    try {
+                        pathURL = repository.getURL(pathURI);
+                    } catch (MalformedURLException e) {
+                        throw new DeploymentException("Could not locate " + moduleTypeName + " in repository", e);
+                    }
+                    try {
+                        moduleFile = new JarFile(pathURL.getFile());
+                    } catch (IOException e) {
+                        throw new DeploymentException("Could not access contents of " + moduleTypeName, e);
+                    }
+
+                }
+
+
+
+                URL altSpecDD = null;
+                //todo implement an alt-spec-dd element.
+//                if (moduleXml.isSetAltDd()) {
+//                    try {
+//                        altSpecDD = DeploymentUtil.createJarURL(earFile, moduleXml.getAltDd().getStringValue());
+//                    } catch (MalformedURLException e) {
+//                        throw new DeploymentException("Invalid alt spec dd url: " + moduleXml.getAltDd().getStringValue(), e);
+//                    }
 //                }
+
+
+                Module module = builder.createModule(altVendorDD,
+                        moduleFile,
+                        moduleName,
+                        altSpecDD,
+                        URI.create(gerApplication.getConfigId()),
+                        moduleContextInfo);
+
+                if (module == null) {
+                    throw new DeploymentException("Module was not " + moduleTypeName + ": " + moduleName);
+                }
 
                 modules.add(module);
             }
+
+
         } finally {
             // delete all the temp files created for alt vendor dds
             for (Iterator iterator = altVendorDDs.values().iterator(); iterator.hasNext();) {
