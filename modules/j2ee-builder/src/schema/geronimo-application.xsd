@@ -97,17 +97,8 @@
                 <xs:element name="external-path" type="xs:token"/>
             </xs:choice>
             <!--TODO consider an alt-spec-dd element-->
-            <xs:choice>
-                <xs:element name="alt-dd" type="geronimo:pathType">
-                    <xs:annotation>
-                        <xs:documentation>
-  Specifies an optional URI to the post-assembly version of the Geronimo
-  specific deployment descriptor file for a particular J2EE module.
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
-                <xs:any namespace="##other" processContents="lax"/>
-            </xs:choice>
+            <!--Do not allow vendor plan inside ear.  If it is in the ear, this does not need to be an external module -->
+            <xs:any namespace="##other" processContents="lax"/>
         </xs:sequence>
     </xs:complexType>
 

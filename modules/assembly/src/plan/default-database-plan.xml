@@ -18,10 +18,17 @@
 
 <!-- $Rev$ $Date$ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    version="1.5"
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     configId="org/apache/geronimo/DefaultDatabase"
     parentId="org/apache/geronimo/Server">
+
+    <ext-module>
+        <connector>DefaultDatabase</connector>
+        <external-path>tranql/rars/tranql-connector-${tranql_connector_version}.rar</external-path>
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+    version="1.5"
+    configId="org/apache/geronimo/DefaultDatabasex">
 
     <dependency>
         <uri>axion/jars/axion-${axion_version}.jar</uri>
@@ -72,3 +79,7 @@
     </gbean-->
 
 </connector>
+
+
+    </ext-module>
+</application>
