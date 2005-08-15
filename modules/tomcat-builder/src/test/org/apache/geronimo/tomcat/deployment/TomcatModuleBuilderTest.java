@@ -418,14 +418,14 @@ public class TomcatModuleBuilderTest extends TestCase {
         engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
         engine.setAttribute("initParams", initParams);
-        engine.setReferencePattern("realmGBean", realmName);
-        engine.setReferencePattern("hosts", hostName);
+        engine.setReferencePattern("RealmGBean", realmName);
+        engine.setReferencePattern("Hosts", hostName);
         start(engine);
 
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("classLoader", cl);
         container.setAttribute("catalinaHome", "target/var/catalina");
-        container.setReferencePattern("engineGBean", engineName);
+        container.setReferencePattern("EngineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);
 
         initParams.clear();

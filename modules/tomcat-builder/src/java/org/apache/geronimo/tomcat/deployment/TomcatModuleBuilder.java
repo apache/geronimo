@@ -384,8 +384,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
             webModuleData.setAttribute("contextPriorityClassLoader", Boolean.valueOf(contextPriorityClassLoader));
 
-            webModuleData.setReferencePattern("transactionContextManager", earContext.getTransactionContextManagerObjectName());
-            webModuleData.setReferencePattern("trackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
+            webModuleData.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
+            webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             webModuleData.setReferencePattern("Container", tomcatContainerObjectName);
 
             String virtualServer = null;
