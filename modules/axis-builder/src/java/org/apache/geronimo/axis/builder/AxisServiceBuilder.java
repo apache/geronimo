@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.axis.builder;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -42,8 +44,6 @@ import org.apache.axis.description.JavaServiceDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.encoding.TypeMappingRegistryImpl;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.axis.client.TypeInfo;
 import org.apache.geronimo.axis.server.ReadOnlyServiceDesc;
 import org.apache.geronimo.axis.server.ServiceInfo;
@@ -55,6 +55,7 @@ import org.apache.geronimo.xbeans.wsdl.TDefinitions;
 import org.apache.geronimo.xbeans.wsdl.TImport;
 import org.apache.geronimo.xbeans.wsdl.TTypes;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
@@ -63,7 +64,6 @@ import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
  * @version $Rev$ $Date$
  */
 public class AxisServiceBuilder {
-    private static final Log log = LogFactory.getLog(AxisServiceBuilder.class);
 
     public static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     public static final QName SCHEMA_QNAME = new QName(XSD_NS, "schema");
@@ -208,7 +208,7 @@ public class AxisServiceBuilder {
                 SchemaDocument schemaDocument = (SchemaDocument) ((SchemaDocument) value).copy();
                 SchemaDocument.Schema schema = schemaDocument.getSchema();
                 rewriteSchema(schema, contextURI, key);
-                String schemaString = schemaDocument.toString();
+                String schemaString = xmlObjectToString(schemaDocument);
                 wsdlMap.put(key.toString(), schemaString);
             } else if (value instanceof DefinitionsDocument) {
                 DefinitionsDocument doc = (DefinitionsDocument) ((DefinitionsDocument) value).copy();
@@ -231,18 +231,31 @@ public class AxisServiceBuilder {
                             do {
                                 SchemaDocument.Schema schema = (SchemaDocument.Schema) typeCursor.getObject();
                                 rewriteSchema(schema, contextURI, key);
-                             } while (typeCursor.toNextSibling(SCHEMA_QNAME));
+                            } while (typeCursor.toNextSibling(SCHEMA_QNAME));
                         }
                     } finally {
                         typeCursor.dispose();
                     }
                 }
-                wsdlMap.put(key.toString(), doc.toString());
+                String docString = xmlObjectToString(doc);
+                wsdlMap.put(key.toString(), docString);
             } else {
                 throw new DeploymentException("Unexpected element in wsdlMap at location: " + key + ", value: " + value);
             }
         }
         return wsdlMap;
+    }
+
+    static String xmlObjectToString(XmlObject xmlObject) throws DeploymentException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            xmlObject.save(baos);
+            baos.flush();
+            String result = new String(baos.toByteArray());
+            return result;
+        } catch (IOException e) {
+            throw new DeploymentException("Could not write xml object to string", e);
+        }
     }
 
     private static void rewriteSchema(SchemaDocument.Schema schema, URI contextURI, URI key) throws DeploymentException {
@@ -270,7 +283,7 @@ public class AxisServiceBuilder {
             if (importLocationURI.isAbsolute() || importLocationURI.getPath().startsWith("/")) {
                 return importLocationURI;
             }
-            URI queryURI =  new URI(null,
+            URI queryURI = new URI(null,
                     null,
                     contextURI.getPath(),
                     "wsdl=" + key.resolve(importLocationURI),
