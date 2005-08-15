@@ -412,9 +412,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
         infoBuilder.addAttribute("userTransaction",
                 OnlineUserTransaction.class, true);
-        infoBuilder.addReference("transactionContextManager",
+        infoBuilder.addReference("TransactionContextManager",
                 TransactionContextManager.class, NameFactory.JTA_RESOURCE);
-        infoBuilder.addReference("trackedConnectionAssociator",
+        infoBuilder.addReference("TrackedConnectionAssociator",
                 TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
         infoBuilder.addReference("Container", TomcatContainer.class,
@@ -445,8 +445,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "unshareableResources",
                 "applicationManagedSecurityResources",
                 "userTransaction",
-                "transactionContextManager",
-                "trackedConnectionAssociator",
+                "TransactionContextManager",
+                "TrackedConnectionAssociator",
                 "Container",
                 "RoleDesignateSource",
                 "TomcatRealm",

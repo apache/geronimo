@@ -111,8 +111,8 @@ public class AbstractWebModuleTest extends TestCase {
         app.setReferencePattern("Container", containerName);
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
-        app.setReferencePattern("transactionContextManager", tcmName);
-        app.setReferencePattern("trackedConnectionAssociator", ctcName);
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
         app.setAttribute("path", "/test");
 
         start(app);
@@ -158,8 +158,8 @@ public class AbstractWebModuleTest extends TestCase {
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
-        app.setReferencePattern("transactionContextManager", tcmName);
-        app.setReferencePattern("trackedConnectionAssociator", ctcName);
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
 
         app.setAttribute("componentContext", Collections.EMPTY_MAP);
         app.setReferencePattern("Container", containerName);
@@ -203,8 +203,8 @@ public class AbstractWebModuleTest extends TestCase {
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
-        app.setReferencePattern("transactionContextManager", tcmName);
-        app.setReferencePattern("trackedConnectionAssociator", ctcName);
+        app.setReferencePattern("TransactionContextManager", tcmName);
+        app.setReferencePattern("TrackedConnectionAssociator", ctcName);
 
         app.setAttribute("componentContext", Collections.EMPTY_MAP);
         app.setReferencePattern("Container", containerName);
@@ -359,15 +359,15 @@ public class AbstractWebModuleTest extends TestCase {
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
         engine.setAttribute("initParams", initParams);
         if (realmClass != null)
-            engine.setReferencePattern("realmGBean", realmName);
-        engine.setReferencePattern("hosts", hostName);
+            engine.setReferencePattern("RealmGBean", realmName);
+        engine.setReferencePattern("Hosts", hostName);
         start(engine);
 
         // Need to override the constructor for unit tests
         container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
         container.setAttribute("classLoader", cl);
         container.setAttribute("catalinaHome", "target/var/catalina");
-        container.setReferencePattern("engineGBean", engineName);
+        container.setReferencePattern("EngineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);
 
         initParams.clear();

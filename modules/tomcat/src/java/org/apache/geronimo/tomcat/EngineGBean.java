@@ -110,11 +110,11 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatEngine", EngineGBean.class);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
-        infoFactory.addReference("hosts", ObjectRetriever.class, HostGBean.J2EE_TYPE);
-        infoFactory.addReference("realmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("Hosts", ObjectRetriever.class, HostGBean.J2EE_TYPE);
+        infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "className", "initParams", "hosts", "realmGBean", "TomcatValveChain" });
+        infoFactory.setConstructor(new String[] { "className", "initParams", "Hosts", "RealmGBean", "TomcatValveChain" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

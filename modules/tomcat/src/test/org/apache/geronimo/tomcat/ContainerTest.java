@@ -278,13 +278,13 @@ public class ContainerTest extends TestCase {
        engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
        engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
        engine.setAttribute("initParams", initParams);
-       engine.setReferencePattern("hosts", hostName);
+       engine.setReferencePattern("Hosts", hostName);
        start(engine);
 
        container = new GBeanData(containerName, TomcatContainer.GBEAN_INFO);
        container.setAttribute("classLoader", cl);
        container.setAttribute("catalinaHome", "target/var/catalina");
-       container.setReferencePattern("engineGBean", engineName);
+       container.setReferencePattern("EngineGBean", engineName);
        container.setReferencePattern("ServerInfo", serverInfoName);
        start(container);
 

@@ -95,10 +95,10 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatHost", HostGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
-        infoFactory.addReference("realmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "className", "initParams", "realmGBean", "TomcatValveChain" });
+        infoFactory.setConstructor(new String[] { "className", "initParams", "RealmGBean", "TomcatValveChain" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

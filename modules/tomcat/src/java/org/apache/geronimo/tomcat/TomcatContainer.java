@@ -333,13 +333,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "classLoader", "catalinaHome", "engineGBean", "ServerInfo" });
+        infoFactory.setConstructor(new String[] { "classLoader", "catalinaHome", "EngineGBean", "ServerInfo" });
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
 
-        infoFactory.addReference("engineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("EngineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 
