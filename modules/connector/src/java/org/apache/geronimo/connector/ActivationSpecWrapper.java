@@ -75,6 +75,15 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
     }
 
     /**
+     */
+    public ActivationSpecWrapper(ActivationSpec activationSpec, ResourceAdapterWrapper resourceAdapterWrapper)  {
+        this.activationSpec = activationSpec;
+        this.resourceAdapterWrapper = resourceAdapterWrapper;
+        this.containerId = null;
+        this.delegate=null;
+    }
+
+    /**
      * Returns class of wrapped ActivationSpec.
      *
      * @return class of wrapped ActivationSpec

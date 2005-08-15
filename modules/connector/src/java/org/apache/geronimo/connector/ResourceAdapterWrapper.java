@@ -67,6 +67,13 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
     }
+    
+    public ResourceAdapterWrapper(ResourceAdapter resourceAdapter, final GeronimoWorkManager workManager) {
+        this.resourceAdapterClass = resourceAdapter.getClass().getName();
+        this.bootstrapContext = new BootstrapContextImpl(workManager);
+        this.resourceAdapter = resourceAdapter;
+        this.delegate=null;
+    }
 
     public String getResourceAdapterClass() {
         return resourceAdapterClass;
