@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.tomcat;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.catalina.Host;
@@ -37,6 +38,8 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
     private static final Log log = LogFactory.getLog(HostGBean.class);
     
     public static final String J2EE_TYPE = "Host";
+    private static final String WORKDIR = "workDir";
+    private static final String NAME = "name";
     
     private final Host host;
 
@@ -51,6 +54,20 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
             className = "org.apache.catalina.core.StandardHost";
         }
         
+        if (initParams == null){
+            throw new IllegalArgumentException("Must have a 'name' value in initParams.");
+        }
+        
+        //Be sure the name has been declared.
+        if (!initParams.containsKey(NAME)){
+            throw new IllegalArgumentException("Must have a 'name' value initParams.");
+        }
+        
+        //Be sure we have a default working directory
+        if (!initParams.containsKey(WORKDIR)){
+            initParams.put(WORKDIR, "work");
+        }
+
         //Create the Host object
         host = (Host)Class.forName(className).newInstance();
         

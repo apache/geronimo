@@ -39,7 +39,10 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
     
     private static final Log log = LogFactory.getLog(EngineGBean.class);
-   
+
+    private static final String NAME = "name";
+    private static final String DEFAULTHOST = "defaultHost";
+    
     private final Engine engine;
 
     public EngineGBean(String className, 
@@ -51,6 +54,20 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         
         if (className == null){
             className = "org.apache.geronimo.tomcat.TomcatEngine";
+        }
+
+        if (initParams == null){
+            throw new IllegalArgumentException("Must have 'name' and 'defaultHost' values in initParams.");
+        }
+        
+        //Be sure the name has been declared.
+        if (!initParams.containsKey(NAME)){
+            throw new IllegalArgumentException("Must have a 'name' value initParams.");
+        }
+
+        //Be sure the defaulthost has been declared.
+        if (!initParams.containsKey(DEFAULTHOST)){
+            throw new IllegalArgumentException("Must have a 'defaultHost' value initParams.");
         }
         
         engine = (Engine)Class.forName(className).newInstance();
