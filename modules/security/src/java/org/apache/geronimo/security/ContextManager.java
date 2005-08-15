@@ -35,6 +35,8 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.security.auth.Subject;
 import javax.security.jacc.EJBRoleRefPermission;
 
+import org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal;
+
 
 /**
  * @version $Rev$ $Date$
@@ -208,14 +210,16 @@ public class ContextManager {
         Context context = new Context();
         context.subject = subject;
         context.context = acc;
-        if (!subject.getPrincipals(PrimaryRealmPrincipal.class).isEmpty()) {
-            context.principal = (PrimaryRealmPrincipal) subject.getPrincipals(PrimaryRealmPrincipal.class).iterator().next();
-        } else if (!subject.getPrincipals(RealmPrincipal.class).isEmpty()) {
-            context.principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
-        } else if (!subject.getPrincipals().isEmpty()) {
-            context.principal = (Principal) subject.getPrincipals().iterator().next();
+        Set principals = subject.getPrincipals(GeronimoCallerPrincipal.class);
+        if (!principals.isEmpty()) {
+            context.principal = (Principal) principals.iterator().next();
+        } else if (!(principals = subject.getPrincipals(PrimaryRealmPrincipal.class)).isEmpty()) {
+            context.principal = (PrimaryRealmPrincipal) principals.iterator().next();
+        } else if (!(principals = subject.getPrincipals(RealmPrincipal.class)).isEmpty()) {
+            context.principal = (RealmPrincipal) principals.iterator().next();
+        } else if (!(principals = subject.getPrincipals()).isEmpty()) {
+            context.principal = (Principal) principals.iterator().next();
         }
-        //there are several RealmPrincipals.  Why pick the first out of a map?
         Long id = new Long(nextSubjectId++);
         context.id = new SubjectId(id, hash(id));
 

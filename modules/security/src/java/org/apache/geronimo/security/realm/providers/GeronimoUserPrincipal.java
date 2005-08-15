@@ -26,7 +26,7 @@ import java.security.Principal;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class GeronimoUserPrincipal implements Principal, Serializable {
+public class GeronimoUserPrincipal implements Principal, Serializable, GeronimoCallerPrincipal {
     private final String name;
 
     public GeronimoUserPrincipal(String name) {
