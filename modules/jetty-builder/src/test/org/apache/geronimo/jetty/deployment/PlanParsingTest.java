@@ -1,18 +1,18 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.jar.JarFile;
-import java.util.Collections;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.deployment.util.UnpackedJarFile;
+import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.deployment.util.UnpackedJarFile;
 
 /**
  */
@@ -24,7 +24,7 @@ public class PlanParsingTest extends TestCase {
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, null, null, null, pojoWebServiceTemplate, webServiceBuilder, null, null);
+        builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
     }
 
     public void testContents() throws Exception {

@@ -127,9 +127,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
     private final URI defaultParentId;
     private final ObjectName jettyContainerObjectName;
-    private final ObjectName defaultServlets;
-    private final ObjectName defaultFilters;
-    private final ObjectName defaultFilterMappings;
+    private final Collection defaultServlets;
+    private final Collection defaultFilters;
+    private final Collection defaultFilterMappings;
     private final GBeanData pojoWebServiceTemplate;
 
     private final WebServiceBuilder webServiceBuilder;
@@ -144,9 +144,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               Integer defaultSessionTimeoutSeconds,
                               List defaultWelcomeFiles,
                               ObjectName jettyContainerObjectName,
-                              ObjectName defaultServlets,
-                              ObjectName defaultFilters,
-                              ObjectName defaultFilterMappings,
+                              Collection defaultServlets,
+                              Collection defaultFilters,
+                              Collection defaultFilterMappings,
                               Object pojoWebServiceTemplate,
                               WebServiceBuilder webServiceBuilder,
                               Repository repository,
@@ -157,7 +157,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
         this.defaultFilterMappings = defaultFilterMappings;
-        this.pojoWebServiceTemplate = getServletData(kernel, pojoWebServiceTemplate);
+        this.pojoWebServiceTemplate = getGBeanData(kernel, pojoWebServiceTemplate);
         this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
         this.kernel = kernel;
@@ -167,7 +167,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         this.defaultWelcomeFiles = defaultWelcomeFiles;
     }
 
-    private static GBeanData getServletData(Kernel kernel, Object template) throws GBeanNotFoundException {
+    private static GBeanData getGBeanData(Kernel kernel, Object template) throws GBeanNotFoundException {
         if (template == null) {
             return null;
         }
@@ -603,10 +603,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             //add default filters
             if (defaultFilters != null) {
-                Set defaultFilterNames = kernel.listGBeans(defaultFilters);
-                for (Iterator iterator = defaultFilterNames.iterator(); iterator.hasNext();) {
-
-                    GBeanData filterGBeanData = kernel.getGBeanData((ObjectName) iterator.next());
+                for (Iterator iterator = defaultFilters.iterator(); iterator.hasNext();) {
+                    Object defaultFilter = iterator.next();
+                    GBeanData filterGBeanData = getGBeanData(kernel, defaultFilter);
                     String filterName = (String) filterGBeanData.getAttribute("filterName");
                     ObjectName defaultFilterObjectName = NameFactory.getWebComponentName(null, null, null, null, filterName, NameFactory.WEB_FILTER, moduleJ2eeContext);
                     filterGBeanData.setName(defaultFilterObjectName);
@@ -635,10 +634,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             //add default filtermappings
 //            if (defaultFilterMappings != null) {
-//                Set defaultFilterMappingNames = kernel.listGBeans(defaultFilterMappings);
-//                for (Iterator iterator = defaultFilterMappingNames.iterator(); iterator.hasNext();) {
-//
-//                    GBeanData filterMappingGBeanData = kernel.getGBeanData((ObjectName) iterator.next());
+//                for (Iterator iterator = defaultFilterMappings.iterator(); iterator.hasNext();) {
+//                    Object defaultFilterMapping = iterator.next();
+//                    GBeanData filterMappingGBeanData = getGBeanData(kernel, defaultFilterMapping);
 //                    String filterName = (String) filterMappingGBeanData.getAttribute("filterName");
 //                    ObjectName defaultFilterMappingObjectName;
 //                    if (filterMappingGBeanData.getAttribute("urlPattern") != null) {
@@ -729,10 +727,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             //add default servlets
             if (defaultServlets != null) {
-                Set defaultServletNames = kernel.listGBeans(defaultServlets);
-                for (Iterator iterator = defaultServletNames.iterator(); iterator.hasNext();) {
-
-                    GBeanData servletGBeanData = kernel.getGBeanData((ObjectName) iterator.next());
+                for (Iterator iterator = defaultServlets.iterator(); iterator.hasNext();) {
+                    Object defaultServlet = iterator.next();
+                    GBeanData servletGBeanData = getGBeanData(kernel, defaultServlet);
                     ObjectName defaultServletObjectName = NameFactory.getWebComponentName(null, null, null, null, (String) servletGBeanData.getAttribute("servletName"), NameFactory.SERVLET, moduleJ2eeContext);
                     servletGBeanData.setName(defaultServletObjectName);
                     servletGBeanData.setReferencePattern("JettyServletRegistration", webModuleName);
@@ -1344,9 +1341,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true);
         infoBuilder.addAttribute("jettyContainerObjectName", ObjectName.class, true);
-        infoBuilder.addAttribute("defaultServlets", ObjectName.class, true);
-        infoBuilder.addAttribute("defaultFilters", ObjectName.class, true);
-        infoBuilder.addAttribute("defaultFilterMappings", ObjectName.class, true);
+        infoBuilder.addReference("DefaultServlets", Object.class);
+        infoBuilder.addReference("DefaultFilters", Object.class);
+        infoBuilder.addReference("DefaultFilterMappings", Object.class);
         infoBuilder.addReference("PojoWebServiceTemplate", Object.class);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
@@ -1358,9 +1355,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
             "defaultSessionTimeoutSeconds",
             "defaultWelcomeFiles",
             "jettyContainerObjectName",
-            "defaultServlets",
-            "defaultFilters",
-            "defaultFilterMappings",
+            "DefaultServlets",
+            "DefaultFilters",
+            "DefaultFilterMappings",
             "PojoWebServiceTemplate",
             "WebServiceBuilder",
             "Repository",

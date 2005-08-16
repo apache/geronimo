@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collection;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -259,7 +260,9 @@ public class JettyModuleBuilderTest extends TestCase {
         ObjectName baseConfigName = configurationManager.load(parentId);
         kernel.startGBean(baseConfigName);
 
-        ObjectName defaultServlets = ObjectName.getInstance("test:name=test,type=none,*");
+        Collection defaultServlets = new HashSet();
+        Collection defaultFilters = new HashSet();
+        Collection defaultFilterMappings = new HashSet();
         Object pojoWebServiceTemplate = null;
         WebServiceBuilder webServiceBuilder = new UnavailableWebServiceBuilder();
 
@@ -277,7 +280,7 @@ public class JettyModuleBuilderTest extends TestCase {
         start(securityServiceGBean);
 
 
-        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, null, null, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
+        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
 
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 
