@@ -304,6 +304,10 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
                 GerPortType gerPort = (GerPortType) portMap.get(portName);
 
                 URL location = gerPort == null? getAddressLocation(port): getLocation(gerPort);
+                //skip non-soap ports
+                if (location == null) {
+                    continue;
+                }
                 String credentialsName = gerPort == null || gerPort.getCredentialsName() == null? null : gerPort.getCredentialsName().trim();
 
                 Binding binding = port.getBinding();
@@ -376,7 +380,13 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
     }
 
     private URL getAddressLocation(Port port) throws DeploymentException {
-        SOAPAddress soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+        SOAPAddress soapAddress = null;
+        try {
+            soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
+        } catch (DeploymentException e) {
+            //a http: protocol REST service.  Skip it.
+            return null;
+        }
         String locationURIString = soapAddress.getLocationURI();
         URL location = null;
         try {
