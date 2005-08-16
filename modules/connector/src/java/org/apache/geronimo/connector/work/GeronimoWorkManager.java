@@ -68,7 +68,7 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
      */
     private WorkExecutorPool scheduledWorkExecutorPool;
 
-    private final TransactionContextManager transactionContextManager;
+    private TransactionContextManager transactionContextManager;
 
     private final WorkExecutor scheduleWorkExecutor = new ScheduleWorkExecutor();
     private final WorkExecutor startWorkExecutor = new StartWorkExecutor();
@@ -152,9 +152,17 @@ public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
         scheduledWorkExecutorPool.setMaximumPoolSize(maxSize);
     }
 
+    public TransactionContextManager getTransactionContextManager() {
+        return transactionContextManager;
+    }
+
+    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
+        this.transactionContextManager = transactionContextManager;
+    }
+
     /* (non-Javadoc)
-     * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work)
-     */
+    * @see javax.resource.spi.work.WorkManager#doWork(javax.resource.spi.work.Work)
+    */
     public void doWork(Work work) throws WorkException {
         executeWork(new WorkerContext(work, transactionContextManager), syncWorkExecutor, syncWorkExecutorPool);
     }
