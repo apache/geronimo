@@ -631,12 +631,26 @@ public class TransactionImpl implements Transaction {
         return manager;
     }
 
+    /**
+     * A helper method to convert an {@link XAResource} into a {@link NamedXAResource}
+     * either via casting or wrapping.
+     */
+    protected static NamedXAResource asNamedXAResource(XAResource xaRes) {
+        if (xaRes instanceof NamedXAResource) {
+            return (NamedXAResource) xaRes;
+        }
+        else {
+            String name = xaRes.toString();
+            return new WrapperNamedXAResource(xaRes, name);
+        }
+    }
+
     private static class TransactionBranch implements TransactionBranchInfo {
         private final NamedXAResource committer;
         private final Xid branchId;
 
         public TransactionBranch(XAResource xaRes, Xid branchId) {
-            committer = (NamedXAResource)xaRes;
+            committer = asNamedXAResource(xaRes);
             this.branchId = branchId;
         }
 
