@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="web"
+    nsURI="http://geronimo.apache.org/xml/ns/web" nsPrefix="web">
+  <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+    <details key="documentation" value="&#xD;&#xA;            Schema for Geronimo Services deployment plans.&#xD;&#xA;            Instance documents should begin with the element:&#xD;&#xA;&#xD;&#xA;            &amp;gt;gbeans xmlns=&quot;http://geronimo.apache.org/xml/ns/deployment&quot;&amp;lt;&#xD;&#xA;        &#xD;&#xA;&#xD;&#xA;   See http://www.w3.org/XML/1998/namespace.html and&#xD;&#xA;   http://www.w3.org/TR/REC-xml for information about this namespace.&#xD;&#xA;&#xD;&#xA;    This schema document describes the XML namespace, in a form&#xD;&#xA;    suitable for import by other schema documents.  &#xD;&#xA;&#xD;&#xA;    Note that local names in this namespace are intended to be defined&#xD;&#xA;    only by the World Wide Web Consortium or its subgroups.  The&#xD;&#xA;    following names are currently defined in this namespace and should&#xD;&#xA;    not be used with conflicting semantics by any Working Group,&#xD;&#xA;    specification, or document instance:&#xD;&#xA;&#xD;&#xA;    base (as an attribute name): denotes an attribute whose value&#xD;&#xA;         provides a URI to be used as the base for interpreting any&#xD;&#xA;         relative URIs in the scope of the element on which it&#xD;&#xA;         appears; its value is inherited.  This name is reserved&#xD;&#xA;         by virtue of its definition in the XML Base specification.&#xD;&#xA;&#xD;&#xA;    id   (as an attribute name): denotes an attribute whose value&#xD;&#xA;         should be interpreted as if declared to be of type ID.&#xD;&#xA;         The xml:id specification is not yet a W3C Recommendation,&#xD;&#xA;         but this attribute is included here to facilitate experimentation&#xD;&#xA;         with the mechanisms it proposes.  Note that it is _not_ included&#xD;&#xA;         in the specialAttrs attribute group.&#xD;&#xA;&#xD;&#xA;    lang (as an attribute name): denotes an attribute whose value&#xD;&#xA;         is a language code for the natural language of the content of&#xD;&#xA;         any element; its value is inherited.  This name is reserved&#xD;&#xA;         by virtue of its definition in the XML specification.&#xD;&#xA;  &#xD;&#xA;    space (as an attribute name): denotes an attribute whose&#xD;&#xA;         value is a keyword indicating what whitespace processing&#xD;&#xA;         discipline is intended for the content of the element; its&#xD;&#xA;         value is inherited.  This name is reserved by virtue of its&#xD;&#xA;         definition in the XML specification.&#xD;&#xA;&#xD;&#xA;    Father (in any context at all): denotes Jon Bosak, the chair of &#xD;&#xA;         the original XML Working Group.  This name is reserved by &#xD;&#xA;         the following decision of the W3C XML Plenary and &#xD;&#xA;         XML Coordination groups:&#xD;&#xA;&#xD;&#xA;             In appreciation for his vision, leadership and dedication&#xD;&#xA;             the W3C XML Plenary on this 10th day of February, 2000&#xD;&#xA;             reserves for Jon Bosak in perpetuity the XML name&#xD;&#xA;             xml:Father&#xD;&#xA;  &#xD;&#xA;This schema defines attributes and an attribute group&#xD;&#xA;        suitable for use by&#xD;&#xA;        schemas wishing to allow xml:base, xml:lang or xml:space attributes&#xD;&#xA;        on elements they define.&#xD;&#xA;&#xD;&#xA;        To enable this, such a schema must import this schema&#xD;&#xA;        for the XML namespace, e.g. as follows:&#xD;&#xA;        &amp;lt;schema . . .&amp;gt;&#xD;&#xA;         . . .&#xD;&#xA;         &amp;lt;import namespace=&quot;http://www.w3.org/XML/1998/namespace&quot;&#xD;&#xA;                    schemaLocation=&quot;http://www.w3.org/2001/03/xml.xsd&quot;/&amp;gt;&#xD;&#xA;&#xD;&#xA;        Subsequently, qualified reference to any of the attributes&#xD;&#xA;        or the group defined below will have the desired effect, e.g.&#xD;&#xA;&#xD;&#xA;        &amp;lt;type . . .&amp;gt;&#xD;&#xA;         . . .&#xD;&#xA;         &amp;lt;attributeGroup ref=&quot;xml:specialAttrs&quot;/&amp;gt;&#xD;&#xA; &#xD;&#xA;         will define a type which will schema-validate an instance&#xD;&#xA;         element with any of those attributes&#xD;&#xA;In keeping with the XML Schema WG's standard versioning&#xD;&#xA;   policy, this schema document will persist at&#xD;&#xA;   http://www.w3.org/2004/10/xml.xsd.&#xD;&#xA;   At the date of issue it can also be found at&#xD;&#xA;   http://www.w3.org/2001/xml.xsd.&#xD;&#xA;   The schema document at that URI may however change in the future,&#xD;&#xA;   in order to remain compatible with the latest version of XML Schema&#xD;&#xA;   itself, or with the XML namespace itself.  In other words, if the XML&#xD;&#xA;   Schema or XML namespaces change, the version of this document at&#xD;&#xA;   http://www.w3.org/2001/xml.xsd will change&#xD;&#xA;   accordingly; the version at&#xD;&#xA;   http://www.w3.org/2004/10/xml.xsd will not change.&#xD;&#xA;  &#xD;&#xA;&#xD;&#xA;            &#xD;&#xA;            Partial schema containing common naming elements which can be included in other schemas.&#xD;&#xA;            &#xD;&#xA;        "/>
+  </eAnnotations>
+  <eClassifiers xsi:type="ecore:EClass" name="ConfigParamType">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="&#xD;&#xA;                The config-paramType contains a name-value pair for a&#xD;&#xA;                configuration parameter&#xD;&#xA;            "/>
+    </eAnnotations>
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="name" value="config-paramType"/>
+      <details key="kind" value="simple"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="value" unique="false" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="name" value=":0"/>
+        <details key="kind" value="simple"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" unique="false" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="name" value="name"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ContainerConfigType">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="&#xD;&#xA;                Holds any configuration settings appropriate to the&#xD;&#xA;                specific web container this application is targeting.&#xD;&#xA;                Generally speaking this configuration file reflects&#xD;&#xA;                the commonalities between web containers, and it's&#xD;&#xA;                possible for a single container to have additional&#xD;&#xA;                configuration options.  We recommend these be avoided&#xD;&#xA;                wherever possible for the sake of portability.&#xD;&#xA;&#xD;&#xA;                Known containers are:&#xD;&#xA;                  Tomcat&#xD;&#xA;                  Jetty&#xD;&#xA;&#xD;&#xA;                Some known parameters are:&#xD;&#xA;                  Tomcat:  VirtualServer&#xD;&#xA;                  Tomcat:  TomcatRealm&#xD;&#xA;                  Tomcat:  TomcatValveChain&#xD;&#xA;                An authoritative list is left to the individual container&#xD;&#xA;                documentation.&#xD;&#xA;            "/>
+    </eAnnotations>
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="name" value="container-configType"/>
+      <details key="kind" value="elementOnly"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="configParam" upperBound="-1"
+        eType="#//ConfigParamType" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="config-param"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="container" unique="false"
+        lowerBound="1" eType="#//WebContainerType" defaultValueLiteral="Tomcat" unsettable="true">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="name" value="container"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DocumentRoot">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="name" value=""/>
+      <details key="kind" value="mixed"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mixed" unique="false" upperBound="-1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EFeatureMapEntry">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="elementWildcard"/>
+        <details key="name" value=":mixed"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="xMLNSPrefixMap" upperBound="-1"
+        eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EStringToStringMapEntry"
+        transient="true" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="name" value="xmlns:prefix"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="xSISchemaLocation" upperBound="-1"
+        eType="ecore:EClass http://www.eclipse.org/emf/2002/Ecore#//EStringToStringMapEntry"
+        transient="true" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="name" value="xsi:schemaLocation"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="webApp" upperBound="-2"
+        eType="#//WebAppType" volatile="true" transient="true" derived="true" containment="true"
+        resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="web-app"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="WebAppType">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="name" value="web-appType"/>
+      <details key="kind" value="elementOnly"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="dependency" upperBound="-1"
+        eType="ecore:EClass deployment.ecore#//DependencyType" containment="true"
+        resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="dependency"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/deployment"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="contextRoot" unique="false"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="context-root"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="contextPriorityClassloader"
+        unique="false" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        unsettable="true">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="context-priority-classloader"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="containerConfig" upperBound="-1"
+        eType="#//ContainerConfigType" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="container-config"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="securityRealmName" unique="false"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="security-realm-name"/>
+        <details key="namespace" value="##targetNamespace"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="security" eType="ecore:EClass security.ecore#//SecurityType"
+        containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="security"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/security"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ejbRef" upperBound="-1"
+        eType="ecore:EClass naming.ecore#//EjbRefType" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="ejb-ref"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/naming"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ejbLocalRef" upperBound="-1"
+        eType="ecore:EClass naming.ecore#//EjbLocalRefType" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="ejb-local-ref"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/naming"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="serviceRef" upperBound="-1"
+        eType="ecore:EClass naming.ecore#//ServiceRefType" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="service-ref"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/naming"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceRef" upperBound="-1"
+        eType="ecore:EClass naming.ecore#//ResourceRefType" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="resource-ref"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/naming"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="resourceEnvRef" upperBound="-1"
+        eType="ecore:EClass naming.ecore#//ResourceEnvRefType" containment="true"
+        resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="resource-env-ref"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/naming"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="gbean" upperBound="-1"
+        eType="ecore:EClass deployment.ecore#//GbeanType" containment="true" resolveProxies="false">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="element"/>
+        <details key="name" value="gbean"/>
+        <details key="namespace" value="http://geronimo.apache.org/xml/ns/deployment"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="configId" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="name" value="configId"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="parentId" unique="false"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String">
+      <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+        <details key="kind" value="attribute"/>
+        <details key="name" value="parentId"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="WebContainerType">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="name" value="web-containerType"/>
+    </eAnnotations>
+    <eLiterals name="Tomcat"/>
+    <eLiterals name="Jetty" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="WebContainerTypeObject" instanceClassName="org.eclipse.emf.common.util.Enumerator">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="name" value="web-containerType:Object"/>
+      <details key="baseType" value="web-containerType"/>
+    </eAnnotations>
+  </eClassifiers>
+</ecore:EPackage>

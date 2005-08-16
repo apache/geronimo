@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:ServerRuntime
+	xmlns:tns="http://eclipse.org/jst/server/generic/ServerTypeDefinition"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://eclipse.org/jst/server/generic/ServerTypeDefinition ServerTypeDefinitionSchema.xsd "
+	name="Apache Geronimo 1.0" version="v1.0">
+<property id="serverRootDirectory"
+	label="%serverRootDirectory"
+	type="directory"
+	context="runtime"
+	default="C:/Geronimo-1.0" />
+<property id="serverAddress"
+	label="%serverAddress"
+	type="string"
+	context="server"
+	default="127.0.0.1" />
+<property id="port"
+	label="%port"
+	type="string"
+	context="server"
+	default="8080" />
+<property id="adminID"
+	label="%adminId"
+	type="string"
+	context="server"
+	default="system" />
+<property id="adminPassword"
+	label="%adminPassword"
+	type="string"
+	context="server"
+	default="manager" />
+<property id="classPath"
+	label="%classPath"
+	type="directory"
+	context="runtime"
+	default="C:/Geronimo-1.0" />
+
+	<port>
+		<no>${port}</no>
+		<name>Http</name>
+		<protocol>http</protocol>
+	</port>
+
+	<module>
+		<type>j2ee.web</type>
+		<publishDir>${serverRootDirectory}/server/deploy</publishDir>
+		<publisherReference>org.eclipse.jst.server.geronimo.internal.GeronimoPublisher</publisherReference>
+	</module>
+	<module>
+		<type>j2ee.ejb</type>
+		<publishDir>${serverRootDirectory}/server/deploy</publishDir>
+		<publisherReference>org.eclipse.jst.server.geronimo.internal.GeronimoPublisher</publisherReference>
+	</module>
+
+	<project>
+		<classpathReference>geronimo.project</classpathReference>
+	</project>
+	
+	<start>
+		<mainClass>org.apache.geronimo.system.main.Daemon</mainClass>
+		<workingDirectory>${serverRootDirectory}/bin</workingDirectory>
+		<programArguments>-v</programArguments>
+		<vmParameters></vmParameters>
+		<classpathReference>geronimo.server</classpathReference>
+	</start>
+
+	<stop>
+		<mainClass>org.apache.geronimo.deployment.cli.DeployTool</mainClass>
+		<workingDirectory>${serverRootDirectory}/bin</workingDirectory>
+		<programArguments>--user ${adminID} --password ${adminPassword}</programArguments>
+		<vmParameters></vmParameters>
+		<classpathReference>geronimo.deploy</classpathReference>
+	</stop>
+
+	<classpath id="geronimo.server">
+		<archive path="${serverRootDirectory}/bin/server.jar" />
+	</classpath>
+
+	<classpath id="geronimo.deploy">
+		<archive path="${serverRootDirectory}/bin/deployer.jar" />
+	</classpath>
+
+	<classpath id="geronimo.project">
+		<archive path="${classPath}/repository/geronimo-spec/jars" />
+		<archive path="${classPath}/lib" />
+	</classpath>
+	
+	<jndiConnection>
+		<providerUrl>jnp://${serverAddress}:1099</providerUrl>
+		<initialContextFactory>org.jnp.interfaces.NamingContextFactory</initialContextFactory>
+		<jndiProperty>
+			<name></name>
+			<value></value>
+		</jndiProperty>
+	</jndiConnection>
+</tns:ServerRuntime>

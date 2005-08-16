@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+  <extension point="org.eclipse.wst.server.ui.wizardFragments">
+     <fragment
+        id="org.eclipse.jst.server.generic.runtime"
+        typeIds="org.eclipse.jst.server.runtime.geronimo.10"
+        class="org.eclipse.jst.server.generic.ui.internal.GenericServerRuntimeWizardFragment"/>
+     <fragment
+        id="org.eclipse.jst.server.generic.server"
+        typeIds="org.eclipse.jst.server.geronimo.10"
+        class="org.eclipse.jst.server.generic.ui.internal.GenericServerWizardFragment"/>
+  </extension>
+
+  <extension point="org.eclipse.wst.server.ui.serverImages">
+     <image
+         id="org.eclipse.jst.server.geronimo.image.runtime"
+         icon="icons/obj16/geronimo.gif"
+         typeIds="org.eclipse.jst.server.runtime.geronimo.10"/>
+     <image
+         id="org.eclipse.jst.server.geronimo.image.server"
+         icon="icons/obj16/geronimo.gif"
+         typeIds="org.eclipse.jst.server.geronimo.10"/>
+  </extension>
+
+  <extension point="org.eclipse.ui.editors">
+      <editor
+            class="org.apache.geronimo.ui.editors.DPEditor"
+            default="true"
+            filenames="geronimo-web.xml"
+            icon="icons/obj16/geronimo.gif"
+            id="org.apache.geronimo.ui.editors.DPEditor"
+            name="%editorName">
+      </editor>
+  </extension>
+
+</plugin>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+ <extension point="org.eclipse.wst.server.core.runtimeTypes">
+    <runtimeType
+       id="org.eclipse.jst.server.runtime.geronimo.10"
+       name="%runtimeTypeName"
+       description="%runtimeTypeDescription"
+       vendor="%runtimeTypeVendor"
+       version="1.0"
+       class="org.eclipse.jst.server.generic.core.internal.GenericServerRuntime">
+       <moduleType
+         types="j2ee.web"
+         versions="1.2, 1.3, 1.4"/>
+      <moduleType
+         types="j2ee.ejb"
+         versions="1.2, 1.3, 1.4"/>
+      <!-- moduleType
+         types="j2ee.ear"
+         versions="1.2, 1.3, 1.4"/ -->
+    </runtimeType>
+ </extension>
+
+<extension point="org.eclipse.wst.server.core.serverTypes">
+     <serverType
+           id="org.eclipse.jst.server.geronimo.10"
+           name="%serverTypeName"
+           description="%serverTypeDescription"
+           runtime="true"
+           class="org.apache.geronimo.core.internal.GeronimoServer"
+           initialState="stopped"
+           supportsRemoteHosts="false"
+           startBeforePublish="true"
+           runtimeTypeId="org.eclipse.jst.server.runtime.geronimo.10"
+           launchConfigId="org.eclipse.jst.server.generic.core.launchConfigurationType"
+           behaviourClass="org.apache.geronimo.core.internal.GeronimoServerBehaviour"
+           hasConfiguration="false"
+           launchModes="run,debug">         
+     </serverType>     
+</extension>
+
+<!-- Server type definitions -->
+   <extension point="org.eclipse.jst.server.generic.core.serverdefinition">
+		<serverdefinition id="org.eclipse.jst.server.runtime.geronimo.10" 
+			definitionfile="/serverdef/geronimo10.serverdef">
+		</serverdefinition>
+   </extension>
+  
+   <extension point="org.eclipse.wst.server.core.runtimeTargetHandlers">
+     <runtimeTargetHandler
+        id="org.eclipse.jst.server.geronimo.runtimeTarget"
+        runtimeTypeIds="org.eclipse.jst.server.runtime.geronimo.*"
+        class="org.apache.geronimo.core.internal.GeronimoServerRuntimeTargetHandler"/>
+   </extension>
+   
+    <extension id="GeronimoOpExtensions" name="GeronimoOpExtensions" point="org.eclipse.wst.common.frameworks.OperationExtension">									
+		<operationExtension
+			id="org.eclipse.jst.j2ee.internal.web.archive.operations.WebComponentCreationOperation"
+			postOperationClass="org.apache.geronimo.core.internal.DeploymentPlanCreationOperation">
+	    </operationExtension>	   
+   </extension>
+
+</plugin>

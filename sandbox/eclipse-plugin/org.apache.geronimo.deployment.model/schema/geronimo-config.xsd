@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema
+    targetNamespace="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    >
+    <xs:annotation>
+        <xs:documentation>
+            Schema for Geronimo Services deployment plans.
+            Instance documents should begin with the element:
+
+            &gt;gbeans xmlns="http://geronimo.apache.org/xml/ns/deployment"&lt;
+        </xs:documentation>
+    </xs:annotation>
+
+    <xs:element name="configuration" type="sys:configurationType"/>
+
+    <xs:complexType name="configurationType">
+        <xs:sequence>
+            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                You are required to specify either parentId or both domain and server.  domain and server form
+                the domain and J2EEServer key for gbeans in this configuration and any descendant configurations.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="domain" type="xs:string" use="optional"/>
+        <xs:attribute name="server" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:element name="dependency" type="sys:dependencyType"/>
+    <xs:element name="gbean" type="sys:gbeanType"/>
+
+    <xs:complexType name="dependencyType">
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="groupId" type="xs:string"/>
+                <xs:element name="artifactId" type="xs:string"/>
+                <xs:element name="version" type="xs:string"/>
+            </xs:sequence>
+            <xs:element name="uri" type="xs:string"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="gbeanType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="attribute" type="sys:attributeType"/>
+            <xs:element name="xml-attribute" type="sys:xml-attributeType"/>
+            <xs:element name="reference" type="sys:referenceType"/>
+            <xs:element name="references" type="sys:referencesType"/>
+            <xs:element name="xml-reference" type="sys:xml-attributeType"/>
+        </xs:choice>
+        <xs:attribute name="gbeanName" type="xs:string"/>
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="class" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="attributeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="type" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="xml-attributeType">
+        <xs:sequence>
+            <xs:any namespace="##other" processContents="lax"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="referencesType">
+        <xs:sequence>
+            <xs:element name="pattern" type="sys:patternType" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+
+    <xs:complexType name="patternType">
+        <xs:sequence>
+            <xs:group ref="sys:gbean-nameGroup"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="referenceType">
+        <xs:complexContent>
+            <xs:extension base="sys:patternType">
+                <xs:attribute name="name" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:group name="gbean-nameGroup">
+        <xs:annotation>
+            <xs:documentation>This group contains the components of a jsr-77 object name</xs:documentation>
+        </xs:annotation>
+        <xs:choice>
+            <xs:sequence>
+                <xs:element name="domain" type="xs:string" minOccurs="0"/>
+                <xs:element name="server" type="xs:string" minOccurs="0"/>
+                <xs:element name="application" type="xs:string" minOccurs="0"/>
+                <xs:element name="moduleType" type="xs:string" minOccurs="0"/>
+                <xs:element name="module" type="xs:string" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0"/>
+                <xs:element name="name" type="xs:string"/>
+            </xs:sequence>
+            <xs:element name="gbean-name" type="xs:string"/>
+        </xs:choice>
+    </xs:group>
+
+</xs:schema>

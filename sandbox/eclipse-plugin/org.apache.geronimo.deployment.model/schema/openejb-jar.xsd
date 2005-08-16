@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ================================================================
+ Redistribution and use of this software and associated documentation
+ ("Software"), with or without modification, are permitted provided
+ that the following conditions are met:
+
+ 1. Redistributions of source code must retain copyright
+    statements and notices.  Redistributions must also contain a
+    copy of this document.
+
+ 2. Redistributions in binary form must reproduce this list of
+    conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+ 3. The name "OpenEJB" must not be used to endorse or promote
+    products derived from this Software without prior written
+    permission of The OpenEJB Group.  For written permission,
+    please contact openejb-group@openejb.sf.net.
+
+ 4. Products derived from this Software may not be called "OpenEJB"
+    nor may "OpenEJB" appear in their names without prior written
+    permission of The OpenEJB Group. OpenEJB is a registered
+    trademark of The OpenEJB Group.
+
+ 5. Due credit should be given to the OpenEJB Project
+    (http://openejb.org/).
+
+ THIS SOFTWARE IS PROVIDED BY THE OPENEJB GROUP AND CONTRIBUTORS
+ ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT
+ NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL
+ THE OPENEJB GROUP OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ ====================================================================
+
+ This software consists of voluntary contributions made by many
+ individuals on behalf of the OpenEJB Project.  For more information
+ please see <http://openejb.org/>.
+
+ ================================================================ -->
+
+<xs:schema
+    xmlns:openejb="http://www.openejb.org/xml/ns/openejb-jar"
+    targetNamespace="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:pkgen="http://www.openejb.org/xml/ns/pkgen"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="schema/geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="schema/geronimo-security.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="schema/geronimo-config.xsd"/>
+    <xs:import namespace="http://www.openejb.org/xml/ns/pkgen" schemaLocation="schema/openejb-pkgen.xsd"/>
+
+    <xs:group name="openejb-jndiEnvironmentRefsGroup">
+        <xs:annotation>
+            <xs:documentation>
+
+                 This is a hack until groups in xmlbeans behave better
+
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+
+            <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+
+        </xs:sequence>
+    </xs:group>
+
+
+    <xs:element name="openejb-jar" type="openejb:openejb-jarType"/>
+
+    <xs:complexType name="openejb-jarType">
+        <xs:sequence>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- use a ref to put this element in the naming namespace rather than openejb namespace-->
+            <xs:element ref="naming:cmp-connection-factory" minOccurs="0"/>
+            <xs:element name="ejb-ql-compiler-factory" minOccurs="0"/>
+            <xs:element name="db-syntax-factory" minOccurs="0"/>
+            <xs:element name="enforce-foreign-key-constraints" minOccurs="0"/>
+
+            <xs:element name="enterprise-beans">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="session" type="openejb:session-beanType"/>
+                        <xs:element name="entity" type="openejb:entity-beanType"/>
+                        <xs:element name="message-driven" type="openejb:message-driven-beanType"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="relationships" type="openejb:relationshipsType" minOccurs="0"/>
+
+            <xs:element ref="security:security" minOccurs="0"/>
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+
+    <!-- session bean section-->
+    <xs:complexType name="session-beanType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string"/>
+            <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:group ref="openejb:tssGroup" minOccurs="0"/>
+
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+            <xs:element name="web-service-address" type="xs:string" minOccurs="0"/>
+            <xs:element name="web-service-security" type="openejb:web-service-securityType" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:group name="tssGroup">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="tss-target-name" type="xs:string"/>
+                <xs:element name="tss-link" type="xs:string"/>
+                <xs:element name="tss" type="openejb:tssType"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:complexType name="tssType">
+        <xs:sequence>
+            <!-- this is object name group from geronimo-naming.xsd -->
+            <xs:element name="domain" type="xs:string" minOccurs="0"/>
+            <xs:element name="server" type="xs:string" minOccurs="0"/>
+            <xs:element name="application" type="xs:string" minOccurs="0"/>
+            <xs:element name="module" type="xs:string" minOccurs="0"/>
+            <!--            <xs:element name="type" type="xs:string" minOccurs="0"/>-->
+            <xs:element name="name" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="web-service-securityType">
+        <xs:sequence>
+            <xs:element name="security-realm-name" type="xs:string"/>
+            <xs:element name="realm-name" type="xs:string"/>
+            <xs:element name="transport-guarantee" type="openejb:transport-guaranteeType"/>
+            <xs:element name="auth-method" type="openejb:auth-methodType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="transport-guaranteeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="NONE"/>
+            <xs:enumeration value="INTEGRAL"/>
+            <xs:enumeration value="CONFIDENTIAL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="auth-methodType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BASIC"/>
+            <xs:enumeration value="DIGEST"/>
+            <xs:enumeration value="CLIENT-CERT"/>
+            <xs:enumeration value="NONE"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!--entity bean section -->
+    <xs:complexType name="entity-beanType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string"/>
+            <xs:element name="jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="local-jndi-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:group ref="openejb:tssGroup" minOccurs="0"/>
+
+            <xs:sequence minOccurs="0">
+                <xs:element name="table-name" type="xs:string"/>
+                <xs:element name="cmp-field-mapping" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="cmp-field-name" type="xs:string"/>
+                            <xs:element name="cmp-field-class" type="xs:string" minOccurs="0"/>
+                            <xs:element name="table-column" type="xs:string"/>
+                            <xs:element name="sql-type" type="xs:string" minOccurs="0"/>
+                            <xs:element name="type-converter" type="xs:string" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="primkey-field" type="xs:string" minOccurs="0"/>
+                <xs:element ref="pkgen:key-generator" minOccurs="0" />
+                <xs:element name="prefetch-group" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="group" minOccurs="0" maxOccurs="unbounded"
+                                type="openejb:groupType"/>
+                            <xs:element name="entity-group-mapping" minOccurs="0"
+                                type="openejb:entity-group-mappingType"/>
+                            <xs:element name="cmp-field-group-mapping" minOccurs="0" maxOccurs="unbounded"
+                                type="openejb:cmp-field-group-mappingType"/>
+                            <xs:element name="cmr-field-group-mapping" minOccurs="0" maxOccurs="unbounded"
+                                type="openejb:cmr-field-group-mappingType"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+
+            <xs:element name="query" type="openejb:queryType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="groupType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
+            <xs:element name="cmp-field-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="cmr-field" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="cmr-field-name" type="xs:string"/>
+                        <xs:element name="group-name" type="xs:string" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="entity-group-mappingType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cmp-field-group-mappingType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
+            <xs:element name="cmp-field-name" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="cmr-field-group-mappingType">
+        <xs:sequence>
+            <xs:element name="group-name" type="xs:string"/>
+            <xs:element name="cmr-field-name" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="queryType">
+        <xs:sequence>
+            <xs:element name="query-method">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="method-name" type="xs:string"/>
+                        <xs:element name="method-params">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="method-param" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="result-type-mapping" minOccurs="0" type="xs:string"/>
+            <xs:element name="ejb-ql" type="xs:string" minOccurs="0"/>
+            <xs:element name="no-cache-flush" minOccurs="0"/>
+            <xs:element name="group-name" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="relationshipsType">
+        <xs:sequence>
+            <xs:element name="ejb-relation" type="openejb:ejb-relationType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ejb-relationType">
+        <xs:sequence>
+            <xs:element name="ejb-relation-name" type="xs:string" minOccurs="0"/>
+            <xs:element name="many-to-many-table-name" type="xs:string" minOccurs="0"/>
+            <xs:element name="ejb-relationship-role" type="openejb:ejb-relationship-roleType" maxOccurs="2"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ejb-relationship-roleType">
+        <xs:sequence>
+            <xs:element name="ejb-relationship-role-name" type="xs:string" minOccurs="0"/>
+            <xs:element name="relationship-role-source">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ejb-name" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="cmr-field" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="cmr-field-name" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="foreign-key-column-on-source" minOccurs="0"/>
+            <xs:element name="role-mapping">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="cmr-field-mapping" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="key-column" type="xs:string"/>
+                                    <xs:element name="foreign-key-column" type="xs:string"/>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <!--message driven bean section-->
+    <xs:complexType name="message-driven-beanType">
+        <xs:sequence>
+            <xs:element name="ejb-name" type="xs:string"/>
+            <xs:element ref="naming:resource-adapter"/>
+            <xs:element name="activation-config"
+                type="openejb:activation-configType"
+                minOccurs="0"/>
+
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+            <xs:group ref="openejb:openejb-jndiEnvironmentRefsGroup"/>
+        </xs:sequence>
+        <xs:attribute name="id" type="xs:ID"/>
+    </xs:complexType>
+
+    <xs:complexType name="activation-configType">
+        <xs:sequence>
+            <xs:element name="description"
+                type="xs:string"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xs:element name="activation-config-property"
+                type="openejb:activation-config-propertyType"
+                maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="activation-config-propertyType">
+        <xs:sequence>
+            <xs:element name="activation-config-property-name"
+                type="xs:string">
+            </xs:element>
+            <xs:element name="activation-config-property-value"
+                type="xs:string">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema
+    xmlns:web="http://geronimo.apache.org/xml/ns/web"
+    targetNamespace="http://geronimo.apache.org/xml/ns/web"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="geronimo-security.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
+
+    <xs:element name="web-app" type="web:web-appType"/>
+
+    <xs:complexType name="config-paramType">
+        <xs:annotation>
+            <xs:documentation>
+                The config-paramType contains a name-value pair for a
+                configuration parameter
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="container-configType">
+        <xs:annotation>
+            <xs:documentation>
+                Holds any configuration settings appropriate to the
+                specific web container this application is targeting.
+                Generally speaking this configuration file reflects
+                the commonalities between web containers, and it's
+                possible for a single container to have additional
+                configuration options.  We recommend these be avoided
+                wherever possible for the sake of portability.
+
+                Known containers are:
+                  Tomcat
+                  Jetty
+
+                Some known parameters are:
+                  Tomcat:  VirtualServer
+                  Tomcat:  TomcatRealm
+                  Tomcat:  TomcatValveChain
+                An authoritative list is left to the individual container
+                documentation.
+            </xs:documentation>
+        </xs:annotation>
+      <xs:sequence>
+        <xs:element name="config-param" type="web:config-paramType" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="container" type="web:web-containerType" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="web-appType">
+        <xs:sequence>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element name="context-root" type="xs:string" minOccurs="0"/>
+            <xs:element name="context-priority-classloader" type="xs:boolean"/>
+            <xs:element name="container-config" type="web:container-configType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:sequence minOccurs="0">
+                <xs:element name="security-realm-name" type="xs:string"/>
+                <xs:element ref="security:security" minOccurs="0"/>
+            </xs:sequence>
+
+            <!--xs:group ref="naming:jndiEnvironmentRefsGroup"/-->
+
+            <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+
+        </xs:sequence>
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:simpleType name="web-containerType">
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value="collapse"/>
+            <xs:enumeration value="Tomcat"/>
+            <xs:enumeration value="Jetty"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

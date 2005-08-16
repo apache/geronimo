@@ -1,0 +1,24 @@
+nifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %pluginName
+Bundle-SymbolicName: org.apache.geronimo.ui; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: org.apache.geronimo.ui.internal.GeronimoUIPlugin
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui,
+ org.eclipse.ui.forms,
+ org.eclipse.ui.ide,
+ org.apache.geronimo.core,
+ org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.emf.common,
+ org.eclipse.emf.ecore,
+ org.eclipse.wst.server.core,
+ org.apache.geronimo.deployment.model,
+ org.eclipse.jst.server.generic.ui,
+ org.apache.geronimo.core
+Eclipse-AutoStart: true
