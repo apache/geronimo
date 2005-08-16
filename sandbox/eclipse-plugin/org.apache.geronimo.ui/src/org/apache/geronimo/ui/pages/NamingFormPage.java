@@ -16,12 +16,13 @@
 package org.apache.geronimo.ui.pages;
 
 import org.apache.geronimo.ui.editors.DPEditor;
-import org.apache.geronimo.ui.internal.Messages;
 import org.apache.geronimo.ui.sections.EjbLocalRefSection;
+import org.apache.geronimo.ui.sections.EjbRefSection;
 import org.apache.geronimo.ui.sections.ResourceEnvRefSection;
 import org.apache.geronimo.ui.sections.ResourceRefSection;
 import org.apache.geronimo.xml.ns.web.WebAppType;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
@@ -46,38 +47,41 @@ public class NamingFormPage extends FormPage {
      */
     protected void createFormContent(IManagedForm managedForm) {
 
-        WebAppType plan = ((DPEditor) getEditor()).getPlan();
-
         ScrolledForm form = managedForm.getForm();
-        form.setText(Messages.editorTitle);
-        form.getBody().setLayout(new GridLayout());
+        form.setText(getTitle());
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 2;
+        layout.horizontalSpacing = 20;
 
-        // create resource ref section
-        ResourceRefSection sec = new ResourceRefSection(plan, form.getBody(),
-                managedForm.getToolkit(), ExpandableComposite.TWISTIE
-                        | ExpandableComposite.EXPANDED
-                        | ExpandableComposite.TITLE_BAR | Section.DESCRIPTION
-                        | ExpandableComposite.FOCUS_TITLE);
-        managedForm.addPart(sec);
+        form.getBody().setLayout(layout);
 
-        // create resource env ref section
-        ResourceEnvRefSection sec2 = new ResourceEnvRefSection(plan, form
-                .getBody(), managedForm.getToolkit(),
-                ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED
-                        | ExpandableComposite.TITLE_BAR | Section.DESCRIPTION
-                        | ExpandableComposite.FOCUS_TITLE);
-        managedForm.addPart(sec2);
-
-        // create ejb local ref section
-        EjbLocalRefSection sec3 = new EjbLocalRefSection(plan, form.getBody(),
-                managedForm.getToolkit(), ExpandableComposite.TWISTIE
-                        | ExpandableComposite.EXPANDED
-                        | ExpandableComposite.TITLE_BAR | Section.DESCRIPTION
-                        | ExpandableComposite.FOCUS_TITLE);
-        managedForm.addPart(sec3);
+        fillBody(managedForm);
 
         form.reflow(true);
 
+    }
+
+    private void fillBody(IManagedForm managedForm) {
+
+        WebAppType plan = ((DPEditor) getEditor()).getPlan();
+
+        Composite body = managedForm.getForm().getBody();
+
+        int style = ExpandableComposite.TWISTIE | ExpandableComposite.EXPANDED
+                | ExpandableComposite.TITLE_BAR | Section.DESCRIPTION
+                | ExpandableComposite.FOCUS_TITLE;
+
+        managedForm.addPart(new ResourceRefSection(plan, body, managedForm
+                .getToolkit(), style));
+
+        managedForm.addPart(new ResourceEnvRefSection(plan, body, managedForm
+                .getToolkit(), style));
+
+        managedForm.addPart(new EjbRefSection(plan, body, managedForm
+                .getToolkit(), style));
+
+        managedForm.addPart(new EjbLocalRefSection(plan, body, managedForm
+                .getToolkit(), style));
     }
 
 }

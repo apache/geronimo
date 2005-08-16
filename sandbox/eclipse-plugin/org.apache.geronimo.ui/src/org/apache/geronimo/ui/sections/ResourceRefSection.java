@@ -16,6 +16,8 @@
 package org.apache.geronimo.ui.sections;
 
 import org.apache.geronimo.ui.internal.Messages;
+import org.apache.geronimo.ui.wizards.DynamicAddEditWizard;
+import org.apache.geronimo.ui.wizards.ResourceRefWizard;
 import org.apache.geronimo.xml.ns.naming.NamingFactory;
 import org.apache.geronimo.xml.ns.naming.NamingPackage;
 import org.apache.geronimo.xml.ns.web.WebAppType;
@@ -33,51 +35,76 @@ public class ResourceRefSection extends DynamicTableSection {
         super(plan, parent, toolkit, style);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTitle()
      */
-    protected String getTitle() {
+    public String getTitle() {
         return Messages.editorResourceRefTitle;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getDescription()
      */
-    protected String getDescription() {
+    public String getDescription() {
         return Messages.editorResourceRefDescription;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getEFactory()
      */
-    protected EFactory getEFactory() {
+    public EFactory getEFactory() {
         return NamingFactory.eINSTANCE;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getEReference()
      */
-    protected EReference getEReference() {
+    public EReference getEReference() {
         return WebFactory.eINSTANCE.getWebPackage().getWebAppType_ResourceRef();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTableColumnNames()
      */
-    protected String[] getTableColumnNames() {
+    public String[] getTableColumnNames() {
         return new String[] { Messages.editorResRefNameTitle,
                 Messages.editorResRefLinkTitle,
                 Messages.editorResRefTargetNameTitle };
     }
 
-    /* (non-Javadoc)
+    public Class getWizardClass() {
+        return ResourceRefWizard.class;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTableColumnEAttributes()
      */
-    protected EAttribute[] getTableColumnEAttributes() {
+    public EAttribute[] getTableColumnEAttributes() {
         return new EAttribute[] {
                 NamingPackage.eINSTANCE.getResourceRefType_RefName(),
                 NamingPackage.eINSTANCE.getResourceRefType_ResourceLink(),
                 NamingPackage.eINSTANCE.getResourceRefType_TargetName() };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getWizard()
+     */
+    public DynamicAddEditWizard getWizard() {
+        return new ResourceRefWizard(this);
     }
 
 }

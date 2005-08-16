@@ -28,13 +28,6 @@ import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
  */
 public class NamingResourceImpl extends XMLResourceImpl {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * Creates an instance of the resource.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

@@ -58,13 +58,6 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class SecurityTypeImpl extends EObjectImpl implements SecurityType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The cached value of the '{@link #getDescription() <em>Description</em>}' containment reference list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

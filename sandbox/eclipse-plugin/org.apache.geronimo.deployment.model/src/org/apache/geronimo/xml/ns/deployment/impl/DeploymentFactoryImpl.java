@@ -30,13 +30,6 @@ import org.eclipse.emf.ecore.impl.EFactoryImpl;
  */
 public class DeploymentFactoryImpl extends EFactoryImpl implements DeploymentFactory {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * Creates an instance of the factory.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

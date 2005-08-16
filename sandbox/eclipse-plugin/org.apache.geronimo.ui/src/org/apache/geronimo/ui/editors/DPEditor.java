@@ -23,6 +23,7 @@ import org.apache.geronimo.core.internal.GeronimoUtils;
 import org.apache.geronimo.ui.internal.Messages;
 import org.apache.geronimo.ui.internal.Trace;
 import org.apache.geronimo.ui.pages.NamingFormPage;
+import org.apache.geronimo.ui.pages.SecurityPage;
 import org.apache.geronimo.ui.pages.WebGeneralPage;
 import org.apache.geronimo.xml.ns.web.WebAppType;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -43,30 +44,34 @@ public class DPEditor extends FormEditor {
 
     protected WebAppType plan;
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.ui.ISaveablePart#doSave(org.eclipse.core.runtime.IProgressMonitor)
      */
     public void doSave(IProgressMonitor monitor) {
-        if (isDirty()) {
-            InputStream is = null;
+
+        InputStream is = null;
+        try {
+            IEditorInput input = getEditorInput();
+            if (input instanceof IFileEditorInput) {
+
+                plan.eResource().save(Collections.EMPTY_MAP);
+                commitFormPages(true);
+                editorDirtyStateChanged();
+
+            }
+        } catch (Exception e) {
+            Trace.trace(Trace.SEVERE, "Error saving", e);
+        } finally {
             try {
-                IEditorInput input = getEditorInput();
-                if (input instanceof IFileEditorInput) {
-                    plan.eResource().save(Collections.EMPTY_MAP);
-                    commitFormPages(true);
-                    editorDirtyStateChanged();
-                }
+                if (is != null)
+                    is.close();
             } catch (Exception e) {
-                Trace.trace(Trace.SEVERE, "Error saving", e);
-            } finally {
-                try {
-                    if (is != null)
-                        is.close();
-                } catch (Exception e) {
-                    // do nothing
-                }
+                // do nothing
             }
         }
+
     }
 
     private void commitFormPages(boolean onSave) {
@@ -93,33 +98,23 @@ public class DPEditor extends FormEditor {
         // ignore
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.ui.forms.editor.FormEditor#addPages()
      */
     protected void addPages() {
         try {
-            addPage(new WebGeneralPage(this, "webgeneralpage",
+            addPage(new WebGeneralPage(this, "generalpage",
                     Messages.editorTabGeneral));
-            addPage(new NamingFormPage(this, "namingformpage",
+            addPage(new NamingFormPage(this, "namingpage",
                     Messages.editorTabNaming));
+            addPage(new SecurityPage(this, "securitypage",
+                    Messages.editorTabSecurity));
+            createPageDependencies();
         } catch (PartInitException e) {
             e.printStackTrace();
         }
-        createPageSecurity();
-        createPageDependencies();
-    }
-
-    protected void createPageSecurity() {
-
-        ScrolledForm form = getToolkit().createScrolledForm(getContainer());
-
-        form.setText(Messages.editorTitle);
-        form.getBody().setLayout(new GridLayout());
-
-        form.reflow(true);
-
-        int index = addPage(form);
-        setPageText(index, Messages.editorTabSecurity); //$NON-NLS-1$
 
     }
 
@@ -146,7 +141,9 @@ public class DPEditor extends FormEditor {
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.ui.ISaveablePart#isSaveAsAllowed()
      */
     public boolean isSaveAsAllowed() {

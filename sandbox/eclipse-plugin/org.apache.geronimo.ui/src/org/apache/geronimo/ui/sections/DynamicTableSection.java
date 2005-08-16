@@ -18,25 +18,30 @@ package org.apache.geronimo.ui.sections;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.geronimo.ui.internal.GeronimoUIPlugin;
 import org.apache.geronimo.ui.internal.Messages;
+import org.apache.geronimo.ui.wizards.DynamicAddEditWizard;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnWeightData;
-import org.eclipse.jface.viewers.ICellModifier;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -48,39 +53,73 @@ public abstract class DynamicTableSection extends SectionPart {
 
     private EObject plan;
 
-    private Table table;
+    protected Table table;
+
+    protected TableViewer tableViewer;
+
+    private ImageDescriptor defaultDescriptor = GeronimoUIPlugin
+            .imageDescriptorFromPlugin("org.apache.geronimo.ui",
+                    "icons/obj16/geronimo.gif");
+
+    private Image defaultImage = defaultDescriptor.createImage();
 
     public DynamicTableSection(Section section) {
         super(section);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.forms.IFormPart#commit(boolean)
+     * 
+     * Overriding this method as a workaround as switching tabs on a dirty
+     * editor commits the page and marks the part as not dirty.
+     */
+    public void commit(boolean onSave) {
+        boolean currentDirtyState = isDirty();
+        super.commit(onSave);
+        if (!onSave && currentDirtyState) {
+            markDirty();
+        }
     }
 
     public DynamicTableSection(EObject plan, Composite parent,
             FormToolkit toolkit, int style) {
         super(parent, toolkit, style);
         this.plan = plan;
-        createClient(getSection(), toolkit);
+
+        if (isValid()) {
+            createClient(getSection(), toolkit);
+        }
+    }
+
+    private boolean isValid() {
+        return getEFactory() != null && getEReference() != null
+                && getTableColumnEAttributes() != null
+                && getTableColumnNames() != null;
     }
 
     public void createClient(Section section, FormToolkit toolkit) {
+
+        section.setText(getTitle());
+        section.setDescription(getDescription());
+        
         configureSection(section);
 
         Composite composite = createTableComposite(section, toolkit);
         createTable(composite);
         fillTableItems();
 
-        TableViewer tableViewer = new TableViewer(table);
-        TextCellEditor cellEditor = new TextCellEditor(table);
-        tableViewer.setCellEditors(new CellEditor[] { cellEditor, cellEditor,
-                cellEditor });
+        tableViewer = new TableViewer(table);
 
-        tableViewer.setColumnProperties(getTableColumnNames());
-
-        ICellModifier cellModifier = createCellModifier(getTableColumnNames());
-        tableViewer.setCellModifier(cellModifier);
+        if (getTableColumnNames().length > 0) {
+            tableViewer.setColumnProperties(getTableColumnNames());
+        }
 
         Composite buttonComp = createButtonComposite(toolkit, composite);
         createAddButton(toolkit, buttonComp);
         createRemoveButton(toolkit, buttonComp);
+        createEditButton(toolkit, buttonComp);
 
     }
 
@@ -88,7 +127,7 @@ public abstract class DynamicTableSection extends SectionPart {
             FormToolkit toolkit) {
         Composite composite = toolkit.createComposite(section);
         GridLayout layout = new GridLayout();
-        layout.numColumns = getTableColumnNames().length;
+        layout.numColumns = 3;
         layout.marginHeight = 5;
         layout.marginWidth = 10;
         layout.verticalSpacing = 5;
@@ -99,9 +138,7 @@ public abstract class DynamicTableSection extends SectionPart {
         return composite;
     }
 
-    protected void configureSection(Section section) {
-        section.setText(getTitle());
-        section.setDescription(getDescription());
+    protected void configureSection(Section section) {       
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
     }
 
@@ -111,6 +148,7 @@ public abstract class DynamicTableSection extends SectionPart {
         for (int j = 0; j < list.size(); j++) {
             TableItem item = new TableItem(table, SWT.NONE);
             String[] tableTextData = getTableText((EObject) list.get(j));
+            item.setImage(getImage());
             item.setText(tableTextData);
             item.setData((EObject) list.get(j));
         }
@@ -118,8 +156,10 @@ public abstract class DynamicTableSection extends SectionPart {
 
     protected void createTable(Composite composite) {
         table = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION
-                | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE);
-        table.setHeaderVisible(true);
+                | SWT.V_SCROLL | SWT.SINGLE);
+        if (getTableColumnNames().length > 0) {
+            table.setHeaderVisible(true);
+        }
 
         GridData data = new GridData(SWT.FILL, SWT.FILL, false, false);
         data.heightHint = 60;
@@ -155,55 +195,6 @@ public abstract class DynamicTableSection extends SectionPart {
         return buttonComp;
     }
 
-    protected ICellModifier createCellModifier(final String[] columnNames) {
-        ICellModifier cellModifier = new ICellModifier() {
-            public Object getValue(Object element, String property) {
-                EObject type = (EObject) element;
-                String value = null;
-                for (int k = 0; k < columnNames.length; k++) {
-                    if (columnNames[k].equals(property)) {
-                        value = (String) type
-                                .eGet(getTableColumnEAttributes()[k]);
-                    }
-                }
-                if (value == null)
-                    value = "";
-
-                return value;
-            }
-
-            public boolean canModify(Object element, String property) {
-                return true;
-            }
-
-            public void modify(Object element, String property, Object value) {
-                TableItem item = null;
-                if (element instanceof TableItem) {
-                    item = (TableItem) element;
-                    element = item.getData();
-                }
-                EObject type = (EObject) element;
-                for (int k = 0; k < columnNames.length; k++) {
-                    if (columnNames[k].equals(property)) {
-                        type.eSet(getTableColumnEAttributes()[k],
-                                (String) value);
-                        break;
-                    }
-                }
-
-                if (item != null) {
-                    String[] tableTextData = getTableText(type);
-                    item.setText(tableTextData);
-                }
-
-                getManagedForm();
-
-                markDirty();
-            }
-        };
-        return cellModifier;
-    }
-
     protected void createRemoveButton(FormToolkit toolkit, Composite buttonComp) {
         Button del = toolkit
                 .createButton(buttonComp, Messages.remove, SWT.NONE);
@@ -224,28 +215,57 @@ public abstract class DynamicTableSection extends SectionPart {
 
     protected void createAddButton(FormToolkit toolkit, Composite buttonComp) {
         Button add = toolkit.createButton(buttonComp, Messages.add, SWT.NONE);
+
         add.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
-                TableItem item = new TableItem(table, SWT.NONE);
-                String defaultName = "NewRef";
-                String[] s = new String[] { defaultName, "", "" };
+                DynamicAddEditWizard wizard = getWizard();
+                if (wizard != null) {
+                    WizardDialog dialog = new WizardDialog(Display.getCurrent()
+                            .getActiveShell(), wizard);
 
-                EObject type = getEFactory().create(
-                        getTableColumnEAttributes()[0].getEContainingClass());
+                    dialog.open();
 
-                type.eSet(getTableColumnEAttributes()[0], defaultName);
+                    if (dialog.getReturnCode() == Dialog.OK) {
+                        markDirty();
+                    }
+                }
+            }
+        });
 
-                ((EList) plan.eGet(getEReference())).add(type);
+        add.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+    }
 
-                item.setText(s);
-                item.setData(type);
-                markDirty();
+    protected void createEditButton(FormToolkit toolkit, Composite buttonComp) {
+        Button add = toolkit.createButton(buttonComp, Messages.edit, SWT.NONE);
+
+        add.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+                Object o = ((StructuredSelection) getTableViewer()
+                        .getSelection()).getFirstElement();
+
+                if (o != null) {
+
+                    DynamicAddEditWizard wizard = getWizard();
+                    if (wizard != null) {
+                        wizard.setEObject((EObject) o);
+
+                        WizardDialog dialog = new WizardDialog(Display
+                                .getCurrent().getActiveShell(), wizard);
+
+                        dialog.open();
+
+                        if (dialog.getReturnCode() == Dialog.OK) {
+                            markDirty();
+                        }
+                    }
+                }
+
             }
         });
         add.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     }
 
-    protected String[] getTableText(EObject eObject) {
+    public String[] getTableText(EObject eObject) {
         List tableText = new ArrayList();
         for (int i = 0; i < getTableColumnEAttributes().length; i++) {
             String value = (String) eObject
@@ -259,34 +279,51 @@ public abstract class DynamicTableSection extends SectionPart {
         return (String[]) tableText.toArray(new String[tableText.size()]);
     }
 
-    /**
-     * @return
-     */
-    abstract protected String getTitle();
+    public Image getImage() {
+        return defaultImage;
+    }
+
+    public TableViewer getTableViewer() {
+        return tableViewer;
+    }
+
+    public EObject getPlan() {
+        return plan;
+    }
 
     /**
      * @return
      */
-    abstract protected String getDescription();
+    abstract public String getTitle();
 
     /**
      * @return
      */
-    abstract protected EFactory getEFactory();
+    abstract public String getDescription();
 
     /**
      * @return
      */
-    abstract protected EReference getEReference();
+    abstract public EFactory getEFactory();
 
     /**
      * @return
      */
-    abstract protected String[] getTableColumnNames();
+    abstract public EReference getEReference();
 
     /**
      * @return
      */
-    abstract protected EAttribute[] getTableColumnEAttributes();
+    abstract public String[] getTableColumnNames();
+
+    /**
+     * @return
+     */
+    abstract public EAttribute[] getTableColumnEAttributes();
+
+    /**
+     * @return
+     */
+    abstract public DynamicAddEditWizard getWizard();
 
 }

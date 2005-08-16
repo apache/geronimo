@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.apache.geronimo.deployment.model/src"
+    modelPluginID="org.apache.geronimo.deployment.model" templateDirectory="/org.apache.geronimo.deployment.model/templates"
+    dynamicTemplates="true" modelName="Openejb-jar" importerID="org.eclipse.xsd.ecore.importer"
+    usedGenPackages="geronimo-web.genmodel#//naming geronimo-web.genmodel#//deployment geronimo-web.genmodel#//security">
+  <foreignModel>../schema/openejb-jar.xsd</foreignModel>
+  <genPackages prefix="Pkgen" basePackage="org.openejb.xml.ns" resource="XML" disposableProviderFactory="true"
+      ecorePackage="pkgen.ecore#/">
+    <genClasses ecoreClass="pkgen.ecore#//AutoIncrementTableType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//AutoIncrementTableType/sql"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//AutoIncrementTableType/returnType"/>
+    </genClasses>
+    <genClasses ecoreClass="pkgen.ecore#//CustomGeneratorType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//CustomGeneratorType/generatorName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//CustomGeneratorType/primaryKeyClass"/>
+    </genClasses>
+    <genClasses ecoreClass="pkgen.ecore#//DatabaseGeneratedType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//DatabaseGeneratedType/identityColumn"/>
+    </genClasses>
+    <genClasses ecoreClass="pkgen.ecore#//DocumentRoot">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute pkgen.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference pkgen.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference pkgen.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference pkgen.ecore#//DocumentRoot/keyGenerator"/>
+    </genClasses>
+    <genClasses ecoreClass="pkgen.ecore#//KeyGeneratorType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference pkgen.ecore#//KeyGeneratorType/sequenceTable"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference pkgen.ecore#//KeyGeneratorType/autoIncrementTable"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference pkgen.ecore#//KeyGeneratorType/sqlGenerator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference pkgen.ecore#//KeyGeneratorType/customGenerator"/>
+    </genClasses>
+    <genClasses ecoreClass="pkgen.ecore#//SequenceTableType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//SequenceTableType/tableName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//SequenceTableType/sequenceName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//SequenceTableType/batchSize"/>
+    </genClasses>
+    <genClasses ecoreClass="pkgen.ecore#//SqlGeneratorType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//SqlGeneratorType/sql"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute pkgen.ecore#//SqlGeneratorType/returnType"/>
+    </genClasses>
+  </genPackages>
+  <genPackages prefix="Jar" basePackage="org.openejb.xml.ns.openejb" resource="XML"
+      disposableProviderFactory="true" ecorePackage="jar.ecore#/">
+    <genEnums ecoreEnum="jar.ecore#//TransportGuaranteeType">
+      <genEnumLiterals ecoreEnumLiteral="jar.ecore#//TransportGuaranteeType/NONE"/>
+      <genEnumLiterals ecoreEnumLiteral="jar.ecore#//TransportGuaranteeType/INTEGRAL"/>
+      <genEnumLiterals ecoreEnumLiteral="jar.ecore#//TransportGuaranteeType/CONFIDENTIAL"/>
+    </genEnums>
+    <genDataTypes ecoreDataType="jar.ecore#//AuthMethodType"/>
+    <genDataTypes ecoreDataType="jar.ecore#//TransportGuaranteeTypeObject"/>
+    <genClasses ecoreClass="jar.ecore#//ActivationConfigPropertyType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//ActivationConfigPropertyType/activationConfigPropertyName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//ActivationConfigPropertyType/activationConfigPropertyValue"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//ActivationConfigType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//ActivationConfigType/description"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//ActivationConfigType/activationConfigProperty"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//CmpFieldGroupMappingType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmpFieldGroupMappingType/groupName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmpFieldGroupMappingType/cmpFieldName"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//CmpFieldMappingType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmpFieldMappingType/cmpFieldName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmpFieldMappingType/cmpFieldClass"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmpFieldMappingType/tableColumn"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmpFieldMappingType/sqlType"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmpFieldMappingType/typeConverter"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//CmrFieldGroupMappingType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmrFieldGroupMappingType/groupName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmrFieldGroupMappingType/cmrFieldName"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//CmrFieldMappingType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmrFieldMappingType/keyColumn"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmrFieldMappingType/foreignKeyColumn"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//CmrFieldType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmrFieldType/cmrFieldName"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//CmrFieldType1">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmrFieldType1/cmrFieldName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//CmrFieldType1/groupName"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//DocumentRoot">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute jar.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference jar.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference jar.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference jar.ecore#//DocumentRoot/openejbJar"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//EjbRelationshipRoleType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EjbRelationshipRoleType/ejbRelationshipRoleName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EjbRelationshipRoleType/relationshipRoleSource"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EjbRelationshipRoleType/cmrField"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EjbRelationshipRoleType/foreignKeyColumnOnSource"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EjbRelationshipRoleType/roleMapping"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//EjbRelationType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EjbRelationType/ejbRelationName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EjbRelationType/manyToManyTableName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EjbRelationType/ejbRelationshipRole"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//EnterpriseBeansType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute jar.ecore#//EnterpriseBeansType/group"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference jar.ecore#//EnterpriseBeansType/session"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference jar.ecore#//EnterpriseBeansType/entity"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference jar.ecore#//EnterpriseBeansType/messageDriven"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//EntityBeanType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/ejbName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/jndiName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/localJndiName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/tssTargetName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/tssLink"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/tss"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/tableName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/cmpFieldMapping"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/primkeyField"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/keyGenerator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/prefetchGroup"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/ejbRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/ejbLocalRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/serviceRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/resourceRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/resourceEnvRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//EntityBeanType/query"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityBeanType/id"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//EntityGroupMappingType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//EntityGroupMappingType/groupName"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//GroupType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//GroupType/groupName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//GroupType/cmpFieldName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//GroupType/cmrField"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//MessageDrivenBeanType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//MessageDrivenBeanType/ejbName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//MessageDrivenBeanType/resourceAdapter"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//MessageDrivenBeanType/activationConfig"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//MessageDrivenBeanType/ejbRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//MessageDrivenBeanType/ejbLocalRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//MessageDrivenBeanType/serviceRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//MessageDrivenBeanType/resourceRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//MessageDrivenBeanType/resourceEnvRef"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//MessageDrivenBeanType/id"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//MethodParamsType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//MethodParamsType/methodParam"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//OpenejbJarType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/dependency"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/cmpConnectionFactory"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/ejbQlCompilerFactory"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/dbSyntaxFactory"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/enforceForeignKeyConstraints"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/enterpriseBeans"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/relationships"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/security"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//OpenejbJarType/gbean"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//OpenejbJarType/configId"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//OpenejbJarType/parentId"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//PrefetchGroupType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//PrefetchGroupType/group"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//PrefetchGroupType/entityGroupMapping"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//PrefetchGroupType/cmpFieldGroupMapping"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//PrefetchGroupType/cmrFieldGroupMapping"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//QueryMethodType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//QueryMethodType/methodName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//QueryMethodType/methodParams"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//QueryType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//QueryType/queryMethod"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//QueryType/resultTypeMapping"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//QueryType/ejbQl"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//QueryType/noCacheFlush"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//QueryType/groupName"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//RelationshipRoleSourceType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//RelationshipRoleSourceType/ejbName"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//RelationshipsType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//RelationshipsType/ejbRelation"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//RoleMappingType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//RoleMappingType/cmrFieldMapping"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//SessionBeanType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//SessionBeanType/ejbName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//SessionBeanType/jndiName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//SessionBeanType/localJndiName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//SessionBeanType/tssTargetName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//SessionBeanType/tssLink"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//SessionBeanType/tss"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//SessionBeanType/ejbRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//SessionBeanType/ejbLocalRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//SessionBeanType/serviceRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//SessionBeanType/resourceRef"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//SessionBeanType/resourceEnvRef"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//SessionBeanType/webServiceAddress"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference jar.ecore#//SessionBeanType/webServiceSecurity"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//SessionBeanType/id"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//TssType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//TssType/domain"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//TssType/server"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//TssType/application"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//TssType/module"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//TssType/name"/>
+    </genClasses>
+    <genClasses ecoreClass="jar.ecore#//WebServiceSecurityType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//WebServiceSecurityType/securityRealmName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//WebServiceSecurityType/realmName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//WebServiceSecurityType/transportGuarantee"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute jar.ecore#//WebServiceSecurityType/authMethod"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

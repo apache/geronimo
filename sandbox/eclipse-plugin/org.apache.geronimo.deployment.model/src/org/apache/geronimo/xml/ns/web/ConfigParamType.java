@@ -41,14 +41,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='config-paramType' kind='simple'"
  * @generated
  */
-public interface ConfigParamType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface ConfigParamType extends EObject{
     /**
      * Returns the value of the '<em><b>Value</b></em>' attribute.
      * <!-- begin-user-doc -->

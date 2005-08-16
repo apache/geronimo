@@ -16,6 +16,8 @@
 package org.apache.geronimo.ui.sections;
 
 import org.apache.geronimo.ui.internal.Messages;
+import org.apache.geronimo.ui.wizards.DynamicAddEditWizard;
+import org.apache.geronimo.ui.wizards.EjbLocalRefWizard;
 import org.apache.geronimo.xml.ns.naming.NamingFactory;
 import org.apache.geronimo.xml.ns.naming.NamingPackage;
 import org.apache.geronimo.xml.ns.web.WebAppType;
@@ -33,50 +35,71 @@ public class EjbLocalRefSection extends DynamicTableSection {
         super(plan, parent, toolkit, style);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTitle()
      */
-    protected String getTitle() {
+    public String getTitle() {
         return Messages.editorEjbLocalRefTitle;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getDescription()
      */
-    protected String getDescription() {
+    public String getDescription() {
         return Messages.editorEjbLocalRefDescription;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getEFactory()
      */
-    protected EFactory getEFactory() {
+    public EFactory getEFactory() {
         return NamingFactory.eINSTANCE;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getEReference()
      */
-    protected EReference getEReference() {
+    public EReference getEReference() {
         return WebFactory.eINSTANCE.getWebPackage().getWebAppType_EjbLocalRef();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTableColumnNames()
      */
-    protected String[] getTableColumnNames() {
-        return new String[] { Messages.editorEjbLocalRefTargetName,
-                Messages.editorEjbLocalRefEjbLink };
+    public String[] getTableColumnNames() {
+        return new String[] { Messages.editorEjbRefTargetName,
+                Messages.editorEjbRefEjbLink };
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTableColumnEAttributes()
      */
-    protected EAttribute[] getTableColumnEAttributes() {
+    public EAttribute[] getTableColumnEAttributes() {
         return new EAttribute[] {
                 NamingPackage.eINSTANCE.getEjbLocalRefType_TargetName(),
                 NamingPackage.eINSTANCE.getEjbLocalRefType_EjbLink() };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getWizard()
+     */
+    public DynamicAddEditWizard getWizard() {
+        return new EjbLocalRefWizard(this);
     }
 
 }

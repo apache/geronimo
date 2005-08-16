@@ -16,9 +16,9 @@
       <moduleType
          types="j2ee.ejb"
          versions="1.2, 1.3, 1.4"/>
-      <!-- moduleType
+      <moduleType
          types="j2ee.ear"
-         versions="1.2, 1.3, 1.4"/ -->
+         versions="1.2, 1.3, 1.4"/>
     </runtimeType>
  </extension>
 
@@ -54,11 +54,23 @@
         class="org.apache.geronimo.core.internal.GeronimoServerRuntimeTargetHandler"/>
    </extension>
    
-    <extension id="GeronimoOpExtensions" name="GeronimoOpExtensions" point="org.eclipse.wst.common.frameworks.OperationExtension">									
+   <extension id="GeronimoOpExtensions" name="GeronimoOpExtensions" point="org.eclipse.wst.common.frameworks.OperationExtension">									
 		<operationExtension
 			id="org.eclipse.jst.j2ee.internal.web.archive.operations.WebComponentCreationOperation"
-			postOperationClass="org.apache.geronimo.core.internal.DeploymentPlanCreationOperation">
+			postOperationClass="org.apache.geronimo.core.internal.DeploymentPlanCreationOperation">			
 	    </operationExtension>	   
+	    <operationExtension
+			id="org.eclipse.jst.j2ee.internal.ejb.archiveoperations.EjbComponentCreationOperation"
+			postOperationClass="org.apache.geronimo.core.internal.DeploymentPlanCreationOperation">
+		</operationExtension>	
+		<operationExtension
+			id="org.eclipse.jst.j2ee.internal.ejb.archiveoperations.EJBClientComponentCreationOperation"
+			postOperationClass="org.apache.geronimo.core.internal.DeploymentPlanCreationOperation">
+		</operationExtension>	
+		<operationExtension
+			id="org.eclipse.jst.j2ee.application.internal.operations.EARComponentCreationOperation"
+			postOperationClass="org.apache.geronimo.core.internal.DeploymentPlanCreationOperation">
+		</operationExtension>	
    </extension>
-
+   
 </plugin>

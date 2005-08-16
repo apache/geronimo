@@ -43,14 +43,7 @@ import org.eclipse.emf.ecore.EReference;
  * @model kind="package"
  * @generated
  */
-public interface DeploymentPackage extends EPackage {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface DeploymentPackage extends EPackage{
     /**
      * The package name.
      * <!-- begin-user-doc -->
@@ -231,13 +224,22 @@ public interface DeploymentPackage extends EPackage {
     int DEPENDENCY_TYPE__GROUP_ID = 0;
 
     /**
+     * The feature id for the '<em><b>Type</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     * @ordered
+     */
+    int DEPENDENCY_TYPE__TYPE = 1;
+
+    /**
      * The feature id for the '<em><b>Artifact Id</b></em>' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
      * @generated
      * @ordered
      */
-    int DEPENDENCY_TYPE__ARTIFACT_ID = 1;
+    int DEPENDENCY_TYPE__ARTIFACT_ID = 2;
 
     /**
      * The feature id for the '<em><b>Version</b></em>' attribute.
@@ -246,7 +248,7 @@ public interface DeploymentPackage extends EPackage {
      * @generated
      * @ordered
      */
-    int DEPENDENCY_TYPE__VERSION = 2;
+    int DEPENDENCY_TYPE__VERSION = 3;
 
     /**
      * The feature id for the '<em><b>Uri</b></em>' attribute.
@@ -255,7 +257,7 @@ public interface DeploymentPackage extends EPackage {
      * @generated
      * @ordered
      */
-    int DEPENDENCY_TYPE__URI = 3;
+    int DEPENDENCY_TYPE__URI = 4;
 
     /**
      * The number of structural features of the the '<em>Dependency Type</em>' class.
@@ -264,7 +266,7 @@ public interface DeploymentPackage extends EPackage {
      * @generated
      * @ordered
      */
-    int DEPENDENCY_TYPE_FEATURE_COUNT = 4;
+    int DEPENDENCY_TYPE_FEATURE_COUNT = 5;
 
     /**
      * The meta object id for the '{@link org.apache.geronimo.xml.ns.deployment.impl.DocumentRootImpl <em>Document Root</em>}' class.
@@ -855,6 +857,17 @@ public interface DeploymentPackage extends EPackage {
      * @generated
      */
     EAttribute getDependencyType_GroupId();
+
+    /**
+     * Returns the meta object for the attribute '{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getType <em>Type</em>}'.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @return the meta object for the attribute '<em>Type</em>'.
+     * @see org.apache.geronimo.xml.ns.deployment.DependencyType#getType()
+     * @see #getDependencyType()
+     * @generated
+     */
+    EAttribute getDependencyType_Type();
 
     /**
      * Returns the meta object for the attribute '{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getArtifactId <em>Artifact Id</em>}'.

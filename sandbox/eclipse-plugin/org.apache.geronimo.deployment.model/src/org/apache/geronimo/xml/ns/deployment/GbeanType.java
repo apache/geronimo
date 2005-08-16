@@ -45,14 +45,7 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * @model extendedMetaData="name='gbeanType' kind='elementOnly'"
  * @generated
  */
-public interface GbeanType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface GbeanType extends EObject{
     /**
      * Returns the value of the '<em><b>Group</b></em>' attribute list.
      * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.

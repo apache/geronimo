@@ -34,17 +34,19 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 public class WebGeneralSection extends SectionPart {
-    
+
     protected Text configId;
 
     protected Text parentId;
 
     protected Text contextRoot;
+    
+    protected Text securityRealm;
 
     protected Button cpClassLoaderWebAppFirst;
 
     protected Button cpClassLoaderServerFirst;
-    
+
     WebAppType plan;
 
     public WebGeneralSection(Section section) {
@@ -54,15 +56,16 @@ public class WebGeneralSection extends SectionPart {
     public WebGeneralSection(Composite parent, FormToolkit toolkit, int style) {
         super(parent, toolkit, style);
     }
-    
-    public WebGeneralSection(WebAppType plan, Composite parent, FormToolkit toolkit, int style) {
-        this(parent, toolkit, style);        
+
+    public WebGeneralSection(WebAppType plan, Composite parent,
+            FormToolkit toolkit, int style) {
+        this(parent, toolkit, style);
         this.plan = plan;
         createClient(getSection(), toolkit);
     }
-    
+
     private void createClient(Section section, FormToolkit toolkit) {
-        
+
         section.setText(Messages.editorSectionGeneralTitle);
         section.setDescription(Messages.editorSectionGeneralDescription);
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
@@ -76,18 +79,17 @@ public class WebGeneralSection extends SectionPart {
         layout.horizontalSpacing = 15;
         composite.setLayout(layout);
         composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-        // toolkit.paintBordersFor(composite);
         section.setClient(composite);
 
         // ------- Label and text field for the config Id -------
         createLabel(composite, Messages.editorConfigId, toolkit);
 
-        configId = toolkit.createText(composite, plan.getConfigId(),
-                SWT.BORDER);
+        configId = toolkit
+                .createText(composite, plan.getConfigId(), SWT.BORDER);
         configId.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         configId.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                plan.setConfigId(configId.getText());                             
+                plan.setConfigId(configId.getText());
                 markDirty();
             }
         });
@@ -95,8 +97,8 @@ public class WebGeneralSection extends SectionPart {
         // ------- Label and text field for the parent Id -------
         createLabel(composite, Messages.editorParentId, toolkit);
 
-        parentId = toolkit.createText(composite, plan.getParentId(),
-                SWT.BORDER);
+        parentId = toolkit
+                .createText(composite, plan.getParentId(), SWT.BORDER);
         parentId
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
         parentId.addModifyListener(new ModifyListener() {
@@ -116,6 +118,21 @@ public class WebGeneralSection extends SectionPart {
         contextRoot.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
                 plan.setContextRoot(contextRoot.getText());
+                markDirty();
+            }
+        });
+        
+        
+        // ------- Label and text field for the security realm -------
+        createLabel(composite, Messages.securityRealmName, toolkit);
+
+        securityRealm = toolkit.createText(composite, plan.getSecurityRealmName(),
+                SWT.BORDER);
+        securityRealm.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+                false));
+        securityRealm.addModifyListener(new ModifyListener() {
+            public void modifyText(ModifyEvent e) {
+                plan.setSecurityRealmName(securityRealm.getText());
                 markDirty();
             }
         });
@@ -149,7 +166,7 @@ public class WebGeneralSection extends SectionPart {
                 plan.setContextPriorityClassloader(cpClassLoaderWebAppFirst
                         .getSelection());
                 markDirty();
-               
+
             }
 
             public void widgetDefaultSelected(SelectionEvent e) {
@@ -157,16 +174,30 @@ public class WebGeneralSection extends SectionPart {
             }
         });
 
-        
     }
-    
-    protected Label createLabel(Composite parent, String text, FormToolkit toolkit) {
+
+    protected Label createLabel(Composite parent, String text,
+            FormToolkit toolkit) {
         Label label = toolkit.createLabel(parent, text);
-        label
-                .setForeground(toolkit.getColors().getColor(
-                        FormColors.TITLE));
+        label.setForeground(toolkit.getColors().getColor(FormColors.TITLE));
         label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
         return label;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.ui.forms.IFormPart#commit(boolean)
+     * 
+     * Overriding this method as a workaround as switching tabs on a dirty
+     * editor commits the page and marks the part as not dirty.
+     */
+    public void commit(boolean onSave) {
+        boolean currentDirtyState = isDirty();
+        super.commit(onSave);
+        if (!onSave && currentDirtyState) {
+            markDirty();
+        }
     }
 
 }

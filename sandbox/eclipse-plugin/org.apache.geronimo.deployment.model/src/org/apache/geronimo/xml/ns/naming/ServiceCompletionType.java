@@ -36,14 +36,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='service-completionType' kind='elementOnly'"
  * @generated
  */
-public interface ServiceCompletionType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface ServiceCompletionType extends EObject{
     /**
      * Returns the value of the '<em><b>Service Name</b></em>' attribute.
      * <!-- begin-user-doc -->

@@ -40,13 +40,6 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public class ReferenceTypeImpl extends PatternTypeImpl implements ReferenceType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The default value of the '{@link #getName1() <em>Name1</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

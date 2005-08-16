@@ -15,31 +15,104 @@
  */
 package org.apache.geronimo.ui.sections;
 
-import org.apache.geronimo.xml.ns.web.WebAppType;
+import org.apache.geronimo.ui.internal.Messages;
+import org.apache.geronimo.ui.wizards.DynamicAddEditWizard;
+import org.apache.geronimo.ui.wizards.EjbRefWizard;
+import org.apache.geronimo.xml.ns.naming.NamingFactory;
+import org.apache.geronimo.xml.ns.naming.NamingPackage;
+import org.apache.geronimo.xml.ns.web.WebFactory;
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EFactory;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.forms.SectionPart;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
-public class EjbRefSection extends SectionPart {
-    
-    WebAppType plan;
+public class EjbRefSection extends DynamicTableSection {
 
+    /**
+     * @param section
+     */
     public EjbRefSection(Section section) {
         super(section);
-        // TODO Auto-generated constructor stub
     }
 
-    public EjbRefSection(Composite parent, FormToolkit toolkit, int style) {
-        super(parent, toolkit, style);
-        createClient(getSection(), toolkit);
+    /**
+     * @param plan
+     * @param parent
+     * @param toolkit
+     * @param style
+     */
+    public EjbRefSection(EObject plan, Composite parent, FormToolkit toolkit,
+            int style) {
+        super(plan, parent, toolkit, style);
     }
 
-    public void setPlan(WebAppType plan) {
-        this.plan = plan;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTitle()
+     */
+    public String getTitle() {
+        return Messages.editorEjbRefTitle;
     }
 
-    private void createClient(Section section, FormToolkit toolkit) {
-        
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getDescription()
+     */
+    public String getDescription() {
+        return Messages.editorEjbRefDescription;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getEFactory()
+     */
+    public EFactory getEFactory() {
+        return NamingFactory.eINSTANCE;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getEReference()
+     */
+    public EReference getEReference() {
+        return WebFactory.eINSTANCE.getWebPackage().getWebAppType_EjbRef();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTableColumnNames()
+     */
+    public String[] getTableColumnNames() {
+        return new String[] { Messages.editorEjbRefTargetName,
+                Messages.editorEjbRefEjbLink };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getTableColumnEAttributes()
+     */
+    public EAttribute[] getTableColumnEAttributes() {
+        return new EAttribute[] {
+                NamingPackage.eINSTANCE.getEjbRefType_TargetName(),
+                NamingPackage.eINSTANCE.getEjbRefType_EjbLink() };
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.geronimo.ui.sections.DynamicTableSection#getWizard()
+     */
+    public DynamicAddEditWizard getWizard() {
+        return new EjbRefWizard(this);
+    }
+
 }

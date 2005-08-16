@@ -38,14 +38,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='cssType' kind='elementOnly'"
  * @generated
  */
-public interface CssType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface CssType extends EObject{
     /**
      * Returns the value of the '<em><b>Domain</b></em>' attribute.
      * <!-- begin-user-doc -->

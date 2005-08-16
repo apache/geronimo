@@ -49,13 +49,6 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class ResourceLocatorTypeImpl extends EObjectImpl implements ResourceLocatorType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The default value of the '{@link #getDomain() <em>Domain</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

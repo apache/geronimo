@@ -34,13 +34,6 @@ import org.eclipse.emf.ecore.EObject;
  */
 public class NamingAdapterFactory extends AdapterFactoryImpl {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The cached model package.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.apache.geronimo.deployment.model/src"
+    modelPluginID="org.apache.geronimo.deployment.model" templateDirectory="/org.apache.geronimo.deployment.model/templates"
+    dynamicTemplates="true" modelName="Geronimo-application" importerID="org.eclipse.xsd.ecore.importer"
+    usedGenPackages="geronimo-web.genmodel#//deployment geronimo-web.genmodel#//security">
+  <foreignModel>../schema/geronimo-application.xsd</foreignModel>
+  <genPackages prefix="Application" basePackage="org.apache.geronimo.xml.ns.j2ee"
+      resource="XML" disposableProviderFactory="true" ecorePackage="application.ecore#/">
+    <genClasses ecoreClass="application.ecore#//ApplicationType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ApplicationType/dependency"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ApplicationType/module"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ApplicationType/extModule"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ApplicationType/security"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ApplicationType/gbean"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute application.ecore#//ApplicationType/applicationName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute application.ecore#//ApplicationType/configId"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute application.ecore#//ApplicationType/parentId"/>
+    </genClasses>
+    <genClasses ecoreClass="application.ecore#//DocumentRoot">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute application.ecore#//DocumentRoot/mixed"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference application.ecore#//DocumentRoot/xMLNSPrefixMap"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference application.ecore#//DocumentRoot/xSISchemaLocation"/>
+      <genFeatures property="None" notify="false" createChild="false" ecoreFeature="ecore:EReference application.ecore#//DocumentRoot/application"/>
+    </genClasses>
+    <genClasses ecoreClass="application.ecore#//ExtModuleType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ExtModuleType/connector"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ExtModuleType/ejb"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ExtModuleType/java"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ExtModuleType/web"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute application.ecore#//ExtModuleType/internalPath"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute application.ecore#//ExtModuleType/externalPath"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute application.ecore#//ExtModuleType/any"/>
+    </genClasses>
+    <genClasses ecoreClass="application.ecore#//ModuleType">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ModuleType/connector"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ModuleType/ejb"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ModuleType/java"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ModuleType/web"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference application.ecore#//ModuleType/altDd"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EAttribute application.ecore#//ModuleType/any"/>
+    </genClasses>
+    <genClasses ecoreClass="application.ecore#//PathType"/>
+    <genClasses ecoreClass="application.ecore#//String">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute application.ecore#//String/value"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute application.ecore#//String/id"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

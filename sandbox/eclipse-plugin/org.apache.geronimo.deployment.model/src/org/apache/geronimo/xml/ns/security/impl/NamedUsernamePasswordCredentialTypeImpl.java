@@ -43,13 +43,6 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class NamedUsernamePasswordCredentialTypeImpl extends EObjectImpl implements NamedUsernamePasswordCredentialType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The default value of the '{@link #getName() <em>Name</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

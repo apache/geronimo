@@ -32,14 +32,7 @@ package org.apache.geronimo.xml.ns.deployment;
  * @model extendedMetaData="name='referenceType' kind='elementOnly'"
  * @generated
  */
-public interface ReferenceType extends PatternType {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface ReferenceType extends PatternType{
     /**
      * Returns the value of the '<em><b>Name1</b></em>' attribute.
      * <!-- begin-user-doc -->

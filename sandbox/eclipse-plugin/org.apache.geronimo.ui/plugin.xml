@@ -34,5 +34,18 @@
             name="%editorName">
       </editor>
   </extension>
+  
+  <extension point = "org.eclipse.ui.popupMenus">
+     <objectContribution
+        id="org.apache.geronimo.ui.serveractions"
+        objectClass="org.eclipse.wst.server.core.IServer">
+	    <action id="org.apache.geronimo.ui.launchconsole"
+	       label="%PopupMenus.launchconsole"
+	       icon="icons/obj16/geronimo.gif"
+	       class="org.apache.geronimo.ui.actions.LaunchGeronimoConsoleAction"	
+	       enablesFor="1">
+	    </action>
+	 </objectContribution>
+ </extension>
 
 </plugin>

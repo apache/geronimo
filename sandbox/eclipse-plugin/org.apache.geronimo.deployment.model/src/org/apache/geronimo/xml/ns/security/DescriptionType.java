@@ -34,14 +34,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='descriptionType' kind='simple'"
  * @generated
  */
-public interface DescriptionType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface DescriptionType extends EObject{
     /**
      * Returns the value of the '<em><b>Value</b></em>' attribute.
      * <!-- begin-user-doc -->

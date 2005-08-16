@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <genmodel:GenModel xmi:version="2.0"
     xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
-    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" copyrightText="Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable."
-    modelDirectory="/org.apache.geronimo.deployment.model/src" editDirectory="/org.apache.geronimo.deployment.model.edit/src"
-    editorDirectory="/org.apache.geronimo.deployment.modeleditor/src" modelPluginID="org.apache.geronimo.deployment.model"
-    templateDirectory="/org.apache.geronimo.deployment.model/templates" dynamicTemplates="true"
-    modelName="Geronimo-web" modelPluginClass="org.apache.geronimo.xml.model.GeronimoModelPlugin"
-    testsDirectory="/org.apache.geronimo.deployment.model/src" importerID="org.eclipse.xsd.ecore.importer">
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.apache.geronimo.deployment.model/src"
+    modelPluginID="org.apache.geronimo.deployment.model" templateDirectory="/org.apache.geronimo.deployment.model/templates"
+    dynamicTemplates="true" modelName="Geronimo-web" importerID="org.eclipse.xsd.ecore.importer">
   <foreignModel>../schema/geronimo-web.xsd</foreignModel>
   <genPackages prefix="Naming" basePackage="org.apache.geronimo.xml.ns" resource="XML"
       disposableProviderFactory="true" ecorePackage="naming.ecore#/">
@@ -154,6 +151,7 @@
     </genClasses>
     <genClasses ecoreClass="deployment.ecore#//DependencyType">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute deployment.ecore#//DependencyType/groupId"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute deployment.ecore#//DependencyType/type"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute deployment.ecore#//DependencyType/artifactId"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute deployment.ecore#//DependencyType/version"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute deployment.ecore#//DependencyType/uri"/>

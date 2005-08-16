@@ -52,13 +52,6 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class ServiceCompletionTypeImpl extends EObjectImpl implements ServiceCompletionType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The default value of the '{@link #getServiceName() <em>Service Name</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

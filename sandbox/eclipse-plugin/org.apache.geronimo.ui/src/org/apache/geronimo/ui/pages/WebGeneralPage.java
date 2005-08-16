@@ -16,7 +16,6 @@
 package org.apache.geronimo.ui.pages;
 
 import org.apache.geronimo.ui.editors.DPEditor;
-import org.apache.geronimo.ui.internal.Messages;
 import org.apache.geronimo.ui.sections.WebGeneralSection;
 import org.apache.geronimo.xml.ns.web.WebAppType;
 import org.eclipse.swt.layout.GridLayout;
@@ -36,26 +35,29 @@ public class WebGeneralPage extends FormPage {
     public WebGeneralPage(String id, String title) {
         super(id, title);
     }
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.eclipse.ui.forms.editor.FormPage#createFormContent(org.eclipse.ui.forms.IManagedForm)
      */
     protected void createFormContent(IManagedForm managedForm) {
-        
-        WebAppType plan = ((DPEditor) getEditor()).getPlan();        
-        
-        ScrolledForm form = managedForm.getForm();     
 
-        form.setText(Messages.editorTitle);
+        WebAppType plan = ((DPEditor) getEditor()).getPlan();
+
+        ScrolledForm form = managedForm.getForm();
+        form.setText(getTitle());
         form.getBody().setLayout(new GridLayout());
-        
-        //create web plan general section
-        WebGeneralSection sec = new WebGeneralSection(plan,form.getBody(), managedForm.getToolkit(), ExpandableComposite.TWISTIE
-                | ExpandableComposite.EXPANDED | ExpandableComposite.TITLE_BAR
-                | Section.DESCRIPTION | ExpandableComposite.FOCUS_TITLE);                
-        managedForm.addPart(sec);       
-        
-        form.reflow(true);       
+
+        // create web plan general section
+        WebGeneralSection sec = new WebGeneralSection(plan, form.getBody(),
+                managedForm.getToolkit(), ExpandableComposite.TWISTIE
+                        | ExpandableComposite.EXPANDED
+                        | ExpandableComposite.TITLE_BAR | Section.DESCRIPTION
+                        | ExpandableComposite.FOCUS_TITLE);
+        managedForm.addPart(sec);
+
+        form.reflow(true);
     }
 
 }

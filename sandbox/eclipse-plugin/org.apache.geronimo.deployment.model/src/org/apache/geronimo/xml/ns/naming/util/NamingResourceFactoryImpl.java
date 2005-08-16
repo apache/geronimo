@@ -32,13 +32,6 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
  */
 public class NamingResourceFactoryImpl extends ResourceFactoryImpl {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * Creates an instance of the resource factory.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

@@ -59,13 +59,6 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class GbeanTypeImpl extends EObjectImpl implements GbeanType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The cached value of the '{@link #getGroup() <em>Group</em>}' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

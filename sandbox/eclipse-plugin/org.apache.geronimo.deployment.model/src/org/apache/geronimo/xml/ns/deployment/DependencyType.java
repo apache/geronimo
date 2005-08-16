@@ -26,6 +26,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getGroupId <em>Group Id</em>}</li>
+ *   <li>{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getType <em>Type</em>}</li>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getArtifactId <em>Artifact Id</em>}</li>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getVersion <em>Version</em>}</li>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getUri <em>Uri</em>}</li>
@@ -36,14 +37,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='dependencyType' kind='elementOnly'"
  * @generated
  */
-public interface DependencyType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface DependencyType extends EObject{
     /**
      * Returns the value of the '<em><b>Group Id</b></em>' attribute.
      * <!-- begin-user-doc -->
@@ -70,6 +64,33 @@ public interface DependencyType extends EObject {
      * @generated
      */
     void setGroupId(String value);
+
+    /**
+     * Returns the value of the '<em><b>Type</b></em>' attribute.
+     * <!-- begin-user-doc -->
+     * <p>
+     * If the meaning of the '<em>Type</em>' attribute isn't clear,
+     * there really should be more of a description here...
+     * </p>
+     * <!-- end-user-doc -->
+     * @return the value of the '<em>Type</em>' attribute.
+     * @see #setType(String)
+     * @see org.apache.geronimo.xml.ns.deployment.DeploymentPackage#getDependencyType_Type()
+     * @model unique="false" dataType="org.eclipse.emf.ecore.xml.type.String"
+     *        extendedMetaData="kind='element' name='type' namespace='##targetNamespace'"
+     * @generated
+     */
+    String getType();
+
+    /**
+     * Sets the value of the '{@link org.apache.geronimo.xml.ns.deployment.DependencyType#getType <em>Type</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @param value the new value of the '<em>Type</em>' attribute.
+     * @see #getType()
+     * @generated
+     */
+    void setType(String value);
 
     /**
      * Returns the value of the '<em><b>Artifact Id</b></em>' attribute.

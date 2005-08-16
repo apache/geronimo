@@ -57,13 +57,6 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class EjbRefTypeImpl extends EObjectImpl implements EjbRefType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The default value of the '{@link #getRefName() <em>Ref Name</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

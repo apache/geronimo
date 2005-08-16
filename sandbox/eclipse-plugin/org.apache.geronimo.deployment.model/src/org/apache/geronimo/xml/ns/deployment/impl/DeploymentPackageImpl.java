@@ -62,13 +62,6 @@ public class DeploymentPackageImpl extends EPackageImpl implements DeploymentPac
      * <!-- end-user-doc -->
      * @generated
      */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
     private EClass attributeTypeEClass = null;
 
     /**
@@ -340,7 +333,7 @@ public class DeploymentPackageImpl extends EPackageImpl implements DeploymentPac
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getDependencyType_ArtifactId() {
+    public EAttribute getDependencyType_Type() {
         return (EAttribute)dependencyTypeEClass.getEStructuralFeatures().get(1);
     }
 
@@ -349,7 +342,7 @@ public class DeploymentPackageImpl extends EPackageImpl implements DeploymentPac
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getDependencyType_Version() {
+    public EAttribute getDependencyType_ArtifactId() {
         return (EAttribute)dependencyTypeEClass.getEStructuralFeatures().get(2);
     }
 
@@ -358,8 +351,17 @@ public class DeploymentPackageImpl extends EPackageImpl implements DeploymentPac
      * <!-- end-user-doc -->
      * @generated
      */
-    public EAttribute getDependencyType_Uri() {
+    public EAttribute getDependencyType_Version() {
         return (EAttribute)dependencyTypeEClass.getEStructuralFeatures().get(3);
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public EAttribute getDependencyType_Uri() {
+        return (EAttribute)dependencyTypeEClass.getEStructuralFeatures().get(4);
     }
 
     /**
@@ -712,6 +714,7 @@ public class DeploymentPackageImpl extends EPackageImpl implements DeploymentPac
 
         dependencyTypeEClass = createEClass(DEPENDENCY_TYPE);
         createEAttribute(dependencyTypeEClass, DEPENDENCY_TYPE__GROUP_ID);
+        createEAttribute(dependencyTypeEClass, DEPENDENCY_TYPE__TYPE);
         createEAttribute(dependencyTypeEClass, DEPENDENCY_TYPE__ARTIFACT_ID);
         createEAttribute(dependencyTypeEClass, DEPENDENCY_TYPE__VERSION);
         createEAttribute(dependencyTypeEClass, DEPENDENCY_TYPE__URI);
@@ -803,6 +806,7 @@ public class DeploymentPackageImpl extends EPackageImpl implements DeploymentPac
 
         initEClass(dependencyTypeEClass, DependencyType.class, "DependencyType", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
         initEAttribute(getDependencyType_GroupId(), theXMLTypePackage.getString(), "groupId", null, 0, 1, DependencyType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+        initEAttribute(getDependencyType_Type(), theXMLTypePackage.getString(), "type", null, 0, 1, DependencyType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getDependencyType_ArtifactId(), theXMLTypePackage.getString(), "artifactId", null, 0, 1, DependencyType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getDependencyType_Version(), theXMLTypePackage.getString(), "version", null, 0, 1, DependencyType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
         initEAttribute(getDependencyType_Uri(), theXMLTypePackage.getString(), "uri", null, 0, 1, DependencyType.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, !IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -963,6 +967,14 @@ public class DeploymentPackageImpl extends EPackageImpl implements DeploymentPac
            new String[] {
              "kind", "element",
              "name", "groupId",
+             "namespace", "##targetNamespace"
+           });		
+        addAnnotation
+          (getDependencyType_Type(), 
+           source, 
+           new String[] {
+             "kind", "element",
+             "name", "type",
              "namespace", "##targetNamespace"
            });		
         addAnnotation

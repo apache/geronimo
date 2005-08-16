@@ -35,14 +35,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='named-username-password-credentialType' kind='elementOnly'"
  * @generated
  */
-public interface NamedUsernamePasswordCredentialType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface NamedUsernamePasswordCredentialType extends EObject{
     /**
      * Returns the value of the '<em><b>Name</b></em>' attribute.
      * <!-- begin-user-doc -->

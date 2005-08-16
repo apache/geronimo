@@ -50,13 +50,6 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class XmlAttributeTypeImpl extends EObjectImpl implements XmlAttributeType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The cached value of the '{@link #getAny() <em>Any</em>}' attribute list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

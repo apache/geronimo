@@ -34,6 +34,7 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  * The following features are implemented:
  * <ul>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.impl.DependencyTypeImpl#getGroupId <em>Group Id</em>}</li>
+ *   <li>{@link org.apache.geronimo.xml.ns.deployment.impl.DependencyTypeImpl#getType <em>Type</em>}</li>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.impl.DependencyTypeImpl#getArtifactId <em>Artifact Id</em>}</li>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.impl.DependencyTypeImpl#getVersion <em>Version</em>}</li>
  *   <li>{@link org.apache.geronimo.xml.ns.deployment.impl.DependencyTypeImpl#getUri <em>Uri</em>}</li>
@@ -43,13 +44,6 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  * @generated
  */
 public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
     /**
      * The default value of the '{@link #getGroupId() <em>Group Id</em>}' attribute.
      * <!-- begin-user-doc -->
@@ -69,6 +63,26 @@ public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
      * @ordered
      */
     protected String groupId = GROUP_ID_EDEFAULT;
+
+    /**
+     * The default value of the '{@link #getType() <em>Type</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getType()
+     * @generated
+     * @ordered
+     */
+    protected static final String TYPE_EDEFAULT = null;
+
+    /**
+     * The cached value of the '{@link #getType() <em>Type</em>}' attribute.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @see #getType()
+     * @generated
+     * @ordered
+     */
+    protected String type = TYPE_EDEFAULT;
 
     /**
      * The default value of the '{@link #getArtifactId() <em>Artifact Id</em>}' attribute.
@@ -174,6 +188,27 @@ public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
      * <!-- end-user-doc -->
      * @generated
      */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    public void setType(String newType) {
+        String oldType = type;
+        type = newType;
+        if (eNotificationRequired())
+            eNotify(new ENotificationImpl(this, Notification.SET, DeploymentPackage.DEPENDENCY_TYPE__TYPE, oldType, type));
+    }
+
+    /**
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
     public String getArtifactId() {
         return artifactId;
     }
@@ -241,6 +276,8 @@ public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
         switch (eDerivedStructuralFeatureID(eFeature)) {
             case DeploymentPackage.DEPENDENCY_TYPE__GROUP_ID:
                 return getGroupId();
+            case DeploymentPackage.DEPENDENCY_TYPE__TYPE:
+                return getType();
             case DeploymentPackage.DEPENDENCY_TYPE__ARTIFACT_ID:
                 return getArtifactId();
             case DeploymentPackage.DEPENDENCY_TYPE__VERSION:
@@ -260,6 +297,9 @@ public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
         switch (eDerivedStructuralFeatureID(eFeature)) {
             case DeploymentPackage.DEPENDENCY_TYPE__GROUP_ID:
                 setGroupId((String)newValue);
+                return;
+            case DeploymentPackage.DEPENDENCY_TYPE__TYPE:
+                setType((String)newValue);
                 return;
             case DeploymentPackage.DEPENDENCY_TYPE__ARTIFACT_ID:
                 setArtifactId((String)newValue);
@@ -284,6 +324,9 @@ public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
             case DeploymentPackage.DEPENDENCY_TYPE__GROUP_ID:
                 setGroupId(GROUP_ID_EDEFAULT);
                 return;
+            case DeploymentPackage.DEPENDENCY_TYPE__TYPE:
+                setType(TYPE_EDEFAULT);
+                return;
             case DeploymentPackage.DEPENDENCY_TYPE__ARTIFACT_ID:
                 setArtifactId(ARTIFACT_ID_EDEFAULT);
                 return;
@@ -306,6 +349,8 @@ public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
         switch (eDerivedStructuralFeatureID(eFeature)) {
             case DeploymentPackage.DEPENDENCY_TYPE__GROUP_ID:
                 return GROUP_ID_EDEFAULT == null ? groupId != null : !GROUP_ID_EDEFAULT.equals(groupId);
+            case DeploymentPackage.DEPENDENCY_TYPE__TYPE:
+                return TYPE_EDEFAULT == null ? type != null : !TYPE_EDEFAULT.equals(type);
             case DeploymentPackage.DEPENDENCY_TYPE__ARTIFACT_ID:
                 return ARTIFACT_ID_EDEFAULT == null ? artifactId != null : !ARTIFACT_ID_EDEFAULT.equals(artifactId);
             case DeploymentPackage.DEPENDENCY_TYPE__VERSION:
@@ -327,6 +372,8 @@ public class DependencyTypeImpl extends EObjectImpl implements DependencyType {
         StringBuffer result = new StringBuffer(super.toString());
         result.append(" (groupId: ");
         result.append(groupId);
+        result.append(", type: ");
+        result.append(type);
         result.append(", artifactId: ");
         result.append(artifactId);
         result.append(", version: ");

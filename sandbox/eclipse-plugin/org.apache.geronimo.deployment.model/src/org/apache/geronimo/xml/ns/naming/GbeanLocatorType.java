@@ -40,14 +40,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='gbean-locatorType' kind='elementOnly'"
  * @generated
  */
-public interface GbeanLocatorType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface GbeanLocatorType extends EObject{
     /**
      * Returns the value of the '<em><b>Domain</b></em>' attribute.
      * <!-- begin-user-doc -->

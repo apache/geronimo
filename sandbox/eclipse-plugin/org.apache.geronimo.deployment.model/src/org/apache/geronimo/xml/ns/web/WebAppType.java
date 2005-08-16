@@ -50,14 +50,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='web-appType' kind='elementOnly'"
  * @generated
  */
-public interface WebAppType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface WebAppType extends EObject{
     /**
      * Returns the value of the '<em><b>Dependency</b></em>' containment reference list.
      * The list contents are of type {@link org.apache.geronimo.xml.ns.deployment.DependencyType}.

@@ -58,13 +58,6 @@ import org.eclipse.emf.ecore.util.InternalEList;
  */
 public class ConfigurationTypeImpl extends EObjectImpl implements ConfigurationType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The cached value of the '{@link #getInclude() <em>Include</em>}' containment reference list.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

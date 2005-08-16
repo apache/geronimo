@@ -47,14 +47,7 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * @model extendedMetaData="name='gbean-refType' kind='elementOnly'"
  * @generated
  */
-public interface GbeanRefType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface GbeanRefType extends EObject{
     /**
      * Returns the value of the '<em><b>Ref Name</b></em>' attribute.
      * <!-- begin-user-doc -->

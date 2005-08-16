@@ -58,10 +58,10 @@
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="schema/geronimo-naming.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="schema/geronimo-security.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="schema/geronimo-config.xsd"/>
-    <xs:import namespace="http://www.openejb.org/xml/ns/pkgen" schemaLocation="schema/openejb-pkgen.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="geronimo-security.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
+    <xs:import namespace="http://www.openejb.org/xml/ns/pkgen" schemaLocation="openejb-pkgen.xsd"/>
 
     <xs:group name="openejb-jndiEnvironmentRefsGroup">
         <xs:annotation>

@@ -32,13 +32,6 @@ import org.eclipse.emf.common.util.AbstractEnumerator;
  */
 public final class WebContainerType extends AbstractEnumerator {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The '<em><b>Tomcat</b></em>' literal value.
      * <!-- begin-user-doc -->
      * <p>

@@ -25,14 +25,7 @@ import org.eclipse.emf.ecore.EFactory;
  * @see org.apache.geronimo.xml.ns.naming.NamingPackage
  * @generated
  */
-public interface NamingFactory extends EFactory {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface NamingFactory extends EFactory{
     /**
      * The singleton instance of the factory.
      * <!-- begin-user-doc -->

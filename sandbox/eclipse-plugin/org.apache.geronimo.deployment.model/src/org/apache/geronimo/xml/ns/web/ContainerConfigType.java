@@ -59,14 +59,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='container-configType' kind='elementOnly'"
  * @generated
  */
-public interface ContainerConfigType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface ContainerConfigType extends EObject{
     /**
      * Returns the value of the '<em><b>Config Param</b></em>' containment reference list.
      * The list contents are of type {@link org.apache.geronimo.xml.ns.web.ConfigParamType}.

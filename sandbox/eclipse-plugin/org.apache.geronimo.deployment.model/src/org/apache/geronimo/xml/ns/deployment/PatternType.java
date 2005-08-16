@@ -40,14 +40,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='patternType' kind='elementOnly'"
  * @generated
  */
-public interface PatternType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface PatternType extends EObject{
     /**
      * Returns the value of the '<em><b>Domain</b></em>' attribute.
      * <!-- begin-user-doc -->

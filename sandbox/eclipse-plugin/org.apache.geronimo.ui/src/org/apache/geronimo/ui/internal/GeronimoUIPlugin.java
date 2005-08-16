@@ -15,29 +15,51 @@
  */
 package org.apache.geronimo.ui.internal;
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.*;
+
 /**
  * The main plugin class to be used in the desktop.
  */
 public class GeronimoUIPlugin extends AbstractUIPlugin {
-	protected static final String PLUGIN_ID = "org.apache.geronimo.ui";
-	
-	private static GeronimoUIPlugin singleton;
+    protected static final String PLUGIN_ID = "org.apache.geronimo.ui";
 
-	/**
-	 * The constructor.
-	 */
-	public GeronimoUIPlugin() {
-		super();
-		singleton = this;
-	}
-	
-	/**
-	 * Returns the singleton instance of this plugin.
-	 *
-	 * @return org.apache.geronimo.ui.internal.GeronimoUIPlugin
-	 */
-	public static GeronimoUIPlugin getInstance() {
-		return singleton;
-	}
+    private static final String ICONS_DIRECTORY = "icons/";
+
+    private static String iconLocation;
+
+    private static GeronimoUIPlugin singleton;
+
+    /**
+     * The constructor.
+     */
+    public GeronimoUIPlugin() {
+        super();
+        singleton = this;
+    }
+
+    /**
+     * Returns the singleton instance of this plugin.
+     * 
+     * @return org.apache.geronimo.ui.internal.GeronimoUIPlugin
+     */
+    public static GeronimoUIPlugin getInstance() {
+        return singleton;
+    }
+
+    public static String getIconLocation() {
+        if (iconLocation == null) {
+            try {
+                iconLocation = Platform.resolve(
+                        GeronimoUIPlugin.getInstance().getBundle()
+                                .getEntry("/")).getPath()
+                        + ICONS_DIRECTORY;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return iconLocation;
+    }
 }

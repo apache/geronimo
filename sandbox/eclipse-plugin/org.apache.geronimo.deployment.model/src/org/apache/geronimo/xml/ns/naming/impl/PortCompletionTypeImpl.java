@@ -40,13 +40,6 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  */
 public class PortCompletionTypeImpl extends PortTypeImpl implements PortCompletionType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The default value of the '{@link #getBindingName() <em>Binding Name</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->

@@ -41,14 +41,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model extendedMetaData="name='resource-locatorType' kind='elementOnly'"
  * @generated
  */
-public interface ResourceLocatorType extends EObject {
-    /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
+public interface ResourceLocatorType extends EObject{
     /**
      * Returns the value of the '<em><b>Domain</b></em>' attribute.
      * <!-- begin-user-doc -->

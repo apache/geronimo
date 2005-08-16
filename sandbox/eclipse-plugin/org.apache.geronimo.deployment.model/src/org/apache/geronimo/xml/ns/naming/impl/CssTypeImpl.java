@@ -46,13 +46,6 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
  */
 public class CssTypeImpl extends EObjectImpl implements CssType {
     /**
-     * <!-- begin-user-doc -->
-     * <!-- end-user-doc -->
-     * @generated
-     */
-    public static final String copyright = "Copyright 2004, 2005 The Apache Software Foundation or its licensors, as applicable.";
-
-    /**
      * The default value of the '{@link #getDomain() <em>Domain</em>}' attribute.
      * <!-- begin-user-doc -->
      * <!-- end-user-doc -->
