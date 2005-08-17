@@ -199,14 +199,18 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
 //        pcs.firePropertyChange("blockingTimeout", old, blockingTimeout);
 //    }
 
-    public String getRealmBridgeName() {
-        return getConnectionManager().getRealmBridge();
+    public boolean isContainerManagedSecurity() {
+        return getConnectionManager().isSetContainerManagedSecurity();
     }
 
-    public void setRealmBridgeName(String realmBridgeName) {
-        String old = getRealmBridgeName();
-        getConnectionManager().setRealmBridge(realmBridgeName);
-        pcs.firePropertyChange("realmBridgeName", old, realmBridgeName);
+    public void setContainerManagedSecurity(boolean containerManagedSecurity) {
+        boolean old = isContainerManagedSecurity();
+        if (old && !containerManagedSecurity) {
+            getConnectionManager().setContainerManagedSecurity(null);
+        } else if (!old && containerManagedSecurity) {
+            getConnectionManager().addNewContainerManagedSecurity();
+        }
+        pcs.firePropertyChange("containerManagedSecurity", old, containerManagedSecurity);
     }
 
     public String toString() {

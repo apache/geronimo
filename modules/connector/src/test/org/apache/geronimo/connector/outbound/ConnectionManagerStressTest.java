@@ -34,7 +34,7 @@ public class ConnectionManagerStressTest extends ConnectionManagerTestUtils {
     private static final Log log = LogFactory.getLog(ConnectionManagerStressTest.class);
 
     protected int repeatCount = 200;
-    protected int threadCount = 100;
+    protected int threadCount = 10;
     private Object startBarrier = new Object();
     private Object stopBarrier = new Object();
     private int startedThreads = 0;

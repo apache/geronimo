@@ -34,7 +34,6 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultComponentInterceptor;
 import org.apache.geronimo.connector.outbound.connectiontracking.DefaultInterceptor;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -47,7 +46,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
  * @version $Rev$ $Date$
  *
  * */
-public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor, RealmBridge {
+public class ConnectionManagerTestUtils extends TestCase implements DefaultInterceptor {
     protected boolean useTransactionCaching = true;
     protected boolean useLocalTransactions = false;
     protected boolean useThreadCaching = false;
@@ -63,7 +62,6 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     private boolean selectOneNoMatch = false;
     protected String name = "testCF";
     //dependencies
-    protected RealmBridge realmBridge = this;
     protected ConnectionTrackingCoordinator connectionTrackingCoordinator;
     protected TransactionContextManager transactionContextManager;
     protected AbstractConnectionManager connectionManagerDeployment;
@@ -78,6 +76,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
     protected UserTransactionImpl userTransaction;
     protected TransactionSupport transactionSupport = new XATransactions(useTransactionCaching, useThreadCaching);
     protected PoolingSupport poolingSupport = new PartitionedPool(maxSize, minSize, blockingTimeout, idleTimeoutMinutes, matchOne, matchAll, selectOneNoMatch, useConnectionRequestInfo, useSubject);
+    protected boolean containerManagedSecurity = true;
 
     protected DefaultInterceptor mockComponent = new DefaultInterceptor() {
         public Object invoke(InstanceContext newInstanceContext) throws Throwable {
@@ -99,7 +98,7 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
         connectionManagerDeployment = new GenericConnectionManager(
                 transactionSupport,
                 poolingSupport,
-                realmBridge,
+                containerManagedSecurity,
                 connectionTrackingCoordinator,
                 transactionContextManager,
                 name,
@@ -116,11 +115,6 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
         connectionManagerDeployment = null;
         connectionFactory = null;
         defaultComponentContext = null;
-    }
-
-
-    public Subject mapSubject(Subject sourceSubject) {
-        return subject;
     }
 
     public Object invoke(InstanceContext newInstanceContext) throws Throwable {

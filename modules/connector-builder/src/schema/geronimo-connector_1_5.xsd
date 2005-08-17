@@ -23,8 +23,7 @@
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/connector"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
-    attributeFormDefault="unqualified"
-    version="1.5">
+    attributeFormDefault="unqualified">
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
@@ -241,51 +240,48 @@
         </xs:annotation>
 
         <xs:sequence>
-            <!--realm-bridge is an object name-->
-            <xs:element name="realm-bridge"
-                type="xs:string"
-                minOccurs="0"/>
+            <xs:element name="container-managed-security" type="ger:emptyType" minOccurs="0"/>
             <xs:choice minOccurs="0">
-                <xs:element name="no-transaction"/>
-                <xs:element name="local-transaction"/>
-                <xs:element name="xa-transaction" type="ger:xatransaction-Type"/>
-                <xs:element name="transaction-log"/>
+                <xs:element name="no-transaction" type="ger:emptyType"/>
+                <xs:element name="local-transaction" type="ger:emptyType"/>
+                <xs:element name="xa-transaction" type="ger:xatransactionType"/>
+                <xs:element name="transaction-log" type="ger:emptyType"/>
             </xs:choice>
             <xs:choice>
-                <xs:element name="no-pool"/>
-                <xs:element name="single-pool" type="ger:singlepool-Type"/>
-                <xs:element name="partitioned-pool" type="ger:partitionedpool-Type"/>
+                <xs:element name="no-pool" type="ger:emptyType"/>
+                <xs:element name="single-pool" type="ger:singlepoolType"/>
+                <xs:element name="partitioned-pool" type="ger:partitionedpoolType"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="xatransaction-Type">
+    <xs:complexType name="xatransactionType">
         <xs:sequence>
-            <xs:element name="transaction-caching" minOccurs="0"/>
-            <xs:element name="thread-caching" minOccurs="0"/>
+            <xs:element name="transaction-caching" type="ger:emptyType" minOccurs="0"/>
+            <xs:element name="thread-caching" type="ger:emptyType" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="singlepool-Type">
+    <xs:complexType name="singlepoolType">
         <xs:sequence>
             <xs:element name="max-size" type="xs:int" minOccurs="0"/>
             <xs:element name="min-size" type="xs:int" minOccurs="0"/>
             <xs:element name="blocking-timeout-milliseconds" type="xs:int" minOccurs="0"/>
             <xs:element name="idle-timeout-minutes" type="xs:int" minOccurs="0"/>
             <xs:choice>
-                <xs:element name="match-one"/>
-                <xs:element name="match-all"/>
-                <xs:element name="select-one-assume-match"/>
+                <xs:element name="match-one" type="ger:emptyType"/>
+                <xs:element name="match-all" type="ger:emptyType"/>
+                <xs:element name="select-one-assume-match" type="ger:emptyType"/>
             </xs:choice>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="partitionedpool-Type">
+    <xs:complexType name="partitionedpoolType">
         <complexContent>
-            <extension base="ger:singlepool-Type">
+            <extension base="ger:singlepoolType">
                 <xs:sequence>
-                    <xs:element name="partition-by-subject" minOccurs="0"/>
-                    <xs:element name="partition-by-connectionrequestinfo" minOccurs="0"/>
+                    <xs:element name="partition-by-subject" type="ger:emptyType" minOccurs="0"/>
+                    <xs:element name="partition-by-connectionrequestinfo" type="ger:emptyType" minOccurs="0"/>
                 </xs:sequence>
             </extension>
         </complexContent>
@@ -312,7 +308,7 @@
 <!--            <xs:element name="gbean" type="sys:gbeanType" minOccurs="0" maxOccurs="unbounded"/>-->
         </xs:sequence>
 
-        <xs:attribute name="version" type="ger:versionType" use="required"/>
+        <xs:attribute name="version" type="ger:versionType" use="optional"/>
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
     </xs:complexType>
@@ -356,6 +352,8 @@
                 value="javax.resource.spi.security.GenericCredential"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="emptyType"/>
 
     <!-- **************************************************** -->
 

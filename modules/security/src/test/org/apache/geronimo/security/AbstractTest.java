@@ -33,7 +33,6 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.bridge.TestLoginModule;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
@@ -50,6 +49,7 @@ public abstract class AbstractTest extends TestCase {
     protected ObjectName testLoginModule;
     protected ObjectName testRealm;
     protected ObjectName serverStub;
+    private static final String REALM_NAME = "test-realm";
 
     protected void setUp() throws Exception {
         kernel = KernelFactory.newInstance().createKernel("test.kernel");
@@ -80,9 +80,9 @@ public abstract class AbstractTest extends TestCase {
         gbean.setReferencePattern("LoginModule", testLoginModule);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm="+TestLoginModule.REALM_NAME);
+        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=" + REALM_NAME);
         gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
-        gbean.setAttribute("realmName", TestLoginModule.REALM_NAME);
+        gbean.setAttribute("realmName", REALM_NAME);
         Properties props = new Properties();
 //        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=TestModule");
 //        gbean.setAttribute("loginModuleConfiguration", props);

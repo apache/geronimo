@@ -20,10 +20,8 @@ package org.apache.geronimo.connector.outbound;
 import javax.resource.ResourceException;
 import javax.resource.spi.ApplicationServerInternalException;
 import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  * SubjectInterceptor.java
@@ -36,23 +34,17 @@ import org.apache.geronimo.security.bridge.RealmBridge;
 public class SubjectInterceptor implements ConnectionInterceptor {
 
     private final ConnectionInterceptor next;
-    private final RealmBridge realmBridge;
 
-    public SubjectInterceptor(
-            final ConnectionInterceptor next,
-            final RealmBridge realmBridge) {
+    public SubjectInterceptor(final ConnectionInterceptor next) {
         this.next = next;
-        this.realmBridge = realmBridge;
     }
 
     public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
         Subject currentSubject = null;
         if (!connectionInfo.isApplicationManagedSecurity()) {
             try {
-                currentSubject = realmBridge.mapSubject(ContextManager.getCurrentCaller());
+                currentSubject = ContextManager.getCurrentCaller();
             } catch (SecurityException e) {
-                throw new ResourceException("Can not obtain Subject for login", e);
-            } catch (LoginException e) {
                 throw new ResourceException("Can not obtain Subject for login", e);
             }
             assert currentSubject != null;

@@ -34,7 +34,7 @@
                     <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
                     <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
                     <connectionmanager>
-                        <realm-bridge>TargetRealm</realm-bridge>
+                        <container-managed-security/>
                         <xa-transaction>
                             <transaction-caching/>
                         </xa-transaction>
@@ -65,7 +65,7 @@
                     <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
                     <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
                     <connectionmanager>
-                        <realm-bridge>TargetRealm</realm-bridge>
+                        <container-managed-security/>
                         <xa-transaction>
                             <transaction-caching/>
                         </xa-transaction>

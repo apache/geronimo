@@ -22,11 +22,10 @@ import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrack
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
- * 
+ *
  * @version $Revision$
  */
 public class GenericConnectionManagerGBean {
@@ -38,18 +37,18 @@ public class GenericConnectionManagerGBean {
 
         infoBuilder.addAttribute("transactionSupport", TransactionSupport.class, true);
         infoBuilder.addAttribute("pooling", PoolingSupport.class, true);
+        infoBuilder.addAttribute("containerManagedSecurity", Boolean.TYPE, true);
 
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoBuilder.addReference("RealmBridge", RealmBridge.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
 
         infoBuilder.setConstructor(new String[]{
             "transactionSupport",
             "pooling",
-            "RealmBridge",
+            "containerManagedSecurity",
             "ConnectionTracker",
             "TransactionContextManager",
             "objectName",

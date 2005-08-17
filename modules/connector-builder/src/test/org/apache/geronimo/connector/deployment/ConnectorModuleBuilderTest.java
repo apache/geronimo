@@ -480,8 +480,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             ObjectName firstOutCF = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, firstOutCF);
 
-            ObjectName firstOutSecurity = new ObjectName("geronimo.security:service=Realm,type=PasswordCredential,name=FirstTestOutboundConnectionFactory");
-            assertRunning(kernel, firstOutSecurity);
+//            ObjectName firstOutSecurity = new ObjectName("geronimo.security:service=Realm,type=PasswordCredential,name=FirstTestOutboundConnectionFactory");
+//            assertRunning(kernel, firstOutSecurity);
 
             ObjectName firstOutMCF = NameFactory.getComponentName(null, null, null, null, null, "FirstTestOutboundConnectionFactory", NameFactory.JCA_MANAGED_CONNECTION_FACTORY, j2eeContext);
             assertRunning(kernel, firstOutMCF);

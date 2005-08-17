@@ -21,7 +21,6 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Partitione
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
-import org.apache.geronimo.security.bridge.RealmBridge;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
@@ -39,13 +38,12 @@ public class GenericConnectionManager extends AbstractConnectionManager {
 
     public GenericConnectionManager(TransactionSupport transactionSupport,
                                     PoolingSupport pooling,
-                                    RealmBridge realmBridge,
+                                    boolean containerManagedSecurity,
                                     ConnectionTracker connectionTracker,
                                     TransactionContextManager transactionContextManager,
                                     String objectName,
-                                    ClassLoader classLoader
-                                    ) {
-        super(new InterceptorsImpl(transactionSupport, pooling, objectName, realmBridge, connectionTracker, transactionContextManager, classLoader));
+                                    ClassLoader classLoader) {
+        super(new InterceptorsImpl(transactionSupport, pooling, containerManagedSecurity, objectName, connectionTracker, transactionContextManager, classLoader));
     }
 
     private static class InterceptorsImpl implements AbstractConnectionManager.Interceptors {
@@ -69,13 +67,13 @@ public class GenericConnectionManager extends AbstractConnectionManager {
          */
         public InterceptorsImpl(TransactionSupport transactionSupport,
                                 PoolingSupport pooling,
+                                boolean containerManagedSecurity,
                                 String objectName,
-                                RealmBridge realmBridge,
                                 ConnectionTracker connectionTracker,
                                 TransactionContextManager transactionContextManager,
                                 ClassLoader classLoader) {
             //check for consistency between attributes
-            if (realmBridge == null && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
+            if (!containerManagedSecurity && pooling instanceof PartitionedPool && ((PartitionedPool) pooling).isPartitionBySubject()) {
                 throw new IllegalStateException("To use Subject in pooling, you need a SecurityDomain");
             }
 
@@ -86,15 +84,10 @@ public class GenericConnectionManager extends AbstractConnectionManager {
             stack = transactionSupport.addXAResourceInsertionInterceptor(stack, objectName);
             stack = pooling.addPoolingInterceptors(stack);
             this.poolingSupport = pooling;
-            //experimental threadlocal caching
-            //moved to XATransactions
-//        if (transactionSupport instanceof XATransactions && ((XATransactions)transactionSupport).isUseThreadCaching()) {
-//            stack = new ThreadLocalCachingConnectionInterceptor(stack, false);
-//        }
             stack = transactionSupport.addTransactionInterceptors(stack, transactionContextManager);
 
-            if (realmBridge != null) {
-                stack = new SubjectInterceptor(stack, realmBridge);
+            if (containerManagedSecurity) {
+                stack = new SubjectInterceptor(stack);
             }
 
             ConnectionInterceptor recoveryStack = stack;

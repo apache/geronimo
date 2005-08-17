@@ -36,7 +36,7 @@
                     <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
                     <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
                     <connectionmanager>
-                        <realm-bridge>TargetRealm</realm-bridge>
+                        <container-managed-security/>
                         <xa-transaction>
                             <transaction-caching/>
                         </xa-transaction>
@@ -47,7 +47,6 @@
                             <partition-by-subject/>
                         </partitioned-pool>
                     </connectionmanager>
-                    <global-jndi-name>connectionfactories/testcf</global-jndi-name>
                     <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
                 </connectiondefinition-instance>
                 <connectiondefinition-instance>
@@ -55,7 +54,7 @@
                     <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
                     <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
                     <connectionmanager>
-                        <realm-bridge>TargetRealm</realm-bridge>
+                        <container-managed-security/>
                         <xa-transaction>
                             <transaction-caching/>
                         </xa-transaction>
@@ -74,7 +73,7 @@
                     <name>ThirdTestOutboundConnectionFactory</name>
                     <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
                     <connectionmanager>
-                        <realm-bridge>TargetRealm</realm-bridge>
+                        <container-managed-security/>
                         <xa-transaction>
                             <transaction-caching/>
                         </xa-transaction>
@@ -125,12 +124,6 @@
     <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
         <reference name="TransactionManager"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
         <reference name="XidImporter"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
-    </gbean>
-
-    <gbean name="TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
-        <attribute name="targetRealm">TargetRealm</attribute>
-        <attribute name="configuredUser">testUser</attribute>
-        <attribute name="configuredPassword">testPassword</attribute>
     </gbean>
 
 </connector>

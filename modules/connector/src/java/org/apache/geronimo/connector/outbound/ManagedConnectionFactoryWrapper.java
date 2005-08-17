@@ -26,12 +26,10 @@ import javax.transaction.SystemException;
 
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.ConnectorMethodInterceptor;
 import org.apache.geronimo.connector.ResourceAdapterWrapper;
-import org.apache.geronimo.connector.outbound.security.ManagedConnectionFactoryListener;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -60,7 +58,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     private ResourceAdapterWrapper resourceAdapterWrapper;
     private ConnectionManagerContainer connectionManagerContainer;
-    private ManagedConnectionFactoryListener managedConnectionFactoryListener;
 
     private ManagedConnectionFactory managedConnectionFactory;
 
@@ -101,7 +98,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            String globalJNDIName,
                                            ResourceAdapterWrapper resourceAdapterWrapper,
                                            ConnectionManagerContainer connectionManagerContainer,
-                                           ManagedConnectionFactoryListener managedConnectionFactoryListener,
                                            Kernel kernel,
                                            String objectName,
                                            ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
@@ -138,7 +134,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         managedConnectionFactory = (ManagedConnectionFactory) clazz.newInstance();
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(managedConnectionFactory);
-        this.managedConnectionFactoryListener = managedConnectionFactoryListener;
         this.kernel = kernel;
         this.objectName = objectName;
 
@@ -198,10 +193,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             registered = true;
             log.debug("Registered managedConnectionFactory with ResourceAdapter " + resourceAdapterWrapper.toString());
         }
-        //set up login if present
-        if (managedConnectionFactoryListener != null) {
-            managedConnectionFactoryListener.setManagedConnectionFactory(managedConnectionFactory);
-        }
 
         //create a new ConnectionFactory
         connectionFactory = connectionManagerContainer.createConnectionFactory(managedConnectionFactory);
@@ -234,10 +225,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
     public void doStop() {
         if (interceptor != null) {
             interceptor.setInternalProxy(null);
-        }
-        //tear down login if present
-        if (managedConnectionFactoryListener != null) {
-            managedConnectionFactoryListener.setManagedConnectionFactory(null);
         }
         connectionFactory = null;
         if (globalJNDIName != null) {
@@ -288,6 +275,10 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     public Object $getConnectionFactory() {
         return connectionFactory;
+    }
+
+    public ManagedConnectionFactory $getManagedConnectionFactory() {
+        return managedConnectionFactory;
     }
 
     //ResourceManager implementation

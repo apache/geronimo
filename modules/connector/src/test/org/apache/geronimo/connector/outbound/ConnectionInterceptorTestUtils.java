@@ -20,7 +20,6 @@ package org.apache.geronimo.connector.outbound;
 import java.io.PrintWriter;
 import java.security.Principal;
 import java.util.Set;
-
 import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionEventListener;
 import javax.resource.spi.ConnectionRequestInfo;
@@ -32,7 +31,6 @@ import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.security.bridge.RealmBridge;
 
 /**
  *
@@ -40,7 +38,7 @@ import org.apache.geronimo.security.bridge.RealmBridge;
  * @version $Rev$ $Date$
  *
  * */
-public class ConnectionInterceptorTestUtils extends TestCase implements RealmBridge, ConnectionInterceptor {
+public class ConnectionInterceptorTestUtils extends TestCase implements ConnectionInterceptor {
     protected Subject subject;
     protected ConnectionInfo obtainedConnectionInfo;
     protected ConnectionInfo returnedConnectionInfo;
@@ -57,11 +55,6 @@ public class ConnectionInterceptorTestUtils extends TestCase implements RealmBri
     }
 
     public void testNothing() throws Exception {
-    }
-
-    //RealmBridge implementation
-    public Subject mapSubject(Subject sourceSubject) {
-        return subject;
     }
 
     //ConnectorInterceptor implementation

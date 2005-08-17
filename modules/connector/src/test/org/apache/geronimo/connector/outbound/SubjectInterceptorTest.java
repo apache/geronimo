@@ -20,6 +20,8 @@ package org.apache.geronimo.connector.outbound;
 import javax.security.auth.Subject;
 import javax.resource.ResourceException;
 
+import org.apache.geronimo.security.ContextManager;
+
 /**
  *
  *
@@ -32,7 +34,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     protected void setUp() throws Exception {
         super.setUp();
-        subjectInterceptor = new SubjectInterceptor(this, this);
+        subjectInterceptor = new SubjectInterceptor(this);
     }
 
     protected void tearDown() throws Exception {
@@ -42,6 +44,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     public void testGetConnection() throws Exception {
         subject = new Subject();
+        ContextManager.setCurrentCaller(subject);
         ConnectionInfo connectionInfo = makeConnectionInfo();
         ManagedConnectionInfo managedConnectionInfo = connectionInfo.getManagedConnectionInfo();
         subjectInterceptor.getConnection(connectionInfo);
@@ -70,12 +73,14 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     public void testEnterWithChangedSubject() throws Exception {
         makeSubject("foo");
+        ContextManager.setCurrentCaller(subject);
         ConnectionInfo connectionInfo = makeConnectionInfo();
         managedConnection = new TestPlainManagedConnection();
         subjectInterceptor.getConnection(connectionInfo);
         //reset our test indicator
         obtainedConnectionInfo = null;
         makeSubject("bar");
+        ContextManager.setCurrentCaller(subject);
         subjectInterceptor.getConnection(connectionInfo);
         //expect re-association
         assertTrue("Expected connection asked for", obtainedConnectionInfo != null);
@@ -98,6 +103,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
 
     public void testUnshareablePreventsReAssociation() throws Exception {
         makeSubject("foo");
+        ContextManager.setCurrentCaller(subject);
         ConnectionInfo connectionInfo = makeConnectionInfo();
         connectionInfo.setUnshareable(true);
         managedConnection = new TestPlainManagedConnection();
@@ -105,6 +111,7 @@ public class SubjectInterceptorTest extends ConnectionInterceptorTestUtils {
         //reset our test indicator
         obtainedConnectionInfo = null;
         makeSubject("bar");
+        ContextManager.setCurrentCaller(subject);
         try {
             subjectInterceptor.getConnection(connectionInfo);
             fail("Reassociating should fail on an unshareable connection");

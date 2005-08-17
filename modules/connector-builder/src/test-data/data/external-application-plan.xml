@@ -36,7 +36,7 @@
                             <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
                             <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
                             <connectionmanager>
-                                <realm-bridge>TargetRealm</realm-bridge>
+                                <container-managed-security/>
                                 <xa-transaction>
                                     <transaction-caching/>
                                 </xa-transaction>
@@ -70,7 +70,7 @@
                             <name>ThirdTestOutboundConnectionFactory</name>
                             <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
                             <connectionmanager>
-                                <realm-bridge>TargetRealm</realm-bridge>
+                                <container-managed-security/>
                                 <partitioned-pool>
                                     <match-one/>
                                     <partition-by-subject/>
@@ -105,7 +105,7 @@
                             <config-property-setting name="OutboundStringProperty1">newvalue1</config-property-setting>
                             <config-property-setting name="OutboundStringProperty3">newvalue2</config-property-setting>
                             <connectionmanager>
-                                <realm-bridge>TargetRealm</realm-bridge>
+                                <container-managed-security/>
                                 <xa-transaction>
                                     <transaction-caching/>
                                 </xa-transaction>
@@ -124,7 +124,7 @@
                             <config-property-setting name="OutboundStringProperty4">newvalue3</config-property-setting>
                             <config-property-setting name="OutboundStringProperty1">newvalue4</config-property-setting>
                             <connectionmanager>
-                                <realm-bridge>TargetRealm</realm-bridge>
+                                <container-managed-security/>
                                 <xa-transaction>
                                     <transaction-caching/>
                                 </xa-transaction>
@@ -144,7 +144,7 @@
                             <name>ThirdTestOutboundConnectionFactory</name>
                             <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
                             <connectionmanager>
-                                <realm-bridge>TargetRealm</realm-bridge>
+                                <container-managed-security/>
                                 <partitioned-pool>
                                     <match-one/>
                                     <partition-by-subject/>
@@ -171,7 +171,7 @@
         </connector>
 
     </module>
-    
+
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
     <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     </gbean>
@@ -194,12 +194,6 @@
     <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
         <reference name="TransactionManager"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
         <reference name="XidImporter"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
-    </gbean>
-
-    <gbean name="TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
-        <attribute name="targetRealm">TargetRealm</attribute>
-        <attribute name="configuredUser">testUser</attribute>
-        <attribute name="configuredPassword">testPassword</attribute>
     </gbean>
 
 </application>

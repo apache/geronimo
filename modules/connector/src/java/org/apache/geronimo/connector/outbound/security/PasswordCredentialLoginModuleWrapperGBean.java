@@ -14,32 +14,25 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.connector.outbound.security;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 
 /**
- * 
- * @version $Revision$
+ * @version $Rev:  $ $Date:  $
  */
-public class PasswordCredentialRealmGBean {
+public class PasswordCredentialLoginModuleWrapperGBean {
 
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialRealm.class, NameFactory.SECURITY_REALM);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(PasswordCredentialLoginModuleWrapper.class, LoginModuleGBean.GBEAN_INFO, NameFactory.LOGIN_MODULE);
 
-        infoFactory.addInterface(ManagedConnectionFactoryListener.class);
-        infoFactory.addInterface(ConfigurationEntryFactory.class);
-        infoFactory.addAttribute("kernel", Kernel.class, false);
-        infoFactory.addAttribute("realmName", String.class, true);
-
-        infoFactory.setConstructor(new String[]{"kernel", "realmName"});
+        infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

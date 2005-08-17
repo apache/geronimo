@@ -60,7 +60,6 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
-import org.apache.geronimo.connector.outbound.security.PasswordCredentialRealmGBean;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
@@ -85,7 +84,6 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.security.bridge.AbstractRealmBridge;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
@@ -113,7 +111,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceBuilder {
-    private static final String BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME = "geronimo.security:service=Realm,type=PasswordCredential,name=";
 
     private final int defaultMaxSize;
     private final int defaultMinSize;
@@ -738,11 +735,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             connectionManagerGBean.setAttribute("transactionSupport", transactionSupport);
             connectionManagerGBean.setAttribute("pooling", pooling);
             connectionManagerGBean.setReferencePattern("ConnectionTracker", earContext.getConnectionTrackerObjectName());
-            if (connectionManager.getRealmBridge() != null) {
-                //TODO eliminate RealmBridge or find a better name
-                ObjectName realmBridgeName = NameFactory.getComponentName(null, null, null, null, connectionManager.getRealmBridge().trim(), AbstractRealmBridge.GBEAN_INFO.getJ2eeType(), j2eeContext);
-                connectionManagerGBean.setReferencePattern("RealmBridge", realmBridgeName);
-            }
+            connectionManagerGBean.setAttribute("containerManagedSecurity", new Boolean(connectionManager.isSetContainerManagedSecurity()));
             connectionManagerGBean.setReferencePattern("TransactionContextManager", earContext.getTransactionContextManagerObjectName());
         } catch (Exception e) {
             throw new DeploymentException("Problem setting up ConnectionManager", e);
@@ -773,13 +766,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
             }
             managedConnectionFactoryInstanceGBeanData.setReferencePattern("ConnectionManagerContainer", connectionManagerObjectName);
-            if (connectiondefinitionInstance.getCredentialInterface() != null && GerCredentialInterfaceType.Enum.forString("javax.resource.spi.security.PasswordCredential").equals(connectiondefinitionInstance.getCredentialInterface())) {
-                ObjectName realmObjectName = ObjectName.getInstance(BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
-                GBeanData realmGBean = new GBeanData(realmObjectName, PasswordCredentialRealmGBean.getGBeanInfo());
-                realmGBean.setAttribute("realmName", BASE_PASSWORD_CREDENTIAL_LOGIN_MODULE_NAME + connectiondefinitionInstance.getName());
-                earContext.addGBean(realmGBean);
-                managedConnectionFactoryInstanceGBeanData.setReferencePattern("ManagedConnectionFactoryListener", realmObjectName);
-            }
             //additional interfaces implemented by connection factory
             String[] implementedInterfaces = connectiondefinitionInstance.getImplementedInterfaceArray();
             if (implementedInterfaces != null) {
