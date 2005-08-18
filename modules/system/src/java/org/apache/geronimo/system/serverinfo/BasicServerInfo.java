@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  *
  * @version $Rev$ $Date$
  */
-public class ServerInfo {
+public class ServerInfo implements ServerInformation {
     private final String baseDirectory;
     private final File base;
     private final URI baseURI;
@@ -138,6 +138,8 @@ public class ServerInfo {
         infoFactory.addOperation("resolvePath", new Class[]{String.class});
         infoFactory.addOperation("resolve", new Class[]{String.class});
         infoFactory.addOperation("resolve", new Class[]{URI.class});
+
+        infoFactory.addInterface(ServerInformation.class);
 
         infoFactory.setConstructor(new String[]{"baseDirectory"});
 
