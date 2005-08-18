@@ -26,6 +26,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 /**
  * @version $Rev: 47413 $ $Date: 2004-09-28 11:46:39 -0700 (Tue, 28 Sep 2004) $
@@ -34,7 +35,7 @@ public class DerbySystemGBeanTest extends TestCase {
     private File systemDir;
 
     public void testCreateSystemUsingServerInfo() throws Exception {
-        ServerInfo serverInfo = new ServerInfo(systemDir.toString());
+        ServerInfo serverInfo = new BasicServerInfo(systemDir.toString());
         String derbyDir = "var/dbderby";
         DerbySystemGBean gbean = new DerbySystemGBean(serverInfo, derbyDir);
         try {

@@ -27,6 +27,7 @@ import org.apache.geronimo.jetty.JettyContainer;
 import org.apache.geronimo.jetty.JettyWebConnector;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.http.HttpListener;
+import org.mortbay.http.SocketListener;
 import org.mortbay.util.ThreadedServer;
 
 /**
@@ -110,31 +111,66 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public void setBufferSizeBytes(int bytes) {
-        throw new UnsupportedOperationException(); //todo: is this supported?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            socketListener.setBufferSize(bytes);
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public int getAcceptQueueSize() {
-        throw new UnsupportedOperationException(); //todo: where does this come from?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            return socketListener.getAcceptQueueSize();
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public void setAcceptQueueSize(int size) {
-        throw new UnsupportedOperationException(); //todo: where does this come from?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            socketListener.setAcceptQueueSize(size);
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public int getLingerMillis() {
-        throw new UnsupportedOperationException(); //todo: where does this come from?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            return socketListener.getLingerTimeSecs()*1000;
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public void setLingerMillis(int millis) {
-        throw new UnsupportedOperationException(); //todo: where does this come from?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            socketListener.setLingerTimeSecs(Math.round((float)millis/1000f));
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public boolean isTcpNoDelay() {
-        throw new UnsupportedOperationException(); //todo: where does this come from?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            return socketListener.getTcpNoDelay();
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public void setTcpNoDelay(boolean enable) {
-        throw new UnsupportedOperationException(); //todo: where does this come from?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            socketListener.setTcpNoDelay(enable);
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public int getRedirectPort() {
@@ -142,7 +178,15 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     }
 
     public void setRedirectPort(int port) {
-        throw new UnsupportedOperationException(); //todo: is this supported?
+        if(listener instanceof SocketListener) {
+            SocketListener socketListener = (SocketListener)listener;
+            socketListener.setConfidentialPort(port);
+            socketListener.setIntegralPort(port);
+            socketListener.setIntegralScheme("https");
+            socketListener.setConfidentialScheme("https");
+        } else {
+            throw new UnsupportedOperationException(); //todo: can this happen?
+        }
     }
 
     public abstract String getProtocol();

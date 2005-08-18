@@ -30,10 +30,9 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
-import org.apache.geronimo.jetty.JettyContainer;
+import org.apache.geronimo.management.geronimo.WebContainer;
 
-public class WebManagerPortlet extends GenericPortlet {
+public class WebManagerPortlet extends BaseWebPortlet {
     private PortletRequestDispatcher normalView;
 
     private PortletRequestDispatcher maximizedView;
@@ -44,16 +43,17 @@ public class WebManagerPortlet extends GenericPortlet {
             ActionResponse actionResponse) throws PortletException, IOException {
         try {
             WebContainer container = PortletManager.getCurrentWebContainer(actionRequest);
+            String server = getServerType(container.getClass());
             String action = actionRequest.getParameter("stats");
             if (action != null) {
                 boolean stats = action.equals("true");
-                if(container instanceof JettyContainer) {
-                    ((JettyContainer)container).setCollectStatistics(stats);
+                if(server.equals(SERVER_JETTY)) {
+                    setProperty(container, "collectStatistics", stats ? Boolean.TRUE : Boolean.FALSE);
                 }
             }
             if (actionRequest.getParameter("resetStats") != null) {
-                if(container instanceof JettyContainer) {
-                    ((JettyContainer)container).resetStatistics();
+                if(server.equals(SERVER_JETTY)) {
+                    callOperation(container, "resetStatistics", null);
                 }
             }
         } catch (Exception e) {
@@ -68,25 +68,15 @@ public class WebManagerPortlet extends GenericPortlet {
         }
         try {
             WebContainer container = PortletManager.getCurrentWebContainer(renderRequest);
-            if(container instanceof JettyContainer) {
-                JettyContainer jetty = ((JettyContainer)container);
-                boolean statsOn = jetty.getCollectStatistics();
-                renderRequest.setAttribute("statsOn", statsOn ? Boolean.TRUE : Boolean.FALSE);
-                if (statsOn) {
-                    renderRequest.setAttribute("connections", new Integer(jetty.getConnections()));
-                    renderRequest.setAttribute("connectionsOpen", new Integer(jetty.getConnectionsOpen()));
-                    renderRequest.setAttribute("connectionsOpenMax", new Integer(jetty.getConnectionsOpenMax()));
-                    renderRequest.setAttribute("connectionsDurationAve", new Long(jetty.getConnectionsDurationAve()));
-                    renderRequest.setAttribute("connectionsDurationMax", new Long(jetty.getConnectionsDurationMax()));
-                    renderRequest.setAttribute("connectionsRequestsAve", new Integer(jetty.getConnectionsRequestsAve()));
-                    renderRequest.setAttribute("connectionsRequestsMax", new Integer(jetty.getConnectionsRequestsMax()));
-                    renderRequest.setAttribute("errors", new Integer(jetty.getErrors()));
-                    renderRequest.setAttribute("requests", new Integer(jetty.getRequests()));
-                    renderRequest.setAttribute("requestsActive", new Integer(jetty.getRequestsActive()));
-                    renderRequest.setAttribute("requestsActiveMax", new Integer(jetty.getRequestsActiveMax()));
-                    renderRequest.setAttribute("requestsDurationAve", new Long(jetty.getRequestsDurationAve()));
-                    renderRequest.setAttribute("requestsDurationMax", new Long(jetty.getRequestsDurationMax()));
-                }
+            String server = getServerType(container.getClass());
+            StatisticsHelper helper = null;
+            if(server.equals(SERVER_JETTY)) {
+                helper = new JettyStatisticsHelper();
+            } else if(server.equals(SERVER_TOMCAT)) {
+                //todo
+            }
+            if(helper != null) {
+                helper.gatherStatistics(container, renderRequest);
             }
         } catch (Exception e) {
             throw new PortletException(e);

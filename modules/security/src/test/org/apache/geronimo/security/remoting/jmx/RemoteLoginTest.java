@@ -36,20 +36,17 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.jaas.JaasLoginService;
-import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
-import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.DirectConfigurationEntry;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 
 /**
@@ -98,7 +95,7 @@ public class RemoteLoginTest extends TestCase {
         // Create all the parts
 
         serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
-        gbean = new GBeanData(serverInfo, ServerInfo.GBEAN_INFO);
+        gbean = new GBeanData(serverInfo, BasicServerInfo.GBEAN_INFO);
         gbean.setAttribute("baseDirectory", ".");
         kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
         kernel.startGBean(serverInfo);

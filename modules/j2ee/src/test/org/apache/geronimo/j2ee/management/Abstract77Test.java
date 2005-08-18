@@ -30,7 +30,7 @@ import org.apache.geronimo.j2ee.management.impl.JVMImpl;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.apache.log4j.ConsoleAppender;
@@ -58,7 +58,7 @@ public abstract class Abstract77Test extends TestCase {
 
         ClassLoader classLoader = getClass().getClassLoader();
         GBeanData gbean;
-        gbean = new GBeanData(SERVER_INFO_NAME, ServerInfo.getGBeanInfo());
+        gbean = new GBeanData(SERVER_INFO_NAME, BasicServerInfo.getGBeanInfo());
         gbean.setAttribute("baseDirectory", System.getProperty("java.io.tmpdir"));
         kernel.loadGBean(gbean, classLoader);
 

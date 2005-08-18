@@ -76,7 +76,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
 import org.apache.geronimo.tomcat.HostGBean;
@@ -368,7 +368,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.startGBean(baseConfigName);
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
         start(serverInfoGBean);
 
@@ -428,13 +428,10 @@ public class TomcatModuleBuilderTest extends TestCase {
         container.setReferencePattern("EngineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);
 
-        initParams.clear();
-        initParams.put("port", "8080");
         connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
         connector.setAttribute("name", "HTTP");
-        connector.setAttribute("initParams", initParams);
+        connector.setAttribute("port", new Integer(8080));
         connector.setReferencePattern("TomcatContainer", containerName);
-        connector.setReferencePattern("ServerInfo", serverInfoName);
 
         start(container);
         start(connector);

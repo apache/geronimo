@@ -51,6 +51,11 @@
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-servlet</artifactId>
             <version>${geronimo_spec_servlet_version}</version>

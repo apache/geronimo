@@ -34,7 +34,7 @@ specific services - those should be provided by children.
     >
 
     <!-- ServerInfo service -->
-    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo"/>
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
     <!-- URLFactory service -->
     <gbean name="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>

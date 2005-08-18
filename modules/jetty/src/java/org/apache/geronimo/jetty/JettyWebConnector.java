@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.jetty;
 
-import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebConnector;
 
 /**
  * A Jetty-specific extension to the standard Geronimo web connector interface.

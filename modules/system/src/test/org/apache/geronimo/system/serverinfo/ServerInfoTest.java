@@ -31,7 +31,7 @@ public class ServerInfoTest extends TestCase {
 
         String pathArg;
         {
-            si = new ServerInfo();
+            si = new BasicServerInfo();
             pathArg = "/";
             assertEquals(new File(pathArg).getAbsolutePath(), si.resolvePath(pathArg));
             pathArg = "/x";
@@ -53,7 +53,7 @@ public class ServerInfoTest extends TestCase {
 
         try {
             String basedir = "/";
-            si = new ServerInfo(basedir);
+            si = new BasicServerInfo(basedir);
             pathArg = "Documents and Settings/Administrator/Application Data/geronimo";
             assertEquals(new File(basedir, pathArg).getAbsolutePath(), si.resolvePath(pathArg));
         } catch (Exception e) {
@@ -77,7 +77,7 @@ public class ServerInfoTest extends TestCase {
 				file = File.createTempFile("geronimo", null);
 				// a workaround - ServerInfo sets system-wide property
 				System.setProperty("geronimo.base.dir", file.getName());
-				new ServerInfo(file.getName());
+				new BasicServerInfo(file.getName());
 				fail("ServerInfo should throw exception when given non-directory path");
 			} catch (IOException ioe) {
 				fail(ioe.getMessage());
@@ -87,7 +87,7 @@ public class ServerInfoTest extends TestCase {
 			String basedir = ".";
 			// a workaround - ServerInfo sets system-wide property
 			System.setProperty("geronimo.base.dir", basedir);
-			ServerInfo si = new ServerInfo(basedir);
+			ServerInfo si = new BasicServerInfo(basedir);
 			assertNotNull(System.getProperty("geronimo.base.dir"));
 			assertEquals("base directory is incorrect", basedir, si.getBaseDirectory());
 		} finally {

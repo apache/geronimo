@@ -44,6 +44,7 @@ import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.connector.HTTPSConnector;
 import org.apache.geronimo.jetty.connector.AJP13Connector;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.http.*;
@@ -234,6 +235,9 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);
         } else if(protocol.equals(PROTOCOL_HTTPS)) {
             connector = new GBeanData(name, HTTPSConnector.GBEAN_INFO);
+            GBeanQuery query = new GBeanQuery(null, ServerInfo.class.getName());
+            Set set = kernel.listGBeans(query);
+            connector.setReferencePattern("ServerInfo", (ObjectName)set.iterator().next());
             //todo: default HTTPS settings
         } else if(protocol.equals(PROTOCOL_AJP)) {
             connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);

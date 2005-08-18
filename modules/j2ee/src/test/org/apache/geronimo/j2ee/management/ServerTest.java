@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.j2ee.management;
 
+import org.apache.geronimo.management.J2EEServer;
 
 
 /**

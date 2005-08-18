@@ -48,7 +48,7 @@ import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
@@ -181,7 +181,7 @@ public class AbstractWebModuleTest extends TestCase {
         loginConfigurationGBean.setReferencePatterns("Configurations", configurations);
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
 
         securityServiceName = new ObjectName("geronimo.server:j2eeType=SecurityService");

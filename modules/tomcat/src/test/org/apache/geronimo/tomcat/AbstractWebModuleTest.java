@@ -50,7 +50,7 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
@@ -324,7 +324,7 @@ public class AbstractWebModuleTest extends TestCase {
 
         //ServerInfo
         serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
-        serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+        serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
         serverInfoGBean.setAttribute("baseDirectory", ".");
 
         start(serverInfoGBean);
@@ -370,14 +370,11 @@ public class AbstractWebModuleTest extends TestCase {
         container.setReferencePattern("EngineGBean", engineName);
         container.setReferencePattern("ServerInfo", serverInfoName);
 
-        initParams.clear();
-        initParams.put("port","8080");
-        initParams.put("address","0.0.0.0");
         connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
-        connector.setAttribute("initParams", initParams);
+        connector.setAttribute("port", new Integer(8080));
+        connector.setAttribute("host", "localhost");
         connector.setAttribute("name", "HTTP");
         connector.setReferencePattern("TomcatContainer", containerName);
-        connector.setReferencePattern("ServerInfo", serverInfoName);
 
         start(container);
         start(connector);

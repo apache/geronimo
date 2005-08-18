@@ -33,7 +33,7 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.j2ee.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.JVM;
 
 /**
  * Calculates various information about the server to display in the server

@@ -20,6 +20,8 @@ package org.apache.geronimo.console.webmanager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -34,18 +36,14 @@ import javax.portlet.PortletContext;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
-import org.apache.geronimo.j2ee.management.geronimo.WebConnector;
-import org.apache.geronimo.j2ee.management.geronimo.SecureConnector;
-import org.apache.geronimo.jetty.JettyContainer;
-import org.apache.geronimo.jetty.JettyWebConnector;
-import org.apache.geronimo.jetty.JettySecureConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.SecureConnector;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class ConnectorPortlet extends GenericPortlet {
+public class ConnectorPortlet extends BaseWebPortlet {
     private final static Log log = LogFactory.getLog(ConnectorPortlet.class);
 
     private PortletRequestDispatcher normalView;
@@ -61,12 +59,7 @@ public class ConnectorPortlet extends GenericPortlet {
             ActionResponse actionResponse) throws PortletException, IOException {
         String mode = actionRequest.getParameter("mode");
         WebContainer container = PortletManager.getCurrentWebContainer(actionRequest);
-        String server = "generic";
-        if(container instanceof JettyContainer) {
-            server = "jetty";
-        } else if (container instanceof TomcatContainer) {
-            server = "tomcat";
-        }
+        String server = getServerType(container.getClass());
         actionResponse.setRenderParameter("server", server);
         if(mode.equals("new")) {
             // User selected to add a new connector, need to show criteria portlet
@@ -86,9 +79,9 @@ public class ConnectorPortlet extends GenericPortlet {
             WebConnector connector = PortletManager.createWebConnector(actionRequest, name, protocol, host, port);
             connector.setMaxThreads(maxThreads);
             // todo: more configurable HTTP/Jetty values
-            if(connector instanceof JettyWebConnector) {
+            if(server.equals(SERVER_JETTY)) {
                 if(minThreads != null) {
-                    ((JettyWebConnector)connector).setMinThreads(minThreads.intValue());
+                    setProperty(connector, "minThreads", minThreads);
                 }
             }
             if(protocol.equals(WebContainer.PROTOCOL_HTTPS)) {
@@ -106,8 +99,8 @@ public class ConnectorPortlet extends GenericPortlet {
                 if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
                 if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
                 secure.setClientAuthRequired(clientAuth);
-                if(secure instanceof JettySecureConnector) {
-                    if(isValid(privateKeyPass)) {((JettySecureConnector)secure).setKeyPassword(privateKeyPass);}
+                if(server.equals(SERVER_JETTY)) {
+                    if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
                 }
             }
             // Start the connector
@@ -139,9 +132,9 @@ public class ConnectorPortlet extends GenericPortlet {
                 connector.setHost(host);
                 connector.setPort(port);
                 connector.setMaxThreads(maxThreads);
-                if(connector instanceof JettyWebConnector) {
+                if(server.equals(SERVER_JETTY)) {
                     if(minThreads != null) {
-                        ((JettyWebConnector)connector).setMinThreads(minThreads.intValue());
+                        setProperty(connector,"minThreads",minThreads);
                     }
                 }
                 if(connector instanceof SecureConnector) {
@@ -159,8 +152,8 @@ public class ConnectorPortlet extends GenericPortlet {
                     if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
                     if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
                     secure.setClientAuthRequired(clientAuth);
-                    if(secure instanceof JettySecureConnector) {
-                        if(isValid(privateKeyPass)) {((JettySecureConnector)secure).setKeyPassword(privateKeyPass);}
+                    if(server.equals(SERVER_JETTY)) {
+                        if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
                     }
                 }
             }
@@ -242,13 +235,14 @@ public class ConnectorPortlet extends GenericPortlet {
         if(mode == null || mode.equals("")) {
             mode = "list";
         }
-        renderRequest.setAttribute("server", renderRequest.getParameter("server"));
         WebContainer container = PortletManager.getCurrentWebContainer(renderRequest);
+        String server = getServerType(container.getClass());
+        renderRequest.setAttribute("server", server);
 
         if(mode.equals("new")) {
             String protocol = renderRequest.getParameter("protocol");
             renderRequest.setAttribute("maxThreads", "50");
-            if(container instanceof JettyWebConnector) {
+            if(server.equals(SERVER_JETTY)) {
                 renderRequest.setAttribute("minThreads", "10");
             }
             renderRequest.setAttribute("protocol", protocol);
@@ -278,8 +272,8 @@ public class ConnectorPortlet extends GenericPortlet {
                 renderRequest.setAttribute("host", connector.getHost());
                 int maxThreads = connector.getMaxThreads();
                 renderRequest.setAttribute("maxThreads", Integer.toString(maxThreads));
-                if(connector instanceof JettyWebConnector) {
-                    int minThreads = ((JettyWebConnector)connector).getMinThreads();
+                if(server.equals(SERVER_JETTY)) {
+                    int minThreads = ((Number)getProperty(connector, "minThreads")).intValue();
                     renderRequest.setAttribute("minThreads", String.valueOf(minThreads));
                 }
                 renderRequest.setAttribute("mode", "save");
@@ -365,4 +359,5 @@ public class ConnectorPortlet extends GenericPortlet {
     public final static boolean isValid(String s) {
         return s != null && !s.equals("");
     }
+
 }

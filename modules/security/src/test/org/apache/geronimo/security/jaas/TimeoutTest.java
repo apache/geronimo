@@ -36,6 +36,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 
 /**
@@ -78,7 +79,7 @@ public class TimeoutTest extends AbstractTest {
         kernel.startGBean(serverStub);
 
         serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
-        gbean = new GBeanData(serverInfo, ServerInfo.GBEAN_INFO);
+        gbean = new GBeanData(serverInfo, BasicServerInfo.GBEAN_INFO);
         gbean.setAttribute("baseDirectory", ".");
         kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
         kernel.startGBean(serverInfo);

@@ -254,7 +254,7 @@ public class GBeanAttribute {
 
     private void initializePersistentValue(Object value) {
         if (persistent || special) {
-            if (value == null && type.isPrimitive()) {
+            if (value == null && type.isPrimitive() && isConstructorArg) {
                 if (type == Boolean.TYPE) {
                     value = Boolean.FALSE;
                 } else if (type == Byte.TYPE) {
@@ -314,7 +314,7 @@ public class GBeanAttribute {
     }
 
     public void inject(Object target) throws Exception {
-        if ((persistent || special) && !isConstructorArg && writable) {
+        if ((persistent || special) && !isConstructorArg && writable && persistentValue != null) {
             setValue(target, persistentValue);
         }
     }

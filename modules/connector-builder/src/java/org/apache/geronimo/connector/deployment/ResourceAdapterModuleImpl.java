@@ -22,8 +22,8 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.management.J2EEApplication;
-import org.apache.geronimo.j2ee.management.J2EEServer;
+import org.apache.geronimo.management.J2EEApplication;
+import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.Kernel;

@@ -142,9 +142,14 @@
                 <repository>true</repository>
             </properties>
         </dependency>
-       <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>

@@ -303,7 +303,9 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                 if ("gbeanEnabled".equals(attributeName)) {
                     enabled = ((Boolean)attributeValue).booleanValue();
                 } else {
-                    setAttribute(attributeName, attributeValue);
+                    if(entry.getValue() != null) {
+                        setAttribute(attributeName, attributeValue);
+                    }
                 }
             }
 

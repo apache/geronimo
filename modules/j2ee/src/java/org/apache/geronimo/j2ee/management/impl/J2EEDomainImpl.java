@@ -25,7 +25,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.J2EEDomain;
+import org.apache.geronimo.management.J2EEDomain;
 
 /**
  * @version $Rev$ $Date$

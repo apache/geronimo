@@ -29,18 +29,18 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  *
  * @version $Rev$ $Date$
  */
-public class ServerInfo implements ServerInformation {
+public class BasicServerInfo implements ServerInfo {
     private final String baseDirectory;
     private final File base;
     private final URI baseURI;
 
-    public ServerInfo() {
+    public BasicServerInfo() {
         baseDirectory = null;
         base = null;
         baseURI = null;
     }
 
-    public ServerInfo(String baseDirectory) throws Exception {
+    public BasicServerInfo(String baseDirectory) throws Exception {
         this.baseDirectory = baseDirectory;
 
         // force load of server constants
@@ -127,7 +127,7 @@ public class ServerInfo implements ServerInformation {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServerInfo.class);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(BasicServerInfo.class);
 
         infoFactory.addAttribute("baseDirectory", String.class, true);
         infoFactory.addAttribute("version", String.class, false);
@@ -139,7 +139,7 @@ public class ServerInfo implements ServerInformation {
         infoFactory.addOperation("resolve", new Class[]{String.class});
         infoFactory.addOperation("resolve", new Class[]{URI.class});
 
-        infoFactory.addInterface(ServerInformation.class);
+        infoFactory.addInterface(ServerInfo.class);
 
         infoFactory.setConstructor(new String[]{"baseDirectory"});
 

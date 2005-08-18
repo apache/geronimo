@@ -18,13 +18,14 @@
 package org.apache.geronimo.j2ee.management;
 
 import java.net.InetAddress;
+import org.apache.geronimo.management.JVM;
 
 /**
  * @version $Rev$ $Date$
  */
 public class JVMTest extends Abstract77Test {
     private JVM jvm;
-    private org.apache.geronimo.j2ee.management.geronimo.JVM jvmEx;
+    private org.apache.geronimo.management.geronimo.JVM jvmEx;
     private String node;
     private Runtime runtime;
 
@@ -65,7 +66,7 @@ public class JVMTest extends Abstract77Test {
     protected void setUp() throws Exception {
         super.setUp();
         jvm = (JVM) kernel.getProxyManager().createProxy(JVM_NAME, JVM.class);
-        jvmEx = (org.apache.geronimo.j2ee.management.geronimo.JVM) kernel.getProxyManager().createProxy(JVM_NAME, org.apache.geronimo.j2ee.management.geronimo.JVM.class);
+        jvmEx = (org.apache.geronimo.management.geronimo.JVM) kernel.getProxyManager().createProxy(JVM_NAME, org.apache.geronimo.management.geronimo.JVM.class);
         node = InetAddress.getLocalHost().toString();
         runtime = Runtime.getRuntime();
     }

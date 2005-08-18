@@ -20,7 +20,7 @@ package org.apache.geronimo.jetty.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty.JettyContainer;
-import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebContainer;
 import org.mortbay.http.SocketListener;
 
 /**

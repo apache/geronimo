@@ -39,6 +39,11 @@ import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.log4j.Logger;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.Level;
 
 
 /**
@@ -126,6 +131,8 @@ public class ConfigurationEntryTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
+        Logger.getRootLogger().setLevel(Level.DEBUG);
         kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
@@ -134,7 +141,7 @@ public class ConfigurationEntryTest extends TestCase {
         // Create all the parts
 
         serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
-        gbean = new GBeanData(serverInfo, ServerInfo.GBEAN_INFO);
+        gbean = new GBeanData(serverInfo, BasicServerInfo.GBEAN_INFO);
         gbean.setAttribute("baseDirectory", ".");
         kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
         kernel.startGBean(serverInfo);

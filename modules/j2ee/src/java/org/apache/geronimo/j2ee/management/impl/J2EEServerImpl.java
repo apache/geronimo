@@ -29,9 +29,9 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.geronimo.J2EEServer;
-import org.apache.geronimo.j2ee.management.geronimo.WebContainer;
-import org.apache.geronimo.j2ee.management.geronimo.EJBContainer;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.EJBContainer;
 import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**

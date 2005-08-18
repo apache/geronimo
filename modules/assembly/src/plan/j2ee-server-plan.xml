@@ -42,6 +42,9 @@ by the server.
         <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>

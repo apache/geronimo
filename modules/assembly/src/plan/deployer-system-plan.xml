@@ -29,7 +29,7 @@ Configuration for the system layer of the Geronimo deployer
     >
 
     <!-- ServerInfo service -->
-    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.ServerInfo">
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo">
     </gbean>
 
     <!-- Configuration Store service -->

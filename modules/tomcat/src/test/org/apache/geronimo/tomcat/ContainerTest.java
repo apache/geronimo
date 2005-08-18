@@ -47,7 +47,7 @@ import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.app.MockWebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
@@ -252,7 +252,7 @@ public class ContainerTest extends TestCase {
  
        //ServerInfo
        serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
-       serverInfoGBean = new GBeanData(serverInfoName, ServerInfo.GBEAN_INFO);
+       serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
        serverInfoGBean.setAttribute("baseDirectory", ".");
        start(serverInfoGBean);
        
@@ -288,14 +288,11 @@ public class ContainerTest extends TestCase {
        container.setReferencePattern("ServerInfo", serverInfoName);
        start(container);
 
-       initParams.clear();
-       initParams.put("port","8080");
        connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
        connector.setAttribute("name", "HTTP");
-       connector.setAttribute("initParams", initParams);
+       connector.setAttribute("port", new Integer(8080));
        connector.setReferencePattern("TomcatContainer", containerName);
-       connector.setReferencePattern("ServerInfo", serverInfoName);
-       start(connector);       
+       start(connector);
    }
    
    private void tearDownWeb() throws Exception {

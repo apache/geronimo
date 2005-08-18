@@ -231,6 +231,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
