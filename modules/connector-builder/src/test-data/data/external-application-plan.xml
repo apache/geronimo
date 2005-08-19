@@ -183,7 +183,7 @@
         <reference name="TransactionContextManager"><gbean-name>*:name=TransactionContextManager,*</gbean-name></reference>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <attribute name="defaultTransactionTimeoutSeconds">10</attribute>
         <references name="ResourceManagers">
             <pattern><gbean-name>*:j2eeType=JCAManagedConnectionFactory,*</gbean-name></pattern>
@@ -191,7 +191,7 @@
         </references>
     </gbean>
 
-    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
         <reference name="TransactionManager"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
         <reference name="XidImporter"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
     </gbean>

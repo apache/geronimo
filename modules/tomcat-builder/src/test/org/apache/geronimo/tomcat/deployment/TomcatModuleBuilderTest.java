@@ -83,7 +83,9 @@ import org.apache.geronimo.tomcat.HostGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 /**
  * @version $Rev: 159325 $ $Date: 2005-03-28 15:53:03 -0700 (Mon, 28 Mar 2005) $
@@ -234,8 +236,8 @@ public class TomcatModuleBuilderTest extends TestCase {
                     }
 
                     public Reference createCORBAReference(URI corbaURL,
-                            String objectName, ObjectName containerName,
-                            String home) throws DeploymentException {
+                                                          String objectName, ObjectName containerName,
+                                                          String home) throws DeploymentException {
                         return null;
                     }
 
@@ -253,12 +255,12 @@ public class TomcatModuleBuilderTest extends TestCase {
                 }, new ResourceReferenceBuilder() {
 
                     public Reference createResourceRef(String containerId,
-                            Class iface) throws DeploymentException {
+                                                       Class iface) throws DeploymentException {
                         return null;
                     }
 
                     public Reference createAdminObjectRef(String containerId,
-                            Class iface) throws DeploymentException {
+                                                          Class iface) throws DeploymentException {
                         return null;
                     }
 
@@ -436,13 +438,13 @@ public class TomcatModuleBuilderTest extends TestCase {
         start(container);
         start(connector);
 
-        tm = new GBeanData(tmName, TransactionManagerImpl.GBEAN_INFO);
+        tm = new GBeanData(tmName, TransactionManagerImplGBean.GBEAN_INFO);
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tm);
-        tcm = new GBeanData(tcmName, TransactionContextManager.GBEAN_INFO);
+        tcm = new GBeanData(tcmName, TransactionContextManagerGBean.GBEAN_INFO);
         tcm.setReferencePattern("TransactionManager", tmName);
         start(tcm);
         ctc = new GBeanData(ctcName, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);

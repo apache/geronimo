@@ -120,7 +120,7 @@ by the app client.
         <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
     </gbean>
 
-    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
+    <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <!--no transaction log on the client-->
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
         <references name="ResourceManagers">
@@ -129,7 +129,7 @@ by the app client.
         </references>
     </gbean>
 
-    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
         <reference name="TransactionManager"><name>TransactionManager</name></reference>
         <reference name="XidImporter"><name>TransactionManager</name></reference>
     </gbean>

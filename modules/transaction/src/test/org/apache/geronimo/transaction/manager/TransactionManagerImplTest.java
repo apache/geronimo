@@ -48,7 +48,7 @@ public class TransactionManagerImplTest extends TestCase {
     TransactionManagerImpl tm;
 
     protected void setUp() throws Exception {
-        tm = new TransactionManagerImpl(10, transactionLog, resourceManagers);
+        tm = new TransactionManagerImplGBean(10, transactionLog, resourceManagers);
     }
 
     protected void tearDown() throws Exception {

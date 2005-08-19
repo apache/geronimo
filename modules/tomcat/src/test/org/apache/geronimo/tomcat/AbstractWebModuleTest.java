@@ -54,7 +54,9 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 
 /**
@@ -142,7 +144,7 @@ public class AbstractWebModuleTest extends TestCase {
         contextRealm.setAttribute("className", "org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
         contextRealm.setAttribute("initParams", initParams);
         start(contextRealm);
-        
+
         //Force a new realm name and ignore the application name
         SecurityHolder securityHolder = new SecurityHolder();
         securityHolder.setSecurityRealm(REALM_NAME);
@@ -266,7 +268,7 @@ public class AbstractWebModuleTest extends TestCase {
         Principal.PrincipalEditor principalEditor2 = new Principal.PrincipalEditor();
         principalEditor2.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean2.setAttribute("defaultPrincipal", principalEditor2.getValue());
-        
+
         start(loginConfigurationGBean);
         start(securityServiceGBean);
         start(loginServiceGBean);
@@ -276,12 +278,12 @@ public class AbstractWebModuleTest extends TestCase {
         start(propertiesRealmGBean2);
 
     }
-    
+
     protected void tearDownJAASWebApp() throws Exception{
         stop(webModuleName);
         stop(contextRealmName);
     }
-    
+
     protected void tearDownSecurity() throws Exception {
         stop(propertiesRealmName2);
         stop(propertiesRealmName);
@@ -379,13 +381,13 @@ public class AbstractWebModuleTest extends TestCase {
         start(container);
         start(connector);
 
-        tm = new GBeanData(tmName, TransactionManagerImpl.GBEAN_INFO);
+        tm = new GBeanData(tmName, TransactionManagerImplGBean.GBEAN_INFO);
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tm);
-        tcm = new GBeanData(tcmName, TransactionContextManager.GBEAN_INFO);
+        tcm = new GBeanData(tcmName, TransactionContextManagerGBean.GBEAN_INFO);
         tcm.setReferencePattern("TransactionManager", tmName);
         start(tcm);
         ctc = new GBeanData(ctcName, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);

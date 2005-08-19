@@ -17,14 +17,9 @@
 
 package org.apache.geronimo.transaction.manager;
 
+import javax.transaction.xa.Xid;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import javax.transaction.xa.Xid;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * Factory for transaction ids.
@@ -113,15 +108,4 @@ public class XidFactoryImpl implements XidFactory {
         return new XidImpl(formatId, globalTransactionid, branchQualifier);
     }
 
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(XidFactoryImpl.class, NameFactory.JTA_RESOURCE);
-        infoFactory.addInterface(XidFactory.class);
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
-    }
 }

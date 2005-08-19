@@ -17,29 +17,21 @@
 
 package org.apache.geronimo.transaction.context;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import javax.resource.spi.XATerminator;
-import javax.transaction.InvalidTransactionException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.transaction.ExtendedTransactionManager;
 import org.apache.geronimo.transaction.ImportedTransactionActiveException;
 import org.apache.geronimo.transaction.XAWork;
 import org.apache.geronimo.transaction.manager.XidImporter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import javax.resource.spi.XATerminator;
+import javax.transaction.*;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -354,38 +346,6 @@ public class TransactionContextManager implements XATerminator, XAWork {
             }
             containerTransactionContext.suspend();
         }
-    }
-
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TransactionContextManager.class, NameFactory.JTA_RESOURCE);
-
-        infoFactory.addOperation("getTransactionManager");
-        infoFactory.addOperation("getContext");
-        infoFactory.addOperation("setContext", new Class[]{TransactionContext.class});
-        infoFactory.addOperation("newContainerTransactionContext");
-        infoFactory.addOperation("newBeanTransactionContext", new Class[] {long.class});
-        infoFactory.addOperation("newUnspecifiedTransactionContext");
-        infoFactory.addOperation("resumeBeanTransactionContext",  new Class[] {TransactionContext.class});
-        infoFactory.addOperation("suspendBeanTransactionContext");
-        infoFactory.addOperation("getStatus");
-        infoFactory.addOperation("setRollbackOnly");
-        infoFactory.addOperation("setTransactionTimeout", new Class[] {int.class});
-
-        infoFactory.addReference("TransactionManager", ExtendedTransactionManager.class, NameFactory.JTA_RESOURCE);
-        infoFactory.addReference("XidImporter", XidImporter.class, NameFactory.JTA_RESOURCE);
-
-        infoFactory.addInterface(XATerminator.class);
-        infoFactory.addInterface(XAWork.class);
-
-        infoFactory.setConstructor(new String[]{"TransactionManager", "XidImporter"});
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
 }

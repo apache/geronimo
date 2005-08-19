@@ -158,7 +158,7 @@
         <property name="serverInfo"><ref bean="ServerInfo"/></property>
     </bean>
 
-    <bean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImpl">
+    <bean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <property name="defaultTransactionTimeoutSeconds"><value>600</value></property>
         <property name="transactionLog"><ref bean="HOWLTransactionLog"/></property>
         <property name="resourceManagers">
@@ -175,7 +175,7 @@
         </property>
     </bean>
 
-    <bean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManager">
+    <bean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
         <property name="transactionManager"><ref bean="TransactionManager"/></property>
         <property name="xidImporter"><ref bean="TransactionManager"/></property>
     </bean>

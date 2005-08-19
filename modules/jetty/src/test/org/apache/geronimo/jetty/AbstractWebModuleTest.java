@@ -51,7 +51,9 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
+import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 import org.mortbay.jetty.servlet.FormAuthenticator;
 
 
@@ -280,13 +282,13 @@ public class AbstractWebModuleTest extends TestCase {
         start(container);
         start(connector);
 
-        tm = new GBeanData(tmName, TransactionManagerImpl.GBEAN_INFO);
+        tm = new GBeanData(tmName, TransactionManagerImplGBean.GBEAN_INFO);
         Set patterns = new HashSet();
         patterns.add(ObjectName.getInstance("geronimo.server:j2eeType=JCAManagedConnectionFactory,*"));
         tm.setAttribute("defaultTransactionTimeoutSeconds", new Integer(10));
         tm.setReferencePatterns("ResourceManagers", patterns);
         start(tm);
-        tcm = new GBeanData(tcmName, TransactionContextManager.GBEAN_INFO);
+        tcm = new GBeanData(tcmName, TransactionContextManagerGBean.GBEAN_INFO);
         tcm.setReferencePattern("TransactionManager", tmName);
         start(tcm);
         ctc = new GBeanData(ctcName, ConnectionTrackingCoordinatorGBean.GBEAN_INFO);
