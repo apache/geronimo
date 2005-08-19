@@ -24,8 +24,6 @@ import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.SystemException;
 import javax.transaction.xa.XAResource;
 
-import org.apache.geronimo.gbean.DynamicGBean;
-import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
@@ -37,10 +35,9 @@ import org.apache.geronimo.transaction.manager.WrapperNamedXAResource;
  *
  * @version $Rev$ $Date$
  */
-public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
+public class ActivationSpecWrapper implements ResourceManager {
 
-    private final DynamicGBeanDelegate delegate;
-    private final ActivationSpec activationSpec;
+    protected final ActivationSpec activationSpec;
 
     private final ResourceAdapterWrapper resourceAdapterWrapper;
     private final String containerId;
@@ -50,7 +47,6 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
      */
     public ActivationSpecWrapper() {
         activationSpec = null;
-        delegate = null;
         containerId = null;
         resourceAdapterWrapper = null;
     }
@@ -67,9 +63,7 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
                                  final ResourceAdapterWrapper resourceAdapterWrapper,
                                  final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         Class clazz = cl.loadClass(activationSpecClass);
-        activationSpec = (ActivationSpec) clazz.newInstance();
-        delegate = new DynamicGBeanDelegate();
-        delegate.addAll(activationSpec);
+        this.activationSpec = (ActivationSpec) clazz.newInstance();
         this.containerId = containerId;
         this.resourceAdapterWrapper = resourceAdapterWrapper;
     }
@@ -80,7 +74,6 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
         this.activationSpec = activationSpec;
         this.resourceAdapterWrapper = resourceAdapterWrapper;
         this.containerId = null;
-        this.delegate=null;
     }
 
     /**
@@ -100,43 +93,6 @@ public class ActivationSpecWrapper implements ResourceManager, DynamicGBean {
         return resourceAdapterWrapper;
     }
 
-    //DynamicGBean implementation
-
-    /**
-     * Delegating DynamicGBean getAttribute method.
-     *
-     * @param name of attribute.
-     * @return attribute value.
-     * @throws Exception
-     */
-    public Object getAttribute(final String name) throws Exception {
-        return delegate.getAttribute(name);
-    }
-
-    /**
-     * Delegating DynamicGBean setAttribute method.
-     *
-     * @param name  of attribute.
-     * @param value of attribute to be set.
-     * @throws Exception
-     */
-    public void setAttribute(final String name, final Object value) throws Exception {
-        delegate.setAttribute(name, value);
-    }
-
-    /**
-     * no-op DynamicGBean method
-     *
-     * @param name
-     * @param arguments
-     * @param types
-     * @return nothing, there are no operations.
-     * @throws Exception
-     */
-    public Object invoke(final String name, final Object[] arguments, final String[] types) throws Exception {
-        //we have no dynamic operations.
-        return null;
-    }
 
     //GBeanLifecycle implementation
     public void activate(final MessageEndpointFactory messageEndpointFactory) throws ResourceException {

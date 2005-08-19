@@ -292,7 +292,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         ResourceadapterType resourceadapter = ((ConnectorType) specDD).getResourceadapter();
         // Create the resource adapter gbean
         if (resourceadapter.isSetResourceadapterClass()) {
-            GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapper.class, ResourceAdapterWrapperGBean.GBEAN_INFO);
+            GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, ResourceAdapterWrapperGBean.GBEAN_INFO);
             GBeanData resourceAdapterGBeanData = setUpDynamicGBean(resourceAdapterInfoBuilder, resourceadapter.getConfigPropertyArray(), cl);
 
             resourceAdapterGBeanData.setAttribute("resourceAdapterClass", resourceadapter.getResourceadapterClass().getStringValue().trim());
@@ -518,7 +518,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             String messageListenerInterface = messagelistenerType.getMessagelistenerType().getStringValue().trim();
             ActivationspecType activationspec = messagelistenerType.getActivationspec();
             String activationSpecClassName = activationspec.getActivationspecClass().getStringValue().trim();
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapper.class, ActivationSpecWrapperGBean.GBEAN_INFO);
+            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapperGBean.class, ActivationSpecWrapperGBean.GBEAN_INFO);
 
             //add all javabean properties that have both getter and setter.  Ignore the "required" flag from the dd.
             Map getters = new HashMap();

@@ -21,20 +21,48 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterAssociation;
 
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
+import org.apache.geronimo.gbean.DynamicGBean;
+import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * 
  * @version $Revision$
  */
-public class ResourceAdapterWrapperGBean {
-    
+public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
+
+    private final DynamicGBeanDelegate delegate;
+
+    public ResourceAdapterWrapperGBean() {
+        delegate=null;
+    }
+
+    public ResourceAdapterWrapperGBean(final String resourceAdapterClass, final GeronimoWorkManager workManager, ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        super(resourceAdapterClass, workManager, cl);
+        delegate = new DynamicGBeanDelegate();
+        delegate.addAll(resourceAdapter);
+    }
+
+    public Object getAttribute(String name) throws Exception {
+        return delegate.getAttribute(name);
+    }
+
+    public void setAttribute(String name, Object value) throws Exception {
+        delegate.setAttribute(name, value);
+    }
+
+    public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
+        //we have no dynamic operations
+        return null;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 

@@ -21,6 +21,7 @@ import javax.resource.spi.work.WorkManager;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
@@ -28,12 +29,23 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  * 
  * @version $Revision$
  */
-public class GeronimoWorkManagerGBean {
-    
+public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBeanLifecycle {
+
+    public GeronimoWorkManagerGBean() {
+    }
+
+    public GeronimoWorkManagerGBean(int size, TransactionContextManager transactionContextManager) {
+        super(size, transactionContextManager);
+    }
+
+    public GeronimoWorkManagerGBean(int syncSize, int startSize, int schedSize, TransactionContextManager transactionContextManager) {
+        super(syncSize, startSize, schedSize, transactionContextManager);
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoWorkManager.class, NameFactory.JCA_WORK_MANAGER);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GeronimoWorkManagerGBean.class, NameFactory.JCA_WORK_MANAGER);
         infoFactory.addInterface(WorkManager.class);
 
         infoFactory.addAttribute("syncMaximumPoolSize", Integer.TYPE, true);
@@ -56,5 +68,7 @@ public class GeronimoWorkManagerGBean {
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-    
+
+
+
 }

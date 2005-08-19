@@ -135,7 +135,7 @@
 
     <bean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator"/>
 
-    <bean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+    <bean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
         <property name="syncMaximumPoolSize"><value>10</value></property>
         <property name="startMaximumPoolSize"><value>10</value></property>
         <property name="scheduledMaximumPoolSize"><value>10</value></property>

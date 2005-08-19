@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.connector;
 
+import org.apache.geronimo.connector.work.GeronimoWorkManager;
+
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.BootstrapContext;
@@ -26,26 +28,20 @@ import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 
-import org.apache.geronimo.connector.work.GeronimoWorkManager;
-import org.apache.geronimo.gbean.DynamicGBean;
-import org.apache.geronimo.gbean.DynamicGBeanDelegate;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-
 /**
  * Dynamic GBean wrapper around a ResourceAdapter object, exposing the config-properties as
  * GBean attributes.
  *
  * @version $Rev$ $Date$
  */
-public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, ResourceAdapter {
+public class ResourceAdapterWrapper implements ResourceAdapter {
 
     private final String resourceAdapterClass;
 
     private final BootstrapContext bootstrapContext;
 
-    private final ResourceAdapter resourceAdapter;
+    protected final ResourceAdapter resourceAdapter;
 
-    private final DynamicGBeanDelegate delegate;
 
     /**
      *  default constructor for enhancement proxy endpoint
@@ -54,7 +50,6 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         this.resourceAdapterClass = null;
         this.bootstrapContext = null;
         this.resourceAdapter = null;
-        this.delegate = null;
     }
 
     public ResourceAdapterWrapper(final String resourceAdapterClass,
@@ -64,15 +59,12 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
         this.bootstrapContext = new BootstrapContextImpl(workManager);
         Class clazz = cl.loadClass(resourceAdapterClass);
         resourceAdapter = (ResourceAdapter) clazz.newInstance();
-        delegate = new DynamicGBeanDelegate();
-        delegate.addAll(resourceAdapter);
     }
     
     public ResourceAdapterWrapper(ResourceAdapter resourceAdapter, final GeronimoWorkManager workManager) {
         this.resourceAdapterClass = resourceAdapter.getClass().getName();
         this.bootstrapContext = new BootstrapContextImpl(workManager);
         this.resourceAdapter = resourceAdapter;
-        this.delegate=null;
     }
 
     public String getResourceAdapterClass() {
@@ -115,19 +107,5 @@ public class ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, Res
     public void doFail() {
         resourceAdapter.stop();
     }
-
-    public Object getAttribute(String name) throws Exception {
-        return delegate.getAttribute(name);
-    }
-
-    public void setAttribute(String name, Object value) throws Exception {
-        delegate.setAttribute(name, value);
-    }
-
-    public Object invoke(String name, Object[] arguments, String[] types) throws Exception {
-        //we have no dynamic operations
-        return null;
-    }
-
 
 }

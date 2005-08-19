@@ -17,6 +17,15 @@
 
 package org.apache.geronimo.connector.work;
 
+import EDU.oswego.cs.dl.util.concurrent.Executor;
+import org.apache.geronimo.connector.work.pool.NullWorkExecutorPool;
+import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutor;
+import org.apache.geronimo.connector.work.pool.StartWorkExecutor;
+import org.apache.geronimo.connector.work.pool.SyncWorkExecutor;
+import org.apache.geronimo.connector.work.pool.WorkExecutor;
+import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
+import org.apache.geronimo.transaction.context.TransactionContextManager;
+
 import javax.resource.spi.XATerminator;
 import javax.resource.spi.work.ExecutionContext;
 import javax.resource.spi.work.Work;
@@ -24,17 +33,6 @@ import javax.resource.spi.work.WorkCompletedException;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkListener;
 import javax.resource.spi.work.WorkManager;
-
-import org.apache.geronimo.connector.work.pool.NullWorkExecutorPool;
-import org.apache.geronimo.connector.work.pool.ScheduleWorkExecutor;
-import org.apache.geronimo.connector.work.pool.StartWorkExecutor;
-import org.apache.geronimo.connector.work.pool.SyncWorkExecutor;
-import org.apache.geronimo.connector.work.pool.WorkExecutor;
-import org.apache.geronimo.connector.work.pool.WorkExecutorPool;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
-
-import EDU.oswego.cs.dl.util.concurrent.Executor;
 
 /**
  * WorkManager implementation which uses under the cover three WorkExecutorPool
@@ -46,7 +44,7 @@ import EDU.oswego.cs.dl.util.concurrent.Executor;
  *
  * @version $Rev$ $Date$
  */
-public class GeronimoWorkManager implements WorkManager, GBeanLifecycle {
+public class GeronimoWorkManager implements WorkManager {
 
     private final static int DEFAULT_POOL_SIZE = 10;
 
