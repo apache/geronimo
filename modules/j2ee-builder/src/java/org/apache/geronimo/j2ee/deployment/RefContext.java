@@ -127,6 +127,11 @@ public class RefContext {
 
     public String getAdminObjectContainerId(URI module, String resourceLink, NamingContext context) throws UnresolvedReferenceException {
         J2eeContext j2eeContext = context.getJ2eeContext();
+        //TODO deal correctly with message-destination-links and message-destination elements. see GERONIMO-892
+        int pos = resourceLink.indexOf('#');
+        if (pos > -1) {
+            resourceLink = resourceLink.substring(pos + 1);
+        }
         ObjectName containerName = locateComponentName(resourceLink, module, NameFactory.JCA_RESOURCE, NameFactory.JCA_ADMIN_OBJECT, j2eeContext, context, "admin object");
         return containerName.getCanonicalName();
     }
@@ -218,7 +223,7 @@ public class RefContext {
         GBeanData match = locateComponentInModule(resourceLink, moduleURI, moduleType, type, j2eeContext, queryType, context);
         if (match == null) {
             //if we got this far we resourceLink has no #.  look in "any module" in this application
-            match = locateGBeanInContext(null, "*", resourceLink, type, j2eeContext, queryType, context);
+            match = locateGBeanInContext(null, "*", resourceLink, type, j2eeContext, queryType, context, true);
         }
         return match;
     }
@@ -231,22 +236,19 @@ public class RefContext {
         if (resourceLink.indexOf('#') > -1) {
             //presence of # means they explicitly want only gbeans in specified module in this application.
             module = moduleURI.resolve(resourceLink).getPath();
-            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context);
-            if (match == null) {
-                throw new UnresolvedReferenceException("Could not resolve reference: " + resourceLink, false, null);
-            }
+            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context, false);
         } else {
             //no # means look first in current module in this application
             //module will be emply string if this is a standalone module
             if (module.equals("")) {
                 module = "*";
             }
-            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context);
+            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context, true);
         }
         return match;
     }
 
-    private GBeanData locateGBeanInContext(String moduleType, String moduleName, String name, String type, J2eeContext j2eeContext, String queryType, NamingContext context) throws UnresolvedReferenceException {
+    private GBeanData locateGBeanInContext(String moduleType, String moduleName, String name, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean acceptNull) throws UnresolvedReferenceException {
         ObjectName match = null;
         ObjectName query = null;
         //TODO make sure this is reasonable
@@ -266,7 +268,11 @@ public class RefContext {
             match = (ObjectName) matches.iterator().next();
         }
         if (match == null) {
-            return null;
+            if (acceptNull) {
+                return null;
+            } else {
+                throw new UnresolvedReferenceException("Could not resolve reference: module: " + moduleName + ", component name: " + name, false, query.toString());
+            }
         }
         try {
             GBeanData data = context.getGBeanInstance(match);
