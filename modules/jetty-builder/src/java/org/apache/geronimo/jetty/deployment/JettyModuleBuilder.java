@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.jacc.WebResourcePermission;
@@ -131,6 +132,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final Collection defaultFilters;
     private final Collection defaultFilterMappings;
     private final GBeanData pojoWebServiceTemplate;
+    private final boolean defaultContextPriorityClassloader;
 
     private final WebServiceBuilder webServiceBuilder;
 
@@ -142,6 +144,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     public JettyModuleBuilder(URI defaultParentId,
                               Integer defaultSessionTimeoutSeconds,
+                              boolean defaultContextPriorityClassloader,
                               List defaultWelcomeFiles,
                               ObjectName jettyContainerObjectName,
                               Collection defaultServlets,
@@ -153,6 +156,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               Kernel kernel) throws GBeanNotFoundException {
         this.defaultParentId = defaultParentId;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
+        this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.jettyContainerObjectName = jettyContainerObjectName;
         this.defaultServlets = defaultServlets;
         this.defaultFilters = defaultFilters;
@@ -218,7 +222,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
         // parse vendor dd
         GerWebAppType jettyWebApp = getJettyWebApp(plan, moduleFile, standAlone, targetPath, webApp);
         if (contextRoot == null) {
-            contextRoot = jettyWebApp.getContextRoot();
+            if (jettyWebApp.isSetContextRoot()) {
+                contextRoot = jettyWebApp.getContextRoot();
+            } else {
+                contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
+            }
         }
 
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
@@ -321,15 +329,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 jettyWebApp = (GerWebAppType) SchemaConversionUtils.convertToGeronimoServiceSchema(jettyWebApp);
                 SchemaConversionUtils.validateDD(jettyWebApp);
             } else {
-                String path;
-                if (standAlone) {
-                    // default configId is based on the moduleFile name
-                    path = new File(moduleFile.getName()).getName();
-                } else {
-                    // default configId is based on the module uri from the application.xml
-                    path = targetPath;
-                }
-                jettyWebApp = createDefaultPlan(path, webApp);
+                String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
+                jettyWebApp = createDefaultPlan(defaultContextRoot);
             }
         } catch (XmlException e) {
             e.printStackTrace();
@@ -338,27 +339,45 @@ public class JettyModuleBuilder implements ModuleBuilder {
         return jettyWebApp;
     }
 
-    private GerWebAppType createDefaultPlan(String path, WebAppType webApp) {
-        String id = webApp.getId();
-        if (id == null) {
-            id = path;
-            if (id.endsWith(".war")) {
-                id = id.substring(0, id.length() - 4);
-            }
-            if (id.endsWith("/")) {
-                id = id.substring(0, id.length() - 1);
-            }
+    private String determineDefaultContextRoot(WebAppType webApp, boolean isStandAlone, JarFile moduleFile, String targetPath) {
+
+        if (webApp != null && webApp.getId() != null) {
+            return webApp.getId();
+         }
+
+        if (isStandAlone) {
+            // default configId is based on the moduleFile name
+            return trimPath(new File(moduleFile.getName()).getName());
         }
 
-        GerWebAppType jettyWebApp = GerWebAppType.Factory.newInstance();
+        // default configId is based on the module uri from the application.xml
+        return trimPath(targetPath);
+    }
+
+    private String trimPath(String path) {
+
+        if (path == null) {
+            return null;
+        }
+
+        if (path.endsWith(".war")) {
+            path = path.substring(0, path.length() - 4);
+        }
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        return path;
+    }
+
+    private GerWebAppType createDefaultPlan(String contextRoot) {
+       GerWebAppType jettyWebApp = GerWebAppType.Factory.newInstance();
 
         // set the parentId, configId and context root
         jettyWebApp.setParentId(defaultParentId.toString());
-        if (null != webApp.getId()) {
-            id = webApp.getId();
-        }
-        jettyWebApp.setConfigId(id);
-        jettyWebApp.setContextRoot(id);
+        jettyWebApp.setConfigId(contextRoot);
+        jettyWebApp.setContextRoot(contextRoot);
+        jettyWebApp.setContextPriorityClassloader(defaultContextPriorityClassloader);
         return jettyWebApp;
     }
 
@@ -407,9 +426,9 @@ public class JettyModuleBuilder implements ModuleBuilder {
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         GerWebAppType jettyWebApp = (GerWebAppType) webModule.getVendorDD();
 
-        boolean contextPriorityClassLoader = false;
-        if (jettyWebApp != null) {
-            contextPriorityClassLoader = Boolean.valueOf(jettyWebApp.getContextPriorityClassloader()).booleanValue();
+        boolean contextPriorityClassLoader = defaultContextPriorityClassloader;
+        if (jettyWebApp != null && jettyWebApp.isSetContextPriorityClassloader()) {
+            contextPriorityClassLoader = jettyWebApp.getContextPriorityClassloader();
         }
         // construct the webClassLoader
         ClassLoader webClassLoader = getWebClassLoader(earContext, webModule, cl, contextPriorityClassLoader);
@@ -1339,6 +1358,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true);
+        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true);
         infoBuilder.addAttribute("jettyContainerObjectName", ObjectName.class, true);
         infoBuilder.addReference("DefaultServlets", Object.class);
@@ -1353,6 +1373,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
         infoBuilder.setConstructor(new String[]{
             "defaultParentId",
             "defaultSessionTimeoutSeconds",
+            "defaultContextPriorityClassloader",
             "defaultWelcomeFiles",
             "jettyContainerObjectName",
             "DefaultServlets",

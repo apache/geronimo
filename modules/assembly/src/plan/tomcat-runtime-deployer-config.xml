@@ -19,6 +19,7 @@
 
     <gbean name="WebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
+        <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="tomcatContainerObjectName">geronimo.server:name=WebContainer,*</attribute>
         <reference name="WebServiceBuilder"><name>WebServiceBuilder</name></reference>
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>

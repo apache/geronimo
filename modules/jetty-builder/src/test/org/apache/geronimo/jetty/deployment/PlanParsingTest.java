@@ -3,6 +3,7 @@ package org.apache.geronimo.jetty.deployment;
 import java.io.File;
 import java.util.HashSet;
 import java.util.jar.JarFile;
+import java.net.URI;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -13,6 +14,8 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
 
 /**
  */
@@ -24,7 +27,7 @@ public class PlanParsingTest extends TestCase {
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(null, new Integer(1800), null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
+        builder = new JettyModuleBuilder(URI.create("defaultParent"), new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
     }
 
     public void testContents() throws Exception {
@@ -63,19 +66,83 @@ public class PlanParsingTest extends TestCase {
 
     public void testConstructPlan() throws Exception {
         GerWebAppDocument jettyWebAppDoc = GerWebAppDocument.Factory.newInstance();
-        GerWebAppType jettyWebAppType = jettyWebAppDoc.addNewWebApp();
-        jettyWebAppType.setConfigId("configId");
-        jettyWebAppType.setParentId("parentId");
-        jettyWebAppType.setContextPriorityClassloader(false);
-        GerResourceRefType ref = jettyWebAppType.addNewResourceRef();
+        GerWebAppType GerWebAppType = jettyWebAppDoc.addNewWebApp();
+        GerWebAppType.setConfigId("configId");
+        GerWebAppType.setParentId("parentId");
+        GerWebAppType.setContextPriorityClassloader(false);
+        GerResourceRefType ref = GerWebAppType.addNewResourceRef();
         ref.setRefName("ref");
         ref.setTargetName("target");
 
-        SchemaConversionUtils.validateDD(jettyWebAppType);
-        System.out.println(jettyWebAppType.toString());
+        SchemaConversionUtils.validateDD(GerWebAppType);
+        System.out.println(GerWebAppType.toString());
     }
 
-    public void testParseSpecDD() {
+    public void testContextPriorityClassloader() throws Exception {
+        File resourcePlan = new File(basedir, "src/test-resources/plans/plan3.xml");
+        assertTrue(resourcePlan.exists());
+
+        GerWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, false, null, null);
+        assertFalse(jettyWebApp.getContextPriorityClassloader());
+    }
+
+    public void testContextPriorityClassloaderTrue() throws Exception {
+        File resourcePlan = new File(basedir, "src/test-resources/plans/plan4.xml");
+        assertTrue(resourcePlan.exists());
+
+        GerWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, false, null, null);
+        assertTrue(jettyWebApp.getContextPriorityClassloader());
+
+    }
+
+    public void testContextRootWithPlanAndContextSet() throws Exception {
+
+        GerWebAppDocument jettyWebAppDoc = GerWebAppDocument.Factory.newInstance();
+        GerWebAppType GerWebAppType = jettyWebAppDoc.addNewWebApp();
+        GerWebAppType.setConfigId("myId");
+        GerWebAppType.setContextRoot("myContextRoot");
+        GerWebAppType.setContextPriorityClassloader(false);
+
+        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+
+        GerWebAppType = builder.getJettyWebApp(GerWebAppType, dummyFile, true, null, null);
+
+        assertEquals("myContextRoot", GerWebAppType.getContextRoot());
+
+    }
+
+    public void testContextRootWithoutPlanStandAlone() throws Exception {
+
+        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+        GerWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, true, null, null);
+
+        assertEquals("war2", GerWebAppType.getContextRoot());
+
+    }
+
+    public void testContextRootWithoutPlanAndTargetPath() throws Exception {
+
+        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+        GerWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", null);
+
+        assertEquals("myTargetPath", GerWebAppType.getContextRoot());
+
+    }
+
+    public void testContextRootWithoutPlanButWebApp() throws Exception {
+
+        WebAppDocument webAppDocument = WebAppDocument.Factory.newInstance();
+        WebAppType webAppType = webAppDocument.addNewWebApp();
+        webAppType.setId("myId");
+
+        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+        GerWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", webAppType);
+
+        assertEquals("myId", GerWebAppType.getContextRoot());
+
+    }
+
+     public void testParseSpecDD() {
 
     }
 }

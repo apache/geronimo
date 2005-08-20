@@ -388,7 +388,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         WebServiceBuilder webServiceBuilder = new AxisBuilder();
 
-        builder = new TomcatModuleBuilder(new URI("null"), containerName, webServiceBuilder, null);
+        builder = new TomcatModuleBuilder(new URI("null"), false, containerName, webServiceBuilder, null);
 
         // Default Realm
         Map initParams = new HashMap();

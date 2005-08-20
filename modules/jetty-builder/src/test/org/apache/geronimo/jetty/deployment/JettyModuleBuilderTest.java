@@ -282,7 +282,7 @@ public class JettyModuleBuilderTest extends TestCase {
         start(securityServiceGBean);
 
 
-        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
+        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
 
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 

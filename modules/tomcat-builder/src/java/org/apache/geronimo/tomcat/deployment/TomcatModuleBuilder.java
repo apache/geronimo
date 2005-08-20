@@ -103,6 +103,7 @@ import org.apache.xmlbeans.XmlObject;
 public class TomcatModuleBuilder implements ModuleBuilder {
 
     private final URI defaultParentId;
+    private final boolean defaultContextPriorityClassloader;
     private final ObjectName tomcatContainerObjectName;
 
     private final WebServiceBuilder webServiceBuilder;
@@ -110,10 +111,12 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     private final Repository repository;
 
     public TomcatModuleBuilder(URI defaultParentId,
+                               boolean defaultContextPriorityClassloader,
                                ObjectName tomcatContainerObjectName,
                                WebServiceBuilder webServiceBuilder,
                                Repository repository) {
         this.defaultParentId = defaultParentId;
+        this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.tomcatContainerObjectName = tomcatContainerObjectName;
         this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
@@ -200,7 +203,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         module.setContextRoot(contextRoot);
         return module;
     }
-
+        
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
      * will only have one, which is what this method is intended for.
@@ -336,9 +339,9 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         GerWebAppType tomcatWebApp = (GerWebAppType) webModule.getVendorDD();
 
-        boolean contextPriorityClassLoader = false;
-        if (tomcatWebApp != null) {
-            contextPriorityClassLoader = Boolean.valueOf(tomcatWebApp.getContextPriorityClassloader()).booleanValue();
+        boolean contextPriorityClassLoader = defaultContextPriorityClassloader;
+        if (tomcatWebApp != null && tomcatWebApp.isSetContextPriorityClassloader()) {
+            contextPriorityClassLoader = tomcatWebApp.getContextPriorityClassloader();
         }
         // construct the webClassLoader
         ClassLoader webClassLoader = getWebClassLoader(earContext, webModule, cl, contextPriorityClassLoader);
@@ -415,7 +418,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                         webModuleData.setAttribute("crossContext",new Boolean(true));
                     }
                 }
-                
+
                 //Is there a Tomcat realm declaration?
                 String tomcatRealm = (String) values.remove("TomcatRealm");
                 if (tomcatRealm != null) {
@@ -833,7 +836,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, GerWebAppType tomcatWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {
         return ENCConfigBuilder.buildComponentContext(earContext,
-                earContext, 
+                earContext,
                 webModule,
                 userTransaction,
                 webApp.getEnvEntryArray(),
@@ -954,6 +957,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true);
         infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
@@ -961,6 +965,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
         infoBuilder.setConstructor(new String[]{
             "defaultParentId",
+            "defaultContextPriorityClassloader",
             "tomcatContainerObjectName",
             "WebServiceBuilder",
             "Repository"});

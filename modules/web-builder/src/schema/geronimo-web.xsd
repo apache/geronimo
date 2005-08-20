@@ -81,7 +81,7 @@
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
-            <xs:element name="context-priority-classloader" type="xs:boolean"/>
+            <xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>
             <xs:element name="container-config" type="web:container-configType" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:sequence minOccurs="0">
