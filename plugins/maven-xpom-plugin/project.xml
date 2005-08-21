@@ -19,7 +19,7 @@
 <project>
     <pomVersion>3</pomVersion>
     <!--extend>${basedir}/../../etc/project.xml</extend-->
-    
+
     <groupId>geronimo</groupId>
     <id>geronimo-xpom-plugin</id>
     <name>Geronimo maven xpom plugin</name>
@@ -33,7 +33,7 @@
     <logo></logo>
 
     <currentVersion>1.0-SNAPSHOT</currentVersion>
-    
+
     <dependencies>
 
       <dependency>
@@ -48,7 +48,7 @@
       </dependency>
       <dependency>
         <id>commons-jelly</id>
-        <version>1.0-beta-4</version>
+        <version>1.0</version>
         <url>http://jakarta.apache.org/commons/jelly/</url>
       </dependency>
       <dependency>
