@@ -47,7 +47,8 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <id>commons-jelly</id>
+          <groupId>commons-jelly</groupId>
+          <artifactId>commons-jelly</artifactId>
         <version>1.0</version>
         <url>http://jakarta.apache.org/commons/jelly/</url>
       </dependency>
