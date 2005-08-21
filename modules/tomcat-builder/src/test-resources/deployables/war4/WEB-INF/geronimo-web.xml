@@ -6,9 +6,9 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,10 +21,11 @@
     configId="org/apache/geronimo/test">
 
     <context-root>/test</context-root>
+    <virtual-host>tomcathost</virtual-host>
     <context-priority-classloader>false</context-priority-classloader>
     <container-config container="Tomcat">
         <config-param name="TomcatRealm" >TomcatRealm</config-param>
-        <config-param name="TomcatValveChain">FirstValve</config-param> 
+        <config-param name="TomcatValveChain">FirstValve</config-param>
     </container-config>
 
     <security-realm-name>test</security-realm-name>
@@ -33,7 +34,7 @@
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="metro"/>
         </default-principal>
     </security>
-     
+
     <gbean name="TomcatRealm" class="org.apache.geronimo.tomcat.RealmGBean">
         <attribute name="className">org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm</attribute>
         <attribute name="initParams">
@@ -41,18 +42,18 @@
             roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
         </attribute>
     </gbean>
- 
+
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
         <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SecondValve</name></reference>
     </gbean>
-    
+
     <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
         <attribute name="initParams">
-            prefix=localhost_access_log. 
+            prefix=localhost_access_log.
             suffix=.txt
             pattern=common
         </attribute>
-    </gbean>   
+    </gbean>
 </web-app>

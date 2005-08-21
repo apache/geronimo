@@ -203,7 +203,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         module.setContextRoot(contextRoot);
         return module;
     }
-        
+
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
      * will only have one, which is what this method is intended for.
@@ -392,6 +392,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             webModuleData.setReferencePattern("Container", tomcatContainerObjectName);
 
             String virtualServer = null;
+            String[] hosts = tomcatWebApp.getVirtualHostArray();
+            if (hosts.length > 0) {
+                virtualServer = hosts[0].trim();
+            }
             // Process the Tomcat container-config elements
             if (tomcatWebApp != null && tomcatWebApp.sizeOfContainerConfigArray() > 0) {
                 Map values = new HashMap();
@@ -407,7 +411,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                         values.put(param.getName(), param.getStringValue());
                     }
                 }
-
+                //TODO remove and use only explicit virtual hosts?
                 //Is there a Tomcat virtual server declaration?
                 virtualServer = (String) values.remove("VirtualServer");
 

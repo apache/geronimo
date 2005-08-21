@@ -333,7 +333,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 jettyWebApp = createDefaultPlan(defaultContextRoot);
             }
         } catch (XmlException e) {
-            e.printStackTrace();
             throw new DeploymentException("xml problem", e);
         }
         return jettyWebApp;
@@ -343,7 +342,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
         if (webApp != null && webApp.getId() != null) {
             return webApp.getId();
-         }
+        }
 
         if (isStandAlone) {
             // default configId is based on the moduleFile name
@@ -371,7 +370,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     private GerWebAppType createDefaultPlan(String contextRoot) {
-       GerWebAppType jettyWebApp = GerWebAppType.Factory.newInstance();
+        GerWebAppType jettyWebApp = GerWebAppType.Factory.newInstance();
 
         // set the parentId, configId and context root
         jettyWebApp.setParentId(defaultParentId.toString());
@@ -400,7 +399,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             // add the manifest classpath entries declared in the war to the class loader
             // we have to explicitly add these since we are unpacking the web module
-            // and the url class loader will not pick up a manifiest from an unpacked dir
+            // and the url class loader will not pick up a manifest from an unpacked dir
             earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
 
             // add the dependencies declared in the geronimo-web.xml file
@@ -427,16 +426,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
         GerWebAppType jettyWebApp = (GerWebAppType) webModule.getVendorDD();
 
         boolean contextPriorityClassLoader = defaultContextPriorityClassloader;
-        if (jettyWebApp != null && jettyWebApp.isSetContextPriorityClassloader()) {
+        if (jettyWebApp.isSetContextPriorityClassloader()) {
             contextPriorityClassLoader = jettyWebApp.getContextPriorityClassloader();
         }
         // construct the webClassLoader
         ClassLoader webClassLoader = getWebClassLoader(earContext, webModule, cl, contextPriorityClassLoader);
 
-        if (jettyWebApp != null) {
-            GbeanType[] gbeans = jettyWebApp.getGbeanArray();
-            ServiceConfigBuilder.addGBeans(gbeans, webClassLoader, moduleJ2eeContext, earContext);
-        }
+        GbeanType[] gbeans = jettyWebApp.getGbeanArray();
+        ServiceConfigBuilder.addGBeans(gbeans, webClassLoader, moduleJ2eeContext, earContext);
 
         ObjectName webModuleName = null;
         try {
@@ -461,7 +458,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
             Map rolePermissions = new HashMap();
 
             webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
-            webModuleData.setAttribute("componentContext", compContext);
+
+            String[] hosts = jettyWebApp.getVirtualHostArray();
+            for (int i = 0; i < hosts.length; i++) {
+                hosts[i] = hosts[i].trim();
+            }
+            webModuleData.setAttribute("virtualHosts", hosts);
+
+                webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
             //classpath may have been augmented with enhanced classes
             webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
