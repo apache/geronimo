@@ -17,37 +17,37 @@
 
 package org.apache.geronimo.jetty;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.ArrayList;
-
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanQuery;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.webservices.SoapHandler;
-import org.apache.geronimo.webservices.WebServiceContainer;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.NoSuchOperationException;
-import org.apache.geronimo.kernel.management.StateManageable;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.jetty.connector.AJP13Connector;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.connector.HTTPSConnector;
-import org.apache.geronimo.jetty.connector.AJP13Connector;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.mortbay.http.*;
+import org.apache.geronimo.webservices.SoapHandler;
+import org.apache.geronimo.webservices.WebServiceContainer;
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.HttpListener;
+import org.mortbay.http.RequestLog;
+import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
 /**
@@ -162,8 +162,9 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         server.removeRealm(realm.getName());
     }
 
-    public void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
+    public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
         JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
+        webServiceContext.setHosts(virtualHosts);
         addContext(webServiceContext);
         webServiceContext.start();
         webServices.put(contextPath, webServiceContext);
@@ -198,7 +199,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         for (Iterator it = names.iterator(); it.hasNext();) {
             ObjectName name = (ObjectName) it.next();
             try {
-                if(kernel.getAttribute(name, "protocol").equals(protocol)) {
+                if (kernel.getAttribute(name, "protocol").equals(protocol)) {
                     result.add(name.getCanonicalName());
                 }
             } catch (Exception e) {
@@ -215,7 +216,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         GBeanQuery query = new GBeanQuery(null, JettyWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
         String[] result = new String[names.size()];
-        int i=0;
+        int i = 0;
         for (Iterator it = names.iterator(); it.hasNext();) {
             ObjectName name = (ObjectName) it.next();
             result[i++] = name.getCanonicalName();
@@ -231,18 +232,18 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     public String addConnector(String uniqueName, String protocol, String host, int port) {
         ObjectName name = getConnectorName(protocol, uniqueName);
         GBeanData connector;
-        if(protocol.equals(PROTOCOL_HTTP)) {
+        if (protocol.equals(PROTOCOL_HTTP)) {
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);
-        } else if(protocol.equals(PROTOCOL_HTTPS)) {
+        } else if (protocol.equals(PROTOCOL_HTTPS)) {
             connector = new GBeanData(name, HTTPSConnector.GBEAN_INFO);
             GBeanQuery query = new GBeanQuery(null, ServerInfo.class.getName());
             Set set = kernel.listGBeans(query);
-            connector.setReferencePattern("ServerInfo", (ObjectName)set.iterator().next());
+            connector.setReferencePattern("ServerInfo", (ObjectName) set.iterator().next());
             //todo: default HTTPS settings
-        } else if(protocol.equals(PROTOCOL_AJP)) {
+        } else if (protocol.equals(PROTOCOL_AJP)) {
             connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);
         } else {
-            throw new IllegalArgumentException("Invalid protocol '"+protocol+"'");
+            throw new IllegalArgumentException("Invalid protocol '" + protocol + "'");
         }
         connector.setAttribute("host", host);
         connector.setAttribute("port", new Integer(port));
@@ -265,11 +266,11 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         table.put(NameFactory.J2EE_SERVER, myName.getKeyProperty(NameFactory.J2EE_SERVER));
         table.put(NameFactory.J2EE_MODULE, myName.getKeyProperty(NameFactory.J2EE_MODULE));
         table.put(NameFactory.J2EE_TYPE, myName.getKeyProperty(NameFactory.J2EE_TYPE));
-        table.put(NameFactory.J2EE_NAME, "JettyWebConnector-"+protocol+"-"+uniqueName);
+        table.put(NameFactory.J2EE_NAME, "JettyWebConnector-" + protocol + "-" + uniqueName);
         try {
             return ObjectName.getInstance(myName.getDomain(), table);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException("Never should have failed: "+e.getMessage());
+            throw new IllegalStateException("Never should have failed: " + e.getMessage());
         }
     }
 
@@ -283,7 +284,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         try {
             name = ObjectName.getInstance(objectName);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Invalid object name '"+objectName+"': "+e.getMessage());
+            throw new IllegalArgumentException("Invalid object name '" + objectName + "': " + e.getMessage());
         }
         try {
             GBeanInfo info = kernel.getGBeanInfo(name);
@@ -291,17 +292,17 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
             Set intfs = info.getInterfaces();
             for (Iterator it = intfs.iterator(); it.hasNext();) {
                 String intf = (String) it.next();
-                if(intf.equals(JettyWebConnector.class.getName())) {
+                if (intf.equals(JettyWebConnector.class.getName())) {
                     found = true;
                 }
             }
-            if(!found) {
+            if (!found) {
                 throw new GBeanNotFoundException(name);
             }
             ObjectName config = Util.getConfiguration(kernel, name);
             kernel.invoke(config, "removeGBean", new Object[]{name}, new String[]{ObjectName.class.getName()});
         } catch (GBeanNotFoundException e) {
-            log.warn("No such GBean '"+objectName+"'"); //todo: what if we want to remove a failed GBean?
+            log.warn("No such GBean '" + objectName + "'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {
             log.error(e);
         }
@@ -365,7 +366,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
-        infoBuilder.setConstructor(new String[]{"kernel","objectName"});
+        infoBuilder.setConstructor(new String[]{"kernel", "objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

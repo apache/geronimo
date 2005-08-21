@@ -128,6 +128,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public JettyWebAppContext(String objectName,
                               String originalSpecDD,
                               URI uri,
+                              String[] virtualHosts,
                               Map componentContext,
                               OnlineUserTransaction userTransaction,
                               ClassLoader classLoader,
@@ -207,6 +208,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.webClassLoader = new JettyClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
         setClassLoader(this.webClassLoader);
 
+        setHosts(virtualHosts);
         handler = new WebApplicationHandler();
         addHandler(handler);
 
@@ -536,6 +538,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
 
         infoBuilder.addAttribute("uri", URI.class, true);
+        infoBuilder.addAttribute("virtualHosts", String[].class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
@@ -577,6 +580,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "objectName",
             "deploymentDescriptor",
             "uri",
+            "virtualHosts",
             "componentContext",
             "userTransaction",
             "classLoader",

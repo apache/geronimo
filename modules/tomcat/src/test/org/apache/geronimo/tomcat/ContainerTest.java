@@ -92,7 +92,7 @@ public class ContainerTest extends TestCase {
 
        String contextPath = "/foo/webservice.ws";
        MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-       kernel.invoke(containerName, "addWebService", new Object[] {contextPath, webServiceInvoker, null, null, null, null, cl}, new String[] {String.class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
+       kernel.invoke(containerName, "addWebService", new Object[] {contextPath, null, webServiceInvoker, null, null, null, null, cl}, new String[] {String.class.getName(), String[].class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
 
        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
        try {
@@ -112,10 +112,10 @@ public class ContainerTest extends TestCase {
            assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
            connection.disconnect();
        }
-    
+
        tearDownWeb();
    }
-   
+
    public void testSecureWebServiceHandler() throws Exception {
 
        setUpWeb();
@@ -124,10 +124,10 @@ public class ContainerTest extends TestCase {
        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(containerName));
 
        setUpSecurity();
-       
+
        String contextPath = "/foo/webservice.ws";
        MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-       kernel.invoke(containerName, "addWebService", new Object[] {contextPath, webServiceInvoker, "Geronimo", "Geronimo", "NONE", "BASIC",cl}, new String[] {String.class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
+       kernel.invoke(containerName, "addWebService", new Object[] {contextPath, null, webServiceInvoker, "Geronimo", "Geronimo", "NONE", "BASIC",cl}, new String[] {String.class.getName(), String[].class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
 
        //Veryify its secured
        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
@@ -139,7 +139,7 @@ public class ContainerTest extends TestCase {
        } finally {
            connection.disconnect();
        }
-       
+
        //Authenticate
        connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
        String authentication = (new BASE64Encoder()).encode(("alan:starcraft").getBytes());
@@ -161,7 +161,7 @@ public class ContainerTest extends TestCase {
            assertEquals(HttpURLConnection.HTTP_NOT_FOUND, connection.getResponseCode());
            connection.disconnect();
        }
-       
+
        tearDownSecurity();
        tearDownWeb();
    }
@@ -237,7 +237,7 @@ public class ContainerTest extends TestCase {
        stop(securityServiceName);
        stop(loginConfigurationName);
    }
-   
+
    private void setUpWeb() throws Exception{
        containerName = NameFactory.getWebComponentName(null, null, null, null, "tomcatContainer", "WebResource", moduleContext);
        connectorName = NameFactory.getWebComponentName(null, null, null, null, "tomcatConnector", "WebResource", moduleContext);
@@ -249,13 +249,13 @@ public class ContainerTest extends TestCase {
        hostName = NameFactory.getWebComponentName(null, null, null, null, "tomcatHost", "WebResource", moduleContext);
        kernel = KernelFactory.newInstance().createKernel("test.kernel");
        kernel.boot();
- 
+
        //ServerInfo
        serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
        serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
        serverInfoGBean.setAttribute("baseDirectory", ".");
        start(serverInfoGBean);
-       
+
        Map initParams = new HashMap();
 
        //Default Host
@@ -266,12 +266,12 @@ public class ContainerTest extends TestCase {
        host = new GBeanData(hostName, HostGBean.GBEAN_INFO);
        host.setAttribute("className", "org.apache.catalina.core.StandardHost");
        host.setAttribute("initParams", initParams);
-       start(host);       
+       start(host);
 
        //Default Engine
 //       ReferenceCollection hosts = new TestReferenceCollection();
 //       hosts.add(host);
-       
+
        initParams.clear();
        initParams.put("name","Geronimo");
        initParams.put("defaultHost","localhost");
@@ -294,7 +294,7 @@ public class ContainerTest extends TestCase {
        connector.setReferencePattern("TomcatContainer", containerName);
        start(connector);
    }
-   
+
    private void tearDownWeb() throws Exception {
        stop(connectorName);
        stop(containerName);
@@ -332,5 +332,5 @@ public class ContainerTest extends TestCase {
            return result;
        }
 
-   }   
+   }
 }

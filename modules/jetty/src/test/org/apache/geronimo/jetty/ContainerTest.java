@@ -83,7 +83,7 @@ public class ContainerTest extends TestCase {
 
         String contextPath = "/foo/webservice.ws";
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
-        kernel.invoke(containerName, "addWebService", new Object[] {contextPath, webServiceInvoker, null, null, null, null,cl}, new String[] {String.class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
+        kernel.invoke(containerName, "addWebService", new Object[] {contextPath, null, webServiceInvoker, null, null, null, null,cl}, new String[] {String.class.getName(), String[].class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678" + contextPath).openConnection();
         try {

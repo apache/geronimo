@@ -21,7 +21,7 @@ package org.apache.geronimo.webservices;
  */
 public interface SoapHandler {
 
-    void addWebService(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception;
+    void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception;
 
     void removeWebService(String contextPath);
 
