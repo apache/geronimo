@@ -49,6 +49,17 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         Map initParams = new HashMap();
 
         validateProtocol(protocol);
+        
+        //Default the host to listen on all address is one was not specified
+        if (host == null){
+            host = "0.0.0.0";
+        }
+        
+        //Must have a port
+        if (port == 0){
+            throw new IllegalArgumentException("Must declare a port.");
+        }
+
         initParams.put("address", host);
         initParams.put("port", Integer.toString(port));
         initializeParams(protocol, initParams);
