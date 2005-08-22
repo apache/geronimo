@@ -303,7 +303,7 @@ public class ContainerTest extends TestCase {
        stop(serverInfoName);
        kernel.shutdown();
    }
-
+/*
    private static class TestReferenceCollection extends ArrayList implements ReferenceCollection {
 
        ReferenceCollectionListener referenceCollectionListener;
@@ -333,4 +333,5 @@ public class ContainerTest extends TestCase {
        }
 
    }
+*/
 }

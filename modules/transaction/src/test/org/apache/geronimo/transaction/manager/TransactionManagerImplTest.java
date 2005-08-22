@@ -19,6 +19,7 @@ package org.apache.geronimo.transaction.manager;
 
 import java.util.ArrayList;
 import java.util.Map;
+import javax.management.ObjectName;
 import javax.transaction.RollbackException;
 import javax.transaction.Status;
 import javax.transaction.Transaction;
@@ -350,6 +351,8 @@ public class TransactionManagerImplTest extends TestCase {
             }
             return result;
         }
+
+	public ObjectName[] getMemberObjectNames() {return new ObjectName[0];}
 
     }
 
