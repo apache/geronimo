@@ -20,7 +20,7 @@ import java.net.URI;
 import java.net.URL;
 import java.io.File;
 import java.util.ArrayList;
-
+import javax.management.ObjectName;
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
@@ -100,5 +100,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         public void removeReferenceCollectionListener(ReferenceCollectionListener listener) {
 
         }
+
+        public ObjectName[] getMemberObjectNames() { return new ObjectName[0];}
     }
 }
