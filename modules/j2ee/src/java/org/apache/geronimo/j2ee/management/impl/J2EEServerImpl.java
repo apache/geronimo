@@ -32,6 +32,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.EJBContainer;
+import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
@@ -124,6 +125,16 @@ public class J2EEServerImpl implements J2EEServer {
 
     public String getEJBContainer() {
         GBeanQuery query = new GBeanQuery(null, EJBContainer.class.getName());
+        Set set = kernel.listGBeans(query);
+        if(set.size() == 0) {
+            return null;
+        } else { // ignore possibility of multiple results
+            return ((ObjectName)set.iterator().next()).getCanonicalName();
+        }
+    }
+
+    public String getJMSManager() {
+        GBeanQuery query = new GBeanQuery(null, JMSManager.class.getName());
         Set set = kernel.listGBeans(query);
         if(set.size() == 0) {
             return null;

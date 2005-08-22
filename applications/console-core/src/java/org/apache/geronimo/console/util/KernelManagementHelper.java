@@ -28,6 +28,9 @@ import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.EJBContainer;
 import org.apache.geronimo.management.geronimo.EJBConnector;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.AppClientModule;
@@ -316,6 +319,83 @@ public class KernelManagementHelper implements ManagementHelper {
             String[] names = container.getConnectors();
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new EJBConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public JMSManager getJMSManager(J2EEServer server) {
+        JMSManager result = null;
+        try {
+            String name = server.getJMSManager();
+            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+            result = (JMSManager)temp;
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public JMSBroker[] getJMSBrokers(JMSManager manager) {
+        JMSBroker[] result = null;
+        try {
+            String[] names = manager.getBrokers();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JMSBroker[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public JMSConnector[] getJMSConnectors(JMSManager manager, String protocol) {
+        JMSConnector[] result = null;
+        try {
+            String[] names = manager.getConnectors(protocol);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JMSConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public JMSConnector[] getJMSConnectors(JMSManager manager) {
+        JMSConnector[] result = null;
+        try {
+            String[] names = manager.getConnectors();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JMSConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public JMSConnector[] getJMSConnectors(JMSManager manager, JMSBroker broker, String protocol) {
+        JMSConnector[] result = null;
+        try {
+            String[] names = manager.getBrokerConnectors(pm.getProxyTarget(broker).getCanonicalName(), protocol);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JMSConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public JMSConnector[] getJMSConnectors(JMSManager manager, JMSBroker broker) {
+        JMSConnector[] result = null;
+        try {
+            String[] names = manager.getBrokerConnectors(pm.getProxyTarget(broker).getCanonicalName());
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JMSConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
             log.error("Unable to look up related GBean", e);

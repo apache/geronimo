@@ -485,6 +485,7 @@ limitations under the License.
             <param-value>console-standard.WebServerManager</param-value>
         </init-param>
     </servlet>
+    <!--
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for HTTP Connector Management Portlet</display-name>
@@ -513,6 +514,7 @@ limitations under the License.
             <param-value>console-standard.HTTPSConnectorManager</param-value>
         </init-param>
     </servlet>
+-->
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for Connector Management Portlet</display-name>
@@ -527,6 +529,37 @@ limitations under the License.
             <param-value>console-standard.ConnectorManager</param-value>
         </init-param>
     </servlet>
+    <!-- JMS Server Manager Portlet -->
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for JMS Server Management Portlet</display-name>
+        <servlet-name>JMSServerManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.jmsmanager.server.JMSBrokerPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JMSServerManager</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for JMS Connector Management Portlet</display-name>
+        <servlet-name>JMSConnectorManager</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.jmsmanager.server.JMSConnectorPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JMSConnectorManager</param-value>
+        </init-param>
+    </servlet>
+
+
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for JNDI Portlet</display-name>
@@ -569,7 +602,7 @@ limitations under the License.
             <param-value>console-standard.ServerManager</param-value>
         </init-param>
     </servlet>
- 
+
     <!-- DB manager servlets -->
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
@@ -759,6 +792,7 @@ limitations under the License.
         <servlet-name>WebServerManager</servlet-name>
         <url-pattern>/WebServerManager/*</url-pattern>
     </servlet-mapping>
+<!--
     <servlet-mapping>
         <servlet-name>HTTPConnectorManager</servlet-name>
         <url-pattern>/HTTPConnectorManager/*</url-pattern>
@@ -767,9 +801,18 @@ limitations under the License.
         <servlet-name>HTTPSConnectorManager</servlet-name>
         <url-pattern>/HTTPSConnectorManager/*</url-pattern>
     </servlet-mapping>
+-->
     <servlet-mapping>
         <servlet-name>ConnectorManager</servlet-name>
         <url-pattern>/ConnectorManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>JMSServerManager</servlet-name>
+        <url-pattern>/JMSServerManager/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>JMSConnectorManager</servlet-name>
+        <url-pattern>/JMSConnectorManager/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>JNDI</servlet-name>

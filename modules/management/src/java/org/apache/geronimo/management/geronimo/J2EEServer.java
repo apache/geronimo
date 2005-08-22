@@ -42,6 +42,15 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     public String getEJBContainer();
 
     /**
+     * Gets the ObjectName of the JMS Manager associated with this
+     * J2EEServer, or null if there is none in the current server
+     * configuration.
+     *
+     * @return The ObjectName of the JMS Manager, in String form.
+     */
+    public String getJMSManager();
+
+    /**
      * Gets the ObjectNames of the thread pools associated with this
      * J2EEServer.
      *

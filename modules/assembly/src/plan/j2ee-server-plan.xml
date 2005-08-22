@@ -124,6 +124,9 @@ by the server.
         <uri>geronimo/jars/geronimo-servicemix-${geronimo_version}.jar</uri>
     </dependency>
 
+    <dependency>
+        <uri>activemq/jars/activemq-gbean-management-${activemq_version}.jar</uri>
+    </dependency>
 
     ${webcontainer}
 

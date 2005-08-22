@@ -215,7 +215,7 @@ limitations under the License.
             <keywords>Web Servers</keywords>
         </portlet-info>
     </portlet>
-
+<!--
     <portlet>
         <description>Portlet for managing HTTP connectors</description>
         <portlet-name>HTTPConnectorManager</portlet-name>
@@ -263,7 +263,7 @@ limitations under the License.
             <keywords>HTTPS Connectors</keywords>
         </portlet-info>
     </portlet>
-
+-->
     <portlet>
         <description>Portlet for managing Network Listeners</description>
         <portlet-name>ConnectorManager</portlet-name>
@@ -309,6 +309,54 @@ limitations under the License.
             <title>EJB Server</title>
             <short-title>EJB Server</short-title>
             <keywords>EJB Server</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing the JMS server</description>
+        <portlet-name>JMSServerManager</portlet-name>
+        <display-name>JMS Server Mangement Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.jmsmanager.server.JMSBrokerPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>JMS Server Manager</title>
+            <short-title>JMS Servers</short-title>
+            <keywords>JMS Servers</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
+        <description>Portlet for managing JMS network listeners</description>
+        <portlet-name>JMSConnectorManager</portlet-name>
+        <display-name>JMS Network Listener Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.jmsmanager.server.JMSConnectorPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>JMS Network Listeners</title>
+            <short-title>JMS Listeners</short-title>
+            <keywords>JMS Network Listeners Connectors</keywords>
         </portlet-info>
     </portlet>
 

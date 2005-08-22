@@ -143,6 +143,27 @@ limitations under the License.
             </fragment>
         </fragment>
 
+        <fragment name="jmsserver" type="page">
+            <navigation>
+                <title>JMS Server</title>
+                <description>Configure JMS Server</description>
+            </navigation>
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.63"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row2" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p2" type="portlet">
+                        <property name="portlet" value="5.64"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+        </fragment>
+
         <fragment name="j2ca" type="page">
             <navigation>
                 <title>J2EE Connectors</title>

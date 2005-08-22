@@ -2,61 +2,52 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
+<p>The JMS brokers available in the server are:</p>
+
 <!-- Show existing connectors -->
-<c:if test="${empty(connectors)}">There are no Connectors defined</c:if>
-<c:if test="${!empty(connectors)}">
+<c:if test="${empty(brokers)}">There are no JMS brokers defined</c:if>
+<c:if test="${!empty(brokers)}">
 <table width="100%">
-  <tr>
-    <td style="padding: 0 20px">
+  <tr><td style="padding: 0 20px"></td></tr>
           <tr>
             <td class="DarkBackground">Name</td>
-            <td class="DarkBackground" align="center">Protocol</td>
-            <td class="DarkBackground" align="center">Port</td>
             <td class="DarkBackground" align="center">State</td>
             <td class="DarkBackground" align="center">Actions</td>
-            <td class="DarkBackground" align="center">Type</td>
           </tr>
-<c:forEach var="info" items="${connectors}">
+<c:forEach var="entry" items="${brokers}">
           <tr>
-            <td>${info.displayName}</td>
-            <td>${info.protocol}</td>
-            <td>${info.port}</td>
-            <td>${info.stateName}</td>
+            <td>${entry.key}</td>
+            <td>${entry.value.stateInstance}</td>
             <td>
              <c:choose>
-               <c:when test="${info.stateName eq 'running'}">
+               <c:when test="${entry.value.stateInstance.name eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="stop" />
-                 <portlet:param name="name" value="${info.objectName}" />
+                 <portlet:param name="objectName" value="${entry.value.objectName}" />
                </portlet:actionURL>">stop</a>
                </c:when>
                <c:otherwise>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="start" />
-                 <portlet:param name="name" value="${info.objectName}" />
+                 <portlet:param name="objectName" value="${entry.value.objectName}" />
                </portlet:actionURL>">start</a>
                </c:otherwise>
              </c:choose>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="edit" />
-                 <portlet:param name="name" value="${info.objectName}" />
+                 <portlet:param name="objectName" value="${entry.value.objectName}" />
                </portlet:actionURL>">edit</a>
                <a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
-                 <portlet:param name="name" value="${info.objectName}" />
+                 <portlet:param name="objectName" value="${entry.value.objectName}" />
                </portlet:actionURL>">delete</a>
              </td>
-            <td>${info.description}</td>
           </tr>
 </c:forEach>
 </table>
 </c:if>
 
-<!-- Links to add new connectors -->
-<c:forEach var="protocol" items="${protocols}">
 <br />
 <a href="<portlet:actionURL portletMode="view">
            <portlet:param name="mode" value="new" />
-           <portlet:param name="protocol" value="${protocol}" />
-         </portlet:actionURL>">Add new ${protocol} listener</a>
-</c:forEach>
+         </portlet:actionURL>">Add new JMS Broker</a>

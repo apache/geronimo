@@ -123,5 +123,12 @@ limitations under the License.
         <portlet id="62">
             <definition-id>console-standard.Keystore</definition-id>
         </portlet>
+
+        <portlet id="63">
+            <definition-id>console-standard.JMSServerManager</definition-id>
+        </portlet>
+        <portlet id="64">
+            <definition-id>console-standard.JMSConnectorManager</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

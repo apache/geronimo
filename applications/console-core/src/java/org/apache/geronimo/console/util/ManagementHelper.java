@@ -41,6 +41,9 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.EJBConnector;
 import org.apache.geronimo.management.geronimo.EJBContainer;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
 
@@ -76,6 +79,12 @@ public interface ManagementHelper {
     EJBContainer getEJBContainer(J2EEServer server);
     EJBConnector[] getEJBConnectors(EJBContainer container, String protocol);
     EJBConnector[] getEJBConnectors(EJBContainer container);
+    JMSManager getJMSManager(J2EEServer server);
+    JMSBroker[] getJMSBrokers(JMSManager manager);
+    JMSConnector[] getJMSConnectors(JMSManager manager, String protocol);
+    JMSConnector[] getJMSConnectors(JMSManager manager);
+    JMSConnector[] getJMSConnectors(JMSManager manager, JMSBroker broker, String protocol);
+    JMSConnector[] getJMSConnectors(JMSManager manager, JMSBroker broker);
     GeronimoExecutor[] getThreadPools(J2EEServer server);
     //todo: repository, embedded database
 

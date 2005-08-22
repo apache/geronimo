@@ -353,6 +353,9 @@ public class ConnectorPortlet extends BaseWebPortlet {
     public void destroy() {
         normalView = null;
         maximizedView = null;
+        helpView = null;
+        editHttpsView = null;
+        editHttpView = null;
         super.destroy();
     }
 

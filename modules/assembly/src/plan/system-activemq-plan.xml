@@ -33,10 +33,14 @@
         <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
     </dependency>
 
+    <!-- management -->
+    <gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
+
     <!-- message broker -->
     <gbean name="ActiveMQ" class="org.activemq.gbean.ActiveMQContainerGBean">
         <attribute name="brokerName">possibly-unique-broker</attribute>
         <reference name="persistenceAdapter"><gbean-name>geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.cache,*</gbean-name></reference>
+        <reference name="ConnectorCollection"><gbean-name>geronimo.server:j2eeType=JMSConnector,broker=ActiveMQ,*</gbean-name></reference>
     </gbean>
 
     <gbean name="ActiveMQ.cache" class="org.activemq.store.cache.SimpleCachePersistenceAdapterGBean">
@@ -56,13 +60,17 @@
         <reference name="dataSource"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</gbean-name></reference>
     </gbean>
 
-    <gbean name="ActiveMQ.tcp.${PlanServerHostname}.${PlanActiveMQPort}" class="org.activemq.gbean.ActiveMQConnectorGBean">
-        <attribute name="url">tcp://${PlanServerHostname}:${PlanActiveMQPort}</attribute>
+    <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSConnector,broker=ActiveMQ,name=ActiveMQ.tcp.${PlanServerHostname}.${PlanActiveMQPort}" class="org.activemq.gbean.ActiveMQConnectorGBean">
+        <attribute name="protocol">tcp</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanActiveMQPort}</attribute>
         <reference name="activeMQContainer"><gbean-name>geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</gbean-name></reference>
     </gbean>
 
-    <gbean name="ActiveMQ.vm.localhost" class="org.activemq.gbean.ActiveMQConnectorGBean">
-        <attribute name="url">vm://localhost</attribute>
+    <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSConnector,broker=ActiveMQ,name=ActiveMQ.vm.localhost" class="org.activemq.gbean.ActiveMQConnectorGBean">
+        <attribute name="protocol">vm</attribute>
+        <attribute name="host">localhost</attribute>
+        <attribute name="port">-1</attribute>
         <reference name="activeMQContainer"><gbean-name>geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</gbean-name></reference>
     </gbean>    
 

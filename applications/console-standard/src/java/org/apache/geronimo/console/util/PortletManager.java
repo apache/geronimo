@@ -22,6 +22,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.J2EEServer;
@@ -29,6 +30,9 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.EJBContainer;
 import org.apache.geronimo.management.geronimo.EJBConnector;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.commons.logging.Log;
@@ -45,6 +49,7 @@ public class PortletManager {
     private final static String SERVER_KEY = "org.apache.geronimo.console.J2EEServer";
     private final static String JVM_KEY = "org.apache.geronimo.console.JVM";
     private final static String WEB_CONTAINER_KEY = "org.apache.geronimo.console.WebContainer";
+    private final static String JMS_MANAGER_KEY = "org.apache.geronimo.console.JMSManager";
     private final static String EJB_CONTAINER_KEY = "org.apache.geronimo.console.EJBContainer";
     private final static String SYSTEM_LOG_KEY = "org.apache.geronimo.console.SystemLog";
     // The following may change based on the user's selections
@@ -158,6 +163,48 @@ public class PortletManager {
         return helper.getEJBConnectors(getCurrentEJBContainer(request), protocol);
     }
 
+    public static JMSManager getCurrentJMSManager(PortletRequest request) {
+        JMSManager manager = (JMSManager) request.getPortletSession(true).getAttribute(JMS_MANAGER_KEY, PortletSession.APPLICATION_SCOPE);
+        if(manager == null) {
+            ManagementHelper helper = getManagementHelper(request);
+            manager = helper.getJMSManager(getCurrentServer(request));
+            request.getPortletSession().setAttribute(JMS_MANAGER_KEY, manager, PortletSession.APPLICATION_SCOPE);
+        }
+        return manager;
+    }
+
+    public static JMSBroker[] getJMSBrokers(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getJMSBrokers(getCurrentJMSManager(request));
+    }
+
+    public static JMSConnector createJMSConnector(PortletRequest request, JMSBroker broker, String name, String protocol, String host, int port) {
+        JMSManager manager = getCurrentJMSManager(request);
+        String objectName = manager.addConnector(((GeronimoManagedBean)broker).getObjectName(), name, protocol, host, port);
+        ManagementHelper helper = getManagementHelper(request);
+        return (JMSConnector)helper.getObject(objectName);
+    }
+
+    public static JMSConnector[] getJMSConnectors(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getJMSConnectors(getCurrentJMSManager(request));
+    }
+
+    public static JMSConnector[] getJMSConnectors(PortletRequest request, String protocol) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getJMSConnectors(getCurrentJMSManager(request), protocol);
+    }
+
+    public static JMSConnector[] getBrokerJMSConnectors(PortletRequest request, JMSBroker broker) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getJMSConnectors(getCurrentJMSManager(request), broker);
+    }
+
+    public static JMSConnector[] getBrokerJMSConnectors(PortletRequest request, JMSBroker broker, String protocol) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getJMSConnectors(getCurrentJMSManager(request), broker, protocol);
+    }
+
     public static GeronimoExecutor[] getThreadPools(PortletRequest request) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getThreadPools(getCurrentServer(request));
@@ -176,5 +223,10 @@ public class PortletManager {
             request.getPortletSession().setAttribute(SYSTEM_LOG_KEY, log, PortletSession.APPLICATION_SCOPE);
         }
         return log;
+    }
+
+    public static GeronimoManagedBean getManagedBean(PortletRequest request, String name) {
+        ManagementHelper helper = getManagementHelper(request);
+        return (GeronimoManagedBean) helper.getObject(name);
     }
 }

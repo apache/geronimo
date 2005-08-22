@@ -32,6 +32,11 @@ import javax.portlet.WindowState;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.WebContainer;
 
+/**
+ * Basic portlet showing statistics for a web container
+ *
+ * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ */
 public class WebManagerPortlet extends BaseWebPortlet {
     private PortletRequestDispatcher normalView;
 
@@ -105,6 +110,7 @@ public class WebManagerPortlet extends BaseWebPortlet {
     }
 
     public void destroy() {
+        helpView = null;
         normalView = null;
         maximizedView = null;
         super.destroy();
