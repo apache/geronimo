@@ -87,9 +87,19 @@
 
     <versions>
         <version>
+            <id>1.0-M5</id>
+            <name>1.0-M5</name>
+            <tag>HEAD</tag>
+        </version>
+        <version>
+            <id>1.0-M4</id>
+            <name>1.0-M4</name>
+            <tag>v1_0_M4</tag>
+        </version>
+        <version>
             <id>1.0-M3</id>
             <name>1.0-M3</name>
-            <tag>HEAD</tag>
+            <tag>v1_0_M3</tag>
         </version>
         <version>
             <id>1.0-M2</id>
