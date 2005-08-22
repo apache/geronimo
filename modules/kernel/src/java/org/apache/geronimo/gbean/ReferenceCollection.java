@@ -18,6 +18,7 @@
 package org.apache.geronimo.gbean;
 
 import java.util.Collection;
+import javax.management.ObjectName;
 
 /**
  * An extension of collection that allows a client to register for notifications when
@@ -29,4 +30,6 @@ public interface ReferenceCollection extends Collection {
     void addReferenceCollectionListener(ReferenceCollectionListener listener);
 
     void removeReferenceCollectionListener(ReferenceCollectionListener listener);
+
+    ObjectName[] getMemberObjectNames();
 }

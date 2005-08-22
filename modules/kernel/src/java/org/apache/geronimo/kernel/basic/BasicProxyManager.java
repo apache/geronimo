@@ -109,15 +109,17 @@ public class BasicProxyManager implements ProxyManager {
                 return null;
             }
             String[] names = (String[]) info.getInterfaces().toArray(new String[0]);
-            Class[] intfs = new Class[names.length];
-            for (int i = 0; i < intfs.length; i++) {
-                intfs[i] = loader.loadClass(names[i]);
+            List intfs = new ArrayList();
+            for (int i = 0; i < names.length; i++) {
+                try {
+                    intfs.add(loader.loadClass(names[i]));
+                } catch (ClassNotFoundException e) {
+                    log.warn("Could not load interface "+names[i]+" in provided ClassLoader for "+target.getKeyProperty("name"));
+                }
             }
-            return createProxyFactory(intfs).createProxy(target);
+            return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()])).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Could not load interface in provided ClassLoader: " + e.getMessage());
         }
     }
 

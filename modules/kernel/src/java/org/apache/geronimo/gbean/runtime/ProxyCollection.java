@@ -124,6 +124,10 @@ class ProxyCollection implements ReferenceCollection {
         proxyManager.destroyProxy(proxy);
     }
 
+    public synchronized ObjectName[] getMemberObjectNames() {
+        return (ObjectName[])proxies.keySet().toArray(new ObjectName[0]);
+    }
+
     public synchronized boolean isStopped() {
         return stopped;
     }
