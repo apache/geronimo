@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -374,7 +374,7 @@ public class TransactionImpl implements Transaction {
 
     //helper method used by Transaction.commit and XATerminator prepare.
     private boolean internalPrepare() throws SystemException {
-    	
+
         for (Iterator rms = resourceManagers.iterator(); rms.hasNext();) {
             synchronized (this) {
                 if (status != Status.STATUS_PREPARING) {
@@ -400,7 +400,7 @@ public class TransactionImpl implements Transaction {
             }
         }
 
-        
+
         // decision time...
         boolean willCommit;
         synchronized (this) {
@@ -631,30 +631,16 @@ public class TransactionImpl implements Transaction {
         return manager;
     }
 
-    /**
-     * A helper method to convert an {@link XAResource} into a {@link NamedXAResource}
-     * either via casting or wrapping.
-     */
-    protected static NamedXAResource asNamedXAResource(XAResource xaRes) {
-        if (xaRes instanceof NamedXAResource) {
-            return (NamedXAResource) xaRes;
-        }
-        else {
-            String name = xaRes.toString();
-            return new WrapperNamedXAResource(xaRes, name);
-        }
-    }
-
     private static class TransactionBranch implements TransactionBranchInfo {
-        private final NamedXAResource committer;
+        private final XAResource committer;
         private final Xid branchId;
 
         public TransactionBranch(XAResource xaRes, Xid branchId) {
-            committer = asNamedXAResource(xaRes);
+            committer = xaRes;
             this.branchId = branchId;
         }
 
-        public NamedXAResource getCommitter() {
+        public XAResource getCommitter() {
             return committer;
         }
 
@@ -663,7 +649,11 @@ public class TransactionImpl implements Transaction {
         }
 
         public String getResourceName() {
-            return committer.getName();
+            if (committer instanceof NamedXAResource) {
+            return ((NamedXAResource)committer).getName();
+            } else {
+                throw new IllegalStateException("Cannot log transactions unles XAResources are named! " + committer);
+            }
         }
 
         public Xid getBranchXid() {
