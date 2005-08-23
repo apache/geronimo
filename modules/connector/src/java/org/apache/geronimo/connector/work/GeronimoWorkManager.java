@@ -66,7 +66,7 @@ public class GeronimoWorkManager implements WorkManager {
      */
     private WorkExecutorPool scheduledWorkExecutorPool;
 
-    private TransactionContextManager transactionContextManager;
+    private final TransactionContextManager transactionContextManager;
 
     private final WorkExecutor scheduleWorkExecutor = new ScheduleWorkExecutor();
     private final WorkExecutor startWorkExecutor = new StartWorkExecutor();
@@ -148,14 +148,6 @@ public class GeronimoWorkManager implements WorkManager {
 
     public void setScheduledMaximumPoolSize(int maxSize) {
         scheduledWorkExecutorPool.setMaximumPoolSize(maxSize);
-    }
-
-    public TransactionContextManager getTransactionContextManager() {
-        return transactionContextManager;
-    }
-
-    public void setTransactionContextManager(TransactionContextManager transactionContextManager) {
-        this.transactionContextManager = transactionContextManager;
     }
 
     /* (non-Javadoc)
