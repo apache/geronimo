@@ -401,7 +401,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("More than one tomcat config: " + anys);
                 }
                 if (anys.length == 1) {
-                    GerTomcatConfigType tomcatConfig = (GerTomcatConfigType)anys[0].changeType(GerTomcatConfigType.type);
+                    GerTomcatConfigType tomcatConfig = (GerTomcatConfigType)anys[0].copy().changeType(GerTomcatConfigType.type);
                     if (tomcatConfig.isSetHost()) {
                         String virtualServer = tomcatConfig.getHost().trim();
                         webModuleData.setAttribute("virtualServer", virtualServer);

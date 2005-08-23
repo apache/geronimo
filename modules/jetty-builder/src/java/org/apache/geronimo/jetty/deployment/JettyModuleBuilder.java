@@ -471,7 +471,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("More than one jetty configuration element: " + anys);
                 }
                 if (anys.length == 1) {
-                    GerJettyConfigType jettyConfigType = (GerJettyConfigType)anys[0].changeType(GerJettyConfigType.type);
+                    GerJettyConfigType jettyConfigType = (GerJettyConfigType)anys[0].copy().changeType(GerJettyConfigType.type);
                     String[] hosts = jettyConfigType.getVirtualHostArray();
                     for (int i = 0; i < hosts.length; i++) {
                         hosts[i] = hosts[i].trim();
