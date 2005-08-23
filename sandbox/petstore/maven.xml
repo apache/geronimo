@@ -20,6 +20,7 @@
     xmlns:j="jelly:core"
     xmlns:ant="jelly:ant"
     xmlns:deploy="geronimo:deploy"
+    xmlns:velocity="jelly:velocity"
     >
 
     <j:set var="instDir" value="${maven.build.dir}/geronimo_${geronimo_version}"/>
@@ -41,6 +42,22 @@
             <ant:fileset dir="src/var"/>
         </ant:copy>
 
+		<fileScanner var="plans">
+            <fileset dir="${basedir}/src/plan">
+                <include name="*-plan.xml"/>
+            </fileset>
+        </fileScanner>
+
+        <ant:mkdir dir="${basedir}/target/plan"/>
+        <j:forEach var="plan" items="${plans.iterator()}">
+            <j:set var="planName" value="${plan.name}"/>
+            <echo>Preprocessing ${planName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/plan"
+                template="${planName}"
+                name="${basedir}/target/plan/${planName}"/>
+        </j:forEach>
+		
         <ant:echo>Building Security Configuration</ant:echo>
         <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
@@ -49,7 +66,7 @@
             <ant:arg value="--password"/>
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
-            <ant:arg value="src/plan/petstore1.3.2-security-plan.xml"/>
+            <ant:arg value="${basedir}/target/plan/petstore1.3.2-security-plan.xml"/>
         </ant:java>
 
         <ant:echo>Building JMS Configuration</ant:echo>
@@ -60,7 +77,7 @@
             <ant:arg value="--password"/>
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
-            <ant:arg value="src/plan/petstore1.3.2-jms-ra-plan.xml"/>
+            <ant:arg value="${basedir}/target/plan/petstore1.3.2-jms-ra-plan.xml"/>
             <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
         </ant:java>
 
@@ -72,7 +89,7 @@
             <ant:arg value="--password"/>
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
-            <ant:arg value="src/plan/petstore1.3.2-db-ra-plan.xml"/>
+            <ant:arg value="${basedir}/target/plan/petstore1.3.2-db-ra-plan.xml"/>
             <ant:arg value="${maven.repo.local}/geronimo/rars/geronimo-derby-connector-${pom.currentVersion}.rar"/>
         </ant:java>
 
@@ -84,7 +101,7 @@
             <ant:arg value="--password"/>
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
-            <ant:arg value="src/plan/petstore1.3.2.ear-plan.xml"/>
+            <ant:arg value="${basedir}/target/plan/petstore1.3.2.ear-plan.xml"/>
             <ant:arg value="${petstore.home}/src/apps/petstore/build/petstore.ear"/>
         </ant:java>
 
@@ -96,7 +113,7 @@
             <ant:arg value="--password"/>
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
-            <ant:arg value="src/plan/supplier1.3.2.ear-plan.xml"/>
+            <ant:arg value="${basedir}/target/plan/supplier1.3.2.ear-plan.xml"/>
             <ant:arg value="${petstore.home}/src/apps/supplier/build/supplier.ear"/>
         </ant:java>
 
@@ -108,7 +125,7 @@
             <ant:arg value="--password"/>
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
-            <ant:arg value="src/plan/opc1.3.2.ear-plan.xml"/>
+            <ant:arg value="${basedir}/target/plan/opc1.3.2.ear-plan.xml"/>
             <ant:arg value="${petstore.home}/src/apps/opc/build/opc.ear"/>
         </ant:java>
 
@@ -120,7 +137,7 @@
             <ant:arg value="--password"/>
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
-            <ant:arg value="src/plan/petstoreadmin1.3.2.ear-plan.xml"/>
+            <ant:arg value="${basedir}/target/plan/petstoreadmin1.3.2.ear-plan.xml"/>
             <ant:arg value="${petstore.home}/src/apps/admin/build/petstoreadmin.ear"/>
         </ant:java>
 

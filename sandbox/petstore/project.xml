@@ -32,12 +32,23 @@
     <dependency>
       <groupId>geronimo</groupId>
       <artifactId>geronimo-derby</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
-      <version>10.1.1.0</version>
+      <version>${derby_version}</version>
+    </dependency>
+    <dependency>
+      <groupId>activemq</groupId>
+      <artifactId>activemq-ra</artifactId>
+	  <version>${activemq_version}</version>
+	  <type>rar</type>
+	</dependency>
+    <dependency>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-javamail</artifactId>
+        <version>${geronimo_spec_javamail_version}</version>
     </dependency>
   </dependencies>
   <build>

@@ -21,10 +21,6 @@
     parentId="org/apache/geronimo/SystemJMS" 
     configId="org/apache/geronimo/PetStoreJMS1.3.2">
 
-    <dependency>
-        <uri>activemq/jars/activemq-core-3.1-M5.jar</uri>
-    </dependency>
-    
     <resourceadapter>
         <resourceadapter-instance>
           <resourceadapter-name>PetStore JMS Resources</resourceadapter-name>
