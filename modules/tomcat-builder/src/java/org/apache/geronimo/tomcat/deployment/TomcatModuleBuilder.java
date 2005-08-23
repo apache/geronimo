@@ -43,6 +43,7 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.transaction.UserTransaction;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
@@ -76,11 +77,10 @@ import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.xbeans.geronimo.web.GerConfigParamType;
 import org.apache.geronimo.xbeans.geronimo.web.GerContainerConfigType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.geronimo.web.GerWebContainerType;
+import org.apache.geronimo.xbeans.geronimo.web.tomcat.GerTomcatConfigType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
 import org.apache.geronimo.xbeans.j2ee.RoleNameType;
@@ -109,6 +109,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     private final WebServiceBuilder webServiceBuilder;
 
     private final Repository repository;
+    private static final String TOMCAT_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/tomcat";
+    private static final QName TOMCAT_CONFIG_QNAME = new QName(TOMCAT_CONFIG_NAMESPACE, "tomcat");
 
     public TomcatModuleBuilder(URI defaultParentId,
                                boolean defaultContextPriorityClassloader,
@@ -391,66 +393,32 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             webModuleData.setReferencePattern("TrackedConnectionAssociator", earContext.getConnectionTrackerObjectName());
             webModuleData.setReferencePattern("Container", tomcatContainerObjectName);
 
-            String virtualServer = null;
-            String[] hosts = tomcatWebApp.getVirtualHostArray();
-            if (hosts.length > 0) {
-                virtualServer = hosts[0].trim();
-            }
             // Process the Tomcat container-config elements
-            if (tomcatWebApp != null && tomcatWebApp.sizeOfContainerConfigArray() > 0) {
-                Map values = new HashMap();
-                GerContainerConfigType[] configs = tomcatWebApp.getContainerConfigArray();
-                for (int i = 0; i < configs.length; i++) {
-                    GerContainerConfigType config = configs[i];
-                    if(config.getContainer().intValue() != GerWebContainerType.INT_TOMCAT) {
-                        continue;
-                    }
-                    GerConfigParamType[] params = config.getConfigParamArray();
-                    for (int j = 0; j < params.length; j++) {
-                        GerConfigParamType param = params[j];
-                        values.put(param.getName(), param.getStringValue());
-                    }
+            if (tomcatWebApp != null && tomcatWebApp.isSetContainerConfig()) {
+                GerContainerConfigType config = tomcatWebApp.getContainerConfig();
+                XmlObject[] anys = config.selectChildren(TOMCAT_CONFIG_QNAME);
+                if (anys.length > 1) {
+                    throw new DeploymentException("More than one tomcat config: " + anys);
                 }
-                //TODO remove and use only explicit virtual hosts?
-                //Is there a Tomcat virtual server declaration?
-                virtualServer = (String) values.remove("VirtualServer");
-
-                //Is there a Tomcat crossContext declaration?
-                String strCrossContext = (String) values.remove("CrossContext");
-                if (strCrossContext != null){
-                    if (strCrossContext.trim().toLowerCase().equals("true")){
-                        webModuleData.setAttribute("crossContext",new Boolean(true));
+                if (anys.length == 1) {
+                    GerTomcatConfigType tomcatConfig = (GerTomcatConfigType)anys[0].changeType(GerTomcatConfigType.type);
+                    if (tomcatConfig.isSetHost()) {
+                        String virtualServer = tomcatConfig.getHost().trim();
+                        webModuleData.setAttribute("virtualServer", virtualServer);
                     }
-                }
-
-                //Is there a Tomcat realm declaration?
-                String tomcatRealm = (String) values.remove("TomcatRealm");
-                if (tomcatRealm != null) {
-                    ObjectName realmName = NameFactory.getComponentName(null, null, null, null, tomcatRealm.trim(), RealmGBean.GBEAN_INFO.getJ2eeType(), moduleJ2eeContext);
-                    webModuleData.setReferencePattern("TomcatRealm", realmName);
-                }
-                //Is there a Tomcat Valve Chain declaration?
-                String tomcatValveChain = (String) values.remove("TomcatValveChain");
-                if (tomcatValveChain != null) {
-                    ObjectName valveName = NameFactory.getComponentName(null, null, null, null, tomcatValveChain.trim(), ValveGBean.J2EE_TYPE, moduleJ2eeContext);
-                    //NameFactory.getComponentName(null, null, null, null, tomcatValveChain.trim(), ValveGbean., moduleJ2eeContext);
-                    webModuleData.setReferencePattern("TomcatValveChain", valveName);
-                }
-
-                // Are there any leftover values?  If so, that's a problem.
-                if(values.size() > 0) {
-                    StringBuffer msg = new StringBuffer();
-                    msg.append("Unexpected container-config/config-params found for Tomcat in web app deployment plan (");
-                    boolean first = true;
-                    for (Iterator it = values.keySet().iterator(); it.hasNext();) {
-                        String value = (String) it.next();
-                        if(!first) {
-                            msg.append(",");
-                        }
-                        msg.append(value);
+                    if (tomcatConfig.isSetCrossContext()) {
+                        webModuleData.setAttribute("crossContext", Boolean.TRUE);
                     }
-                    msg.append(")");
-                    throw new DeploymentException(msg.toString());
+                    if (tomcatConfig.isSetTomcatRealm()) {
+                        String tomcatRealm = tomcatConfig.getTomcatRealm().trim();
+                        ObjectName realmName = NameFactory.getComponentName(null, null, null, null, tomcatRealm, RealmGBean.GBEAN_INFO.getJ2eeType(), moduleJ2eeContext);
+                        webModuleData.setReferencePattern("TomcatRealm", realmName);
+                    }
+                    if (tomcatConfig.isSetValveChain()) {
+                        String valveChain = tomcatConfig.getValveChain().trim();
+                        ObjectName valveName = NameFactory.getComponentName(null, null, null, null, valveChain, ValveGBean.J2EE_TYPE, moduleJ2eeContext);
+                        webModuleData.setReferencePattern("TomcatValveChain", valveName);
+                    }
                 }
             }
 
@@ -524,9 +492,6 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 webModuleData.setReferencePattern("RoleDesignateSource", earContext.getJaccManagerName());
             }
 
-            if (virtualServer != null) {
-                webModuleData.setAttribute("virtualServer", virtualServer);
-            }
             earContext.addGBean(webModuleData);
 
         } catch (DeploymentException de) {

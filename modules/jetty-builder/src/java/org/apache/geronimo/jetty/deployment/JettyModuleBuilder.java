@@ -50,6 +50,7 @@ import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -88,6 +89,8 @@ import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.GerContainerConfigType;
+import org.apache.geronimo.xbeans.geronimo.web.jetty.GerJettyConfigType;
 import org.apache.geronimo.xbeans.j2ee.DispatcherType;
 import org.apache.geronimo.xbeans.j2ee.ErrorPageType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -141,6 +144,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     private final Repository repository;
     private final Kernel kernel;
+    private static final String JETTY_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/jetty";
+    private static final QName JETTY_CONFIG_QNAME = new QName(JETTY_CONFIG_NAMESPACE, "jetty");
 
     public JettyModuleBuilder(URI defaultParentId,
                               Integer defaultSessionTimeoutSeconds,
@@ -459,13 +464,23 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
 
-            String[] hosts = jettyWebApp.getVirtualHostArray();
-            for (int i = 0; i < hosts.length; i++) {
-                hosts[i] = hosts[i].trim();
+            if (jettyWebApp.isSetContainerConfig()) {
+                GerContainerConfigType containerConfig = jettyWebApp.getContainerConfig();
+                XmlObject[] anys = containerConfig.selectChildren(JETTY_CONFIG_QNAME);
+                if (anys.length > 1) {
+                    throw new DeploymentException("More than one jetty configuration element: " + anys);
+                }
+                if (anys.length == 1) {
+                    GerJettyConfigType jettyConfigType = (GerJettyConfigType)anys[0].changeType(GerJettyConfigType.type);
+                    String[] hosts = jettyConfigType.getVirtualHostArray();
+                    for (int i = 0; i < hosts.length; i++) {
+                        hosts[i] = hosts[i].trim();
+                    }
+                    webModuleData.setAttribute("virtualHosts", hosts);
+                }
             }
-            webModuleData.setAttribute("virtualHosts", hosts);
 
-                webModuleData.setAttribute("componentContext", compContext);
+            webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
             //classpath may have been augmented with enhanced classes
             webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());

@@ -3,8 +3,8 @@
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     configId="org/apache/geronimo/Console"
     parentId="org/apache/geronimo/RuntimeDeployer">
-    
-	<!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
+
+    <!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
     <dependency>
         <uri>portlet-api/jars/portlet-api-${portlet_api_version}.jar</uri>
     </dependency>
@@ -21,8 +21,10 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="console">
             <context-root>/console</context-root>
             <context-priority-classloader>false</context-priority-classloader>
-            <container-config container="Tomcat">
-                <config-param name="CrossContext">true</config-param>
+            <container-config>
+                <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat">
+                    <cross-context/>
+                </tomcat>
             </container-config>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
             <security>
@@ -39,23 +41,27 @@
             </security>
         </web-app>
     </module>
-    
+
     <module>
         <web>geronimo-console-standard-${pom.currentVersion}.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="console-standard">
             <context-root>/console-standard</context-root>
             <context-priority-classloader>false</context-priority-classloader>
-            <container-config container="Tomcat">
-                <config-param name="CrossContext">true</config-param>
+            <container-config>
+                <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat">
+                    <cross-context/>
+                </tomcat>
             </container-config>
         </web-app>
     </module>
 
     <!-- Console specific server info -->
     <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
-        <reference name="ServerInfo"><gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name></reference>
+        <reference name="ServerInfo">
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
+        </reference>
         <reference name="LoginModule">
-                <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
-	</reference>
-    </gbean>		
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
+        </reference>
+    </gbean>
 </application>

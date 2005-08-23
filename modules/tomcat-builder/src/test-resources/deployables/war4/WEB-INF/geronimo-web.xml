@@ -21,11 +21,13 @@
     configId="org/apache/geronimo/test">
 
     <context-root>/test</context-root>
-    <virtual-host>tomcathost</virtual-host>
     <context-priority-classloader>false</context-priority-classloader>
-    <container-config container="Tomcat">
-        <config-param name="TomcatRealm" >TomcatRealm</config-param>
-        <config-param name="TomcatValveChain">FirstValve</config-param>
+    <container-config>
+        <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat">
+<!--            <host>tomcathost</host>-->
+            <valve-chain>FirstValve</valve-chain>
+            <tomcat-realm>TomcatRealm</tomcat-realm>
+        </tomcat>
     </container-config>
 
     <security-realm-name>test</security-realm-name>
@@ -45,7 +47,10 @@
 
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
-        <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SecondValve</name></reference>
+        <reference name="NextValve">
+            <moduleType>J2EEModule</moduleType>
+            <name>SecondValve</name>
+        </reference>
     </gbean>
 
     <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
