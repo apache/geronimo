@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright 2004 The Apache Software Foundation
+    Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -148,13 +148,15 @@
         <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar" dest="${distDir}">
           <ant:patternset>
             <ant:include name="META-INF/schema/openejb-jar.xsd" />
+            <ant:include name="META-INF/schema/corba-css-config_1_0.xsd" />
+            <ant:include name="META-INF/schema/corba-tss-config_1_0.xsd" />
           </ant:patternset>
         </ant:unzip>
-<!--        <ant:move todir="${distDir}/schema">-->
-<!--          <ant:fileset dir="${distDir}/META-INF/schema">-->
-<!--            <ant:include name="*.xsd" />-->
-<!--          </ant:fileset>-->
-<!--        </ant:move>-->
+        <ant:move todir="${distDir}/schema">
+          <ant:fileset dir="${distDir}/META-INF/schema">
+            <ant:include name="*.xsd" />
+          </ant:fileset>
+        </ant:move>
         <ant:delete dir="${distDir}/META-INF" />
         <ant:fileScanner var="schemaScanner">
             <ant:fileset dir="${distDir}/schema">
