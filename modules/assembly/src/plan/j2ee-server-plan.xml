@@ -127,7 +127,11 @@ by the server.
     <dependency>
         <uri>activemq/jars/activemq-gbean-management-${activemq_version}.jar</uri>
     </dependency>
-
+    <!-- remote login -->
+    <dependency>
+        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+    </dependency>
+ 
     ${webcontainer}
 
     <!-- Default security realm using properties files -->
@@ -182,6 +186,11 @@ by the server.
         <!--        <attribute name="reclaimPeriod">100000</attribute>-->
         <attribute name="algorithm">HmacSHA1</attribute>
         <attribute name="password">secret</attribute>
+    </gbean>
+
+    <gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
+        <attribute name="bindURI">tcp://0.0.0.0:4242</attribute>
+        <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">

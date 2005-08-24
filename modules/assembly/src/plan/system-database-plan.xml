@@ -69,7 +69,7 @@
         <attribute name="port">${PlanDerbyPort}</attribute>
     </gbean>
 
-    <gbean name="JDBCTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
+    <gbean name="TransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount">5</attribute>
         <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>TransactionContextManager</name></reference>
         <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
@@ -78,7 +78,7 @@
         <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
     </gbean>
 
-    <gbean name="JDBCNonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
+    <gbean name="NonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
         <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>TransactionContextManager</name></reference>
         <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
         <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
