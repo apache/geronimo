@@ -26,6 +26,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnWeightData;
@@ -103,7 +104,7 @@ public abstract class DynamicTableSection extends SectionPart {
 
         section.setText(getTitle());
         section.setDescription(getDescription());
-        
+
         configureSection(section);
 
         Composite composite = createTableComposite(section, toolkit);
@@ -138,7 +139,7 @@ public abstract class DynamicTableSection extends SectionPart {
         return composite;
     }
 
-    protected void configureSection(Section section) {       
+    protected void configureSection(Section section) {
         section.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
     }
 
@@ -157,7 +158,7 @@ public abstract class DynamicTableSection extends SectionPart {
     protected void createTable(Composite composite) {
         table = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION
                 | SWT.V_SCROLL | SWT.SINGLE);
-        if (getTableColumnNames().length > 0) {
+        if (isHeaderVisible()) {
             table.setHeaderVisible(true);
         }
 
@@ -173,7 +174,6 @@ public abstract class DynamicTableSection extends SectionPart {
             tableLayout.addColumnData(new ColumnWeightData(35));
             TableColumn tableColumn = new TableColumn(table, SWT.NONE);
             tableColumn.setText(getTableColumnNames()[i]);
-
         }
 
     }
@@ -205,7 +205,7 @@ public abstract class DynamicTableSection extends SectionPart {
                     TableItem tableItem = table.getItem(selectedIndices[i]);
                     EObject type = (EObject) (tableItem.getData());
                     table.remove(selectedIndices[i]);
-                    ((EList) plan.eGet(getEReference())).remove(type);
+                    EcoreUtil.remove(type);
                     markDirty();
                 }
             }
@@ -268,12 +268,15 @@ public abstract class DynamicTableSection extends SectionPart {
     public String[] getTableText(EObject eObject) {
         List tableText = new ArrayList();
         for (int i = 0; i < getTableColumnEAttributes().length; i++) {
-            String value = (String) eObject
-                    .eGet(getTableColumnEAttributes()[i]);
-            if (value != null) {
-                tableText.add(value);
-            } else {
-                tableText.add("");
+            if (getTableColumnEAttributes()[i].getEContainingClass().equals(
+                    eObject.eClass())) {
+                String value = (String) eObject
+                        .eGet(getTableColumnEAttributes()[i]);
+                if (value != null) {
+                    tableText.add(value);
+                } else {
+                    tableText.add("");
+                }
             }
         }
         return (String[]) tableText.toArray(new String[tableText.size()]);
@@ -289,6 +292,10 @@ public abstract class DynamicTableSection extends SectionPart {
 
     public EObject getPlan() {
         return plan;
+    }
+
+    public boolean isHeaderVisible() {
+        return true;
     }
 
     /**

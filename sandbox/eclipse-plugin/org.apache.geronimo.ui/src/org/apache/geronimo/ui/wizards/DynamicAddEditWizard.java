@@ -78,7 +78,8 @@ public abstract class DynamicAddEditWizard extends Wizard {
             eObject = section.getEFactory().create(
                     section.getTableColumnEAttributes()[0]
                             .getEContainingClass());
-            EObject plan = section.getPlan();
+            EObject plan = section.getPlan();           
+            
             ((EList) plan.eGet(section.getEReference())).add(eObject);
             isNew = true;
         }
@@ -183,7 +184,7 @@ public abstract class DynamicAddEditWizard extends Wizard {
             }
 
             setControl(composite);
-
+                        
             textEntries[0].setFocus();
 
         }
