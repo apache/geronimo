@@ -23,7 +23,7 @@
             <context-priority-classloader>false</context-priority-classloader>
             <container-config>
                 <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat">
-                    <cross-context/>
+                    <cross-context>true</cross-context>
                 </tomcat>
             </container-config>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
