@@ -46,6 +46,16 @@
 	       enablesFor="1">
 	    </action>
 	 </objectContribution>
- </extension>
+  </extension>
+  
+  <extension point="org.eclipse.wst.server.ui.editorPageSections">   
+      <section
+         id="org.apache.server.geronimo.security"
+         order="10"
+         insertionId="org.eclipse.wst.server.editor.overview.left"
+         typeIds="org.eclipse.jst.server.geronimo.10"
+         class="org.apache.geronimo.ui.sections.ServerSecurityEditorSection">
+      </section>
+   </extension>
 
 </plugin>
