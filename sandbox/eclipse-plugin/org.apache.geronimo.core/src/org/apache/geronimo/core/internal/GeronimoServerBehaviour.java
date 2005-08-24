@@ -63,7 +63,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jst.server.core.IJ2EEModule;
 import org.eclipse.jst.server.generic.core.internal.GenericServerBehaviour;
-import org.eclipse.jst.server.generic.core.internal.Trace;
 import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.IServer;
 
@@ -139,12 +138,13 @@ public class GeronimoServerBehaviour extends GenericServerBehaviour {
 	/* (non-Javadoc)
 	 * @see org.eclipse.wst.server.core.model.ServerBehaviourDelegate#stop(boolean)
 	 */
-	public void stop(boolean force) {
+	public void stop(boolean force) {       
 	               
 		if (getKernel() != null) {
             //lets shutdown the kernel so shutdown messages are displayed in the console view
 			kernel.shutdown();
-		}
+		}           
+                
 
 		dm = null;
 		kernel = null;
@@ -171,7 +171,7 @@ public class GeronimoServerBehaviour extends GenericServerBehaviour {
 						MBeanServerConnection mbServerConnection = jmxConnector
 								.getMBeanServerConnection();
 						kernel = new KernelDelegate(mbServerConnection);
-						Trace.trace("Connected to kernel.");
+						Trace.trace(Trace.INFO, "Connected to kernel.");
 						break;
 					} catch (Exception e) {
 						Thread.sleep(3000);
@@ -207,9 +207,9 @@ public class GeronimoServerBehaviour extends GenericServerBehaviour {
 						if (kernel.getGBeanState(configName) == 1) {
 							started = true;
                             setServerState(IServer.STATE_STARTED);
-							Trace.trace("RuntimeDeployer has started.");
+							Trace.trace(Trace.INFO, "RuntimeDeployer has started.");
 						} else {
-							Trace.trace("RuntimeDeployer has not yet started.");
+							Trace.trace(Trace.INFO, "RuntimeDeployer has not yet started.");
 						}
 					}
 				} catch (InternalKernelException e) {
@@ -232,7 +232,7 @@ public class GeronimoServerBehaviour extends GenericServerBehaviour {
 	}
 
 	public void publishModule(int kind, int deltaKind, IModule[] module, IProgressMonitor monitor)
-			throws CoreException {
+			throws CoreException {                
 
 		_monitor = monitor;
 
@@ -292,12 +292,12 @@ public class GeronimoServerBehaviour extends GenericServerBehaviour {
 			String message = DeploymentStatusMessageTranslator.getTranslatedMessage(event, project);			
 			if (!message.equals(lastMessage)) {
                 _monitor.setTaskName(message);
-				Trace.trace(message);
+				Trace.trace(Trace.INFO,message);
 			}
 			lastMessage = message;
 			DeploymentStatus status = event.getDeploymentStatus();
 			if (status.getMessage() != null) {
-				Trace.trace("\t" + status.getMessage());
+				Trace.trace(Trace.INFO,"\t" + status.getMessage());
 				_monitor.subTask(status.getMessage());
 			}
 			if (cmd == null || cmd == status.getCommand()) {
@@ -345,7 +345,7 @@ public class GeronimoServerBehaviour extends GenericServerBehaviour {
 
 		GeronimoUtils.getConfigId(module); //triggers web dp creation
 
-		GeronimoUtils.copyDeploymentPlanToDeployable(module); // Temporary
+		//GeronimoUtils.copyDeploymentPlanToDeployable(module); // Temporary
 
 		try {
 			switch (deltaKind) {
