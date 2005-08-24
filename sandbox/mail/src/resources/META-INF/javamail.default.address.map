@@ -1,0 +1,10 @@
+# This file configures the default behaviour of JavaMail. DO NOT EDIT.
+# Create a new file /META-INF/javamail.address.map and put
+# the same format lines in there.
+#
+# Note that you can't override these defaults, merely add to them.
+#
+# 1.3 2003/08/28 12:52:52
+#
+rfc822=smtp
+news=nntp
