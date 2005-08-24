@@ -29,17 +29,12 @@
     <xs:complexType name="tomcat-configType">
         <xs:sequence>
             <xs:element name="host" type="xs:string" minOccurs="0"/>
-            <xs:element name="cross-context" type="tomcat:trueFalseType" minOccurs="0"/>
+            <xs:element name="cross-context" type="tomcat:emptyType" minOccurs="0"/>
             <xs:element name="valve-chain" type="xs:string" minOccurs="0"/>
             <xs:element name="tomcat-realm" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:simpleType name="trueFalseType">
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="true"/>
-            <xs:enumeration value="false"/>
-        </xs:restriction>
-    </xs:simpleType>
+    <xs:complexType name="emptyType"/>
     
 </xs:schema>
