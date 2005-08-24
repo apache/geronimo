@@ -106,7 +106,7 @@ public class J2EEServerImpl implements J2EEServer {
     public String[] getResources() {
         return Util.getObjectNames(kernel,
                 baseName,
-                new String[]{"JavaMailResource", "JCAConnectionFactory", "JDBCResource", "JDBCDriver", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
+                new String[]{"JCAResource", "JavaMailResource", "JDBCResource", "JMSResource", "JNDIResource", "JTAResource", "RMI_IIOPResource", "URLResource"});
     }
 
     public String[] getJavaVMs() {
