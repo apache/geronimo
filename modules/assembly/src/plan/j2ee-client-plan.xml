@@ -73,7 +73,10 @@ by the app client.
     <dependency>
         <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
     </dependency>
-
+    <dependency>
+        <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
+    </dependency>
+ 
     <!--client side web services-->
     <dependency>
         <uri>asm/jars/asm-${asm_version}.jar</uri>
