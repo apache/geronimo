@@ -57,10 +57,6 @@ public class Messages extends NLS {
     public static String editorSectionSecurityRolesTitle;
 
     public static String editorSectionSecurityRolesDescription;
-    
-    public static String name;
-    
-    public static String description;
 
     public static String name;
 
@@ -151,16 +147,6 @@ public class Messages extends NLS {
     public static String wizardPageTitle_EjbLocalRef;
 
     public static String wizardPageDescription_EjbLocalRef;
-
-    //
-
-    public static String wizardNewTitle_SecurityRole;
-
-    public static String wizardEditTitle_SecurityRole;
-
-    public static String wizardPageTitle_SecurityRole;
-
-    public static String wizardPageDescription_SecurityRole;
 
     //
 

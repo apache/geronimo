@@ -161,7 +161,8 @@ public class SecuritySection extends DynamicTableSection {
                 .setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
         roleNameText.setEnabled(true);
 
-        Label roleDescriptionLabel = toolkit.createLabel(detail, Messages.description + ":");
+        Label roleDescriptionLabel = toolkit.createLabel(detail,
+                Messages.description + ":");
         roleDescriptionLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
                 false, false));
         roleDescriptionLabel.setEnabled(true);
@@ -187,14 +188,17 @@ public class SecuritySection extends DynamicTableSection {
 
         SecurityType secType = (SecurityType) getPlan().eGet(securityERef);
 
-        EList list = (EList) (secType.getRoleMappings().getRole());
+        if (secType != null) {
 
-        for (int j = 0; j < list.size(); j++) {
-            TableItem item = new TableItem(table, SWT.NONE);
-            String[] tableTextData = getTableText((EObject) list.get(j));
-            item.setImage(getImage());
-            item.setText(tableTextData);
-            item.setData((EObject) list.get(j));
+            EList list = (EList) (secType.getRoleMappings().getRole());
+
+            for (int j = 0; j < list.size(); j++) {
+                TableItem item = new TableItem(table, SWT.NONE);
+                String[] tableTextData = getTableText((EObject) list.get(j));
+                item.setImage(getImage());
+                item.setText(tableTextData);
+                item.setData((EObject) list.get(j));
+            }
         }
     }
 
@@ -213,9 +217,10 @@ public class SecuritySection extends DynamicTableSection {
             TableItem item = (TableItem) e.item;
             RoleType roleType = (RoleType) item.getData();
             roleName.setText(roleType.getRoleName());
-            
-            if(!roleType.getDescription().isEmpty()) {
-                description.setText(((DescriptionType)roleType.getDescription().get(0)).getLang());
+
+            if (!roleType.getDescription().isEmpty()) {
+                description.setText(((DescriptionType) roleType
+                        .getDescription().get(0)).getLang());
             } else {
                 description.setText("");
             }

@@ -83,7 +83,7 @@ public class ExportDeploymentPlanOperation extends AbstractDataModelOperation
             for (int i = 0; i < refs.length; i++) {
                 IVirtualComponent refComp = refs[i].getReferencedComponent();
                 EObject plan = getDeploymentPlanForComponent(refComp);
-                if(plan != null) {
+                if (plan != null) {
                     addToGeronimoApplicationPlan(plan, refComp);
                 }
             }
@@ -91,10 +91,11 @@ public class ExportDeploymentPlanOperation extends AbstractDataModelOperation
 
         return null;
     }
-    
-    //TODO
-    private void addToGeronimoApplicationPlan(EObject eObject, IVirtualComponent component) {
-        
+
+    // TODO
+    private void addToGeronimoApplicationPlan(EObject eObject,
+            IVirtualComponent component) {
+
     }
 
     private EObject getDeploymentPlanForComponent(IVirtualComponent comp) {
@@ -111,19 +112,8 @@ public class ExportDeploymentPlanOperation extends AbstractDataModelOperation
     private EObject getWebDeploymentPlan(IVirtualComponent comp) {
         IPath deployPlanPath = comp.getRootFolder().getUnderlyingFolder()
                 .getProjectRelativePath().append("WEB-INF").append(
-                        WEB_PLAN_NAME);
-
-        IFile planFile = comp.getProject().getFile(deployPlanPath);
-
-        if (planFile.exists()) {
-            Resource resource = load(planFile);
-            if (resource != null) {
-                return (EObject) resource.getContents().get(0);
-            }
-        }
-
-        return null;
-
+                        WEB_PLAN_NAME);        
+        return load(comp.getProject().getFile(deployPlanPath));
     }
 
     private EObject getOpenEjbDeploymentPlan(IVirtualComponent comp) {
@@ -153,23 +143,25 @@ public class ExportDeploymentPlanOperation extends AbstractDataModelOperation
         return null;
     }
 
-    public Resource load(IFile file) {
-        try {
-            ResourceSet resourceSet = new ResourceSetImpl();
-            DeploymentPlanCreationOperation.registerForWeb(resourceSet);
+    public EObject load(IFile file) {
+        if (file.exists()) {
+            try {
+                ResourceSet resourceSet = new ResourceSetImpl();
+                DeploymentPlanCreationOperation.registerForWeb(resourceSet);
 
-            URI uri = URI.createPlatformResourceURI(file.getFullPath()
-                    .toString());
+                URI uri = URI.createPlatformResourceURI(file.getFullPath()
+                        .toString());
 
-            Resource resource = resourceSet.createResource(uri);
-            if (!resource.isLoaded()) {
-                resource.load(null);
+                Resource resource = resourceSet.createResource(uri);
+                if (!resource.isLoaded()) {
+                    resource.load(null);
+                }
+                return (EObject) resource.getContents().get(0);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            return resource;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return null;
     }

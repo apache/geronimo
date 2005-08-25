@@ -25,5 +25,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.workbench,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.browser,
- org.eclipse.wst.server.ui
+ org.eclipse.wst.server.ui,
+  org.eclipse.jst.server.generic.core
 Eclipse-AutoStart: true
