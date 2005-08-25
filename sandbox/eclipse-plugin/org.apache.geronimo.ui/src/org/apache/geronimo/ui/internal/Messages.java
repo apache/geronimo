@@ -62,6 +62,10 @@ public class Messages extends NLS {
     
     public static String description;
 
+    public static String name;
+
+    public static String description;
+
     //
 
     public static String editorResourceRefDescription;
@@ -157,6 +161,24 @@ public class Messages extends NLS {
     public static String wizardPageTitle_SecurityRole;
 
     public static String wizardPageDescription_SecurityRole;
+
+    //
+
+    public static String wizardNewTitle_SecurityRole;
+
+    public static String wizardEditTitle_SecurityRole;
+
+    public static String wizardPageTitle_SecurityRole;
+
+    public static String wizardPageDescription_SecurityRole;
+
+    public static String editorSectionSecurityTitle;
+
+    public static String editorSectionSecurityDescription;
+
+    public static String username;
+
+    public static String password;
 
     static {
         NLS.initializeMessages(GeronimoUIPlugin.PLUGIN_ID

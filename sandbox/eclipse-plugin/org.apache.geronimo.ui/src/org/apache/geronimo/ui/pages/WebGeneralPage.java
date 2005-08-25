@@ -43,7 +43,7 @@ public class WebGeneralPage extends FormPage {
      */
     protected void createFormContent(IManagedForm managedForm) {
 
-        WebAppType plan = ((DPEditor) getEditor()).getPlan();
+        WebAppType plan = (WebAppType) ((DPEditor) getEditor()).getDeploymentPlan();
 
         ScrolledForm form = managedForm.getForm();
         form.setText(getTitle());

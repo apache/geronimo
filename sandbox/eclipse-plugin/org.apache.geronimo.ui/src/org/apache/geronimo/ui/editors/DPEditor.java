@@ -15,142 +15,32 @@
  */
 package org.apache.geronimo.ui.editors;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-
 import org.apache.geronimo.core.internal.GeronimoUtils;
 import org.apache.geronimo.ui.internal.Messages;
-import org.apache.geronimo.ui.internal.Trace;
 import org.apache.geronimo.ui.pages.NamingFormPage;
 import org.apache.geronimo.ui.pages.SecurityPage;
 import org.apache.geronimo.ui.pages.WebGeneralPage;
-import org.apache.geronimo.xml.ns.web.WebAppType;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.forms.IManagedForm;
-import org.eclipse.ui.forms.editor.FormEditor;
-import org.eclipse.ui.forms.editor.IFormPage;
-import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 
-public class DPEditor extends FormEditor {
-
-    protected FormToolkit toolkit;
-
-    protected WebAppType plan;
+public class DPEditor extends AbstractGeronimoDeploymentPlanEditor {
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.eclipse.ui.ISaveablePart#doSave(org.eclipse.core.runtime.IProgressMonitor)
+     * @see org.apache.geronimo.ui.editors.AbstractGeronimoDeploymentPlanEditor#doAddPages()
      */
-    public void doSave(IProgressMonitor monitor) {
-
-        InputStream is = null;
-        try {
-            IEditorInput input = getEditorInput();
-            if (input instanceof IFileEditorInput) {
-
-                plan.eResource().save(Collections.EMPTY_MAP);
-                commitFormPages(true);
-                editorDirtyStateChanged();
-
-            }
-        } catch (Exception e) {
-            Trace.trace(Trace.SEVERE, "Error saving", e);
-        } finally {
-            try {
-                if (is != null)
-                    is.close();
-            } catch (Exception e) {
-                // do nothing
-            }
-        }
-
+    public void doAddPages() throws PartInitException {
+        addPage(new WebGeneralPage(this, "generalpage",
+                Messages.editorTabGeneral));
+        addPage(new NamingFormPage(this, "namingpage", Messages.editorTabNaming));
+        addPage(new SecurityPage(this, "securitypage",
+                Messages.editorTabSecurity));
     }
 
-    private void commitFormPages(boolean onSave) {
-        IFormPage[] pages = getPages();
-        for (int i = 0; i < pages.length; i++) {
-            IFormPage page = pages[i];
-            IManagedForm mform = page.getManagedForm();
-            if (mform != null && mform.isDirty())
-                mform.commit(true);
-        }
+    public EObject loadDeploymentPlan(IFile file) {
+        return GeronimoUtils.getWebDeploymentPlan(file);
     }
 
-    private IFormPage[] getPages() {
-        ArrayList formPages = new ArrayList();
-        for (int i = 0; i < pages.size(); i++) {
-            Object page = pages.get(i);
-            if (page instanceof IFormPage)
-                formPages.add(page);
-        }
-        return (IFormPage[]) formPages.toArray(new IFormPage[formPages.size()]);
-    }
-
-    public void doSaveAs() {
-        // ignore
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.forms.editor.FormEditor#addPages()
-     */
-    protected void addPages() {
-        try {
-            addPage(new WebGeneralPage(this, "generalpage",
-                    Messages.editorTabGeneral));
-            addPage(new NamingFormPage(this, "namingpage",
-                    Messages.editorTabNaming));
-            addPage(new SecurityPage(this, "securitypage",
-                    Messages.editorTabSecurity));
-            createPageDependencies();
-        } catch (PartInitException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    protected void createPageDependencies() {
-
-        ScrolledForm form = getToolkit().createScrolledForm(getContainer());
-
-        form.setText(Messages.editorTitle);
-        form.getBody().setLayout(new GridLayout());
-
-        form.reflow(true);
-
-        int index = addPage(form);
-        setPageText(index, Messages.editorTabDependencies); //$NON-NLS-1$
-
-    }
-
-    public void init(IEditorSite site, IEditorInput input)
-            throws PartInitException {
-        super.init(site, input);
-        if (input instanceof IFileEditorInput) {
-            IFileEditorInput fei = (IFileEditorInput) input;
-            plan = GeronimoUtils.getWebDeploymentPlan(fei.getFile());
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.ISaveablePart#isSaveAsAllowed()
-     */
-    public boolean isSaveAsAllowed() {
-        return false;
-    }
-
-    public WebAppType getPlan() {
-        return plan;
-    }
 }

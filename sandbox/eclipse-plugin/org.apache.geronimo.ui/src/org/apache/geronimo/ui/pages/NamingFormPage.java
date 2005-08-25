@@ -63,7 +63,7 @@ public class NamingFormPage extends FormPage {
 
     private void fillBody(IManagedForm managedForm) {
 
-        WebAppType plan = ((DPEditor) getEditor()).getPlan();
+        WebAppType plan = (WebAppType) ((DPEditor) getEditor()).getDeploymentPlan();
 
         Composite body = managedForm.getForm().getBody();
 
