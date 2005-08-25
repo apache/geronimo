@@ -46,6 +46,7 @@
         <attainGoal name="build"/>
     </goal>
 
+
     <goal name="build">
         <attainGoal name="jar:install"/>
     </goal>
@@ -448,7 +449,7 @@
                 <ant:arg value="manager"/>
                 <ant:arg value="distribute"/>
                 <ant:arg value="target/plan/default-database-plan.xml"/>
-<!--                <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"/>-->
+                <ant:arg value="${maven.repo.local}/geronimo/rars/geronimo-derby-connector-${pom.currentVersion}.rar"/>
             </ant:java>
 
             <!-- building system database configuration-->

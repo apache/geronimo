@@ -18,31 +18,19 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+    version="1.5"
     configId="org/apache/geronimo/DefaultDatabase"
     parentId="org/apache/geronimo/Server">
 
-    <ext-module>
-        <connector>DefaultDatabase</connector>
-        <external-path>tranql/rars/tranql-connector-${tranql_connector_version}.rar</external-path>
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    version="1.5"
-    configId="org/apache/geronimo/DefaultDatabasex">
-
     <dependency>
-        <uri>axion/jars/axion-${axion_version}.jar</uri>
+        <uri>org.apache.derby/jars/derby-${derby_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
+        <uri>org.apache.derby/jars/derbynet-${derby_version}.jar</uri>
     </dependency>
-
     <dependency>
-        <uri>commons-primitives/jars/commons-primitives-${commons_primitives_version}.jar</uri>
-    </dependency>
-
-    <dependency>
-        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
+        <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
     </dependency>
 
     <resourceadapter>
@@ -53,33 +41,15 @@
                     <name>DefaultDatasource</name>
                     <config-property-setting name="UserName"></config-property-setting>
                     <config-property-setting name="Password"></config-property-setting>
-                    <config-property-setting name="Driver">org.axiondb.jdbc.AxionDriver</config-property-setting>
-                    <config-property-setting name="ConnectionURL">jdbc:axiondb:DefaultDatabase</config-property-setting>
-                    <config-property-setting name="CommitBeforeAutocommit">true</config-property-setting>
-                    <config-property-setting name="ExceptionSorterClass">org.tranql.connector.NoExceptionsAreFatalSorter</config-property-setting>
+                    <config-property-setting name="DatabaseName">DefaultDatasource</config-property-setting>
+                    <config-property-setting name="CreateDatabase">create</config-property-setting>
                     <connectionmanager>
-                        <local-transaction/>
                         <single-pool>
-                            <max-size>10</max-size>
-                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
                             <match-one/>
                         </single-pool>
                     </connectionmanager>
-                    <global-jndi-name>tranql/axion</global-jndi-name>
-                    <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
                 </connectiondefinition-instance>
             </connection-definition>
         </outbound-resourceadapter>
     </resourceadapter>
-
-    <!--gbean gbeanName="geronimo.security:service=RealmBridge,name=TargetRealm" class="org.apache.geronimo.security.bridge.ConfiguredIdentityUserPasswordRealmBridge">
-        <attribute name="TargetRealm">TargetRealm</attribute>
-        <attribute name="ConfiguredUser">testUser</attribute>
-        <attribute name="ConfiguredPassword">testPassword</attribute>
-    </gbean-->
-
 </connector>
-
-
-    </ext-module>
-</application>
