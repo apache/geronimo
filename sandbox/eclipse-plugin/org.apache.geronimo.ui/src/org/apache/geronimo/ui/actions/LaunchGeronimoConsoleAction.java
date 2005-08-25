@@ -84,7 +84,7 @@ public class LaunchGeronimoConsoleAction implements IObjectActionDelegate {
         IServer server = (IServer) ((StructuredSelection) selection)
                 .getFirstElement();
         
-        boolean enable = server.getServerType().getId().equals(serverID)
+        boolean enable = serverID.equals(server.getServerType().getId())
                 && server.getServerState() == IServer.STATE_STARTED;
 
         action.setEnabled(enable);
