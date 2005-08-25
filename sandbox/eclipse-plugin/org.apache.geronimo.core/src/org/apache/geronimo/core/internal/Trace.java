@@ -18,30 +18,22 @@ package org.apache.geronimo.core.internal;
  * Helper class to route trace output.
  */
 public class Trace {
-	/**
-	 * Config trace event.
-	 */
-	public static byte CONFIG = 0;
-
-	/**
-	 * Warning trace event.
-	 */
-	public static byte WARNING = 1;
-
-	/**
-	 * Severe trace event.
-	 */
-	public static byte SEVERE = 2;
 
 	/**
 	 * Finest trace event.
 	 */
-	public static byte FINEST = 3;
+	public static byte INFO = 0;
+    
+    /**
+     * Warning trace event.
+     */
+    public static byte WARNING = 1;
+    
+    /**
+     * Severe trace event.
+     */
+    public static byte SEVERE = 2;
 
-	/**
-	 * Parsing trace event.
-	 */
-	public static byte PARSING = 4;
 
 	/**
 	 * Trace constructor comment.
@@ -71,7 +63,7 @@ public class Trace {
 		if (!GeronimoPlugin.getInstance().isDebugging())
 			return;
 
-		System.out.println(GeronimoPlugin.PLUGIN_ID + " " + s);
+		System.out.println(GeronimoPlugin.PLUGIN_ID + ":  " + s);
 		if (t != null)
 			t.printStackTrace();
 	}

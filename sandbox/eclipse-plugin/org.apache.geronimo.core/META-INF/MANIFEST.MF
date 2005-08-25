@@ -25,6 +25,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.geronimo.runtime.v1,
  org.eclipse.wst.common.frameworks,
  org.eclipse.core.commands,
- org.apache.geronimo.deployment.model
+ org.apache.geronimo.deployment.model,
+ org.eclipse.jem.util
 Eclipse-AutoStart: true
 Export-Package: org.apache.geronimo.core.internal;x-friends:="org.apache.geronimo.ui"

@@ -31,6 +31,8 @@
            class="org.apache.geronimo.core.internal.GeronimoServer"
            initialState="stopped"
            supportsRemoteHosts="false"
+           startTimeout="75000"
+	       stopTimeout="30000"
            startBeforePublish="true"
            runtimeTypeId="org.eclipse.jst.server.runtime.geronimo.10"
            launchConfigId="org.eclipse.jst.server.generic.core.launchConfigurationType"

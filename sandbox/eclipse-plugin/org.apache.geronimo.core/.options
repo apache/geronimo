@@ -1,4 +1,1 @@
-# Debugging options for the org.eclipse.jst.server.geronimo.core plugin
-
-# Turn on general debugging
-org.eclipse.jst.server.geronimo.core/debug=true
+org.apache.geronimo.core/debug=true

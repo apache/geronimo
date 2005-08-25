@@ -40,6 +40,7 @@ import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IFlexibleProject;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.server.core.IModule;
+import org.openejb.xml.ns.openejb.jar.OpenejbJarType;
 
 public class GeronimoUtils {
 
@@ -185,6 +186,16 @@ public class GeronimoUtils {
             Resource resource = load(dpFile);
             if (resource != null) {
                 return ((DocumentRoot) resource.getContents().get(0)).getWebApp();
+            }
+        } 
+        return null;
+    }
+    
+    public static OpenejbJarType getOpenEjbDeploymentPlan(IFile dpFile) {       
+        if (dpFile.exists()) {
+            Resource resource = load(dpFile);
+            if (resource != null) {
+                return ((org.openejb.xml.ns.openejb.jar.DocumentRoot) resource.getContents().get(0)).getOpenejbJar();
             }
         } 
         return null;
