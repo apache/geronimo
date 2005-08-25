@@ -30,6 +30,7 @@ public class SecurityHolder implements Serializable
     private PermissionCollection checked;
     private PermissionCollection excluded;
     private String securityRealm;
+    private boolean security;
 
     public SecurityHolder()
     {
@@ -38,6 +39,7 @@ public class SecurityHolder implements Serializable
         checked = null;
         excluded = null;
         securityRealm = null;
+        security = false;
     }
 
     public String getSecurityRealm() {
@@ -87,4 +89,13 @@ public class SecurityHolder implements Serializable
     {
         this.policyContextID = policyContextID;
     }
+
+    public boolean isSecurity() {
+        return security;
+    }
+
+    public void setSecurity(boolean security) {
+        this.security = security;
+    }
+    
 }
