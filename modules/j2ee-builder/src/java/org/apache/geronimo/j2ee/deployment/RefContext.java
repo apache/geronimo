@@ -20,6 +20,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -33,6 +35,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 
 
 /**
@@ -44,6 +47,8 @@ public class RefContext {
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
     private final Kernel kernel;
+
+    private final Map messageDestinations = new HashMap();
 
     public RefContext(EJBReferenceBuilder ejbReferenceBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         assert ejbReferenceBuilder != null: "ejbReferenceBuilder is null";
@@ -69,6 +74,12 @@ public class RefContext {
         this.resourceReferenceBuilder = resourceReferenceBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
         this.kernel = refContext.kernel;
+    }
+
+    //registration methods
+
+    public void registerMessageDestionations(String moduleName, Map nameMap) throws DeploymentException {
+        messageDestinations.put(moduleName, nameMap);
     }
 
 
@@ -124,15 +135,32 @@ public class RefContext {
         return containerName.getCanonicalName();
     }
 
-
-    public String getAdminObjectContainerId(URI module, String resourceLink, NamingContext context) throws UnresolvedReferenceException {
-        J2eeContext j2eeContext = context.getJ2eeContext();
-        //TODO deal correctly with message-destination-links and message-destination elements. see GERONIMO-892
-        int pos = resourceLink.indexOf('#');
+    public Object getMessageDestination(String messageDestinationLink) throws DeploymentException {
+        Object destination = null;
+        int pos = messageDestinationLink.indexOf('#');
         if (pos > -1) {
-            resourceLink = resourceLink.substring(pos + 1);
+            String targetModule = messageDestinationLink.substring(0, pos);
+            Map destinations = (Map) messageDestinations.get(targetModule);
+            messageDestinationLink = messageDestinationLink.substring(pos + 1);
+            destination = destinations.get(messageDestinationLink);
+        } else {
+            for (Iterator iterator = messageDestinations.values().iterator(); iterator.hasNext();) {
+                Map destinations = (Map) iterator.next();
+                Object destinationTest = destinations.get(messageDestinationLink);
+                if (destinationTest != null) {
+                    if (destination != null) {
+                        throw new DeploymentException("Duplicate message destination " + messageDestinationLink + " accessed from a message-destination-link without a module");
+                    }
+                    destination = destinationTest;
+                }
+            }
         }
-        ObjectName containerName = locateComponentName(resourceLink, module, NameFactory.JCA_RESOURCE, NameFactory.JCA_ADMIN_OBJECT, j2eeContext, context, "admin object");
+        return destination;
+    }
+
+    public String getAdminObjectContainerId(URI moduleURI, String resourceLink, NamingContext context) throws DeploymentException {
+        J2eeContext j2eeContext = context.getJ2eeContext();
+        ObjectName containerName = locateComponentName(resourceLink, moduleURI, NameFactory.JCA_RESOURCE, NameFactory.JCA_ADMIN_OBJECT, j2eeContext, context, "admin object");
         return containerName.getCanonicalName();
     }
 
@@ -258,7 +286,7 @@ public class RefContext {
         try {
             query = NameFactory.getComponentNameQuery(null, null, null, moduleType, moduleName, name, type, j2eeContext);
         } catch (MalformedObjectNameException e1) {
-            throw (UnresolvedReferenceException)new UnresolvedReferenceException("Could not construct " + queryType + " object name query", false, null).initCause(e1);
+            throw (UnresolvedReferenceException) new UnresolvedReferenceException("Could not construct " + queryType + " object name query", false, null).initCause(e1);
         }
         Set matches = context.listGBeans(query);
         if (matches.size() > 1) {
@@ -287,7 +315,7 @@ public class RefContext {
         try {
             query = NameFactory.getComponentRestrictedQueryName(null, null, name, type, j2eeContext);
         } catch (MalformedObjectNameException e1) {
-            throw (UnresolvedReferenceException)new UnresolvedReferenceException("Could not construct " + queryType + " object name query", false, null).initCause(e1);
+            throw (UnresolvedReferenceException) new UnresolvedReferenceException("Could not construct " + queryType + " object name query", false, null).initCause(e1);
         }
         return locateUniqueGBeanData(query, queryType);
     }

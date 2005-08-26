@@ -32,15 +32,14 @@
         </xsd:documentation>
     </xsd:annotation>
 
-    <!--
- temporary (I hope) individual elements while xmlbeans group handling is straightened out
- -->
 
     <xsd:element name="ejb-ref" type="gernaming:ejb-refType"/>
-    <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>
+    <!--    <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>-->
     <xsd:element name="service-ref" type="gernaming:service-refType"/>
     <xsd:element name="resource-ref" type="gernaming:resource-refType"/>
     <xsd:element name="resource-env-ref" type="gernaming:resource-env-refType"/>
+
+    <xsd:element name="message-destination" type="gernaming:message-destinationType"/>
 
     <xsd:group name="jndiEnvironmentRefsGroup">
         <xsd:annotation>
@@ -141,6 +140,24 @@
             <xsd:choice>
                 <xsd:group ref="gernaming:objectNameGroup"/>
                 <xsd:element name="message-destination-link" type="xsd:string"/>
+                <xsd:sequence>
+                    <xsd:element name="admin-object-module" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="admin-object-link" type="xsd:string"/>
+                </xsd:sequence>
+                <xsd:element name="target-name" type="xsd:string"/>
+            </xsd:choice>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="message-destinationType">
+        <xsd:sequence>
+            <xsd:element name="message-destination-name" type="xsd:string"/>
+            <xsd:choice>
+                <xsd:group ref="gernaming:objectNameGroup"/>
+                <xsd:sequence>
+                    <xsd:element name="admin-object-module" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="admin-object-link" type="xsd:string"/>
+                </xsd:sequence>
                 <xsd:element name="target-name" type="xsd:string"/>
             </xsd:choice>
         </xsd:sequence>

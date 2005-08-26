@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Iterator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.NamingException;
@@ -55,6 +56,7 @@ import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerCssType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.EjbRefType;
 import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
@@ -67,6 +69,7 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.xbeans.j2ee.XsdStringType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 
 /**
  * @version $Rev$ $Date$
@@ -74,6 +77,28 @@ import org.apache.geronimo.xbeans.j2ee.XsdStringType;
 public class ENCConfigBuilder {
 
     private static final String JAXR_CONNECTION_FACTORY_CLASS = "javax.xml.registry.ConnectionFactory";
+
+    public static void registerMessageDestinations(RefContext refContext, String moduleName, MessageDestinationType[] specDestinations, GerMessageDestinationType[] destinations) throws DeploymentException {
+        Map nameMap = new HashMap();
+        for (int i = 0; i < destinations.length; i++) {
+            GerMessageDestinationType destination = destinations[i];
+            String name = destination.getMessageDestinationName().trim();
+            nameMap.put(name, destination);
+            boolean found = false;
+            for (int j = 0; j < specDestinations.length; j++) {
+                MessageDestinationType specDestination = specDestinations[j];
+                if (specDestination.getMessageDestinationName().getStringValue().trim().equals(name)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new DeploymentException("No spec DD message-destination for " + name);
+            }
+        }
+        refContext.registerMessageDestionations(moduleName, nameMap);
+    }
+
 
     public static ObjectName getGBeanId(String j2eeType, GerGbeanLocatorType gerGbeanLocator, J2eeContext j2eeContext, DeploymentContext context, Kernel kernel) throws DeploymentException {
         ObjectName containerId = null;
@@ -239,7 +264,7 @@ public class ENCConfigBuilder {
         return containerId;
     }
 
-    public static void addResourceEnvRefs(EARContext earContext, URI moduleURI, ResourceEnvRefType[] resourceEnvRefArray, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    public static void addResourceEnvRefs(EARContext earContext, ResourceEnvRefType[] resourceEnvRefArray, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
@@ -256,7 +281,7 @@ public class ENCConfigBuilder {
             }
             GerResourceEnvRefType gerResourceEnvRef = (GerResourceEnvRefType) refMap.get(name);
             try {
-                String containerId = getAdminObjectContainerId(name, moduleURI, gerResourceEnvRef, earContext);
+                String containerId = getAdminObjectContainerId(name, gerResourceEnvRef, earContext);
                 Reference ref = earContext.getRefContext().getAdminObjectRef(containerId, iface);
 
                 builder.bind(name, ref);
@@ -266,15 +291,25 @@ public class ENCConfigBuilder {
         }
     }
 
-    private static String getAdminObjectContainerId(String name, URI uri, GerResourceEnvRefType gerResourceEnvRef, EARContext context) throws DeploymentException {
+    private static String getAdminObjectContainerId(String name, GerResourceEnvRefType gerResourceEnvRef, EARContext context) throws DeploymentException {
         String containerId = null;
         RefContext refContext = context.getRefContext();
+        URI moduleURI = URI.create("");
         if (gerResourceEnvRef == null) {
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            containerId = refContext.getAdminObjectContainerId(uri, name, context);
+            containerId = refContext.getAdminObjectContainerId(moduleURI, name, context);
         } else if (gerResourceEnvRef.isSetMessageDestinationLink()) {
-            containerId = refContext.getAdminObjectContainerId(uri, getStringValue(gerResourceEnvRef.getMessageDestinationLink()), context);
+            containerId = refContext.getAdminObjectContainerId(moduleURI, gerResourceEnvRef.getMessageDestinationLink().trim(), context);
+        } else if (gerResourceEnvRef.isSetAdminObjectLink()) {
+            if (gerResourceEnvRef.isSetAdminObjectModule()) {
+                try {
+                    moduleURI = new URI(gerResourceEnvRef.getAdminObjectModule().trim());
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("Could not construct module URI", e);
+                }
+            }
+            containerId = refContext.getAdminObjectContainerId(moduleURI, gerResourceEnvRef.getMessageDestinationLink().trim(), context);
         } else if (gerResourceEnvRef.isSetTargetName()) {
             containerId = getStringValue(gerResourceEnvRef.getTargetName());
         } else {
@@ -296,8 +331,7 @@ public class ENCConfigBuilder {
         return containerId;
     }
 
-    public static void addMessageDestinationRefs(EARContext earContext, URI moduleURI, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        RefContext refContext = earContext.getRefContext();
+    public static void addMessageDestinationRefs(RefContext refContext, NamingContext namingContext, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         for (int i = 0; i < messageDestinationRefs.length; i++) {
             MessageDestinationRefType messageDestinationRef = messageDestinationRefs[i];
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
@@ -309,9 +343,25 @@ public class ENCConfigBuilder {
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("could not load class " + type, e);
             }
+            URI moduleURI = URI.create("");
+            GerMessageDestinationType destination = (GerMessageDestinationType)refContext.getMessageDestination(linkName);
+            if (destination != null) {
+                if (destination.isSetAdminObjectLink()) {
+                    if (destination.isSetAdminObjectModule()) {
+                        String module = destination.getAdminObjectModule().trim();
+                        try {
+                            moduleURI = new URI(module);
+                        } catch (URISyntaxException e) {
+                            throw new DeploymentException("Could not construct module URI", e);
+                        }
+                    }
+                    linkName = destination.getAdminObjectLink().trim();
+                }
+            }
+
             //try to resolve ref based only matching resource-ref-name
             //throws exception if it can't locate ref.
-            String containerId = refContext.getAdminObjectContainerId(moduleURI, linkName, earContext);
+            String containerId = refContext.getAdminObjectContainerId(moduleURI, linkName, namingContext);
             Reference ref = refContext.getAdminObjectRef(containerId, iface);
             builder.bind(name, ref);
 
@@ -705,9 +755,9 @@ public class ENCConfigBuilder {
         addResourceRefs(earContext, moduleURI, resourceRefs, mapResourceRefs(gerResourceRef), cl, builder);
 
         // resource-env-ref
-        addResourceEnvRefs(earContext, moduleURI, resourceEnvRefs, mapResourceEnvRefs(gerResourceEnvRef), cl, builder);
+        addResourceEnvRefs(earContext, resourceEnvRefs, mapResourceEnvRefs(gerResourceEnvRef), cl, builder);
 
-        addMessageDestinationRefs(earContext, moduleURI, messageDestinationRefs, cl, builder);
+        addMessageDestinationRefs(earContext.getRefContext(), earContext, messageDestinationRefs, cl, builder);
 
 //        Map serviceRefMap = new HashMap();
 //        Map serviceRefCredentialsNameMap = new HashMap();

@@ -69,9 +69,11 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.xmlbeans.XmlException;
@@ -271,7 +273,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) {
-        // application clients do not add anything to the shared context
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
@@ -361,6 +362,11 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("Could not create a deployment context for the app client", e);
                 }
 
+                //register the message destinations in the app client ear context.
+                MessageDestinationType[] messageDestinations = appClient.getMessageDestinationArray();
+                GerMessageDestinationType[] gerMessageDestinations = geronimoAppClient.getMessageDestinationArray();
+
+                ENCConfigBuilder.registerMessageDestinations(appClientDeploymentContext.getRefContext(), appClientModule.getName(), messageDestinations, gerMessageDestinations);
                 // extract the client Jar file into a standalone packed jar file and add the contents to the output
                 URI moduleBase = new URI(appClientModule.getTargetPath());
                 try {

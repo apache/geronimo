@@ -48,13 +48,8 @@
             </xs:sequence>
 
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
+            <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>
 
-         <!--   <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
--->
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
 
         </xs:sequence>

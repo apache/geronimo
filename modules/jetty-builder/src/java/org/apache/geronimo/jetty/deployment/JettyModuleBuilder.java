@@ -91,6 +91,7 @@ import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.GerContainerConfigType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.GerJettyConfigType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.DispatcherType;
 import org.apache.geronimo.xbeans.j2ee.ErrorPageType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
@@ -116,6 +117,7 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.http.BasicAuthenticator;
@@ -418,8 +420,13 @@ public class JettyModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public void initContext(EARContext earContext, Module module, ClassLoader cl) {
-        // web application do not add anything to the shared context
+    public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+        WebAppType webApp = (WebAppType) module.getSpecDD();
+        MessageDestinationType[] messageDestinations = webApp.getMessageDestinationArray();
+        GerWebAppType gerWebApp = (GerWebAppType) module.getVendorDD();
+        GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
+
+        ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
