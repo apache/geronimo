@@ -132,7 +132,11 @@ public class GBeanInfoBuilder {
     //do not use beaninfo Introspector to list the properties.  This method is primarily for interfaces,
     //and it does not process superinterfaces.  It seems to really only work well for classes.
     public void addInterface(Class intf, String[] persistentAttributes) {
+        addInterface(intf, persistentAttributes, new String[0]);
+    }
+    public void addInterface(Class intf, String[] persistentAttributes, String[] manageableAttributes) {
         Set persistentNames = new HashSet(Arrays.asList(persistentAttributes));
+        Set manageableNames = new HashSet(Arrays.asList(manageableAttributes));
         Method[] methods = intf.getMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
@@ -145,6 +149,7 @@ public class GBeanInfoBuilder {
                             new GAttributeInfo(attributeName,
                                     attributeType,
                                     persistentNames.contains(attributeName),
+                                    manageableNames.contains(attributeName),
                                     method.getName(),
                                     null));
                 } else {
@@ -155,6 +160,7 @@ public class GBeanInfoBuilder {
                             new GAttributeInfo(attributeName,
                                     attributeType,
                                     attribute.isPersistent(),
+                                    attribute.isManageable(),
                                     method.getName(),
                                     attribute.getSetterName()));
                 }
@@ -167,6 +173,7 @@ public class GBeanInfoBuilder {
                             new GAttributeInfo(attributeName,
                                     attributeType,
                                     persistentNames.contains(attributeName),
+                                    manageableNames.contains(attributeName),
                                     null,
                                     method.getName()));
                 } else {
@@ -177,6 +184,7 @@ public class GBeanInfoBuilder {
                             new GAttributeInfo(attributeName,
                                     attributeType,
                                     attribute.isPersistent(),
+                                    attribute.isManageable(),
                                     attribute.getGetterName(),
                                     method.getName()));
                 }
@@ -202,13 +210,21 @@ public class GBeanInfoBuilder {
     }
 
     public void addAttribute(String name, Class type, boolean persistent) {
-        addAttribute(name, type.getName(), persistent);
+        addAttribute(name, type.getName(), persistent, false);
     }
 
     public void addAttribute(String name, String type, boolean persistent) {
+        addAttribute(name, type, persistent, false);
+    }
+
+    public void addAttribute(String name, Class type, boolean persistent, boolean manageable) {
+        addAttribute(name, type.getName(), persistent, manageable);
+    }
+
+    public void addAttribute(String name, String type, boolean persistent, boolean manageable) {
         String getter = searchForGetter(name, type, gbeanType);
         String setter = searchForSetter(name, type, gbeanType);
-        addAttribute(new GAttributeInfo(name, type, persistent, getter, setter));
+        addAttribute(new GAttributeInfo(name, type, persistent, manageable, getter, setter));
     }
 
     public void addAttribute(GAttributeInfo info) {

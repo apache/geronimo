@@ -40,11 +40,7 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.*;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
@@ -91,6 +87,10 @@ public class Configuration implements GBeanLifecycle {
         return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toString()));
     }
 
+    public static boolean isConfigurationObjectName(ObjectName name) {
+        return name.getDomain().equals("geronimo.config") && name.getKeyPropertyList().size() == 1 && name.getKeyProperty("name") != null;
+    }
+
     /**
      * The kernel in which this configuration is registered
      */
@@ -123,6 +123,11 @@ public class Configuration implements GBeanLifecycle {
      * the saved state of the configration.
      */
     private final ConfigurationStore configurationStore;
+
+    /**
+     * Used to override stored attribute values with values set by the user.
+     */
+    private ManageableAttributeStore manageableStore;
 
     private final List dependencies;
     private final List classPath;
@@ -263,6 +268,13 @@ public class Configuration implements GBeanLifecycle {
             configurationClassLoader = new ConfigurationClassLoader(id, urls, parent.getConfigurationClassLoader());
         }
 
+        // Look up the manageable store before we try to load the GBeans
+        Set set = kernel.listGBeans(new GBeanQuery(null, ManageableAttributeStore.class.getName()));
+        if(set.size() > 0) {
+            manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy(((ObjectName)set.iterator().next()),
+                                                                                              ManageableAttributeStore.class);
+        }
+
         // DSS: why exactally are we doing this?  I bet there is a reason, but
         // we should state why here.
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -276,9 +288,7 @@ public class Configuration implements GBeanLifecycle {
             Set objectNames = new HashSet();
             for (Iterator i = gbeans.iterator(); i.hasNext();) {
                 GBeanData gbeanData = (GBeanData) i.next();
-                // set configurationBaseUrl attribute on each gbean
-                setGBeanBaseUrl(gbeanData, baseURL);
-                // add the GBean to the kernel
+                // massage the GBeanData and add the GBean to the kernel
                 loadGBean(gbeanData, objectNames);
             }
             this.objectNames = objectNames;
@@ -456,12 +466,28 @@ public class Configuration implements GBeanLifecycle {
     private ObjectName loadGBean(GBeanData beanData, Set objectNames) throws GBeanAlreadyExistsException {
         ObjectName name = beanData.getName();
         setGBeanBaseUrl(beanData, baseURL);
+        setManageableAttributes(beanData);
         log.trace("Registering GBean " + name);
         kernel.loadGBean(beanData, configurationClassLoader);
         objectNames.add(name);
         // todo change this to a dependency on the gbeanData itself as soon as we add that feature
         kernel.getDependencyManager().addDependency(name, this.objectName);
         return name;
+    }
+
+    private void setManageableAttributes(GBeanData data) {
+        if(manageableStore == null) {
+            log.debug("Configuration cannot load manageable attributes; no manageable store present");
+            return;
+        }
+        List list = data.getGBeanInfo().getManageableAttributes();
+        for (int i = 0; i < list.size(); i++) {
+            GAttributeInfo info = (GAttributeInfo) list.get(i);
+            Object value = manageableStore.getValue(id.toString(), data.getName(), info);
+            if(value != null) {
+                data.setAttribute(info.getName(), value);
+            }
+        }
     }
 
     /**

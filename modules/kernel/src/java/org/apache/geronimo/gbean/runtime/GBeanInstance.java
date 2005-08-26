@@ -31,20 +31,14 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GConstructorInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.*;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
 import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.management.EventProvider;
 import org.apache.geronimo.kernel.management.ManagedObject;
 import org.apache.geronimo.kernel.management.NotificationType;
@@ -71,6 +65,12 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * The kernel in which this server is registered.
      */
     private final Kernel kernel;
+
+    /**
+     * The ManageableAttributeStore notified of any changes to manageable
+     * attributes.  This is lazy-loaded as manageable attributes are set.
+     */
+    private ManageableAttributeStore manageableStore;
 
     /**
      * The unique name of this service.
@@ -304,7 +304,7 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
                     enabled = ((Boolean)attributeValue).booleanValue();
                 } else {
                     if(entry.getValue() != null) {
-                        setAttribute(attributeName, attributeValue);
+                        setAttribute(attributeName, attributeValue, false);
                     }
                 }
             }
@@ -350,6 +350,11 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
 
         // tell everyone we are done
         lifecycleBroadcaster.fireUnloadedEvent();
+
+        if(manageableStore != null) {
+            kernel.getProxyManager().destroyProxy(manageableStore);
+            manageableStore = null;
+        }
     }
 
     /**
@@ -654,6 +659,10 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * @throws IndexOutOfBoundsException if the index is invalid
      */
     public void setAttribute(int index, Object value) throws Exception, IndexOutOfBoundsException {
+        setAttribute(index, value, true);
+    }
+
+    private void setAttribute(int index, Object value, boolean manage) throws Exception, IndexOutOfBoundsException {
         GBeanAttribute attribute = attributes[index];
 
         // copy target into local variables from within a synchronized block to gaurentee a consistent read
@@ -669,6 +678,9 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
         } else {
             attribute.setPersistentValue(value);
         }
+        if(manage && attribute.isManageable()) {
+            updateManageableAttribute(attribute, value);
+        }
     }
 
     /**
@@ -681,6 +693,10 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      * @throws NoSuchAttributeException if the attribute name is not found in the map
      */
     public void setAttribute(String attributeName, Object value) throws Exception, NoSuchAttributeException {
+        setAttribute(attributeName, value, true);
+    }
+
+    public void setAttribute(String attributeName, Object value, boolean manage) throws Exception, NoSuchAttributeException {
         GBeanAttribute attribute = getAttributeByName(attributeName);
 
         // copy target into local variables from within a synchronized block to gaurentee a consistent read
@@ -695,6 +711,34 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
             attribute.setValue(instance, value);
         } else {
             attribute.setPersistentValue(value);
+        }
+        if(manage && attribute.isManageable()) {
+            updateManageableAttribute(attribute, value);
+        }
+    }
+
+    private void updateManageableAttribute(GBeanAttribute attribute, Object value) {
+        if(manageableStore == null) {
+            Set set = kernel.listGBeans(new GBeanQuery(null, ManageableAttributeStore.class.getName()));
+            if(set.size() == 0) {
+                return;
+            }
+            manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy((ObjectName) set.iterator().next(),
+                                                                                              ManageableAttributeStore.class);
+        }
+        String configName = null;
+        Set set = kernel.getDependencyManager().getParents(objectName);
+        for (Iterator iterator = set.iterator(); iterator.hasNext();) {
+            ObjectName name = (ObjectName) iterator.next();
+            if(Configuration.isConfigurationObjectName(name)) {
+                configName = ObjectName.unquote(name.getKeyProperty("name"));
+                break;
+            }
+        }
+        if(configName != null) {
+            manageableStore.setValue(configName, objectName, attribute.getAttributeInfo(), value);
+        } else {
+            log.error("Unable to identify Configuration for GBean "+objectName+".  Manageable attribute "+attribute.getName()+" was not updated in persistent store.");
         }
     }
 

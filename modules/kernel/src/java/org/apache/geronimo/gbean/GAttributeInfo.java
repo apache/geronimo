@@ -41,6 +41,11 @@ public class GAttributeInfo implements Serializable {
     private final boolean persistent;
 
     /**
+     * Is this attribute manageable?
+     */
+    private final boolean manageable;
+
+    /**
      * Is this attribute readable?
      */
     private final boolean readable;
@@ -62,14 +67,15 @@ public class GAttributeInfo implements Serializable {
      */
     private final String setterName;
 
-    public GAttributeInfo(String name, String type, boolean persistent, String getterName, String setterName) {
-        this(name, type, persistent, getterName != null, setterName != null, getterName, setterName);
+    public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, String getterName, String setterName) {
+        this(name, type, persistent, manageable, getterName != null, setterName != null, getterName, setterName);
     }
 
-    public GAttributeInfo(String name, String type, boolean persistent, boolean readable, boolean writable, String getterName, String setterName) {
+    public GAttributeInfo(String name, String type, boolean persistent, boolean manageable, boolean readable, boolean writable, String getterName, String setterName) {
         this.name = name;
         this.type = type;
         this.persistent = persistent;
+        this.manageable = manageable;
         this.readable = readable;
         this.writable = writable;
         this.getterName = getterName;
@@ -86,6 +92,10 @@ public class GAttributeInfo implements Serializable {
 
     public boolean isPersistent() {
         return persistent;
+    }
+
+    public boolean isManageable() {
+        return manageable;
     }
 
     public boolean isReadable() {
@@ -108,6 +118,7 @@ public class GAttributeInfo implements Serializable {
         return "[GAttributeInfo: name=" + name +
                 " type=" + type +
                 " persistent=" + persistent +
+                " manageable=" + manageable +
                 " readable=" + readable +
                 " writable=" + writable +
                 " getterName=" + getterName +

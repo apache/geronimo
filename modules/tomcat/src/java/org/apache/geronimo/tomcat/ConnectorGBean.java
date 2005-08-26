@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.tomcat;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -378,7 +377,8 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled"});
+        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled"},
+                                                           new String[]{"host","port","redirectPort"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

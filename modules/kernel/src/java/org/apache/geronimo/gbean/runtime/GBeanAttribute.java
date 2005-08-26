@@ -47,6 +47,8 @@ public class GBeanAttribute {
 
     private final boolean persistent;
 
+    private final boolean manageable;
+
     private Object persistentValue;
 
     /**
@@ -112,12 +114,16 @@ public class GBeanAttribute {
         this.persistent = false;
         initializePersistentValue(value);
 
+        // not manageable
+        this.manageable = false;
+
         // create an attribute info for this gbean
         if (attribute != null) {
             GAttributeInfo attributeInfo = attribute.getAttributeInfo();
             this.attributeInfo = new GAttributeInfo(this.name,
                     this.type.getName(),
                     this.persistent,
+                    this.manageable,
                     this.readable,
                     this.writable,
                     attributeInfo.getGetterName(),
@@ -126,6 +132,7 @@ public class GBeanAttribute {
             this.attributeInfo = new GAttributeInfo(this.name,
                     this.type.getName(),
                     this.persistent,
+                    this.manageable,
                     this.readable,
                     this.writable,
                     null,
@@ -134,14 +141,14 @@ public class GBeanAttribute {
     }
 
     static GBeanAttribute createFrameworkAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker) {
-        return new GBeanAttribute(gbeanInstance, name, type, getInvoker, null, false, null);
+        return new GBeanAttribute(gbeanInstance, name, type, getInvoker, null, false, null, false);
     }
 
-    static GBeanAttribute createFrameworkAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker, boolean persistent, Object persistentValue) {
-        return new GBeanAttribute(gbeanInstance, name, type, getInvoker, setInvoker, persistent, persistentValue);
+    static GBeanAttribute createFrameworkAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker, boolean persistent, Object persistentValue, boolean manageable) {
+        return new GBeanAttribute(gbeanInstance, name, type, getInvoker, setInvoker, persistent, persistentValue, manageable);
     }
 
-    private GBeanAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker, boolean persistent, Object persistentValue) {
+    private GBeanAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker, boolean persistent, Object persistentValue, boolean manageable) {
         this.special = false;
         this.framework = true;
         this.dynamic = false;
@@ -167,10 +174,14 @@ public class GBeanAttribute {
         this.persistent = persistent;
         initializePersistentValue(persistentValue);
 
+        // manageable
+        this.manageable = manageable;
+
         // create an attribute info for this gbean
         attributeInfo = new GAttributeInfo(this.name,
                 this.type.getName(),
                 this.persistent,
+                this.manageable,
                 this.readable,
                 this.writable,
                 null,
@@ -198,6 +209,7 @@ public class GBeanAttribute {
             throw new InvalidConfigurationException("Could not load attribute class: " + attributeInfo.getType());
         }
         this.persistent = attributeInfo.isPersistent();
+        this.manageable = attributeInfo.isManageable();
 
         readable = attributeInfo.isReadable();
         writable = attributeInfo.isWritable();
@@ -307,6 +319,10 @@ public class GBeanAttribute {
 
     public boolean isPersistent() {
         return persistent;
+    }
+
+    public boolean isManageable() {
+        return manageable;
     }
 
     public boolean isSpecial() {

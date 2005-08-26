@@ -156,15 +156,35 @@ public final class GBeanInfo implements Serializable {
         return (GAttributeInfo) attributesByName.get(name);
     }
     
+    /**
+     * Returns a Set where the elements are type GAttributeInfo
+     */
     public Set getAttributes() {
         return attributes;
     }
 
+    /**
+     * Returns a list where the elements are type GAttributeInfo
+     */
     public List getPersistentAttributes() {
         List attrs = new ArrayList();
         for (Iterator i = attributes.iterator(); i.hasNext();) {
             GAttributeInfo info = (GAttributeInfo) i.next();
             if (info.isPersistent()) {
+                attrs.add(info);
+            }
+        }
+        return attrs;
+    }
+
+    /**
+     * Returns a list where the elements are type GAttributeInfo
+     */
+    public List getManageableAttributes() {
+        List attrs = new ArrayList();
+        for (Iterator i = attributes.iterator(); i.hasNext();) {
+            GAttributeInfo info = (GAttributeInfo) i.next();
+            if (info.isManageable()) {
                 attrs.add(info);
             }
         }

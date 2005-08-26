@@ -135,6 +135,8 @@
             <artifactId>geronimo-common</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
+                <server>true</server>
+                <client>true</client>
                 <lib>true</lib>
                 <deploy>true</deploy>
                 <repository>true</repository>

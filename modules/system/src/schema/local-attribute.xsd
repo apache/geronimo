@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004-2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xsd:schema
+    targetNamespace="http://geronimo.apache.org/xml/ns/attributes"
+    xmlns:atts="http://geronimo.apache.org/xml/ns/attributes"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xsd:annotation>
+        <xsd:documentation>
+            <![CDATA[
+            The definition of the XML format for storing manageable attribute values.
+            Should look like this:
+
+            <attributes>
+              <configuration name="org/apache/geronimo/Server">
+                <gbean name="SomeJettyConnector">
+                  <attribute name="host">0.0.0.0</attribute>
+                  <attribute name="port">8080</attribute>
+                </gbean>
+              </configuration>
+            </attributes>
+            ]]>
+        </xsd:documentation>
+    </xsd:annotation>
+
+    <!--
+ temporary (I hope) individual elements while xmlbeans group handling is straightened out
+ -->
+
+    <xsd:element name="attributes" type="atts:attributesType"/>
+
+    <xsd:complexType name="attributesType">
+        <xsd:sequence>
+            <xsd:element name="configuration" type="atts:configurationType" minOccurs="0" maxOccurs="unlimited" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="configurationType">
+        <xsd:sequence>
+            <xsd:element name="gbean" type="atts:gbeanType" minOccurs="0" maxOccurs="unlimited" />
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xs:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="gbeanType">
+        <xsd:annotation>
+            <xsd:documentation>
+                <![CDATA[
+                  Note that the name attribute for a gbean element may hold
+                  either the full GBeanName, or only the value for the
+                  "name=" portion of the GBeanName.  If there are multiple
+                  GBeans in the configuration with manageable attributes and
+                  the same "name=" portion of the GBeanName, then all must be
+                  listed and all must be listed with a full GBeanName.
+                ]]>
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="attribute" type="atts:attributeType" minOccurs="0" maxOccurs="unlimited" />
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xs:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="attributeType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="name" use="required"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+</xsd:schema>

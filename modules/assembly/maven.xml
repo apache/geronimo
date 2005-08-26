@@ -270,6 +270,10 @@
                 template="${planName}"
                 name="${basedir}/target/installer/plan-src/${planName}"/>
         </j:forEach>
+        
+        <velocity:merge basedir="${basedir}/src/var/config"
+                        template="config.xml"
+                        name="${basedir}/target/installer/plan-src/config.xml" />
 
 
         <!-- Second pass for the default build -->
@@ -315,6 +319,10 @@
                 template="${planName}"
                 name="${basedir}/target/plan/${planName}"/>
         </j:forEach>
+
+        <velocity:merge basedir="${basedir}/src/var/config"
+                        template="config.xml"
+                        name="${distDir}/var/config/config.xml" />
 
         <!-- copy the final plans -->
         <ant:mkdir dir="${distDir}/doc"/>

@@ -100,11 +100,11 @@ public class GBeanInfoTest extends TestCase {
 
     final static String nonPersistentAttrName = "nonPersistentAttribute";
 
-    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(nonPersistentAttrName, String.class.getName(), false, "getFoo", "setFoo");
+    final static GAttributeInfo nonPersistentAttrInfo = new GAttributeInfo(nonPersistentAttrName, String.class.getName(), false, false, "getFoo", "setFoo");
 
     final static String persistentAttrName = "persistentAttribute";
 
-    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(persistentAttrName, String.class.getName(), true, "getFoo", "setFoo");
+    final static GAttributeInfo persistentAttrInfo = new GAttributeInfo(persistentAttrName, String.class.getName(), true, false, "getFoo", "setFoo");
 
     final static GOperationInfo opInfo = new GOperationInfo("operation");
 

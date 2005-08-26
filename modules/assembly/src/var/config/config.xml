@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<attributes>
+  <configuration name="org/apache/geronimo/Server">
+    <gbean name="JettyWebConnector">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanHTTPPort}</attribute>
+      <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
+    </gbean>
+    <gbean name="JettySSLConnector">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanHTTPSPort}</attribute>
+    </gbean>
+    <gbean name="TomcatWebConnector">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanHTTPPort}</attribute>
+      <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
+    </gbean>
+    <gbean name="TomcatAJPConnector">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanAJPPort}</attribute>
+      <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
+    </gbean>
+    <gbean name="TomcatSSLConnector">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanHTTPSPort}</attribute>
+    </gbean>
+    <gbean name="openejb:type=NetworkService,name=EJB">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanOpenEJBPort}</attribute>
+    </gbean>
+  </configuration>
+  <configuration name="org/apache/geronimo/ActiveMQServer">
+    <gbean name="ActiveMQ.tcp.${PlanServerHostname}.${PlanActiveMQPort}">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanActiveMQPort}</attribute>
+    </gbean>
+  </configuration>
+  <configuration name="org/apache/geronimo/SystemDatabase">
+    <gbean name="DerbyNetwork">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanDerbyPort}</attribute>
+    </gbean>
+  </configuration>
+</attributes>

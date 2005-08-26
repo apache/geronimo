@@ -60,7 +60,7 @@ public class MockDynamicGBean implements DynamicGBean {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("MockDynamicGBean", MockDynamicGBean.class);
-        infoFactory.addAttribute(new DynamicGAttributeInfo("mutableInt", Integer.class.getName(), false, true, true));
+        infoFactory.addAttribute(new DynamicGAttributeInfo("mutableInt", Integer.class.getName(), false, false, true, true));
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }
