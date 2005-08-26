@@ -418,6 +418,7 @@
         <ant:copy todir="${distDir}/bin" overwrite="true">
             <ant:fileset dir="src/scripts">
                 <include name="*.sh"/>
+                <include name="*.bat"/>
             </ant:fileset>
         </ant:copy>
         <ant:chmod dir="${distDir}/bin" perm="ugo+x" includes="*.sh" />
