@@ -15,22 +15,13 @@
  */
 package org.apache.geronimo.core.operations;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-
-import org.apache.geronimo.core.internal.DeploymentPlanCreationOperation;
+import org.apache.geronimo.core.internal.GeronimoUtils;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jem.util.emf.workbench.ProjectUtilities;
 import org.eclipse.jst.j2ee.componentcore.util.EARArtifactEdit;
 import org.eclipse.jst.j2ee.ejb.componentcore.util.EJBArtifactEdit;
@@ -95,30 +86,23 @@ public class ExportDeploymentPlanOperation extends AbstractDataModelOperation
     // TODO
     private void addToGeronimoApplicationPlan(EObject eObject,
             IVirtualComponent component) {
-
     }
 
     private EObject getDeploymentPlanForComponent(IVirtualComponent comp) {
-        if (comp.getComponentTypeId().equals(EJBArtifactEdit.TYPE_ID)) {
-            return getWebDeploymentPlan(comp);
+        
+        if (comp.getComponentTypeId().equals(EARArtifactEdit.TYPE_ID)) {
+            return GeronimoUtils.getApplicationDeploymentPlan(comp);
         }
-
+        
         if (comp.getComponentTypeId().equals(WebArtifactEdit.TYPE_ID)) {
-            return getWebDeploymentPlan(comp);
+            return GeronimoUtils.getWebDeploymentPlan(comp);
+        }
+        
+        if (comp.getComponentTypeId().equals(EJBArtifactEdit.TYPE_ID)) {
+            return GeronimoUtils.getOpenEjbDeploymentPlan(comp);
         }
         return null;
-    }
-
-    private EObject getWebDeploymentPlan(IVirtualComponent comp) {
-        IPath deployPlanPath = comp.getRootFolder().getUnderlyingFolder()
-                .getProjectRelativePath().append("WEB-INF").append(
-                        WEB_PLAN_NAME);        
-        return load(comp.getProject().getFile(deployPlanPath));
-    }
-
-    private EObject getOpenEjbDeploymentPlan(IVirtualComponent comp) {
-        return null;
-    }
+    } 
 
     /*
      * (non-Javadoc)
@@ -128,7 +112,6 @@ public class ExportDeploymentPlanOperation extends AbstractDataModelOperation
      */
     public IStatus redo(IProgressMonitor monitor, IAdaptable info)
             throws ExecutionException {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -140,29 +123,6 @@ public class ExportDeploymentPlanOperation extends AbstractDataModelOperation
      */
     public IStatus undo(IProgressMonitor monitor, IAdaptable info)
             throws ExecutionException {
-        return null;
-    }
-
-    public EObject load(IFile file) {
-        if (file.exists()) {
-            try {
-                ResourceSet resourceSet = new ResourceSetImpl();
-                DeploymentPlanCreationOperation.registerForWeb(resourceSet);
-
-                URI uri = URI.createPlatformResourceURI(file.getFullPath()
-                        .toString());
-
-                Resource resource = resourceSet.createResource(uri);
-                if (!resource.isLoaded()) {
-                    resource.load(null);
-                }
-                return (EObject) resource.getContents().get(0);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         return null;
     }
 

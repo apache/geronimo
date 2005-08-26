@@ -19,20 +19,15 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.apache.geronimo.xml.ns.j2ee.application.ApplicationFactory;
-import org.apache.geronimo.xml.ns.j2ee.application.ApplicationPackage;
 import org.apache.geronimo.xml.ns.j2ee.application.ApplicationType;
-import org.apache.geronimo.xml.ns.j2ee.application.util.ApplicationResourceFactoryImpl;
 import org.apache.geronimo.xml.ns.web.DocumentRoot;
 import org.apache.geronimo.xml.ns.web.WebAppType;
 import org.apache.geronimo.xml.ns.web.WebFactory;
-import org.apache.geronimo.xml.ns.web.WebPackage;
-import org.apache.geronimo.xml.ns.web.util.WebResourceFactoryImpl;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -45,24 +40,14 @@ import org.eclipse.jst.j2ee.datamodel.properties.IJavaComponentCreationDataModel
 import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.datamodel.properties.IComponentCreationDataModelProperties;
 import org.eclipse.wst.common.componentcore.internal.util.IModuleConstants;
-import org.eclipse.wst.common.componentcore.resources.IFlexibleProject;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.frameworks.datamodel.AbstractDataModelOperation;
 import org.eclipse.wst.common.frameworks.datamodel.IDataModel;
 import org.eclipse.wst.common.frameworks.datamodel.properties.IFlexibleProjectCreationDataModelProperties;
-import org.eclipse.wst.server.core.IModule;
 import org.openejb.xml.ns.openejb.jar.JarFactory;
-import org.openejb.xml.ns.openejb.jar.JarPackage;
 import org.openejb.xml.ns.openejb.jar.OpenejbJarType;
-import org.openejb.xml.ns.openejb.jar.util.JarResourceFactoryImpl;
 
 public class DeploymentPlanCreationOperation extends AbstractDataModelOperation {
-
-    public static final String WEB_DEP_PLAN_NAME = "geronimo-web.xml";
-
-    public static final String EJB_DEP_PLAN_NAME = "openejb-jar.xml";
-
-    public static final String APP_DEP_PLAN_NAME = "geronimo-application.xml";
 
     public DeploymentPlanCreationOperation() {
     }
@@ -81,13 +66,16 @@ public class DeploymentPlanCreationOperation extends AbstractDataModelOperation 
 
             if (comp.getComponentTypeId().equals(
                     IModuleConstants.JST_WEB_MODULE)) {
-                createGeronimoWebDeploymentPlan(comp);
+                createGeronimoWebDeploymentPlan(GeronimoUtils
+                        .getWebDeploymentPlanFile(comp));
             } else if (comp.getComponentTypeId().equals(
                     IModuleConstants.JST_EJB_MODULE)) {
-                createOpenEjbDeploymentPlan(comp);
+                createOpenEjbDeploymentPlan(GeronimoUtils
+                        .getOpenEjbDeploymentPlanFile(comp));
             } else if (comp.getComponentTypeId().equals(
                     IModuleConstants.JST_EAR_MODULE)) {
-                createGeronimoApplicationDeploymentPlan(comp);
+                createGeronimoApplicationDeploymentPlan(GeronimoUtils
+                        .getApplicationDeploymentPlanFile(comp));
             }
         }
 
@@ -95,40 +83,12 @@ public class DeploymentPlanCreationOperation extends AbstractDataModelOperation 
 
     }
 
-    public ApplicationType createGeronimoApplicationDeploymentPlan(
-            IVirtualComponent comp) {
-        IPath deployPlanPath = comp.getRootFolder().getUnderlyingFolder()
-                .getProjectRelativePath().append("META-INF").append(
-                        APP_DEP_PLAN_NAME);
-
-        IFile planFile = getProject().getFile(deployPlanPath);
-        return createGeronimoApplicationDeploymentPlan(planFile);
-    }
-
-    public WebAppType createGeronimoWebDeploymentPlan(IVirtualComponent comp) {
-        IPath deployPlanPath = comp.getRootFolder().getUnderlyingFolder()
-                .getProjectRelativePath().append("WEB-INF").append(
-                        WEB_DEP_PLAN_NAME);
-
-        IFile planFile = getProject().getFile(deployPlanPath);
-        return createGeronimoWebDeploymentPlan(planFile);
-    }
-
-    public OpenejbJarType createOpenEjbDeploymentPlan(IVirtualComponent comp) {
-        IPath deployPlanPath = comp.getRootFolder().getUnderlyingFolder()
-                .getProjectRelativePath().append("META-INF").append(
-                        EJB_DEP_PLAN_NAME);
-
-        IFile planFile = getProject().getFile(deployPlanPath);
-        return createOpenEjbDeploymentPlan(planFile);
-    }
-
     public ApplicationType createGeronimoApplicationDeploymentPlan(IFile dpFile) {
         URI uri = URI
                 .createPlatformResourceURI(dpFile.getFullPath().toString());
 
         ResourceSet resourceSet = new ResourceSetImpl();
-        // registerForWeb(resourceSet);
+        GeronimoUtils.registerAppFactoryAndPackage(resourceSet);
 
         Resource resource = resourceSet.createResource(uri);
         org.apache.geronimo.xml.ns.j2ee.application.DocumentRoot documentRoot = ApplicationFactory.eINSTANCE
@@ -153,7 +113,7 @@ public class DeploymentPlanCreationOperation extends AbstractDataModelOperation 
                 .createPlatformResourceURI(dpFile.getFullPath().toString());
 
         ResourceSet resourceSet = new ResourceSetImpl();
-        registerForWeb(resourceSet);
+        GeronimoUtils.registerWebFactoryAndPackage(resourceSet);
 
         Resource resource = resourceSet.createResource(uri);
         DocumentRoot documentRoot = WebFactory.eINSTANCE.createDocumentRoot();
@@ -176,61 +136,21 @@ public class DeploymentPlanCreationOperation extends AbstractDataModelOperation 
                 .createPlatformResourceURI(dpFile.getFullPath().toString());
 
         ResourceSet resourceSet = new ResourceSetImpl();
-        registerForWeb(resourceSet);
+        GeronimoUtils.registerEjbFactoryAndPackage(resourceSet);
 
         Resource resource = resourceSet.createResource(uri);
-        org.openejb.xml.ns.openejb.jar.DocumentRoot documentRoot = JarFactory.eINSTANCE.createDocumentRoot();
+        org.openejb.xml.ns.openejb.jar.DocumentRoot documentRoot = JarFactory.eINSTANCE
+                .createDocumentRoot();
         OpenejbJarType root = JarFactory.eINSTANCE.createOpenejbJarType();
-        
+
         root.setConfigId(getProject().getName() + "/" + getComponentName());
-       
+
         documentRoot.setOpenejbJar(root);
         resource.getContents().add(documentRoot);
 
         doSave(resource);
 
         return root;
-    }
-
-    public static void registerForWeb(ResourceSet resourceSet) {
-        // Register the appropriate resource factory to handle all file
-        // extentions.
-        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
-                .put(Resource.Factory.Registry.DEFAULT_EXTENSION,
-                        new WebResourceFactoryImpl());
-
-        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
-                .put(Resource.Factory.Registry.DEFAULT_EXTENSION,
-                        new ApplicationResourceFactoryImpl());
-
-        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap()
-                .put(Resource.Factory.Registry.DEFAULT_EXTENSION,
-                        new JarResourceFactoryImpl());
-
-        // Register the package to ensure it is available during loading.
-        resourceSet.getPackageRegistry().put(JarPackage.eNS_URI,
-                JarPackage.eINSTANCE);
-
-        resourceSet.getPackageRegistry().put(WebPackage.eNS_URI,
-                WebPackage.eINSTANCE);
-
-        resourceSet.getPackageRegistry().put(ApplicationPackage.eNS_URI,
-                ApplicationPackage.eINSTANCE);
-    }
-
-    public static IFile getGeronimoWebDeploymentPlanFile(IModule module) {
-        IProject project = module.getProject();
-
-        IFlexibleProject flexProject = ComponentCore
-                .createFlexibleProject(project);
-        IVirtualComponent component = flexProject
-                .getComponent(module.getName());
-        IPath deployPlanPath = component.getRootFolder().getUnderlyingFolder()
-                .getProjectRelativePath().append("WEB-INF").append(
-                        WEB_DEP_PLAN_NAME);
-
-        IFile planFile = project.getFile(deployPlanPath);
-        return planFile;
     }
 
     public boolean isGeronimoRuntimeTarget() {
