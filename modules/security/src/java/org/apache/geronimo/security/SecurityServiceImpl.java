@@ -75,9 +75,16 @@ public class SecurityServiceImpl implements SecurityService {
         }
 
         policyConfigurationFactory = sysOverRide(policyConfigurationFactory, POLICY_CONFIG_FACTORY);
-        if (policyConfigurationFactory != null)
-            PolicyConfigurationFactory.getPolicyConfigurationFactory();
-
+        if (policyConfigurationFactory != null) {
+            Thread currentThread = Thread.currentThread();
+            ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+            currentThread.setContextClassLoader(classLoader);
+            try {
+                PolicyConfigurationFactory.getPolicyConfigurationFactory();
+            } finally {
+                currentThread.setContextClassLoader(oldClassLoader);
+            }
+        }
         if (keyStore != null) sysOverRide(serverInfo.resolvePath(keyStore), KEYSTORE);
         if (keyStorePassword != null) sysOverRide(keyStorePassword, KEYSTORE_PASSWORD);
 

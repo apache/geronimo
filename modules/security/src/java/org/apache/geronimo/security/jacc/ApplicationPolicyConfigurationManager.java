@@ -44,8 +44,17 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
     private final Map contextIdToPolicyConfigurationMap = new HashMap();
     private final Map roleDesignates;
 
-    public ApplicationPolicyConfigurationManager(Map contextIdToPermissionsMap, Map principalRoleMap, Map roleDesignates) throws PolicyContextException, ClassNotFoundException {
-        PolicyConfigurationFactory policyConfigurationFactory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
+    public ApplicationPolicyConfigurationManager(Map contextIdToPermissionsMap, Map principalRoleMap, Map roleDesignates, ClassLoader cl) throws PolicyContextException, ClassNotFoundException {
+        Thread currentThread = Thread.currentThread();
+        ClassLoader oldClassLoader = currentThread.getContextClassLoader();
+        currentThread.setContextClassLoader(cl);
+        PolicyConfigurationFactory policyConfigurationFactory;
+        try {
+            policyConfigurationFactory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
+        } finally {
+            currentThread.setContextClassLoader(oldClassLoader);
+        }
+
         for (Iterator iterator = contextIdToPermissionsMap.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String contextID = (String) entry.getKey();
@@ -142,8 +151,9 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
         infoBuilder.addAttribute("contextIdToPermissionsMap", Map.class, true);
         infoBuilder.addAttribute("principalRoleMap", Map.class, true);
         infoBuilder.addAttribute("roleDesignates", Map.class, true);
+        infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addInterface(RoleDesignateSource.class);
-        infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "principalRoleMap", "roleDesignates"});
+        infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "principalRoleMap", "roleDesignates", "classLoader"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

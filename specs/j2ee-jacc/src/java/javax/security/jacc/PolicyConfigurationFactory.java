@@ -79,8 +79,9 @@ public abstract class PolicyConfigurationFactory {
                         factoryClassName[0] = System.getProperty(FACTORY_NAME);
 
                         if (factoryClassName[0] == null) throw new ClassNotFoundException("Property " + FACTORY_NAME + " not set");
-
-                        return Class.forName(factoryClassName[0]).newInstance();
+                        Thread currentThread = Thread.currentThread();
+                        ClassLoader tccl = currentThread.getContextClassLoader();
+                        return Class.forName(factoryClassName[0], true, tccl).newInstance();
                     }
                 });
         } catch(PrivilegedActionException pae) {
