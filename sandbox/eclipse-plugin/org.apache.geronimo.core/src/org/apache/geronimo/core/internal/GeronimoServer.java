@@ -16,6 +16,7 @@
 package org.apache.geronimo.core.internal;
 
 import java.net.URL;
+
 import org.eclipse.jst.server.core.IWebModule;
 import org.eclipse.jst.server.generic.core.internal.GenericServer;
 import org.eclipse.jst.server.generic.core.internal.Trace;
@@ -24,35 +25,59 @@ import org.eclipse.wst.server.core.internal.ServerMonitorManager;
 
 public class GeronimoServer extends GenericServer {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.wst.server.core.model.IURLProvider#getModuleRootURL(org.eclipse.wst.server.core.IModule)
-	 */
-	public URL getModuleRootURL(IModule module) {
-		try {			
-            if (module == null || module.loadAdapter(IWebModule.class, null)==null )
-				return null;
+    public static final String PROPERTY_ADMIN_ID = "adminID";
 
-			String url = "http://localhost";
-			int port = 0;
-			
-			port = getHttpPort();
-			port =ServerMonitorManager.getInstance().getMonitoredPort(getServer(), port, "web");
-			if (port != 80)
-				url += ":" + port;
+    public static final String PROPERTY_ADMIN_PW = "adminPassword";
 
-			String moduleId=GeronimoUtils.getContextRoot(module);
-			if (!moduleId.startsWith("/"))
-				url += "/";
-			url += moduleId;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.wst.server.core.model.IURLProvider#getModuleRootURL(org.eclipse.wst.server.core.IModule)
+     */
+    public URL getModuleRootURL(IModule module) {
+        try {
+            if (module == null
+                    || module.loadAdapter(IWebModule.class, null) == null)
+                return null;
 
-			if (!url.endsWith("/"))
-				url += "/";
+            String url = "http://localhost";
+            int port = 0;
 
-			return new URL(url);
-		} catch (Exception e) {
-			Trace.trace("Could not get root URL", e);
-			return null;
-		}
+            port = getHttpPort();
+            port = ServerMonitorManager.getInstance().getMonitoredPort(
+                    getServer(), port, "web");
+            if (port != 80)
+                url += ":" + port;
 
-	}
+            String moduleId = GeronimoUtils.getContextRoot(module);
+            if (!moduleId.startsWith("/"))
+                url += "/";
+            url += moduleId;
+
+            if (!url.endsWith("/"))
+                url += "/";
+
+            return new URL(url);
+        } catch (Exception e) {
+            Trace.trace("Could not get root URL", e);
+            return null;
+        }
+
+    }
+
+    public String getAdminID() {
+       return (String) getServerInstancePropertiesImpl().get(PROPERTY_ADMIN_ID);      
+    }
+
+    public String getAdminPassword() {
+        return (String) getServerInstancePropertiesImpl().get(PROPERTY_ADMIN_PW);      
+    }
+
+    public void setAdminID(String value) {
+        getServerInstancePropertiesImpl().put(PROPERTY_ADMIN_ID, value);    
+    }
+
+    public void setAdminPassword(String value) {
+        getServerInstancePropertiesImpl().put(PROPERTY_ADMIN_PW, value);    
+    }
 }

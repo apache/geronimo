@@ -127,12 +127,14 @@ public class GeronimoServerBehaviour extends GenericServerBehaviour {
 		return dm;
 	}
 
-	private String getUserName() {
-		return "system";
+	private String getUserName() {        
+        GeronimoServer server = (GeronimoServer) getServer().getAdapter(GeronimoServer.class);
+		return server.getAdminID();
 	}
 
 	private String getPassword() {
-		return "manager";
+        GeronimoServer server = (GeronimoServer) getServer().getAdapter(GeronimoServer.class);
+        return server.getAdminPassword();
 	}
 
 	/* (non-Javadoc)

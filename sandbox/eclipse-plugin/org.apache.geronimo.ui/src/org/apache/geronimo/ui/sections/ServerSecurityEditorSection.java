@@ -15,7 +15,11 @@
  */
 package org.apache.geronimo.ui.sections;
 
+import org.apache.geronimo.core.internal.GeronimoServer;
+import org.apache.geronimo.ui.commands.SetPasswordCommand;
+import org.apache.geronimo.ui.commands.SetUsernameCommand;
 import org.apache.geronimo.ui.internal.Messages;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -24,6 +28,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.forms.FormColors;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.eclipse.ui.forms.widgets.FormToolkit;
@@ -34,7 +40,13 @@ import org.eclipse.wst.server.ui.editor.ServerEditorSection;
  * 
  * 
  */
-public class ServerSecurityEditorSection extends ServerEditorSection {    
+public class ServerSecurityEditorSection extends ServerEditorSection {
+
+    Text username;
+
+    Text password;
+
+    GeronimoServer gs;
 
     /**
      * 
@@ -76,23 +88,23 @@ public class ServerSecurityEditorSection extends ServerEditorSection {
         // ------- Label and text field for the username -------
         createLabel(composite, Messages.username, toolkit);
 
-        Text username = toolkit.createText(composite, "system", SWT.BORDER);
+        username = toolkit.createText(composite, getUserName(), SWT.BORDER);
         username.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
         username.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-               
+                execute(new SetUsernameCommand(server, username.getText()));
             }
         });
 
         // ------- Label and text field for the password -------
         createLabel(composite, Messages.password, toolkit);
 
-        Text password = toolkit.createText(composite, "password", SWT.BORDER);
+        password = toolkit.createText(composite, getPassword(), SWT.BORDER);
         password
                 .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
         password.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-
+                execute(new SetPasswordCommand(server, password.getText()));
             }
         });
 
@@ -104,6 +116,35 @@ public class ServerSecurityEditorSection extends ServerEditorSection {
         label.setForeground(toolkit.getColors().getColor(FormColors.TITLE));
         label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
         return label;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.wst.server.ui.editor.ServerEditorSection#init(org.eclipse.ui.IEditorSite,
+     *      org.eclipse.ui.IEditorInput)
+     */
+    public void init(IEditorSite site, IEditorInput input) {
+        super.init(site, input);
+        gs = (GeronimoServer) server.getAdapter(GeronimoServer.class);
+        if (gs == null) {
+            gs = (GeronimoServer) server.loadAdapter(GeronimoServer.class,
+                    new NullProgressMonitor());
+        }
+    }
+
+    private String getUserName() {
+        if (gs != null) {
+            return gs.getAdminID();
+        }
+        return "";
+    }
+
+    private String getPassword() {
+        if (gs != null) {
+            return gs.getAdminPassword();
+        }
+        return "";
     }
 
 }
