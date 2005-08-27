@@ -60,7 +60,7 @@
         <reference name="dataSource"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</gbean-name></reference>
     </gbean>
 
-    <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSConnector,broker=ActiveMQ,name=ActiveMQ.tcp.${PlanServerHostname}.${PlanActiveMQPort}" class="org.activemq.gbean.ActiveMQConnectorGBean">
+    <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSConnector,broker=ActiveMQ,name=ActiveMQ.tcp.default" class="org.activemq.gbean.ActiveMQConnectorGBean">
         <attribute name="protocol">tcp</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanActiveMQPort}</attribute>

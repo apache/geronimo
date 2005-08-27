@@ -45,6 +45,14 @@ public class RMIRegistryService implements GBeanLifecycle {
         this.port = port;
     }
 
+    public String getHost() {
+        return "0.0.0.0";
+    }
+
+    public String getProtocol() {
+        return "rmi";
+    }
+
     public void doStart() throws Exception {
         System.setProperty("java.rmi.server.RMIClassLoaderSpi",RMIClassLoaderSpiImpl.class.getName());
         registry = LocateRegistry.createRegistry(port);
@@ -64,16 +72,18 @@ public class RMIRegistryService implements GBeanLifecycle {
         }
     }
 
-    public InetSocketAddress getAddress() {
-        return new InetSocketAddress("0.0.0.0", getPort());
+    public InetSocketAddress getListenAddress() {
+        return new InetSocketAddress(getHost(), getPort());
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("RMI Naming", RMIRegistryService.class);
-        infoFactory.addAttribute("port", int.class, true);
-        infoFactory.addAttribute("address", InetSocketAddress.class, false);
+        infoFactory.addAttribute("host", String.class, false);
+        infoFactory.addAttribute("protocol", String.class, false);
+        infoFactory.addAttribute("port", int.class, true, true);
+        infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -134,6 +134,19 @@ by the server.
  
     ${webcontainer}
 
+
+    <!-- RMI Registry -->
+    <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
+        <attribute name="port">${PlanNamingPort}</attribute>
+    </gbean>
+
+    <!-- Naming properties -->
+    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
+        <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
+    </gbean>
+
     <!-- Default security realm using properties files -->
     <gbean name="properties-login"
         class="org.apache.geronimo.security.jaas.LoginModuleGBean">
@@ -189,7 +202,9 @@ by the server.
     </gbean>
 
     <gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
-        <attribute name="bindURI">tcp://0.0.0.0:4242</attribute>
+        <attribute name="protocol">tcp</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanRemoteLoginPort}</attribute>
         <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
 

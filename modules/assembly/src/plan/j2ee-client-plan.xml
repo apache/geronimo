@@ -114,6 +114,14 @@ by the app client.
 <!--        <uri>jdom/jars/jdom-1.0.jar</uri>-->
 <!--    </dependency>-->
 <!---->
+
+    <!-- Naming properties -->
+    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
+        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
+        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
+        <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
+    </gbean>
+    
     <!--client connector support-->
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>

@@ -91,7 +91,9 @@ public abstract class AbstractTest extends TestCase {
 
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
         gbean = new GBeanData(serverStub, JaasLoginServiceRemotingServer.getGBeanInfo());
-        gbean.setAttribute("bindURI", new URI("tcp://0.0.0.0:4242"));
+        gbean.setAttribute("protocol", "tcp");
+        gbean.setAttribute("host", "0.0.0.0");
+        gbean.setAttribute("port", new Integer(4242));
         gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
 

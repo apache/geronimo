@@ -19,14 +19,14 @@
 <!-- $Rev$ $Date$ -->
 
 <!--
-Configuration for the main ring of a Geronimo server.
+A security realm available to be used by sample applications.
 
-This configuration should contain those services normally provided
-by the server.
+The core Geronimo configuration does not use this, but the demo
+web application, for example, does.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    configId="org/apache/geronimo/Secure"
+    configId="org/apache/geronimo/SampleSecurityRealm"
     parentId="org/apache/geronimo/Server"
     >
 

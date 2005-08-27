@@ -75,16 +75,4 @@ specific services - those should be provided by children.
         <attribute name="refreshPeriodSeconds">60</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
-
-    <!-- RMI Registry -->
-    <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
-        <attribute name="port">${PlanNamingPort}</attribute>
-    </gbean>
-
-    <!-- Naming properties -->
-    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
-        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
-        <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
-    </gbean>
 </configuration>

@@ -43,6 +43,7 @@ by the server.
     </gbean>
 
     <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
+        <attribute name="host">${PlanServerHostname}"</attribute>
         <attribute name="port">${PlanHTTPPort}</attribute>
         <reference name="JettyContainer"><name>WebContainer</name></reference>
         <attribute name="maxThreads">50</attribute>
@@ -50,6 +51,7 @@ by the server.
     </gbean>
 
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
+        <attribute name="host">${PlanServerHostname}"</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
         <attribute name="keystoreFileName">var/security/keystore</attribute>
         <attribute name="keystoreType">JKS</attribute>

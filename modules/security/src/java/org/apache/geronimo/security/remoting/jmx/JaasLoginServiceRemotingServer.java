@@ -20,6 +20,7 @@ package org.apache.geronimo.security.remoting.jmx;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.InetSocketAddress;
 import javax.management.ObjectName;
 
 import org.activeio.AcceptListener;
@@ -45,6 +46,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
 
 
 /**
@@ -54,24 +56,61 @@ import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
  * 
  * @version $Rev: 56022 $ $Date: 2004-10-30 01:16:18 -0400 (Sat, 30 Oct 2004) $
  */
-public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
+public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkConnector {
 
     public static final ObjectName REQUIRED_OBJECT_NAME = JMXUtil.getObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
     
     private static final Log log = LogFactory.getLog(JaasLoginServiceRemotingServer.class);
     private AsynchChannelServer server;
     private JaasLoginServiceMBean loginService;
-    private final URI bindURI;
+    private String protocol;
+    private String host;
+    private int port;
 
-    public JaasLoginServiceRemotingServer(URI bindURI, JaasLoginServiceMBean loginService) {
-        this.bindURI = bindURI;
+    public JaasLoginServiceRemotingServer(String protocol, String host, int port, JaasLoginServiceMBean loginService) {
+        this.protocol = protocol;
+        this.host = host;
+        this.port = port;
         this.loginService = loginService;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public URI getClientConnectURI() {
         return server.getConnectURI();
     }
-    
+
+    public InetSocketAddress getListenAddress() {
+        if(server != null) {
+            URI uri = server.getBindURI();
+            return new InetSocketAddress(uri.getHost(), uri.getPort());
+        } else {
+            return new InetSocketAddress(host, port);
+        }
+    }
+
     public void doStart() throws Exception {
         final ReflexiveInterceptor loginServiceInterceptor = new ReflexiveInterceptor(loginService);
         
@@ -108,7 +147,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
     
     private AsynchChannelServer createAsynchChannelServer() throws IOException, URISyntaxException {
         SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
-        SynchChannelServer server = factory.bindSynchChannel(bindURI);
+        SynchChannelServer server = factory.bindSynchChannel(new URI(protocol, null, host, port, null, null, null));
         return new SynchToAsynchChannelServerAdapter(server);        
     }
 
@@ -144,11 +183,11 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginServiceRemotingServer.class); //has fixed name, j2eeType is irrelevant
-        infoFactory.addAttribute("bindURI", URI.class, true);
-        infoFactory.addAttribute("clientConnectURI", URI.class, false);        
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Remote Login Listener", JaasLoginServiceRemotingServer.class); //has fixed name, j2eeType is irrelevant
+        infoFactory.addAttribute("clientConnectURI", URI.class, false);
         infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "GBean");
-        infoFactory.setConstructor(new String[]{"bindURI", "LoginService"});
+        infoFactory.addInterface(NetworkConnector.class, new String[]{"host","port","protocol"}, new String[]{"host","port"});
+        infoFactory.setConstructor(new String[]{"protocol", "host", "port", "LoginService"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

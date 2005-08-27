@@ -1,156 +1,154 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <processing>
-  <job name="Construct Server Executable">
+  <!-- J2EE Features -->
+  <job name="Activating base J2EE configuration">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>package</arg>
-      <arg>--classPath</arg>
-      <arg>$SERVER_CLASSPATH</arg>
-      <arg>--mainClass</arg>
-      <arg>org.apache.geronimo.system.main.Daemon</arg>
-      <arg>--endorsedDirs</arg>
-      <arg>lib/endorsed</arg>
-      <arg>--install</arg>
-      <arg>$INSTALL_PATH/installer-temp/system-plan.xml</arg>
-      <arg>$INSTALL_PATH/bin/server.jar</arg>
-    </executefile>
-    <executeForPack name="Server" />
-  </job>
-  <job name="Install Base J2EE Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/j2ee-server-plan.xml</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/System</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Install Deployer Configuration">
+  <job name="Activating J2EE deployer">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/j2ee-runtime-deployer-plan.xml</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/RuntimeDeployer</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Construct Client Container Executable">
+  <job name="Activating embedded database">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>package</arg>
-      <arg>--classPath</arg>
-      <arg>$CLIENT_CLASSPATH</arg>
-      <arg>--mainClass</arg>
-      <arg>org.apache.geronimo.system.main.ClientCommandLine</arg>
-      <arg>--install</arg>
-      <arg>$INSTALL_PATH/installer-temp/client-system-plan.xml</arg>
-      <arg>$INSTALL_PATH/bin/client.jar</arg>
-    </executefile>
-    <executeForPack name="Server" />
-  </job>
-  <job name="Install Required Database Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/system-database-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/tranql/rar/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/SystemDatabase</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Install JMS Server Configuration">
+  <job name="Activating JMS broker">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/system-activemq-plan.xml</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/ActiveMQServer</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Install Required JMS Queue Configuration">
+  <job name="Activating system JMS destinations">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/system-jms-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/activemq/rars/activemq-ra-${activemq_version}.rar</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/SystemJMS</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
-  <job name="Install Spring Configuration">
+
+  <!-- Web Management Console -->
+  <job name="Activating Web management console">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/spring-runtime-plan.xml</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/Console</arg>
     </executefile>
-    <executeForPack name="Spring Integration" />
+    <executeForPack name="Web Management Console" />
   </job>
-  <job name="Install Spring Deployer">
+  
+  <!-- Sample Database Pool -->
+  <job name="Activating sample database pool">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/spring-deployer-plan.xml</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/DefaultDatabase</arg>
     </executefile>
-    <executeForPack name="Spring Integration" />
+    <executeForPack name="Sample Database Pool" />
   </job>
-  <job name="Install Web Security Configuration">
+  
+  <!-- UDDI Server -->
+  <job name="Activating UDDI server">
     <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/j2ee-secure-plan.xml</arg>
-    </executefile>
-    <executeForPack name="J2EE Features" />
-  </job>
-  <job name="Install Client Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/j2ee-client-plan.xml</arg>
-    </executefile>
-    <executeForPack name="J2EE Features" />
-  </job>
-  <job name="Install Tomcat Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/j2ee-server-tomcat-plan.xml</arg>
-    </executefile>
-    <executeForPack name="J2EE Features" />
-  </job>
-  <job name="Install JMX Debug Tool Web App Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/geronimo-jmxdebug-${GeronimoVersion}.war</arg>
-    </executefile>
-    <executeForPack name="JMX Debug Tool Web App" />
-  </job>
-  <job name="Install Demo Web App Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/geronimo-demo-${GeronimoVersion}.war</arg>
-    </executefile>
-    <executeForPack name="Demo Web Application" />
-  </job>
-  <job name="Install UDDI Server">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/geronimo-uddi-server-${GeronimoVersion}.war</arg>
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/juddiServer/1.0-SNAPSHOT</arg>
     </executefile>
     <executeForPack name="UDDI Server" />
   </job>
+  
+  <!-- Spring Integration -->
+  <job name="Activating Spring integration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/SpringRuntime</arg>
+    </executefile>
+    <executeForPack name="Spring Integration" />
+  </job>
+  
+  <job name="Activating Spring module deployer">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/SpringDeployer</arg>
+    </executefile>
+    <executeForPack name="Spring Integration" />
+  </job>
+  
+  <!-- JMX Debug Web Application -->
+  <job name="Activating JMX debug application">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/DebugConsole</arg>
+    </executefile>
+    <executeForPack name="JMX Debug Web Application" />
+  </job>
+  
+  <!-- Demo Web Application -->
+  <job name="Activating sample security realm">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/SampleSecurityRealm</arg>
+    </executefile>
+    <executeForPack name="Demo Web Application" />
+  </job>
+  
+  <job name="Activating demo web application">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/Demo</arg>
+    </executefile>
+    <executeForPack name="Demo Web Application" />
+  </job>
+<<<<<<< .mine
+
+<!--  <job name="Finished" /> -->
+=======
   <job name="Install Derby Database Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
@@ -162,4 +160,5 @@
     <executeForPack name="Sample Derby Database" />
   </job>
   <job name="Finished" />
+>>>>>>> .r240468
 </processing>

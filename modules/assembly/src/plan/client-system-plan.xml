@@ -63,11 +63,10 @@ specific services - those should be provided by children.
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 
-    <!-- Naming properties -->
-    <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
-        <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
-        <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
-        <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
+    <!-- User-editable attribute service -->
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <attribute name="configFile">var/config/config.xml</attribute>
     </gbean>
 
 </configuration>

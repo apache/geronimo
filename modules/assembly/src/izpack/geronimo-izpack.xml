@@ -28,6 +28,7 @@
         <panel classname="UserInputPanel"/>
         <panel classname="UserInputPanel"/>
         <panel classname="UserInputPanel"/>
+        <panel classname="UserInputPanel"/>
         <panel classname="InstallPanel"/>
         <panel classname="ProcessPanel"/>
         <panel classname="InfoPanel"/>
@@ -35,7 +36,8 @@
     </panels>
     <packs>
         <pack name="Server" required="yes">
-            <description>Core Geronimo installation</description>
+            <!-- o/a/g/System -->
+            <description>Core Geronimo installation.  This includes the code and libraries necessary for all the features described below.  The subsequent options simply let you select what should be run by default when the server is started.  Anything not selected on this screen could be manually enabled later.</description>
             <file src="BUILDING.txt" targetdir="$INSTALL_PATH"/>
             <file src="LICENSE.txt" targetdir="$INSTALL_PATH"/>
             <file src="README.txt" targetdir="$INSTALL_PATH"/>
@@ -51,57 +53,48 @@
             <file src="var" targetdir="$INSTALL_PATH"/>
             <parsable targetfile="$INSTALL_PATH/var/security/users.properties" type="javaprop"/>
             <parsable targetfile="$INSTALL_PATH/var/security/groups.properties" type="javaprop"/>
-            
-            <file src="plan-src/j2ee-deployer-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <file src="plan-src/deployer-system-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <file src="plan-src/system-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <parsable targetfile="$INSTALL_PATH/installer-temp/system-plan.xml" type="xml"/>
+            <parsable targetfile="$INSTALL_PATH/var/config/config.xml" type="xml"/>
         </pack>
-        <pack name="J2EE Features" required="yes">
-            <description>Geronimo J2EE Support</description>
-            <file src="plan-src/j2ee-server-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <parsable targetfile="$INSTALL_PATH/installer-temp/j2ee-server-plan.xml" type="xml"/>
-            <file src="plan-src/j2ee-runtime-deployer-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <file src="plan-src/system-database-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <parsable targetfile="$INSTALL_PATH/installer-temp/system-database-plan.xml" type="xml"/>
-            <file src="plan-src/system-activemq-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <parsable targetfile="$INSTALL_PATH/installer-temp/system-activemq-plan.xml" type="xml"/>
-            <file src="plan-src/system-jms-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <parsable targetfile="$INSTALL_PATH/installer-temp/system-jms-plan.xml" type="xml"/>
-            <file src="plan-src/interop-server-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <parsable targetfile="$INSTALL_PATH/installer-temp/interop-server-plan.xml" type="xml"/>
-            <file src="plan-src/j2ee-secure-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <file src="plan-src/client-system-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
-            <file src="plan-src/j2ee-client-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
+        <pack name="J2EE Features" required="no" preselected="yes">
+            <!-- o/o/g/Server -->
+            <!-- o/o/g/RuntimeDeployer -->
+            <!-- o/o/g/SystemDatabase -->
+            <!-- o/o/g/ActiveMQServer -->
+            <!-- o/o/g/SystemJMS -->
+            <description>If selected, basic features for J2EE support will be enabled, including a J2EE Web container, a JMS broker, an EJB server, an embedded Derby database, an administrative security realm, etc.  If not selected, these features will be installed but would need to be manually activated later.</description>
+            <depends packname="Server" />
         </pack>
-        <pack name="Jetty Web Container" required="yes">
-            <description>Geronimo uses the Jetty web container by default.  It is currently required for J2EE configurations.</description>
+        <pack name="Web Management Console" required="no" preselected="yes">
+            <!-- o/o/g/Console -->
+            <description>A web-based management console which allows an administrator to log in and view and customize the Geronimo server configuration (such as network ports, logging, thread pools, application deployments, etc.).  The console login is the same administrative login you'll be setting in the next step.  The console can typically be reached at http://localhost:8080/console/ though the default port may be changed on the web configuration screen.  If not selected, the console will be installed but would need to be manually activated later.</description>
+            <depends packname="J2EE Features" />
         </pack>
-        <pack name="Tomcat Web Container" required="no" preselected="no">
-            <description>Geronimo uses the Jetty web container by default.  If you'd like Tomcat to be available as well, select this package.  It is currently in addition to Jetty, not instead of Jetty.</description>
-            <file src="plan-src/j2ee-server-tomcat-plan.xml" targetdir="$INSTALL_PATH/installer-temp" />
-            <parsable targetfile="$INSTALL_PATH/installer-temp/j2ee-server-tomcat-plan.xml" type="xml"/>
-        </pack>
-        <pack name="Spring Integration" required="no">
-            <description>Features to run Spring applications in Geronimo without any additional J2EE packaging</description>
-            <file src="plan-src/spring-runtime-plan.xml" targetdir="$INSTALL_PATH/installer-temp" />
-            <file src="plan-src/spring-deployer-plan.xml" targetdir="$INSTALL_PATH/installer-temp" />
-        </pack>
-        <pack name="JMX Debug Tool Web App" required="no">
-            <description>A web application that lets you display the JMX data from a running Geronimo server.</description>
-            <file src="wars/geronimo-jmxdebug-${GeronimoVersion}.war" targetdir="$INSTALL_PATH/installer-temp"/>
-        </pack>
-        <pack name="Demo Web Application" required="no">
-            <description>A sample web app that runs in Geronimo</description>
-            <file src="wars/geronimo-demo-${GeronimoVersion}.war" targetdir="$INSTALL_PATH/installer-temp"/>
+        <pack name="Sample Database Pool" required="no" preselected="no">
+            <!-- o/o/g/DefaultDatabase -->
+            <description>A sample embedded database, using the Derby RDBMS.  If selected, this creates a database pool that connects to the "DefaultDatabase" database running in the embedded Derby installation.  If not selected, this configuration will be available but would need to be manually activated later.  The "DefaultDatabase" database will be created the first time this configuration is run.</description>
+            <depends packname="J2EE Features" />
         </pack>
         <pack name="UDDI Server" required="no" preselected="no">
-            <description>A UDDI server that runs in Geronimo</description>
-            <file src="wars/geronimo-uddi-server-${GeronimoVersion}.war" targetdir="$INSTALL_PATH/installer-temp"/>
+            <!-- o/o/g/juddiServer/1.0-SNAPSHOT -->
+            <description>A UDDI server that runs in Geronimo, using the jUDDI package.    If not selected, this configuration will be available but would need to be manually activated later.</description>
+            <depends packname="J2EE Features" />
         </pack>
-        <pack name="Sample Axion Database" required="no" preselected="no">
-            <description>A sample embedded database, using the Axion RDBMS</description>
-            <file src="plan-src/default-database-plan.xml" targetdir="$INSTALL_PATH/installer-temp"/>
+        <pack name="Spring Integration" required="no" preselected="no">
+            <!-- o/o/g/SpringRuntime -->
+            <!-- o/o/g/SpringDeployer -->
+            <description>Features to run Spring applications in Geronimo without any additional J2EE packaging.  This is currently working but not being actively developed.  If not selected, these features will be installed but would need to be manually activated later.</description>
+            <depends packname="J2EE Features" />
+        </pack>
+        <pack name="JMX Debug Web Application" required="no" preselected="yes">
+            <!-- o/o/g/DebugConsole -->
+            <description>A web application that lets you display the JMX data from a running Geronimo server.  This can be useful to see exactly what features are enabled in Geronimo and to help resolve resource mapping failures.  However, it is not very user-friendly compared to, for example, the web management console.  The debug application can typically be reached at http://localhost:8080/debug-tool/ though the default port may be changed on the web configuration screen.  If not selected, the JMX debug application will be installed but would need to be manually activated later.</description>
+            <depends packname="J2EE Features" />
+        </pack>
+        <pack name="Demo Web Application" required="no" preselected="no">
+            <!-- o/o/g/Demo -->
+            <!-- o/o/g/SampleSecurityRealm -->
+            <description>A sample web application that runs in Geronimo.  The demo application can typically be reached at http://localhost:8080/demo/ though the default port may be changed on the web configuration screen.  If not selected, the demo application will be installed but would need to be manually activated later.</description>
+            <depends packname="J2EE Features" />
         </pack>
     </packs>
 </installation>

@@ -20,7 +20,7 @@
     xmlns="http://geronimo.apache.org/xml/ns/web"
     xmlns:sec="http://geronimo.apache.org/xml/ns/security"
     configId="org/apache/geronimo/Demo"
-    parentId="org/apache/geronimo/Secure">
+    parentId="org/apache/geronimo/SampleSecurityRealm">
 
     <context-root>/demo</context-root>
     <context-priority-classloader>false</context-priority-classloader>

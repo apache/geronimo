@@ -50,7 +50,7 @@ public class NamingProperties {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(NamingProperties.class);
         infoFactory.addAttribute("namingFactoryInitial", String.class, true);
         infoFactory.addAttribute("namingFactoryUrlPkgs", String.class, true);
-        infoFactory.addAttribute("namingProviderUrl", String.class, true);
+        infoFactory.addAttribute("namingProviderUrl", String.class, true, true);
 
         infoFactory.setConstructor(new String[] {"namingFactoryInitial", "namingFactoryUrlPkgs", "namingProviderUrl"});
 
