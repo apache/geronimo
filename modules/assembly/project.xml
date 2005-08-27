@@ -205,6 +205,15 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-directory</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
@@ -1095,6 +1104,144 @@
                  <repository>true</repository>
              </properties>
          </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>apacheds-core</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>apacheds-shared</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-asn1</groupId>
+            <artifactId>asn1-codec</artifactId>
+            <version>${asn1_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-shared</groupId>
+            <artifactId>apache-ldapber-provider</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-asn1</groupId>
+            <artifactId>asn1-ber</artifactId>
+            <version>${asn1_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-asn1</groupId>
+            <artifactId>asn1-der</artifactId>
+            <version>${asn1_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-shared</groupId>
+            <artifactId>ldap-common</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-shared</groupId>
+            <artifactId>kerberos-common</artifactId>
+            <version>${kerberos_common_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-network</groupId>
+            <artifactId>mina</artifactId>
+            <version>${mina_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-protocols</groupId>
+            <artifactId>kerberos-protocol</artifactId>
+            <version>${kerberos_protocols_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-protocols</groupId>
+            <artifactId>ldap-protocol</artifactId>
+            <version>${ldap_protocols_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>jdbm</groupId>
+            <artifactId>jdbm</artifactId>
+            <version>${jdbm_version}</version>
+            <url>http://jdbm.sourceforge.net</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons_lang_version}</version>
+            <url>http://jakarta.apache.org/commons/lang/api</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons_io_version}</version>
+            <url>http://jakarta.apache.org/commons/io</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
 
         <dependency>
             <groupId>axis</groupId>
