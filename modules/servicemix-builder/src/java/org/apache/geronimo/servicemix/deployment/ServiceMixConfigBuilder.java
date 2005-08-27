@@ -110,6 +110,15 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
         }   
     }
 
+    public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+        Properties properties = (Properties)plan;
+        try {
+            return new URI(properties.getProperty("configID"));
+        } catch (URISyntaxException e1) {
+            throw new DeploymentException("Invalid configuration URI", e1);
+        }
+    }
+
     public ConfigurationData buildConfiguration(Object plan, JarFile module, File outfile) throws IOException, DeploymentException {
         log.debug("Installing ServiceMix deployment.");
         Properties properties = (Properties)plan;        

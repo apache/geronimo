@@ -19,6 +19,7 @@ package org.apache.geronimo.spring.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -99,6 +100,15 @@ public class SPRConfigBuilder
 
     return this;		// token passed to buildConfiguration()...
   }
+
+    public URI getConfigurationID(Object plan, JarFile sprFile) throws IOException, DeploymentException {
+        String uid=sprFile.getName();
+        try {
+            return new URI(uid);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Unable to construct configuration ID "+sprFile.getName());
+        }
+    }
 
   public ConfigurationData
     buildConfiguration(Object plan, JarFile sprFile, File outfile)

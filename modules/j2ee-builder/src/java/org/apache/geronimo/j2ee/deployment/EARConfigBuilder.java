@@ -291,6 +291,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return gerApplication;
     }
 
+    public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+        ApplicationInfo applicationInfo = (ApplicationInfo) plan;
+        return applicationInfo.getConfigId();
+    }
+
     public ConfigurationData buildConfiguration(Object plan, JarFile earFile, File outfile) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;

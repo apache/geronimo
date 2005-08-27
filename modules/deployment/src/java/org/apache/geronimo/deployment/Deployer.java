@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.net.URI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,8 +38,13 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
+
+import javax.management.MalformedObjectNameException;
 
 /**
  * GBean that knows how to deploy modules (by consulting available module builders)
@@ -49,10 +55,12 @@ public class Deployer {
     private static final Log log = LogFactory.getLog(Deployer.class);
     private final Collection builders;
     private final ConfigurationStore store;
+    private final Kernel kernel;
 
-    public Deployer(Collection builders, ConfigurationStore store) {
+    public Deployer(Collection builders, ConfigurationStore store, Kernel kernel) {
         this.builders = builders;
         this.store = store;
+        this.kernel = kernel;
     }
 
     public List deploy(File moduleFile, File planFile) throws DeploymentException {
@@ -141,6 +149,15 @@ public class Deployer {
                         (moduleFile == null ? "" : ", moduleFile" + moduleFile.getAbsolutePath()));
             }
 
+            // Make sure this configuration doesn't already exist
+            URI configID = builder.getConfigurationID(plan, module);
+            try {
+                kernel.getGBeanState(Configuration.getConfigurationObjectName(configID));
+                throw new DeploymentException("Module "+configID+" already exists in the server.  Try to undeploy it first or use the redeploy command.");
+            } catch (GBeanNotFoundException e) {
+                // this is good
+            }
+
             // create a configuration dir to write the configuration during the building proces
             configurationDir = store.createNewConfigurationDir();
 
@@ -214,13 +231,14 @@ public class Deployer {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Deployer.class, DEPLOYER);
 
+        infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");
 
-        infoFactory.setConstructor(new String[]{"Builders", "Store"});
+        infoFactory.setConstructor(new String[]{"Builders", "Store", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -144,6 +144,15 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
+    public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+        ConfigurationType configType = (ConfigurationType) plan;
+        try {
+            return new URI(configType.getConfigId());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
+        }
+    }
+
     public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         String domain = null;

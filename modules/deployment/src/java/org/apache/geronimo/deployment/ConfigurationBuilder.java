@@ -20,6 +20,8 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarFile;
+import java.net.URI;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 
@@ -36,6 +38,16 @@ public interface ConfigurationBuilder {
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
     Object getDeploymentPlan(File planFile, JarFile module) throws DeploymentException;
+
+    /**
+     * Checks what configuration URL will be used for the provided module.
+     * @param plan the deployment plan
+     * @param module the module to build
+     * @return the ID that will be used for the Configuration
+     * @throws IOException if there was a problem reading or writing the files
+     * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
+     */
+    URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException;
 
     /**
      * Build a configuration from a local file
