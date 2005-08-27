@@ -17,7 +17,12 @@
 package org.apache.geronimo.management.geronimo;
 
 /**
- * Main entry point for managing a certain JMS server implementation
+ * Main entry point for managing a particular JMS implementation.  The manager
+ * has features to access JMS brokers (aka servers or containers) as well as
+ * JMS connectors (aka network listeners).  Each manager should handle all
+ * the brokers and connectors for a single JMS implementation; if the Geronimo
+ * server has multiple JMS implementations available then there should be one
+ * JMSManager instance for each.
  *
  * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
  */
@@ -25,6 +30,9 @@ public interface JMSManager extends NetworkContainer {
     /**
      * Gets the ObjectNames of any JMS servers/brokers running in the current
      * Geronimo instance.
+     *
+     * @return The ObjectName of any brokers available for this JMS
+     *         implementation (in String form).
      */
     public String[] getBrokers();
 
@@ -32,6 +40,8 @@ public interface JMSManager extends NetworkContainer {
      * Gets the ObjectNames of any existing connectors for the specified
      * protocol associated with the specified broker.
      *
+     * @param brokerObjectName The ObjectName of the broker to get connectors
+     *        for
      * @param protocol A protocol as returned by getSupportedProtocols
      */
     public String[] getBrokerConnectors(String brokerObjectName, String protocol);
@@ -46,6 +56,15 @@ public interface JMSManager extends NetworkContainer {
      * Creates a new connector, and returns the ObjectName for it.  Note that
      * the connector may well require further customization before being fully
      * functional (e.g. SSL settings for a secure connector).
+     *
+     * @param broker     The ObjectName of the broker to add the connector for
+     * @param uniqueName A name fragment that's unique to this connector
+     * @param protocol   The protocol the connector should be configured for
+     * @param host       The listen host/IP for the connector
+     * @param port       The listen port for the connector
+     *
+     * @return The ObjectName of the newly added connector.  It will be valid
+     *         (loaded) but not started.
      */
     public String addConnector(String broker, String uniqueName, String protocol, String host, int port);
 }

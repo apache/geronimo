@@ -26,7 +26,7 @@ public interface JMSBroker {
      * Gets the ObjectNames of the network connectors associated with this
      * JMS broker.
      *
-     * @return The ObjectNames of the thread pools, in String form.
+     * @return The ObjectNames of the network connectors, in String form.
      */
     public String[] getConnectors();
 

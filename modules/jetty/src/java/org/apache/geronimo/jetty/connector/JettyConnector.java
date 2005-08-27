@@ -31,6 +31,8 @@ import org.mortbay.http.SocketListener;
 import org.mortbay.util.ThreadedServer;
 
 /**
+ * Base class for GBeans for Jetty network connectors (HTTP, HTTPS, AJP, etc.).
+ *
  * @version $Rev$ $Date$
  */
 public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector {
