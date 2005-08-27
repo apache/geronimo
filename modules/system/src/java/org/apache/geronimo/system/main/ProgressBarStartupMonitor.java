@@ -359,7 +359,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         String app = on.getKeyProperty("J2EEApplication");
         String name = on.getKeyProperty("name");
         if(type != null && (app == null || app.equals("null"))) {
-            return (type.equals("WebModule") || type.equals("J2EEModule") || type.equals("EJBModule") || type.equals("AppClientModule") || type.equals("ResourceAdapterModule")) && !name.startsWith("org/apache/geronimo/System");
+            return (type.equals("WebModule") || type.equals("J2EEApplication") || type.equals("EJBModule") || type.equals("AppClientModule") || type.equals("ResourceAdapterModule")) && !name.startsWith("org/apache/geronimo/System");
         }
         return false;
     }
@@ -367,7 +367,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     private static String decodeModule(String value) {
         if(value.equals("WebModule")) {
             return "WAR";
-        } else if(value.equals("J2EEModule")) {
+        } else if(value.equals("J2EEApplication")) {
             return "EAR";
         } else if(value.equals("EJBModule")) {
             return "JAR";
