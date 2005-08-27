@@ -195,6 +195,10 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
             List configs = new ArrayList();
             String line;
             while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if(line.equals("") || line.startsWith("#")) {
+                    continue;
+                }
                 try {
                     configs.add(new URI(line));
                 } catch (URISyntaxException e) {
