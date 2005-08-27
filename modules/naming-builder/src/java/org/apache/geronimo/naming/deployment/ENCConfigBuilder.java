@@ -357,6 +357,12 @@ public class ENCConfigBuilder {
                     }
                     linkName = destination.getAdminObjectLink().trim();
                 }
+            } else {
+                //well, we know for sure an admin object is not going to be defined in a modules that can have a message-destination 
+                int pos = linkName.indexOf('#');
+                if (pos > -1) {
+                    linkName = linkName.substring(pos + 1);
+                }
             }
 
             //try to resolve ref based only matching resource-ref-name
