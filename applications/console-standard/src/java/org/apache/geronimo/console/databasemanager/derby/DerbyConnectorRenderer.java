@@ -92,8 +92,8 @@ public class DerbyConnectorRenderer implements DetailViewRenderer {
                     .getAttribute(gbeanName, "UserName"));
             info.setDatabaseName((String) kernel.getAttribute(gbeanName,
                     "DatabaseName"));
-            info.setCreateDatabase((String) kernel.getAttribute(gbeanName,
-                    "CreateDatabase"));
+            info.setCreateDatabase(((Boolean) kernel.getAttribute(gbeanName,
+                    "CreateDatabase")).toString());
             info.setLoginTimeout((Integer) kernel.getAttribute(gbeanName,
                     "LoginTimeout"));
             info.setJndiName((String) kernel.getAttribute(gbeanName,

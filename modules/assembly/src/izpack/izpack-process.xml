@@ -56,7 +56,7 @@
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
       <arg>$INSTALL_PATH/installer-temp/system-database-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/geronimo/rars/geronimo-derby-connector-${GeronimoVersion}.rar</arg>
+      <arg>$INSTALL_PATH/repository/tranql/rar/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar</arg>
     </executefile>
     <executeForPack name="J2EE Features" />
   </job>
@@ -151,15 +151,15 @@
     </executefile>
     <executeForPack name="UDDI Server" />
   </job>
-  <job name="Install Axion Database Configuration">
+  <job name="Install Derby Database Configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-jar</arg>
       <arg>$INSTALL_PATH/bin/deployer.jar</arg>
       <arg>distribute</arg>
       <arg>$INSTALL_PATH/installer-temp/default-database-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/tranql/rars/tranql-connector-${tranql_connector_version}.rar</arg>
+      <arg>$INSTALL_PATH/repository/tranql/rar/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar</arg>
     </executefile>
-    <executeForPack name="Sample Axion Database" />
+    <executeForPack name="Sample Derby Database" />
   </job>
   <job name="Finished" />
 </processing>

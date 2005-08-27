@@ -796,10 +796,10 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-derby-connector</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-xa</artifactId>
+            <version>${tranql_vendors_version}</version>
+             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>

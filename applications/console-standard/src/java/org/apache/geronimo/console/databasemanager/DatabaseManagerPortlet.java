@@ -42,7 +42,7 @@ public class DatabaseManagerPortlet extends
                 new TranQLConnectorRenderer(kernel, context));
         RENDERERS
                 .put(
-                        "org.apache.geronimo.derby.connector.DerbyXAManagedConnectionFactory",
+                        "org.tranql.connector.derby.EmbeddedXAMCF",
                         new DerbyConnectorRenderer(kernel, context));
         RENDERERS
                 .put(

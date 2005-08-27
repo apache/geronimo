@@ -31,7 +31,7 @@
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
-    </dependency>
+    </dependency>                      
 
     <resourceadapter>
         <outbound-resourceadapter>
@@ -42,7 +42,7 @@
                     <config-property-setting name="UserName"></config-property-setting>
                     <config-property-setting name="Password"></config-property-setting>
                     <config-property-setting name="DatabaseName">SystemDatabase</config-property-setting>
-                    <config-property-setting name="CreateDatabase">create</config-property-setting>
+                    <config-property-setting name="CreateDatabase">true</config-property-setting>
                     <connectionmanager>
                         <xa-transaction>
                             <transaction-caching/>

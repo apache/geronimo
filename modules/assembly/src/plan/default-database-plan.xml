@@ -42,7 +42,7 @@
                     <config-property-setting name="UserName"></config-property-setting>
                     <config-property-setting name="Password"></config-property-setting>
                     <config-property-setting name="DatabaseName">DefaultDatasource</config-property-setting>
-                    <config-property-setting name="CreateDatabase">create</config-property-setting>
+                    <config-property-setting name="CreateDatabase">true</config-property-setting>
                     <connectionmanager>
                         <single-pool>
                             <match-one/>

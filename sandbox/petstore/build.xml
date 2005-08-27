@@ -32,7 +32,7 @@
       <replacetoken><![CDATA[</application>]]></replacetoken>
       <replacevalue><![CDATA[
   <module>
-    <connector>geronimo-derby-connector-1.0-SNAPSHOT.rar</connector>
+    <connector>tranql-connector-derby-embed-xa-1.0-SNAPSHOT.rar</connector>
   </module>
   <module>
     <connector>activemq-ra-3.1-SNAPSHOT.rar</connector>

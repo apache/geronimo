@@ -90,7 +90,7 @@
             <ant:arg value="manager"/>
             <ant:arg value="distribute"/>
             <ant:arg value="${basedir}/target/plan/petstore1.3.2-db-ra-plan.xml"/>
-            <ant:arg value="${maven.repo.local}/geronimo/rars/geronimo-derby-connector-${pom.currentVersion}.rar"/>
+            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar"/>
         </ant:java>
 
     <ant:echo>Distributing Java Pet Store Application</ant:echo>

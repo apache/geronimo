@@ -362,9 +362,9 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-derby-connector</artifactId>
-            <version>${pom.currentVersion}</version>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-xa</artifactId>
+            <version>${tranql_vendors_version}</version>
             <type>rar</type>
             <properties>
                 <repository>true</repository>
