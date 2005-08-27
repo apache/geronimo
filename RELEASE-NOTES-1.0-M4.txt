@@ -1,75 +1,302 @@
-Release Notes -- Apache Geronimo -- Version 1.0-M4
-
-NOTE: THIS IS A PLACEHOLDER.  THERE HAS NOT BEEN AN OFFICIAL M4 RELEASE
-YET.  YOU MAY LOOK AT THE FILE RELEASE-NOTES-1.0-M3.txt IN YOUR
-GERONIMO DISTRIBUTION FOR THE RELEASE NOTES FROM THE LAST MILESTONE, BUT
-THOSE ARE SOMEWHAT OUT OF DATE.
-
+Release Notes -- Apache Geronimo -- Version 1.0 Milestone 4
 
 Geronimo URLs
 -------------
 Home Page:     http://geronimo.apache.org/
-Downloads:     http://geronimo.apache.org/download.html
+Downloads:     http://geronimo.apache.org/downloads.html
 Documentation: http://geronimo.apache.org/documentation.html
 Mailing Lists: http://geronimo.apache.org/mailing.html
-Source Code:   http://geronimo.apache.org/source.html
+Source Code:   http://geronimo.apache.org/svn.html
 Bug Tracking:  http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
 Wiki:          http://wiki.apache.org/geronimo
 
 
 System Requirements
 -------------------
-You need a platform that supports JDK 1.4 or JDK 1.5 (and some
-features such as HTTPS currently depend on Sun implementation
-classes, so a Sun JVM would be the best bet).
+You need a platform that supports JDK 1.4 (and some features
+such as CORBA currently depend on Sun implementation classes and
+are known to not work under 1.5, so a Sun 1.4.2_08 JVM would be the
+best bet).
 
-Most testing has been done on Linux, Mac OS X, and Windows.  For a
-list of notes on specific configurations, see
-http://wiki.apache.org/geronimo/KnownWorkingConfigurations
+Most testing has been done on Linux, Mac OS X, and Windows.
+
 
 Installing & Starting Geronimo
 ------------------------------
-To install, simply unpack the zip or tar file containing Geronimo.
+To install, simply unpack the zip or tar file containing Geronimo,
+or run the installer package for a more interactive installation
+process (including the ability to change ports and the default
+administrator account)
 
 To start Geronimo, change to the Geronimo directory and run
 
    java -jar bin/server.jar
 
 
-Current Project Status at a Glance
-----------------------------------
+Deploying Applications
+------------------------------
+To deploy a J2EE module or application, start Geronimo and then
+run (for example):
+
+   java -jar bin/deployer.jar deploy my-web-app.war [deploy plan]
+
+You will need to use the username "system" and password "manager"
+unless you customized those during the install process.
+
+For more information on the commands and options supported by the
+deploy tool, run
+
+   java -jar bin/deployer.jar help [command]
+
+
+Current Road Map at a Glance
+----------------------------
 http://wiki.apache.org/geronimo/RoadMap
+
+http://issues.apache.org/jira/browse/GERONIMO?
+      report=com.atlassian.jira.plugin.system.project:roadmap-panel
+
+  (that last must be all on one line)
 
 
 Significant Changes Since the M3 Release
 ----------------------------------------
-  == FILL ME IN ==
+ * EJB support is complete
+ * Web Services support is complete
+ * JSR-77 support, including the Management EJB
+ * Securty configuration has changed dramatically
+ * The current Geronimo code passes the J2EE TCK test suite, but
+    full certification is not yet complete.
 
 
 Significant Missing Features
 ----------------------------
-  == FILL ME IN ==
+ * A web management console
+ * Deployment from a machine other than the server
+ * J2EE Application Client that works from a machine other than the server
+ * A build that uses Tomcat by default (Tomcat can be activated as a
+   manual process, but as of M5 we will be distributing both Jetty and
+   Tomcat builds)
+ * A hot deploy directory (though the deploy tool can hot deploy)
+ * JSR-88 support for Geronimo deployment plan configuration
+ * Full functionality on non-Sun JVMs (a portable CORBA implementation
+   is not expected for version 1.0)
+ * Clustering (also not expected for version 1.0)
 
 
 Overall Project Status
 ----------------------
-Geronimo is currently undergoing TCK testing.  Many features work, but
-it is not fully J2EE compliant yet.  Geronimo has also not been
-extensively performance tested.  Your help would be appreciated!
+Geronimo is now feature complete with respect to J2EE 1.4, and has
+passed the automated TCK test suite.  However, full certification
+has not yet been completed.
+
+Many of the remaining changes are focused on usability at this time.
+However, Geronimo has also not been extensively performance tested.
+Your help would be appreciated!
 
 Documentation efforts are underway, and freely available documentation
-covers many of the more stable aspects of the product.
+covers many aspects of the product.
 
 For more information on specific bugs or features, or to help with
 testing efforts, please visit JIRA, our bug/issue tracking system, at
 http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220
 
 
+Certification Status
+--------------------
+Geronimo is pursuing full J2EE certification (it's not enough to just
+pass the automated tests).  Stay tuned!
+
+
 Specific Issues Addressed in M4 Release
 ---------------------------------------
 
 ** New Features
+    * [GERONIMO-172] - EJB 2.1 ServiceEndpoint interface support
+    * [GERONIMO-175] - Web to EJB security integration
+    * [GERONIMO-186] - Complete EJB-QL support
+    * [GERONIMO-192] - ejbSelect method support
+    * [GERONIMO-228] - EJB 2.1 Home methods
+    * [GERONIMO-312] - Support web application deployment to Tomcat
+    * [GERONIMO-315] - Message Destination References in web.xml in Tomcat
+    * [GERONIMO-317] - Support for method-permissions in the web.xml in Tomcat
+    * [GERONIMO-318] - Support for ejb-refs in a web.xml in Tomcat
+    * [GERONIMO-319] - Access to UserTransaction from webapp in Tomcat
+    * [GERONIMO-332] - Support for service-ref in J2EE App Client
+    * [GERONIMO-333] - Support for JAAS callback-handlers in J2EE App Clients
+    * [GERONIMO-391] - jsr-77 MEJB needed
+    * [GERONIMO-495] - Provide an auditing login module implementation
+    * [GERONIMO-528] - Add HTTP/1.1 Connector GBean for Tomcat
+    * [GERONIMO-695] - Need better progress feedback during startup sequence
+    * [GERONIMO-698] - Print port map at server startup
 
 ** Improvements
+    * [GERONIMO-347] - TransactionContext usage is confused and confusing
+    * [GERONIMO-375] - DeploymentException: Module was not a war: foo.war
+    * [GERONIMO-380] - Eliminate TransactionManagerProxy and TransactionProxy
+    * [GERONIMO-410] - Revise SecurityRealm getUserPrincipals/getGroupPrincipals
+    * [GERONIMO-415] - Improve on Subject.doAs for client invoking secure EJB
+    * [GERONIMO-422] - Redundant security realm configuration options
+    * [GERONIMO-423] - Add role mapping to EAR geronimo-application.xsd
+    * [GERONIMO-424] - ConfigurationEntry support for multiple LoginModules
+    * [GERONIMO-430] - Generalize security realms, consolidate logic into Login Modules
+    * [GERONIMO-450] - GBeans should use jsr-77 naming conventions
+    * [GERONIMO-451] - Geronimo connector xsd refers to Sun schemas
+    * [GERONIMO-456] - Rename LocalLoginRemoteLocalModuleLocalRealmRemote...
+    * [GERONIMO-473] - Jetty module builder should completely configure GBeans
+    * [GERONIMO-474] - Jetty web app context could use interceptor based design
+    * [GERONIMO-478] - Deployer must not echo password when prompting
+    * [GERONIMO-485] - Connector deployment should convert 1.0 dds to 1.5 dds
+    * [GERONIMO-486] - ActivationSpec metadata is attached to the wrong gbean.
+    * [GERONIMO-487] - Split deployment module into at least 2 parts
+    * [GERONIMO-491] - Service deployer doesn't recognize syntax errors
+    * [GERONIMO-493] - Add Login Domains to Security Objects
+    * [GERONIMO-494] - Add Login Domains to Deployment Objects
+    * [GERONIMO-504] - Dependencies defined by plan are not "validated"
+    * [GERONIMO-511] - Remote EJB invocation should use Geronimo thread pools
+    * [GERONIMO-535] - handle fully-qualified paths in ServerInfo.resolvePath()
+    * [GERONIMO-541] - Upgrade ActiveMQ to 2.0 and use JDBC for persistence
+    * [GERONIMO-568] - Switch system-datasource plan to the derby xa connector
+    * [GERONIMO-573] - Add optional attributes to deploy:waitForStarted
+    * [GERONIMO-586] - Exceptions at startup if Geronimo started under security manager
+    * [GERONIMO-588] - Upgrade to Apache Tomcat 5.5.7
+    * [GERONIMO-599] - Allow sophisticated processing of xml-valued gbean attributes
+    * [GERONIMO-618] - Make interop:type=NetworkService,name=RMIIIOP use ThreadPool
+    * [GERONIMO-620] - ServiceAccessController does not support ip6address
+    * [GERONIMO-632] - Create a JACC gbean per application to manage security
+    * [GERONIMO-633] - Tomcat module needs to be updated to use JACC gbean
+    * [GERONIMO-648] - EJB web services need user data permissions too
+    * [GERONIMO-658] - CSIv2 CSS/TSS gbean references should be shorter
+    * [GERONIMO-659] - EJBs should point to TSS bean not TSS to ejb
+    * [GERONIMO-671] - Error: Deployment failed, Server reports: No deployer present
+    * [GERONIMO-696] - Too much info-level output during startup
+    * [GERONIMO-701] - Can't set listen host/IP for Jetty Connectors
+    * [GERONIMO-702] - Can't set listen host/IP for Tomcat Connectors
+    * [GERONIMO-707] - Deployment exception message re: JAX-RPC mapping file error
+    * [GERONIMO-732] - Change Geronimo Build to use current version of Tomcat AJP JAR
+    * [GERONIMO-740] - Move from ActiveMQ 3.1-SNAPSHOT to a formal release
+    * [GERONIMO-741] - Move from ActiveIO 1.0 to ActiveIO 1.1
+    * [GERONIMO-745] - Move from Axis 1.3-SNAPSHOT to formal version
+    * [GERONIMO-746] - Move from commons_discovery SNAPSHOT to formal version
+    * [GERONIMO-747] - Remove ews dependency
+    * [GERONIMO-755] - Move from Scout/JAXR version 1.0-SNAPSHOT to a formal version
+    * [GERONIMO-756] - Move ServiceMix from 1.0-SNAPSHOT to a formal or dated release
+    * [GERONIMO-757] - Move from jUDDI SNAPSHOT to formal version
+    * [GERONIMO-758] - Move geronimo_spec_activation from 1.0.2-SNAPSHOT to 1.0.2-rc4
+    * [GERONIMO-759] - Move geronimo_spec_javamail from 1.3.1-SNAPSHOT to a 1.3.1-rc4
+    * [GERONIMO-760] - Move tmporb SNAPSHOT dependency to a dated version in M4
+    * [GERONIMO-761] - Move from custom cglib build version to cglib-nodep-2.1_2.jar
+    * [GERONIMO-772] - Move OpenEJB from jelly velocity tags SNAPSHOT to version 1.0
+    * [GERONIMO-773] - Improve Error messages in the Jetty TemporaryPlanAdapter
+    * [GERONIMO-802] - Publish geronimo_spec_javamail jar version 1.3.1-rc5
+    * [GERONIMO-811] - Remove Tomcat option from izpack installer for M4 release
 
 ** Bug Fixes
+    * [GERONIMO-181] - Transaction propogation accross calls to stateful session beans
+    * [GERONIMO-264] - Startup exceptions are suppressed
+    * [GERONIMO-290] - Static content with spaces in path or name can't be deployed
+    * [GERONIMO-334] - Cannot find tools.jar at server startup
+    * [GERONIMO-336] - Invalid dd does not cause web deployment to fail
+    * [GERONIMO-355] - tx policies call tm.rollback on committed transactions
+    * [GERONIMO-359] - Do not convert RB exceptions to TransactionRolledBackException
+    * [GERONIMO-374] - Reject duplicate RA names in same deployment
+    * [GERONIMO-421] - Better handling for null/empty users in default LoginModules
+    * [GERONIMO-442] - Demo module isn't started properly
+    * [GERONIMO-472] - MDB Deployment Fails
+    * [GERONIMO-475] - Deployment tool fails with ArrayIndexOutOfBoundsException
+    * [GERONIMO-482] - Servlet lifecycle doesn't work well with connection lifecycle
+    * [GERONIMO-483] - Security Realm Startup Errors Squashed (ClassNotFoundException)
+    * [GERONIMO-488] - Jetty dispatch doesn't set component context, tx, or security
+    * [GERONIMO-496] - Multiple login module support broken
+    * [GERONIMO-501] - Could not deploy an ejb-jar archive with M3
+    * [GERONIMO-502] - Console Deployer: ClassNotFoundException for nested exception
+    * [GERONIMO-503] - WebUserDataPermission is not actually serializable
+    * [GERONIMO-507] - ConnectException occurs after MDB deployment and server restart
+    * [GERONIMO-508] - Invalid dd results in "No deployer found"
+    * [GERONIMO-517] - CancelledKeyException in ControlProtocolTest
+    * [GERONIMO-521] - Maven Plugin is missing dependency to geronimo-common
+    * [GERONIMO-524] - Axis module is not consistent with new jetty deployer
+    * [GERONIMO-531] - XercesImpl-2.6.0.jar and DocumentBuilderFactoryImpl not found
+    * [GERONIMO-537] - NullPointerException in OpenEJBModuleBuilder.java
+    * [GERONIMO-539] - ClassCastException at shutdown
+    * [GERONIMO-540] - Unable to login to server when using jdk 1.5
+    * [GERONIMO-542] - Kernel.listGBeans returns mbeans that are not gbeans
+    * [GERONIMO-543] - Persistent configuration list is broken
+    * [GERONIMO-545] - AppClientModule jsr-77 gbean should not have the ReadOnlyContext
+    * [GERONIMO-549] - NullPointerException if MDB does not have resource-adapter
+    * [GERONIMO-550] - Functioning of Transaction Time out was not properly handled
+    * [GERONIMO-551] - Jetty welcome files don't work
+    * [GERONIMO-558] - "distribute" doesn't deploy web apps
+    * [GERONIMO-559] - NPE if config attribute not passed to deploy:startRemoteServer
+    * [GERONIMO-561] - Connection obtained in afterCompletion gets associated w/tx
+    * [GERONIMO-562] - ejbTimeout has wrong thread classloader, so no ENC available
+    * [GERONIMO-563] - Allowed methods in ejbtimeout don't correspond to final spec
+    * [GERONIMO-564] - Spelling mistake
+    * [GERONIMO-565] - Removing an entity bean does not cancel its timers
+    * [GERONIMO-566] - JSR-77 name changes for Tomcat
+    * [GERONIMO-567] - CMP Entities in 1.x ejb.jars are treated as 2.x beans
+    * [GERONIMO-574] - Client side EJB handles are not deserializable
+    * [GERONIMO-576] - Reentrancy throw an exception
+    * [GERONIMO-577] - Inbound-only J2EE Connector can't be deployed
+    * [GERONIMO-579] - UserTransaction broken after BMT calls BMT
+    * [GERONIMO-580] - CMP create, remove, and recreate throws exception
+    * [GERONIMO-581] - Deployer unaware of org.tranql.ql.QueryException
+    * [GERONIMO-584] - LocalHome Finder causes "Unknown method" assertion error
+    * [GERONIMO-587] - Deployer can fail but appear to succeed
+    * [GERONIMO-590] - Obey "javax.security.jacc.policy.provider" system property
+    * [GERONIMO-591] - Finder can return null
+    * [GERONIMO-595] - Recursive CMRs do not work
+    * [GERONIMO-598] - ejbFind<> or ejbSelect<> following ejbCreate<> within TX
+    * [GERONIMO-600] - Misleading GBean failure message
+    * [GERONIMO-602] - Ear deployment fails when EJB Jar is in subdirectory
+    * [GERONIMO-604] - Gbean error starting configuration org/apache/geronimo/Secure
+    * [GERONIMO-606] - Gbeans in application plan have no module in their name
+    * [GERONIMO-607] - Logging configuration is processed twice at startup
+    * [GERONIMO-608] - J2eeContextImpl constructor value switch
+    * [GERONIMO-610] - Connectors need a TCCL too
+    * [GERONIMO-612] - OpenORBStubClassLoader needs to track parent cl
+    * [GERONIMO-613] - Enhancements / fixes to interop
+    * [GERONIMO-617] - Interop module is missing eclipse and intellij classpath
+    * [GERONIMO-619] - Does not build due to missing dependency commons-modeler 1.1
+    * [GERONIMO-625] - empty <session-config> parameter in web.inf causes NPE in Jetty
+    * [GERONIMO-628] - UnavailableEJBReferenceBuilder... should return null
+    * [GERONIMO-634] - openejb jacc has contextID per ejb rather than per ejb module
+    * [GERONIMO-635] - Jetty cannot be used without web services support
+    * [GERONIMO-638] - howl warning at startup
+    * [GERONIMO-639] - GenericSecurityRealm doesn't express its gbean dependencies
+    * [GERONIMO-642] - Cannot deploy war when installed in a path with space in name
+    * [GERONIMO-647] - Latest GBean naming conventions
+    * [GERONIMO-649] - webservices with partial wsdl don't deploy
+    * [GERONIMO-650] - POJO ws should not need to implement SEI
+    * [GERONIMO-651] - Need ability to set location on ejb ws
+    * [GERONIMO-653] - NPE in GeronimoStandardContext when attempting to get the CL
+    * [GERONIMO-657] - Running configurations not saved on shutdown
+    * [GERONIMO-661] - "Unchecked" permissions for all EJB methods ("*") do not work
+    * [GERONIMO-662] - Cannot find root context without geronimo-tomcat.xml
+    * [GERONIMO-672] - EJB Web Service Endpoint WSDL problem
+    * [GERONIMO-677] - Login Modules are being reused
+    * [GERONIMO-678] - Bad SOAP response when complexTypes are involved
+    * [GERONIMO-685] - Too many open files from CORBA compiler
+    * [GERONIMO-691] - OpenEJB assumes optional messaging-type is in ejb-jar.xml
+    * [GERONIMO-692] - Cannot display wsdl from deployed EJB Web service endpoint
+    * [GERONIMO-703] - Tomcat assumes Geronimo start directory
+    * [GERONIMO-708] - NPE if CMP has no naming:cmp-connection-factory
+    * [GERONIMO-713] - class loader server currently cannot run on Tomcat
+    * [GERONIMO-715] - StringIndexOutOfBoundsException in PortableStubCompiler
+    * [GERONIMO-724] - Nested transactions do not work correctly
+    * [GERONIMO-726] - Deployments can silently fail
+    * [GERONIMO-769] - TCL not correct when setting connector properties
+    * [GERONIMO-779] - SchemaInfoBuilder class cannot be loaded (xmlbeans problems)
+    * [GERONIMO-780] - MDB builder needs jms message listener as default
+    * [GERONIMO-785] - Web services error on startup
+    * [GERONIMO-792] - Typo in ToolsJarHack message at startup in M4
+    * [GERONIMO-808] - multiline cmp-field-name in openejb-jar cause error
+    * [GERONIMO-809] - Some bundled Web Applications still use geronimo-jetty.xml
+    * [GERONIMO-812] - TargetModuleId sometimes has quotes and sometimes no quotes
+    * [GERONIMO-813] - ServiceContextInterceptor assumes tcp transport
+    * [GERONIMO-816] - Spaces missing in help for deploy and distribute commands
+    * [GERONIMO-819] - DeploymentContext doesn't actually track childConfigurations
+    * [GERONIMO-820] - CommandSupport does not adequately synchronize access
+    * [GERONIMO-821] - Invalid sigantures in JavaMail API jar
+    * [GERONIMO-824] - MdbBuilder sets the Listener Type incorrectly causing NPEs
+    * [GERONIMO-831] - TSSBean with no ssl config produces stack trace on startup
