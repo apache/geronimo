@@ -361,6 +361,14 @@
         <ant:jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
         -->
 
+        <!-- build the RMINaming configuration -->
+        <ant:echo>Building RMI Naming configuration</ant:echo>
+        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/naming-server-plan.xml"/>
+        </ant:java>
+
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
         <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">

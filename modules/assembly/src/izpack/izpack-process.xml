@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <processing>
   <!-- J2EE Features -->
+  <job name="Activating RMI naming configuration">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/RMINaming</arg>
+    </executefile>
+    <executeForPack name="J2EE Features" />
+  </job>
   <job name="Activating base J2EE configuration">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-classpath</arg>
@@ -62,6 +72,18 @@
       <arg>org/apache/geronimo/Console</arg>
     </executefile>
     <executeForPack name="Web Management Console" />
+  </job>
+  
+  <!-- UDDI Server -->
+  <job name="Activating LDAP server">
+    <executefile name="$JAVA_HOME/bin/java">
+      <arg>-classpath</arg>
+      <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+      <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+      <arg>$INSTALL_PATH/var/config/config.list</arg>
+      <arg>org/apache/geronimo/Directory</arg>
+    </executefile>
+    <executeForPack name="UDDI Server" />
   </job>
   
   <!-- Sample Database Pool -->
@@ -145,20 +167,5 @@
     </executefile>
     <executeForPack name="Demo Web Application" />
   </job>
-<<<<<<< .mine
-
 <!--  <job name="Finished" /> -->
-=======
-  <job name="Install Derby Database Configuration">
-    <executefile name="$JAVA_HOME/bin/java">
-      <arg>-jar</arg>
-      <arg>$INSTALL_PATH/bin/deployer.jar</arg>
-      <arg>distribute</arg>
-      <arg>$INSTALL_PATH/installer-temp/default-database-plan.xml</arg>
-      <arg>$INSTALL_PATH/repository/tranql/rar/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar</arg>
-    </executefile>
-    <executeForPack name="Sample Derby Database" />
-  </job>
-  <job name="Finished" />
->>>>>>> .r240468
 </processing>

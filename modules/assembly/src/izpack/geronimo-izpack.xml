@@ -56,6 +56,7 @@
             <parsable targetfile="$INSTALL_PATH/var/config/config.xml" type="xml"/>
         </pack>
         <pack name="J2EE Features" required="no" preselected="yes">
+            <!-- o/o/g/RMINaming -->
             <!-- o/o/g/Server -->
             <!-- o/o/g/RuntimeDeployer -->
             <!-- o/o/g/SystemDatabase -->
@@ -69,6 +70,11 @@
             <description>A web-based management console which allows an administrator to log in and view and customize the Geronimo server configuration (such as network ports, logging, thread pools, application deployments, etc.).  The console login is the same administrative login you'll be setting in the next step.  The console can typically be reached at http://localhost:8080/console/ though the default port may be changed on the web configuration screen.  If not selected, the console will be installed but would need to be manually activated later.</description>
             <depends packname="J2EE Features" />
         </pack>
+        <pack name="LDAP Server" required="no" preselected="no">
+            <!-- o/o/g/Directory -->
+            <description>An LDAP directory server that runs in Geronimo, using the Apache Directory package.  This runs on the non-standard port of 1389 by default, so the server can start as a non-root user.  If not selected, this configuration will be available but would need to be manually activated later.</description>
+            <depends packname="J2EE Features" />
+        </pack>
         <pack name="Sample Database Pool" required="no" preselected="no">
             <!-- o/o/g/DefaultDatabase -->
             <description>A sample embedded database, using the Derby RDBMS.  If selected, this creates a database pool that connects to the "DefaultDatabase" database running in the embedded Derby installation.  If not selected, this configuration will be available but would need to be manually activated later.  The "DefaultDatabase" database will be created the first time this configuration is run.</description>
@@ -76,7 +82,7 @@
         </pack>
         <pack name="UDDI Server" required="no" preselected="no">
             <!-- o/o/g/juddiServer/1.0-SNAPSHOT -->
-            <description>A UDDI server that runs in Geronimo, using the jUDDI package.    If not selected, this configuration will be available but would need to be manually activated later.</description>
+            <description>A UDDI server that runs in Geronimo, using the jUDDI package.  If not selected, this configuration will be available but would need to be manually activated later.</description>
             <depends packname="J2EE Features" />
         </pack>
         <pack name="Spring Integration" required="no" preselected="no">

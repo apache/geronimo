@@ -1,4 +1,5 @@
 org/apache/geronimo/System
+org/apache/geronimo/RMINaming
 org/apache/geronimo/Server
 org/apache/geronimo/SystemDatabase
 org/apache/geronimo/SystemJMS
