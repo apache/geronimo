@@ -198,12 +198,13 @@ public class DirectoryGBean implements GBeanLifecycle {
                 DirectoryGBean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("providerURL", String.class, true);
-        infoFactory.addAttribute("securityAuthentication", String.class, true);
-        infoFactory.addAttribute("securityPrincipal", String.class, true);
-        infoFactory.addAttribute("securityCredentials", String.class, true);
-        infoFactory.addAttribute("ldapPort", int.class, true);
-        infoFactory.addAttribute("enableNetworking", boolean.class, true);
+        
+        infoFactory.addAttribute("providerURL", String.class, true, true);
+        infoFactory.addAttribute("securityAuthentication", String.class, true, true);
+        infoFactory.addAttribute("securityPrincipal", String.class, true, true);
+        infoFactory.addAttribute("securityCredentials", String.class, true, true);
+        infoFactory.addAttribute("ldapPort", int.class, true, true);
+        infoFactory.addAttribute("enableNetworking", boolean.class, true, true);
         
         infoFactory.addAttribute("workingDir", String.class, true);
         infoFactory.addAttribute("anonymousAccess", boolean.class, true);
