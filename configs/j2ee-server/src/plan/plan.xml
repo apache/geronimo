@@ -27,7 +27,7 @@ by the server.
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
     configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-    parentId="${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car"
+    parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
     >
 
     <!--runtime dependencies-->

@@ -54,17 +54,24 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
     private final static String TEMP_EXTENSION=".working";
     private final static int SAVE_BUFFER_MS=5000;
 
-    private ServerInfo serverInfo;
-    private String configFile;
+    private final ServerInfo serverInfo;
+    private final String configFile;
+    private String objectName;
+
     private File attributeFile;
     private File backupFile;
     private File tempFile;
     private final Map configurations = new LinkedHashMap();
     private UpdateThread updater;
 
-    public LocalAttributeManager(ServerInfo serverInfo, String configFile) {
+    public LocalAttributeManager(ServerInfo serverInfo, String configFile, String objectName) {
         this.serverInfo = serverInfo;
         this.configFile = configFile;
+        this.objectName = objectName;
+    }
+
+    public String getObjectName() {
+        return objectName;
     }
 
     public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute) {
@@ -368,9 +375,10 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LocalAttributeManager.class, "AttributeStore");//does not use jsr-77 naming
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("configFile", String.class, true);
+        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addInterface(ManageableAttributeStore.class);
 
-        infoFactory.setConstructor(new String[]{"ServerInfo","configFile"});
+        infoFactory.setConstructor(new String[]{"ServerInfo","configFile","objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

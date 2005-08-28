@@ -54,6 +54,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -67,6 +68,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private final Kernel kernel;
     private final ObjectName objectName;
     private final URI root;
+    private final ManageableAttributeStore attributeStore;
     private final ServerInfo serverInfo;
     private final Properties index = new Properties();
     private final Log log;
@@ -81,15 +83,17 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         objectName = null;
         serverInfo = null;
         this.root = null;
+        this.attributeStore = null;
         this.rootDir = rootDir;
         log = LogFactory.getLog("LocalConfigStore:"+rootDir.getName());
     }
 
-    public LocalConfigStore(Kernel kernel, String objectName, URI root, ServerInfo serverInfo) throws MalformedObjectNameException {
+    public LocalConfigStore(Kernel kernel, String objectName, URI root, ServerInfo serverInfo, ManageableAttributeStore attributeStore) throws MalformedObjectNameException {
         this.kernel = kernel;
         this.objectName = new ObjectName(objectName);
         this.root = root;
         this.serverInfo = serverInfo;
+        this.attributeStore = attributeStore;
         log = LogFactory.getLog("LocalConfigStore:"+root.toString());
     }
 
@@ -251,6 +255,13 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
         }
         config.setName(name);
+        ObjectName pattern;
+        try {
+            pattern = attributeStore == null ? null : new ObjectName(attributeStore.getObjectName());
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException("Invalid ObjectName for AttributeStore: " + attributeStore.getObjectName());
+        }
+        config.setReferencePattern("AttributeStore", pattern);
 
         try {
             kernel.loadGBean(config, Configuration.class.getClassLoader());
@@ -426,9 +437,10 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("root", URI.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addReference("AttributeStore", ManageableAttributeStore.class, "AttributeStore");
         infoFactory.addInterface(ConfigurationStore.class);
 
-        infoFactory.setConstructor(new String[]{"kernel", "objectName", "root", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"kernel", "objectName", "root", "ServerInfo", "AttributeStore"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

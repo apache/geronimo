@@ -39,15 +39,22 @@ specific services - those should be provided by children.
     <!-- URLFactory service -->
     <gbean name="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
 
+    <!-- Configuration Manager service -->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
+        <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
+    </gbean>
+
+    <!-- User-editable attribute service -->
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <attribute name="configFile">var/config/config.xml</attribute>
+    </gbean>
+
     <!-- Configuration Store service -->
     <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
         <attribute name="root">config-store</attribute>
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
-    </gbean>
-
-    <!-- Configuration Manager service -->
-    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
-        <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
+        <reference name="AttributeStore"><name>AttributeManager</name></reference>
     </gbean>
 
     <!-- Persistent List of running Configurations service -->
@@ -55,12 +62,6 @@ specific services - those should be provided by children.
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
         <reference name="ConfigurationManager"><name>ConfigurationManager</name></reference>
         <attribute name="configFile">var/config/config.list</attribute>
-    </gbean>
-
-    <!-- User-editable attribute service -->
-    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
-        <attribute name="configFile">var/config/config.xml</attribute>
     </gbean>
 
     <!-- Repository -->

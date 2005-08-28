@@ -45,7 +45,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -127,7 +126,7 @@ public class Configuration implements GBeanLifecycle {
     /**
      * Used to override stored attribute values with values set by the user.
      */
-    private ManageableAttributeStore manageableStore;
+    private final ManageableAttributeStore manageableStore;
 
     private final List dependencies;
     private final List classPath;
@@ -186,6 +185,7 @@ public class Configuration implements GBeanLifecycle {
         baseURL = null;
         parent = null;
         repositories = null;
+        manageableStore = null;
     }
 
     /**
@@ -213,7 +213,8 @@ public class Configuration implements GBeanLifecycle {
             byte[] gbeanState,
             Collection repositories,
             List dependencies,
-            ConfigurationStore configurationStore) throws Exception {
+            ConfigurationStore configurationStore,
+            ManageableAttributeStore manageableStore) throws Exception {
 
         this.kernel = kernel;
         this.objectNameString = objectName;
@@ -237,6 +238,7 @@ public class Configuration implements GBeanLifecycle {
         }
 
         this.configurationStore = configurationStore;
+        this.manageableStore = manageableStore;
 
         this.domain = domain;
         this.server = server;
@@ -266,13 +268,6 @@ public class Configuration implements GBeanLifecycle {
             configurationClassLoader = new ConfigurationClassLoader(id, urls, getClass().getClassLoader());
         } else {
             configurationClassLoader = new ConfigurationClassLoader(id, urls, parent.getConfigurationClassLoader());
-        }
-
-        // Look up the manageable store before we try to load the GBeans
-        Set set = kernel.listGBeans(new GBeanQuery(null, ManageableAttributeStore.class.getName()));
-        if(set.size() > 0) {
-            manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy(((ObjectName)set.iterator().next()),
-                                                                                              ManageableAttributeStore.class);
         }
 
         // DSS: why exactally are we doing this?  I bet there is a reason, but
@@ -464,9 +459,12 @@ public class Configuration implements GBeanLifecycle {
     }
 
     private ObjectName loadGBean(GBeanData beanData, Set objectNames) throws GBeanAlreadyExistsException {
+        // todo jnb: initializing attibutes here seems questionable - perhaps these should be injected
+        // by the ConfigurationManager once the Configuration has been loaded
         ObjectName name = beanData.getName();
         setGBeanBaseUrl(beanData, baseURL);
         setManageableAttributes(beanData);
+
         log.trace("Registering GBean " + name);
         kernel.loadGBean(beanData, configurationClassLoader);
         objectNames.add(name);
@@ -604,6 +602,7 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addReference("ConfigurationStore", ConfigurationStore.class);
+        infoFactory.addReference("AttributeStore", ManageableAttributeStore.class);
 
         infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
         infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
@@ -622,7 +621,8 @@ public class Configuration implements GBeanLifecycle {
             "gBeanState",
             "Repositories",
             "dependencies",
-            "ConfigurationStore"});
+            "ConfigurationStore",
+            "AttributeStore"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

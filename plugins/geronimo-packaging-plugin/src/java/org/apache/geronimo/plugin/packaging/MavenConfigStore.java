@@ -34,6 +34,7 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.Kernel;
 
@@ -48,11 +49,13 @@ public class MavenConfigStore implements ConfigurationStore {
     private final Kernel kernel;
     private final ObjectName objectName;
     private final Repository repository;
+    private final ManageableAttributeStore attributeStore;
 
-    public MavenConfigStore(Kernel kernel, String objectName, Repository repository) throws MalformedObjectNameException {
+    public MavenConfigStore(Kernel kernel, String objectName, Repository repository, ManageableAttributeStore attributeStore) throws MalformedObjectNameException {
         this.kernel = kernel;
         this.objectName = new ObjectName(objectName);
         this.repository = repository;
+        this.attributeStore = attributeStore;
     }
 
     public String getObjectName() {
@@ -88,6 +91,13 @@ public class MavenConfigStore implements ConfigurationStore {
             throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
         }
         config.setName(name);
+        ObjectName pattern;
+        try {
+            pattern = attributeStore == null ? null : new ObjectName(attributeStore.getObjectName());
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException("Invalid ObjectName for AttributeStore: " + attributeStore.getObjectName());
+        }
+        config.setReferencePattern("AttributeStore", pattern);
 
         try {
             kernel.loadGBean(config, Configuration.class.getClassLoader());
@@ -161,7 +171,8 @@ public class MavenConfigStore implements ConfigurationStore {
         builder.addAttribute("kernel", Kernel.class, false);
         builder.addAttribute("objectName", String.class, false);
         builder.addReference("Repository", Repository.class);
-        builder.setConstructor(new String[]{"kernel", "objectName", "Repository"});
+        builder.addReference("AttributeStore", ManageableAttributeStore.class);
+        builder.setConstructor(new String[]{"kernel", "objectName", "Repository", "AttributeStore"});
         GBEAN_INFO = builder.getBeanInfo();
     }
 }

@@ -54,6 +54,17 @@ public class PackageBuilder {
      */
     private static final ObjectName CONFIGMANAGER_NAME;
 
+    /**
+     * The name of the GBean that will provide values for managed attributes.
+     */
+    private static final ObjectName ATTRIBUTESTORE_NAME;
+
+    /**
+     * Reference to the kernel that will last the lifetime of this classloader.
+     * The KernelRegistry keeps soft references that may be garbage collected.
+     */
+    private static Kernel kernel;
+
     private static final String[] ARG_TYPES = {
             File.class.getName(),
             File.class.getName(),
@@ -69,6 +80,7 @@ public class PackageBuilder {
             REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository");
             CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=MavenConfigStore,j2eeType=ConfigurationStore");
             CONFIGMANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ConfigurationManager,j2eeType=ConfigurationManager");
+            ATTRIBUTESTORE_NAME = new ObjectName(KERNEL_NAME + ":name=ManagedAttributeStore");
         } catch (MalformedObjectNameException e) {
             throw new ExceptionInInitializerError(e.getMessage());
         }
@@ -197,7 +209,7 @@ public class PackageBuilder {
     }
 
     public void execute() throws Exception {
-        Kernel kernel = createKernel();
+        Kernel kernel = createKernel(repository);
 
         // start the Configuration we're going to use for this deployment
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -221,16 +233,23 @@ public class PackageBuilder {
     /**
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
-    private Kernel createKernel() throws Exception {
-        Kernel kernel = KernelRegistry.getKernel(KERNEL_NAME);
+    private static synchronized Kernel createKernel(File repository) throws Exception {
+        // first return our cached version
         if (kernel != null) {
             return kernel;
         }
 
+        // check the registry in case someone else created one
+        kernel = KernelRegistry.getKernel(KERNEL_NAME);
+        if (kernel != null) {
+            return kernel;
+        }
+
+        // boot one ourselves
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
 
-        bootDeployerSystem(kernel);
+        bootDeployerSystem(kernel, repository);
 
         return kernel;
     }
@@ -240,7 +259,7 @@ public class PackageBuilder {
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      */
-    private void bootDeployerSystem(Kernel kernel) throws Exception {
+    private static void bootDeployerSystem(Kernel kernel, File repository) throws Exception {
         ClassLoader cl = PackageBuilder.class.getClassLoader();
         GBeanData repoGBean = new GBeanData(REPOSITORY_NAME, MavenRepository.GBEAN_INFO);
         repoGBean.setAttribute("root", repository);
@@ -256,6 +275,10 @@ public class PackageBuilder {
         configManagerGBean.setReferencePattern("Stores", CONFIGSTORE_NAME);
         kernel.loadGBean(configManagerGBean, cl);
         kernel.startGBean(CONFIGMANAGER_NAME);
+
+        GBeanData attrManagerGBean = new GBeanData(ATTRIBUTESTORE_NAME, MavenAttributeStore.GBEAN_INFO);
+        kernel.loadGBean(attrManagerGBean, cl);
+        kernel.startGBean(ATTRIBUTESTORE_NAME);
     }
 
     /**

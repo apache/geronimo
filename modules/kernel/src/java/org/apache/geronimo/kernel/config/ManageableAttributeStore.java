@@ -30,6 +30,12 @@ import java.io.IOException;
  */
 public interface ManageableAttributeStore {
     /**
+     * Return the object name of this store
+     * @return the object name of this store
+     */
+    public String getObjectName();
+
+    /**
      * Gets a stored value (if any) for a particular attribute.  The attribute
      * is identified by the configuration name, GBean ObjectName, and attribute
      * information.  Note: it is not possible to store a meaningful value of

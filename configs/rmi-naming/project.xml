@@ -21,14 +21,14 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>j2ee-server</id>
-    <name>Server Configuration for the J2EE Server</name>
+    <id>rmi-naming</id>
+    <name>RMI/Naming configuration</name>
 
     <dependencies>
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>rmi-naming</artifactId>
+            <artifactId>j2ee-system</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
