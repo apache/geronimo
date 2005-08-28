@@ -37,19 +37,18 @@
         </dependency>
 
         <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector</artifactId>
-            <version>${tranql_connector_version}</version>
-            <type>rar</type>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${ant_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
 
         <dependency>
-            <groupId>ant</groupId>
-            <artifactId>ant</artifactId>
-            <version>${ant_version}</version>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
@@ -88,6 +87,15 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
         <!-- dependencies due to activemq -->
         <dependency>
             <groupId>activemq</groupId>
@@ -100,6 +108,14 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-gbean</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management</artifactId>
             <version>${activemq_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
@@ -153,9 +169,8 @@
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
+            <artifactId>cglib-nodep</artifactId>
             <version>${cglib_version}</version>
-            <url>http://cglib.sf.net/</url>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
             </properties>
@@ -165,7 +180,6 @@
             <groupId>commons-cli</groupId>
             <artifactId>commons-cli</artifactId>
             <version>${commons_cli_version}</version>
-            <url>http://jakarta.apache.org/commons/cli/</url>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
             </properties>
@@ -318,7 +332,7 @@
 
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
+            <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
@@ -329,6 +343,26 @@
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector</artifactId>
+            <version>${tranql_connector_version}</version>
+            <type>rar</type>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-xa</artifactId>
+            <version>${tranql_vendors_version}</version>
+            <type>rar</type>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
@@ -492,15 +526,6 @@
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>${axis_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis-saaj</artifactId>
-            <version>${axis_saaj_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
@@ -690,6 +715,15 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
         <!-- Geronimo modules to preload into the repository -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -796,14 +830,6 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-xa</artifactId>
-            <version>${tranql_vendors_version}</version>
-             <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
@@ -869,6 +895,14 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -902,6 +936,14 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-servicemix</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
@@ -967,6 +1009,13 @@
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-assembly-plugin</artifactId>
+            <type>plugin</type>
+            <version>${pom.currentVersion}</version>
         </dependency>
     </dependencies>
 </project>

@@ -25,12 +25,7 @@
     <name>System Configuration for the J2EE Server</name>
 
     <dependencies>
-        <!-- dependencies referenced in classPath -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
+        <!-- dependencies referenced in the plan -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
@@ -38,34 +33,73 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-deployment</artifactId>
+            <artifactId>geronimo-kernel</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
+            <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${geronimo_version}</version>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>${cglib_version}</version>
         </dependency>
         <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>${commons_cli_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>${mx4j_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-remote</artifactId>
+            <version>${mx4j_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-qname</artifactId>
+            <version>${geronimo_spec_qname_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>${xerces_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xmlParserAPIs</artifactId>
+            <version>${xml_parser_apis_version}</version>
         </dependency>
 
-        <!-- dependency on packaging plugin to force download -->
-<!--
+        <!-- dependency on deployer -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_version}</version>
             <type>plugin</type>
-            <version>SNAPSHOT</version>
         </dependency>
--->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
     </dependencies>
 </project>
 

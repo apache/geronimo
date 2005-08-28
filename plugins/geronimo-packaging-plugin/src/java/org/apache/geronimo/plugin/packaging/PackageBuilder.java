@@ -24,10 +24,11 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
 /**
@@ -48,20 +49,26 @@ public class PackageBuilder {
      */
     private static final ObjectName CONFIGSTORE_NAME;
 
+    /**
+     * The name of the GBean that will manage Configurations.
+     */
+    private static final ObjectName CONFIGMANAGER_NAME;
+
     private static final String[] ARG_TYPES = {
-        File.class.getName(),
-        File.class.getName(),
-        File.class.getName(),
-        Boolean.TYPE.getName(),
-        String.class.getName(),
-        String.class.getName(),
-        String.class.getName(),
+            File.class.getName(),
+            File.class.getName(),
+            File.class.getName(),
+            Boolean.TYPE.getName(),
+            String.class.getName(),
+            String.class.getName(),
+            String.class.getName(),
     };
 
     static {
         try {
             REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository");
             CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=MavenConfigStore,j2eeType=ConfigurationStore");
+            CONFIGMANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ConfigurationManager,j2eeType=ConfigurationManager");
         } catch (MalformedObjectNameException e) {
             throw new ExceptionInInitializerError(e.getMessage());
         }
@@ -230,21 +237,25 @@ public class PackageBuilder {
 
     /**
      * Boot the in-Maven deployment system.
-     * This contains just Repository and ConfigurationStore GBeans that map to
+     * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      */
     private void bootDeployerSystem(Kernel kernel) throws Exception {
         ClassLoader cl = PackageBuilder.class.getClassLoader();
         GBeanData repoGBean = new GBeanData(REPOSITORY_NAME, MavenRepository.GBEAN_INFO);
         repoGBean.setAttribute("root", repository);
+        kernel.loadGBean(repoGBean, cl);
+        kernel.startGBean(REPOSITORY_NAME);
 
         GBeanData storeGBean = new GBeanData(CONFIGSTORE_NAME, MavenConfigStore.GBEAN_INFO);
         storeGBean.setReferencePattern("Repository", REPOSITORY_NAME);
-
-        kernel.loadGBean(repoGBean, cl);
-        kernel.startGBean(REPOSITORY_NAME);
         kernel.loadGBean(storeGBean, cl);
         kernel.startGBean(CONFIGSTORE_NAME);
+
+        GBeanData configManagerGBean = new GBeanData(CONFIGMANAGER_NAME, ConfigurationManagerImpl.GBEAN_INFO);
+        configManagerGBean.setReferencePattern("Stores", CONFIGSTORE_NAME);
+        kernel.loadGBean(configManagerGBean, cl);
+        kernel.startGBean(CONFIGMANAGER_NAME);
     }
 
     /**

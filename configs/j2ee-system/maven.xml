@@ -18,5 +18,9 @@
 
 <!-- $Rev: 155756 $ $Date: 2005-02-28 22:10:07 -0800 (Mon, 28 Feb 2005) $ -->
 
-<project default="geronimo:package">
+<project default="default">
+
+    <goal name="default">
+        <attainGoal name="car:install"/>
+    </goal>
 </project>

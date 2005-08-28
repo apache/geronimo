@@ -30,91 +30,179 @@ by the server.
     parentId="${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car"
     >
 
-
     <!--runtime dependencies-->
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-jacc-${geronimo_spec_j2ee_jacc_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-timer-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-transaction-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>howl/jars/howl-logger-${howl_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
-    </dependency>
-
-    <!-- required for rar 1.5 to load realms -->
-    <dependency>
-        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
-    </dependency>
-
-    <!-- for timer serialization implementation -->
-    <dependency>
-        <uri>xstream/jars/xstream-${xstream_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>xpp3/jars/xpp3-${xpp3_version}.jar</uri>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-j2ee</artifactId>
+        <version>${geronimo_spec_j2ee_version}</version>
     </dependency>
 
     <dependency>
-        <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-activation</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-client-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-management</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-core</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-connector</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-naming</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-timer</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-transaction</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-webservices</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-jmxremoting</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-client</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-axis</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-servicemix</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-jetty</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
 
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
+        <groupId>concurrent</groupId>
+        <artifactId>concurrent</artifactId>
+        <version>${concurrent_version}</version>
     </dependency>
-
     <dependency>
-         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
+        <groupId>tranql</groupId>
+        <artifactId>tranql</artifactId>
+        <version>${tranql_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>openejb-core</artifactId>
+        <version>${openejb_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>howl</groupId>
+        <artifactId>howl-logger</artifactId>
+        <version>${howl_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>antlr</groupId>
+        <artifactId>antlr</artifactId>
+        <version>${antlr_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>regexp</groupId>
+        <artifactId>regexp</artifactId>
+        <version>${regexp_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>xstream</groupId>
+        <artifactId>xstream</artifactId>
+        <version>${xstream_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>xpp3</groupId>
+        <artifactId>xpp3</artifactId>
+        <version>${xpp3_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${asm_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>activemq</groupId>
+        <artifactId>activemq-gbean-management</artifactId>
+        <version>${activemq_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>activeio</groupId>
+        <artifactId>activeio</artifactId>
+        <version>${activeio_version}</version>
     </dependency>
 
+    <!-- default WAR container using Jetty -->
+    <gbean name="WebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
+    </gbean>
+
+    <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
+        <reference name="JettyContainer"><name>WebContainer</name></reference>
+        <reference name="ServerInfo"><module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
+        <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
+        <attribute name="logDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>
+        <attribute name="logTimeZone">GMT</attribute>
+    </gbean>
+
+    <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
+        <attribute name="port">${PlanHTTPPort}</attribute>
+        <reference name="JettyContainer"><name>WebContainer</name></reference>
+        <attribute name="maxThreads">50</attribute>
+        <attribute name="minThreads">10</attribute>
+    </gbean>
+
+    <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
+        <attribute name="port">${PlanHTTPSPort}</attribute>
+        <attribute name="keystoreFileName">var/security/keystore</attribute>
+        <attribute name="keystoreType">JKS</attribute>
+        <attribute name="keystorePassword">secret</attribute>
+        <attribute name="keyPassword">secret</attribute>
+        <attribute name="clientAuthRequired">false</attribute>
+        <attribute name="secureProtocol">TLS</attribute>
+        <attribute name="maxThreads">50</attribute>
+        <attribute name="minThreads">10</attribute>
+        <reference name="JettyContainer"><name>WebContainer</name></reference>
+        <reference name="ServerInfo"><module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
+    </gbean>
+
+    <!-- TODO add in Tomcat support -->
 
     <!-- Default security realm using properties files -->
     <gbean name="properties-login"
@@ -131,11 +219,17 @@ by the server.
     <gbean name="geronimo-properties-realm"
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">geronimo-properties-realm</attribute>
-        <attribute name="loginModuleConfiguration">
-            LoginModule.1.REQUIRED=geronimo.server:j2eeType=LoginModule,J2EEServer=geronimo,J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,name=properties-login
-        </attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="LoginModuleConfiguration">
+            <name>properties-login</name>
+        </reference>
+        <reference name="ServerInfo"><module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
     </gbean>
+    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+         <attribute name="controlFlag">REQUIRED</attribute>
+         <reference name="LoginModule">
+             <name>properties-login</name>
+         </reference>
+     </gbean>
 
     <gbean name="JMX"
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
@@ -152,7 +246,7 @@ by the server.
     </gbean>
 
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
@@ -164,16 +258,23 @@ by the server.
         <attribute name="password">secret</attribute>
     </gbean>
 
+    <gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
+        <attribute name="protocol">tcp</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanRemoteLoginPort}</attribute>
+        <reference name="LoginService"><name>JaasLoginService</name></reference>
+    </gbean>
+
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>
-        <attribute name="poolSize">10</attribute>
+        <attribute name="poolSize">30</attribute>
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 
-    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator">
+    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     </gbean>
 
-    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManager">
+    <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
         <attribute name="syncMaximumPoolSize">10</attribute>
         <attribute name="startMaximumPoolSize">10</attribute>
         <attribute name="scheduledMaximumPoolSize">10</attribute>
@@ -193,7 +294,7 @@ by the server.
         <attribute name="maxLogFiles">2</attribute>
         <attribute name="minBuffers">4</attribute>
         <attribute name="threadsWaitingForceThreshold">-1</attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
     </gbean>
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
@@ -210,36 +311,15 @@ by the server.
         <reference name="XidImporter"><name>TransactionManager</name></reference>
     </gbean>
 
-
-    <!-- default WAR container using Jetty -->
-    <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
-    </gbean>
-
-    <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
-        <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
-        <attribute name="logDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>
-        <attribute name="logTimeZone">GMT</attribute>
-    </gbean>
-
-    <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
-        <attribute name="port">8080</attribute>
-        <reference name="JettyContainer"><name>JettyWebContainer</name></reference>
-        <!--        <attribute name="MaxConnections">10</attribute>-->
-        <!--        <attribute name="MaxIdleTime">10</attribute>-->
-    </gbean>
-
     <!-- EJB Protocol -->
     <gbean gbeanName="openejb:type=NetworkService,name=EJB" class="org.openejb.server.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
-        <attribute name="port">4201</attribute>
-        <attribute name="address">127.0.0.1</attribute>
-        <attribute name="allowHosts">127.0.0.1</attribute>
-        <attribute name="priority">5</attribute>
-        <attribute name="threads">20</attribute>
+        <attribute name="port">${PlanOpenEJBPort}</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="allowHosts">${PlanClientAddresses}</attribute>
         <attribute name="logOnSuccess">HOST,NAME,THREADID,USERID</attribute>
         <attribute name="logOnFailure">HOST,NAME</attribute>
+        <reference name="Executor"><name>DefaultThreadPool</name></reference>
         <reference name="Server"><gbean-name>openejb:type=Server,name=EJB</gbean-name></reference>
     </gbean>
     <gbean gbeanName="openejb:type=Server,name=EJB" class="org.openejb.server.ejbd.EjbServerGBean">
@@ -254,20 +334,17 @@ by the server.
         </references>
     </gbean>
 
-
-    <!-- HTTP/SOAP Protocol is now run through jetty-->
-
     <!-- JSR77 Management Objects -->
     <gbean gbeanName="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
     <gbean gbeanName="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
     </gbean>
 
     <gbean gbeanName="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <!-- JMX Remoting -->
     <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="URL">service:jmx:rmi://localhost/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
 

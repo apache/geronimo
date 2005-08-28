@@ -23,7 +23,7 @@
     <id>geronimo-assembly-plugin</id>
     <name>Geronimo Assembly Plugin</name>
     <description>A plugin used to assemble a distribution of Geronimo</description>
-    <currentVersion>SNAPSHOT</currentVersion>
+    <currentVersion>1.0-SNAPSHOT</currentVersion>
 
     <dependencies>
         <dependency>

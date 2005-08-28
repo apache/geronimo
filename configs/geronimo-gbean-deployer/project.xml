@@ -20,10 +20,9 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <groupId>geronimo</groupId>
+    <extend>../../etc/project.xml</extend>
     <id>geronimo-gbean-deployer</id>
-    <name>Geronimo Configuration for service deployments</name>
-    <currentVersion>0.1.1</currentVersion>
+    <name>Geronimo Configuration for performing service deployments</name>
 
     <dependencies>
         <!-- dependencies referenced in plan -->
@@ -54,27 +53,22 @@
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
-            <artifactId>xbean-apache</artifactId>
-            <version>1.0-DEV</version>
+            <artifactId>xbean</artifactId>
+            <version>${xmlbeans_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
         </dependency>
 
-        <!-- dependency on packaging plugin to force download -->
-<!--
+        <!-- for bootstrap -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-packaging-plugin</artifactId>
-            <type>plugin</type>
-            <version>SNAPSHOT</version>
+            <artifactId>geronimo-deploy-tool</artifactId>
+            <version>${geronimo_version}</version>
         </dependency>
--->
 
-        <!-- dependency on the bootstrap gbean deployer so I can deploy myself-->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <type>car</type>
-            <version>0.1.1</version>
-        </dependency>
     </dependencies>
 </project>
 

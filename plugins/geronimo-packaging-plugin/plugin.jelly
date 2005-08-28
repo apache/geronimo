@@ -23,22 +23,22 @@
     xmlns:ant="jelly:ant"
     xmlns:velocity="jelly:velocity"
     xmlns:define="jelly:define"
-    xmlns:package="geronimo:packaging"
+    xmlns:car="geronimo:packaging"
     >
     <define:taglib uri="geronimo:packaging">
         <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilder" method="execute"/>
         <define:jellybean name="jmxDistribute" className="org.apache.geronimo.plugin.packaging.JMXDistributor" method="execute"/>
     </define:taglib>
 
-    <goal name="geronimo" description="Package a Geronimo Configuration" prereqs="geronimo:package"/>
+    <goal name="car" description="Package a Geronimo Configuration" prereqs="car:package"/>
 
-    <goal name="geronimo:prepare-plan" description="Prepare a plan by processing with velocity">
+    <goal name="car:prepare-plan" description="Prepare a plan by processing with velocity">
         <ant:mkdir dir="${geronimo.packaging.buildDir}"/>
         <velocity:merge basedir="${geronimo.packaging.srcDir}" template="${geronimo.packaging.planFile}" name="${geronimo.packaging.buildFile}"/>
     </goal>
 
-    <goal name="geronimo:package" prereqs="geronimo:prepare-plan" description="Package a Geronimo Configuration">
-        <package:package
+    <goal name="car:package" prereqs="car:prepare-plan" description="Package a Geronimo Configuration">
+        <car:package
             repository="${geronimo.packaging.repository}"
             deploymentConfig="${geronimo.packaging.deploymentConfig}"
             deployerName="${geronimo.packaging.deployerName}"
@@ -51,12 +51,12 @@
             />
     </goal>
 
-    <goal name="geronimo:install" prereqs="geronimo:package" description="Install the package in the local repository">
+    <goal name="car:install" prereqs="car:package" description="Install the package in the local repository">
         <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
     </goal>
 
-    <goal name="geronimo:distribute" prereqs="geronimo:package" description="Distribute the package to a server">
-        <package:jmxDistribute
+    <goal name="car:distribute" prereqs="car:package" description="Distribute the package to a server">
+        <car:jmxDistribute
             user="${geronimo.packaging.user}"
             password="${geronimo.packaging.password}"
             url="${geronimo.packaging.url}"

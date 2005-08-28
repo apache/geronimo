@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <!--
 
-    Copyright 2005 The Apache Software Foundation
+    Copyright 2004 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
     limitations under the License.
 -->
 
+<!-- $Rev: 155756 $ $Date: 2005-02-28 22:10:07 -0800 (Mon, 28 Feb 2005) $ -->
 
-<!-- $Rev: 158417 $ $Date: 2005-03-20 23:25:45 -0800 (Sun, 20 Mar 2005) $ -->
+<project default="default">
 
-<project default="plugin:install">
     <goal name="default">
-        <attainGoal name="plugin:install-now"/>
-        <attainGoal name="plugin:repository-install"/>
+        <attainGoal name="car:install"/>
     </goal>
 </project>

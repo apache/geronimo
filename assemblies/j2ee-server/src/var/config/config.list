@@ -1,5 +1,2 @@
-org/apache/geronimo/System
-org/apache/geronimo/Server
-org/apache/geronimo/SystemDatabase
-org/apache/geronimo/SystemJMS
-org/apache/geronimo/RuntimeDeployer
+geronimo/cars/j2ee-system-1.0-SNAPSHOT.car
+geronimo/cars/j2ee-server-1.0-SNAPSHOT.car

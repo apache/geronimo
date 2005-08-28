@@ -23,22 +23,39 @@
     >
 
     <dependency>
-        <uri>geronimo/jars/geronimo-system-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-system</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-common</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-deployment</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-service-builder-${geronimo_version}.jar</uri>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-service-builder</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-        <uri>xmlbeans/jars/xbean-apache-1.0-DEV.jar</uri>
+        <groupId>xmlbeans</groupId>
+        <artifactId>xbean</artifactId>
+        <version>${xmlbeans_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>stax</groupId>
+        <artifactId>stax-api</artifactId>
+        <version>${stax_api_version}</version>
     </dependency>
 
     <!-- Deployer used to process modules and plans -->

@@ -18,5 +18,24 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project default="geronimo:install">
+<project default="default"
+         xmlns:ant="jelly:ant"
+         xmlns:define="jelly:define"
+        xmlns:boot="geronimo:gbean-deployer-boot"
+        >
+
+    <goal name="default" prereqs="car:install"/>
+
+    <goal name="car:package" prereqs="car:prepare-plan">
+        <define:taglib uri="geronimo:gbean-deployer-boot">
+            <define:jellybean name="boot" className="org.apache.geronimo.deployment.PluginBootstrap" method="bootstrap"/>
+        </define:taglib>
+
+        <boot:boot
+                localRepo="${maven.repo.local}"
+                plan="${geronimo.packaging.buildFile}"
+                buildDir="${maven.build.dir}"
+                carFile="${maven.build.dir}/${maven.final.name}.car"
+                />
+    </goal>
 </project>
