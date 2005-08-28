@@ -74,7 +74,7 @@
     <executeForPack name="Web Management Console" />
   </job>
   
-  <!-- UDDI Server -->
+  <!-- LDAP Server -->
   <job name="Activating LDAP server">
     <executefile name="$JAVA_HOME/bin/java">
       <arg>-classpath</arg>
@@ -83,7 +83,7 @@
       <arg>$INSTALL_PATH/var/config/config.list</arg>
       <arg>org/apache/geronimo/Directory</arg>
     </executefile>
-    <executeForPack name="UDDI Server" />
+    <executeForPack name="LDAP Server" />
   </job>
   
   <!-- Sample Database Pool -->
