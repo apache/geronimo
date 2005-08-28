@@ -156,7 +156,11 @@ public abstract class AbstractCommand implements DeployCommand {
             }
         }
         if(list.isEmpty()) {
-            throw new DeploymentException(name+" does not appear to be a TargetModuleID or the name of a module available on the selected server.  For a TargetModuleID, specify it as TargetName|ModuleName");
+            throw new DeploymentException(name+" does not appear to be a the name of a module " +
+                    "available on the selected server. Perhaps it has already been " +
+                    "stopped or undeployed?  If you're trying to specify a " +
+                    "TargetModuleID, use the syntax TargetName|ModuleName instead. " +
+                    "If you're not sure what's running, try the list-modules command.");
         }
         return list;
     }
