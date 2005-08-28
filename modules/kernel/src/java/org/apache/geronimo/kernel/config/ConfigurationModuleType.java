@@ -29,7 +29,7 @@ public class ConfigurationModuleType implements Serializable {
 
     public static final ConfigurationModuleType EJB = new ConfigurationModuleType("EJB", 1);
 
-    public static final ConfigurationModuleType CAR = new ConfigurationModuleType("CAR", 2);
+    public static final ConfigurationModuleType CAR = new ConfigurationModuleType("CAR", 2); // app client
 
     public static final ConfigurationModuleType RAR = new ConfigurationModuleType("RAR", 3);
 
@@ -37,11 +37,9 @@ public class ConfigurationModuleType implements Serializable {
 
     public static final ConfigurationModuleType SERVICE = new ConfigurationModuleType("SERVICE", 5);
 
-    public static final ConfigurationModuleType APP_CLIENT = new ConfigurationModuleType("APP_CLIENT", 6);
+    public static final ConfigurationModuleType SPR = new ConfigurationModuleType("SPR", 6);
 
-    public static final ConfigurationModuleType SPR = new ConfigurationModuleType("SPR", 7);
-
-    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, APP_CLIENT, SPR};
+    private static final ConfigurationModuleType[] fromInt = {EAR, EJB, CAR, RAR, WAR, SERVICE, SPR};
 
     private final String name;
     

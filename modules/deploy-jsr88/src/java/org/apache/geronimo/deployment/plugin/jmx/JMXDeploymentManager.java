@@ -19,9 +19,7 @@ package org.apache.geronimo.deployment.plugin.jmx;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -35,15 +33,12 @@ import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.management.remote.JMXConnector;
 
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
-import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
-import org.apache.geronimo.deployment.plugin.local.StartCommand;
-import org.apache.geronimo.deployment.plugin.local.StopCommand;
-import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
+import org.apache.geronimo.deployment.plugin.local.*;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
@@ -54,6 +49,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
 import org.apache.geronimo.web.deployment.WARConfigurer;
+import org.apache.geronimo.gbean.GBeanQuery;
 
 
 /**
@@ -151,14 +147,28 @@ public class JMXDeploymentManager implements DeploymentManager {
                 for (int j = 0; j < infos.size(); j++) {
                     ConfigurationInfo info = (ConfigurationInfo) infos.get(j);
                     if (filter.accept(info)) {
-                        TargetModuleID moduleID = new TargetModuleIDImpl(target, info.getConfigID().toString());
+                        String name = info.getConfigID().toString();
+                        List list = CommandSupport.loadChildren(kernel, name);
+                        TargetModuleIDImpl moduleID = new TargetModuleIDImpl(target, name, (String[]) list.toArray(new String[list.size()]));
+                        moduleID.setType(CommandSupport.convertModuleType(info.getType()));
+                        if(moduleID.getChildTargetModuleID() != null) {
+                            for (int k = 0; k < moduleID.getChildTargetModuleID().length; k++) {
+                                TargetModuleIDImpl child = (TargetModuleIDImpl) moduleID.getChildTargetModuleID()[k];
+                                if(CommandSupport.isWebApp(kernel, child.getModuleID())) {
+                                    child.setType(ModuleType.WAR);
+                                }
+                            }
+                        }
                         result.add(moduleID);
                     }
                 }
             }
+            CommandSupport.addWebURLs(kernel, result);
             return result.size() == 0 ? null : (TargetModuleID[]) result.toArray(new TargetModuleID[result.size()]);
         } catch (NoSuchStoreException e) {
             throw (TargetException) new TargetException(e.getMessage()).initCause(e);
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException(e);
         }
     }
 

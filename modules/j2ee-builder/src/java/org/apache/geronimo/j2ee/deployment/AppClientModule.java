@@ -39,7 +39,7 @@ public class AppClientModule extends Module {
     }
 
     public ConfigurationModuleType getType() {
-        return ConfigurationModuleType.APP_CLIENT;
+        return ConfigurationModuleType.CAR;
     }
 
     public JarFile getEarFile() {

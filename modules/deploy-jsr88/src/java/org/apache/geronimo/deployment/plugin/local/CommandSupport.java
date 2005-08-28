@@ -17,15 +17,13 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
 import javax.enterprise.deploy.spi.status.ClientConfiguration;
@@ -33,9 +31,15 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.gbean.GBeanQuery;
 
 /**
  * @version $Rev$ $Date$
@@ -235,5 +239,122 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
 
     public void setCommandContext(CommandContext commandContext) {
         this.commandContext = commandContext;
+    }
+
+    public static ModuleType convertModuleType(ConfigurationModuleType type) {
+        if(type.getValue() == ConfigurationModuleType.WAR.getValue()) {
+            return ModuleType.WAR;
+        }
+        if(type.getValue() == ConfigurationModuleType.RAR.getValue()) {
+            return ModuleType.RAR;
+        }
+        if(type.getValue() == ConfigurationModuleType.EJB.getValue()) {
+            return ModuleType.EJB;
+        }
+        if(type.getValue() == ConfigurationModuleType.EAR.getValue()) {
+            return ModuleType.EAR;
+        }
+        if(type.getValue() == ConfigurationModuleType.CAR.getValue()) {
+            return ModuleType.CAR;
+        }
+        return null;
+    }
+
+    public static boolean isWebApp(Kernel kernel, String configName) {
+        try {
+            Set set = kernel.listGBeans(new ObjectName("*:j2eeType=WebModule,name="+configName+",*"));
+            return set.size() > 0;
+        } catch (MalformedObjectNameException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    protected void addWebURLs(Kernel kernel) {
+        addWebURLs(kernel, moduleIDs);
+    }
+
+    public static void addWebURLs(Kernel kernel, List moduleIDs) {
+        Set webApps = null;
+        String url = null;
+        for (int i = 0; i < moduleIDs.size(); i++) {
+            TargetModuleIDImpl id = (TargetModuleIDImpl) moduleIDs.get(i);
+            if(id.getType() != null && id.getType().getValue() == ModuleType.WAR.getValue()) {
+                if(webApps == null) {
+                    webApps = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebModule"));
+                    Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebConnector"));
+                    Map map = new HashMap();
+                    ObjectName connector = null;
+                    for (Iterator it = set.iterator(); it.hasNext();) {
+                        ObjectName name = (ObjectName) it.next();
+                        try {
+                            String protocol = (String) kernel.getAttribute(name, "protocol");
+                            map.put(protocol, name);
+                        } catch (Exception e) {}
+                        if((connector = (ObjectName) map.get("HTTP")) == null) {
+                            if((connector = (ObjectName) map.get("HTTPS")) == null) {
+                                connector = (ObjectName) map.get("AJP");
+                                if(connector != null) {
+                                    url = "ajp://";
+                                }
+                            } else {
+                                url = "https://";
+                            }
+                        } else {
+                            url = "http://";
+                        }
+                        if(connector != null) {
+                            try {
+                                url = url + kernel.getAttribute(connector, "host") + ":" + kernel.getAttribute(connector, "port");
+                            } catch (Exception e) {
+                                url = null;
+                            }
+                        }
+                    }
+                }
+                for (Iterator it = webApps.iterator(); it.hasNext();) {
+                    ObjectName name = (ObjectName) it.next();
+                    if(name.getKeyProperty("name").equals(id.getModuleID())) {
+                        try {
+                            id.setWebURL(url == null ? (String)kernel.getAttribute(name, "contextPath") : url + kernel.getAttribute(name, "contextPath"));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            if(id.getChildTargetModuleID() != null) {
+                addWebURLs(kernel, Arrays.asList(id.getChildTargetModuleID()));
+            }
+        }
+    }
+
+    public static List loadChildren(Kernel kernel, String configName) throws MalformedObjectNameException {
+        List kids = new ArrayList();
+        Set test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=WebModule,*"));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            ObjectName child = (ObjectName) it.next();
+            String childName = child.getKeyProperty("name");
+            kids.add(childName);
+        }
+        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=EJBModule,*"));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            ObjectName child = (ObjectName) it.next();
+            String childName = child.getKeyProperty("name");
+            kids.add(childName);
+        }
+        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=AppClientModule,*"));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            ObjectName child = (ObjectName) it.next();
+            String childName = child.getKeyProperty("name");
+            kids.add(childName);
+        }
+        test = kernel.listGBeans(new ObjectName("*:J2EEApplication="+configName+",j2eeType=ResourceAdapterModule,*"));
+        for (Iterator it = test.iterator(); it.hasNext();) {
+            ObjectName child = (ObjectName) it.next();
+            String childName = child.getKeyProperty("name");
+            kids.add(childName);
+        }
+        return kids;
     }
 }

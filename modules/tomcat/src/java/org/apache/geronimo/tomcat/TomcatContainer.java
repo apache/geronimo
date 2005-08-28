@@ -211,7 +211,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext ctx) throws Exception{
-        Context anotherCtxObj = embedded.createContext(ctx.getPath(), ctx.getDocBase(), ctx.getWebClassLoader());
+        Context anotherCtxObj = embedded.createContext(ctx.getContextPath(), ctx.getDocBase(), ctx.getWebClassLoader());
 
         // Set the context for the Tomcat implementation
         ctx.setContext(anotherCtxObj);

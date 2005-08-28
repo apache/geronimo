@@ -348,7 +348,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     }
                     appClientDeploymentContext = new EARContext(appClientDir,
                             clientConfigId,
-                            ConfigurationModuleType.APP_CLIENT,
+                            ConfigurationModuleType.CAR,
                             clientParentId,
                             kernel,
                             clientApplicationName,

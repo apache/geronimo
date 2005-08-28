@@ -19,13 +19,17 @@ package org.apache.geronimo.deployment.plugin;
 
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.shared.ModuleType;
+import java.io.Serializable;
 
 /**
  * 
  * 
  * @version $Rev$ $Date$
  */
-public class TargetModuleIDImpl implements TargetModuleID {
+public class TargetModuleIDImpl implements TargetModuleID, Serializable {
+    private String webURL;
+    private ModuleType type;
     private final Target target;
     private final String moduleID;
     private final TargetModuleID parentTargetModuleID;
@@ -42,10 +46,14 @@ public class TargetModuleIDImpl implements TargetModuleID {
         this.target = target;
         this.moduleID = moduleID;
         parentTargetModuleID = null;
-        childTargetModuleID = new TargetModuleID[childIDs.length];
-        for (int i = 0; i < childIDs.length; i++) {
-            String childID = childIDs[i];
-            childTargetModuleID[i] = new TargetModuleIDImpl(target, childID, this);
+        if(childIDs == null || childIDs.length == 0) {
+            childTargetModuleID = null;
+        } else {
+            childTargetModuleID = new TargetModuleID[childIDs.length];
+            for (int i = 0; i < childIDs.length; i++) {
+                String childID = childIDs[i];
+                childTargetModuleID[i] = new TargetModuleIDImpl(target, childID, this);
+            }
         }
     }
 
@@ -73,7 +81,19 @@ public class TargetModuleIDImpl implements TargetModuleID {
     }
 
     public String getWebURL() {
-        return null;
+        return webURL;
+    }
+
+    public void setWebURL(String webURL) {
+        this.webURL = webURL;
+    }
+
+    public ModuleType getType() {
+        return type;
+    }
+
+    public void setType(ModuleType type) {
+        this.type = type;
     }
 
     public String toString() {

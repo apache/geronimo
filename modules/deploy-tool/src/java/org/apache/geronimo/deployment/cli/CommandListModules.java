@@ -73,31 +73,51 @@ public class CommandListModules extends AbstractCommand {
             }
         }
         final DeploymentManager mgr = connection.getDeploymentManager();
-        TargetModuleID[] results;
+        TargetModuleID[] running = null, notrunning = null;
         Target[] tlist = identifyTargets(targets, mgr);
         if(tlist.length == 0) {
             tlist = mgr.getTargets();
         }
         try {
-            if(started == null) {
-                results = mgr.getAvailableModules(null, tlist);
-            } else if(started.booleanValue()) {
-                results = mgr.getRunningModules(null, tlist);
-            } else {
-                results = mgr.getNonRunningModules(null, tlist);
+            if(started == null || started.booleanValue()) {
+                running = mgr.getRunningModules(null, tlist);
+            }
+            if(started == null || !started.booleanValue()) {
+                notrunning = mgr.getNonRunningModules(null, tlist);
             }
         } catch (TargetException e) {
             throw new DeploymentException("Unable to query modules", e);
         } catch (IllegalStateException e) {
             throw new DeploymentSyntaxException(e.getMessage());
         }
-        if(results == null) {
-            results = new TargetModuleID[0];
+        if(running == null) {
+            running = new TargetModuleID[0];
         }
-        out.println("Found "+results.length+" module"+(results.length != 1 ? "s" : ""));
-        for (int i = 0; i < results.length; i++) {
-            TargetModuleID result = results[i];
+        if(notrunning == null) {
+            notrunning = new TargetModuleID[0];
+        }
+
+        int total = running.length+notrunning.length;
+        out.println("Found "+total+" module"+(total != 1 ? "s" : ""));
+        for (int i = 0; i < running.length; i++) {
+            TargetModuleID result = running[i];
+            out.println("  + "+result.getModuleID()+(tlist.length > 1 ? " on "+result.getTarget().getName(): "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()));
+            if(result.getChildTargetModuleID() != null) {
+                for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
+                    TargetModuleID child = result.getChildTargetModuleID()[j];
+                    out.println("      `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()));
+                }
+            }
+        }
+        for (int i = 0; i < notrunning.length; i++) {
+            TargetModuleID result = notrunning[i];
             out.println("    "+result.getModuleID()+(tlist.length > 1 ? " on "+result.getTarget().getName(): ""));
+            if(result.getChildTargetModuleID() != null) {
+                for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
+                    TargetModuleID child = result.getChildTargetModuleID()[j];
+                    out.println("      `-> "+child.getModuleID());
+                }
+            }
         }
     }
 }

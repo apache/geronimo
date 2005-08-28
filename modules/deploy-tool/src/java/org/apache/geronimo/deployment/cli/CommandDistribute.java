@@ -148,7 +148,13 @@ public class CommandDistribute extends AbstractCommand {
         results = po.getResultTargetModuleIDs();
         for (int i = 0; i < results.length; i++) {
             TargetModuleID result = results[i];
-            out.println(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : ""), 4, 72));
+            out.println(DeployUtils.reformat(getAction()+" "+result.getModuleID()+(multipleTargets ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+result.getWebURL()), 4, 72));
+            if(result.getChildTargetModuleID() != null) {
+                for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
+                    TargetModuleID child = result.getChildTargetModuleID()[j];
+                    out.println(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null || !getAction().equals("Deployed") ? "" : " @ "+child.getWebURL()),4, 72));
+                }
+            }
         }
 
         // if any results failed then throw so that we'll return non-0

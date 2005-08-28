@@ -41,7 +41,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.WebModule;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.jetty.interceptor.BeforeAfter;

@@ -384,7 +384,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
             URI baseUri = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/")).toURI();
             webModuleData.setAttribute("webAppRoot", baseUri);
-            webModuleData.setAttribute("path", webModule.getContextRoot());
+            webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);

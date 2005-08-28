@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
@@ -101,9 +102,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         Object[] args = {moduleArchive, deploymentPlan};
         List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
         if (objectNames == null || objectNames.isEmpty()) {
-            DeploymentException deploymentException = new DeploymentException("Got empty list");
-            deploymentException.printStackTrace();
-            throw deploymentException;
+            throw new DeploymentException("Server didn't deploy anything");
         }
         String parentName = (String) objectNames.get(0);
         String[] childIDs = new String[objectNames.size()-1];
@@ -111,9 +110,21 @@ public abstract class AbstractDeployCommand extends CommandSupport {
             childIDs[j] = (String)objectNames.get(j+1);
         }
 
-        TargetModuleID moduleID = new TargetModuleIDImpl(target, parentName.toString(), childIDs);
+        TargetModuleIDImpl moduleID = new TargetModuleIDImpl(target, parentName.toString(), childIDs);
+        if(isWebApp(kernel, parentName.toString())) {
+            moduleID.setType(ModuleType.WAR);
+        }
+        if(moduleID.getChildTargetModuleID() != null) {
+            for (int i = 0; i < moduleID.getChildTargetModuleID().length; i++) {
+                TargetModuleIDImpl id = (TargetModuleIDImpl) moduleID.getChildTargetModuleID()[i];
+                if(isWebApp(kernel, id.getModuleID())) {
+                    id.setType(ModuleType.WAR);
+                }
+            }
+        }
         addModule(moduleID);
         if(finished) {
+            addWebURLs(kernel);
             complete("Completed with id " + parentName);
         }
     }

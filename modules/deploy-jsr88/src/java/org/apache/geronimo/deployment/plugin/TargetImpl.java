@@ -19,13 +19,14 @@ package org.apache.geronimo.deployment.plugin;
 
 import javax.enterprise.deploy.spi.Target;
 import javax.management.ObjectName;
+import java.io.Serializable;
 
 /**
  *
  *
  * @version $Rev$ $Date$
  */
-public class TargetImpl implements Target {
+public class TargetImpl implements Target, Serializable {
     private final ObjectName name;
     private final String description;
 

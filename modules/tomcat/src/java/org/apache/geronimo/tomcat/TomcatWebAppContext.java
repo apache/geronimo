@@ -39,7 +39,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.WebModule;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
@@ -273,11 +273,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         this.context = context;
     }
 
-    public String getPath() {
+    public String getContextPath() {
         return path;
     }
 
-    public void setPath(String path) {
+    public void setContextPath(String path) {
         this.path = path;
     }
 
@@ -403,7 +403,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("contextPriorityClassLoader", boolean.class, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
 
-        infoBuilder.addAttribute("path", String.class, true);
+        infoBuilder.addAttribute("contextPath", String.class, true);
 
         infoBuilder.addAttribute("securityHolder", SecurityHolder.class, true);
         infoBuilder.addAttribute("virtualServer", String.class, true);

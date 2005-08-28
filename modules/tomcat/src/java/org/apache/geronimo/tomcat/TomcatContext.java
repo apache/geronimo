@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  */
 public interface TomcatContext {
 
-    public String getPath();
+    public String getContextPath();
 
     public void setContext(Context ctx);
 

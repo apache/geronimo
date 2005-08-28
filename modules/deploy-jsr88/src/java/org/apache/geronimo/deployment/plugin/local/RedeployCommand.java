@@ -117,6 +117,7 @@ public class RedeployCommand extends AbstractDeployCommand {
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
+            addWebURLs(kernel);
             complete("Completed");
         } catch (Exception e) {
             doFail(e);

@@ -19,7 +19,11 @@ package org.apache.geronimo.deployment.plugin.local;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.Iterator;
 import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
@@ -73,14 +77,30 @@ public class StartCommand extends CommandSupport {
                         ObjectName name = (ObjectName) list.get(j);
                         kernel.startRecursiveGBean(name);
                         String configName = ObjectName.unquote(name.getKeyProperty("name"));
-                        addModule(new TargetModuleIDImpl(modules[i].getTarget(), configName));
+                        List kids = loadChildren(kernel, configName);
+                        TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), configName,
+                                (String[]) kids.toArray(new String[kids.size()]));
+                        if(isWebApp(kernel, configName)) {
+                            id.setType(ModuleType.WAR);
+                        }
+                        if(id.getChildTargetModuleID() != null) {
+                            for (int k = 0; k < id.getChildTargetModuleID().length; k++) {
+                                TargetModuleIDImpl child = (TargetModuleIDImpl) id.getChildTargetModuleID()[k];
+                                if(isWebApp(kernel, child.getModuleID())) {
+                                    child.setType(ModuleType.WAR);
+                                }
+                            }
+                        }
+                        addModule(id);
                     }
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
+            addWebURLs(kernel);
             complete("Completed");
         } catch (Exception e) {
+            e.printStackTrace();
             doFail(e);
         }
     }

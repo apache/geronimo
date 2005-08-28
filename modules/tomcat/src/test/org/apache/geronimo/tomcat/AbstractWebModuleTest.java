@@ -115,7 +115,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("userTransaction", userTransaction);
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
-        app.setAttribute("path", "/test");
+        app.setAttribute("contextPath", "/test");
 
         start(app);
     }
@@ -154,7 +154,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("webClassPath", new URI[]{});
         app.setAttribute("securityHolder", securityHolder);
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
-        app.setAttribute("path", "/securetest");
+        app.setAttribute("contextPath", "/securetest");
         app.setReferencePattern("TomcatRealm",contextRealmName);
         app.setReferencePattern("RoleDesignateSource", jaccBeanName);
 
@@ -200,7 +200,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("securityHolder", securityHolder);
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
-        app.setAttribute("path", "/securetest");
+        app.setAttribute("contextPath", "/securetest");
         app.setReferencePattern("RoleDesignateSource", jaccBeanName);
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
