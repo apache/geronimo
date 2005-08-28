@@ -18,7 +18,6 @@ package org.apache.geronimo.plugin.packaging;
 
 import java.io.IOException;
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
