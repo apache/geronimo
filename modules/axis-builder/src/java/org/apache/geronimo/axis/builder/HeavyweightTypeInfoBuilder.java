@@ -71,7 +71,7 @@ import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
 public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";
     private static final String XML_SCHEMA_NS = "http://www.w3.org/2001/XMLSchema";
-
+    
     private static final Log log = LogFactory.getLog(HeavyweightTypeInfoBuilder.class);
 
     private final ClassLoader cl;
@@ -129,7 +129,11 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
 
             SchemaType schemaType = (SchemaType) schemaTypeKeyToSchemaTypeMap.get(key);
             if (schemaType == null) {
-//                throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
+                // if it is a built-in type, then one assumes a redundant mapping. 
+                if (null != TypeMappingLookup.getFactoryPair(key.getqName())) {
+                    continue;
+                }
+//              throw new DeploymentException("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
                 log.warn("Schema type key " + key + " not found in analyzed schema: " + schemaTypeKeyToSchemaTypeMap);
                 continue;
             }
@@ -364,8 +368,18 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                 }
             }
         }
-
+        
         VariableMappingType[] variableMappings = javaXmlTypeMapping.getVariableMappingArray();
+
+        // short-circuit the processing of arrays as they should not define variable-mapping elements. 
+        if (javaClass.isArray()) {
+            if (0 != variableMappings.length) {
+                // for portability reason we simply warn and not fail.
+                log.warn("Ignoring variable-mapping defined for class " + javaClass + " which is an array.");
+            }
+            typeInfo.setFields(new FieldDesc[0]);
+            return;
+        }
 
         FieldDesc[] fields = new FieldDesc[variableMappings.length];
         typeInfo.setFields(fields);
