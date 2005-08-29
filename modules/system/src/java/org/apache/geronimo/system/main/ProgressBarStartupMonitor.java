@@ -19,6 +19,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -146,7 +147,9 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         out.println();
 
         List apps = new ArrayList();  // type = String (message)
+        List webs = new ArrayList();  // type = String (context path)
         List ports = new ArrayList(); // type = AddressHolder
+        Map connectors = new HashMap();
         Map failed = new HashMap();   // key = ObjectName, value = String (message)
         String serverInfo = null;
         try {
@@ -156,6 +159,9 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                 ObjectName name = (ObjectName) it.next();
                 if(isApplicationModule(name)) {
                     apps.add("    "+decodeModule(name.getKeyProperty("j2eeType"))+": "+name.getKeyProperty("name"));
+                }
+                if(isWebModule(name)) {
+                    webs.add(kernel.getAttribute(name, "contextPath"));
                 }
 
                 int stateValue = kernel.getGBeanState(name);
@@ -222,6 +228,13 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     }
                 }
             }
+            Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebConnector"));
+            for (Iterator it = set.iterator(); it.hasNext();) {
+                ObjectName name = (ObjectName) it.next();
+                String protocol = (String) kernel.getAttribute(name, "protocol");
+                String url = (String) kernel.getAttribute(name, "connectUrl");
+                connectors.put(protocol, url);
+            }
         } catch (MalformedObjectNameException e) {
             e.printStackTrace();
         } catch (GBeanNotFoundException e) {
@@ -231,14 +244,13 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         } catch (Exception e) { // required by Kernel.getAttribute
             e.printStackTrace();
         }
-
-        // Helpful output: list of applications started
-        if(apps.size() > 0) {
-            out.println("  Started Application Modules:");
-            for (int i = 0; i < apps.size(); i++) {
-                out.println((String)apps.get(i));
+        String urlPrefix = "";
+        if((urlPrefix = (String) connectors.get("HTTP")) == null) {
+            if((urlPrefix = (String) connectors.get("HTTPS")) == null) {
+                urlPrefix = (String) connectors.get("AJP");
             }
         }
+
         // Helpful output: list of ports we listen on
         if(ports.size() > 0) {
             Collections.sort(ports);
@@ -277,6 +289,23 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                 out.println(buf.toString());
             }
         }
+        // Helpful output: list of applications started
+        if(apps.size() > 0) {
+            out.println("  Started Application Modules:");
+            for (int i = 0; i < apps.size(); i++) {
+                out.println((String)apps.get(i));
+            }
+        }
+        // Helpful output: Web URLs
+        if(webs.size() > 0) {
+            Collections.sort(webs);
+            out.println("  Web Applications:");
+            for (int i = 0; i < webs.size(); i++) {
+                String context = (String) webs.get(i);
+                out.println("    "+urlPrefix+context);
+            }
+        }
+
         // Helpful output: list of GBeans that did not start
         if(failed.size() > 0) {
             out.println("  WARNING: Some GBeans were not started successfully:");
@@ -369,6 +398,11 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
             return (type.equals("WebModule") || type.equals("J2EEApplication") || type.equals("EJBModule") || type.equals("AppClientModule") || type.equals("ResourceAdapterModule")) && !name.startsWith("org/apache/geronimo/System");
         }
         return false;
+    }
+
+    private static boolean isWebModule(ObjectName on) {
+        String type = on.getKeyProperty("j2eeType");
+        return type != null && type.equals("WebModule");
     }
 
     private static String decodeModule(String value) {
