@@ -18,6 +18,7 @@ package org.apache.geronimo.tomcat;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.net.InetAddress;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -41,6 +42,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     protected final Connector connector;
     private final TomcatContainer container;
     private String name;
+    private String connectHost;
 
     public ConnectorGBean(String name, String protocol, String host, int port, TomcatContainer container) throws Exception {
         super(); // TODO: make it an attribute
@@ -144,6 +146,33 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         doStop();
     }
 
+    public int getDefaultPort() {
+        return getProtocol().equals(WebContainer.PROTOCOL_AJP) ? -1 :
+                getProtocol().equals(WebContainer.PROTOCOL_HTTP) ? 80 :
+                getProtocol().equals(WebContainer.PROTOCOL_HTTPS) ? 443 : -1;
+    }
+
+    public String getConnectUrl() {
+        if(connectHost == null) {
+            String host = getHost();
+            if(host == null || host.equals("0.0.0.0")) {
+                InetAddress address = null;
+                try {
+                    address = InetAddress.getLocalHost();
+                } catch (UnknownHostException e) {
+                    host = "unknown-host";
+                }
+                if(address != null) {
+                    host = address.getHostName();
+                    if(host == null || host.equals("")) {
+                        host = address.getHostAddress();
+                    }
+                }
+            }
+            connectHost = host;
+        }
+        return getProtocol().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
+    }
 
     /**
      * Gets the network protocol that this connector handles.
@@ -179,7 +208,11 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
      */
     public String getHost() {
         Object value = connector.getAttribute("address");
-        return value == null ? "0.0.0.0" : value.toString();
+        if(value == null) {
+            return "0.0.0.0";
+        } else if(value instanceof InetAddress) {
+            return ((InetAddress)value).getHostAddress();
+        } else return value.toString();
     }
 
     /**
@@ -377,7 +410,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled"},
+        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl",},
                                                            new String[]{"host","port","redirectPort"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();

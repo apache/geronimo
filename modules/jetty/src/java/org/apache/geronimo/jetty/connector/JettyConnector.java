@@ -19,6 +19,7 @@ package org.apache.geronimo.jetty.connector;
 
 import java.net.UnknownHostException;
 import java.net.InetSocketAddress;
+import java.net.InetAddress;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -38,6 +39,7 @@ import org.mortbay.util.ThreadedServer;
 public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector {
     private final JettyContainer container;
     protected final HttpListener listener;
+    private String connectHost;
 
     /**
      * Only used to allow declaration as a reference.
@@ -78,6 +80,29 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         listener.setPort(port);
     }
 
+    public abstract int getDefaultPort();
+
+    public String getConnectUrl() {
+        if(connectHost == null) {
+            String host = getHost();
+            if(host == null || host.equals("0.0.0.0")) {
+                InetAddress address = null;
+                try {
+                    address = InetAddress.getLocalHost();
+                } catch (UnknownHostException e) {
+                    host = "unknown-host";
+                }
+                if(address != null) {
+                    host = address.getHostName();
+                    if(host == null || host.equals("")) {
+                        host = address.getHostAddress();
+                    }
+                }
+            }
+            connectHost = host;
+        }
+        return getProtocol().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
+    }
 
     public void setMinThreads(int minThreads) {
       ((ThreadedServer)listener).setMinThreads(minThreads);
@@ -228,7 +253,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads","maxThreads","bufferSizeBytes","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort",},
+        infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads","maxThreads","bufferSizeBytes","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","connectUrl",},
                                                           new String[]{"host", "port", "redirectPort"});
         infoFactory.setConstructor(new String[] {"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();

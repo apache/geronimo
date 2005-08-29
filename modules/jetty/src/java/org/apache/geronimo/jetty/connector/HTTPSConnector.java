@@ -46,6 +46,10 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
         https = (SslListener) listener;
     }
 
+    public int getDefaultPort() {
+        return 443;
+    }
+
     public String getProtocol() {
         return WebContainer.PROTOCOL_HTTPS;
     }

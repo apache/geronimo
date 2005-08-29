@@ -97,4 +97,13 @@ public interface WebConnector extends NetworkConnector {
      */
     public void setRedirectPort(int port);
 
+    /**
+     * Gets a URL used to connect to the web server via this connector.
+     * This is not guaranteed to work (for example, if the server is
+     * located behind a proxy), but it should give a reasonable value if
+     * possible.  The form of the returned String should be
+     * http://hostname or http://hostname:port (in other words, suitable
+     * for appending a context path).
+     */
+    public String getConnectUrl();
 }

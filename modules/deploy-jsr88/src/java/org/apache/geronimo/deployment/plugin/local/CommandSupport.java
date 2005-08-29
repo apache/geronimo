@@ -274,6 +274,10 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         addWebURLs(kernel, moduleIDs);
     }
 
+    /**
+     * Given a list of TargetModuleIDs, figure out which ones represent web
+     * modules and add a WebURL to each if possible.
+     */
     public static void addWebURLs(Kernel kernel, List moduleIDs) {
         Set webApps = null;
         String url = null;
@@ -294,19 +298,13 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
                         if((connector = (ObjectName) map.get("HTTP")) == null) {
                             if((connector = (ObjectName) map.get("HTTPS")) == null) {
                                 connector = (ObjectName) map.get("AJP");
-                                if(connector != null) {
-                                    url = "ajp://";
-                                }
-                            } else {
-                                url = "https://";
                             }
-                        } else {
-                            url = "http://";
                         }
                         if(connector != null) {
                             try {
-                                url = url + kernel.getAttribute(connector, "host") + ":" + kernel.getAttribute(connector, "port");
+                                url = (String) kernel.getAttribute(connector, "connectUrl");
                             } catch (Exception e) {
+                                e.printStackTrace();
                                 url = null;
                             }
                         }

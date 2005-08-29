@@ -35,6 +35,10 @@ public class HTTPConnector extends JettyConnector {
         return WebContainer.PROTOCOL_HTTP;
     }
 
+    public int getDefaultPort() {
+        return 80;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

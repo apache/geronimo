@@ -35,6 +35,10 @@ public class AJP13Connector extends JettyConnector {
         return WebContainer.PROTOCOL_AJP;
     }
 
+    public int getDefaultPort() {
+        return -1;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
