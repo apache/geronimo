@@ -72,12 +72,15 @@
                     <ant:copy tofile="${depDir}/${dependency.getArtifact()}" file="${artifact.path}"/>
                 </j:if>
             </j:forEach>
-            <copy todir="${targetDir}/var/config" overwrite="true">
-                <fileset dir="${basedir}/${geronimo.var.config.source}">
-                    <include name="config.xml"/>
-                    <include name="config.list"/>
-                </fileset>
-            </copy>
+            <ant:available property="geronimo.deploy.var.available"
+                 file="${geronimo.deploy.var.source}"
+                 type="dir"/>
+            <j:if test="${geronimo.deploy.var.available}">
+                <copy todir="${targetDir}/var" overwrite="true">
+                    <fileset dir="${basedir}/${geronimo.deploy.var.source}">
+                    </fileset>
+                </copy>
+            </j:if>
 
 
         </define:tag>
