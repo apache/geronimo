@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <attributes>
-  <configuration name="org/apache/geronimo/Server">
+  <configuration name="org/apache/geronimo/RMINaming">
     <gbean name="RMIRegistry">
       <attribute name="port">${PlanNamingPort}</attribute>
     </gbean>
@@ -9,6 +9,8 @@
       <!-- Check whether this really works if host name is 0.0.0.0 -->
       <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
     </gbean>
+  </configuration>
+  <configuration name="org/apache/geronimo/Server">
     <gbean name="JettyWebConnector">
       <attribute name="host">${PlanServerHostname}</attribute>
       <attribute name="port">${PlanHTTPPort}</attribute>
@@ -28,7 +30,7 @@
       <attribute name="port">${PlanAJPPort}</attribute>
       <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
     </gbean>
-    <gbean name="TomcatSSLConnector">
+    <gbean name="TomcatWebSSLConnector">
       <attribute name="host">${PlanServerHostname}</attribute>
       <attribute name="port">${PlanHTTPSPort}</attribute>
     </gbean>
