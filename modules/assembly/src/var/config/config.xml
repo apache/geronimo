@@ -56,4 +56,10 @@
       <attribute name="port">${PlanDerbyPort}</attribute>
     </gbean>
   </configuration>
+  <configuration name="org/apache/geronimo/Directory">
+    <gbean name="geronimo.server:name=DirectoryService">
+      <attribute name="host">${PlanServerHostname}</attribute>
+      <attribute name="port">${PlanLdapPort}</attribute>
+    </gbean>
+  </configuration>
 </attributes>

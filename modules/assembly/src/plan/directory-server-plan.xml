@@ -98,14 +98,15 @@ by the server.
         <uri>jdbm/jars/jdbm-${jdbm_version}.jar</uri>
     </dependency>
 
-    <gbean gbeanName="geronimo.server:type=Server,name=Directory" class="org.apache.geronimo.directory.DirectoryGBean">
+    <gbean gbeanName="geronimo.server:name=DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
         <attribute name="providerURL">ou=system</attribute>
         <attribute name="securityAuthentication">simple</attribute>
         <attribute name="securityPrincipal">uid=admin,ou=system</attribute>
         <attribute name="securityCredentials">secret</attribute>
         <attribute name="anonymousAccess">true</attribute>
         <attribute name="enableNetworking">true</attribute>
-        <attribute name="port">1389</attribute>
+        <attribute name="host">0.0.0.0</attribute>
+        <attribute name="port">${PlanLdapPort}</attribute>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
