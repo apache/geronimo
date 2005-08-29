@@ -105,7 +105,7 @@ by the server.
         <attribute name="securityCredentials">secret</attribute>
         <attribute name="anonymousAccess">true</attribute>
         <attribute name="enableNetworking">true</attribute>
-        <attribute name="ldapPort">1389</attribute>
+        <attribute name="port">1389</attribute>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 
