@@ -563,6 +563,17 @@
                 <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-welcome-${pom.currentVersion}.war"/>
             </ant:java>
 
+            <ant:echo>Building console configuration</ant:echo>
+            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+                <ant:jvmarg value="-ea"/>
+                <ant:arg value="--user"/>
+                <ant:arg value="system"/>
+                <ant:arg value="--password"/>
+                <ant:arg value="manager"/>
+                <ant:arg value="distribute"/>
+                <ant:arg value="${maven.repo.local}/geronimo/ears/geronimo-console-${pom.currentVersion}.ear"/>
+            </ant:java>
+
             <!-- build the Debug Tool configuration "org/apache/geronimo/DebugConsole"-->
             <ant:echo>Building debug tool configuration</ant:echo>
             <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
@@ -585,17 +596,6 @@
                 <ant:arg value="manager"/>
                 <ant:arg value="distribute"/>
                 <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
-            </ant:java>
-
-            <ant:echo>Building console configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="${maven.repo.local}/geronimo/ears/geronimo-console-${pom.currentVersion}.ear"/>
             </ant:java>
 
             <!-- create SystemDatabase -->
