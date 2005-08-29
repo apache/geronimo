@@ -32,21 +32,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
-import org.apache.geronimo.connector.ActivationSpecWrapper;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
 import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.AdminObjectWrapperGBean;
 import org.apache.geronimo.connector.JCAResourceImplGBean;
 import org.apache.geronimo.connector.ResourceAdapterImplGBean;
 import org.apache.geronimo.connector.ResourceAdapterModuleImplGBean;
-import org.apache.geronimo.connector.ResourceAdapterWrapper;
 import org.apache.geronimo.connector.ResourceAdapterWrapperGBean;
 import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImplGBean;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
@@ -92,7 +89,6 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionmanagerType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
-import org.apache.geronimo.xbeans.geronimo.GerCredentialInterfaceType;
 import org.apache.geronimo.xbeans.geronimo.GerPartitionedpoolType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
@@ -118,11 +114,11 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final int defaultIdleTimeoutMinutes;
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
-    private final URI defaultParentId;
+    private final URI[] defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
 
-    public ConnectorModuleBuilder(URI defaultParentId,
+    public ConnectorModuleBuilder(URI[] defaultParentId,
                                   int defaultMaxSize,
                                   int defaultMinSize,
                                   int defaultBlockingTimeoutMilliseconds,
@@ -223,17 +219,25 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Invalid configId " + gerConnector.getConfigId(), e);
         }
 
-        URI parentId = null;
+        URI[] parentId = null;
         if (gerConnector.isSetParentId()) {
+            String parentIdString = gerConnector.getParentId();
             try {
-                parentId = new URI(gerConnector.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + gerConnector.getParentId(), e);
-            }
+                 String[] parentIdStrings = parentIdString.split(",");
+                 parentId = new URI[parentIdStrings.length];
+                 for (int i = 0; i < parentIdStrings.length; i++) {
+                     String idString = parentIdStrings[i];
+                     URI parent = new URI(idString);
+                     parentId[i] = parent;
+                 }
+             } catch (URISyntaxException e) {
+                 throw new DeploymentException("Invalid parentId " + gerConnector.getParentId(), e);
+             }
         } else {
             parentId = defaultParentId;
         }
-
+        assert parentId != null;
+        assert parentId.length >0;
         return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
@@ -850,7 +854,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
         infoBuilder.addAttribute("defaultMaxSize", int.class, true);
         infoBuilder.addAttribute("defaultMinSize", int.class, true);
         infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true);

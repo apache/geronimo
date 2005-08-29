@@ -96,14 +96,24 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     }
 
     public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+        LinkedList ancestors = new LinkedList();
+        loadRecursive(configID, ancestors);
+        return ancestors;
+    }
+
+    private void loadRecursive(URI configID, LinkedList ancestors) throws NoSuchConfigException, IOException, InvalidConfigException {
         try {
-            LinkedList ancestors = new LinkedList();
             while (configID != null && !isLoaded(configID)) {
                 ObjectName name = load(configID);
                 ancestors.addFirst(name);
-                configID = (URI) kernel.getAttribute(name, "parentId");
+                URI[] parents = (URI[]) kernel.getAttribute(name, "parentId");
+                if (parents != null) {
+                    for (int i = 0; i < parents.length; i++) {
+                        URI parent = parents[i];
+                        loadRecursive(parent, ancestors);
+                    }
+                }
             }
-            return ancestors;
         } catch (NoSuchConfigException e) {
             throw e;
         } catch (IOException e) {

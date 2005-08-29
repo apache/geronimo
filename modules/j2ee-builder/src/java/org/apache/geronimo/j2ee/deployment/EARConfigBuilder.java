@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
@@ -83,7 +84,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
-    private final URI defaultParentId;
+    private final URI[] defaultParentId;
     private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
     private final ObjectName transactionalTimerObjectName;
@@ -91,7 +92,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName corbaGBeanObjectName;
 
 
-    public EARConfigBuilder(URI defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(URI[] defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultParentId = defaultParentId;
@@ -220,13 +221,20 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Invalid configId " + gerApplication.getConfigId(), e);
         }
 
-        URI parentId = null;
+        URI[] parentId = null;
         if (gerApplication.isSetParentId()) {
+            String parentIdString = gerApplication.getParentId();
             try {
-                parentId = new URI(gerApplication.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + gerApplication.getParentId(), e);
-            }
+                 String[] parentIdStrings = parentIdString.split(",");
+                 parentId = new URI[parentIdStrings.length];
+                 for (int i = 0; i < parentIdStrings.length; i++) {
+                     String idString = parentIdStrings[i];
+                     URI parent = new URI(idString);
+                     parentId[i] = parent;
+                 }
+             } catch (URISyntaxException e) {
+                 throw new DeploymentException("Invalid parentId " + gerApplication.getParentId(), e);
+             }
         } else {
             parentId = defaultParentId;
         }
@@ -273,8 +281,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         // construct the empty geronimo-application.xml
         GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
 
-        // set the parentId and configId
-        gerApplication.setParentId(defaultParentId.toString());
+        // set the configId
         String id = application.getId();
         if (id == null) {
             File fileName = new File(module.getName());
@@ -699,7 +706,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-        infoFactory.addAttribute("defaultParentId", URI.class, true);
+        infoFactory.addAttribute("defaultParentId", URI[].class, true, true);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);

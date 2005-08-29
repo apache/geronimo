@@ -85,8 +85,8 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class AppClientModuleBuilder implements ModuleBuilder {
 
-    private final URI defaultClientParentId;
-    private final URI defaultServerParentId;
+    private final URI[] defaultClientParentId;
+    private final URI[] defaultServerParentId;
     private final ObjectName corbaGBeanObjectName;
     private final Kernel kernel;
     private final Repository repository;
@@ -100,8 +100,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
-    public AppClientModuleBuilder(URI defaultClientParentId,
-                                  URI defaultServerParentId,
+    public AppClientModuleBuilder(URI[] defaultClientParentId,
+                                  URI[] defaultServerParentId,
                                   ObjectName transactionContextManagerObjectName,
                                   ObjectName connectionTrackerObjectName,
                                   ObjectName corbaGBeanObjectName,
@@ -174,13 +174,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + gerAppClient.getConfigId(), e);
         }
 
-        URI parentId = null;
+        URI[] parentId = null;
         if (gerAppClient.isSetParentId()) {
-            try {
-                parentId = new URI(gerAppClient.getParentId());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + gerAppClient.getParentId(), e);
-            }
+                parentId = getParentIds(gerAppClient.getParentId());
         } else {
             parentId = defaultServerParentId;
         }
@@ -340,9 +336,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 try {
 
                     URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
-                    URI clientParentId;
+                    URI[] clientParentId;
                     if (geronimoAppClient.isSetClientParentId()) {
-                        clientParentId = URI.create(geronimoAppClient.getClientParentId());
+                        clientParentId = getParentIds(geronimoAppClient.getClientParentId());
                     } else {
                         clientParentId = defaultClientParentId;
                     }
@@ -534,6 +530,22 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
     }
 
+    private URI[] getParentIds(String parentIdString) throws DeploymentException {
+        URI[] clientParentId;
+        try {
+             String[] parentIdStrings = parentIdString.split(",");
+             clientParentId = new URI[parentIdStrings.length];
+             for (int i = 0; i < parentIdStrings.length; i++) {
+                 String idString = parentIdStrings[i];
+                 URI parent = new URI(idString);
+                 clientParentId[i] = parent;
+             }
+         } catch (URISyntaxException e) {
+             throw new DeploymentException("Invalid parentId " + parentIdString, e);
+         }
+        return clientParentId;
+    }
+
     public void addManifestClassPath(DeploymentContext deploymentContext, JarFile earFile, JarFile jarFile, URI jarFileLocation) throws DeploymentException {
         Manifest manifest = null;
         try {
@@ -622,8 +634,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AppClientModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultClientParentId", URI.class, true);
-        infoBuilder.addAttribute("defaultServerParentId", URI.class, true);
+        infoBuilder.addAttribute("defaultClientParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultServerParentId", URI[].class, true, true);
         infoBuilder.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoBuilder.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoBuilder.addAttribute("corbaGBeanObjectName", ObjectName.class, true);

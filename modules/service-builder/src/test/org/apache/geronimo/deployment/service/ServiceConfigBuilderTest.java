@@ -45,7 +45,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         JavaBeanXmlAttributeBuilder javaBeanXmlAttributeBuilder = new JavaBeanXmlAttributeBuilder();
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(URI.create("test/foo"), null, referenceCollection, null, null);
+        ServiceConfigBuilder builder = new ServiceConfigBuilder(new URI[] {URI.create("test/foo")}, null, referenceCollection, null, null);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL plan1 = cl.getResource("services/plan1.xml");
         ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);
@@ -56,7 +56,7 @@ public class ServiceConfigBuilderTest extends TestCase {
             fail("could not create temp dir");
         }
         try {
-            DeploymentContext context = new DeploymentContext(outFile, URI.create("foo/bar"), ConfigurationModuleType.SERVICE, URI.create("foo"), "domain", "server", null);
+            DeploymentContext context = new DeploymentContext(outFile, URI.create("foo/bar"), ConfigurationModuleType.SERVICE, new URI[] {URI.create("foo")}, "domain", "server", null);
             J2eeContext j2eeContext = new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);

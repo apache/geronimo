@@ -131,7 +131,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
-    private final URI defaultParentId;
+    private final URI[] defaultParentId;
     private final ObjectName jettyContainerObjectName;
     private final Collection defaultServlets;
     private final Collection defaultFilters;
@@ -149,7 +149,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private static final String JETTY_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/jetty";
     private static final QName JETTY_CONFIG_QNAME = new QName(JETTY_CONFIG_NAMESPACE, "jetty");
 
-    public JettyModuleBuilder(URI defaultParentId,
+    public JettyModuleBuilder(URI[] defaultParentId,
                               Integer defaultSessionTimeoutSeconds,
                               boolean defaultContextPriorityClassloader,
                               List defaultWelcomeFiles,
@@ -255,19 +255,27 @@ public class JettyModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
         }
 
-        URI parentId = null;
+        URI[] parentId = null;
         if (jettyWebApp.isSetParentId()) {
+            String parentIdString = jettyWebApp.getParentId();
             try {
-                parentId = new URI(jettyWebApp.getParentId());
+                String[] parentIdStrings = parentIdString.split(",");
+                parentId = new URI[parentIdStrings.length];
+                for (int i = 0; i < parentIdStrings.length; i++) {
+                    String idString = parentIdStrings[i];
+                    URI parent = new URI(idString);
+                    parentId[i] = parent;
+                }
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + jettyWebApp.getParentId(), e);
+                throw new DeploymentException("Invalid parentId " + parentIdString, e);
             }
         } else {
             parentId = defaultParentId;
         }
 
-        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD, portMap);
-        module.setContextRoot(contextRoot);
+        assert parentId != null;
+        assert parentId.length >0;
+        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap);
         return module;
     }
 
@@ -380,7 +388,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
         GerWebAppType jettyWebApp = GerWebAppType.Factory.newInstance();
 
         // set the parentId, configId and context root
-        jettyWebApp.setParentId(defaultParentId.toString());
         jettyWebApp.setConfigId(contextRoot);
         jettyWebApp.setContextRoot(contextRoot);
         jettyWebApp.setContextPriorityClassloader(defaultContextPriorityClassloader);
@@ -478,7 +485,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("More than one jetty configuration element: " + anys);
                 }
                 if (anys.length == 1) {
-                    GerJettyConfigType jettyConfigType = (GerJettyConfigType)anys[0].copy().changeType(GerJettyConfigType.type);
+                    GerJettyConfigType jettyConfigType = (GerJettyConfigType) anys[0].copy().changeType(GerJettyConfigType.type);
                     String[] hosts = jettyConfigType.getVirtualHostArray();
                     for (int i = 0; i < hosts.length; i++) {
                         hosts[i] = hosts[i].trim();
@@ -1382,7 +1389,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true);
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true);

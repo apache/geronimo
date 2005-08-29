@@ -25,10 +25,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -54,20 +54,20 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
-    private final URI defaultParentId;
+    private final URI[] defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
 
@@ -78,11 +78,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private Map refRefMap;
     private static final QName SERVICE_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment", "configuration");
 
-    public ServiceConfigBuilder(URI defaultParentId, Repository repository) {
+    public ServiceConfigBuilder(URI[] defaultParentId, Repository repository) {
         this(defaultParentId, repository, null, null, null);
     }
 
-    public ServiceConfigBuilder(URI defaultParentId, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
+    public ServiceConfigBuilder(URI[] defaultParentId, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.repository = repository;
         this.kernel = kernel;
@@ -145,15 +145,15 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
-        ConfigurationType configType = (ConfigurationType) plan;
-        try {
-            return new URI(configType.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
-        }
-    }
+         ConfigurationType configType = (ConfigurationType) plan;
+         try {
+             return new URI(configType.getConfigId());
+         } catch (URISyntaxException e) {
+             throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
+         }
+     }
 
-    public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
+     public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         String domain = null;
         String server = null;
@@ -162,10 +162,17 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public ConfigurationData buildConfiguration(ConfigurationType configType, String domain, String server, File outfile) throws DeploymentException, IOException {
-        URI parentID = null;
+        URI[] parentID = null;
         if (configType.isSetParentId()) {
             try {
-                parentID = new URI(configType.getParentId());
+                String parentIdString = configType.getParentId();
+                String[] parentIdStrings = parentIdString.split(",");
+                parentID = new URI[parentIdStrings.length];
+                for (int i = 0; i < parentIdStrings.length; i++) {
+                    String idString = parentIdStrings[i];
+                    URI parent = new URI(idString);
+                    parentID[i] = parent;
+                }
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
             }
@@ -383,7 +390,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.addInterface(ConfigurationBuilder.class);
 
-        infoFactory.addAttribute("defaultParentId", URI.class, true);
+        infoFactory.addAttribute("defaultParentId", URI[].class, true);
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
         infoFactory.addReference("XmlReferenceBuilders", XmlReferenceBuilder.class, "XmlReferenceBuilder");

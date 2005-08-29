@@ -40,13 +40,17 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.*;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 
@@ -114,7 +118,7 @@ public class Configuration implements GBeanLifecycle {
     /**
      * The uri of the parent of this configuration.  May be null.
      */
-    private final URI parentId;
+    private final URI[] parentId;
 
     /**
      * The configuration store from which this configuration was loaded.  May be null if this configuration
@@ -205,7 +209,7 @@ public class Configuration implements GBeanLifecycle {
             URI id,
             ConfigurationModuleType moduleType,
             URL baseURL,
-            URI parentId,
+            URI[] parentId,
             ConfigurationParent parent,
             String domain,
             String server,
@@ -394,7 +398,7 @@ public class Configuration implements GBeanLifecycle {
      *
      * @return the unique id of the parent, or null if it does not have one
      */
-    public URI getParentId() {
+    public URI[] getParentId() {
         return parentId;
     }
 
@@ -590,7 +594,7 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("id", URI.class, true);
         infoFactory.addAttribute("type", ConfigurationModuleType.class, true);
-        infoFactory.addAttribute("parentId", URI.class, true);
+        infoFactory.addAttribute("parentId", URI[].class, true);
         infoFactory.addAttribute("domain", String.class, true);
         infoFactory.addAttribute("server", String.class, true);
         infoFactory.addAttribute("classPath", List.class, true);

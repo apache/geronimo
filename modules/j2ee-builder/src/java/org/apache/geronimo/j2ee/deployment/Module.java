@@ -34,7 +34,7 @@ public abstract class Module {
     private final boolean standAlone;
     private final String name;
     private final URI configId;
-    private final URI parentId;
+    private final URI[] parentId;
     private final URI moduleURI;
     private final JarFile moduleFile;
     private final String targetPath;
@@ -45,7 +45,7 @@ public abstract class Module {
 
     private URI uniqueModuleLocation;
 
-    protected Module(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+    protected Module(boolean standAlone, URI configId, URI[] parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         assert targetPath != null: "targetPath is null";
 
         this.standAlone = standAlone;
@@ -82,7 +82,7 @@ public abstract class Module {
         return configId;
     }
 
-    public URI getParentId() {
+    public URI[] getParentId() {
         return parentId;
     }
 

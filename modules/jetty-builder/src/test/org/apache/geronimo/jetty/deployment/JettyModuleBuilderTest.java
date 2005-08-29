@@ -102,7 +102,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
-    private URI parentId = URI.create("org/apache/geronimo/Foo");
+    private URI[] parentId = new URI[] {URI.create("org/apache/geronimo/Foo")};
 
     public void testDeployWar4() throws Exception {
         File outputPath = new File(basedir, "target/test-resources/deployables/war4");
@@ -259,7 +259,7 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load(parentId);
+        ObjectName baseConfigName = configurationManager.load(parentId[0]);
         kernel.startGBean(baseConfigName);
 
         Collection defaultServlets = new HashSet();
@@ -282,7 +282,7 @@ public class JettyModuleBuilderTest extends TestCase {
         start(securityServiceGBean);
 
 
-        builder = new JettyModuleBuilder(new URI("null"), new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
+        builder = new JettyModuleBuilder(new URI[] {new URI("null")}, new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
 
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 

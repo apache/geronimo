@@ -38,11 +38,11 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     private Map portMap = null;
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return new WebModule(true, null, null, moduleFile, "war", null, null, null, portMap);
+        return new WebModule(true, null, null, moduleFile, "war", null, null, null, contextRoot, portMap);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
-        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null, portMap);
+        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null, contextRoot, portMap);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {

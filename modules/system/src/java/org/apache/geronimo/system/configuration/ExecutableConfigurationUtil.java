@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -109,7 +111,7 @@ public final class ExecutableConfigurationUtil {
             out.closeEntry();
         }
     }
-    
+
     public static void writeConfiguration(ConfigurationData configurationData, File source) throws InvalidConfigException, IOException {
         // convert the configuration data to a gbeandata object
         GBeanData configurationGBeanData = getConfigurationGBeanData(configurationData);
@@ -151,11 +153,16 @@ public final class ExecutableConfigurationUtil {
             config.setAttribute("domain", configurationData.getDomain());
             config.setAttribute("server", configurationData.getServer());
 
-            URI parentId = configurationData.getParentId();
+            URI[] parentId = configurationData.getParentId();
             if (parentId != null) {
                 config.setAttribute("parentId", parentId);
-                ObjectName parentName = Configuration.getConfigurationObjectName(parentId);
-                config.setReferencePattern("Parent", parentName);
+                Set parentNames = new HashSet();
+                for (int i = 0; i < parentId.length; i++) {
+                    URI uri = parentId[i];
+                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
+                    parentNames.add(parentName);
+                }
+                config.setReferencePatterns("Parent", parentNames);
             }
 
             config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));

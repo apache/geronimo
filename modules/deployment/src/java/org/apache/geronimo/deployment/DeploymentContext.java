@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -68,15 +70,15 @@ public class DeploymentContext {
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
-    private final List loadedAncestors;
+    private final List loadedAncestors = new ArrayList();
     private final LinkedList startedAncestors;
     private final ClassLoader parentCL;
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
         this(baseDir, configId, type, parentID, null, null, kernel);
     }
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI parentId, String domain, String server, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentId, String domain, String server, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
         assert baseDir != null: "baseDir is null";
         assert configId != null: "configID is null";
         assert type != null: "type is null";
@@ -97,11 +99,15 @@ public class DeploymentContext {
         configurationData.setModuleType(type);
         configurationData.setParentId(parentId);
 
-        if (kernel != null && parentId != null) {
+        if (kernel != null && parentId != null && parentId.length > 0) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            ObjectName parentName = Configuration.getConfigurationObjectName(parentId);
+
+            ObjectName parentName = Configuration.getConfigurationObjectName(parentId[0]);
             try {
-                loadedAncestors = configurationManager.loadRecursive(parentId);
+                for (int i = 0; i < parentId.length; i++) {
+                    URI uri = parentId[i];
+                    loadedAncestors.addAll(configurationManager.loadRecursive(uri));
+                }
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
             } finally {
@@ -118,14 +124,7 @@ public class DeploymentContext {
             try {
                 startedAncestors = new LinkedList();
                 ObjectName ancestorName = parentName;
-                while (ancestorName != null && !isRunning(kernel, ancestorName)) {
-                    startedAncestors.addFirst(ancestorName);
-                    URI pattern = (URI) kernel.getGBeanData(ancestorName).getAttribute("parentId");
-                    if (pattern == null) {
-                        break;
-                    }
-                    ancestorName = Configuration.getConfigurationObjectName(pattern);
-                }
+                findToStart(ancestorName, kernel);
                 //we've found what we need to start, now start them.
                 for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
                     ObjectName objectName = (ObjectName) iterator.next();
@@ -147,7 +146,6 @@ public class DeploymentContext {
                 throw new DeploymentException(e);
             }
         } else {
-            loadedAncestors = null;
             startedAncestors = null;
             // no explicit parent set, so use the class loader of this class as
             // the parent... this class should be in the root geronimo classloader,
@@ -162,6 +160,21 @@ public class DeploymentContext {
 
         configurationData.setDomain(domain);
         configurationData.setServer(server);
+    }
+
+    private void findToStart(ObjectName ancestorName, Kernel kernel) throws Exception {
+        if (ancestorName != null && !isRunning(kernel, ancestorName)) {
+            startedAncestors.addFirst(ancestorName);
+            URI[] patterns = (URI[]) kernel.getGBeanData(ancestorName).getAttribute("parentId");
+            if (patterns == null) {
+                return;
+            }
+            for (int i = 0; i < patterns.length; i++) {
+                URI pattern = patterns[i];
+                ancestorName = Configuration.getConfigurationObjectName(pattern);
+                findToStart(ancestorName, kernel);
+            }
+        }
     }
 
     private static boolean isRunning(Kernel kernel, ObjectName name) throws Exception {
@@ -493,11 +506,16 @@ public class DeploymentContext {
         config.setAttribute("domain", configurationData.getDomain());
         config.setAttribute("server", configurationData.getServer());
 
-        URI parentId = configurationData.getParentId();
+        URI[] parentId = configurationData.getParentId();
         if (parentId != null) {
             config.setAttribute("parentId", parentId);
-            ObjectName parentName = Configuration.getConfigurationObjectName(parentId);
-            config.setReferencePattern("Parent", parentName);
+            Set parentNames = new HashSet();
+            for (int i = 0; i < parentId.length; i++) {
+                URI uri = parentId[i];
+                ObjectName parentName = Configuration.getConfigurationObjectName(uri);
+                parentNames.add(parentName);
+            }
+            config.setReferencePatterns("Parent", parentNames);
         }
 
         config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans.getGBeans()));

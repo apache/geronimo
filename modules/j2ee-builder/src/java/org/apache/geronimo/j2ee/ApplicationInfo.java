@@ -28,7 +28,7 @@ import org.apache.xmlbeans.XmlObject;
 public class ApplicationInfo {
     private ConfigurationModuleType type;
     private URI configId;
-    private URI parentId;
+    private URI[] parentId;
     private String applicationName;
     private XmlObject specDD;
     private XmlObject vendorDD;
@@ -39,7 +39,13 @@ public class ApplicationInfo {
     public ApplicationInfo() {
     }
 
-    public ApplicationInfo(ConfigurationModuleType type, URI configId, URI parentId, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, URI configId, URI[] parentId, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
+        assert type != null;
+        assert configId != null;
+        assert parentId != null;
+        assert modules != null;
+        assert moduleLocations != null;
+
         this.type = type;
         this.configId = configId;
         this.parentId = parentId;
@@ -67,11 +73,11 @@ public class ApplicationInfo {
         this.configId = configId;
     }
 
-    public URI getParentId() {
+    public URI[] getParentId() {
         return parentId;
     }
 
-    public void setParentId(URI parentId) {
+    public void setParentId(URI[] parentId) {
         this.parentId = parentId;
     }
 

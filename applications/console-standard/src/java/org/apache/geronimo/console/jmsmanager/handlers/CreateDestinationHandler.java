@@ -53,8 +53,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements
     protected static Log log = LogFactory
             .getLog(CreateDestinationHandler.class);
 
-    private static final URI parentId = URI
-            .create("org/apache/geronimo/Console");
+    private static final URI[] parentId = new URI[] {URI.create("org/apache/geronimo/Console")};
 
     static final GBeanInfo QUEUE_INFO;
 

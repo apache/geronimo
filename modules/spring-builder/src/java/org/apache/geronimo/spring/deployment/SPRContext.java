@@ -32,7 +32,7 @@ public class SPRContext
   extends DeploymentContext
 {
   public
-    SPRContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI parentID, Kernel kernel)
+    SPRContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI[] parentID, Kernel kernel)
     throws MalformedObjectNameException, DeploymentException
   {
     super(baseDir, id, moduleType, parentID, kernel);

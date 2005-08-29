@@ -104,7 +104,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class TomcatModuleBuilder implements ModuleBuilder {
 
-    private final URI defaultParentId;
+    private final URI[] defaultParentId;
     private final boolean defaultContextPriorityClassloader;
     private final ObjectName tomcatContainerObjectName;
 
@@ -114,7 +114,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     private static final String TOMCAT_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/tomcat";
     private static final QName TOMCAT_CONFIG_QNAME = new QName(TOMCAT_CONFIG_NAMESPACE, "tomcat");
 
-    public TomcatModuleBuilder(URI defaultParentId,
+    public TomcatModuleBuilder(URI[] defaultParentId,
                                boolean defaultContextPriorityClassloader,
                                ObjectName tomcatContainerObjectName,
                                WebServiceBuilder webServiceBuilder,
@@ -177,12 +177,19 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + tomcatWebApp.getConfigId(), e);
         }
 
-        URI parentId = null;
+        URI[] parentId = null;
         if (tomcatWebApp.isSetParentId()) {
+            String parentIdString = tomcatWebApp.getParentId();
             try {
-                parentId = new URI(tomcatWebApp.getParentId());
+                String[] parentIdStrings = parentIdString.split(",");
+                parentId = new URI[parentIdStrings.length];
+                for (int i = 0; i < parentIdStrings.length; i++) {
+                    String idString = parentIdStrings[i];
+                    URI parent = new URI(idString);
+                    parentId[i] = parent;
+                }
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + tomcatWebApp.getParentId(), e);
+                throw new DeploymentException("Invalid parentId " + parentIdString, e);
             }
         } else {
             parentId = defaultParentId;
@@ -203,8 +210,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             }
         }
 
-        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, tomcatWebApp, specDD, portMap);
-        module.setContextRoot(contextRoot);
+        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap);
         return module;
     }
 
@@ -288,8 +294,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
         GerWebAppType tomcatWebApp = GerWebAppType.Factory.newInstance();
 
-        // set the parentId, configId and context root
-        tomcatWebApp.setParentId(defaultParentId.toString());
+        // set the configId and context root
         if (null != webApp.getId()) {
             id = webApp.getId();
         }
@@ -471,14 +476,14 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
 
                 if (tomcatWebApp.isSetSecurity()){
-                    
+
                     securityHolder.setSecurity(true);
                     /**
                      * TODO - go back to commented version when possible.
                      */
                     String policyContextID = webModuleName.getCanonicalName().replaceAll("[, :]", "_");
                     securityHolder.setPolicyContextID(policyContextID);
-    
+
                     ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
                     securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
                     PermissionCollection checkedPermissions = new Permissions();
@@ -936,7 +941,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI.class, true);
+        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true);
         infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);

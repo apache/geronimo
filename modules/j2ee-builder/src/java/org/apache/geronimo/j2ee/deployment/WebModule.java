@@ -33,20 +33,17 @@ import org.apache.geronimo.deployment.DeploymentContext;
 public class WebModule extends Module {
 
     private final LinkedHashSet webClassPath = new LinkedHashSet();
-    private String contextRoot;
+    private final String contextRoot;
     private final Map portMap;
 
-    public WebModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, Map portMap) {
+    public WebModule(boolean standAlone, URI configId, URI[] parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap) {
         super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
+        this.contextRoot = contextRoot;
         this.portMap = portMap;
     }
 
     public String getContextRoot() {
         return contextRoot;
-    }
-
-    public void setContextRoot(String contextRoot) {
-        this.contextRoot = contextRoot;
     }
 
     public ConfigurationModuleType getType() {

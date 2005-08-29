@@ -51,8 +51,8 @@ import org.apache.geronimo.servicemix.ServiceMixDeployment;
  */
 public class ServiceMixConfigBuilder implements ConfigurationBuilder {
     private static final Log log = LogFactory.getLog(ServiceMixConfigBuilder.class);
-    
-    private final URI defaultParentId;
+
+    private final URI[] defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
     private String deploymentDependencies;
@@ -61,7 +61,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceMixConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addInterface(ConfigurationBuilder.class);
-        infoFactory.addAttribute("defaultParentId", URI.class, true);
+        infoFactory.addAttribute("defaultParentId", URI[].class, true);
         infoFactory.addAttribute("deploymentDependencies", String.class, true);
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("kernel", Kernel.class, false);
@@ -73,11 +73,11 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
         return GBEAN_INFO;
     }
 
-    public ServiceMixConfigBuilder(URI defaultParentId, Repository repository) {
+    public ServiceMixConfigBuilder(URI[] defaultParentId, Repository repository) {
         this(defaultParentId, repository, null);
     }
 
-    public ServiceMixConfigBuilder(URI defaultParentId, Repository repository, Kernel kernel) {
+    public ServiceMixConfigBuilder(URI[] defaultParentId, Repository repository, Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.repository = repository;
         this.kernel = kernel;
@@ -94,8 +94,8 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
             log.debug("Not a ServiceMix deployment: no jbi.xml found.");
             //no jbi.xml, not for us
             return null;
-        }   
-        
+        }
+
         try {
             Properties properties = new Properties();
             InputStream is = DeploymentUtil.createJarURL(module, "META-INF/jbi-geronimo.properties").openStream();
@@ -107,7 +107,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
             return properties;
         } catch (Exception e) {
             throw new DeploymentException("Could not load META-INF/jbi-geronimo.properties: "+e,e);
-        }   
+        }
     }
 
     public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
@@ -121,9 +121,9 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
 
     public ConfigurationData buildConfiguration(Object plan, JarFile module, File outfile) throws IOException, DeploymentException {
         log.debug("Installing ServiceMix deployment.");
-        Properties properties = (Properties)plan;        
+        Properties properties = (Properties)plan;
 
-        URI parentID = defaultParentId;
+        URI[] parentID = defaultParentId;
         URI configID;
         try {
             configID = new URI(properties.getProperty("configID"));
@@ -156,7 +156,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("Invalid gbean name: "+e,e);
         }
-        
+
         if( deploymentDependencies!=null ) {
             String[] strings = deploymentDependencies.split("\\,");
             for (int i = 0; i < strings.length; i++) {
@@ -170,8 +170,8 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
                 }
             }
         }
-        
-        context.close();        
+
+        context.close();
         ConfigurationData configurationData = context.getConfigurationData();
         try {
             configurationData.addClassPathLocation(new URI("."));

@@ -27,7 +27,7 @@ public class PlanParsingTest extends TestCase {
     private File basedir = new File(System.getProperty("basedir", "."));
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(URI.create("defaultParent"), new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
+        builder = new JettyModuleBuilder(new URI[] {URI.create("defaultParent")}, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
     }
 
     public void testContents() throws Exception {

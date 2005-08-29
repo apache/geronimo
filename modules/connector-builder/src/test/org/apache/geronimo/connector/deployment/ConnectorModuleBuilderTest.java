@@ -87,7 +87,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private int defaultMinSize = 0;
     private int defaultBlockingTimeoutMilliseconds = 5000;
     private int defaultidleTimeoutMinutes = 15;
-    private URI defaultParentId;
+    private URI[] defaultParentId;
     private Repository repository = new Repository() {
 
                 public boolean hasURI(URI uri) {
@@ -393,7 +393,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.startGBean(configurationManagerName);
             ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-            ObjectName baseConfigName = configurationManager.load(defaultParentId);
+            ObjectName baseConfigName = configurationManager.load(defaultParentId[0]);
             kernel.startGBean(baseConfigName);
 
             ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":name=ServerInfo");
@@ -556,7 +556,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        defaultParentId = new URI("org/apache/geronimo/Server");
+        defaultParentId = new URI[] {new URI("org/apache/geronimo/Server")};
     }
 
     private abstract class InstallAction {

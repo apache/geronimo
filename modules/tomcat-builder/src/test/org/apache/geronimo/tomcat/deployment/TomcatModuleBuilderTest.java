@@ -32,14 +32,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.common.DeploymentException;
@@ -52,11 +50,11 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -82,9 +80,7 @@ import org.apache.geronimo.tomcat.EngineGBean;
 import org.apache.geronimo.tomcat.HostGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatContainer;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 /**
@@ -143,7 +139,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     private File basedir = new File(System.getProperty("basedir", "."));
 
-    private URI parentId = URI.create("org/apache/geronimo/Foo");
+    private URI[] parentId = new URI[] {URI.create("org/apache/geronimo/Foo")};
 
     public void testDeployWar4() throws Exception {
         deployWar("war4", "org/apache/geronimo/test");
@@ -366,7 +362,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load(parentId);
+        ObjectName baseConfigName = configurationManager.load(parentId[0]);
         kernel.startGBean(baseConfigName);
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
@@ -388,7 +384,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         WebServiceBuilder webServiceBuilder = new AxisBuilder();
 
-        builder = new TomcatModuleBuilder(new URI("null"), false, containerName, webServiceBuilder, null);
+        builder = new TomcatModuleBuilder(new URI[] {new URI("null")}, false, containerName, webServiceBuilder, null);
 
         // Default Realm
         Map initParams = new HashMap();

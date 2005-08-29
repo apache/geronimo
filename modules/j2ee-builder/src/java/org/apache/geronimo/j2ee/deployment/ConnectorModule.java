@@ -29,7 +29,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
  * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
-    public ConnectorModule(boolean standAlone, URI configId, URI parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+    public ConnectorModule(boolean standAlone, URI configId, URI[] parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 
