@@ -1,5 +1,5 @@
 ======================================================
-Apache Geronimo milestone build M3  (Nov 10, 2004)
+Apache Geronimo milestone build M4  (August 10, 2005)
 
 http://geronimo.apache.org/
 ------------------------------------------------------
@@ -13,6 +13,7 @@ Documentation
  documentation can be found here:
  
    -  http://geronimo.apache.org/documentation.html
+
 
 ___________________
 Release Notes
@@ -28,11 +29,9 @@ Installation
 ===================
 
  If you've downloaded and unpacked a binary distribution of Geronimo,
- then you are finished with installation.  Note that the source
- distribution is provided for reference purposes, but you may not
- actually be able to build a working server from it -- it refers to
- snapshot versions of some third-party libraries which might have
- changed since the time M3 was originally built.
+ then you are finished with installation.  You can also use the
+ installer JAR to customize things like network ports and the
+ administrative login during installation.
 
  
 ___________________
@@ -48,6 +47,28 @@ Geronimo Home
  The GERONIMO_HOME directory is referred to in various parts of the
  documentation, so it's good to remember where it is.
 
+
+___________________
+Starting
+===================
+
+ The main server class is also packed in an executable jar,
+ bin/server.jar, and can be ran in a way similar to the deploy tool.
+
+   C:\geronimo> java -jar bin\server.jar
+
+ Once the server has started, you can access the welcome page by
+ pointing your browser to:
+
+   http://localhost:8080/
+   
+ You can also visit the web management console at:
+ 
+   http://localhost:8080/console/
+   
+ To access the console, use the administrative account, which is
+ username "system" and password "manager" by default.
+   
 
 ___________________
 Deploying
@@ -71,34 +92,6 @@ Deploying
 
 
 ___________________
-Starting
-===================
-
- The main server class is also packed in an executable jar,
- bin/server.jar, and can be ran in a way similar to the deploy tool.
-
-   C:\geronimo> java -jar bin\server.jar
-
- Once the server is running, you can start the debug console with a
- command like this:
-
-   c:\geronimo> java -jar bin\deployer.jar start \
-                          org/apache/geronimo/DebugConsole
-
- Then you can access the debug console by pointing your browser to:
-
-   http://localhost:8080/debug-tool/
-   
- I know what you're thinking, "Why does 'bin\server.jar' use
- back-slashes and 'org/apache/geronimo/DebugConsole' use
- forward-slashes?"  The answer is 'org/apache/geronimo/DebugConsole'
- is a URI; a unique identifier that Geronimo uses to find the app you
- want to start.  URI's use forward-slashes only, never back-slashes.
- So, no matter what operating system you're on, the URI will always look
- similar to the one above.
-
-
-___________________
 Support
 ===================
  
@@ -106,10 +99,10 @@ Support
  mailing list or Jira issue tracker.
 
  Mailing list archive:
- http://nagoya.apache.org/eyebrowse/SummarizeList?listId=140
+ http://mail-archives.apache.org/mod_mbox/geronimo-user/
 
  Mailing list subscription:
- dev-subscribe@geronimo.apache.org
+ user-subscribe@geronimo.apache.org
 
  Jira:
  http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220 
