@@ -33,6 +33,145 @@
         </dependency>
 
         <!-- dependencies from plan -->
+
+    <!-- common libraries used by all builders -->
+    <dependency>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-j2ee</artifactId>
+        <version>${geronimo_spec_j2ee_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-corba</artifactId>
+        <version>${geronimo_spec_corba_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-core</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-management</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-transaction</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+
+    <!-- todo builder implementations - can we move these to sub-plans? -->
+    <!-- EAR, application-clients and other J2EE artifacts -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-client-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-naming-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-naming</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-security-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-axis-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-axis</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-webservices</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+    <!-- WARs using Jetty -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-web-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-jetty-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-jetty</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+    <!-- EJBs using OpenEJB -->
+    <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>openejb-builder</artifactId>
+        <version>${openejb_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>openejb-pkgen-builder</artifactId>
+        <version>${openejb_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>openejb-core</artifactId>
+        <version>${openejb_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>tranql</groupId>
+        <artifactId>tranql</artifactId>
+        <version>${tranql_version}</version>
+    </dependency>
+
+    <!-- RARs using Geronimo Connector implementation -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-connector-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-connector</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+    <!-- JBI using ServiceMix -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-servicemix-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
     </dependencies>
 </project>
 
