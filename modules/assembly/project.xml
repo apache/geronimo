@@ -510,6 +510,16 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-welcome</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <installer>true</installer>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>tranql</groupId>
             <artifactId>tranql-connector</artifactId>
             <version>${tranql_connector_version}</version>

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment"
+               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               parentId="${pom.groupId}/cars/geronimo-gbean-deployer-${pom.currentVersion}.car"
+        >
+
+    <!-- common libraries used by all builders -->
+    <dependency>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-j2ee</artifactId>
+        <version>${geronimo_spec_j2ee_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-corba</artifactId>
+        <version>${geronimo_spec_corba_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-core</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-management</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-transaction</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+
+    <!-- todo builder implementations - can we move these to sub-plans? -->
+    <!-- EAR, application-clients and other J2EE artifacts -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-client-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-naming-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-naming</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-security-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-security</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-axis-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-axis</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-webservices</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+    <!-- WARs using Jetty -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-web-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-jetty-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-jetty</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+    <!-- EJBs using OpenEJB -->
+    <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>openejb-builder</artifactId>
+        <version>${openejb_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>openejb-pkgen-builder</artifactId>
+        <version>${openejb_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>openejb</groupId>
+        <artifactId>openejb-core</artifactId>
+        <version>${openejb_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>tranql</groupId>
+        <artifactId>tranql</artifactId>
+        <version>${tranql_version}</version>
+    </dependency>
+
+    <!-- RARs using Geronimo Connector implementation -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-connector-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-connector</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+    <!-- JBI using ServiceMix -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-servicemix-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+
+    <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
+        <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car</attribute>
+        <!--domain set to wildcard so datasources may be deployed independently on client. -->
+        <!--a better solution is to get the domain and server from the parent configuration -->
+        <attribute name="transactionContextManagerObjectName">*:name=TransactionContextManager,*</attribute>
+        <attribute name="connectionTrackerObjectName">*:name=ConnectionTracker,*</attribute>
+        <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
+        <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+        <reference name="WebConfigBuilder">
+            <name>WebBuilder</name>
+        </reference>
+        <reference name="EJBConfigBuilder">
+            <name>EJBBuilder</name>
+        </reference>
+        <reference name="ConnectorConfigBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="AppClientConfigBuilder">
+            <name>AppClientBuilder</name>
+        </reference>
+        <reference name="ResourceReferenceBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ServiceReferenceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="EJBReferenceBuilder">
+            <name>ServerEJBReferenceBuilder</name>
+        </reference>
+    </gbean>
+
+    <gbean name="WebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
+        <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car</attribute>
+        <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
+        <attribute name="defaultContextPriorityClassloader">false</attribute>
+        <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
+        <attribute name="jettyContainerObjectName">geronimo.server:name=WebContainer,*</attribute>
+        <reference name="DefaultServlets">
+            <module>${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car</module>
+            <name>*</name>
+        </reference>
+        <reference name="PojoWebServiceTemplate">
+            <!-- todo replace with module/name reference -->
+            <gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car,J2EEServer=geronimo,j2eeType=ServletWebServiceTemplate,name=POJOTemplate</gbean-name>
+        </reference>
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
+        <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car</attribute>
+        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
+        <reference name="WebServiceLinkTemplate">
+            <name>WebServiceEJBLinkTemplate</name>
+        </reference>
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
+        <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car</attribute>
+        <attribute name="defaultMaxSize">10</attribute>
+        <attribute name="defaultMinSize">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
+        <attribute name="defaultXATransactionCaching">true</attribute>
+        <attribute name="defaultXAThreadCaching">false</attribute>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
+        <attribute name="defaultClientParentId">org/apache/geronimo/Client</attribute>
+        <attribute name="defaultServerParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car</attribute>
+        <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
+        <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
+        <reference name="EJBReferenceBuilder">
+            <name>ClientEJBReferenceBuilder</name>
+        </reference>
+        <reference name="ConnectorModuleBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ResourceReferenceBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ServiceReferenceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="Store">
+            <!-- todo replace with a store the Client Builder can write to -->
+            <gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="JBIBuilder" class="org.apache.geronimo.servicemix.deployment.ServiceMixConfigBuilder">
+        <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car</attribute>
+        <attribute name="deploymentDependencies">
+            servicemix/jars/spring-${servicemix_spring_version}.jar,
+            servicemix/jars/servicemix-${servicemix_version}.jar
+        </attribute>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
+    <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
+    <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
+    <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
+    </gbean>
+    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
+    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder"/>
+    <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
+    <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean"/>
+
+    <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
+        <attribute name="servletName">default</attribute>
+        <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
+        <attribute name="loadOnStartup">0</attribute>
+        <attribute name="initParams">
+            acceptRanges=true
+            dirAllowed=true
+            putAllowed=false
+            delAllowed=false
+            redirectWelcome=false
+            minGzipLength=8192
+        </attribute>
+        <attribute name="servletMappings">/</attribute>
+    </gbean>
+
+    <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
+        <attribute name="servletName">jsp</attribute>
+        <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
+        <attribute name="loadOnStartup">0</attribute>
+        <attribute name="initParams">
+            logVerbosityLevel=DEBUG
+            fork=false
+            xpoweredBy=false
+        </attribute>
+        <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
+    </gbean>
+
+    <gbean name="POJOTemplate" class="org.apache.geronimo.jetty.JettyPOJOWebServiceHolder">
+        <attribute name="servletName">dummy</attribute>
+    </gbean>
+</configuration>

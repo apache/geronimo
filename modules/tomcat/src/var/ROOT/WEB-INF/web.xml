@@ -20,9 +20,6 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
     version="2.4">
 
-  <display-name>Welcome to Geronimo</display-name>
-  <description>
-     Welcome to Geronimo
-  </description>
+  <display-name>Tomcat Fallback Application</display-name>
 
 </web-app>
