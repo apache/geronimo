@@ -41,6 +41,8 @@ Configuration for the system layer of the Geronimo deployer
     <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
         <attribute name="configFile">var/config/config.xml</attribute>
+        <!-- The deploy tool should not alter the saved configuration -->
+        <attribute name="readOnly">true</attribute>
     </gbean>
 
     <!-- Configuration Store service -->

@@ -56,6 +56,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
 
     private final ServerInfo serverInfo;
     private final String configFile;
+    private boolean readOnly = false;
     private String objectName;
 
     private File attributeFile;
@@ -68,6 +69,14 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         this.serverInfo = serverInfo;
         this.configFile = configFile;
         this.objectName = objectName;
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
     }
 
     public String getObjectName() {
@@ -107,6 +116,9 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
     }
 
     public synchronized void setValue(String configurationName, ObjectName gbean, GAttributeInfo attribute, Object value) {
+        if(readOnly) {
+            return;
+        }
         Map config = (Map) configurations.get(configurationName);
         if(config == null) {
             config = new HashMap();
@@ -199,6 +211,9 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
     }
 
     public synchronized void save() throws IOException {
+        if(readOnly) {
+            return;
+        }
         ensureParentDirectory();
         if(!tempFile.exists() && !tempFile.createNewFile()) {
             throw new IOException("Unable to create manageable attribute working file for save "+tempFile.getAbsolutePath());
@@ -248,8 +263,10 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
 
     public void doStart() throws Exception {
         load();
-        updater = new UpdateThread();
-        updater.start();
+        if(!readOnly) {
+            updater = new UpdateThread();
+            updater.start();
+        }
         log.info("Started LocalAttributeManager with data on "+configurations.size()+" configurations");
     }
 
@@ -375,6 +392,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LocalAttributeManager.class, "AttributeStore");//does not use jsr-77 naming
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("configFile", String.class, true);
+        infoFactory.addAttribute("readOnly", boolean.class, true);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addInterface(ManageableAttributeStore.class);
 
