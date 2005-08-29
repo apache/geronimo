@@ -17,6 +17,7 @@
 package org.apache.geronimo.directory;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -200,7 +201,9 @@ public class ServerContextFactory extends CoreContextFactory
     private void startLdapProtocol( ServerStartupConfiguration cfg, Hashtable env ) throws NamingException
     {
         int port = cfg.getLdapPort();
-        Service service = new Service( "ldap", TransportType.SOCKET, new InetSocketAddress( port ) );
+        InetAddress host = cfg.getHost();
+        Service service = new Service( "ldap", TransportType.SOCKET, new InetSocketAddress( host, port ) );
+//        Service service = new Service( "ldap", TransportType.SOCKET, new InetSocketAddress( port ) );
 
         try
         {

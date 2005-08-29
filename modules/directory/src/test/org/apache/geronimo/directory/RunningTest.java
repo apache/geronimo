@@ -115,7 +115,7 @@ public class RunningTest extends TestCase {
         directoryGBean.setAttribute("securityCredentials", CREDENTIALS);
         directoryGBean.setAttribute("anonymousAccess", new Boolean(true));
         directoryGBean.setAttribute("enableNetworking", new Boolean(true));
-        directoryGBean.setAttribute("ldapPort", new Integer(9389));
+        directoryGBean.setAttribute("port", new Integer(9389));
 
         start(directoryGBean);
 

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.directory;
 
+import java.net.InetAddress;
+
 import org.apache.ldap.server.configuration.ConfigurationException;
 import org.apache.ldap.server.configuration.StartupConfiguration;
 import org.apache.mina.registry.ServiceRegistry;
@@ -34,10 +36,19 @@ public class ServerStartupConfiguration extends StartupConfiguration
     private ServiceRegistry minaServiceRegistry = new SimpleServiceRegistry();
     private int ldapPort = 389;
     private int ldapsPort = 636;
+    private InetAddress host = null;
     private boolean enableKerberos;
 
     protected ServerStartupConfiguration()
     {
+    }
+
+    protected InetAddress getHost() {
+        return host;
+    }
+
+    protected void setHost(InetAddress host) {
+        this.host = host;
     }
 
     /**

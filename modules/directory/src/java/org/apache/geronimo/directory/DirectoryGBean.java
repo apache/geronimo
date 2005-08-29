@@ -17,6 +17,7 @@
 
 package org.apache.geronimo.directory;
 
+import java.net.InetAddress;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -47,7 +48,8 @@ public class DirectoryGBean implements GBeanLifecycle {
     private String securityPrincipal;
     private String securityCredentials;
     private String securityAuthentication;
-    private int ldapPort = 389;
+    private int port = 389;
+    private InetAddress host = null;
     private boolean enableNetworking;
     
     /**
@@ -70,6 +72,7 @@ public class DirectoryGBean implements GBeanLifecycle {
         this.classLoader = classLoader;
         this.anonymousAccess = anonymousAccess;
         this.serverInfo = serverInfo;
+        setHost("0.0.0.0");
     }
 
     public String getProviderURL() {
@@ -112,12 +115,38 @@ public class DirectoryGBean implements GBeanLifecycle {
         this.enableNetworking = enableNetworking;
     }
 
-    public int getLdapPort() {
-        return ldapPort;
+    public String getHost() {
+        if (host == null){
+            return "0.0.0.0";
+        }
+        
+        return host.getHostAddress();
     }
 
-    public void setLdapPort(int ldapPort) {
-        this.ldapPort = ldapPort;
+    public void setHost(String host) {
+        try{
+            if (host == null )
+                this.host = null;
+            
+            String strHost = host.trim();
+            if (strHost.equals("0.0.0.0")){
+                this.host = null;
+                return;
+            }
+
+            this.host = InetAddress.getByName(strHost);
+
+        } catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public void doFail() {
@@ -151,8 +180,9 @@ public class DirectoryGBean implements GBeanLifecycle {
         // put some mandatory JNDI properties here
         startup.setWorkingDirectory(serverInfo.resolve(workingDir));
         startup.setAllowAnonymousAccess(anonymousAccess);
-        startup.setLdapPort(ldapPort);
+        startup.setLdapPort(port);
         startup.setEnableNetworking(enableNetworking);
+        startup.setHost(host);
         
         Properties env = new Properties();
         env.putAll(startup.toJndiEnvironment());
@@ -203,7 +233,8 @@ public class DirectoryGBean implements GBeanLifecycle {
         infoFactory.addAttribute("securityAuthentication", String.class, true, true);
         infoFactory.addAttribute("securityPrincipal", String.class, true, true);
         infoFactory.addAttribute("securityCredentials", String.class, true, true);
-        infoFactory.addAttribute("ldapPort", int.class, true, true);
+        infoFactory.addAttribute("port", int.class, true, true);
+        infoFactory.addAttribute("host", String.class, true, true);
         infoFactory.addAttribute("enableNetworking", boolean.class, true, true);
         
         infoFactory.addAttribute("workingDir", String.class, true);

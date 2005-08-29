@@ -18,6 +18,7 @@
 package org.apache.geronimo.directory;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Set;
 
@@ -78,6 +79,10 @@ public class MutableServerStartupConfiguration extends
         super.setEnableKerberos( enableKerberos );
     }
 
+    public void setHost(InetAddress host){        
+        super.setHost(host);
+    }
+    
     public void setLdapPort( int ldapPort )
     {
         super.setLdapPort( ldapPort );
