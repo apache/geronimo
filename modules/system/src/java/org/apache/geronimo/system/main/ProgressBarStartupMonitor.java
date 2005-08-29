@@ -205,7 +205,10 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     try {
                         InetSocketAddress addr = (InetSocketAddress) kernel.getAttribute(name, att.getName());
                         if(addr == null) {
+                            log.debug("No value for GBean "+name+" attribute "+att.getName());
                             continue;
+                        } else if(addr.getAddress() == null || addr.getAddress().getHostAddress() == null) {
+                            log.debug("Null address or host for GBean "+name+" "+att.getName()+": "+addr.getAddress());
                         }
                         String attName = info.getName();
                         if(list.size() > 1) {
@@ -243,7 +246,9 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
             int max = 0;
             for (int i = 0; i < ports.size(); i++) {
                 AddressHolder holder = (AddressHolder) ports.get(i);
-                max = Math.max(max, holder.getAddress().getAddress().getHostAddress().length());
+                if(holder.getAddress().getAddress() != null && holder.getAddress().getAddress().getHostAddress() != null) {
+                    max = Math.max(max, holder.getAddress().getAddress().getHostAddress().length());
+                }
             }
             for (int i = 0; i < ports.size(); i++) {
                 AddressHolder holder = (AddressHolder) ports.get(i);
@@ -262,8 +267,10 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     buf.append(' ');
                 }
                 buf.append(holder.getAddress().getPort()).append(' ');
-                buf.append(holder.getAddress().getAddress().getHostAddress());
-                for(int j=holder.getAddress().getAddress().getHostAddress().length(); j<=max; j++) {
+                String address = holder.getAddress().getAddress() == null || holder.getAddress().getAddress().getHostAddress() == null ? "" :
+                        holder.getAddress().getAddress().getHostAddress();
+                buf.append(address);
+                for(int j=address.length(); j<=max; j++) {
                     buf.append(' ');
                 }
                 buf.append(holder.getName());
