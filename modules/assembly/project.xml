@@ -1374,6 +1374,15 @@
         </dependency>
 
         <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>${jdom_version}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-uddi-server</artifactId>
             <version>${pom.currentVersion}</version>

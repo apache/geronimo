@@ -131,7 +131,26 @@ by the server.
     <dependency>
         <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
     </dependency>
- 
+
+    <!--scout -->
+    <dependency>
+        <uri>scout/jars/jaxr-api-${scout_version}.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>scout/jars/scout-${scout_version}.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>juddi/jars/juddi-${juddi_version}.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>jdom/jars/jdom-1.0.jar</uri>
+    </dependency>
+
+
+
     ${webcontainer}
 
     <!-- Default security realm using properties files -->
