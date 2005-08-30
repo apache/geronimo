@@ -51,12 +51,17 @@ public final class ExecutableConfigurationUtil {
     public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File configurationDir, File destinationFile) throws IOException, InvalidConfigException {
         JarOutputStream out = null;
         try {
-            out = new JarOutputStream(new FileOutputStream(destinationFile), manifest);
             byte[] buffer = new byte[4096];
 
-            // add the startup file which allows us to locate the startup directory
-            out.putNextEntry(new ZipEntry("META-INF/startup-jar"));
-            out.closeEntry();
+            if (manifest != null) {
+                out = new JarOutputStream(new FileOutputStream(destinationFile), manifest);
+
+                // add the startup file which allows us to locate the startup directory
+                out.putNextEntry(new ZipEntry("META-INF/startup-jar"));
+                out.closeEntry();
+            } else {
+                out = new JarOutputStream(new FileOutputStream(destinationFile));
+            }
 
             // write the configurationData
             ExecutableConfigurationUtil.writeConfiguration(configurationData, out);

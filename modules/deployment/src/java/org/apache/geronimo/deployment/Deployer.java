@@ -166,17 +166,22 @@ public class Deployer {
             metaInf.mkdirs();
 
             // create the manifest
-            Manifest manifest = new Manifest();
-            Attributes mainAttributes = manifest.getMainAttributes();
-            mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+            Manifest manifest;
             if (mainClass != null) {
-                mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
-            }
-            if (classPath != null) {
-                mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
-            }
-            if (endorsedDirs != null) {
-                mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), endorsedDirs);
+                manifest = new Manifest();
+                Attributes mainAttributes = manifest.getMainAttributes();
+                mainAttributes.putValue(Attributes.Name.MANIFEST_VERSION.toString(), "1.0");
+                if (mainClass != null) {
+                    mainAttributes.putValue(Attributes.Name.MAIN_CLASS.toString(), mainClass);
+                }
+                if (classPath != null) {
+                    mainAttributes.putValue(Attributes.Name.CLASS_PATH.toString(), classPath);
+                }
+                if (endorsedDirs != null) {
+                    mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), endorsedDirs);
+                }
+            } else {
+                manifest = null;
             }
 
             ConfigurationData configurationData = builder.buildConfiguration(plan, module, configurationDir);
