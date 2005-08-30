@@ -25,7 +25,9 @@
     <goal name="default">
         <attainGoal name="war:install"/>
     </goal>
+<!--
     <postGoal name="war:install">
         <attainGoal name="car:install"/>
     </postGoal>
+-->
 </project>

@@ -19,7 +19,9 @@
         <velocity:merge basedir="${maven.src.dir}/plan" template="geronimo-application.xml" name="${maven.ear.resources}/META-INF/geronimo-application.xml"/>
     </preGoal>
 
+<!--
     <postGoal name="ear:install">
         <attainGoal name="car:install"/>
     </postGoal>
+-->
 </project>
