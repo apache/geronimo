@@ -27,7 +27,7 @@
     <!-- ===================== -->
 
     <name>Geronimo :: Assembly</name>
-    <id>geronimo-assembly</id>
+    <id>geronimo</id>
     <shortDescription>Geronimo Assembly</shortDescription>
     <description>Geronimo Assembly</description>
     <url>http://incubator.apache.org/projects/geronimo/</url>

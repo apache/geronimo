@@ -57,10 +57,10 @@
                 <j:set var="geronimoName" value="geronimo"/>
             </j:if>
             <j:if test="${targetDir == null}">
-                <j:set var="targetDir" value="${basedir}/target/${geronimoName}"/>
+                <j:set var="targetDir" value="${basedir}/target"/>
             </j:if>
 
-            <unjar src="${maven.repo.local}/${geronimoName}/jars/${geronimoName}-assembly-${geronimoVersion}.jar" dest="${targetDir}"/>
+            <unzip dest="${maven.build.dir}" src="${maven.repo.local}/${geronimoName}/distributions/${geronimoName}-${geronimo_version}.zip" />
 
             <!--copy stuff for this project into new geronimo repository-->
             <!-- this code deals with jar overrides correctly -->
@@ -76,7 +76,7 @@
                  file="${geronimo.deploy.var.source}"
                  type="dir"/>
             <j:if test="${geronimo.deploy.var.available}">
-                <copy todir="${targetDir}/var" overwrite="true">
+                <copy todir="${targetDir}/${geronimoName}-${geronimo_version}/var" overwrite="true">
                     <fileset dir="${basedir}/${geronimo.deploy.var.source}">
                     </fileset>
                 </copy>

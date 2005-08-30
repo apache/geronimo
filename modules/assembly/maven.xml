@@ -20,11 +20,14 @@
 
 <project default="default"
     xmlns:j="jelly:core"
+    xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"
     xmlns:define="jelly:define"
     xmlns:velocity="jelly:velocity"
     xmlns:bootstrap="geronimo:bootstrap"
     xmlns:deploy="geronimo:deploy"
+    xmlns:artifact="artifact"
+    xmlns:m="jelly:maven"
     >
 
     <!-- ================= -->
@@ -33,10 +36,6 @@
 
     <!-- Determine what the top-level project root is -->
     <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
-
-    <!-- Determine what the top-level project root is -->
-    <j:set var="distDir" value="${basedir}/target/${pom.groupId}-${pom.currentVersion}"/>
-
 
     <!-- ==================== -->
     <!-- Default Global Goals -->
@@ -48,7 +47,7 @@
 
 
     <goal name="build">
-        <attainGoal name="jar:install"/>
+        <attainGoal name="assembly:install"/>
     </goal>
 
     <goal name="rebuild">
@@ -61,29 +60,38 @@
         <attainGoal name="rebuild"/>
     </goal>
 
-    <preGoal name="jar:jar">
-        <attainGoal name="assemble"/>
-        <j:if test="${context.getVariable('geronimo.assemble.delete.logs') == 'true'}">
-            <!--wait for server to finish stopping so windows unlocks the log files -->
-            <sleep seconds="2"/>
-            <delete>
-                <fileset dir="${distDir}/var/log" includes="*.log"/>
-            </delete>
-        </j:if>
-        <j:set var="maven.build.dest" value="${distDir}"/>
-    </preGoal>
+    <goal name="assembly:prepare-filesystem"
+        description="Builds the binary distribution file system.">
 
-    <!-- ==================================================== -->
-    <!-- Assemble server installation from generated modules  -->
-    <!-- ==================================================== -->
-    <goal name="assemble">
-        <j:if test="${context.getVariable('geronimo.assemble.clean') == 'true'}">
-            <echo>Deleting target directory</echo>
-            <delete dir="${basedir}/target"/>
+        <!--
+
+        This is the directory where everything is copied to so that it can
+        be archived.
+
+        -->
+
+        <j:if test="${context.getVariable('geronimo.assembly.clean') == 'true'}">
+            <ant:delete dir="${geronimo.assembly.dir}"/>
         </j:if>
+        <ant:mkdir dir="${geronimo.assembly.dir}"/>
+
+        <ant:echo>
+        +-------------------------------------------------------+
+        | C R E A T I N G  B I N A R Y  D I S T R I B U T I O N |
+        +-------------------------------------------------------+
+        </ant:echo>
+
+        <!-- Add all txt fines and the status file to the binary -->
+        <ant:copy todir="${geronimo.assembly.dir}">
+            <fileset dir="${project.root}" includes="*.txt,STATUS"/>
+            <ant:fileset dir="${project.root}">
+                <ant:include name="*.txt"/>
+                <ant:include name="STATUS"/>
+            </ant:fileset>
+        </ant:copy>
 
         <!-- Copy  the runtime dependencies into lib and create a classpath for the server.jar file -->
-        <j:set var="libDir" value="${distDir}/lib"/>
+        <j:set var="libDir" value="${geronimo.assembly.dir}/lib"/>
         <ant:mkdir dir="${libDir}"/>
         <ant:mkdir dir="${libDir}/endorsed"/>
 
@@ -108,9 +116,9 @@
             </j:if>
         </j:forEach>
 
-        <!-- Create directory for XML schema documents -->
-        <ant:mkdir dir="${distDir}/schema"/>
-        <ant:copy todir="${distDir}/schema" flatten="true">
+        <!-- Add XML schemas -->
+        <ant:mkdir dir="${geronimo.assembly.dir}/schema"/>
+        <ant:copy todir="${geronimo.assembly.dir}/schema" flatten="true">
             <ant:fileset dir="${project.root}/modules/j2ee-schema">
                 <ant:include name="src/j2ee_1_4schema/*.xsd"/>
                 <ant:include name="src/j2ee_1_3dtd/*.dtd"/>
@@ -141,26 +149,32 @@
             </ant:fileset>
             <ant:fileset dir="src/etc"/>
         </ant:copy>
-        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-pkgen-builder-${openejb_version}.jar" dest="${distDir}">
-          <ant:patternset>
-            <ant:include name="META-INF/schema/openejb-pkgen.xsd" />
-          </ant:patternset>
+
+        <!-- extract XML schemas from OpenEJB jars -->
+        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-pkgen-builder-${openejb_version}.jar"
+            dest="${geronimo.assembly.dir}">
+            <ant:patternset>
+                <ant:include name="META-INF/schema/openejb-pkgen.xsd"/>
+            </ant:patternset>
         </ant:unzip>
-        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar" dest="${distDir}">
-          <ant:patternset>
-            <ant:include name="META-INF/schema/openejb-jar.xsd" />
-            <ant:include name="META-INF/schema/corba-css-config_1_0.xsd" />
-            <ant:include name="META-INF/schema/corba-tss-config_1_0.xsd" />
-          </ant:patternset>
+        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar"
+            dest="${geronimo.assembly.dir}">
+            <ant:patternset>
+                <ant:include name="META-INF/schema/openejb-jar.xsd"/>
+                <ant:include name="META-INF/schema/corba-css-config_1_0.xsd"/>
+                <ant:include name="META-INF/schema/corba-tss-config_1_0.xsd"/>
+            </ant:patternset>
         </ant:unzip>
-        <ant:move todir="${distDir}/schema">
-          <ant:fileset dir="${distDir}/META-INF/schema">
-            <ant:include name="*.xsd" />
-          </ant:fileset>
+        <ant:move todir="${geronimo.assembly.dir}/schema">
+            <ant:fileset dir="${geronimo.assembly.dir}/META-INF/schema">
+                <ant:include name="*.xsd"/>
+            </ant:fileset>
         </ant:move>
-        <ant:delete dir="${distDir}/META-INF" />
+        <ant:delete dir="${geronimo.assembly.dir}/META-INF"/>
+
+        <!-- update include paths in all schemas -->
         <ant:fileScanner var="schemaScanner">
-            <ant:fileset dir="${distDir}/schema">
+            <ant:fileset dir="${geronimo.assembly.dir}/schema">
                 <ant:include name="geronimo-application.xsd"/>
                 <ant:include name="geronimo-application-client.xsd"/>
                 <ant:include name="geronimo-jetty.xsd"/>
@@ -176,24 +190,26 @@
         </j:forEach>
 
         <!-- copy in data files -->
-        <!-- the persistent config list will need to be recopied if the online deployer is used -->
-        <ant:copy todir="${distDir}/var">
+        <!-- the persistent config list must be recopied in due to user of online deployer -->
+        <ant:copy todir="${geronimo.assembly.dir}/var">
             <ant:fileset dir="src/var"/>
         </ant:copy>
 
         <!-- For LDAP -->
-        <ant:mkdir dir="${distDir}/var/ldap"/>
+        <ant:mkdir dir="${geronimo.assembly.dir}/var/ldap"/>
 
+        <!-- Add tomcat files -->
         <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">
-            <ant:copy todir="${distDir}/var/catalina/conf" file="${project.root}/modules/tomcat/src/var/web.xml"/>
-            <ant:copy todir="${distDir}/var/catalina/ROOT">
+            <ant:copy todir="${geronimo.assembly.dir}/var/catalina/conf"
+                file="${project.root}/modules/tomcat/src/var/web.xml"/>
+            <ant:copy todir="${geronimo.assembly.dir}/var/catalina/ROOT">
                 <ant:fileset dir="${project.root}/modules/tomcat/src/var/ROOT"/>
             </ant:copy>
         </j:if>
 
-        <!-- Pre-load the server's repository -->
-        <ant:mkdir dir="${distDir}/repository"/>
-        <ant:copy todir="${distDir}/repository">
+        <!-- Load the repository -->
+        <ant:mkdir dir="${geronimo.assembly.dir}/repository"/>
+        <ant:copy todir="${geronimo.assembly.dir}/repository">
             <ant:fileset dir="${maven.repo.local}">
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
@@ -203,13 +219,7 @@
                 </j:forEach>
             </ant:fileset>
         </ant:copy>
-
-        <!--        <ant:mkdirs dir="${distDir}/repository/jdk/jars"/>-->
-        <!--        <ant:copy file="${java.home}/../lib/tools.jar" todir="${distDir}/repository/jdk/jars">-->
-        <!---->
-        <!--        </ant:copy>-->
-
-        <ant:copy todir="${distDir}/repository">
+        <ant:copy todir="${geronimo.assembly.dir}/repository">
             <mapper type="glob" from="${maven.repo.local}*" to="*"/>
             <ant:fileset dir="${maven.repo.local}">
                 <j:forEach var="artifact" items="${pom.artifacts}">
@@ -221,24 +231,21 @@
             </ant:fileset>
         </ant:copy>
 
-        <ant:echo message="${project.root}"/>
-        <ant:copy todir="${distDir}">
-            <fileset dir="${project.root}" includes="*.txt,STATUS"/>
-        </ant:copy>
+        <!-- ============================================== -->
+        <!-- Preprocess all mungible content using velocity -->
+        <!-- ============================================== -->
 
-        <!-- Preprocess all mungible content using velocity  -->
-
-        <ant:mkdir dir="${basedir}/target/installer" />
         <!-- Copy over the IzPack Installer files -->
+        <ant:mkdir dir="${basedir}/target/installer" />
         <fileScanner var="installFiles">
             <fileset dir="${basedir}/src/izpack">
                 <include name="*.xml"/>
             </fileset>
         </fileScanner>
-        <j:set var="ServerClasspath" value="${server.classpath}" />
-        <j:set var="ClientClasspath" value="${client.classpath}" />
-        <j:set var="GeronimoVersion" value="${geronimo_version}" />
-        <j:set var="ReleaseNotesVersion" value="1.0-M4" />
+        <j:set var="ServerClasspath" value="${server.classpath}"/>
+        <j:set var="ClientClasspath" value="${client.classpath}"/>
+        <j:set var="GeronimoVersion" value="${geronimo_version}"/>
+        <j:set var="ReleaseNotesVersion" value="1.0-M4"/>
         <j:forEach var="installer" items="${installFiles.iterator()}">
             <j:set var="installerName" value="${installer.name}"/>
             <echo>Processing installer file ${installerName}</echo>
@@ -252,7 +259,6 @@
         <velocity:merge basedir="${basedir}/src/var/config"
                         template="config.xml"
                         name="${basedir}/target/installer/config.xml" />
-
 
         <!-- Substitution variables for default hostname, ports, etc. -->
         <j:set var="PlanServerHostname" value="localhost" />
@@ -282,17 +288,20 @@
             basedir="${basedir}/src/plan"
             template="${geronimo.web.container}-config.xml"
             name="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>
-        <loadfile property="webcontainer" srcFile="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>
+        <loadfile property="webcontainer"
+            srcFile="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>
         <velocity:merge
             basedir="${basedir}/src/plan"
             template="${geronimo.web.container}-deployer-config.xml"
             name="${basedir}/target/tmp/${geronimo.web.container}-deployer-config.xml"/>
-        <loadfile property="webdeployer" srcFile="${basedir}/target/tmp/${geronimo.web.container}-deployer-config.xml"/>
+        <loadfile property="webdeployer"
+            srcFile="${basedir}/target/tmp/${geronimo.web.container}-deployer-config.xml"/>
         <velocity:merge
             basedir="${basedir}/src/plan"
             template="${geronimo.web.container}-runtime-deployer-config.xml"
             name="${basedir}/target/tmp/${geronimo.web.container}-runtime-deployer-config.xml"/>
-        <loadfile property="webruntimedeployer" srcFile="${basedir}/target/tmp/${geronimo.web.container}-runtime-deployer-config.xml"/>
+        <loadfile property="webruntimedeployer"
+            srcFile="${basedir}/target/tmp/${geronimo.web.container}-runtime-deployer-config.xml"/>
 
         <ant:mkdir dir="${basedir}/target/plan"/>
         <j:forEach var="plan" items="${plans.iterator()}">
@@ -306,19 +315,21 @@
 
         <velocity:merge basedir="${basedir}/src/var/config"
                         template="config.xml"
-                        name="${distDir}/var/config/config.xml" />
+                        name="${geronimo.assembly.dir}/var/config/config.xml" />
 
         <!-- copy the final plans -->
-        <ant:mkdir dir="${distDir}/doc"/>
-        <ant:mkdir dir="${distDir}/doc/plan"/>
-        <ant:copy todir="${distDir}/doc/plan">
+        <ant:mkdir dir="${geronimo.assembly.dir}/doc"/>
+        <ant:mkdir dir="${geronimo.assembly.dir}/doc/plan"/>
+        <ant:copy todir="${geronimo.assembly.dir}/doc/plan">
             <ant:fileset dir="${basedir}/target/plan"/>
         </ant:copy>
 
-        <!-- bootstrap the deployer -->
+        <!-- ============================================== -->
+        <!-- Bootstrap the deployer and server              -->
+        <!-- ============================================== -->
         <ant:echo>Bootstrapping service deployer</ant:echo>
-        <ant:mkdir dir="${distDir}/bin"/>
-        <ant:mkdir dir="${distDir}/config-store"/>
+        <ant:mkdir dir="${geronimo.assembly.dir}/bin"/>
+        <ant:mkdir dir="${geronimo.assembly.dir}/config-store"/>
 
         <define:taglib uri="geronimo:bootstrap">
             <define:jellybean
@@ -328,9 +339,9 @@
         </define:taglib>
 
         <bootstrap:bootstrap
-            deployerJar="${distDir}/bin/deployer.jar"
-            storeDir="${distDir}/config-store"
-            repositoryDir="${distDir}/repository"
+            deployerJar="${geronimo.assembly.dir}/bin/deployer.jar"
+            storeDir="${geronimo.assembly.dir}/config-store"
+            repositoryDir="${geronimo.assembly.dir}/repository"
             deployerSystemPlan="${basedir}/target/plan/deployer-system-plan.xml"
             j2eeDeployerPlan="${basedir}/target/plan/j2ee-deployer-plan.xml"
             deployerClassPath="${deploy.classpath}"
@@ -340,8 +351,8 @@
 
         <!-- build the system configuration and server.jar -->
         <ant:echo>Building server.jar</ant:echo>
-        <ant:mkdir dir="${distDir}/bin"/>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+        <ant:mkdir dir="${geronimo.assembly.dir}/bin"/>
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="package"/>
             <ant:arg value="--classPath"/>
@@ -352,7 +363,7 @@
             <ant:arg value="lib/endorsed"/>
             <ant:arg value="--install"/>
             <ant:arg value="target/plan/system-plan.xml"/>
-            <ant:arg value="${distDir}/bin/server.jar"/>
+            <ant:arg value="${geronimo.assembly.dir}/bin/server.jar"/>
         </ant:java>
 
         <!-- to debug one of these deployer calls, include these jvmargs right after the -ea arg
@@ -364,7 +375,7 @@
 
         <!-- build the RMINaming configuration -->
         <ant:echo>Building RMI Naming configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/naming-server-plan.xml"/>
@@ -372,7 +383,7 @@
 
         <!-- build the J2EEServer configuration -->
         <ant:echo>Building server configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-server-plan.xml"/>
@@ -380,7 +391,7 @@
 
         <!-- build the runtime deployer configuration -->
         <ant:echo>Building runtime deployer configuration</ant:echo>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-runtime-deployer-plan.xml"/>
@@ -388,8 +399,8 @@
 
         <!-- build the system configuration and client.jar -->
         <ant:echo>Building client.jar</ant:echo>
-        <ant:mkdir dir="${distDir}/bin"/>
-        <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
+        <ant:mkdir dir="${geronimo.assembly.dir}/bin"/>
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="package"/>
             <ant:arg value="--mainClass"/>
@@ -400,304 +411,273 @@
             <ant:arg value="${libDir}/endorsed"/>
             <ant:arg value="--install"/>
             <ant:arg value="target/plan/client-system-plan.xml"/>
-            <ant:arg value="${distDir}/bin/client.jar"/>
+            <ant:arg value="${geronimo.assembly.dir}/bin/client.jar"/>
         </ant:java>
 
         <!-- Copy the scripts to the bin dir -->
-        <ant:copy todir="${distDir}/bin" overwrite="true">
+        <ant:copy todir="${geronimo.assembly.dir}/bin" overwrite="true">
             <ant:fileset dir="src/scripts">
                 <include name="*.sh"/>
                 <include name="*.bat"/>
             </ant:fileset>
         </ant:copy>
-        <ant:chmod dir="${distDir}/bin" perm="ugo+x" includes="*.sh" />
+        <ant:chmod dir="${geronimo.assembly.dir}/bin" perm="ugo+x" includes="*.sh"/>
 
-        <j:if test="${context.getVariable('geronimo.assemble.minimal') != 'true'}">
-            <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
-                <deploy:startRemoteServer
-                    geronimoTarget="${distDir}"
-                    vmArgs="-Xmx512m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
-                    configs="org/apache/geronimo/RuntimeDeployer"/>
-                <ant:echo message="Waiting for server at: ${distDir}"/>
-                <deploy:waitForStarted
-                    uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-                    maxtries="125"
-                    username="system"
-                    password="manager"
-                    id="org/apache/geronimo/RuntimeDeployer"/>
-                <echo message="server has started"/>
-            </j:if>
+        <!-- ============================================== -->
+        <!-- Deploy all configurations to live server       -->
+        <!-- ============================================== -->
+
+        <j:if test="${context.getVariable('geronimo.assembly.minimal') != 'true'}">
+            <deploy:startRemoteServer
+                geronimoTarget="${geronimo.assembly.dir}"
+                vmArgs="-Xmx512m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+                configs="org/apache/geronimo/RuntimeDeployer"/>
+            <ant:echo message="Waiting for server at: ${geronimo.assembly.dir}"/>
+            <deploy:waitForStarted
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                maxtries="125"
+                username="system"
+                password="manager"
+                id="org/apache/geronimo/RuntimeDeployer"/>
+            <!-- wait for started does not assure that child services are started so we must sleep -->
+            <u:sleep millis="3000"/>
+            <echo message="server has started"/>
 
             <!-- building tranql connector default database configuration-->
             <!--deploy this as a "synthetic" ear -->
-            <ant:echo>Building default database configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/default-database-plan.xml"/>
-                <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar"/>
-            </ant:java>
-
-            <!-- building system database configuration-->
-            <ant:echo>Building system database configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/system-database-plan.xml"/>
-                <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar"/>
-            </ant:java>
-
-            <!-- building system activemq configuration-->
-            <ant:echo>Building system activemq configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/system-activemq-plan.xml"/>
-            </ant:java>
-
-            <!-- building system jms configuration-->
-            <ant:echo>Building system jms configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/system-jms-plan.xml"/>
-                <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
-            </ant:java>
-
-            <!-- build the spring runtime configuration -->
-            <ant:echo>Building spring runtime configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/spring-runtime-plan.xml"/>
-            </ant:java>
-            <!-- build the spring deployer configuration -->
-            <ant:echo>Building spring deployer configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/spring-deployer-plan.xml"/>
-            </ant:java>
-
-            <!-- build the J2EEServer secure configuration -->
-            <ant:echo>Building secure server configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/j2ee-secure-plan.xml"/>
-            </ant:java>
-
-            <!-- build the J2EE client configuration -->
-            <ant:echo>Building J2EE Client configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/j2ee-client-plan.xml"/>
-            </ant:java>
-
-            <!-- build the directory server configuration -->
-            <ant:echo>Building directory server configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="target/plan/directory-server-plan.xml"/>
-            </ant:java>
-
-            <!-- build the Demo configuration -->
-            <ant:echo>Building demo website configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"/>
-            </ant:java>
-
-            <!-- build the Welcome site configuration -->
-            <ant:echo>Building welcome website configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-welcome-${pom.currentVersion}.war"/>
-            </ant:java>
-
-            <ant:echo>Building console configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="${maven.repo.local}/geronimo/ears/geronimo-console-${pom.currentVersion}.ear"/>
-            </ant:java>
-
-            <!-- build the Debug Tool configuration "org/apache/geronimo/DebugConsole"-->
-            <ant:echo>Building debug tool configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
-            </ant:java>
-
-            <!-- build the remote class loading deployer configuration "org/apache/geronimo/RemoteClassLoadingDeployer"-->
-            <ant:echo>Building juddi-server configuration</ant:echo>
-            <ant:java fork="true" jar="${distDir}/bin/deployer.jar" failonerror="true">
-                <ant:jvmarg value="-ea"/>
-                <ant:arg value="--user"/>
-                <ant:arg value="system"/>
-                <ant:arg value="--password"/>
-                <ant:arg value="manager"/>
-                <ant:arg value="distribute"/>
-                <ant:arg value="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
-            </ant:java>
-
-            <!-- create SystemDatabase -->
-<!--            <attainGoal name="init-database"/>-->
-
-            <j:if test="${context.getVariable('geronimo.assemble.offline') != 'true'}">
-                <deploy:stopRemoteServer
-                    uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-                    username="system"
-                    password="manager"/>
-                <echo message="server has stopped"/>
-                <!-- re-copy in persistent config list -->
-                <echo message="refreshing persistent configuration list"/>
-                <ant:copy todir="${distDir}/var" overwrite="true">
-                    <ant:fileset dir="src/var">
-                        <include name="config/config.list"/>
-                    </ant:fileset>
-                </ant:copy>
-            </j:if>
-        </j:if>
- 
-        <!-- Prepare the Installer directory -->       
-        <ant:copy todir="${basedir}/target/installer">
-          <ant:fileset dir="${distDir}" />
-        </ant:copy>
-        <ant:echo file="${basedir}/target/installer/var/security/users.properties">$${SecurityDefaultUser}=$${SecurityDefaultPassword}
-</ant:echo>
-        <ant:echo file="${basedir}/target/installer/var/security/groups.properties">admin=$${SecurityDefaultUser}
-</ant:echo>
-        <ant:echo file="${basedir}/target/installer/var/config/config.list">org/apache/geronimo/System
-</ant:echo>
-        <ant:move file="${basedir}/target/installer/config.xml"
-                  tofile="${basedir}/target/installer/var/config/config.xml" />
-
-    </goal>
-
-    <goal name="init-database">
-        <j:invokeStatic className="java.lang.System" method="setProperty">
-            <j:arg type="java.lang.String" value="derby.system.home"/>
-            <j:arg type="java.lang.String" value="${derby.system.home}"/>
-        </j:invokeStatic>
-        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:SystemDatabase;create=true" userid="" password="">
-            <ant:fileset dir="src/sql"/>
-            <ant:classpath>
-                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>
-            </ant:classpath>
-        </ant:sql>
-    </goal>
-
-    <goal name="cli">
-
-        <!-- build the cli deployer archive -->
-        <ant:echo>Building the Command Line Deployer archive</ant:echo>
-        <j:set var="cliLibDir" value="cli-deployer-lib"/>
-        <j:set var="cliLib" value="${distDir}/${cliLibDir}"/>
-        <ant:mkdir dir="${cliLib}"/>
-        <j:forEach var="artifact" items="${pom.artifacts}">
-            <j:set var="dependency" value="${artifact.dependency}"/>
-            <j:if test="${dependency.getProperty('clideployer') == 'true'}">
-                <ant:copy todir="${cliLib}" file="${artifact.path}"/>
-                <j:set var="clideployer.classpath" value="${clideployer.classpath} ../${cliLibDir}/${artifact.name}"/>
-            </j:if>
-        </j:forEach>
-        <j:set var="cliDeployer" value="${basedir}/target/geronimo-cli-deployer"/>
-        <ant:mkdir dir="${cliDeployer}/jar/META-INF"/>
-        <ant:manifest file="${cliDeployer}/MANIFEST.MF">
-            <ant:attribute name="Main-Class" value="org.apache.geronimo.console.cli.Deployer"/>
-            <ant:attribute name="Class-Path" value="${clideployer.classpath}"/>
-        </ant:manifest>
-        <ant:jar basedir="${cliDeployer}/jar"
-            destfile="${distDir}/bin/cli-deployer.jar"
-            manifest="${cliDeployer}/MANIFEST.MF"/>
-
-    </goal>
-    <!--
-        <goal name="startdb">
-
             <deploy:distribute
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
                 password="manager"
-		module="${maven.repo.local}/tranql/rars/tranql-connector-${tranql_connector_version}.rar"
-                plan="target/plan/default-database-plan.xml"
-                />
-            <deploy:start
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-                username="system"
-                password="manager"
-                id="org/apache/geronimo/DefaultDatabase"/>
-        </goal>
-        <goal name="stopdb">
-            <deploy:stop
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-                username="system"
-                password="manager"
-                id="org/apache/geronimo/DefaultDatabase"/>
-            <ant:echo>undeploy</ant:echo>
-            <deploy:undeploy
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-                username="system"
-                password="manager"
-                id="org/apache/geronimo/DefaultDatabase"/>
-        </goal-->
+                plan="${basedir}/target/plan/default-database-plan.xml"
+                module="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar"/>
 
+            <!-- building system database configuration-->
+            <ant:echo>Building system database configuration</ant:echo>
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/system-database-plan.xml"
+                module="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar"/>
+
+            <!-- building system activemq configuration-->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/system-activemq-plan.xml"
+                />
+
+            <!-- building system jms configuration-->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/system-jms-plan.xml"
+                module="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"
+                />
+
+            <!-- build the spring runtime configuration -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/spring-runtime-plan.xml"
+                />
+
+            <!-- build the spring deployer configuration -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/spring-deployer-plan.xml"
+                />
+
+            <!-- build the J2EEServer secure configuration -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/j2ee-secure-plan.xml"
+                />
+
+            <!-- build the J2EE client configuration -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/j2ee-client-plan.xml"
+                />
+
+            <!-- build the directory server configuration -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/directory-server-plan.xml"/>
+
+            <!-- build the Demo configuration -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                module="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"
+                />
+
+            <!-- build the Welcome site configuration -->
+            <ant:echo>Building welcome website configuration</ant:echo>
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                module="${maven.repo.local}/geronimo/wars/geronimo-welcome-${pom.currentVersion}.war"/>
+
+            <!-- Management console -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                module="${maven.repo.local}/geronimo/ears/geronimo-console-${pom.currentVersion}.ear"/>
+
+            <!-- Debug Tool -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                module="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
+
+            <!-- UDDI -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                module="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
+
+            <!-- create SystemDatabase -->
+<!--            <attainGoal name="init-database"/>-->
+
+            <deploy:stopRemoteServer
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"/>
+            <echo message="server has stopped"/>
+
+            <!-- re-copy in persistent config list -->
+            <echo message="refreshing persistent configuration list"/>
+            <ant:copy todir="${geronimo.assembly.dir}/var" overwrite="true">
+                <ant:fileset dir="src/var">
+                    <include name="config/config.list"/>
+                </ant:fileset>
+            </ant:copy>
+        </j:if>
+
+        <!-- Prepare the Installer directory -->       
+        <ant:copy todir="${basedir}/target/installer">
+          <ant:fileset dir="${geronimo.assembly.dir}" />
+        </ant:copy>
+        <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>
+        <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>
+        <ant:echo file="${basedir}/target/installer/var/config/config.list" message="org/apache/geronimo/System"/>
+
+        <ant:move file="${basedir}/target/installer/config.xml"
+                  tofile="${basedir}/target/installer/var/config/config.xml" />
+    </goal>
+
+    <goal name="assembly" prereqs="assembly:build" description="Build a complete distribution."/>
+
+    <goal name="assembly:build-setup" description="Set up directories for a distribution build">
+        <ant:delete dir="${geronimo.assembly.distributions.dir}"/>
+        <ant:mkdir dir="${geronimo.assembly.distributions.dir}"/>
+    </goal>
+
+    <goal name="assembly:build" prereqs="assembly:build-setup,assembly:prepare-filesystem" description="Build the binary distribution.">
+        <!-- Create a tar.gz file -->
+        <m:makeRelativePath var="geronimo.assembly.dir.name"
+            basedir="${geronimo.assembly.dir}/.."
+            path="${geronimo.assembly.dir}"/>
+        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
+            <ant:tar longfile="gnu" compression="gzip" tarfile="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz">
+                <ant:tarfileset dir="${geronimo.assembly.dir}/..">
+                    <ant:include name="${geronimo.assembly.dir.name}/**"/>
+                </ant:tarfileset>
+            </ant:tar>
+            <checksum file="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz" algorithm="MD5" fileext=".md5"/>
+            <checksum file="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz" algorithm="SHA" fileext=".sha"/>
+        </j:if>
+
+        <!-- Create a zip file -->
+        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">
+            <ant:zip zipfile="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip">
+                <ant:zipfileset dir="${geronimo.assembly.dir}/..">
+                    <ant:include name="${geronimo.assembly.dir.name}/**"/>
+                </ant:zipfileset>
+            </ant:zip>
+            <checksum file="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip" algorithm="MD5" fileext=".md5"/>
+            <checksum file="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip" algorithm="SHA" fileext=".sha"/>
+        </j:if>
+    </goal>
+
+    <!-- ================================================================== -->
+    <!-- I N S T A L L   D I S T R I B U T I O N                            -->
+    <!-- ================================================================== -->
+
+    <!-- Maven artifict tags are broken so we must copy by hand -->
+    <goal name="assembly:install" description="Deploy a binary distribution" prereqs="assembly:build">
+        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
+            <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
+            <ant:copy file="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"
+                todir="${maven.repo.local}/${pom.groupId}/distributions"/>
+<!--            <artifact:install-->
+<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"-->
+<!--                type="distribution-targz"-->
+<!--                project="${pom}"-->
+        </j:if>
+
+        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">
+            <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
+            <ant:copy file="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"
+                todir="${maven.repo.local}/${pom.groupId}/distributions"/>
+<!--            <artifact:install-->
+<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"-->
+<!--                type="distribution-zip"-->
+<!--                project="${pom}"-->
+        </j:if>
+    </goal>
+
+    <!-- ================================================================== -->
+    <!-- D E P L O Y   D I S T R I B U T I O N                              -->
+    <!-- ================================================================== -->
+
+<!--    <goal name="assembly:deploy" description="Deploy a binary distribution" prereqs="assembly:build">-->
+<!--        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">-->
+<!--            <artifact:deploy-->
+<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"-->
+<!--                type="distribution-targz"-->
+<!--                project="${pom}"-->
+<!--                typeHandler="${distTypeHandler}"/>-->
+<!--        </j:if>-->
+<!---->
+<!--        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">-->
+<!--            <artifact:deploy-->
+<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"-->
+<!--                type="distribution-zip"-->
+<!--                project="${pom}"-->
+<!--                typeHandler="${distTypeHandler}"/>-->
+<!--        </j:if>-->
+<!--    </goal>-->
+
+    <!-- this does not appear to be used -->
+<!--    <goal name="init-database">-->
+<!--        <j:invokeStatic className="java.lang.System" method="setProperty">-->
+<!--            <j:arg type="java.lang.String" value="derby.system.home"/>-->
+<!--            <j:arg type="java.lang.String" value="${derby.system.home}"/>-->
+<!--        </j:invokeStatic>-->
+<!--        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:SystemDatabase;create=true" userid="" password="">-->
+<!--            <ant:fileset dir="src/sql"/>-->
+<!--            <ant:classpath>-->
+<!--                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>-->
+<!--            </ant:classpath>-->
+<!--        </ant:sql>-->
+<!--    </goal>-->
 </project>
