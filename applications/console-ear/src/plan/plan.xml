@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
-    configId="org/apache/geronimo/Console"
-    parentId="org/apache/geronimo/RuntimeDeployer">
+    configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+    parentId="${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car"
+    >
 
     <!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
     <dependency>
@@ -63,10 +64,10 @@
     <!-- Console specific server info -->
     <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
         <reference name="ServerInfo">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
         </reference>
         <reference name="LoginModule">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
         </reference>
     </gbean>
 </application>

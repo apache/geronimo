@@ -15,6 +15,7 @@
             <type>war</type>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.appxml.war.context-root>/console</ear.appxml.war.context-root>
             </properties>
         </dependency>
         <dependency>
@@ -24,39 +25,73 @@
             <type>war</type>
             <properties>
                 <ear.bundle>true</ear.bundle>
+                <ear.appxml.war.context-root>/console-standard</ear.appxml.war.context-root>
             </properties>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto</artifactId>
-            <version>${pluto_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-console-core</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
         <dependency>
             <groupId>portlet-api</groupId>
             <artifactId>portlet-api</artifactId>
             <version>${portlet_api_version}</version>
         </dependency>
         <dependency>
-            <groupId>castor</groupId>
-            <artifactId>castor</artifactId>
-            <version>${castor_version}</version>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto</artifactId>
+            <version>${pluto_version}</version>
         </dependency>
         <dependency>
-            <groupId>jstl</groupId>
-            <artifactId>jstl</artifactId>
-            <version>${jstl_version}</version>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-console-core</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
         </dependency>
         <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
-            <version>${standard_taglibs_version}</version>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${concurrent_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee</artifactId>
+            <version>${geronimo_spec_j2ee_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-server</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
         </dependency>
     </dependencies>
 </project>

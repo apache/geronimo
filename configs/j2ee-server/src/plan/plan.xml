@@ -59,6 +59,11 @@ by the server.
     </dependency>
     <dependency>
         <groupId>geronimo</groupId>
+        <artifactId>geronimo-common</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
         <artifactId>geronimo-connector</artifactId>
         <version>${geronimo_version}</version>
     </dependency>

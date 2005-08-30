@@ -32,6 +32,11 @@
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -64,6 +69,11 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>

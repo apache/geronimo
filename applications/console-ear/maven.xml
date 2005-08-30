@@ -8,9 +8,18 @@
         <attainGoal name="ear:install"/>
     </goal>
 
+    <!-- todo when the EAR plugin can generate a 1.4 DD remove this -->
+    <goal name="ear:generate-ear-descriptor">
+        <ant:echo>Generating ${maven.ear.descriptordir}/application.xml</ant:echo>
+        <velocity:merge basedir="${maven.ear.src}/META-INF" template="application.xml" name="${maven.ear.descriptordir}/application.xml"/>
+    </goal>
+
     <preGoal name="ear:ear">
-        <ant:mkdir dir="${basedir}/target/plan"/>        
-        <velocity:merge basedir="${basedir}/src/application/META-INF" template="application.xml" name="${basedir}/target/plan/application.xml"/>
-        <velocity:merge basedir="${basedir}/src/plan" template="geronimo-application.xml" name="${basedir}/src/application/META-INF/geronimo-application.xml"/>        
+        <ant:mkdir dir="${maven.ear.resources}/META-INF"/>
+        <velocity:merge basedir="${maven.src.dir}/plan" template="geronimo-application.xml" name="${maven.ear.resources}/META-INF/geronimo-application.xml"/>
     </preGoal>
+
+    <postGoal name="ear:install">
+        <attainGoal name="car:install"/>
+    </postGoal>
 </project>
