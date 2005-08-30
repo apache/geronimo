@@ -81,6 +81,7 @@
             <version>${geronimo_version}</version>
         </dependency>
 
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -93,6 +94,7 @@
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
+-->
     </dependencies>
 </project>
 

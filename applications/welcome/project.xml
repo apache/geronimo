@@ -33,6 +33,7 @@
 
     <dependencies>
         <!-- todo these are here purely to force the deployer to be built - work out how to remove them --> 
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-server</artifactId>
@@ -45,5 +46,6 @@
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
+-->
     </dependencies>
 </project>
