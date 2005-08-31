@@ -57,7 +57,7 @@
                 <j:set var="geronimoName" value="geronimo"/>
             </j:if>
             <j:if test="${targetDir == null}">
-                <j:set var="targetDir" value="${basedir}/target"/>
+                <j:set var="targetDir" value="${maven.build.dir}"/>
             </j:if>
 
             <unzip dest="${maven.build.dir}" src="${maven.repo.local}/${geronimoName}/distributions/${geronimoName}-${geronimo_version}.zip" />
