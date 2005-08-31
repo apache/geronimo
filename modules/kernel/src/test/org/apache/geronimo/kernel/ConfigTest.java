@@ -43,7 +43,6 @@ public class ConfigTest extends TestCase {
         // create the config gbean data
         GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
         config.setAttribute("id", id);
-        config.setReferencePatterns("Parent", null);
         config.setAttribute("classPath", Collections.EMPTY_LIST);
         config.setAttribute("gBeanState", state);
         config.setAttribute("dependencies", Collections.EMPTY_LIST);
@@ -98,7 +97,6 @@ public class ConfigTest extends TestCase {
         // create the config gbean data
         GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
         config.setAttribute("id", id);
-        config.setReferencePatterns("Parent", null);
         config.setAttribute("classPath", Collections.EMPTY_LIST);
         config.setAttribute("gBeanState", state);
         config.setAttribute("dependencies", Collections.EMPTY_LIST);
@@ -128,7 +126,7 @@ public class ConfigTest extends TestCase {
         assertEquals("1234", kernel.getAttribute(gbeanName3, "value"));
         assertEquals("child", kernel.getAttribute(gbeanName3, "name"));
 
-        
+
     }
 
     protected void setUp() throws Exception {

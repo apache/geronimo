@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -162,21 +163,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public ConfigurationData buildConfiguration(ConfigurationType configType, String domain, String server, File outfile) throws DeploymentException, IOException {
-        URI[] parentID = null;
-        if (configType.isSetParentId()) {
-            try {
-                String parentIdString = configType.getParentId();
-                String[] parentIdStrings = parentIdString.split(",");
-                parentID = new URI[parentIdStrings.length];
-                for (int i = 0; i < parentIdStrings.length; i++) {
-                    String idString = parentIdStrings[i];
-                    URI parent = new URI(idString);
-                    parentID[i] = parent;
-                }
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + configType.getParentId(), e);
-            }
-        } else {
+        URI[] parentID = getParentID(configType.getParentId(), configType.getImportArray());
+        if (parentID == null) {
             if (configType.isSetDomain()) {
                 if (!configType.isSetServer()) {
                     throw new DeploymentException("You must set both domain and server");
@@ -218,6 +206,26 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         addGBeans(gbeans, cl, j2eeContext, context);
         context.close();
         return context.getConfigurationData();
+    }
+
+    public static URI[] getParentID(String parentIDString, DependencyType[] imports) throws DeploymentException {
+        List uris = new ArrayList();
+        if (parentIDString != null) {
+            try {
+                uris.add(new URI(parentIDString));
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Invalid parentId " + parentIDString, e);
+            }
+        } else if (imports.length == 0) {
+            return null;
+        }
+        for (int i = 0; i < imports.length; i++) {
+            DependencyType anImport = imports[i];
+            URI parentURI = getDependencyURI(anImport);
+            uris.add(parentURI);
+        }
+        URI[] parentID = (URI[])uris.toArray(new URI[uris.size()]);
+        return parentID;
     }
 
     public static void addIncludes(DeploymentContext context, DependencyType[] includes, Repository repository) throws DeploymentException {
@@ -358,6 +366,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     private static URI getDependencyURI(DependencyType dep, Repository repository) throws DeploymentException {
+        URI uri = getDependencyURI(dep);
+        if (!repository.hasURI(uri)) {
+            throw new DeploymentException(new MissingDependencyException("uri " + uri + " not found in repository"));
+        }
+        return uri;
+    }
+
+    private static URI getDependencyURI(DependencyType dep) throws DeploymentException {
         URI uri;
         if (dep.isSetUri()) {
             try {
@@ -376,9 +392,6 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
             }
-        }
-        if (!repository.hasURI(uri)) {
-            throw new DeploymentException(new MissingDependencyException("uri " + uri + " not found in repository"));
         }
         return uri;
     }

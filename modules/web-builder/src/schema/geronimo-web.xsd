@@ -36,6 +36,7 @@
 
     <xs:complexType name="web-appType">
         <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>

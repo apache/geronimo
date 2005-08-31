@@ -49,6 +49,7 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -83,7 +84,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  *
  * @version $Rev$ $Date$
  */
-public class Configuration implements GBeanLifecycle {
+public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
     public static ObjectName getConfigurationObjectName(URI configId) throws MalformedObjectNameException {
@@ -145,7 +146,7 @@ public class Configuration implements GBeanLifecycle {
     /**
      * The classloader used to load the child GBeans contained in this configuration.
      */
-    private ConfigurationClassLoader configurationClassLoader;
+    private MultiParentClassLoader configurationClassLoader;
 
     /**
      * The GBeanData for the GBeans contained in this configuration.  These must be persisted as a ByteArray, becuase
@@ -158,11 +159,6 @@ public class Configuration implements GBeanLifecycle {
      * Base path used to resolve relative class path entries.
      */
     private final URL baseURL;
-
-    /**
-     * Parent of this configuration
-     */
-    private final ConfigurationParent parent;
 
     /**
      * The repositories used dependencies.
@@ -187,7 +183,6 @@ public class Configuration implements GBeanLifecycle {
         dependencies = null;
         classPath = null;
         baseURL = null;
-        parent = null;
         repositories = null;
         manageableStore = null;
     }
@@ -198,7 +193,6 @@ public class Configuration implements GBeanLifecycle {
      *
      * @param id           the unique id of this Configuration
      * @param moduleType   the module type identifier
-     * @param parent       the parent Configuration; may be null
      * @param classPath    a List<URI> of locations that define the codebase for this Configuration
      * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
@@ -210,7 +204,6 @@ public class Configuration implements GBeanLifecycle {
             ConfigurationModuleType moduleType,
             URL baseURL,
             URI[] parentId,
-            ConfigurationParent parent,
             String domain,
             String server,
             List classPath,
@@ -227,7 +220,6 @@ public class Configuration implements GBeanLifecycle {
         this.moduleType = moduleType;
         this.baseURL = baseURL;
         this.parentId = parentId;
-        this.parent = parent;
         this.gbeanState = gbeanState;
         this.repositories = repositories;
         if (classPath != null) {
@@ -246,6 +238,7 @@ public class Configuration implements GBeanLifecycle {
 
         this.domain = domain;
         this.server = server;
+        addParentDependencies(kernel, id, parentId);
     }
 
     public String getObjectName() {
@@ -265,13 +258,13 @@ public class Configuration implements GBeanLifecycle {
         URL[] urls = resolveClassPath(classPath, baseURL, dependencies, repositories);
         log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
 
-        if (parent == null) {
+        if (parentId == null || parentId.length == 0) {
             // no explicit parent set, so use the class loader of this class as
             // the parent... this class should be in the root geronimo classloader,
             // which is normally the system class loader but not always, so be safe
-            configurationClassLoader = new ConfigurationClassLoader(id, urls, getClass().getClassLoader());
+            configurationClassLoader = new MultiParentClassLoader(id, urls, getClass().getClassLoader());
         } else {
-            configurationClassLoader = new ConfigurationClassLoader(id, urls, parent.getConfigurationClassLoader());
+            configurationClassLoader = new MultiParentClassLoader(id, urls, getClassLoaders(parentId));
         }
 
         // DSS: why exactally are we doing this?  I bet there is a reason, but
@@ -296,6 +289,30 @@ public class Configuration implements GBeanLifecycle {
         }
 
         log.info("Started configuration " + id);
+    }
+
+    private void addParentDependencies(Kernel kernel, URI id, URI[] parentId) throws MalformedObjectNameException {
+        if (parentId != null && parentId.length > 0) {
+            ObjectName name = getConfigurationObjectName(id);
+            Set parentNames = new HashSet();
+            for (int i = 0; i < parentId.length; i++) {
+                URI uri = parentId[i];
+                ObjectName parentName = getConfigurationObjectName(uri);
+                parentNames.add(parentName);
+            }
+            DependencyManager dependencyManager = kernel.getDependencyManager();
+            dependencyManager.addDependencies(name, parentNames);
+        }
+    }
+
+    private ClassLoader[] getClassLoaders(URI[] parentId) throws Exception {
+        ClassLoader[] classLoaders = new ClassLoader[parentId.length];
+        for (int i = 0; i < parentId.length; i++) {
+            URI uri = parentId[i];
+            ObjectName parentName = getConfigurationObjectName(uri);
+            classLoaders[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
+        }
+        return classLoaders;
     }
 
     private static URL[] resolveClassPath(List classPath, URL baseURL, List dependencies, Collection repositories) throws MalformedURLException, MissingDependencyException {
@@ -603,7 +620,6 @@ public class Configuration implements GBeanLifecycle {
         infoFactory.addAttribute("baseURL", URL.class, true);
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
 
-        infoFactory.addReference("Parent", ConfigurationParent.class);
         infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addReference("ConfigurationStore", ConfigurationStore.class);
         infoFactory.addReference("AttributeStore", ManageableAttributeStore.class);
@@ -618,7 +634,6 @@ public class Configuration implements GBeanLifecycle {
             "type",
             "baseURL",
             "parentId",
-            "Parent",
             "domain",
             "server",
             "classPath",

@@ -36,6 +36,7 @@
 
     <xs:complexType name="configurationType">
         <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
@@ -53,6 +54,7 @@
         <xs:attribute name="server" type="xs:string" use="optional"/>
     </xs:complexType>
 
+    <xs:element name="import" type="sys:dependencyType"/>
     <xs:element name="dependency" type="sys:dependencyType"/>
     <xs:element name="gbean" type="sys:gbeanType"/>
 

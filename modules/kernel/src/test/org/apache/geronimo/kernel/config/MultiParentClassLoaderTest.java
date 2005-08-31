@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import java.net.URLClassLoader;
 import java.net.URL;
+import java.net.URI;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
@@ -48,7 +49,7 @@ public class MultiParentClassLoaderTest extends TestCase {
     private URLClassLoader[] parents;
     private File myFile;
     private MultiParentClassLoader classLoader;
-    private static final String NAME = "my test class loader";
+    private static final URI NAME = URI.create("myTestClassLoader");
 
     /**
      * Verify that the test jars are valid
@@ -88,7 +89,7 @@ public class MultiParentClassLoaderTest extends TestCase {
      * Verify the get name method returns the name provided to the constructor.
      */
     public void testGetName() {
-        assertEquals(NAME, classLoader.getName());
+        assertEquals(NAME, classLoader.getId());
     }
 
     /**

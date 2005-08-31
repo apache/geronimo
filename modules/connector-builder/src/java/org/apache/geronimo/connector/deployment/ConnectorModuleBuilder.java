@@ -219,21 +219,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Invalid configId " + gerConnector.getConfigId(), e);
         }
 
-        URI[] parentId = null;
-        if (gerConnector.isSetParentId()) {
-            String parentIdString = gerConnector.getParentId();
-            try {
-                 String[] parentIdStrings = parentIdString.split(",");
-                 parentId = new URI[parentIdStrings.length];
-                 for (int i = 0; i < parentIdStrings.length; i++) {
-                     String idString = parentIdStrings[i];
-                     URI parent = new URI(idString);
-                     parentId[i] = parent;
-                 }
-             } catch (URISyntaxException e) {
-                 throw new DeploymentException("Invalid parentId " + gerConnector.getParentId(), e);
-             }
-        } else {
+        URI[] parentId = ServiceConfigBuilder.getParentID(gerConnector.getParentId(), gerConnector.getImportArray());
+        if (parentId == null) {
             parentId = defaultParentId;
         }
         assert parentId != null;

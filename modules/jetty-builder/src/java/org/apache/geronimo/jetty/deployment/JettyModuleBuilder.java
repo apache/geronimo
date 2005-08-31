@@ -255,21 +255,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
         }
 
-        URI[] parentId = null;
-        if (jettyWebApp.isSetParentId()) {
-            String parentIdString = jettyWebApp.getParentId();
-            try {
-                String[] parentIdStrings = parentIdString.split(",");
-                parentId = new URI[parentIdStrings.length];
-                for (int i = 0; i < parentIdStrings.length; i++) {
-                    String idString = parentIdStrings[i];
-                    URI parent = new URI(idString);
-                    parentId[i] = parent;
-                }
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + parentIdString, e);
-            }
-        } else {
+        URI[] parentId = ServiceConfigBuilder.getParentID(jettyWebApp.getParentId(), jettyWebApp.getImportArray());
+        if (parentId == null) {
             parentId = defaultParentId;
         }
 

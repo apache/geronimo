@@ -177,23 +177,11 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + tomcatWebApp.getConfigId(), e);
         }
 
-        URI[] parentId = null;
-        if (tomcatWebApp.isSetParentId()) {
-            String parentIdString = tomcatWebApp.getParentId();
-            try {
-                String[] parentIdStrings = parentIdString.split(",");
-                parentId = new URI[parentIdStrings.length];
-                for (int i = 0; i < parentIdStrings.length; i++) {
-                    String idString = parentIdStrings[i];
-                    URI parent = new URI(idString);
-                    parentId[i] = parent;
-                }
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + parentIdString, e);
-            }
-        } else {
+        URI[] parentId = ServiceConfigBuilder.getParentID(tomcatWebApp.getParentId(), tomcatWebApp.getImportArray());
+        if (parentId == null) {
             parentId = defaultParentId;
         }
+
         if (contextRoot == null) {
             contextRoot = tomcatWebApp.getContextRoot();
         }

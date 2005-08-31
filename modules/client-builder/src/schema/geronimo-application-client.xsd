@@ -37,6 +37,7 @@
 
     <xs:complexType name="application-clientType">
         <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
 

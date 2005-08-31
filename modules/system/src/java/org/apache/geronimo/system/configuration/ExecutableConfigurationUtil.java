@@ -161,13 +161,6 @@ public final class ExecutableConfigurationUtil {
             URI[] parentId = configurationData.getParentId();
             if (parentId != null) {
                 config.setAttribute("parentId", parentId);
-                Set parentNames = new HashSet();
-                for (int i = 0; i < parentId.length; i++) {
-                    URI uri = parentId[i];
-                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
-                    parentNames.add(parentName);
-                }
-                config.setReferencePatterns("Parent", parentNames);
             }
 
             config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));

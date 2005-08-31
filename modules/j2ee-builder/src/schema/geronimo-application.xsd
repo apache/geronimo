@@ -33,6 +33,7 @@
 
     <xs:complexType name="applicationType">
         <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="module" type="geronimo:moduleType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ext-module" type="geronimo:ext-moduleType" minOccurs="0" maxOccurs="unbounded"/>

@@ -29,15 +29,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.ArrayList;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -52,11 +51,11 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
 
@@ -123,16 +122,19 @@ public class DeploymentContext {
 
             try {
                 startedAncestors = new LinkedList();
-                ObjectName ancestorName = parentName;
-                findToStart(ancestorName, kernel);
-                //we've found what we need to start, now start them.
-                for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
-                    ObjectName objectName = (ObjectName) iterator.next();
-                    kernel.startGBean(objectName);
-                    if (!isRunning(kernel, objectName)) {
-                        throw new DeploymentException("Failed to start parent configuration: " + objectName);
-                    }
+                for (int i = 0; i < parentId.length; i++) {
+                    URI uri = parentId[i];
+                    ObjectName ancestorName = Configuration.getConfigurationObjectName(uri);
+                    findToStart(ancestorName, kernel);
+                    //we've found what we need to start, now start them.
+                    for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
+                        ObjectName objectName = (ObjectName) iterator.next();
+                        kernel.startGBean(objectName);
+                        if (!isRunning(kernel, objectName)) {
+                            throw new DeploymentException("Failed to start parent configuration: " + objectName);
+                        }
 
+                    }
                 }
             } catch (DeploymentException e) {
                 throw e;
@@ -509,13 +511,6 @@ public class DeploymentContext {
         URI[] parentId = configurationData.getParentId();
         if (parentId != null) {
             config.setAttribute("parentId", parentId);
-            Set parentNames = new HashSet();
-            for (int i = 0; i < parentId.length; i++) {
-                URI uri = parentId[i];
-                ObjectName parentName = Configuration.getConfigurationObjectName(uri);
-                parentNames.add(parentName);
-            }
-            config.setReferencePatterns("Parent", parentNames);
         }
 
         config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans.getGBeans()));

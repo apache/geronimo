@@ -297,8 +297,8 @@
         </xs:annotation>
 
         <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
-<!--            <xs:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>-->
 
             <xs:element name="resourceadapter" type="ger:resourceadapterType" maxOccurs="unbounded"/>
 

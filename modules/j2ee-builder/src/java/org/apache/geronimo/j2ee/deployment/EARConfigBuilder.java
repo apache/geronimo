@@ -221,23 +221,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Invalid configId " + gerApplication.getConfigId(), e);
         }
 
-        URI[] parentId = null;
-        if (gerApplication.isSetParentId()) {
-            String parentIdString = gerApplication.getParentId();
-            try {
-                 String[] parentIdStrings = parentIdString.split(",");
-                 parentId = new URI[parentIdStrings.length];
-                 for (int i = 0; i < parentIdStrings.length; i++) {
-                     String idString = parentIdStrings[i];
-                     URI parent = new URI(idString);
-                     parentId[i] = parent;
-                 }
-             } catch (URISyntaxException e) {
-                 throw new DeploymentException("Invalid parentId " + gerApplication.getParentId(), e);
-             }
-        } else {
-            parentId = defaultParentId;
-        }
+        URI[] parentId = ServiceConfigBuilder.getParentID(gerApplication.getParentId(), gerApplication.getImportArray());
+         if (parentId == null) {
+             parentId = defaultParentId;
+         }
 
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate

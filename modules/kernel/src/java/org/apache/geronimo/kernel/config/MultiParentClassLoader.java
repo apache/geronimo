@@ -19,80 +19,88 @@ package org.apache.geronimo.kernel.config;
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.net.URLStreamHandlerFactory;
+import java.net.URI;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.lang.reflect.Field;
+
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A MultiParentClassLoader is a simple extension of the URLClassLoader that simply changes the single parent class
  * loader model to support a list of parent class loaders.  Each operation that accesses a parent, has been replaced
  * with a operation that checks each parent in order.  This getParent method of this class will always return null,
- * which may be interperated by the calling code to mean that this class loader is a direct child of the system class
+ * which may be interpreted by the calling code to mean that this class loader is a direct child of the system class
  * loader.
  * @version $Rev$ $Date$
  */
 public class MultiParentClassLoader extends URLClassLoader {
-    private final String name;
+    private final URI id;
     private final ClassLoader[] parents;
 
     /**
      * Creates a named class loader with no parents.
-     * @param name the name of this class loader
+     * @param id the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      */
-    public MultiParentClassLoader(String name, URL[] urls) {
+    public MultiParentClassLoader(URI id, URL[] urls) {
         super(urls);
-        this.name = name;
+        this.id = id;
         parents = new ClassLoader[0];
     }
 
     /**
      * Creates a named class loader as a child of the specified parent.
-     * @param name the name of this class loader
+     * @param id the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      * @param parent the parent of this class loader
      */
-    public MultiParentClassLoader(String name, URL[] urls, ClassLoader parent) {
-        this(name, urls, new ClassLoader[] {parent});
+    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent) {
+        this(id, urls, new ClassLoader[] {parent});
     }
 
     /**
      * Creates a named class loader as a child of the specified parent and using the specified URLStreamHandlerFactory
      * for accessing the urls..
-     * @param name the name of this class loader
+     * @param id the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      * @param parent the parent of this class loader
      * @param factory the URLStreamHandlerFactory used to access the urls
      */
-    public MultiParentClassLoader(String name, URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
-        this(name, urls, new ClassLoader[] {parent}, factory);
+    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
+        this(id, urls, new ClassLoader[] {parent}, factory);
     }
 
     /**
      * Creates a named class loader as a child of the specified parents.
-     * @param name the name of this class loader
+     * @param id the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      * @param parents the parents of this class loader
      */
-    public MultiParentClassLoader(String name, URL[] urls, ClassLoader[] parents) {
+    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents) {
         super(urls);
-        this.name = name;
+        this.id = id;
         this.parents = copyParents(parents);
     }
 
     /**
      * Creates a named class loader as a child of the specified parents and using the specified URLStreamHandlerFactory
      * for accessing the urls..
-     * @param name the name of this class loader
+     * @param id the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      * @param parents the parents of this class loader
      * @param factory the URLStreamHandlerFactory used to access the urls
      */
-    public MultiParentClassLoader(String name, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
+    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
         super(urls, null, factory);
-        this.name = name;
+        this.id = id;
         this.parents = copyParents(parents);
     }
 
@@ -109,11 +117,11 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     /**
-     * Gets the name of this class loader.
-     * @return the name of this class loader
+     * Gets the id of this class loader.
+     * @return the id of this class loader
      */
-    public String getName() {
-        return name;
+    public URI getId() {
+        return id;
     }
 
     /**
@@ -181,6 +189,39 @@ public class MultiParentClassLoader extends URLClassLoader {
     }
 
     public String toString() {
-        return "[" + getClass().getName() + " name=" + name + "]";
+        return "[" + getClass().getName() + " id=" + id + "]";
     }
+
+    public void destroy() {
+        LogFactory.release(this);
+        clearSoftCache(ObjectInputStream.class, "subclassAudits");
+        clearSoftCache(ObjectOutputStream.class, "subclassAudits");
+        clearSoftCache(ObjectStreamClass.class, "localDescs");
+        clearSoftCache(ObjectStreamClass.class, "reflectors");
+    }
+
+    private static Object lock = new Object();
+    private static boolean clearSoftCacheFailed = false;
+    private static void clearSoftCache(Class clazz, String fieldName) {
+        Map cache = null;
+        try {
+            Field f = clazz.getDeclaredField(fieldName);
+            f.setAccessible(true);
+            cache = (Map) f.get(null);
+        } catch (Throwable e) {
+            synchronized (lock) {
+                if (!clearSoftCacheFailed) {
+                    clearSoftCacheFailed = true;
+                    LogFactory.getLog(ConfigurationClassLoader.class).error("Unable to clear SoftCache field " + fieldName + " in class " + clazz);
+                }
+            }
+        }
+
+        if (cache != null) {
+            synchronized (cache) {
+                cache.clear();
+            }
+        }
+    }
+    
 }

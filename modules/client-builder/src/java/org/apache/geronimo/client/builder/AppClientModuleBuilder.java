@@ -176,7 +176,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         URI[] parentId = null;
         if (gerAppClient.isSetParentId()) {
-                parentId = getParentIds(gerAppClient.getParentId());
+            String parentIdString = gerAppClient.getParentId();
+            try {
+                parentId = new URI[] {new URI(parentIdString)};
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Could not create parentId uri from " + parentIdString, e);
+            }
         } else {
             parentId = defaultServerParentId;
         }
@@ -336,10 +341,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 try {
 
                     URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
-                    URI[] clientParentId;
-                    if (geronimoAppClient.isSetClientParentId()) {
-                        clientParentId = getParentIds(geronimoAppClient.getClientParentId());
-                    } else {
+                    URI[] clientParentId = ServiceConfigBuilder.getParentID(geronimoAppClient.getClientParentId(), geronimoAppClient.getImportArray());
+                    if (clientParentId == null) {
                         clientParentId = defaultClientParentId;
                     }
                     appClientDeploymentContext = new EARContext(appClientDir,
