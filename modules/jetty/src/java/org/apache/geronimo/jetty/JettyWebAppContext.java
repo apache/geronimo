@@ -352,6 +352,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             leaveContextScope(null, null, context);
             jettyContainer.removeContext(this);
         }
+
+        // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
+        LogFactory.release(webClassLoader);
+        
         log.info("JettyWebAppContext stopped");
     }
 

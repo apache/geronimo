@@ -379,11 +379,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public void doStop() throws Exception {
         container.removeContext(this);
 
+        // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
+        LogFactory.release(webClassLoader);
+
         log.info("TomcatWebAppContext stopped");
     }
 
     public void doFail() {
         container.removeContext(this);
+
+        // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
+        LogFactory.release(webClassLoader);
 
         log.info("TomcatWebAppContext failed");
     }
