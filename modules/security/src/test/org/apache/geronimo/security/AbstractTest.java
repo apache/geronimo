@@ -59,7 +59,7 @@ public abstract class AbstractTest extends TestCase {
 
         // Create all the parts
 
-        loginService = JaasLoginService.OBJECT_NAME;
+        loginService = new ObjectName("test:name=TestLoginService");
         gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
 //        gbean.setAttribute("reclaimPeriod", new Long(10 * 1000));  // todo check other tests to see if ok
@@ -87,6 +87,7 @@ public abstract class AbstractTest extends TestCase {
 //        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=TestModule");
 //        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");

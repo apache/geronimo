@@ -31,6 +31,12 @@ import org.apache.geronimo.common.GeronimoSecurityException;
  */
 public interface JaasLoginServiceMBean {
     /**
+     * Return the object name of this login service.
+     * @return the object name of this service
+     */
+    public String getObjectName();
+
+    /**
      * GBean property
      */
     public Collection getRealms() throws GeronimoSecurityException;

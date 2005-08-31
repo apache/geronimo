@@ -185,7 +185,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Remote Login Listener", JaasLoginServiceRemotingServer.class); //has fixed name, j2eeType is irrelevant
         infoFactory.addAttribute("clientConnectURI", URI.class, false);
-        infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "GBean");
+        infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "JaasLoginService");
         infoFactory.addInterface(NetworkConnector.class, new String[]{"host","port","protocol"}, new String[]{"host","port"});
         infoFactory.setConstructor(new String[]{"protocol", "host", "port", "LoginService"});
         GBEAN_INFO = infoFactory.getBeanInfo();

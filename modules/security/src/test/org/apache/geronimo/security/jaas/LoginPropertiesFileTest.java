@@ -109,6 +109,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
 //        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

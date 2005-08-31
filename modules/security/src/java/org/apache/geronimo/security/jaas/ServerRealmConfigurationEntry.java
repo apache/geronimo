@@ -36,14 +36,16 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
     private final String applicationConfigName;
     private final String realmName;
     private final Kernel kernel;
+    private final JaasLoginServiceMBean loginService;
 
     public ServerRealmConfigurationEntry() {
         this.applicationConfigName = null;
         this.realmName = null;
         this.kernel = null;
+        this.loginService = null;
     }
 
-    public ServerRealmConfigurationEntry(String applicationConfigName, String realmName, Kernel kernel) {
+    public ServerRealmConfigurationEntry(String applicationConfigName, String realmName, Kernel kernel, JaasLoginServiceMBean loginService) {
         this.applicationConfigName = applicationConfigName;
         this.realmName = realmName;
         if(applicationConfigName == null || realmName == null) {
@@ -53,6 +55,7 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
             throw new IllegalArgumentException("applicationConfigName must be different than realmName (there's an automatic entry using the same name as the realm name, so you don't need a ServerRealmConfigurationEntry if you're just going to use that!)");
         }
         this.kernel = kernel;
+        this.loginService = loginService;
     }
 
     public String getConfigurationName() {
@@ -61,6 +64,10 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
 
     public JaasLoginModuleConfiguration generateConfiguration() {
         Properties options = new Properties();
+        options.put(JaasLoginCoordinator.OPTION_REALM, realmName);
+        options.put(JaasLoginCoordinator.OPTION_KERNEL, kernel.getKernelName());
+        options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
+
         options.put("realm", realmName);
         options.put("kernel", kernel.getKernelName());
 
@@ -75,8 +82,9 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "JaasLoginService");
 
-        infoFactory.setConstructor(new String[]{"applicationConfigName", "realmName", "kernel"});
+        infoFactory.setConstructor(new String[]{"applicationConfigName", "realmName", "kernel", "LoginService"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

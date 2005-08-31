@@ -192,7 +192,7 @@ public class AbstractWebModuleTest extends TestCase {
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
         securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
 
-        loginServiceName = JaasLoginService.OBJECT_NAME;
+        loginServiceName = new ObjectName("test:name=TestLoginService");
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
         loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
 //        loginServiceGBean.setAttribute("reclaimPeriod", new Long(1000 * 1000));
@@ -219,6 +219,7 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean = new GBeanData(propertiesRealmName, GenericSecurityRealm.GBEAN_INFO);
         propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean.setAttribute("realmName", "demo-properties-realm");
+        propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
 //        Properties config = new Properties();
 //        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
 //        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);

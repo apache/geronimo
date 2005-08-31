@@ -34,6 +34,7 @@ import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -71,6 +72,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  */
 public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory {
 
+    private final JaasLoginServiceMBean loginService;
     private final String realmName;
     private JaasLoginModuleConfiguration[] config;
     private final Kernel kernel;
@@ -87,11 +89,13 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
                                 Principal defaultPrincipal,
                                 ServerInfo serverInfo,
                                 ClassLoader classLoader,
-                                Kernel kernel) {
+                                Kernel kernel,
+                                JaasLoginServiceMBean loginService) {
         this.realmName = realmName;
         this.kernel = kernel;
         this.restrictPrincipalsToServer = restrictPrincipalsToServer;
         this.defaultPrincipal = defaultPrincipal;
+        this.loginService = loginService;
 
         Set domainNames = new HashSet();
         List loginModuleConfigurations = new ArrayList();
@@ -150,8 +154,9 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
     public JaasLoginModuleConfiguration generateConfiguration() {
         Map options = new HashMap();
-        options.put("realm", realmName);
-        options.put("kernel", kernel.getKernelName());
+        options.put(JaasLoginCoordinator.OPTION_REALM, realmName);
+        options.put(JaasLoginCoordinator.OPTION_KERNEL, kernel.getKernelName());
+        options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
 
         return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName);
     }
@@ -172,6 +177,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
         infoFactory.addReference("LoginModuleConfiguration", JaasLoginModuleUse.class, "LoginModuleUse");
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "JaasLoginService");
 
         infoFactory.addOperation("getAppConfigurationEntries", new Class[0]);
 
@@ -181,7 +187,8 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
                                                 "defaultPrincipal",
                                                 "ServerInfo",
                                                 "classLoader",
-                                                "kernel"});
+                                                "kernel",
+                                                "LoginService"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

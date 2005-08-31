@@ -230,7 +230,7 @@ public class AbstractWebModuleTest extends TestCase {
         securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
         securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
 
-        loginServiceName = JaasLoginService.OBJECT_NAME;
+        loginServiceName = new ObjectName("test:name=TestLoginService");
         loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
         loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
         loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
@@ -256,6 +256,7 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean.setAttribute("realmName", "Geronimo");
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
         Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
         principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
@@ -265,6 +266,7 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean2.setReferencePattern("ServerInfo", serverInfoName);
         propertiesRealmGBean2.setAttribute("realmName", REALM_NAME);
         propertiesRealmGBean2.setReferencePattern("LoginModuleConfiguration", testUseName);
+        propertiesRealmGBean2.setReferencePattern("LoginService", loginServiceName);
         Principal.PrincipalEditor principalEditor2 = new Principal.PrincipalEditor();
         principalEditor2.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean2.setAttribute("defaultPrincipal", principalEditor2.getValue());

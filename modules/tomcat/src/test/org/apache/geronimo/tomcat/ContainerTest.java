@@ -191,7 +191,7 @@ public class ContainerTest extends TestCase {
        securityServiceGBean.setAttribute("policyConfigurationFactory", "org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory");
        securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
 
-       loginServiceName = JaasLoginService.OBJECT_NAME;
+       loginServiceName = new ObjectName("test:name=TestLoginService");
        loginServiceGBean = new GBeanData(loginServiceName, JaasLoginService.GBEAN_INFO);
        loginServiceGBean.setReferencePattern("Realms", new ObjectName("geronimo.server:j2eeType=SecurityRealm,*"));
        loginServiceGBean.setAttribute("algorithm", "HmacSHA1");
@@ -217,6 +217,7 @@ public class ContainerTest extends TestCase {
        propertiesRealmGBean.setReferencePattern("ServerInfo", serverInfoName);
        propertiesRealmGBean.setAttribute("realmName", "Geronimo");
        propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
+       propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
        Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
        principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
        propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());

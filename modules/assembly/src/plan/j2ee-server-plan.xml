@@ -172,6 +172,7 @@ by the server.
             <name>properties-login</name>
         </reference>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
     </gbean>
     <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
          <attribute name="controlFlag">REQUIRED</attribute>
@@ -184,6 +185,7 @@ by the server.
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">JMX</attribute>
         <attribute name="realmName">geronimo-properties-realm</attribute>
+        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
     </gbean>
 
     <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->

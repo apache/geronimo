@@ -119,6 +119,7 @@ public class TimeoutTest extends AbstractTest {
 //        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         clientLM = new ObjectName("geronimo.security:type=LoginModule,name=properties-client");

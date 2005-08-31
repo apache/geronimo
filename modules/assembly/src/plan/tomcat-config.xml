@@ -101,6 +101,7 @@ by the server.
             <module>org/apache/geronimo/System</module>
             <name>ServerInfo</name>
         </reference>
+        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
     </gbean>
 
     <gbean name="tomcat-properties" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">

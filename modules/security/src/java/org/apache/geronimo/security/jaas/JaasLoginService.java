@@ -62,7 +62,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
-    public static final ObjectName OBJECT_NAME = JMXUtil.getObjectName("geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JaasLoginService");
     public static final Log log = LogFactory.getLog(JaasLoginService.class);
     private final static int DEFAULT_EXPIRED_LOGIN_SCAN_INTERVAL = 300000; // 5 mins
     private final static int DEFAULT_MAX_LOGIN_DURATION = 1000 * 3600 * 24; // 1 day
@@ -70,6 +69,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     private static long nextLoginModuleId = System.currentTimeMillis();
     private ReferenceCollection realms;
     private Object expiredLoginScanIdentifier;
+    private final String objectName;
     private final SecretKey key;
     private final String algorithm;
     private final ClassLoader classLoader;
@@ -77,11 +77,16 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     private int expiredLoginScanIntervalMillis = DEFAULT_EXPIRED_LOGIN_SCAN_INTERVAL;
     private int maxLoginDurationMillis = DEFAULT_MAX_LOGIN_DURATION;
 
-    public JaasLoginService(String algorithm, String password, ClassLoader classLoader) {
+    public JaasLoginService(String algorithm, String password, ClassLoader classLoader, String objectName) {
         this.classLoader = classLoader;
         this.algorithm = algorithm;
         //todo: password could just be randomly generated??
         key = new SecretKeySpec(password.getBytes(), algorithm);
+        this.objectName = objectName;
+    }
+
+    public String getObjectName() {
+        return objectName;
     }
 
     /**
@@ -414,13 +419,14 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginService.class); //just a gbean
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginService.class, "JaasLoginService"); //just a gbean
 
         infoFactory.addAttribute("algorithm", String.class, true);
         infoFactory.addAttribute("password", String.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("maxLoginDurationMillis", int.class, true);
         infoFactory.addAttribute("expiredLoginScanIntervalMillis", int.class, true);
+        infoFactory.addAttribute("objectName", String.class, false);
 
         infoFactory.addOperation("connectToRealm", new Class[]{String.class});
         infoFactory.addOperation("getLoginConfiguration", new Class[]{JaasClientId.class});
@@ -434,7 +440,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
 
         infoFactory.addReference("Realms", SecurityRealm.class, NameFactory.SECURITY_REALM);
 
-        infoFactory.setConstructor(new String[]{"algorithm", "password", "classLoader"});
+        infoFactory.setConstructor(new String[]{"algorithm", "password", "classLoader", "objectName"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

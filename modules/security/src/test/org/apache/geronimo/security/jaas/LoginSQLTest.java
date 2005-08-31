@@ -110,6 +110,7 @@ public class LoginSQLTest extends AbstractTest {
 //        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=sql");
 //        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
         kernel.startGBean(sqlRealm);
 

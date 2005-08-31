@@ -29,6 +29,8 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
@@ -52,10 +54,12 @@ public class JaasLoginCoordinator implements LoginModule {
     public final static String OPTION_PORT = "port";
     public final static String OPTION_KERNEL = "kernel";
     public final static String OPTION_REALM = "realm";
+    public final static String OPTION_SERVICENAME = "serviceName";
     private String serverHost;
     private int serverPort;
     private String realmName;
     private String kernelName;
+    private ObjectName serviceName;
     private JaasLoginServiceMBean service;
     private CallbackHandler handler;
     private Subject subject;
@@ -73,6 +77,12 @@ public class JaasLoginCoordinator implements LoginModule {
         }
         realmName = (String) options.get(OPTION_REALM);
         kernelName = (String) options.get(OPTION_KERNEL);
+        try {
+            String s = (String) options.get(OPTION_SERVICENAME);
+            serviceName = s != null ? new ObjectName(s) : null;
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalArgumentException("option " + OPTION_SERVICENAME + "is not a valid ObjectName: " + options.get(OPTION_SERVICENAME));
+        }
         service = connect();
         handler = callbackHandler;
         if(subject == null) {
@@ -160,7 +170,7 @@ public class JaasLoginCoordinator implements LoginModule {
             return JaasLoginServiceRemotingClient.create(serverHost, serverPort);
         } else {
             Kernel kernel = KernelRegistry.getKernel(kernelName);
-            return (JaasLoginServiceMBean) kernel.getProxyManager().createProxy(JaasLoginService.OBJECT_NAME, JaasLoginServiceMBean.class);
+            return (JaasLoginServiceMBean) kernel.getProxyManager().createProxy(serviceName, JaasLoginServiceMBean.class);
         }
     }
 

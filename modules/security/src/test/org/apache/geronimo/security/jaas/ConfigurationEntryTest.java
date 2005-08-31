@@ -154,7 +154,7 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setReferencePatterns("Configurations", configurations);
         kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
 
-        loginService = JaasLoginService.OBJECT_NAME;
+        loginService = new ObjectName("test:name=TestLoginService");
         gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
         gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
 //        gbean.setAttribute("reclaimPeriod", new Long(100));
@@ -166,6 +166,7 @@ public class ConfigurationEntryTest extends TestCase {
         gbean = new GBeanData(clientCE, ServerRealmConfigurationEntry.getGBeanInfo());
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("realmName", "properties-realm");
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, ServerRealmConfigurationEntry.class.getClassLoader());
 
         testProperties = new ObjectName("geronimo.security:type=LoginModule,name=properties");
@@ -225,6 +226,7 @@ public class ConfigurationEntryTest extends TestCase {
 //        gbean.setAttribute("loginModuleConfiguration", props);
         gbean.setReferencePattern("LoginModuleConfiguration", testUseName1);
         gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
