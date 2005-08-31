@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +55,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
 
@@ -63,6 +63,8 @@ import org.apache.geronimo.kernel.repository.Repository;
  * @version $Rev$ $Date$
  */
 public class DeploymentContext {
+
+    private static final ClassLoader[] DEFAULT_PARENT_CLASSLOADERS = new ClassLoader[] {DeploymentContext.class.getClassLoader()};
     private final Kernel kernel;
     private final ConfigurationData configurationData;
     private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
@@ -71,13 +73,13 @@ public class DeploymentContext {
     private final byte[] buffer = new byte[4096];
     private final List loadedAncestors = new ArrayList();
     private final LinkedList startedAncestors;
-    private final ClassLoader parentCL;
+    private final ClassLoader[] parentCL;
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentID, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentID, Kernel kernel) throws DeploymentException {
         this(baseDir, configId, type, parentID, null, null, kernel);
     }
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentId, String domain, String server, Kernel kernel) throws MalformedObjectNameException, DeploymentException {
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentId, String domain, String server, Kernel kernel) throws DeploymentException {
         assert baseDir != null: "baseDir is null";
         assert configId != null: "configID is null";
         assert type != null: "type is null";
@@ -101,7 +103,6 @@ public class DeploymentContext {
         if (kernel != null && parentId != null && parentId.length > 0) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
-            ObjectName parentName = Configuration.getConfigurationObjectName(parentId[0]);
             try {
                 for (int i = 0; i < parentId.length; i++) {
                     URI uri = parentId[i];
@@ -114,6 +115,7 @@ public class DeploymentContext {
             }
 
             try {
+                ObjectName parentName = Configuration.getConfigurationObjectName(parentId[0]);
                 domain = (String) kernel.getAttribute(parentName, "domain");
                 server = (String) kernel.getAttribute(parentName, "server");
             } catch (Exception e) {
@@ -143,7 +145,13 @@ public class DeploymentContext {
             }
 
             try {
-                parentCL = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
+                parentCL = new ClassLoader[parentId.length];
+                for (int i = 0; i < parentId.length; i++) {
+                    URI uri = parentId[i];
+                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
+                    parentCL[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
+                }
+
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
@@ -152,7 +160,7 @@ public class DeploymentContext {
             // no explicit parent set, so use the class loader of this class as
             // the parent... this class should be in the root geronimo classloader,
             // which is normally the system class loader but not always, so be safe
-            parentCL = getClass().getClassLoader();
+            parentCL = DEFAULT_PARENT_CLASSLOADERS;
         }
 
         //check that domain and server are now known
@@ -451,7 +459,7 @@ public class DeploymentContext {
             throw new DeploymentException(e);
         }
 
-        return new URLClassLoader(urls, parentCL);
+        return new MultiParentClassLoader(configurationData.getId(), urls, parentCL);
     }
 
     public void close() throws IOException, DeploymentException {
