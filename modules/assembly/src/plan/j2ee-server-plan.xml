@@ -149,6 +149,17 @@ by the server.
         <uri>jdom/jars/jdom-1.0.jar</uri>
     </dependency>
 
+    <!-- Derby classes must be loaded from a common classloader -->
+    <dependency>
+        <uri>org.apache.derby/jars/derby-${derby_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>org.apache.derby/jars/derbynet-${derby_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
+    </dependency>
+
 
 
     ${webcontainer}

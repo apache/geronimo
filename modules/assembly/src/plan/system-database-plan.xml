@@ -23,16 +23,6 @@
     configId="org/apache/geronimo/SystemDatabase"
     parentId="org/apache/geronimo/Server">
 
-    <dependency>
-        <uri>org.apache.derby/jars/derby-${derby_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>org.apache.derby/jars/derbynet-${derby_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
-    </dependency>                      
-
     <resourceadapter>
         <outbound-resourceadapter>
             <connection-definition>
