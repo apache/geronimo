@@ -46,11 +46,21 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     private final Kernel kernel;
     private final Collection stores;
     private final ShutdownHook shutdownHook;
+    private static final ObjectName CONFIGURATION_NAME_QUERY;
+
+    static {
+        try {
+            CONFIGURATION_NAME_QUERY = new ObjectName("geronimo.config:*");
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException("could not create object name... bug", e);
+        }
+    }
 
     public ConfigurationManagerImpl(Kernel kernel, Collection stores) {
         this.kernel = kernel;
         this.stores = stores;
         shutdownHook = new ShutdownHook(kernel);
+
     }
 
     public List listStores() {
@@ -97,21 +107,28 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
 
     public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         LinkedList ancestors = new LinkedList();
-        loadRecursive(configID, ancestors);
+        Set preloaded = kernel.listGBeans(CONFIGURATION_NAME_QUERY);
+        loadRecursive(configID, ancestors, preloaded);
         return ancestors;
     }
 
-    private void loadRecursive(URI configID, LinkedList ancestors) throws NoSuchConfigException, IOException, InvalidConfigException {
+    private void loadRecursive(URI configID, LinkedList ancestors, Set preloaded) throws NoSuchConfigException, IOException, InvalidConfigException {
         try {
-            while (configID != null && !isLoaded(configID)) {
-                ObjectName name = load(configID);
-                ancestors.addFirst(name);
-                URI[] parents = (URI[]) kernel.getAttribute(name, "parentId");
-                if (parents != null) {
-                    for (int i = 0; i < parents.length; i++) {
-                        URI parent = parents[i];
-                        loadRecursive(parent, ancestors);
-                    }
+            ObjectName name = Configuration.getConfigurationObjectName(configID);
+            if (preloaded.contains(name)) {
+                return;
+            }
+            if (!isLoaded(configID)) {
+                load(configID);
+            }
+            //put the earliest ancestors first, even if we have already started them.
+            ancestors.remove(name);
+            ancestors.addFirst(name);
+            URI[] parents = (URI[]) kernel.getAttribute(name, "parentId");
+            if (parents != null) {
+                for (int i = 0; i < parents.length; i++) {
+                    URI parent = parents[i];
+                    loadRecursive(parent, ancestors, preloaded);
                 }
             }
         } catch (NoSuchConfigException e) {
