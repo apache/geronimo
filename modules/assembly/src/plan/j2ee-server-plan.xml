@@ -42,6 +42,9 @@ by the server.
         <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>geronimo/jars/geronimo-mail-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
@@ -310,6 +313,11 @@ by the server.
         <attribute name="applicationConfigName">JMX</attribute>
     </gbean>
 
+    <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean">
+        <attribute name="properties">
+                mail.smtp.host=mail.apache.com
+        </attribute>
+    </gbean>
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
