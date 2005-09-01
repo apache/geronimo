@@ -160,6 +160,10 @@ public class GeronimoStandardContext extends StandardContext{
         Wrapper wrapper = (Wrapper) child;
         
         String servletClassName = wrapper.getServletClass();
+        if (servletClassName == null){
+            super.addChild(child);
+            return;
+        }
         
         ClassLoader cl = this.getParentClassLoader();
         
