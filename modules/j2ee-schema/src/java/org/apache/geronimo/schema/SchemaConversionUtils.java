@@ -394,6 +394,7 @@ public class SchemaConversionUtils {
                 if (cursor.isStart()) {
                     String localName = cursor.getName().getLocalPart();
                     if (localName.equals("gbean")
+                            || localName.equals("import")
                             || localName.equals("dependency")
                             || localName.equals("include")) {
                         convertElementToSchema(cursor, end, GERONIMO_SERVICE_NAMESPACE);
