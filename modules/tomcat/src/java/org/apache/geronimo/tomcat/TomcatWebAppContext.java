@@ -278,7 +278,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     }
 
     public void setContextPath(String path) {
-        this.path = path;
+        this.path = path.startsWith("/") ? path : "/" + path;
     }
 
     public SecurityHolder getSecurityHolder() {
