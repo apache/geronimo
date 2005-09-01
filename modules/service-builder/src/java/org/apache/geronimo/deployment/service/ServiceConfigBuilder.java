@@ -146,15 +146,15 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
-         ConfigurationType configType = (ConfigurationType) plan;
-         try {
-             return new URI(configType.getConfigId());
-         } catch (URISyntaxException e) {
-             throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
-         }
-     }
+        ConfigurationType configType = (ConfigurationType) plan;
+        try {
+            return new URI(configType.getConfigId());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
+        }
+    }
 
-     public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
+    public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         String domain = null;
         String server = null;
@@ -191,11 +191,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
 
         DeploymentContext context = null;
-        try {
-            context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, domain, server, kernel);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException(e);
-        }
+        context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, domain, server, kernel);
 
         J2eeContext j2eeContext = new J2eeContextImpl(context.getDomain(), context.getServer(), NameFactory.NULL, NameFactory.J2EE_MODULE, configID.toString(), null, null);
         DependencyType[] includes = configType.getIncludeArray();
@@ -224,7 +220,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             URI parentURI = getDependencyURI(anImport);
             uris.add(parentURI);
         }
-        URI[] parentID = (URI[])uris.toArray(new URI[uris.size()]);
+        URI[] parentID = (URI[]) uris.toArray(new URI[uris.size()]);
         return parentID;
     }
 

@@ -58,6 +58,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
     private String deploymentDependencies;
 
     public static final GBeanInfo GBEAN_INFO;
+
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceMixConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addInterface(ConfigurationBuilder.class);
@@ -106,12 +107,12 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
             }
             return properties;
         } catch (Exception e) {
-            throw new DeploymentException("Could not load META-INF/jbi-geronimo.properties: "+e,e);
+            throw new DeploymentException("Could not load META-INF/jbi-geronimo.properties: " + e, e);
         }
     }
 
     public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
-        Properties properties = (Properties)plan;
+        Properties properties = (Properties) plan;
         try {
             return new URI(properties.getProperty("configID"));
         } catch (URISyntaxException e1) {
@@ -121,7 +122,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
 
     public ConfigurationData buildConfiguration(Object plan, JarFile module, File outfile) throws IOException, DeploymentException {
         log.debug("Installing ServiceMix deployment.");
-        Properties properties = (Properties)plan;
+        Properties properties = (Properties) plan;
 
         URI[] parentID = defaultParentId;
         URI configID;
@@ -132,11 +133,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
         }
 
         DeploymentContext context = null;
-        try {
-            context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, null, null, kernel);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException(e);
-        }
+        context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, null, null, kernel);
 
         // Copy over all files.
         for (Enumeration e = module.entries(); e.hasMoreElements();) {
@@ -154,18 +151,18 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
 
             context.addGBean(gbeanData);
         } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Invalid gbean name: "+e,e);
+            throw new DeploymentException("Invalid gbean name: " + e, e);
         }
 
-        if( deploymentDependencies!=null ) {
+        if (deploymentDependencies != null) {
             String[] strings = deploymentDependencies.split("\\,");
             for (int i = 0; i < strings.length; i++) {
                 strings[i] = strings[i].trim();
-                if( strings[i].length()>0 ) {
+                if (strings[i].length() > 0) {
                     try {
-                    context.addDependency(new URI(strings[i]));
+                        context.addDependency(new URI(strings[i]));
                     } catch (URISyntaxException e) {
-                        throw new DeploymentException("Invalid dependency URI: "+strings[i],e);
+                        throw new DeploymentException("Invalid dependency URI: " + strings[i], e);
                     }
                 }
             }
@@ -176,7 +173,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
         try {
             configurationData.addClassPathLocation(new URI("."));
         } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not set classpath: "+e,e);
+            throw new DeploymentException("Could not set classpath: " + e, e);
         }
         return configurationData;
     }
