@@ -166,8 +166,17 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Connector", HttpsConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
+        infoFactory.addAttribute("keystoreFileName", String.class, true, true);
+        infoFactory.addAttribute("algorithm", String.class, true, true);
+        infoFactory.addAttribute("keystorePassword", String.class, true, true);
+// todo should we support this?
+//        infoFactory.addAttribute("keyPassword", String.class, true, true);
+        infoFactory.addAttribute("secureProtocol", String.class, true, true);
+        infoFactory.addAttribute("keystoreType", String.class, true, true);
+        infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
+        infoFactory.addInterface(SecureConnector.class);
+
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-        infoFactory.addInterface(SecureConnector.class, new String[]{"keystoreFileName", "keystorePassword", "keystoreType", "algorithm", "secureProtocol", "clientAuthRequired"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

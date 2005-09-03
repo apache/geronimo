@@ -125,13 +125,13 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Connector HTTPS", HTTPSConnector.class, JettyConnector.GBEAN_INFO);
-        infoFactory.addAttribute("keystoreFileName", String.class, true);
-        infoFactory.addAttribute("algorithm", String.class, true);
-        infoFactory.addAttribute("keystorePassword", String.class, true);
-        infoFactory.addAttribute("keyPassword", String.class, true);
-        infoFactory.addAttribute("secureProtocol", String.class, true);
-        infoFactory.addAttribute("keystoreType", String.class, true);
-        infoFactory.addAttribute("clientAuthRequired", boolean.class, true);
+        infoFactory.addAttribute("keystoreFileName", String.class, true, true);
+        infoFactory.addAttribute("algorithm", String.class, true, true);
+        infoFactory.addAttribute("keystorePassword", String.class, true, true);
+        infoFactory.addAttribute("keyPassword", String.class, true, true);
+        infoFactory.addAttribute("secureProtocol", String.class, true, true);
+        infoFactory.addAttribute("keystoreType", String.class, true, true);
+        infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(JettySecureConnector.class);
         infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
