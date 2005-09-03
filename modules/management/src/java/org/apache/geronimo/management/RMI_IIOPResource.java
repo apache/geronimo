@@ -21,5 +21,5 @@ package org.apache.geronimo.management;
  *
  * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
  */
-public interface RMIIIOPResource extends J2EEResource {
+public interface RMI_IIOPResource extends J2EEResource {
 }

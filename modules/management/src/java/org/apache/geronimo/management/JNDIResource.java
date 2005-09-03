@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2003-2004 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package org.apache.geronimo.management;
 
 /**
- * Represents the JSR-77 type with the same name
+ * See JSR77.3.29
  *
- * @version $Revision$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface AppClientModule extends J2EEModule {
+public interface JNDIResource extends J2EEResource {
 }
