@@ -31,27 +31,29 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
  */
 public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
-    
+
     private static final Log log = LogFactory.getLog(EngineGBean.class);
 
     private static final String NAME = "name";
     private static final String DEFAULTHOST = "defaultHost";
-    
+
     private final Engine engine;
 
-    public EngineGBean(String className, 
-            Map initParams, 
+    public EngineGBean(String className,
+            Map initParams,
             Collection hosts,
-            ObjectRetriever realmGBean,            
+            ObjectRetriever realmGBean,
             ValveGBean tomcatValveChain) throws Exception {
         super(); // TODO: make it an attribute
-        
+
         if (className == null){
             className = "org.apache.geronimo.tomcat.TomcatEngine";
         }
@@ -59,7 +61,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         if (initParams == null){
             throw new IllegalArgumentException("Must have 'name' and 'defaultHost' values in initParams.");
         }
-        
+
         //Be sure the name has been declared.
         if (!initParams.containsKey(NAME)){
             throw new IllegalArgumentException("Must have a 'name' value initParams.");
@@ -69,16 +71,16 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         if (!initParams.containsKey(DEFAULTHOST)){
             throw new IllegalArgumentException("Must have a 'defaultHost' value initParams.");
         }
-        
+
         engine = (Engine)Class.forName(className).newInstance();
 
         //Set the parameters
         setParameters(engine, initParams);
-        
+
         if (realmGBean != null){
             engine.setRealm((Realm)realmGBean.getInternalObject());
         }
-        
+
         //Add the valve list
         if (engine instanceof StandardEngine){
             if (tomcatValveChain != null){
@@ -89,20 +91,44 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
                 }
             }
         }
-        
+
         //Add the hosts
         ReferenceCollection refs = (ReferenceCollection)hosts;
+        refs.addReferenceCollectionListener(new ReferenceCollectionListener() {
+
+            public void memberAdded(ReferenceCollectionEvent event) {
+                Object o = event.getMember();
+                ObjectRetriever objectRetriever = (ObjectRetriever) o;
+                addHost(objectRetriever);
+            }
+
+            public void memberRemoved(ReferenceCollectionEvent event) {
+                Object o = event.getMember();
+                ObjectRetriever objectRetriever = (ObjectRetriever) o;
+                removeHost(objectRetriever);
+            }
+        });
         Iterator iterator = refs.iterator();
         while (iterator.hasNext()){
             ObjectRetriever objRetriever = (ObjectRetriever)iterator.next();
-            Host host = (Host)objRetriever.getInternalObject();
-            
-            //If we didn't set a realm, then use the default
-            if (host.getRealm() == null)
-                host.setRealm(engine.getRealm());
+            addHost(objRetriever);
 
-            engine.addChild(host);
         }
+    }
+
+    private void removeHost(ObjectRetriever objRetriever) {
+        Host host = (Host)objRetriever.getInternalObject();
+        engine.removeChild(host);
+    }
+
+    private void addHost(ObjectRetriever objRetriever) {
+        Host host = (Host)objRetriever.getInternalObject();
+
+        //If we didn't set a realm, then use the default
+        if (host.getRealm() == null) {
+            host.setRealm(engine.getRealm());
+        }
+        engine.addChild(host);
     }
 
     public Object getInternalObject() {
