@@ -845,7 +845,10 @@ limitations under the License.
         <role-name>tomcat</role-name>
     </security-role>
     -->
-
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+    
     <jsp-config>
         <taglib>
             <taglib-uri>http://java.sun.com/portlet</taglib-uri>
