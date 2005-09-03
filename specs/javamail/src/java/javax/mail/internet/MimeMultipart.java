@@ -216,7 +216,7 @@ public class MimeMultipart extends Multipart {
         return buf.toString();
     }
 
-    public class MimeBodyPartInputStream extends InputStream {
+    private class MimeBodyPartInputStream extends InputStream {
         PushbackInputStream inStream;
         boolean boundaryFound = false;
         byte[] boundary;

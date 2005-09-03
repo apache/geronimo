@@ -30,7 +30,7 @@ import java.util.ArrayList;// Represents lists in things like
 // The ;charset=klingon is the parameter list, may have more of them with ';'
 
 /**
- * @version $Rev: 179695 $ $Date: 2005-06-02 21:45:02 -0400 (Thu, 02 Jun 2005) $
+ * @version $Rev$ $Date$
  */
 public class ParameterList {
     private Map _parameters = new HashMap();
@@ -95,7 +95,7 @@ public class ParameterList {
         // TODO Return in same list as parsed format
     }
 
-    public static String[] split(String str, char separatorChar) {
+    private static String[] split(String str, char separatorChar) {
         if (str == null) {
             return null;
         }
