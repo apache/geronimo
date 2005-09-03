@@ -227,7 +227,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
         Container host = engine.findChild(virtualServer);
         if (host == null){
-            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matchiing Host entry in the plan?");
+            throw new IllegalArgumentException("Invalid virtual host '" + virtualServer +"'.  Do you have a matching Host entry in the plan?");
         }
 
         //Get the security-realm-name if there is one
@@ -256,11 +256,11 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                 if (realm instanceof JAASRealm){
                     parentRealmName = ((JAASRealm)realm).getAppName();
                 }
-                
+
                 //Do we have a match to a parent?
                 if(!securityRealmName.equals(parentRealmName)){
                     //No...we need to create a default adapter
-                    
+
                     //Is the context requiring JACC?
                     if (secHolder.isSecurity()){
                         //JACC
@@ -269,16 +269,16 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                         //JAAS
                         realm = new TomcatJAASRealm();
                     }
-                    
-                    log.info("The security-realm-name '" + securityRealmName + 
+
+                    log.info("The security-realm-name '" + securityRealmName +
                             "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
                             "Creating a default " + realm.getClass().getName() +
                             " adapter for this context.");
-                    
+
                     ((JAASRealm)realm).setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
                     ((JAASRealm)realm).setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
                     ((JAASRealm)realm).setAppName(securityRealmName);
-                    
+
                     anotherCtxObj.setRealm(realm);
                 } else {
                     //Use the parent since a name matches
