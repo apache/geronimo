@@ -4,7 +4,7 @@
 
 <dwr>
   <allow>
-    <convert converter="bean" match="javax.management.j2ee.statistics.BoundedRangeStatistic"/>
+    <convert converter="bean" match="org.apache.geronimo.console.jsr77.DynamicServerInfo"/>
     <create creator="new" javascript="Jsr77Stats">
       <param name="class" value="org.apache.geronimo.console.jsr77.Jsr77Lookup"/>
     </create>

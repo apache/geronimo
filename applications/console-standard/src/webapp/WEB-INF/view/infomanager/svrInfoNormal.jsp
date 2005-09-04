@@ -17,7 +17,7 @@
   </tr> 
   <tr> 
     <td class="MediumBackground">Kernel Up Time</td> 
-    <td class="MediumBackground">${svrProps['Kernel Up Time']}</td> 
+    <td class="MediumBackground"><div id="<portlet:namespace/>UpTime">Not Yet Available</div></td>
   </tr> 
 </table>
 <br>
@@ -96,26 +96,37 @@
     <td class="MediumBackground">Total Memory Allocated</td>
     <td class="MediumBackground"><div id="<portlet:namespace/>AvailableMemory">Not Yet Available</div></td>
   </tr> 
-  <tr> 
+  <tr>
     <td class="LightBackground">Available Processors</td> 
     <td class="LightBackground">${jvmProps['Available Processors']}</td> 
   </tr> 
   <tr> 
-    <td colspan="2" align="center">
-      <form name="<portlet:namespace/>" action="<portlet:actionURL/>">
-        <input type="submit" value="Refresh"/>
-      </form>
-    </td>
+    <td colspan="2" align="center"><div id="<portlet:namespace/>ErrorArea"></div></td>
   </tr>
 </table>
 
 <script>
-function <portlet:namespace/>showNext(jvmStats) {
-    DWRUtil.setValue("<portlet:namespace/>CurrentMemory", jvmStats.current);
-    DWRUtil.setValue("<portlet:namespace/>MostMemory", jvmStats.highWaterMark);
-    DWRUtil.setValue("<portlet:namespace/>AvailableMemory", jvmStats.upperBound);
-    setTimeout("Jsr77Stats.getJavaVMStatistics(<portlet:namespace/>showNext)", 1000);
+DWREngine.setErrorHandler(null);
+<portlet:namespace/>stopped=false;
+function <portlet:namespace/>callServer() {
+    metadata = {};
+    metadata.callback=<portlet:namespace/>updateValues;
+    metadata.errorHandler=<portlet:namespace/>onError;
+    Jsr77Stats.getJavaVMStatistics(metadata);
 }
-Jsr77Stats.getJavaVMStatistics(<portlet:namespace/>showNext);
+function <portlet:namespace/>updateValues(serverStats) {
+    DWRUtil.setValue("<portlet:namespace/>CurrentMemory", serverStats.memoryCurrent);
+    DWRUtil.setValue("<portlet:namespace/>MostMemory", serverStats.memoryMost);
+    DWRUtil.setValue("<portlet:namespace/>AvailableMemory", serverStats.memoryAllocated);
+    DWRUtil.setValue("<portlet:namespace/>UpTime", serverStats.upTime);
+    if(!<portlet:namespace/>stopped) {
+        setTimeout("<portlet:namespace/>callServer()", 1000);
+    }
+}
+function <portlet:namespace/>onError() {
+    <portlet:namespace/>stopped=true;
+    DWRUtil.setValue("<portlet:namespace/>ErrorArea", '<form name="<portlet:namespace/>Refresh" action="<portlet:actionURL/>"><input type="submit" value="Refresh"/></form>');
+}
+<portlet:namespace/>callServer();
 </script>
 

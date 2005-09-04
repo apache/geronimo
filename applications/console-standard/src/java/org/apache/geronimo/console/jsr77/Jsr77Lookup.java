@@ -33,18 +33,19 @@ import org.apache.geronimo.management.geronimo.JVM;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class Jsr77Lookup {
-    public BoundedRangeStatistic getJavaVMStatistics() {
+    public DynamicServerInfo getJavaVMStatistics() {
         HttpSession session = ExecutionContext.get().getSession();
         ManagementHelper helper = PortletManager.getManagementHelper(session);
         J2EEDomain[] domains = helper.getDomains();
         J2EEServer[] servers = helper.getServers(domains[0]);
         JVM[] jvms = helper.getJavaVMs(servers[0]);
+        long elapsed = System.currentTimeMillis() - jvms[0].getKernelBootTime().getTime();
         if(jvms[0].isStatisticsProvider()) {
             JVMStats stats = (JVMStats) ((StatisticsProvider)jvms[0]).getStats();
             BoundedRangeStatistic heap = stats.getHeapSize();
-            return heap;
+            return new DynamicServerInfo(heap.getCurrent(), heap.getHighWaterMark(), heap.getUpperBound(), elapsed);
         } else {
-            return null;
+            return new DynamicServerInfo(elapsed);
         }
     }
 }
