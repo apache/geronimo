@@ -15,18 +15,20 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.core.service;
+package org.apache.geronimo.management;
 
-import org.apache.geronimo.kernel.management.ManagedObject;
+import javax.management.j2ee.statistics.Stats;
 
-/* -------------------------------------------------------------------------------------- */
 /**
- * ManagedContainer
- * 
- * 
+ * This is a representation of the StatisticsProvider type defined in the J2EE Management specification.
+ *
  * @version $Rev$ $Date$
  */
-public interface ManagedContainer extends ManagedObject, Container
-{
-
+public interface StatisticsProvider {
+    /**
+     * Gets the statistics collected for this class.
+     *
+     * @return gets collected for this class
+     */
+    Stats getStats();
 }

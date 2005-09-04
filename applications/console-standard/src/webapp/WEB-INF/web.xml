@@ -649,6 +649,23 @@ limitations under the License.
 
 
 
+<servlet>
+  <display-name>DWR Servlet</display-name>
+  <servlet-name>dwr-invoker</servlet-name>
+  <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+  <init-param>
+     <param-name>debug</param-name>
+     <param-value>true</param-value>
+  </init-param>
+</servlet>
+
+<servlet-mapping>
+  <servlet-name>dwr-invoker</servlet-name>
+  <url-pattern>/dwr/*</url-pattern>
+</servlet-mapping>
+
+
+
     <servlet-mapping>
         <servlet-name>EJBServer</servlet-name>
         <url-pattern>/EJBServer/*</url-pattern>
@@ -848,7 +865,7 @@ limitations under the License.
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
-    
+
     <jsp-config>
         <taglib>
             <taglib-uri>http://java.sun.com/portlet</taglib-uri>

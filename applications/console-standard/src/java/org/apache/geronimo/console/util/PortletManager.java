@@ -20,6 +20,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.servlet.http.HttpSession;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
@@ -55,7 +56,7 @@ public class PortletManager {
     // The following may change based on the user's selections
         // nothing yet
 
-    private static ManagementHelper createHelper(PortletRequest request) {
+    private static ManagementHelper createHelper() {
         //todo: consider making this configurable; we could easily connect to a remote kernel if we wanted to
         Kernel kernel = null;
         try {
@@ -73,8 +74,17 @@ public class PortletManager {
     public static ManagementHelper getManagementHelper(PortletRequest request) {
         ManagementHelper helper = (ManagementHelper) request.getPortletSession(true).getAttribute(HELPER_KEY, PortletSession.APPLICATION_SCOPE);
         if(helper == null) {
-            helper = createHelper(request);
+            helper = createHelper();
             request.getPortletSession().setAttribute(HELPER_KEY, helper, PortletSession.APPLICATION_SCOPE);
+        }
+        return helper;
+    }
+
+    public static ManagementHelper getManagementHelper(HttpSession session) {
+        ManagementHelper helper = (ManagementHelper) session.getAttribute(HELPER_KEY);
+        if(helper == null) {
+            helper = createHelper();
+            session.setAttribute(HELPER_KEY, helper);
         }
         return helper;
     }

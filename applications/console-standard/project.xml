@@ -21,6 +21,11 @@
              <version>${pom.currentVersion}</version>
          </dependency>
         <dependency>
+             <groupId>geronimo-spec</groupId>
+             <artifactId>geronimo-spec-j2ee-management</artifactId>
+             <version>${geronimo_spec_j2ee_management_version}</version>
+         </dependency>
+        <dependency>
              <groupId>geronimo</groupId>
              <artifactId>geronimo-connector</artifactId>
              <version>${pom.currentVersion}</version>
@@ -226,6 +231,14 @@
             <groupId>tomcat</groupId>
             <artifactId>jasper-compiler</artifactId>
             <version>${jasper_version}</version>
+            <properties>
+                <war.bundle>true</war.bundle>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr</artifactId>
+            <version>${dwr_version}</version>
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>

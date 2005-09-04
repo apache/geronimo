@@ -24,10 +24,14 @@ import java.util.Properties;
 import java.util.Hashtable;
 
 import javax.management.ObjectName;
+import javax.management.j2ee.statistics.Stats;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.StatisticsProvider;
+import org.apache.geronimo.management.stats.JVMStatsImpl;
+import org.apache.geronimo.management.stats.BoundedRangeImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +42,7 @@ import org.apache.commons.logging.Log;
  *
  * @version $Rev$ $Date$
  */
-public class JVMImpl implements JVM {
+public class JVMImpl implements JVM, StatisticsProvider {
     private final static Log log = LogFactory.getLog(JVMImpl.class);
     public static final String JAVA_VERSION = System.getProperty("java.version");
     public static final String JAVA_VENDOR = System.getProperty("java.vendor");
@@ -58,6 +62,7 @@ public class JVMImpl implements JVM {
     private final String objectName;
     private final Kernel kernel;
     private final String baseName;
+    private JVMStatsImpl stats;
 
     public JVMImpl(String objectName, Kernel kernel) {
         this.objectName = objectName;
@@ -104,7 +109,7 @@ public class JVMImpl implements JVM {
     }
 
     public boolean isStatisticsProvider() {
-        return false;
+        return true;
     }
 
     public boolean isEventProvider() {
@@ -162,6 +167,23 @@ public class JVMImpl implements JVM {
         return kernel.getBootTime();
     }
 
+    public Stats getStats() {
+        if(stats == null) {
+            stats = new JVMStatsImpl();
+            long start = kernel.getBootTime().getTime();
+            stats.getUpTimeImpl().setCount(start);
+            stats.getUpTimeImpl().setStartTime(start);
+            stats.getHeapSizeImpl().setStartTime(start);
+        }
+        final BoundedRangeImpl heap = stats.getHeapSizeImpl();
+        long now = System.currentTimeMillis();
+        stats.getUpTimeImpl().setLastSampleTime(now);
+        heap.setLastSampleTime(now);
+        heap.setBounds(0, runtime.totalMemory());
+        heap.setCurrent(heap.getUpperBound() - runtime.freeMemory());
+        return stats;
+    }
+
     public Properties getSystemProperties() {
         return System.getProperties();
     }
@@ -183,6 +205,7 @@ public class JVMImpl implements JVM {
 //        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(JVM.class);
+        infoFactory.addInterface(StatisticsProvider.class);
         infoFactory.setConstructor(new String[] {"objectName", "kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

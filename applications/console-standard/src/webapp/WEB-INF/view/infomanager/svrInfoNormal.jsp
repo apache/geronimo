@@ -1,5 +1,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+
+<script type='text/javascript' src='/console-standard/dwr/interface/Jsr77Stats.js'></script>
+<script type='text/javascript' src='/console-standard/dwr/engine.js'></script>
+<script type='text/javascript' src='/console-standard/dwr/util.js'></script>
+
 <portlet:defineObjects/>
 
 <table width="100%"> 
@@ -80,16 +85,16 @@
     <td class="LightBackground">${jvmProps['Node']}</td> 
   </tr> 
   <tr> 
-    <td class="MediumBackground">Max Memory</td> 
-    <td class="MediumBackground">${jvmProps['Max Memory']}</td> 
+    <td class="MediumBackground">Current Memory Used</td>
+    <td class="MediumBackground"><div id="<portlet:namespace/>CurrentMemory">Not Yet Available</div></td>
   </tr> 
   <tr> 
-    <td class="LightBackground">Total Memory</td> 
-    <td class="LightBackground">${jvmProps['Total Memory']}</td> 
+    <td class="LightBackground">Most Memory Used</td>
+    <td class="LightBackground"><div id="<portlet:namespace/>MostMemory">Not Yet Available</div></td>
   </tr> 
   <tr> 
-    <td class="MediumBackground">Free Memory</td> 
-    <td class="MediumBackground">${jvmProps['Free Memory']}</td> 
+    <td class="MediumBackground">Total Memory Allocated</td>
+    <td class="MediumBackground"><div id="<portlet:namespace/>AvailableMemory">Not Yet Available</div></td>
   </tr> 
   <tr> 
     <td class="LightBackground">Available Processors</td> 
@@ -97,9 +102,20 @@
   </tr> 
   <tr> 
     <td colspan="2" align="center">
-      <form name="<portlet:namespace/>" action="<portlet:actionURL/>"">
+      <form name="<portlet:namespace/>" action="<portlet:actionURL/>">
         <input type="submit" value="Refresh"/>
       </form>
     </td>
-  </tr>  
+  </tr>
 </table>
+
+<script>
+function <portlet:namespace/>showNext(jvmStats) {
+    DWRUtil.setValue("<portlet:namespace/>CurrentMemory", jvmStats.current);
+    DWRUtil.setValue("<portlet:namespace/>MostMemory", jvmStats.highWaterMark);
+    DWRUtil.setValue("<portlet:namespace/>AvailableMemory", jvmStats.upperBound);
+    setTimeout("Jsr77Stats.getJavaVMStatistics(<portlet:namespace/>showNext)", 1000);
+}
+Jsr77Stats.getJavaVMStatistics(<portlet:namespace/>showNext);
+</script>
+

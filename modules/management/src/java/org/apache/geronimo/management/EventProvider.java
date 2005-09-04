@@ -15,18 +15,18 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.core.service;
+package org.apache.geronimo.management;
 
-import org.apache.geronimo.kernel.management.ManagedObject;
-
-/* -------------------------------------------------------------------------------------- */
 /**
- * ManagedComponent
- * 
- * 
+ * This is a representation of the EventProvider type defined in the J2EE Management specification.
+ *
  * @version $Rev$ $Date$
  */
-public interface ManagedComponent extends ManagedObject, Component
-{
-
+public interface EventProvider {
+    /**
+     * Gets the event types this object can fire.
+     *
+     * @return an array of the event types this bean can fire
+     */
+    String[] getEventTypes();
 }

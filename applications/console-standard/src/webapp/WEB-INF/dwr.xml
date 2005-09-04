@@ -1,0 +1,12 @@
+<!DOCTYPE dwr PUBLIC
+    "-//GetAhead Limited//DTD Direct Web Remoting 1.0//EN"
+    "http://www.getahead.ltd.uk/dwr/dwr10.dtd">
+
+<dwr>
+  <allow>
+    <convert converter="bean" match="javax.management.j2ee.statistics.BoundedRangeStatistic"/>
+    <create creator="new" javascript="Jsr77Stats">
+      <param name="class" value="org.apache.geronimo.console.jsr77.Jsr77Lookup"/>
+    </create>
+  </allow>
+</dwr>

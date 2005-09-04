@@ -39,9 +39,6 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.management.EventProvider;
-import org.apache.geronimo.kernel.management.ManagedObject;
-import org.apache.geronimo.kernel.management.NotificationType;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.management.StateManageable;
 
@@ -50,7 +47,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
  *
  * @version $Rev: 106387 $ $Date: 2004-11-23 22:16:54 -0800 (Tue, 23 Nov 2004) $
  */
-public final class GBeanInstance implements ManagedObject, StateManageable, EventProvider {
+public final class GBeanInstance implements StateManageable {
     private static final Log log = LogFactory.getLog(GBeanInstance.class);
 
     private static final int DESTROYED = 0;
@@ -422,22 +419,6 @@ public final class GBeanInstance implements ManagedObject, StateManageable, Even
      */
     public synchronized final void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public final boolean isStateManageable() {
-        return true;
-    }
-
-    public boolean isStatisticsProvider() {
-        return false;
-    }
-
-    public final boolean isEventProvider() {
-        return true;
-    }
-
-    public final String[] getEventTypes() {
-        return NotificationType.TYPES;
     }
 
     public synchronized final long getStartTime() {
