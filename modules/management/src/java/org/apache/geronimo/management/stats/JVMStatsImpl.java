@@ -19,7 +19,6 @@ package org.apache.geronimo.management.stats;
 import javax.management.j2ee.statistics.JVMStats;
 import javax.management.j2ee.statistics.CountStatistic;
 import javax.management.j2ee.statistics.BoundedRangeStatistic;
-import javax.management.j2ee.statistics.Statistic;
 
 /**
  * Geronimo implementation of the JSR-77 JVMStats interface.
@@ -31,7 +30,7 @@ public class JVMStatsImpl extends StatsImpl implements JVMStats {
     private final BoundedRangeImpl heapSize;
 
     public JVMStatsImpl() {
-        upTime = new CountStatisticImpl("JVM Up Time", Statistic.UNIT_TIME_MILLISECOND,
+        upTime = new CountStatisticImpl("JVM Up Time", StatisticImpl.UNIT_TIME_MILLISECOND,
                 "The length of time that the JVM has been running", 0);
         heapSize = new BoundedRangeImpl("JVM Heap Size", StatisticImpl.UNIT_MEMORY_BYTES,
                 "The memory usage of the JVM");

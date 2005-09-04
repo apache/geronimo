@@ -30,14 +30,6 @@ package javax.management.j2ee.statistics;
  * @version $Rev$
  */
 public interface Statistic {
-    // Defined in JSR77.6.4.1.2
-    public final static String UNIT_TIME_HOUR = "HOUR";
-    public final static String UNIT_TIME_MINUTE = "MINUTE";
-    public final static String UNIT_TIME_SECOND = "SECOND";
-    public final static String UNIT_TIME_MILLISECOND = "MILLISECOND";
-    public final static String UNIT_TIME_MICROSECOND = "MICROSECOND";
-    public final static String UNIT_TIME_NANOSECOND = "NANOSECOND";
-
     public String getName();
 
     public String getUnit();

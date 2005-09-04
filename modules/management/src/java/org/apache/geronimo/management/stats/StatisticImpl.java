@@ -25,6 +25,13 @@ import javax.management.j2ee.statistics.Statistic;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class StatisticImpl implements Statistic, Serializable {
+    // Defined in JSR77.6.4.1.2
+    public final static String UNIT_TIME_HOUR = "HOUR";
+    public final static String UNIT_TIME_MINUTE = "MINUTE";
+    public final static String UNIT_TIME_SECOND = "SECOND";
+    public final static String UNIT_TIME_MILLISECOND = "MILLISECOND";
+    public final static String UNIT_TIME_MICROSECOND = "MICROSECOND";
+    public final static String UNIT_TIME_NANOSECOND = "NANOSECOND";
     // Units that are not defined in JSR-77
     public final static String UNIT_MEMORY_BYTES = "BYTES";
     public final static String UNIT_MEMORY_KILOBYTES = "KILOBYTES";
