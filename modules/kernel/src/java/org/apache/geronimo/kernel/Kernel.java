@@ -243,6 +243,13 @@ public interface Kernel {
     Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception;
 
     /**
+     * Assuming the argument represents a service running in the kernel,
+     * returns an ObjectName for it.  If the argument is not a service or the
+     * kernel cannot produce an ObjectName for it, returns null.
+     */
+    ObjectName getObjectNameFor(Object service);
+
+    /**
      * Brings the kernel online
      * @throws Exception if the kernel can not boot
      */

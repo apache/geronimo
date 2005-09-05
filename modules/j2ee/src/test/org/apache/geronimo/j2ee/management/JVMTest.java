@@ -18,6 +18,7 @@
 package org.apache.geronimo.j2ee.management;
 
 import java.net.InetAddress;
+import javax.management.j2ee.statistics.JVMStats;
 import org.apache.geronimo.management.JVM;
 
 /**
@@ -46,21 +47,33 @@ public class JVMTest extends Abstract77Test {
     public void testGeronimoInterface() {
         assertEquals(runtime.availableProcessors(), jvmEx.getAvailableProcessors());
 
-        // I'm going to leave these in but I am not sure the results are deterministic
-//        assertEquals(runtime.freeMemory(), jvmEx.getFreeMemory());
-        assertEquals(runtime.maxMemory(), jvmEx.getMaxMemory());
-        assertEquals(runtime.totalMemory(), jvmEx.getTotalMemory());
-
     }
 
     public void testGeronimoAttributes() throws Exception {
         assertEquals(new Integer(runtime.availableProcessors()), kernel.getAttribute(JVM_NAME, "availableProcessors"));
+    }
 
-        // I'm going to leave these in but I am not sure the results are deterministic
-//        assertEquals(new Long(runtime.freeMemory()), kernel.getAttribute(JVM_NAME, "freeMemory"));
-        assertEquals(new Long(runtime.maxMemory()), kernel.getAttribute(JVM_NAME, "maxMemory"));
-        assertEquals(new Long(runtime.totalMemory()), kernel.getAttribute(JVM_NAME, "totalMemory"));
-
+    public void testStatistics() throws Exception {
+        assertEquals(Boolean.TRUE, kernel.getAttribute(JVM_NAME, "statisticsProvider"));
+        JVMStats stats = (JVMStats) kernel.getAttribute(JVM_NAME, "stats");
+        assertNotNull(stats.getHeapSize());
+        assertTrue(stats.getHeapSize().getCurrent() > 0);
+        assertNotNull(stats.getHeapSize().getDescription());
+        assertTrue(stats.getHeapSize().getHighWaterMark() > 0);
+        assertTrue(stats.getHeapSize().getLastSampleTime() > 0);
+        assertTrue(stats.getHeapSize().getLowerBound() == 0);
+        assertTrue(stats.getHeapSize().getLowWaterMark() > 0);
+        assertNotNull(stats.getHeapSize().getName());
+        assertTrue(stats.getHeapSize().getStartTime() > 0);
+        assertNotNull(stats.getHeapSize().getUnit());
+        assertTrue(stats.getHeapSize().getUpperBound() > 0);
+        assertNotNull(stats.getUpTime());
+        assertTrue(stats.getUpTime().getCount() > 0);
+        assertNotNull(stats.getUpTime().getDescription());
+        assertTrue(stats.getUpTime().getLastSampleTime() > 0);
+        assertNotNull(stats.getUpTime().getName());
+        assertTrue(stats.getUpTime().getStartTime() > 0);
+        assertNotNull(stats.getUpTime().getUnit());
     }
 
     protected void setUp() throws Exception {

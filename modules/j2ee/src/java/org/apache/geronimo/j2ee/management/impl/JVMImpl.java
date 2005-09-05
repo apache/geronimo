@@ -147,18 +147,6 @@ public class JVMImpl implements JVM, StatisticsProvider {
         return NODE;
     }
 
-    public long getFreeMemory() {
-        return runtime.freeMemory();
-    }
-
-    public long getMaxMemory() {
-        return runtime.maxMemory();
-    }
-
-    public long getTotalMemory() {
-        return runtime.totalMemory();
-    }
-
     public int getAvailableProcessors() {
         return runtime.availableProcessors();
     }
@@ -168,19 +156,26 @@ public class JVMImpl implements JVM, StatisticsProvider {
     }
 
     public Stats getStats() {
+        BoundedRangeImpl heap;
         if(stats == null) {
             stats = new JVMStatsImpl();
             long start = kernel.getBootTime().getTime();
             stats.getUpTimeImpl().setCount(start);
             stats.getUpTimeImpl().setStartTime(start);
-            stats.getHeapSizeImpl().setStartTime(start);
+            heap = stats.getHeapSizeImpl();
+            heap.setStartTime(start);
+            heap.setBounds(0, runtime.totalMemory());
+            heap.setCurrent(heap.getUpperBound() - runtime.freeMemory());
+            heap.setLowWaterMark(heap.getCurrent());
+            heap.setHighWaterMark(heap.getCurrent());
+        } else {
+            heap = stats.getHeapSizeImpl();
+            heap.setBounds(0, runtime.totalMemory());
+            heap.setCurrent(heap.getUpperBound() - runtime.freeMemory());
         }
-        final BoundedRangeImpl heap = stats.getHeapSizeImpl();
         long now = System.currentTimeMillis();
         stats.getUpTimeImpl().setLastSampleTime(now);
         heap.setLastSampleTime(now);
-        heap.setBounds(0, runtime.totalMemory());
-        heap.setCurrent(heap.getUpperBound() - runtime.freeMemory());
         return stats;
     }
 

@@ -17,12 +17,21 @@
 package org.apache.geronimo.management.geronimo;
 
 /**
- * Base management interface for a server component that has associated
- * network connectors.
+ * Base management interface for a network technology with associated
+ * containers and connectors.  Examples might be Web, EJB, JMS (all
+ * of which have the concept of containers and connectors).  The container
+ * would be the Web Container, EJB Container, or JMS Broker.  The connectors
+ * would be the services that expose those containers over the network, via
+ * HTTP, RMI, TCP, etc.
  *
  * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
  */
-public interface NetworkContainer {
+public interface NetworkManager {
+    /**
+     * Gets the network containers.
+     */
+    public String[] getContainers();
+
     /**
      * Gets the protocols which this container can configure connectors for.
      */
@@ -30,14 +39,14 @@ public interface NetworkContainer {
 
     /**
      * Removes a connector.  This shuts it down if necessary, and removes it
-     * from the server environment.  It must be a connector that this container
-     * is responsible for.
+     * from the server environment.  It must be a connector that uses this
+     * network technology.
      */
     public void removeConnector(String objectName);
 
     /**
-     * Gets the ObjectNames of any existing connectors for the specified
-     * protocol.
+     * Gets the ObjectNames of any existing connectors for this network
+     * technology for the specified protocol.
      *
      * @param protocol A protocol as returned by getSupportedProtocols
      */
@@ -45,7 +54,21 @@ public interface NetworkContainer {
 
     /**
      * Gets the ObjectNames of any existing connectors associated with this
-     * container.
+     * network technology.
      */
     public String[] getConnectors();
+
+    /**
+     * Gets the ObjectNames of any existing connectors for the specified
+     * container for the specified protocol.
+     *
+     * @param protocol A protocol as returned by getSupportedProtocols
+     */
+    public String[] getConnectorsForContainer(String containerObjectName, String protocol);
+
+    /**
+     * Gets the ObjectNames of any existing connectors for the specified
+     * container.
+     */
+    public String[] getConnectorsForContainer(String containerObjectName);
 }

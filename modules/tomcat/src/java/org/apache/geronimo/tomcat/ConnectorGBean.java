@@ -30,15 +30,15 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever, TomcatWebConnector {
-
     private static final Log log = LogFactory.getLog(ConnectorGBean.class);
-    
+    public final static String CONNECTOR_CONTAINER_REFERENCE = "TomcatContainer";
+
     protected final Connector connector;
     private final TomcatContainer container;
     private String name;
@@ -67,7 +67,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
 
         // Convert Geronimo standard values to Tomcat standard values
         // Only AJP requires an explicit protocol setting
-        if(protocol != null && protocol.equals(WebContainer.PROTOCOL_AJP)) {
+        if(protocol != null && protocol.equals(WebManager.PROTOCOL_AJP)) {
             protocol = "AJP/1.3";
         } else {
             protocol = null;
@@ -110,9 +110,9 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         if(protocol == null) {
             return;
         }
-        if(protocol.equals(WebContainer.PROTOCOL_HTTPS)) {
+        if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
             throw new IllegalArgumentException("Use a HttpsConnectorGBean for an HTTPS connector");
-        } else if(!protocol.equals(WebContainer.PROTOCOL_HTTP) && !protocol.equals(WebContainer.PROTOCOL_AJP)) {
+        } else if(!protocol.equals(WebManager.PROTOCOL_HTTP) && !protocol.equals(WebManager.PROTOCOL_AJP)) {
             throw new IllegalArgumentException("Unrecognized protocol '"+protocol+"' (use the values of the PROTOCOL_* constants in WebConnector)");
         }
     }
@@ -147,9 +147,9 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     }
 
     public int getDefaultPort() {
-        return getProtocol().equals(WebContainer.PROTOCOL_AJP) ? -1 :
-                getProtocol().equals(WebContainer.PROTOCOL_HTTP) ? 80 :
-                getProtocol().equals(WebContainer.PROTOCOL_HTTPS) ? 443 : -1;
+        return getProtocol().equals(WebManager.PROTOCOL_AJP) ? -1 :
+                getProtocol().equals(WebManager.PROTOCOL_HTTP) ? 80 :
+                getProtocol().equals(WebManager.PROTOCOL_HTTPS) ? 443 : -1;
     }
 
     public String getConnectUrl() {
@@ -180,11 +180,11 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public String getProtocol() {
         String protocol = connector.getProtocol();
         if(protocol.indexOf("AJP") > -1) {
-            return WebContainer.PROTOCOL_AJP;
+            return WebManager.PROTOCOL_AJP;
         } else if(connector.getScheme().equalsIgnoreCase("http")) {
-            return WebContainer.PROTOCOL_HTTP;
+            return WebManager.PROTOCOL_HTTP;
         } else if(connector.getScheme().equalsIgnoreCase("https")) {
-            return WebContainer.PROTOCOL_HTTPS;
+            return WebManager.PROTOCOL_HTTPS;
         }
         throw new IllegalStateException("Unknown protocol '"+protocol+"' and scheme '"+connector.getScheme()+"'");
     }
@@ -408,7 +408,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Connector", ConnectorGBean.class);
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("protocol", String.class, true);
-        infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
         infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl",},
                                                            new String[]{"host","port","redirectPort"});

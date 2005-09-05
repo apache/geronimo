@@ -26,11 +26,12 @@ import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.EJBContainer;
+import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.EJBConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.AppClientModule;
@@ -250,22 +251,44 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public WebContainer getWebContainer(J2EEServer server) {
-        WebContainer result = null;
+    public WebManager[] getWebManagers(J2EEServer server) {
+        WebManager[] result = new WebManager[0];
         try {
-            String name = server.getWebContainer();
-            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
-            result = (WebContainer)temp;
+            String[] names = server.getWebManagers();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new WebManager[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
             log.error("Unable to look up related GBean", e);
         }
         return result;
     }
 
-    public WebConnector[] getWebConnectors(WebContainer container, String protocol) {
+    public WebContainer[] getWebContainers(WebManager manager) {
+        WebContainer[] result = new WebContainer[0];
+        try {
+            String[] names = manager.getContainers();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new WebContainer[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container, String protocol) {
+        return getWebConnectorsForContainer(manager, kernel.getObjectNameFor(container).getCanonicalName(), protocol);
+    }
+
+    public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container) {
+        return getWebConnectorsForContainer(manager, kernel.getObjectNameFor(container).getCanonicalName());
+    }
+
+    public WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName, String protocol) {
         WebConnector[] result = new WebConnector[0];
         try {
-            String[] names = container.getConnectors(protocol);
+            String[] names = manager.getConnectorsForContainer(containerObjectName, protocol);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -275,10 +298,10 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public WebConnector[] getWebConnectors(WebContainer container) {
+    public WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName) {
         WebConnector[] result = new WebConnector[0];
         try {
-            String[] names = container.getConnectors();
+            String[] names = manager.getConnectorsForContainer(containerObjectName);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -288,19 +311,46 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public EJBContainer getEJBContainer(J2EEServer server) {
-        EJBContainer result = null;
+    public WebConnector[] getWebConnectors(WebManager manager, String protocol) {
+        WebConnector[] result = new WebConnector[0];
         try {
-            String name = server.getEJBContainer();
-            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
-            result = (EJBContainer)temp;
+            String[] names = manager.getConnectors(protocol);
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new WebConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
             log.error("Unable to look up related GBean", e);
         }
         return result;
     }
 
-    public EJBConnector[] getEJBConnectors(EJBContainer container, String protocol) {
+    public WebConnector[] getWebConnectors(WebManager manager) {
+        WebConnector[] result = new WebConnector[0];
+        try {
+            String[] names = manager.getConnectors();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new WebConnector[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public EJBManager[] getEJBManagers(J2EEServer server) {
+        EJBManager[] result = null;
+        try {
+            String names[] = server.getEJBManagers();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new EJBManager[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public EJBConnector[] getEJBConnectors(EJBManager container, String protocol) {
         EJBConnector[] result = new EJBConnector[0];
         try {
             String[] names = container.getConnectors(protocol);
@@ -313,7 +363,7 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public EJBConnector[] getEJBConnectors(EJBContainer container) {
+    public EJBConnector[] getEJBConnectors(EJBManager container) {
         EJBConnector[] result = new EJBConnector[0];
         try {
             String[] names = container.getConnectors();
@@ -326,12 +376,13 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public JMSManager getJMSManager(J2EEServer server) {
-        JMSManager result = null;
+    public JMSManager[] getJMSManagers(J2EEServer server) {
+        JMSManager[] result = null;
         try {
-            String name = server.getJMSManager();
-            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
-            result = (JMSManager)temp;
+            String[] names = server.getJMSManagers();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JMSManager[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
             log.error("Unable to look up related GBean", e);
         }
@@ -341,7 +392,7 @@ public class KernelManagementHelper implements ManagementHelper {
     public JMSBroker[] getJMSBrokers(JMSManager manager) {
         JMSBroker[] result = null;
         try {
-            String[] names = manager.getBrokers();
+            String[] names = manager.getContainers();
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSBroker[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -377,10 +428,18 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public JMSConnector[] getJMSConnectors(JMSManager manager, JMSBroker broker, String protocol) {
+    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker, String protocol) {
+        return getJMSConnectorsForContainer(manager, kernel.getObjectNameFor(broker).getCanonicalName(), protocol);
+    }
+
+    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker) {
+        return getJMSConnectorsForContainer(manager, kernel.getObjectNameFor(broker).getCanonicalName());
+    }
+
+    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName, String protocol) {
         JMSConnector[] result = null;
         try {
-            String[] names = manager.getBrokerConnectors(pm.getProxyTarget(broker).getCanonicalName(), protocol);
+            String[] names = manager.getConnectorsForContainer(brokerObjectName, protocol);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
@@ -390,10 +449,10 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
-    public JMSConnector[] getJMSConnectors(JMSManager manager, JMSBroker broker) {
+    public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName) {
         JMSConnector[] result = null;
         try {
-            String[] names = manager.getBrokerConnectors(pm.getProxyTarget(broker).getCanonicalName());
+            String[] names = manager.getConnectorsForContainer(brokerObjectName);
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new JMSConnector[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);

@@ -83,7 +83,8 @@ public class JMSBrokerPortlet extends BaseJMSPortlet {
             if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
                 return;
             }
-            Map map = getBrokerMap(renderRequest);
+            String managerName = PortletManager.getJMSManagerNames(renderRequest)[0];  //todo: handle multiple
+            Map map = getBrokerMap(renderRequest, managerName);
             renderRequest.setAttribute("brokers", map.entrySet());
             if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
                 normalView.include(renderRequest, renderResponse);

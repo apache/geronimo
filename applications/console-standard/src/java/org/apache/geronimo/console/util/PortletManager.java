@@ -29,11 +29,11 @@ import org.apache.geronimo.management.geronimo.JVM;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.EJBContainer;
-import org.apache.geronimo.management.geronimo.EJBConnector;
+import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.commons.logging.Log;
@@ -49,9 +49,6 @@ public class PortletManager {
     private final static String DOMAIN_KEY = "org.apache.geronimo.console.J2EEDomain";
     private final static String SERVER_KEY = "org.apache.geronimo.console.J2EEServer";
     private final static String JVM_KEY = "org.apache.geronimo.console.JVM";
-    private final static String WEB_CONTAINER_KEY = "org.apache.geronimo.console.WebContainer";
-    private final static String JMS_MANAGER_KEY = "org.apache.geronimo.console.JMSManager";
-    private final static String EJB_CONTAINER_KEY = "org.apache.geronimo.console.EJBContainer";
     private final static String SYSTEM_LOG_KEY = "org.apache.geronimo.console.SystemLog";
     // The following may change based on the user's selections
         // nothing yet
@@ -119,100 +116,116 @@ public class PortletManager {
         return jvm;
     }
 
-    public static WebContainer getCurrentWebContainer(PortletRequest request) {
-        WebContainer container = (WebContainer) request.getPortletSession(true).getAttribute(WEB_CONTAINER_KEY, PortletSession.APPLICATION_SCOPE);
-        if(container == null) {
-            ManagementHelper helper = getManagementHelper(request);
-            container = helper.getWebContainer(getCurrentServer(request));
-            request.getPortletSession().setAttribute(WEB_CONTAINER_KEY, container, PortletSession.APPLICATION_SCOPE);
-        }
-        return container;
+    public static String[] getWebManagerNames(PortletRequest request) {
+        return getCurrentServer(request).getWebManagers();
     }
 
-    public static WebConnector createWebConnector(PortletRequest request, String name, String protocol, String host, int port) {
-        WebContainer container = getCurrentWebContainer(request);
-        String objectName = container.addConnector(name, protocol, host, port);
+    public static WebManager getWebManager(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
+        return (WebManager) helper.getObject(managerObjectName);
+    }
+
+    public static String[] getWebContainerNames(PortletRequest request, String managerObjectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        WebManager manager = (WebManager) helper.getObject(managerObjectName);
+        return manager.getContainers();
+    }
+
+    public static WebContainer getWebContainer(PortletRequest request, String containerObjectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        return (WebContainer) helper.getObject(containerObjectName);
+    }
+
+    public static WebConnector createWebConnector(PortletRequest request, String managerObjectName, String containerObjectName, String name, String protocol, String host, int port) {
+        ManagementHelper helper = getManagementHelper(request);
+        WebManager manager = (WebManager) helper.getObject(managerObjectName);
+        String objectName = manager.addConnector(containerObjectName, name, protocol, host, port);
         return (WebConnector)helper.getObject(objectName);
     }
 
-    public static WebConnector[] getWebConnectors(PortletRequest request) {
+    public static WebConnector[] getWebConnectors(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getWebConnectors(getCurrentWebContainer(request));
+        WebManager manager = (WebManager) helper.getObject(managerObjectName);
+        return helper.getWebConnectors(manager);
     }
 
-    public static WebConnector[] getWebConnectors(PortletRequest request, String protocol) {
+    public static WebConnector[] getWebConnectors(PortletRequest request, String managerObjectName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getWebConnectors(getCurrentWebContainer(request),protocol);
+        WebManager manager = (WebManager) helper.getObject(managerObjectName);
+        return helper.getWebConnectors(manager, protocol);
     }
 
-    public static EJBContainer getCurrentEJBContainer(PortletRequest request) {
-        EJBContainer container = (EJBContainer) request.getPortletSession(true).getAttribute(EJB_CONTAINER_KEY, PortletSession.APPLICATION_SCOPE);
-        if(container == null) {
-            ManagementHelper helper = getManagementHelper(request);
-            container = helper.getEJBContainer(getCurrentServer(request));
-            request.getPortletSession().setAttribute(EJB_CONTAINER_KEY, container, PortletSession.APPLICATION_SCOPE);
-        }
-        return container;
-    }
-
-    public static EJBConnector createEJBConnector(PortletRequest request, String name, String protocol, String threadPoolObjectName, String host, int port) {
-        EJBContainer container = getCurrentEJBContainer(request);
-        String objectName = container.addConnector(name, protocol, threadPoolObjectName, host, port);
+    public static WebConnector[] getWebConnectorsForContainer(PortletRequest request, String managerObjectName, String containerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
-        return (EJBConnector)helper.getObject(objectName);
+        WebManager manager = (WebManager) helper.getObject(managerObjectName);
+        return helper.getWebConnectorsForContainer(manager, containerObjectName);
     }
 
-    public static EJBConnector[] getEJBConnectors(PortletRequest request) {
+    public static WebConnector[] getWebConnectorsForContainer(PortletRequest request, String managerObjectName, String containerObjectName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getEJBConnectors(getCurrentEJBContainer(request));
+        WebManager manager = (WebManager) helper.getObject(managerObjectName);
+        return helper.getWebConnectorsForContainer(manager, containerObjectName, protocol);
     }
 
-    public static EJBConnector[] getEJBConnectors(PortletRequest request, String protocol) {
+    public static EJBManager[] getEJBManagers(PortletRequest request) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getEJBConnectors(getCurrentEJBContainer(request), protocol);
+        return helper.getEJBManagers(getCurrentServer(request));
     }
 
-    public static JMSManager getCurrentJMSManager(PortletRequest request) {
-        JMSManager manager = (JMSManager) request.getPortletSession(true).getAttribute(JMS_MANAGER_KEY, PortletSession.APPLICATION_SCOPE);
-        if(manager == null) {
-            ManagementHelper helper = getManagementHelper(request);
-            manager = helper.getJMSManager(getCurrentServer(request));
-            request.getPortletSession().setAttribute(JMS_MANAGER_KEY, manager, PortletSession.APPLICATION_SCOPE);
-        }
-        return manager;
-    }
-
-    public static JMSBroker[] getJMSBrokers(PortletRequest request) {
+    public static EJBManager getEJBManager(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getJMSBrokers(getCurrentJMSManager(request));
+        return (EJBManager) helper.getObject(managerObjectName);
     }
 
-    public static JMSConnector createJMSConnector(PortletRequest request, JMSBroker broker, String name, String protocol, String host, int port) {
-        JMSManager manager = getCurrentJMSManager(request);
-        String objectName = manager.addConnector(((GeronimoManagedBean)broker).getObjectName(), name, protocol, host, port);
+    public static String[] getJMSManagerNames(PortletRequest request) {
+        return getCurrentServer(request).getJMSManagers();
+    }
+
+    public static JMSManager getJMSManager(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
+        return (JMSManager) helper.getObject(managerObjectName);
+    }
+
+    public static String[] getJMSBrokerNames(PortletRequest request, String managerObjectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
+        return manager.getContainers();
+    }
+
+    public static JMSBroker getJMSBroker(PortletRequest request, String brokerObjectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        return (JMSBroker) helper.getObject(brokerObjectName);
+    }
+
+    public static JMSConnector createJMSConnector(PortletRequest request, String managerObjectName, String containerObjectName, String name, String protocol, String host, int port) {
+        ManagementHelper helper = getManagementHelper(request);
+        JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
+        String objectName = manager.addConnector(containerObjectName, name, protocol, host, port);
         return (JMSConnector)helper.getObject(objectName);
     }
 
-    public static JMSConnector[] getJMSConnectors(PortletRequest request) {
+    public static JMSConnector[] getJMSConnectors(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getJMSConnectors(getCurrentJMSManager(request));
+        JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
+        return helper.getJMSConnectors(manager);
     }
 
-    public static JMSConnector[] getJMSConnectors(PortletRequest request, String protocol) {
+    public static JMSConnector[] getJMSConnectors(PortletRequest request, String managerObjectName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getJMSConnectors(getCurrentJMSManager(request), protocol);
+        JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
+        return helper.getJMSConnectors(manager, protocol);
     }
 
-    public static JMSConnector[] getBrokerJMSConnectors(PortletRequest request, JMSBroker broker) {
+    public static JMSConnector[] getJMSConnectorsForContainer(PortletRequest request, String managerObjectName, String brokerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getJMSConnectors(getCurrentJMSManager(request), broker);
+        JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
+        return helper.getJMSConnectorsForContainer(manager, brokerObjectName);
     }
 
-    public static JMSConnector[] getBrokerJMSConnectors(PortletRequest request, JMSBroker broker, String protocol) {
+    public static JMSConnector[] getJMSConnectorsForContainer(PortletRequest request, String managerObjectName, String brokerObjectName, String protocol) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getJMSConnectors(getCurrentJMSManager(request), broker, protocol);
+        JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
+        return helper.getJMSConnectorsForContainer(manager, brokerObjectName, protocol);
     }
 
     public static GeronimoExecutor[] getThreadPools(PortletRequest request) {

@@ -316,6 +316,11 @@ public class BasicKernel implements Kernel {
         return results;
     }
 
+    public ObjectName getObjectNameFor(Object service) {
+        if(!running) {return null;}
+        return proxyManager.getProxyTarget(service);
+    }
+
     /**
      * Boot this Kernel, triggering the instantiation of the MBeanServer and DependencyManager,
      * and the registration of ConfigurationStore

@@ -2,7 +2,7 @@ package org.apache.geronimo.tomcat;
 
 import java.util.Map;
 import org.apache.geronimo.management.geronimo.SecureConnector;
-import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -46,8 +46,8 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
      * @param protocol
      */
     protected void validateProtocol(String protocol) {
-        if(protocol != null && !protocol.equals(WebContainer.PROTOCOL_HTTPS)) {
-            throw new IllegalStateException("HttpsConnectorGBean only supports "+WebContainer.PROTOCOL_HTTPS);
+        if(protocol != null && !protocol.equals(WebManager.PROTOCOL_HTTPS)) {
+            throw new IllegalStateException("HttpsConnectorGBean only supports "+WebManager.PROTOCOL_HTTPS);
         }
     }
 

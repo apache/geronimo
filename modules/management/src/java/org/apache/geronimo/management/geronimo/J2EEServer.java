@@ -30,7 +30,7 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      *
      * @return The ObjectName of the web container, in String form.
      */
-    public String getWebContainer();
+    public String[] getWebManagers();
 
     /**
      * Gets the ObjectName of the EJB Container associated with this
@@ -39,7 +39,7 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      *
      * @return The ObjectName of the EJB container, in String form.
      */
-    public String getEJBContainer();
+    public String[] getEJBManagers();
 
     /**
      * Gets the ObjectName of the JMS Manager associated with this
@@ -48,7 +48,7 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      *
      * @return The ObjectName of the JMS Manager, in String form.
      */
-    public String getJMSManager();
+    public String[] getJMSManagers();
 
     /**
      * Gets the ObjectNames of the thread pools associated with this

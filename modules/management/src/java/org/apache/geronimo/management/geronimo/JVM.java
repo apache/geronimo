@@ -26,9 +26,6 @@ import java.util.Properties;
  * @version $Rev$ $Date$
  */
 public interface JVM extends org.apache.geronimo.management.JVM {
-    long getFreeMemory();
-    long getTotalMemory();
-    long getMaxMemory();
     int getAvailableProcessors();
 
     /**

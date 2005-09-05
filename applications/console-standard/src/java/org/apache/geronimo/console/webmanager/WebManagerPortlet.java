@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -47,7 +46,9 @@ public class WebManagerPortlet extends BaseWebPortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         try {
-            WebContainer container = PortletManager.getCurrentWebContainer(actionRequest);
+            String managerName = PortletManager.getWebManagerNames(actionRequest)[0];  //todo: handle multiple
+            String containerName = PortletManager.getWebContainerNames(actionRequest, managerName)[0];  //todo: handle multiple
+            WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
             String server = getServerType(container.getClass());
             String action = actionRequest.getParameter("stats");
             if (action != null) {
@@ -72,7 +73,9 @@ public class WebManagerPortlet extends BaseWebPortlet {
             return;
         }
         try {
-            WebContainer container = PortletManager.getCurrentWebContainer(renderRequest);
+            String managerName = PortletManager.getWebManagerNames(renderRequest)[0];  //todo: handle multiple
+            String containerName = PortletManager.getWebContainerNames(renderRequest, managerName)[0];  //todo: handle multiple
+            WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
             String server = getServerType(container.getClass());
             StatisticsHelper helper = null;
             if(server.equals(SERVER_JETTY)) {

@@ -19,7 +19,7 @@ package org.apache.geronimo.management.geronimo;
 /**
  * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
  */
-public interface EJBContainer extends NetworkContainer {
+public interface EJBManager extends NetworkManager {
     public final static String PROTOCOL_RMI = "RMI";
     public final static String PROTOCOL_IIOP = "IIOP";
     public final static String PROTOCOL_HTTP = "HTTP";

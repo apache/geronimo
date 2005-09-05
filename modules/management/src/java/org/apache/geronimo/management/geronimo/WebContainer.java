@@ -22,15 +22,5 @@ package org.apache.geronimo.management.geronimo;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface WebContainer extends NetworkContainer {
-    public final static String PROTOCOL_HTTP = "HTTP";
-    public final static String PROTOCOL_HTTPS = "HTTPS";
-    public final static String PROTOCOL_AJP = "AJP";
-
-    /**
-     * Creates a new connector, and returns the ObjectName for it.  Note that
-     * the connector may well require further customization before being fully
-     * functional (e.g. SSL settings for a secure connector).
-     */
-    public String addConnector(String uniqueName, String protocol, String host, int port);
+public interface WebContainer {
 }

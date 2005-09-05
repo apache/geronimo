@@ -22,12 +22,4 @@ package org.apache.geronimo.management.geronimo;
  * @version $Rev: 233346 $ $Date: 2005-08-18 14:08:26 -0400 (Thu, 18 Aug 2005) $
  */
 public interface JMSBroker {
-    /**
-     * Gets the ObjectNames of the network connectors associated with this
-     * JMS broker.
-     *
-     * @return The ObjectNames of the network connectors, in String form.
-     */
-    public String[] getConnectors();
-
 }

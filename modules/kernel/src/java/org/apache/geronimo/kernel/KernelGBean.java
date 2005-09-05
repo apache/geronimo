@@ -156,12 +156,16 @@ public class KernelGBean implements Kernel{
     public void shutdown() {
         kernel.shutdown();
     }
-    
+
+    public ObjectName getObjectNameFor(Object service) {
+        return kernel.getObjectNameFor(service);
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(KernelGBean.class);
-        infoFactory.addInterface(KernelGBean.class);
+        infoFactory.addInterface(Kernel.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.setConstructor(new String[]{"kernel"});
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -20,7 +20,7 @@ package org.apache.geronimo.jetty.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.jetty.JettyContainer;
-import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.mortbay.http.SocketListener;
 
 /**
@@ -32,7 +32,7 @@ public class HTTPConnector extends JettyConnector {
     }
 
     public String getProtocol() {
-        return WebContainer.PROTOCOL_HTTP;
+        return WebManager.PROTOCOL_HTTP;
     }
 
     public int getDefaultPort() {

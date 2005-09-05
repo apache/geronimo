@@ -20,12 +20,8 @@ package org.apache.geronimo.console.webmanager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -39,10 +35,17 @@ import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.SecureConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * A portlet that lets you list, add, remove, start, stop, and edit web
+ * connectors (currently, either Tomcat or Jetty).
+ *
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ */
 public class ConnectorPortlet extends BaseWebPortlet {
     private final static Log log = LogFactory.getLog(ConnectorPortlet.class);
 
@@ -58,7 +61,9 @@ public class ConnectorPortlet extends BaseWebPortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         String mode = actionRequest.getParameter("mode");
-        WebContainer container = PortletManager.getCurrentWebContainer(actionRequest);
+        String managerName = PortletManager.getWebManagerNames(actionRequest)[0];  //todo: handle multiple
+        String containerName = PortletManager.getWebContainerNames(actionRequest, managerName)[0];  //todo: handle multiple
+        WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
         String server = getServerType(container.getClass());
         actionResponse.setRenderParameter("server", server);
         if(mode.equals("new")) {
@@ -76,7 +81,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
             Integer minThreads = getInteger(actionRequest, "minThreads");
             String name = actionRequest.getParameter("name");
             // Create and configure the connector
-            WebConnector connector = PortletManager.createWebConnector(actionRequest, name, protocol, host, port);
+            WebConnector connector = PortletManager.createWebConnector(actionRequest, managerName, containerName, name, protocol, host, port);
             connector.setMaxThreads(maxThreads);
             // todo: more configurable HTTP/Jetty values
             if(server.equals(SERVER_JETTY)) {
@@ -84,7 +89,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
                     setProperty(connector, "minThreads", minThreads);
                 }
             }
-            if(protocol.equals(WebContainer.PROTOCOL_HTTPS)) {
+            if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
                 String keystoreType = actionRequest.getParameter("keystoreType");
                 String keystoreFile = actionRequest.getParameter("keystoreFile");
                 String privateKeyPass = actionRequest.getParameter("privateKeyPassword");
@@ -120,7 +125,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
             String objectName = actionRequest.getParameter("objectName");
             // Identify and update the connector
             WebConnector connector = null;
-            WebConnector all[] = PortletManager.getWebConnectors(actionRequest);
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
                 if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -162,7 +167,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
             String objectName = actionRequest.getParameter("name");
             // work with the current connector to start it.
             WebConnector connector = null;
-            WebConnector all[] = PortletManager.getWebConnectors(actionRequest);
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
                 if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -186,7 +191,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
             String objectName = actionRequest.getParameter("name");
             // work with the current connector to stop it.
             WebConnector connector = null;
-            WebConnector all[] = PortletManager.getWebConnectors(actionRequest);
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
                 if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -213,7 +218,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
 
         } else if(mode.equals("delete")) { // User chose to delete a connector
             String objectName = actionRequest.getParameter("name");
-            PortletManager.getCurrentWebContainer(actionRequest).removeConnector(objectName);
+            PortletManager.getWebManager(actionRequest, managerName).removeConnector(objectName);
             actionResponse.setRenderParameter("mode", "list");
         }
     }
@@ -235,7 +240,9 @@ public class ConnectorPortlet extends BaseWebPortlet {
         if(mode == null || mode.equals("")) {
             mode = "list";
         }
-        WebContainer container = PortletManager.getCurrentWebContainer(renderRequest);
+        String managerName = PortletManager.getWebManagerNames(renderRequest)[0];  //todo: handle multiple
+        String containerName = PortletManager.getWebContainerNames(renderRequest, managerName)[0];  //todo: handle multiple
+        WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
         String server = getServerType(container.getClass());
         renderRequest.setAttribute("server", server);
 
@@ -247,7 +254,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
             }
             renderRequest.setAttribute("protocol", protocol);
             renderRequest.setAttribute("mode", "add");
-            if(protocol.equals(WebContainer.PROTOCOL_HTTPS)) {
+            if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
                 editHttpsView.include(renderRequest, renderResponse);
             } else {
                 editHttpView.include(renderRequest, renderResponse);
@@ -256,7 +263,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
         } else if(mode.equals("edit")) {
             String objectName = renderRequest.getParameter("objectName");
             WebConnector connector = null;
-            WebConnector all[] = PortletManager.getWebConnectors(renderRequest);
+            WebConnector all[] = PortletManager.getWebConnectors(renderRequest, managerName);
             for (int i = 0; i < all.length; i++) {
                 WebConnector conn = all[i];
                 if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
@@ -265,7 +272,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
                 }
             }
             if(connector == null) {
-                doList(renderRequest, container, renderResponse);
+                doList(renderRequest, managerName, renderResponse);
             } else {
                 renderRequest.setAttribute("objectName", objectName);
                 renderRequest.setAttribute("port", new Integer(connector.getPort()));
@@ -289,20 +296,20 @@ public class ConnectorPortlet extends BaseWebPortlet {
                     }
                 }
 
-                if(connector.getProtocol().equals(WebContainer.PROTOCOL_HTTPS)) {
+                if(connector.getProtocol().equals(WebManager.PROTOCOL_HTTPS)) {
                     editHttpsView.include(renderRequest, renderResponse);
                 } else {
                     editHttpView.include(renderRequest, renderResponse);
                 }
             }
         } else if(mode.equals("list")) {
-            doList(renderRequest, container, renderResponse);
+            doList(renderRequest, managerName, renderResponse);
         }
     }
 
-    private void doList(RenderRequest renderRequest, WebContainer container, RenderResponse renderResponse) throws PortletException, IOException {
+    private void doList(RenderRequest renderRequest, String managerName, RenderResponse renderResponse) throws PortletException, IOException {
         List beans = new ArrayList();
-        WebConnector[] connectors = PortletManager.getWebConnectors(renderRequest);
+        WebConnector[] connectors = PortletManager.getWebConnectors(renderRequest, managerName);
         for (int i = 0; i < connectors.length; i++) {
             WebConnector connector = connectors[i];
             ConnectorInfo info = new ConnectorInfo();
@@ -326,7 +333,7 @@ public class ConnectorPortlet extends BaseWebPortlet {
             beans.add(info);
         }
         renderRequest.setAttribute("connectors", beans);
-        renderRequest.setAttribute("protocols", container.getSupportedProtocols());
+        renderRequest.setAttribute("protocols", PortletManager.getWebManager(renderRequest, managerName).getSupportedProtocols());
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);

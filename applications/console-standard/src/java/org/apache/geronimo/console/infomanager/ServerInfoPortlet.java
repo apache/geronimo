@@ -70,19 +70,12 @@ public class ServerInfoPortlet extends GenericPortlet {
         JVM jvm = PortletManager.getCurrentJVM(renderRequest);
 
         Date bootDate = jvm.getKernelBootTime();
-        long bootTime = bootDate.getTime() / 1000;
-        long currentTime = System.currentTimeMillis() / 1000;
-        long elapsedTime = currentTime - bootTime;
         svrProps.put("Kernel Boot Time", bootDate);
-        svrProps.put("Kernel Up Time", calcElapsedTime(elapsedTime));
         renderRequest.setAttribute("svrProps", svrProps);
 
         jvmProps.put("Java Version", jvm.getJavaVersion());
         jvmProps.put("Java Vendor", jvm.getJavaVendor());
         jvmProps.put("Node", jvm.getNode());
-        jvmProps.put("Max Memory", calcMemory(jvm.getMaxMemory()));
-        jvmProps.put("Total Memory", calcMemory(jvm.getTotalMemory()));
-        jvmProps.put("Free Memory", calcMemory(jvm.getFreeMemory()));
         jvmProps.put("Available Processors", new Integer(jvm.getAvailableProcessors()));
         renderRequest.setAttribute("jvmProps", jvmProps);
 
@@ -114,39 +107,4 @@ public class ServerInfoPortlet extends GenericPortlet {
         helpView = null;
         super.destroy();
     }
-
-    private static String calcElapsedTime(long timeInSeconds) {
-        long days, hrs, mins, secs;
-        days = timeInSeconds / 86400;
-        timeInSeconds = timeInSeconds - (days * 86400);
-        hrs = timeInSeconds / 3600;
-        timeInSeconds = timeInSeconds - (hrs * 3600);
-        mins = timeInSeconds / 60;
-        timeInSeconds = timeInSeconds - (mins * 60);
-        secs = timeInSeconds;
-
-        StringBuffer sb = new StringBuffer();
-        sb.append(days);
-        sb.append(" day(s) ");
-        sb.append(hrs);
-        sb.append(" hour(s) ");
-        sb.append(mins);
-        sb.append(" minute(s) ");
-        sb.append(secs);
-        sb.append(" second(s)");
-
-        return sb.toString();
-    }
-
-    private static String calcMemory(long mem) {
-        long mb, kb;
-        mb = mem / 1048576;
-        // If less than 10MB return as KB
-        if (mb < 10) {
-            kb = mem / 1024;
-            return kb + "KB";
-        }
-        return mb + "MB";
-    }
-
 }

@@ -31,8 +31,9 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.EJBContainer;
+import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
 
 /**
@@ -113,34 +114,49 @@ public class J2EEServerImpl implements J2EEServer {
         return Util.getObjectNames(kernel, baseName, new String[]{"JVM"});
     }
 
-    public String getWebContainer() {
-        GBeanQuery query = new GBeanQuery(null, WebContainer.class.getName());
+    public String[] getWebManagers() {
+        GBeanQuery query = new GBeanQuery(null, WebManager.class.getName());
         Set set = kernel.listGBeans(query);
         if(set.size() == 0) {
             return null;
-        } else { // ignore possibility of multiple results
-            return ((ObjectName)set.iterator().next()).getCanonicalName();
         }
+        String[] results = new String[set.size()];
+        int i=0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            results[i++] = name.getCanonicalName();
+        }
+        return results;
     }
 
-    public String getEJBContainer() {
-        GBeanQuery query = new GBeanQuery(null, EJBContainer.class.getName());
+    public String[] getEJBManagers() {
+        GBeanQuery query = new GBeanQuery(null, EJBManager.class.getName());
         Set set = kernel.listGBeans(query);
         if(set.size() == 0) {
             return null;
-        } else { // ignore possibility of multiple results
-            return ((ObjectName)set.iterator().next()).getCanonicalName();
         }
+        String[] results = new String[set.size()];
+        int i=0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            results[i++] = name.getCanonicalName();
+        }
+        return results;
     }
 
-    public String getJMSManager() {
+    public String[] getJMSManagers() {
         GBeanQuery query = new GBeanQuery(null, JMSManager.class.getName());
         Set set = kernel.listGBeans(query);
         if(set.size() == 0) {
             return null;
-        } else { // ignore possibility of multiple results
-            return ((ObjectName)set.iterator().next()).getCanonicalName();
         }
+        String[] results = new String[set.size()];
+        int i=0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            results[i++] = name.getCanonicalName();
+        }
+        return results;
     }
 
     public String[] getThreadPools() {

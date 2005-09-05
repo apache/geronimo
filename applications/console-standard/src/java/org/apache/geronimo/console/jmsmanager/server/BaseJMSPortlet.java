@@ -32,16 +32,18 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
  * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
  */
 public class BaseJMSPortlet extends BasePortlet {
-    protected static Map getBrokerMap(RenderRequest renderRequest) throws PortletException {
+    protected static Map getBrokerMap(RenderRequest renderRequest, String managerObjectName) throws PortletException {
         JMSBroker[] brokers;
         Map map = new LinkedHashMap();
         try {
-            brokers = PortletManager.getJMSBrokers(renderRequest);
-            for (int i = 0; i < brokers.length; i++) {
-                JMSBroker broker = brokers[i];
-                String string = ((GeronimoManagedBean)broker).getObjectName();
-                ObjectName name = ObjectName.getInstance(string);
-                map.put(name.getKeyProperty("name"), broker);
+            String[] names = PortletManager.getJMSBrokerNames(renderRequest, managerObjectName);
+            brokers = new JMSBroker[names.length];
+            for (int i = 0; i < names.length; i++) {
+                String name = names[i];
+                JMSBroker broker = PortletManager.getJMSBroker(renderRequest, name);
+                brokers[i] = broker;
+                ObjectName objectName = ObjectName.getInstance(name);
+                map.put(objectName.getKeyProperty("name"), broker);
             }
         } catch (Exception e) {
             throw new PortletException(e);

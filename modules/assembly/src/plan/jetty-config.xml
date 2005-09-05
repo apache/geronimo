@@ -1,69 +1,1 @@
-<!--
-
-    Copyright 2004 The Apache Software Foundation
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
-
-<!-- $Rev: 201775 $ $Date: 2005-06-25 11:59:41 -0600 (Sat, 25 Jun 2005) $ -->
-
-<!--
-Configuration for the main ring of a Geronimo server.
-
-This configuration should contain those services normally provided
-by the server.
--->
-
-<!-- JETTY CONFIGURATION STARTS HERE -->
-
-    <dependency>
-        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
-    </dependency>
-
-    <!-- default WAR container using Jetty -->
-    <gbean name="WebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
-    </gbean>
-
-    <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">
-        <reference name="JettyContainer"><name>WebContainer</name></reference>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
-        <attribute name="logDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>
-        <attribute name="logTimeZone">GMT</attribute>
-    </gbean>
-
-    <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">
-        <attribute name="host">${PlanServerHostname}"</attribute>
-        <attribute name="port">${PlanHTTPPort}</attribute>
-        <reference name="JettyContainer"><name>WebContainer</name></reference>
-        <attribute name="maxThreads">50</attribute>
-        <attribute name="minThreads">10</attribute>
-    </gbean>
-
-    <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
-        <attribute name="host">${PlanServerHostname}"</attribute>
-        <attribute name="port">${PlanHTTPSPort}</attribute>
-        <attribute name="keystoreFileName">var/security/keystore</attribute>
-        <attribute name="keystoreType">JKS</attribute>
-        <attribute name="keystorePassword">secret</attribute>
-        <attribute name="keyPassword">secret</attribute>
-        <attribute name="clientAuthRequired">false</attribute>
-        <attribute name="secureProtocol">TLS</attribute>
-        <attribute name="maxThreads">50</attribute>
-        <attribute name="minThreads">10</attribute>
-        <reference name="JettyContainer"><name>WebContainer</name></reference>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-    </gbean>
-
-<!-- JETTY CONFIGURATION ENDS HERE -->
-
+<!--    Copyright 2004 The Apache Software Foundation    Licensed under the Apache License, Version 2.0 (the "License");    you may not use this file except in compliance with the License.    You may obtain a copy of the License at       http://www.apache.org/licenses/LICENSE-2.0    Unless required by applicable law or agreed to in writing, software    distributed under the License is distributed on an "AS IS" BASIS,    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    See the License for the specific language governing permissions and    limitations under the License.--><!-- $Rev: 201775 $ $Date: 2005-06-25 11:59:41 -0600 (Sat, 25 Jun 2005) $ --><!--Configuration for the main ring of a Geronimo server.This configuration should contain those services normally providedby the server.--><!-- JETTY CONFIGURATION STARTS HERE -->    <dependency>        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>    </dependency>    <!-- default WAR container using Jetty -->    <gbean name="JettyWebManager" class="org.apache.geronimo.jetty.JettyManagerImpl">    </gbean>    <!-- default WAR container using Jetty -->    <gbean name="WebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">    </gbean>    <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">        <reference name="JettyContainer"><name>WebContainer</name></reference>        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>        <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>        <attribute name="logDateFormat">dd/MMM/yyyy:HH:mm:ss ZZZ</attribute>        <attribute name="logTimeZone">GMT</attribute>    </gbean>    <gbean name="JettyWebConnector" class="org.apache.geronimo.jetty.connector.HTTPConnector">        <attribute name="host">${PlanServerHostname}"</attribute>        <attribute name="port">${PlanHTTPPort}</attribute>        <reference name="JettyContainer"><name>WebContainer</name></reference>        <attribute name="maxThreads">50</attribute>        <attribute name="minThreads">10</attribute>    </gbean>    <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">        <attribute name="host">${PlanServerHostname}"</attribute>        <attribute name="port">${PlanHTTPSPort}</attribute>        <attribute name="keystoreFileName">var/security/keystore</attribute>        <attribute name="keystoreType">JKS</attribute>        <attribute name="keystorePassword">secret</attribute>        <attribute name="keyPassword">secret</attribute>        <attribute name="clientAuthRequired">false</attribute>        <attribute name="secureProtocol">TLS</attribute>        <attribute name="maxThreads">50</attribute>        <attribute name="minThreads">10</attribute>        <reference name="JettyContainer"><name>WebContainer</name></reference>        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>    </gbean><!-- JETTY CONFIGURATION ENDS HERE -->

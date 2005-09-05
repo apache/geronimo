@@ -29,6 +29,7 @@ import org.apache.geronimo.jetty.JettyWebConnector;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.SocketListener;
+import org.mortbay.http.ajp.AJP13Listener;
 import org.mortbay.util.ThreadedServer;
 
 /**
@@ -37,6 +38,7 @@ import org.mortbay.util.ThreadedServer;
  * @version $Rev$ $Date$
  */
 public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnector {
+    public final static String CONNECTOR_CONTAINER_REFERENCE = "JettyContainer";
     private final JettyContainer container;
     protected final HttpListener listener;
     private String connectHost;
@@ -141,63 +143,35 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
         if(listener instanceof SocketListener) {
             SocketListener socketListener = (SocketListener)listener;
             socketListener.setBufferSize(bytes);
+        } else if(listener instanceof AJP13Listener) {
+            ((AJP13Listener)listener).setBufferSize(bytes);
         } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
+            throw new UnsupportedOperationException(listener == null ? "No Listener" : listener.getClass().getName()); //todo: can this happen?
         }
     }
 
     public int getAcceptQueueSize() {
-        if(listener instanceof SocketListener) {
-            SocketListener socketListener = (SocketListener)listener;
-            return socketListener.getAcceptQueueSize();
-        } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
-        }
+        return ((ThreadedServer)listener).getAcceptQueueSize();
     }
 
     public void setAcceptQueueSize(int size) {
-        if(listener instanceof SocketListener) {
-            SocketListener socketListener = (SocketListener)listener;
-            socketListener.setAcceptQueueSize(size);
-        } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
-        }
+        ((ThreadedServer)listener).setAcceptQueueSize(size);
     }
 
     public int getLingerMillis() {
-        if(listener instanceof SocketListener) {
-            SocketListener socketListener = (SocketListener)listener;
-            return socketListener.getLingerTimeSecs()*1000;
-        } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
-        }
+        return ((ThreadedServer)listener).getLingerTimeSecs()*1000;
     }
 
     public void setLingerMillis(int millis) {
-        if(listener instanceof SocketListener) {
-            SocketListener socketListener = (SocketListener)listener;
-            socketListener.setLingerTimeSecs(Math.round((float)millis/1000f));
-        } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
-        }
+        ((ThreadedServer)listener).setLingerTimeSecs(Math.round((float)millis/1000f));
     }
 
     public boolean isTcpNoDelay() {
-        if(listener instanceof SocketListener) {
-            SocketListener socketListener = (SocketListener)listener;
-            return socketListener.getTcpNoDelay();
-        } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
-        }
+        return ((ThreadedServer)listener).getTcpNoDelay();
     }
 
     public void setTcpNoDelay(boolean enable) {
-        if(listener instanceof SocketListener) {
-            SocketListener socketListener = (SocketListener)listener;
-            socketListener.setTcpNoDelay(enable);
-        } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
-        }
+        ((ThreadedServer)listener).setTcpNoDelay(enable);
     }
 
     public int getRedirectPort() {
@@ -211,8 +185,14 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
             socketListener.setIntegralPort(port);
             socketListener.setIntegralScheme("https");
             socketListener.setConfidentialScheme("https");
+        } else if(listener instanceof AJP13Listener) {
+            AJP13Listener ajpListener = (AJP13Listener) listener;
+            ajpListener.setConfidentialPort(port);
+            ajpListener.setIntegralPort(port);
+            ajpListener.setIntegralScheme("https");
+            ajpListener.setConfidentialScheme("https");
         } else {
-            throw new UnsupportedOperationException(); //todo: can this happen?
+            throw new UnsupportedOperationException(listener == null ? "No Listener" : listener.getClass().getName()); //todo: can this happen?
         }
     }
 
@@ -252,7 +232,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty HTTP Connector", JettyConnector.class);
-        infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads","maxThreads","bufferSizeBytes","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","connectUrl",},
                                                           new String[]{"host", "port", "redirectPort"});
         infoFactory.setConstructor(new String[] {"JettyContainer"});

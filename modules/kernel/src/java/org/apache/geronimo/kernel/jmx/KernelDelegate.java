@@ -286,6 +286,10 @@ public class KernelDelegate implements Kernel {
         }
     }
 
+    public ObjectName getObjectNameFor(Object service) {
+        return proxyManager.getProxyTarget(service);
+    }
+
     public boolean isRunning() {
         return ((Boolean) getKernelAttribute("running")).booleanValue();
     }
