@@ -7,18 +7,18 @@
 
 <portlet:defineObjects/>
 
-<table width="100%"> 
-  <tr> 
-    <td class="DarkBackground" width="100%" colspan="2" align="center">Kernel</td> 
-  </tr> 
-  <tr> 
-    <td class="LightBackground" width="20%" nowrap>Kernel Boot Time</td> 
-    <td class="LightBackground" width="80%">${svrProps['Kernel Boot Time']}</td> 
-  </tr> 
-  <tr> 
-    <td class="MediumBackground">Kernel Up Time</td> 
+<table width="100%">
+  <tr>
+    <td class="DarkBackground" width="100%" colspan="2" align="center">Kernel</td>
+  </tr>
+  <tr>
+    <td class="LightBackground" width="20%" nowrap>Kernel Boot Time</td>
+    <td class="LightBackground" width="80%">${svrProps['Kernel Boot Time']}</td>
+  </tr>
+  <tr>
+    <td class="MediumBackground">Kernel Up Time</td>
     <td class="MediumBackground"><div id="<portlet:namespace/>UpTime">Not Yet Available</div></td>
-  </tr> 
+  </tr>
 </table>
 <br>
 <!--
@@ -68,39 +68,39 @@
 </table>
 -->
 <br>
-<table width="100%"> 
-  <tr> 
-    <td class="DarkBackground" width="100%" colspan="2" align="center">JVM</td> 
-  </tr> 
-  <tr> 
-    <td class="LightBackground" width="20%" nowrap>Java Version</td> 
-    <td class="LightBackground" width="80%">${jvmProps['Java Version']}</td> 
-  </tr> 
-  <tr> 
-    <td class="MediumBackground">Java Vendor</td> 
-    <td class="MediumBackground">${jvmProps['Java Vendor']}</td> 
-  </tr> 
-  <tr> 
-    <td class="LightBackground">Node</td> 
-    <td class="LightBackground">${jvmProps['Node']}</td> 
-  </tr> 
-  <tr> 
+<table width="100%">
+  <tr>
+    <td class="DarkBackground" width="100%" colspan="2" align="center">JVM</td>
+  </tr>
+  <tr>
+    <td class="LightBackground" width="20%" nowrap>Java Version</td>
+    <td class="LightBackground" width="80%">${jvmProps['Java Version']}</td>
+  </tr>
+  <tr>
+    <td class="MediumBackground">Java Vendor</td>
+    <td class="MediumBackground">${jvmProps['Java Vendor']}</td>
+  </tr>
+  <tr>
+    <td class="LightBackground">Node</td>
+    <td class="LightBackground">${jvmProps['Node']}</td>
+  </tr>
+  <tr>
     <td class="MediumBackground">Current Memory Used</td>
     <td class="MediumBackground"><div id="<portlet:namespace/>CurrentMemory">Not Yet Available</div></td>
-  </tr> 
-  <tr> 
+  </tr>
+  <tr>
     <td class="LightBackground">Most Memory Used</td>
     <td class="LightBackground"><div id="<portlet:namespace/>MostMemory">Not Yet Available</div></td>
-  </tr> 
-  <tr> 
+  </tr>
+  <tr>
     <td class="MediumBackground">Total Memory Allocated</td>
     <td class="MediumBackground"><div id="<portlet:namespace/>AvailableMemory">Not Yet Available</div></td>
-  </tr> 
+  </tr>
   <tr>
-    <td class="LightBackground">Available Processors</td> 
-    <td class="LightBackground">${jvmProps['Available Processors']}</td> 
-  </tr> 
-  <tr> 
+    <td class="LightBackground">Available Processors</td>
+    <td class="LightBackground">${jvmProps['Available Processors']}</td>
+  </tr>
+  <tr>
     <td colspan="2" align="center"><div id="<portlet:namespace/>ErrorArea"></div></td>
   </tr>
 </table>
@@ -120,7 +120,7 @@ function <portlet:namespace/>updateValues(serverStats) {
     DWRUtil.setValue("<portlet:namespace/>AvailableMemory", serverStats.memoryAllocated);
     DWRUtil.setValue("<portlet:namespace/>UpTime", serverStats.upTime);
     if(!<portlet:namespace/>stopped) {
-        setTimeout("<portlet:namespace/>callServer()", 1000);
+        setTimeout("<portlet:namespace/>callServer()", 5000);
     }
 }
 function <portlet:namespace/>onError() {
