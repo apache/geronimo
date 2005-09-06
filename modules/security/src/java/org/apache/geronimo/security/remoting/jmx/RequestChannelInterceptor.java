@@ -26,12 +26,12 @@ import java.net.URISyntaxException;
 import org.activeio.Packet;
 import org.activeio.RequestChannel;
 import org.activeio.Service;
-import org.activeio.SynchChannel;
-import org.activeio.adapter.AsynchChannelToClientRequestChannel;
-import org.activeio.adapter.PacketInputStream;
-import org.activeio.filter.PacketAggregatingSynchChannel;
+import org.activeio.SyncChannel;
+import org.activeio.adapter.AsyncChannelToClientRequestChannel;
+import org.activeio.adapter.PacketToInputStream;
+import org.activeio.filter.PacketAggregatingSyncChannel;
 import org.activeio.net.SocketMetadata;
-import org.activeio.net.SocketSynchChannelFactory;
+import org.activeio.net.SocketSyncChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
 
 import org.apache.geronimo.core.service.Interceptor;
@@ -89,12 +89,12 @@ public class RequestChannelInterceptor implements Interceptor {
     }
     
     private static RequestChannel createRequestChannel(URI target) throws IOException, URISyntaxException {
-        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
-        SynchChannel channel = factory.openSynchChannel(target);
+        SocketSyncChannelFactory factory = new SocketSyncChannelFactory();
+        SyncChannel channel = factory.openSyncChannel(target);
         SocketMetadata socket = (SocketMetadata) channel.narrow(SocketMetadata.class);
         socket.setTcpNoDelay(true);
-        return new AsynchChannelToClientRequestChannel(
-	               new PacketAggregatingSynchChannel(
+        return new AsyncChannelToClientRequestChannel(
+	               new PacketAggregatingSyncChannel(
                        channel));        
     }
 
@@ -106,7 +106,7 @@ public class RequestChannelInterceptor implements Interceptor {
      * @throws ClassNotFoundException
      */
     static public Object deserialize(Packet response, ClassLoader cl) throws IOException, ClassNotFoundException {
-        ObjectInputStreamExt is = new ObjectInputStreamExt(new PacketInputStream(response), cl);
+        ObjectInputStreamExt is = new ObjectInputStreamExt(new PacketToInputStream(response), cl);
         Object rc = is.readObject();
         is.close();
         return rc;

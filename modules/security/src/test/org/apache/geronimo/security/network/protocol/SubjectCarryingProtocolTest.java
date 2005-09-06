@@ -17,6 +17,35 @@
 
 package org.apache.geronimo.security.network.protocol;
 
+import com.sun.security.auth.login.ConfigFile;
+import org.activeio.AcceptListener;
+import org.activeio.AsyncChannelServer;
+import org.activeio.Channel;
+import org.activeio.Packet;
+import org.activeio.RequestChannel;
+import org.activeio.RequestListener;
+import org.activeio.adapter.AsyncChannelToClientRequestChannel;
+import org.activeio.adapter.AsyncChannelToServerRequestChannel;
+import org.activeio.adapter.AsyncToSyncChannel;
+import org.activeio.adapter.SyncToAsyncChannel;
+import org.activeio.adapter.SyncToAsyncChannelServer;
+import org.activeio.filter.PacketAggregatingAsyncChannel;
+import org.activeio.net.SocketSyncChannelFactory;
+import org.activeio.packet.ByteArrayPacket;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.security.AbstractTest;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.login.Configuration;
+import javax.security.auth.login.LoginContext;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -24,37 +53,6 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
 import java.util.Properties;
-
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.login.Configuration;
-import javax.security.auth.login.LoginContext;
-
-import org.activeio.AcceptListener;
-import org.activeio.AsynchChannelServer;
-import org.activeio.Channel;
-import org.activeio.Packet;
-import org.activeio.RequestChannel;
-import org.activeio.RequestListener;
-import org.activeio.adapter.AsynchChannelToClientRequestChannel;
-import org.activeio.adapter.AsynchChannelToServerRequestChannel;
-import org.activeio.adapter.AsynchToSynchChannelAdapter;
-import org.activeio.adapter.SynchToAsynchChannelAdapter;
-import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
-import org.activeio.filter.PacketAggregatingAsynchChannel;
-import org.activeio.net.SocketSynchChannelFactory;
-import org.activeio.packet.ByteArrayPacket;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.security.AbstractTest;
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-
-import com.sun.security.auth.login.ConfigFile;
 
 
 /**
@@ -71,7 +69,7 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
     private Subject clientSubject;
     private Subject serverSubject;
     private URI serverURI;
-    private AsynchChannelServer server;
+    private AsyncChannelServer server;
 
     public void testNothing() throws Exception {
     }
@@ -81,14 +79,14 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
      */
     public void disabledtest() throws Exception {
 
-        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
+        SocketSyncChannelFactory factory = new SocketSyncChannelFactory();
         final RequestChannel channel =
-            new AsynchChannelToClientRequestChannel(
-                AsynchToSynchChannelAdapter.adapt(
+            new AsyncChannelToClientRequestChannel(
+                AsyncToSyncChannel.adapt(
                     new SubjectCarryingChannel(
-                        new PacketAggregatingAsynchChannel(
-                            SynchToAsynchChannelAdapter.adapt(
-                                 factory.openSynchChannel(serverURI))))));
+                        new PacketAggregatingAsyncChannel(
+                            SyncToAsyncChannel.adapt(
+                                 factory.openSyncChannel(serverURI))))));
         try {
             channel.start();
 	        Subject.doAs(clientSubject, new PrivilegedExceptionAction() {
@@ -162,9 +160,9 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         context.login();
         serverSubject = context.getSubject();
 
-        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
-        server = new SynchToAsynchChannelServerAdapter(
-                factory.bindSynchChannel(new URI("tcp://localhost:0")));
+        SocketSyncChannelFactory factory = new SocketSyncChannelFactory();
+        server = new SyncToAsyncChannelServer(
+                factory.bindSyncChannel(new URI("tcp://localhost:0")));
 
         server.setAcceptListener(new AcceptListener() {
             public void onAccept(Channel channel) {
@@ -172,10 +170,10 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
                 try {
 
                     requestChannel =
-                        new AsynchChannelToServerRequestChannel(
+                        new AsyncChannelToServerRequestChannel(
 	                        new SubjectCarryingChannel(
-	                            new PacketAggregatingAsynchChannel(
-	                                SynchToAsynchChannelAdapter.adapt(channel))));
+	                            new PacketAggregatingAsyncChannel(
+	                                SyncToAsyncChannel.adapt(channel))));
 
                     requestChannel.setRequestListener(SubjectCarryingProtocolTest.this);
                     requestChannel.start();

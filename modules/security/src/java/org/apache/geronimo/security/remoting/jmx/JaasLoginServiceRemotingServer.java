@@ -17,51 +17,50 @@
 
 package org.apache.geronimo.security.remoting.jmx;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.InetSocketAddress;
-import javax.management.ObjectName;
-
 import org.activeio.AcceptListener;
-import org.activeio.AsynchChannelServer;
+import org.activeio.AsyncChannelServer;
 import org.activeio.Channel;
 import org.activeio.Packet;
 import org.activeio.RequestChannel;
-import org.activeio.SynchChannel;
-import org.activeio.SynchChannelServer;
-import org.activeio.adapter.AsynchChannelToServerRequestChannel;
-import org.activeio.adapter.AsynchToSynchChannelAdapter;
-import org.activeio.adapter.SynchToAsynchChannelAdapter;
-import org.activeio.adapter.SynchToAsynchChannelServerAdapter;
-import org.activeio.filter.PacketAggregatingAsynchChannel;
+import org.activeio.SyncChannel;
+import org.activeio.SyncChannelServer;
+import org.activeio.adapter.AsyncChannelToServerRequestChannel;
+import org.activeio.adapter.AsyncToSyncChannel;
+import org.activeio.adapter.SyncToAsyncChannel;
+import org.activeio.adapter.SyncToAsyncChannelServer;
+import org.activeio.filter.PacketAggregatingAsyncChannel;
 import org.activeio.net.SocketMetadata;
-import org.activeio.net.SocketSynchChannelFactory;
-
+import org.activeio.net.SocketSyncChannelFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
-import org.apache.geronimo.management.geronimo.NetworkConnector;
+
+import javax.management.ObjectName;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 /**
  * A server-side utility that exposes a JaasLoginService to remote clients.
  * It prevents clients from connecting to arbitrary server-side MBeans through
  * this listener -- only the JaasLoginService is exposed.
- * 
+ *
  * @version $Rev: 56022 $ $Date: 2004-10-30 01:16:18 -0400 (Sat, 30 Oct 2004) $
  */
 public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkConnector {
 
     public static final ObjectName REQUIRED_OBJECT_NAME = JMXUtil.getObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
-    
+
     private static final Log log = LogFactory.getLog(JaasLoginServiceRemotingServer.class);
-    private AsynchChannelServer server;
+    private AsyncChannelServer server;
     private JaasLoginServiceMBean loginService;
     private String protocol;
     private String host;
@@ -103,7 +102,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
     }
 
     public InetSocketAddress getListenAddress() {
-        if(server != null) {
+        if (server != null) {
             URI uri = server.getBindURI();
             return new InetSocketAddress(uri.getHost(), uri.getPort());
         } else {
@@ -113,69 +112,68 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
 
     public void doStart() throws Exception {
         final ReflexiveInterceptor loginServiceInterceptor = new ReflexiveInterceptor(loginService);
-        
-        server = createAsynchChannelServer();
+
+        server = createAsyncChannelServer();
         server.setAcceptListener(new AcceptListener() {
             public void onAccept(Channel channel) {
-                RequestChannel requestChannel=null;
+                RequestChannel requestChannel = null;
                 try {
-                    SynchChannel synchChannel = AsynchToSynchChannelAdapter.adapt(channel);
-                    SocketMetadata socket = (SocketMetadata) synchChannel.narrow(SocketMetadata.class);
+                    SyncChannel syncChannel = AsyncToSyncChannel.adapt(channel);
+                    SocketMetadata socket = (SocketMetadata) syncChannel.narrow(SocketMetadata.class);
                     socket.setTcpNoDelay(true);
-                    
-                    requestChannel = createRequestChannel(synchChannel);     
-                    
-                    RequestChannelInterceptorInvoker invoker = new RequestChannelInterceptorInvoker(loginServiceInterceptor, loginService.getClass().getClassLoader() ); 
+
+                    requestChannel = createRequestChannel(syncChannel);
+
+                    RequestChannelInterceptorInvoker invoker = new RequestChannelInterceptorInvoker(loginServiceInterceptor, loginService.getClass().getClassLoader());
                     requestChannel.setRequestListener(invoker);
                     requestChannel.start();
                 } catch (IOException e) {
                     log.info("Failed to accept connection.", e);
-                    if( requestChannel!=null )
+                    if (requestChannel != null)
                         requestChannel.dispose();
                     else
                         channel.dispose();
-                }                
+                }
             }
+
             public void onAcceptError(IOException error) {
-                log.info("Accept Failed: "+error);
+                log.info("Accept Failed: " + error);
             }
         });
-        
+
         server.start();
-        log.info("Remote login service started on: "+server.getConnectURI()+" clients can connect to: "+server.getConnectURI());
-    }
-    
-    private AsynchChannelServer createAsynchChannelServer() throws IOException, URISyntaxException {
-        SocketSynchChannelFactory factory = new SocketSynchChannelFactory();
-        SynchChannelServer server = factory.bindSynchChannel(new URI(protocol, null, host, port, null, null, null));
-        return new SynchToAsynchChannelServerAdapter(server);        
+        log.info("Remote login service started on: " + server.getConnectURI() + " clients can connect to: " + server.getConnectURI());
     }
 
-    private RequestChannel createRequestChannel(SynchChannel channel) throws IOException {
-        
-        return new AsynchChannelToServerRequestChannel( 
-                new PacketAggregatingAsynchChannel(
-                        SynchToAsynchChannelAdapter.adapt(channel))) {            
+    private AsyncChannelServer createAsyncChannelServer() throws IOException, URISyntaxException {
+        SocketSyncChannelFactory factory = new SocketSyncChannelFactory();
+        SyncChannelServer server = factory.bindSyncChannel(new URI(protocol, null, host, port, null, null, null));
+        return new SyncToAsyncChannelServer(server);
+    }
+
+    private RequestChannel createRequestChannel(SyncChannel channel) throws IOException {
+
+        return new AsyncChannelToServerRequestChannel(new PacketAggregatingAsyncChannel(SyncToAsyncChannel.adapt(channel))) {
             /**
              * close out the channel once one request has been serviced.
              */
             public void onPacket(Packet packet) {
                 super.onPacket(packet);
                 dispose();
-            }            
+            }
         };
     }
 
     public void doStop() {
         server.dispose();
-        server=null;        
+        server = null;
         log.info("Stopped remote login service.");
     }
 
     public void doFail() {
-        if( server !=null ) {
+        if (server != null) {
             server.dispose();
-	        server=null;        
+            server = null;
         }
         log.info("Failed remote login service.");
     }
@@ -186,7 +184,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Remote Login Listener", JaasLoginServiceRemotingServer.class); //has fixed name, j2eeType is irrelevant
         infoFactory.addAttribute("clientConnectURI", URI.class, false);
         infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "JaasLoginService");
-        infoFactory.addInterface(NetworkConnector.class, new String[]{"host","port","protocol"}, new String[]{"host","port"});
+        infoFactory.addInterface(NetworkConnector.class, new String[]{"host", "port", "protocol"}, new String[]{"host", "port"});
         infoFactory.setConstructor(new String[]{"protocol", "host", "port", "LoginService"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
