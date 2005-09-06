@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Collection;
 import javax.management.ObjectName;
 
 /**
@@ -72,4 +73,5 @@ public interface ConfigurationManager {
      * @throws NoSuchConfigException if the configuration is now loaded into the kernel
      */
     void unload(URI configID) throws NoSuchConfigException;
+    
 }

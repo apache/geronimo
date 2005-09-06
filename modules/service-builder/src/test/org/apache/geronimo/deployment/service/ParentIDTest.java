@@ -17,6 +17,7 @@
 package org.apache.geronimo.deployment.service;
 
 import java.net.URI;
+import java.util.List;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
@@ -27,21 +28,21 @@ import org.apache.geronimo.deployment.xbeans.DependencyType;
 public class ParentIDTest extends TestCase {
 
     public void testNoParents() throws Exception {
-        URI[] parentId = ServiceConfigBuilder.getParentID(null, new DependencyType[] {});
-        assertNull(parentId);
+        List parentId = ServiceConfigBuilder.getParentID(null, new DependencyType[] {});
+        assertEquals(0, parentId.size());
     }
 
     public void testAttributeParent() throws Exception {
-        URI[] parentId = ServiceConfigBuilder.getParentID("attribute", new DependencyType[] {});
-        assertEquals(1, parentId.length);
+        List parentId = ServiceConfigBuilder.getParentID("attribute", new DependencyType[] {});
+        assertEquals(1, parentId.size());
     }
 
     public void testImportParent1() throws Exception {
         DependencyType anImport = DependencyType.Factory.newInstance();
         anImport.setUri("import");
-        URI[] parentId = ServiceConfigBuilder.getParentID(null, new DependencyType[] {anImport});
-        assertEquals(1, parentId.length);
-        assertEquals("import", parentId[0].getPath());
+        List parentId = ServiceConfigBuilder.getParentID(null, new DependencyType[] {anImport});
+        assertEquals(1, parentId.size());
+        assertEquals("import", ((URI)parentId.get(0)).getPath());
     }
 
     public void testImportParent2() throws Exception {
@@ -50,9 +51,9 @@ public class ParentIDTest extends TestCase {
         anImport.setType("type");
         anImport.setArtifactId("artifactId");
         anImport.setVersion("version");
-        URI[] parentId = ServiceConfigBuilder.getParentID(null, new DependencyType[] {anImport});
-        assertEquals(1, parentId.length);
-        assertEquals("groupId/types/artifactId-version.type", parentId[0].getPath());
+        List parentId = ServiceConfigBuilder.getParentID(null, new DependencyType[] {anImport});
+        assertEquals(1, parentId.size());
+        assertEquals("groupId/types/artifactId-version.type", ((URI)parentId.get(0)).getPath());
     }
 
     public void testBothParent() throws Exception {
@@ -60,11 +61,11 @@ public class ParentIDTest extends TestCase {
         import1.setUri("import1");
         DependencyType import2 = DependencyType.Factory.newInstance();
         import2.setUri("import2");
-        URI[] parentId = ServiceConfigBuilder.getParentID("attribute", new DependencyType[] {import1, import2});
-        assertEquals(3, parentId.length);
-        assertEquals("attribute", parentId[0].getPath());
-        assertEquals("import1", parentId[1].getPath());
-        assertEquals("import2", parentId[2].getPath());
+        List parentId = ServiceConfigBuilder.getParentID("attribute", new DependencyType[] {import1, import2});
+        assertEquals(3, parentId.size());
+        assertEquals("attribute", ((URI)parentId.get(0)).getPath());
+        assertEquals("import1", ((URI)parentId.get(1)).getPath());
+        assertEquals("import2", ((URI)parentId.get(2)).getPath());
     }
 
 

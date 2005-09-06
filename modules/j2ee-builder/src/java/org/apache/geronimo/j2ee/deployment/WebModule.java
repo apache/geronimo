@@ -19,6 +19,7 @@ package org.apache.geronimo.j2ee.deployment;
 import java.util.jar.JarFile;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class WebModule extends Module {
     private final String contextRoot;
     private final Map portMap;
 
-    public WebModule(boolean standAlone, URI configId, URI[] parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap) {
+    public WebModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap) {
         super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
         this.contextRoot = contextRoot;
         this.portMap = portMap;

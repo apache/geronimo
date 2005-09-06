@@ -34,6 +34,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -50,6 +53,7 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -62,6 +66,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.StoredObject;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -104,26 +109,32 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class TomcatModuleBuilder implements ModuleBuilder {
 
-    private final URI[] defaultParentId;
+    private static final String TOMCAT_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/tomcat";
+    private static final QName TOMCAT_CONFIG_QNAME = new QName(TOMCAT_CONFIG_NAMESPACE, "tomcat");
+
+    private final List defaultParentId;
     private final boolean defaultContextPriorityClassloader;
     private final ObjectName tomcatContainerObjectName;
 
     private final WebServiceBuilder webServiceBuilder;
 
     private final Repository repository;
-    private static final String TOMCAT_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/tomcat";
-    private static final QName TOMCAT_CONFIG_QNAME = new QName(TOMCAT_CONFIG_NAMESPACE, "tomcat");
+    private final Kernel kernel;
+    private static final String TOMCAT_NAMESPACE = TOMCAT_CONFIG_NAMESPACE;//OpenejbOpenejbJarDocument.type.getDocumentElementName().getNamespaceURI();
 
     public TomcatModuleBuilder(URI[] defaultParentId,
                                boolean defaultContextPriorityClassloader,
                                ObjectName tomcatContainerObjectName,
                                WebServiceBuilder webServiceBuilder,
-                               Repository repository) {
-        this.defaultParentId = defaultParentId;
+                               Repository repository,
+                               Kernel kernel) {
+        this.defaultParentId = defaultParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultParentId);
+
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.tomcatContainerObjectName = tomcatContainerObjectName;
         this.webServiceBuilder = webServiceBuilder;
         this.repository = repository;
+        this.kernel = kernel;
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -177,9 +188,9 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + tomcatWebApp.getConfigId(), e);
         }
 
-        URI[] parentId = ServiceConfigBuilder.getParentID(tomcatWebApp.getParentId(), tomcatWebApp.getImportArray());
-        if (parentId == null) {
-            parentId = defaultParentId;
+        List parentId = ServiceConfigBuilder.getParentID(tomcatWebApp.getParentId(), tomcatWebApp.getImportArray());
+        if (parentId.isEmpty()) {
+            parentId = new ArrayList(defaultParentId);
         }
 
         if (contextRoot == null) {
@@ -205,6 +216,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
      * will only have one, which is what this method is intended for.
+     *
      * @param webApp
      * @param contextRoot
      * @return
@@ -292,6 +304,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        earContext.addParentId(defaultParentId);
         try {
             URI baseDir = URI.create(module.getTargetPath() + "/");
 
@@ -401,7 +414,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("More than one tomcat config: " + anys);
                 }
                 if (anys.length == 1) {
-                    GerTomcatConfigType tomcatConfig = (GerTomcatConfigType)anys[0].copy().changeType(GerTomcatConfigType.type);
+                    GerTomcatConfigType tomcatConfig = (GerTomcatConfigType) anys[0].copy().changeType(GerTomcatConfigType.type);
                     if (tomcatConfig.isSetHost()) {
                         String virtualServer = tomcatConfig.getHost().trim();
                         webModuleData.setAttribute("virtualServer", virtualServer);
@@ -463,7 +476,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 SecurityHolder securityHolder = new SecurityHolder();
                 securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
 
-                if (tomcatWebApp.isSetSecurity()){
+                if (tomcatWebApp.isSetSecurity()) {
 
                     securityHolder.setSecurity(true);
                     /**
@@ -485,8 +498,8 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                     securityHolder.setChecked(checkedPermissions);
                     earContext.addSecurityContext(policyContextID, componentPermissions);
 //                    if (tomcatWebApp.isSetSecurity()) {
-                        SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(tomcatWebApp.getSecurity());
-                        earContext.setSecurityConfiguration(securityConfiguration);
+                    SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(tomcatWebApp.getSecurity());
+                    earContext.setSecurityConfiguration(securityConfiguration);
 //                    }
                     DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
                     securityHolder.setDefaultPrincipal(defaultPrincipal);
@@ -503,6 +516,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
+    }
+
+    public String getSchemaNamespace() {
+        return TOMCAT_NAMESPACE;
     }
 
     private ClassLoader getWebClassLoader(EARContext earContext, WebModule webModule, ClassLoader cl, boolean contextPriorityClassLoader) throws DeploymentException {
@@ -929,19 +946,21 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
-        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true);
-        infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true);
+        infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
+        infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addInterface(ModuleBuilder.class);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.setConstructor(new String[]{
             "defaultParentId",
             "defaultContextPriorityClassloader",
             "tomcatContainerObjectName",
             "WebServiceBuilder",
-            "Repository"});
+            "Repository",
+            "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

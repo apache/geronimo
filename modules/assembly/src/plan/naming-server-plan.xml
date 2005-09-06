@@ -28,6 +28,49 @@ after the system GBeans but before the server GBeans.
     parentId="org/apache/geronimo/System"
     >
 
+    <dependency>
+        <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-transaction-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>howl/jars/howl-logger-${howl_version}.jar</uri>
+    </dependency>
+    <!--transaction module requires tranql for cache class -->
+    <dependency>
+        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
+    </dependency>
+    <!-- tranql requires antlr -->
+    <dependency>
+        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
+    </dependency>
+    <!-- remote login -->
+    <dependency>
+        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
+    </dependency>
+
     <!-- RMI Registry -->
     <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
         <attribute name="port">${PlanNamingPort}</attribute>

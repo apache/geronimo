@@ -22,21 +22,20 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collection;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -47,12 +46,12 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.UnavailableWebServiceBuilder;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -73,9 +72,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 /**
@@ -102,7 +99,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
-    private URI[] parentId = new URI[] {URI.create("org/apache/geronimo/Foo")};
+    private List parentId = Arrays.asList(new URI[] {URI.create("org/apache/geronimo/Foo")});
 
     public void testDeployWar4() throws Exception {
         File outputPath = new File(basedir, "target/test-resources/deployables/war4");
@@ -259,7 +256,7 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load(parentId[0]);
+        ObjectName baseConfigName = configurationManager.load((URI) parentId.get(0));
         kernel.startGBean(baseConfigName);
 
         Collection defaultServlets = new HashSet();
@@ -384,7 +381,7 @@ public class JettyModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public List listConfiguations() {
+        public List listConfigurations() {
             return null;
         }
 

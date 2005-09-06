@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -55,7 +56,7 @@ public class EARContext extends DeploymentContext implements NamingContext {
     private ObjectName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
 
-    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI[] parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, ObjectName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
+    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, List parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, ObjectName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
         super(baseDir, id, moduleType, parentID, kernel);
         j2eeContext = new J2eeContextImpl(getDomain(), getServer(), j2eeApplicationName == null ? NameFactory.NULL : j2eeApplicationName, NameFactory.J2EE_MODULE, NameFactory.NULL, null, null);
         domainObjectName = NameFactory.getDomainName(null, j2eeContext);

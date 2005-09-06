@@ -305,7 +305,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
-    public List listConfiguations() {
+    public List listConfigurations() {
         List configs;
         synchronized (this) {
             configs = new ArrayList(index.size());

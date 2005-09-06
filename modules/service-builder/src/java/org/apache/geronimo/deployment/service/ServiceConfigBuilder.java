@@ -26,10 +26,16 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -55,6 +61,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -68,7 +75,7 @@ import org.apache.xmlbeans.XmlOptions;
  * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
-    private final URI[] defaultParentId;
+    private final List defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
 
@@ -84,7 +91,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public ServiceConfigBuilder(URI[] defaultParentId, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
-        this.defaultParentId = defaultParentId;
+        this.defaultParentId = defaultParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultParentId);
+
         this.repository = repository;
         this.kernel = kernel;
         if (xmlAttributeBuilders != null) {
@@ -163,8 +171,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public ConfigurationData buildConfiguration(ConfigurationType configType, String domain, String server, File outfile) throws DeploymentException, IOException {
-        URI[] parentID = getParentID(configType.getParentId(), configType.getImportArray());
-        if (parentID == null) {
+        List parentID = getParentID(configType.getParentId(), configType.getImportArray());
+        if (parentID == null || parentID.size() == 0) {
             if (configType.isSetDomain()) {
                 if (!configType.isSetServer()) {
                     throw new DeploymentException("You must set both domain and server");
@@ -204,7 +212,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return context.getConfigurationData();
     }
 
-    public static URI[] getParentID(String parentIDString, DependencyType[] imports) throws DeploymentException {
+    public static List getParentID(String parentIDString, DependencyType[] imports) throws DeploymentException {
         List uris = new ArrayList();
         if (parentIDString != null) {
             try {
@@ -213,15 +221,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 throw new DeploymentException("Invalid parentId " + parentIDString, e);
             }
         } else if (imports.length == 0) {
-            return null;
+            return new ArrayList();
         }
         for (int i = 0; i < imports.length; i++) {
             DependencyType anImport = imports[i];
             URI parentURI = getDependencyURI(anImport);
             uris.add(parentURI);
         }
-        URI[] parentID = (URI[]) uris.toArray(new URI[uris.size()]);
-        return parentID;
+        return uris;
     }
 
     public static void addIncludes(DeploymentContext context, DependencyType[] includes, Repository repository) throws DeploymentException {

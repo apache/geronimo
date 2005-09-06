@@ -18,6 +18,7 @@ package org.apache.geronimo.spring.deployment;
 
 import java.io.File;
 import java.net.URI;
+import java.util.List;
 import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.common.DeploymentException;
@@ -32,8 +33,8 @@ public class SPRContext
   extends DeploymentContext
 {
   public
-    SPRContext(File baseDir, URI id, ConfigurationModuleType moduleType, URI[] parentID, Kernel kernel)
-    throws MalformedObjectNameException, DeploymentException
+    SPRContext(File baseDir, URI id, ConfigurationModuleType moduleType, List parentID, Kernel kernel)
+    throws DeploymentException
   {
     super(baseDir, id, moduleType, parentID, kernel);
   }

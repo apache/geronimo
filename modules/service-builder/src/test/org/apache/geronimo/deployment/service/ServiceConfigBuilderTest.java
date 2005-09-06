@@ -20,6 +20,9 @@ import java.net.URI;
 import java.net.URL;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+import java.util.Set;
 import javax.management.ObjectName;
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
@@ -40,12 +43,15 @@ import org.apache.geronimo.gbean.ReferenceCollectionListener;
  */
 public class ServiceConfigBuilderTest extends TestCase {
 
+    private URI[] parentIdArray = new URI[] {URI.create("test/foo")};
+    private List parentId = Arrays.asList(parentIdArray);
+
     public void testJavaBeanXmlAttribute() throws Exception {
         ReferenceCollection referenceCollection = new MockReferenceCollection();
         JavaBeanXmlAttributeBuilder javaBeanXmlAttributeBuilder = new JavaBeanXmlAttributeBuilder();
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
-        ServiceConfigBuilder builder = new ServiceConfigBuilder(new URI[] {URI.create("test/foo")}, null, referenceCollection, null, null);
+        new ServiceConfigBuilder(parentIdArray, null, referenceCollection, null, null);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         URL plan1 = cl.getResource("services/plan1.xml");
         ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);
@@ -56,13 +62,14 @@ public class ServiceConfigBuilderTest extends TestCase {
             fail("could not create temp dir");
         }
         try {
-            DeploymentContext context = new DeploymentContext(outFile, URI.create("foo/bar"), ConfigurationModuleType.SERVICE, new URI[] {URI.create("foo")}, "domain", "server", null);
+            DeploymentContext context = new DeploymentContext(outFile, URI.create("foo/bar"), ConfigurationModuleType.SERVICE, parentId, "domain", "server", null);
             J2eeContext j2eeContext = new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
-            GBeanData[] beanDatas = context.getGBeans();
-            assertEquals(1, beanDatas.length);
-            GBeanData data = beanDatas[0];
+            Set beanDatas = context.listGBeans(new ObjectName("*:*"));
+            assertEquals(1, beanDatas.size());
+            ObjectName beanName = (ObjectName) beanDatas.iterator().next();
+            GBeanData data = context.getGBeanInstance(beanName); 
             FooBarBean fooBarBean = (FooBarBean) data.getAttribute("fooBarBean");
             assertNotNull(fooBarBean);
             assertEquals("foo", fooBarBean.getFoo());

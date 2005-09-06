@@ -84,7 +84,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
     }
 
     public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute) {
-        log.info("Checking value for "+configurationName+"/"+gbean+"/"+attribute.getName());
+        log.debug("Checking value for "+configurationName+"/"+gbean+"/"+attribute.getName());
         Map config = (Map) configurations.get(configurationName);
         if(config == null) {
             return null; // nothing specified for this configuration
@@ -107,6 +107,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
                 return null;
             }
             editor.setAsText(value);
+            log.info("Setting value for "+configurationName+"/"+gbean+"/" + attribute.getName() + " to value " + value);
             return editor.getValue();
         } catch (ClassNotFoundException e) {
             //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue

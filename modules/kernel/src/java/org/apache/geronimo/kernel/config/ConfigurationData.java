@@ -43,7 +43,7 @@ public class ConfigurationData {
     /**
      * The uri of the parent of this configuration.  May be null.
      */
-    private URI[] parentId;
+    private List parentId;
 
     /**
      * The domain name of the configurations.  This is used to autogenerate names for sub components.
@@ -106,11 +106,11 @@ public class ConfigurationData {
         this.moduleType = moduleType;
     }
 
-    public URI[] getParentId() {
+    public List getParentId() {
         return parentId;
     }
 
-    public void setParentId(URI[] parentId) {
+    public void setParentId(List parentId) {
         this.parentId = parentId;
     }
 

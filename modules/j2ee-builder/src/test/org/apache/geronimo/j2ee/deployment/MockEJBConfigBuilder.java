@@ -71,6 +71,10 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         assertEquals(this.cl, cl);
     }
 
+    public String getSchemaNamespace() {
+        return null;
+    }
+
     public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
         return null;
     }

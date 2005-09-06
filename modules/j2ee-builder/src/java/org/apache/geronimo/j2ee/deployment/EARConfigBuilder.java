@@ -22,15 +22,16 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
@@ -84,7 +85,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
-    private final URI[] defaultParentId;
+    private final List defaultParentId;
     private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
     private final ObjectName transactionalTimerObjectName;
@@ -95,7 +96,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     public EARConfigBuilder(URI[] defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
-        this.defaultParentId = defaultParentId;
+        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
 
         this.ejbConfigBuilder = ejbConfigBuilder;
         this.ejbReferenceBuilder = ejbReferenceBuilder;
@@ -221,10 +222,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Invalid configId " + gerApplication.getConfigId(), e);
         }
 
-        URI[] parentId = ServiceConfigBuilder.getParentID(gerApplication.getParentId(), gerApplication.getImportArray());
-         if (parentId == null) {
-             parentId = defaultParentId;
-         }
+        List parentId = ServiceConfigBuilder.getParentID(gerApplication.getParentId(), gerApplication.getImportArray());
+        parentId.addAll(defaultParentId);
 
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate

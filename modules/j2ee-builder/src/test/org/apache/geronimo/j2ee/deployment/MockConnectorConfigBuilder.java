@@ -70,6 +70,10 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         assertEquals(this.cl, cl);
     }
 
+    public String getSchemaNamespace() {
+        return null;
+    }
+
     public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
         return null;
     }

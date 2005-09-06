@@ -54,10 +54,10 @@ public class SPRConfigBuilder
 
   protected final Kernel     _kernel;
   protected final Repository _repository;
-  protected final URI[]        _defaultParentId;
+  protected final List        _defaultParentId;
 
   public
-    SPRConfigBuilder(URI[] defaultParentId, Repository repository, Kernel kernel)
+    SPRConfigBuilder(List defaultParentId, Repository repository, Kernel kernel)
   {
     _kernel         =kernel;
     _repository     =repository;
@@ -72,7 +72,7 @@ public class SPRConfigBuilder
   static
   {
     GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SPRConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-    infoFactory.addAttribute("defaultParentId" , URI[].class, true);
+    infoFactory.addAttribute("defaultParentId" , List.class, true);
     infoFactory.addReference("Repository"      , Repository.class, NameFactory.GERONIMO_SERVICE);
     infoFactory.addAttribute("kernel"          , Kernel.class, false);
     infoFactory.addInterface(ConfigurationBuilder.class);
@@ -125,7 +125,7 @@ public class SPRConfigBuilder
     try
     {
       URI configId=new URI(sprFile.getName());	// could be overridden in META-INF/geronimo-spring.xml
-      URI[] parentId=_defaultParentId; // could be overridden in META-INF/geronimo-spring.xml
+      List parentId= new ArrayList(_defaultParentId); // could be overridden in META-INF/geronimo-spring.xml
       URI configPath=new URI(_defaultConfigPath);
 
       ctx=new SPRContext(outfile, configId, ConfigurationModuleType.SPR, parentId, _kernel);

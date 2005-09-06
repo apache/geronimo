@@ -95,7 +95,7 @@ public interface ConfigurationStore {
      *
      * @return a List ConfigurationInfo objects
      */
-    List listConfiguations();
+    List listConfigurations();
 
     File createNewConfigurationDir();
 

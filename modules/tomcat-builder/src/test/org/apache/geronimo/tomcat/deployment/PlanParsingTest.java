@@ -5,6 +5,7 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
@@ -14,8 +15,13 @@ import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
  */
 public class PlanParsingTest extends TestCase {
     ObjectName tomcatContainerObjectName = JMXUtil.getObjectName("test:type=TomcatContainer");
-    private TomcatModuleBuilder builder = new TomcatModuleBuilder(null, false, tomcatContainerObjectName, null, null);
+    Kernel kernel = null;
+    private TomcatModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
+
+    protected void setUp() throws Exception {
+        builder = new TomcatModuleBuilder(null, false, tomcatContainerObjectName, null, null, kernel);
+    }
 
     public void testResourceRef() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");

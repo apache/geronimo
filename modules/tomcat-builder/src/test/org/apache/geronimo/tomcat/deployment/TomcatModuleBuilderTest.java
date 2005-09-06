@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -139,7 +140,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     private File basedir = new File(System.getProperty("basedir", "."));
 
-    private URI[] parentId = new URI[] {URI.create("org/apache/geronimo/Foo")};
+    private List parentId = Arrays.asList(new URI[] {URI.create("org/apache/geronimo/Foo")});
 
     public void testDeployWar4() throws Exception {
         deployWar("war4", "org/apache/geronimo/test");
@@ -362,7 +363,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load(parentId[0]);
+        ObjectName baseConfigName = configurationManager.load((URI) parentId.get(0));
         kernel.startGBean(baseConfigName);
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
@@ -384,7 +385,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         WebServiceBuilder webServiceBuilder = new AxisBuilder();
 
-        builder = new TomcatModuleBuilder(new URI[] {new URI("null")}, false, containerName, webServiceBuilder, null);
+        builder = new TomcatModuleBuilder(new URI[] {new URI("null")}, false, containerName, webServiceBuilder, null, kernel);
 
         // Default Realm
         Map initParams = new HashMap();
@@ -522,7 +523,7 @@ public class TomcatModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public List listConfiguations() {
+        public List listConfigurations() {
             return null;
         }
 

@@ -28,8 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.List;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -139,11 +138,11 @@ public final class ExecutableConfigurationUtil {
             if (out != null) {
                 try {
                     out.flush();
-                } catch(Exception ignored) {
+                } catch (Exception ignored) {
                 }
                 try {
                     out.close();
-                } catch(Exception ignored) {
+                } catch (Exception ignored) {
                 }
             }
         }
@@ -158,9 +157,9 @@ public final class ExecutableConfigurationUtil {
             config.setAttribute("domain", configurationData.getDomain());
             config.setAttribute("server", configurationData.getServer());
 
-            URI[] parentId = configurationData.getParentId();
-            if (parentId != null) {
-                config.setAttribute("parentId", parentId);
+            List parentId = configurationData.getParentId();
+            if (parentId.size() > 0) {
+                config.setAttribute("parentId", parentId.toArray(new URI[parentId.size()]));
             }
 
             config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));

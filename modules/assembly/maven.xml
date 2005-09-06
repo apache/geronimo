@@ -199,13 +199,13 @@
         <ant:mkdir dir="${geronimo.assembly.dir}/var/ldap"/>
 
         <!-- Add tomcat files -->
-        <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">
+<!--        <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">-->
             <ant:copy todir="${geronimo.assembly.dir}/var/catalina/conf"
                 file="${project.root}/modules/tomcat/src/var/web.xml"/>
             <ant:copy todir="${geronimo.assembly.dir}/var/catalina/ROOT">
                 <ant:fileset dir="${project.root}/modules/tomcat/src/var/ROOT"/>
             </ant:copy>
-        </j:if>
+<!--        </j:if>-->
 
         <!-- Load the repository -->
         <ant:mkdir dir="${geronimo.assembly.dir}/repository"/>
@@ -236,7 +236,7 @@
         <!-- ============================================== -->
 
         <!-- Copy over the IzPack Installer files -->
-        <ant:mkdir dir="${basedir}/target/installer" />
+        <ant:mkdir dir="${basedir}/target/installer"/>
         <fileScanner var="installFiles">
             <fileset dir="${basedir}/src/izpack">
                 <include name="*.xml"/>
@@ -257,25 +257,29 @@
 
         <!-- Write out a copy of config.xml with substitution variables intact -->
         <velocity:merge basedir="${basedir}/src/var/config"
-                        template="config.xml"
-                        name="${basedir}/target/installer/config.xml" />
+            template="config.xml"
+            name="${basedir}/target/installer/config.xml"/>
 
         <!-- Substitution variables for default hostname, ports, etc. -->
-        <j:set var="PlanServerHostname" value="localhost" />
-        <j:set var="PlanHTTPPort" value="8080" />
-        <j:set var="PlanHTTPSPort" value="8443" />
-        <j:set var="PlanAJPPort" value="8009" />
-        <j:set var="PlanNamingPort" value="1099" />
-        <j:set var="PlanOpenEJBPort" value="4201" />
-        <j:set var="PlanClientAddresses" value="127.0.0.1" />
-        <j:set var="PlanIIOPPort" value="9000" />
-        <j:set var="PlanORBPort" value="2001" />
-        <j:set var="PlanCOSNamingPort" value="1050" />
-        <j:set var="PlanActiveMQPort" value="61616" />
-        <j:set var="PlanDerbyPort" value="1527" />
-        <j:set var="PlanRemoteLoginPort" value="4242" />
-        <j:set var="PlanLdapPort" value="1389" />
-        
+        <j:set var="PlanServerHostname" value="localhost"/>
+        <j:set var="PlanHTTPPort" value="8080"/>
+        <j:set var="PlanHTTPSPort" value="8443"/>
+        <j:set var="PlanClientCertHTTPSPort" value="8444"/>
+        <j:set var="PlanAJPPort" value="8009"/>
+        <j:set var="PlanHTTPPort2" value="8090"/>
+        <j:set var="PlanHTTPSPort2" value="8453"/>
+        <j:set var="PlanAJPPort2" value="8019"/>
+        <j:set var="PlanNamingPort" value="1099"/>
+        <j:set var="PlanOpenEJBPort" value="4201"/>
+        <j:set var="PlanClientAddresses" value="127.0.0.1"/>
+        <j:set var="PlanIIOPPort" value="9000"/>
+        <j:set var="PlanORBPort" value="2001"/>
+        <j:set var="PlanCOSNamingPort" value="1050"/>
+        <j:set var="PlanActiveMQPort" value="61616"/>
+        <j:set var="PlanDerbyPort" value="1527"/>
+        <j:set var="PlanRemoteLoginPort" value="4242"/>
+        <j:set var="PlanLdapPort" value="1389"/>
+
         <fileScanner var="plans">
             <fileset dir="${basedir}/src/plan">
                 <include name="*-plan.xml"/>
@@ -284,12 +288,12 @@
 
         <!-- Prepare the web container -->
         <ant:mkdir dir="${basedir}/target/tmp"/>
-        <velocity:merge
-            basedir="${basedir}/src/plan"
-            template="${geronimo.web.container}-config.xml"
-            name="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>
-        <loadfile property="webcontainer"
-            srcFile="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>
+        <!--        <velocity:merge-->
+        <!--            basedir="${basedir}/src/plan"-->
+        <!--            template="${geronimo.web.container}-config.xml"-->
+        <!--            name="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>-->
+        <!--        <loadfile property="webcontainer"-->
+        <!--            srcFile="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>-->
         <velocity:merge
             basedir="${basedir}/src/plan"
             template="${geronimo.web.container}-deployer-config.xml"
@@ -314,8 +318,8 @@
         </j:forEach>
 
         <velocity:merge basedir="${basedir}/src/var/config"
-                        template="config.xml"
-                        name="${geronimo.assembly.dir}/var/config/config.xml" />
+            template="config.xml"
+            name="${geronimo.assembly.dir}/var/config/config.xml"/>
 
         <!-- copy the final plans -->
         <ant:mkdir dir="${geronimo.assembly.dir}/doc"/>
@@ -323,6 +327,15 @@
         <ant:copy todir="${geronimo.assembly.dir}/doc/plan">
             <ant:fileset dir="${basedir}/target/plan"/>
         </ant:copy>
+
+        <!-- Copy the scripts to the bin dir -->
+        <ant:copy todir="${geronimo.assembly.dir}/bin" overwrite="true">
+            <ant:fileset dir="src/scripts">
+                <include name="*.sh"/>
+                <include name="*.bat"/>
+            </ant:fileset>
+        </ant:copy>
+        <ant:chmod dir="${geronimo.assembly.dir}/bin" perm="ugo+x" includes="*.sh"/>
 
         <!-- ============================================== -->
         <!-- Bootstrap the deployer and server              -->
@@ -345,7 +358,7 @@
             deployerSystemPlan="${basedir}/target/plan/deployer-system-plan.xml"
             j2eeDeployerPlan="${basedir}/target/plan/j2ee-deployer-plan.xml"
             deployerClassPath="${deploy.classpath}"
-            deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/J2EEDeployer,j2eeType=Deployer,J2EEServer=deployer"
+            deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/OfflineDeployer,j2eeType=Deployer,J2EEServer=deployer"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 
@@ -389,6 +402,23 @@
             <ant:arg value="target/plan/j2ee-server-plan.xml"/>
         </ant:java>
 
+        <ant:echo>Building security configuration</ant:echo>
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/j2ee-security-plan.xml"/>
+        </ant:java>
+
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/j2ee-jetty-plan.xml"/>
+        </ant:java>
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/j2ee-tomcat-plan.xml"/>
+        </ant:java>
         <!-- build the runtime deployer configuration -->
         <ant:echo>Building runtime deployer configuration</ant:echo>
         <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
@@ -396,6 +426,17 @@
             <ant:arg value="distribute"/>
             <ant:arg value="target/plan/j2ee-runtime-deployer-plan.xml"/>
         </ant:java>
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${basedir}/target/plan/j2ee-jetty-runtime-deployer-plan.xml"/>
+        </ant:java>
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${basedir}/target/plan/j2ee-tomcat-runtime-deployer-plan.xml"/>
+        </ant:java>
+
 
         <!-- build the system configuration and client.jar -->
         <ant:echo>Building client.jar</ant:echo>
@@ -414,37 +455,64 @@
             <ant:arg value="${geronimo.assembly.dir}/bin/client.jar"/>
         </ant:java>
 
-        <!-- Copy the scripts to the bin dir -->
-        <ant:copy todir="${geronimo.assembly.dir}/bin" overwrite="true">
-            <ant:fileset dir="src/scripts">
-                <include name="*.sh"/>
-                <include name="*.bat"/>
-            </ant:fileset>
-        </ant:copy>
-        <ant:chmod dir="${geronimo.assembly.dir}/bin" perm="ugo+x" includes="*.sh"/>
-
+        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="target/plan/j2ee-client-plan.xml"/>
+        </ant:java>
         <!-- ============================================== -->
         <!-- Deploy all configurations to live server       -->
         <!-- ============================================== -->
 
+        <attainGoal name="online.deploy"/>
+
+        <!-- Prepare the Installer directory -->
+        <ant:copy todir="${basedir}/target/installer">
+            <ant:fileset dir="${geronimo.assembly.dir}"/>
+        </ant:copy>
+        <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>
+        <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>
+        <ant:echo file="${basedir}/target/installer/var/config/config.list" message="org/apache/geronimo/System"/>
+
+        <ant:move file="${basedir}/target/installer/config.xml"
+            tofile="${basedir}/target/installer/var/config/config.xml"/>
+    </goal>
+
+    <goal name="online.deploy">
         <j:if test="${context.getVariable('geronimo.assembly.minimal') != 'true'}">
+            <j:if test="${context.getVariable('enable.debug') == 'true'}">
+                <j:set var="geronimo.server.debug.options" value="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"/>
+            </j:if>
             <deploy:startRemoteServer
                 geronimoTarget="${geronimo.assembly.dir}"
-                vmArgs="-Xmx512m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
-                configs="org/apache/geronimo/RuntimeDeployer"/>
+                vmArgs="${geronimo.server.debug.options} -Xmx512m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
+                configs="org/apache/geronimo/Security org/apache/geronimo/RuntimeDeployer org/apache/geronimo/JettyRuntimeDeployer org/apache/geronimo/TomcatRuntimeDeployer"/>
             <ant:echo message="Waiting for server at: ${geronimo.assembly.dir}"/>
             <deploy:waitForStarted
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 maxtries="125"
                 username="system"
                 password="manager"
-                id="org/apache/geronimo/RuntimeDeployer"/>
+                id="org/apache/geronimo/TomcatRuntimeDeployer"/>
             <!-- wait for started does not assure that child services are started so we must sleep -->
-            <u:sleep millis="3000"/>
+            <u:sleep millis="7000"/>
             <echo message="server has started"/>
 
+            <!--            <deploy:distribute-->
+            <!--                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"-->
+            <!--                username="system"-->
+            <!--                password="manager"-->
+            <!--                plan="${basedir}/target/plan/j2ee-jetty-plan.xml"-->
+            <!--            />-->
+            <!--            <deploy:distribute-->
+            <!--                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"-->
+            <!--                username="system"-->
+            <!--                password="manager"-->
+            <!--                plan="${basedir}/target/plan/j2ee-tomcat-plan.xml"-->
+            <!--            />-->
+
+
             <!-- building tranql connector default database configuration-->
-            <!--deploy this as a "synthetic" ear -->
             <deploy:distribute
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
@@ -503,12 +571,12 @@
                 />
 
             <!-- build the J2EE client configuration -->
-            <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
-                username="system"
-                password="manager"
-                plan="${basedir}/target/plan/j2ee-client-plan.xml"
-                />
+            <!--            <deploy:distribute-->
+            <!--                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"-->
+            <!--                username="system"-->
+            <!--                password="manager"-->
+            <!--                plan="${basedir}/target/plan/j2ee-client-plan.xml"-->
+            <!--                />-->
 
             <!-- build the directory server configuration -->
             <deploy:distribute
@@ -555,7 +623,7 @@
                 module="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
 
             <!-- create SystemDatabase -->
-<!--            <attainGoal name="init-database"/>-->
+            <!--            <attainGoal name="init-database"/>-->
 
             <deploy:stopRemoteServer
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
@@ -572,16 +640,6 @@
             </ant:copy>
         </j:if>
 
-        <!-- Prepare the Installer directory -->       
-        <ant:copy todir="${basedir}/target/installer">
-          <ant:fileset dir="${geronimo.assembly.dir}" />
-        </ant:copy>
-        <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>
-        <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>
-        <ant:echo file="${basedir}/target/installer/var/config/config.list" message="org/apache/geronimo/System"/>
-
-        <ant:move file="${basedir}/target/installer/config.xml"
-                  tofile="${basedir}/target/installer/var/config/config.xml" />
     </goal>
 
     <goal name="assembly" prereqs="assembly:build" description="Build a complete distribution."/>
@@ -628,20 +686,20 @@
             <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
             <ant:copy file="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"
                 todir="${maven.repo.local}/${pom.groupId}/distributions"/>
-<!--            <artifact:install-->
-<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"-->
-<!--                type="distribution-targz"-->
-<!--                project="${pom}"-->
+            <!--            <artifact:install-->
+            <!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"-->
+            <!--                type="distribution-targz"-->
+            <!--                project="${pom}"-->
         </j:if>
 
         <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">
             <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
             <ant:copy file="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"
                 todir="${maven.repo.local}/${pom.groupId}/distributions"/>
-<!--            <artifact:install-->
-<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"-->
-<!--                type="distribution-zip"-->
-<!--                project="${pom}"-->
+            <!--            <artifact:install-->
+            <!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"-->
+            <!--                type="distribution-zip"-->
+            <!--                project="${pom}"-->
         </j:if>
     </goal>
 
@@ -649,35 +707,35 @@
     <!-- D E P L O Y   D I S T R I B U T I O N                              -->
     <!-- ================================================================== -->
 
-<!--    <goal name="assembly:deploy" description="Deploy a binary distribution" prereqs="assembly:build">-->
-<!--        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">-->
-<!--            <artifact:deploy-->
-<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"-->
-<!--                type="distribution-targz"-->
-<!--                project="${pom}"-->
-<!--                typeHandler="${distTypeHandler}"/>-->
-<!--        </j:if>-->
-<!---->
-<!--        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">-->
-<!--            <artifact:deploy-->
-<!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"-->
-<!--                type="distribution-zip"-->
-<!--                project="${pom}"-->
-<!--                typeHandler="${distTypeHandler}"/>-->
-<!--        </j:if>-->
-<!--    </goal>-->
+    <!--    <goal name="assembly:deploy" description="Deploy a binary distribution" prereqs="assembly:build">-->
+    <!--        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">-->
+    <!--            <artifact:deploy-->
+    <!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz"-->
+    <!--                type="distribution-targz"-->
+    <!--                project="${pom}"-->
+    <!--                typeHandler="${distTypeHandler}"/>-->
+    <!--        </j:if>-->
+    <!---->
+    <!--        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">-->
+    <!--            <artifact:deploy-->
+    <!--                artifact="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip"-->
+    <!--                type="distribution-zip"-->
+    <!--                project="${pom}"-->
+    <!--                typeHandler="${distTypeHandler}"/>-->
+    <!--        </j:if>-->
+    <!--    </goal>-->
 
     <!-- this does not appear to be used -->
-<!--    <goal name="init-database">-->
-<!--        <j:invokeStatic className="java.lang.System" method="setProperty">-->
-<!--            <j:arg type="java.lang.String" value="derby.system.home"/>-->
-<!--            <j:arg type="java.lang.String" value="${derby.system.home}"/>-->
-<!--        </j:invokeStatic>-->
-<!--        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:SystemDatabase;create=true" userid="" password="">-->
-<!--            <ant:fileset dir="src/sql"/>-->
-<!--            <ant:classpath>-->
-<!--                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>-->
-<!--            </ant:classpath>-->
-<!--        </ant:sql>-->
-<!--    </goal>-->
+    <!--    <goal name="init-database">-->
+    <!--        <j:invokeStatic className="java.lang.System" method="setProperty">-->
+    <!--            <j:arg type="java.lang.String" value="derby.system.home"/>-->
+    <!--            <j:arg type="java.lang.String" value="${derby.system.home}"/>-->
+    <!--        </j:invokeStatic>-->
+    <!--        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:SystemDatabase;create=true" userid="" password="">-->
+    <!--            <ant:fileset dir="src/sql"/>-->
+    <!--            <ant:classpath>-->
+    <!--                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>-->
+    <!--            </ant:classpath>-->
+    <!--        </ant:sql>-->
+    <!--    </goal>-->
 </project>

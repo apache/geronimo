@@ -23,7 +23,7 @@ Configuration for the Geronimo deployer
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    configId="org/apache/geronimo/J2EEDeployer"
+    configId="org/apache/geronimo/OfflineDeployer"
     parentId="org/apache/geronimo/DeployerSystem"
     >
 
@@ -149,7 +149,79 @@ Configuration for the Geronimo deployer
         <uri>geronimo/jars/geronimo-servicemix-builder-${geronimo_version}.jar</uri>
     </dependency>
 
-    ${webdeployer}
+    <!--jetty-->
+    <dependency>
+        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-jetty-builder-${geronimo_version}.jar</uri>
+    </dependency>
+
+    <!--tomcat-->
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-optional-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-http-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/servlets-default-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/servlets-invoker-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-beanutils/jars/commons-beanutils-${commons_beanutils_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-digester/jars/commons-digester-${commons_digester_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-modeler/jars/commons-modeler-${commons_modeler_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-compiler-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-compiler-jdt-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-runtime-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-ajp-${tomcat_ajp_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-builder-${geronimo_version}.jar</uri>
+    </dependency>
+
 
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <reference name="Builders"><name>*</name></reference>
@@ -210,13 +282,24 @@ Configuration for the Geronimo deployer
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
 
+    <gbean name="ClientConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Client</attribute>
+        <attribute name="defaultMaxSize">10</attribute>
+        <attribute name="defaultMinSize">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
+        <attribute name="defaultXATransactionCaching">true</attribute>
+        <attribute name="defaultXAThreadCaching">false</attribute>
+        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+    </gbean>
+
     <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
         <attribute name="defaultClientParentId">org/apache/geronimo/Client</attribute>
         <attribute name="defaultServerParentId">org/apache/geronimo/Server</attribute>
         <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
         <reference name="EJBReferenceBuilder"><name>ClientEJBReferenceBuilder</name></reference>
-        <reference name="ConnectorModuleBuilder"><name>ConnectorBuilder</name></reference>
+        <reference name="ConnectorModuleBuilder"><name>ClientConnectorBuilder</name></reference>
         <reference name="ResourceReferenceBuilder"><name>ConnectorBuilder</name></reference>
         <reference name="ServiceReferenceBuilder"><name>WebServiceBuilder</name></reference>
         <reference name="Store"><module>org/apache/geronimo/DeployerSystem</module><name>*</name></reference>
@@ -251,6 +334,82 @@ Configuration for the Geronimo deployer
         </attribute>
         <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
     </gbean>
+
+
+    <!-- web switching builder -->
+    <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
+        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/web/tomcat</attribute>
+        <references name="ModuleBuilders">
+            <pattern><gbean-name>geronimo.deployer:j2eeType=ModuleBuilder,name=JettyWebBuilder,*</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.deployer:j2eeType=ModuleBuilder,name=TomcatWebBuilder,*</gbean-name></pattern>
+        </references>
+    </gbean>
+
+    <!-- jetty builder -->
+
+    <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server,org/apache/geronimo/Jetty</attribute>
+        <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
+        <attribute name="defaultContextPriorityClassloader">false</attribute>
+        <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
+        <attribute name="jettyContainerObjectName">geronimo.server:name=JettyWebContainer,*</attribute>
+        <reference name="DefaultServlets">
+            <gbean-name>geronimo.deployer:j2eeType=DefaultServlet,J2EEModule=org/apache/geronimo/OfflineDeployer,*</gbean-name>
+        </reference>
+        <reference name="PojoWebServiceTemplate">
+            <gbean-name>geronimo.deployer:J2EEApplication=null,J2EEModule=org/apache/geronimo/OfflineDeployer,J2EEServer=deployer,j2eeType=ServletWebServiceTemplate,name=POJOTemplate</gbean-name>
+        </reference>
+        <reference name="WebServiceBuilder">
+            <module>org/apache/geronimo/OfflineDeployer</module>
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">
+        <attribute name="servletName">default</attribute>
+        <attribute name="servletClass">org.mortbay.jetty.servlet.Default</attribute>
+        <attribute name="loadOnStartup">0</attribute>
+        <attribute name="initParams">
+ acceptRanges=true
+ dirAllowed=true
+ putAllowed=false
+ delAllowed=false
+ redirectWelcome=false
+ minGzipLength=8192</attribute>
+        <attribute name="servletMappings">/</attribute>
+    </gbean>
+
+    <gbean name="JSPServlet" class="org.apache.geronimo.jetty.JettyServletHolder">
+        <attribute name="servletName">jsp</attribute>
+        <attribute name="servletClass">org.apache.jasper.servlet.JspServlet</attribute>
+        <attribute name="loadOnStartup">0</attribute>
+        <attribute name="initParams">
+ logVerbosityLevel=DEBUG
+ fork=false
+ xpoweredBy=false</attribute>
+        <attribute name="servletMappings">*.jsp,*.jspf,*.jspx,*.xsp</attribute>
+    </gbean>
+
+    <gbean name="POJOTemplate" class="org.apache.geronimo.jetty.JettyPOJOWebServiceHolder">
+        <attribute name="servletName">dummy</attribute>
+    </gbean>
+
+    <!-- tomcat builder -->
+    <gbean name="TomcatWebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Server,org/apache/geronimo/Tomcat</attribute>
+        <attribute name="defaultContextPriorityClassloader">false</attribute>
+        <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
+        <reference name="WebServiceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
 
 
 </configuration>

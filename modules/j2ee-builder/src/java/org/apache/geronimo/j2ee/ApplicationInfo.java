@@ -18,6 +18,7 @@ package org.apache.geronimo.j2ee;
 
 import java.net.URI;
 import java.util.Set;
+import java.util.List;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.xmlbeans.XmlObject;
@@ -28,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
 public class ApplicationInfo {
     private ConfigurationModuleType type;
     private URI configId;
-    private URI[] parentId;
+    private List parentId;
     private String applicationName;
     private XmlObject specDD;
     private XmlObject vendorDD;
@@ -39,7 +40,7 @@ public class ApplicationInfo {
     public ApplicationInfo() {
     }
 
-    public ApplicationInfo(ConfigurationModuleType type, URI configId, URI[] parentId, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, URI configId, List parentId, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
         assert type != null;
         assert configId != null;
         assert parentId != null;
@@ -73,11 +74,11 @@ public class ApplicationInfo {
         this.configId = configId;
     }
 
-    public URI[] getParentId() {
+    public List getParentId() {
         return parentId;
     }
 
-    public void setParentId(URI[] parentId) {
+    public void setParentId(List parentId) {
         this.parentId = parentId;
     }
 

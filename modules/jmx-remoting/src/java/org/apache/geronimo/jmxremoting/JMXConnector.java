@@ -142,8 +142,8 @@ public class JMXConnector implements GBeanLifecycle {
 
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JMXConnector.class); //TODO just  a gbean?
-        infoFactory.addAttribute("url", String.class, true);
-        infoFactory.addAttribute("applicationConfigName", String.class, true);
+        infoFactory.addAttribute("url", String.class, true, true);
+        infoFactory.addAttribute("applicationConfigName", String.class, true, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);

@@ -24,6 +24,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -52,7 +54,7 @@ import org.apache.geronimo.servicemix.ServiceMixDeployment;
 public class ServiceMixConfigBuilder implements ConfigurationBuilder {
     private static final Log log = LogFactory.getLog(ServiceMixConfigBuilder.class);
 
-    private final URI[] defaultParentId;
+    private final List defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
     private String deploymentDependencies;
@@ -62,7 +64,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceMixConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addInterface(ConfigurationBuilder.class);
-        infoFactory.addAttribute("defaultParentId", URI[].class, true);
+        infoFactory.addAttribute("defaultParentId", List.class, true);
         infoFactory.addAttribute("deploymentDependencies", String.class, true);
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addAttribute("kernel", Kernel.class, false);
@@ -74,11 +76,11 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
         return GBEAN_INFO;
     }
 
-    public ServiceMixConfigBuilder(URI[] defaultParentId, Repository repository) {
+    public ServiceMixConfigBuilder(List defaultParentId, Repository repository) {
         this(defaultParentId, repository, null);
     }
 
-    public ServiceMixConfigBuilder(URI[] defaultParentId, Repository repository, Kernel kernel) {
+    public ServiceMixConfigBuilder(List defaultParentId, Repository repository, Kernel kernel) {
         this.defaultParentId = defaultParentId;
         this.repository = repository;
         this.kernel = kernel;
@@ -124,7 +126,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
         log.debug("Installing ServiceMix deployment.");
         Properties properties = (Properties) plan;
 
-        URI[] parentID = defaultParentId;
+        List parentID = new ArrayList(defaultParentId);
         URI configID;
         try {
             configID = new URI(properties.getProperty("configID"));

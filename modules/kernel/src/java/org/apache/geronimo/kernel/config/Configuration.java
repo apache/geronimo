@@ -363,24 +363,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     public synchronized void doStop() throws Exception {
         log.info("Stopping configuration " + id);
 
-        GBeanData[] gbeans = storeCurrentGBeans();
 
         // shutdown the configuration and unload all beans
         shutdown();
 
-        // update the configuation store
-        if (configurationStore != null) {
-            ConfigurationData configurationData = new ConfigurationData();
-            configurationData.setId(id);
-            configurationData.setModuleType(moduleType);
-            configurationData.setDomain(domain);
-            configurationData.setServer(server);
-            configurationData.setParentId(parentId);
-            configurationData.setGBeans(Arrays.asList(gbeans));
-            configurationData.setDependencies(dependencies);
-            configurationData.setClassPath(classPath);
-            configurationStore.updateConfiguration(configurationData);
-        }
     }
 
     private void shutdown() {
@@ -408,6 +394,28 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public void doFail() {
         shutdown();
+    }
+
+    public synchronized void saveState() throws Exception {
+        GBeanData[] gbeans = storeCurrentGBeans();
+        // update the configuration store
+        if (configurationStore != null) {
+            ConfigurationData configurationData = new ConfigurationData();
+            configurationData.setId(id);
+            configurationData.setModuleType(moduleType);
+            configurationData.setDomain(domain);
+            configurationData.setServer(server);
+            if (parentId != null && parentId.length > 0) {
+                configurationData.setParentId(Arrays.asList(parentId));
+            } else {
+                configurationData.setParentId(Collections.EMPTY_LIST);
+            }
+            configurationData.setGBeans(Arrays.asList(gbeans));
+            configurationData.setDependencies(dependencies);
+            configurationData.setClassPath(classPath);
+            configurationStore.updateConfiguration(configurationData);
+        }
+
     }
 
     /**
@@ -626,6 +634,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
         infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
+        infoFactory.addOperation("saveState");
 
         infoFactory.setConstructor(new String[]{
             "kernel",

@@ -32,10 +32,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -64,7 +67,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  */
 public class DeploymentContext {
 
-    private static final ClassLoader[] DEFAULT_PARENT_CLASSLOADERS = new ClassLoader[] {DeploymentContext.class.getClassLoader()};
+    private static final ClassLoader[] DEFAULT_PARENT_CLASSLOADERS = new ClassLoader[]{DeploymentContext.class.getClassLoader()};
     private final Kernel kernel;
     private final ConfigurationData configurationData;
     private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
@@ -72,14 +75,14 @@ public class DeploymentContext {
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
     private final List loadedAncestors = new ArrayList();
-    private final LinkedList startedAncestors;
-    private final ClassLoader[] parentCL;
+    private final List startedAncestors = new ArrayList();
+//    private final ClassLoader[] parentCL;
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentID, Kernel kernel) throws DeploymentException {
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, List parentID, Kernel kernel) throws DeploymentException {
         this(baseDir, configId, type, parentID, null, null, kernel);
     }
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, URI[] parentId, String domain, String server, Kernel kernel) throws DeploymentException {
+    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, List parentId, String domain, String server, Kernel kernel) throws DeploymentException {
         assert baseDir != null: "baseDir is null";
         assert configId != null: "configID is null";
         assert type != null: "type is null";
@@ -99,100 +102,61 @@ public class DeploymentContext {
         configurationData.setId(configId);
         configurationData.setModuleType(type);
         configurationData.setParentId(parentId);
+        configurationData.setDomain(domain);
+        configurationData.setServer(server);
+        determineNaming();
+    }
 
-        if (kernel != null && parentId != null && parentId.length > 0) {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+    private void determineNaming() throws DeploymentException {
+        if (configurationData.getDomain() != null && configurationData.getServer() != null) {
+            return;
+        }
+        List parentId = configurationData.getParentId();
+        if (kernel == null || parentId == null || parentId.isEmpty()) {
+            throw new DeploymentException("neither domain and server nor any way to determine them was provided for configuration " + configurationData.getId());
+        }
+        URI parent = (URI) parentId.get(0);
+        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
-            try {
-                for (int i = 0; i < parentId.length; i++) {
-                    URI uri = parentId[i];
-                    loadedAncestors.addAll(configurationManager.loadRecursive(uri));
-                }
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to load parents", e);
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+        try {
+            boolean loaded = false;
+            if (!configurationManager.isLoaded(parent)) {
+                configurationManager.load(parent);
+                loaded = true;
             }
-
             try {
-                ObjectName parentName = Configuration.getConfigurationObjectName(parentId[0]);
-                domain = (String) kernel.getAttribute(parentName, "domain");
-                server = (String) kernel.getAttribute(parentName, "server");
+                ObjectName parentName = Configuration.getConfigurationObjectName(parent);
+                configurationData.setDomain((String) kernel.getAttribute(parentName, "domain"));
+                configurationData.setServer((String) kernel.getAttribute(parentName, "server"));
             } catch (Exception e) {
                 throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
-            }
-
-            try {
-                startedAncestors = new LinkedList();
-                for (int i = 0; i < parentId.length; i++) {
-                    URI uri = parentId[i];
-                    ObjectName ancestorName = Configuration.getConfigurationObjectName(uri);
-                    findToStart(ancestorName, kernel);
-                    //we've found what we need to start, now start them.
-                    for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
-                        ObjectName objectName = (ObjectName) iterator.next();
-                        kernel.startGBean(objectName);
-                        if (!isRunning(kernel, objectName)) {
-                            throw new DeploymentException("Failed to start parent configuration: " + objectName);
-                        }
-
-                    }
+            } finally {
+                if (loaded) {
+                    //we need to unload again so the loadedAncestors list will be in the correct order to start configs.
+                    configurationManager.unload(parent);
                 }
-            } catch (DeploymentException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DeploymentException(e);
             }
-
-            try {
-                parentCL = new ClassLoader[parentId.length];
-                for (int i = 0; i < parentId.length; i++) {
-                    URI uri = parentId[i];
-                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
-                    parentCL[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
-                }
-
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-        } else {
-            startedAncestors = null;
-            // no explicit parent set, so use the class loader of this class as
-            // the parent... this class should be in the root geronimo classloader,
-            // which is normally the system class loader but not always, so be safe
-            parentCL = DEFAULT_PARENT_CLASSLOADERS;
+        } catch (Exception e) {
+            throw new DeploymentException("Unable to load first parent of configuration " + configurationData.getId(), e);
+        } finally {
+            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
         }
 
         //check that domain and server are now known
-        if (domain == null || server == null) {
-            throw new IllegalStateException("Domain or server could not be determined from explicit args or parent configuration. ParentID: " + parentId + ", domain: " + domain + ", server: " + server);
-        }
-
-        configurationData.setDomain(domain);
-        configurationData.setServer(server);
-    }
-
-    private void findToStart(ObjectName ancestorName, Kernel kernel) throws Exception {
-        if (ancestorName != null && !isRunning(kernel, ancestorName)) {
-            startedAncestors.addFirst(ancestorName);
-            URI[] patterns = (URI[]) kernel.getGBeanData(ancestorName).getAttribute("parentId");
-            if (patterns == null) {
-                return;
-            }
-            for (int i = 0; i < patterns.length; i++) {
-                URI pattern = patterns[i];
-                ancestorName = Configuration.getConfigurationObjectName(pattern);
-                findToStart(ancestorName, kernel);
-            }
+        if (configurationData.getDomain() == null || configurationData.getServer() == null) {
+            throw new IllegalStateException("Domain or server could not be determined from explicit args or parent configuration. ParentID: " + parentId
+                    + ", domain: " + configurationData.getDomain()
+                    + ", server: " + configurationData.getServer());
         }
     }
 
-    private static boolean isRunning(Kernel kernel, ObjectName name) throws Exception {
-        return State.RUNNING_INDEX == kernel.getGBeanState(name);
-    }
 
     public URI getConfigID() {
         return configurationData.getId();
+    }
+
+    public void addParentId(List parentId) {
+        configurationData.getParentId().addAll(parentId);
     }
 
     public ConfigurationModuleType getType() {
@@ -439,7 +403,154 @@ public class DeploymentContext {
         return new File(baseUri.resolve(targetPath));
     }
 
+    static interface ParentSource {
+        Collection getParents(URI point) throws DeploymentException;
+    }
+
+    List getExtremalSet(Collection points, ParentSource parentSource) throws DeploymentException {
+        LinkedHashMap pointToEnvelopeMap = new LinkedHashMap();
+        for (Iterator iterator = points.iterator(); iterator.hasNext();) {
+            URI newPoint = (URI) iterator.next();
+            Set newEnvelope = new HashSet();
+            getEnvelope(newPoint, parentSource, newEnvelope);
+            boolean useMe = true;
+            for (Iterator iterator1 = pointToEnvelopeMap.entrySet().iterator(); iterator1.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator1.next();
+                Set existingEnvelope = (Set) entry.getValue();
+                if (existingEnvelope.contains(newPoint)) {
+                    useMe = false;
+                } else if (newEnvelope.contains(entry.getKey())) {
+                    iterator1.remove();
+                }
+            }
+            if (useMe) {
+                pointToEnvelopeMap.put(newPoint, newEnvelope);
+            }
+        }
+        return new ArrayList(pointToEnvelopeMap.keySet());
+    }
+
+    private void getEnvelope(URI point, ParentSource parentSource, Set envelope) throws DeploymentException {
+        Collection newPoints = parentSource.getParents(point);
+        envelope.addAll(newPoints);
+        for (Iterator iterator = newPoints.iterator(); iterator.hasNext();) {
+            URI newPoint = (URI) iterator.next();
+            getEnvelope(newPoint, parentSource, envelope);
+        }
+    }
+
+    static class ConfigurationParentSource implements ParentSource {
+
+        private final Kernel kernel;
+
+        public ConfigurationParentSource(Kernel kernel) {
+            this.kernel = kernel;
+        }
+
+        public Collection getParents(URI configID) throws DeploymentException {
+            ObjectName configName;
+            try {
+                configName = Configuration.getConfigurationObjectName(configID);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Cannot convert ID to ObjectName: ", e);
+            }
+            try {
+                URI[] parents = (URI[]) kernel.getAttribute(configName, "parentId");
+                if (parents == null) {
+                    return Collections.EMPTY_LIST;
+                } else {
+                    return Arrays.asList(parents);
+                }
+            } catch (Exception e) {
+                throw new DeploymentException("Cannot find parents of alleged config: ", e);
+            }
+        }
+
+    }
+
+    private ClassLoader[] determineParents() throws DeploymentException {
+        ClassLoader[] parentCL;
+        List parentId = configurationData.getParentId();
+        if (kernel != null && parentId != null && parentId.size() > 0) {
+            loadAncestors(kernel, parentId, loadedAncestors);
+            ParentSource parentSource = new ConfigurationParentSource(kernel);
+            parentId = getExtremalSet(parentId, parentSource);
+            configurationData.setParentId(parentId);
+
+            try {
+                for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
+                    URI uri = (URI) iterator.next();
+                    ObjectName ancestorName = Configuration.getConfigurationObjectName(uri);
+                    List started = new ArrayList();
+                    startAncestors(ancestorName, kernel, started);
+                    startedAncestors.addAll(started);
+                }
+            } catch (DeploymentException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
+
+            try {
+                parentCL = new ClassLoader[parentId.size()];
+                for (int i = 0; i < parentId.size(); i++) {
+                    URI uri = (URI) parentId.get(i);
+                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
+                    parentCL[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
+                }
+
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
+        } else {
+            // no explicit parent set, so use the class loader of this class as
+            // the parent... this class should be in the root geronimo classloader,
+            // which is normally the system class loader but not always, so be safe
+            parentCL = DEFAULT_PARENT_CLASSLOADERS;
+        }
+
+
+        return parentCL;
+    }
+
+    private void loadAncestors(Kernel kernel, List parentId, List loadedAncestors) throws DeploymentException {
+        if (kernel != null && parentId != null) {
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+
+            try {
+                for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
+                    URI uri = (URI) iterator.next();
+                    loadedAncestors.addAll(configurationManager.loadRecursive(uri));
+                }
+            } catch (Exception e) {
+                throw new DeploymentException("Unable to load parents", e);
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+            }
+        }
+    }
+
+    private void startAncestors(ObjectName name, Kernel kernel, List started) throws Exception {
+        if (name != null && !isRunning(kernel, name)) {
+            URI[] patterns = (URI[]) kernel.getGBeanData(name).getAttribute("parentId");
+            if (patterns != null) {
+                for (int i = 0; i < patterns.length; i++) {
+                    URI pattern = patterns[i];
+                    ObjectName ancestorName = Configuration.getConfigurationObjectName(pattern);
+                    startAncestors(ancestorName, kernel, started);
+                }
+            }
+            kernel.startGBean(name);
+            started.add(name);
+        }
+    }
+
+    private static boolean isRunning(Kernel kernel, ObjectName name) throws Exception {
+        return State.RUNNING_INDEX == kernel.getGBeanState(name);
+    }
+
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
+        ClassLoader[] parentCL = determineParents();
         // shouldn't user classpath come before dependencies?
         List dependencies = configurationData.getDependencies();
         List classPath = configurationData.getClassPath();
@@ -516,9 +627,9 @@ public class DeploymentContext {
         config.setAttribute("domain", configurationData.getDomain());
         config.setAttribute("server", configurationData.getServer());
 
-        URI[] parentId = configurationData.getParentId();
+        List parentId = configurationData.getParentId();
         if (parentId != null) {
-            config.setAttribute("parentId", parentId);
+            config.setAttribute("parentId", parentId.toArray(new URI[parentId.size()]));
         }
 
         config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans.getGBeans()));
@@ -529,11 +640,4 @@ public class DeploymentContext {
         return config;
     }
 
-    /**
-     * @return
-     * @deprecated REALLY deprecated.  Only use in tests, please.
-     */
-    public GBeanData[] getGBeans() {
-        return gbeans.getGBeans();
-    }
 }

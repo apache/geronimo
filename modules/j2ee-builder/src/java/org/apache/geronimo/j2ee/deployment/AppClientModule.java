@@ -16,15 +16,15 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.jar.JarFile;
 import java.util.Collection;
-import java.util.Set;
-import java.io.IOException;
+import java.util.List;
+import java.util.jar.JarFile;
 
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -34,7 +34,7 @@ public class AppClientModule extends Module {
     private JarFile earFile;
     private Collection resourceModules;
 
-    public AppClientModule(boolean standAlone, URI configId, URI[] parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+    public AppClientModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 

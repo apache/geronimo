@@ -19,6 +19,7 @@ package org.apache.geronimo.j2ee.deployment;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
+import java.util.List;
 import java.io.IOException;
 
 import org.apache.xmlbeans.XmlObject;
@@ -29,7 +30,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
  * @version $Rev$ $Date$
  */
 public class EJBModule extends Module {
-    public EJBModule(boolean standAlone, URI configId, URI[] parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+    public EJBModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD);
     }
 

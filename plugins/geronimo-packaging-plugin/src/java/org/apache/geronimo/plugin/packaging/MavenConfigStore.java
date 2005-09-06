@@ -47,7 +47,7 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class MavenConfigStore implements ConfigurationStore {
     private final Kernel kernel;
-    private final ObjectName objectName;
+    private final ObjectName objectN ame;
     private final Repository repository;
     private final ManageableAttributeStore attributeStore;
 

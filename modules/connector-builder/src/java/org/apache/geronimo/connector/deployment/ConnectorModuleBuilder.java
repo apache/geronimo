@@ -30,6 +30,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
@@ -61,6 +65,7 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -114,9 +119,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final int defaultIdleTimeoutMinutes;
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
-    private final URI[] defaultParentId;
+    private final List defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
+    private static final String GERCONNECTOR_NAMESPACE = GerConnectorDocument.type.getDocumentElementName().getNamespaceURI();
 
     public ConnectorModuleBuilder(URI[] defaultParentId,
                                   int defaultMaxSize,
@@ -128,7 +134,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                                   Repository repository,
                                   Kernel kernel) {
         assert repository != null;
-        this.defaultParentId = defaultParentId;
+        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
+
         this.defaultMaxSize = defaultMaxSize;
         this.defaultMinSize = defaultMinSize;
         this.defaultBlockingTimeoutMilliseconds = defaultBlockingTimeoutMilliseconds;
@@ -219,16 +226,17 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Invalid configId " + gerConnector.getConfigId(), e);
         }
 
-        URI[] parentId = ServiceConfigBuilder.getParentID(gerConnector.getParentId(), gerConnector.getImportArray());
-        if (parentId == null) {
-            parentId = defaultParentId;
-        }
-        assert parentId != null;
-        assert parentId.length >0;
+        List parentId = ServiceConfigBuilder.getParentID(gerConnector.getParentId(), gerConnector.getImportArray());
         return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
+        //suppressing the default parentid is mostly useful for deploying standalone connectors on the app client.
+        //The defaultParentId normally pulls in and tries to start all the base server gbeans.
+        if (!vendorConnector.getSuppressDefaultParentId()) {
+            earContext.addParentId(defaultParentId);
+        }
         try {
             JarFile moduleFile = module.getModuleFile();
 
@@ -249,7 +257,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 }
             }
 
-            GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
             DependencyType[] dependencies = vendorConnector.getDependencyArray();
             ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
@@ -414,6 +421,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         ServiceConfigBuilder.addGBeans(gbeans, cl, moduleJ2eeContext, earContext);
 
         addConnectorGBeans(earContext, resourceJ2eeContext, resourceAdapterModuleData, (ConnectorType) specDD, geronimoConnector, cl);
+    }
+
+    public String getSchemaNamespace() {
+        return GERCONNECTOR_NAMESPACE;
     }
 
     private void addConnectorGBeans(EARContext earContext, J2eeContext moduleJ2eeContext, GBeanData resourceAdapterModuleData, ConnectorType connector, GerConnectorType geronimoConnector, ClassLoader cl) throws DeploymentException {
@@ -841,13 +852,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
-        infoBuilder.addAttribute("defaultMaxSize", int.class, true);
-        infoBuilder.addAttribute("defaultMinSize", int.class, true);
-        infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true);
-        infoBuilder.addAttribute("defaultIdleTimeoutMinutes", int.class, true);
-        infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true);
-        infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true);
+        infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultMaxSize", int.class, true, true);
+        infoBuilder.addAttribute("defaultMinSize", int.class, true, true);
+        infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true, true);
+        infoBuilder.addAttribute("defaultIdleTimeoutMinutes", int.class, true, true);
+        infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true, true);
+        infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true, true);
 
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);

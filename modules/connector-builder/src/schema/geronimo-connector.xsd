@@ -311,6 +311,7 @@
         <xs:attribute name="version" type="ger:versionType" use="optional"/>
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
+        <xs:attribute name="suppressDefaultParentId" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:simpleType name="versionType">

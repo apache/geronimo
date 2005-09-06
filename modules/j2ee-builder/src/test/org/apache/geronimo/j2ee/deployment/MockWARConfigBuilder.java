@@ -73,4 +73,8 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         this.contextRoot = ((WebModule) webModule).getContextRoot();
     }
 
+    public String getSchemaNamespace() {
+        return null;
+    }
+
 }

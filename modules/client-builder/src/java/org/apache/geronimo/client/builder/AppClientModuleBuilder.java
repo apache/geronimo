@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.StringTokenizer;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -52,20 +54,22 @@ import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.client.GerResourceType;
@@ -74,8 +78,6 @@ import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationClientType;
 import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -85,8 +87,8 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class AppClientModuleBuilder implements ModuleBuilder {
 
-    private final URI[] defaultClientParentId;
-    private final URI[] defaultServerParentId;
+    private final List defaultClientParentId;
+    private final List defaultServerParentId;
     private final ObjectName corbaGBeanObjectName;
     private final Kernel kernel;
     private final Repository repository;
@@ -99,6 +101,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final ModuleBuilder connectorModuleBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
+    private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
 
     public AppClientModuleBuilder(URI[] defaultClientParentId,
                                   URI[] defaultServerParentId,
@@ -111,9 +114,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                   ServiceReferenceBuilder serviceReferenceBuilder,
                                   ConfigurationStore store,
                                   Repository repository,
-                                  Kernel kernel) {
-        this.defaultClientParentId = defaultClientParentId;
-        this.defaultServerParentId = defaultServerParentId;
+                                  Kernel kernel) throws DeploymentException {
+        this.defaultClientParentId = defaultClientParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultClientParentId);
+        this.defaultServerParentId = defaultServerParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultServerParentId);
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.kernel = kernel;
         this.repository = repository;
@@ -174,16 +177,17 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + gerAppClient.getConfigId(), e);
         }
 
-        URI[] parentId = null;
+        List parentId = null;
         if (gerAppClient.isSetParentId()) {
             String parentIdString = gerAppClient.getParentId();
             try {
-                parentId = new URI[] {new URI(parentIdString)};
+                parentId = new ArrayList();
+                parentId.add(new URI(parentIdString));
             } catch (URISyntaxException e) {
                 throw new DeploymentException("Could not create parentId uri from " + parentIdString, e);
             }
         } else {
-            parentId = defaultServerParentId;
+            parentId = new ArrayList(defaultServerParentId);
         }
 
         return new AppClientModule(standAlone, configId, parentId, moduleFile, targetPath, appClient, gerAppClient, specDD);
@@ -263,6 +267,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        earContext.addParentId(defaultServerParentId);
         // extract the app client jar file into a standalone packed jar file and add the contents to the output
         JarFile moduleFile = module.getModuleFile();
         try {
@@ -341,10 +346,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 try {
 
                     URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
-                    URI[] clientParentId = ServiceConfigBuilder.getParentID(geronimoAppClient.getClientParentId(), geronimoAppClient.getImportArray());
-                    if (clientParentId == null) {
-                        clientParentId = defaultClientParentId;
-                    }
+                    List clientParentId = ServiceConfigBuilder.getParentID(geronimoAppClient.getClientParentId(), geronimoAppClient.getImportArray());
+                    clientParentId.addAll(defaultClientParentId);
                     appClientDeploymentContext = new EARContext(appClientDir,
                             clientConfigId,
                             ConfigurationModuleType.CAR,
@@ -533,20 +536,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
     }
 
-    private URI[] getParentIds(String parentIdString) throws DeploymentException {
-        URI[] clientParentId;
-        try {
-             String[] parentIdStrings = parentIdString.split(",");
-             clientParentId = new URI[parentIdStrings.length];
-             for (int i = 0; i < parentIdStrings.length; i++) {
-                 String idString = parentIdStrings[i];
-                 URI parent = new URI(idString);
-                 clientParentId[i] = parent;
-             }
-         } catch (URISyntaxException e) {
-             throw new DeploymentException("Invalid parentId " + parentIdString, e);
-         }
-        return clientParentId;
+    public String getSchemaNamespace() {
+        return GERAPPCLIENT_NAMESPACE;
     }
 
     public void addManifestClassPath(DeploymentContext deploymentContext, JarFile earFile, JarFile jarFile, URI jarFileLocation) throws DeploymentException {

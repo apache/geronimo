@@ -1,30 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-Copyright 2004 The Apache Software Foundation
+    Copyright 2004-2005 The Apache Software Foundation
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+       http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 -->
 
-<!-- $Rev: 111627 $ $Date: 2004-12-12 03:15:11 +0100 (Sun, 12 Dec 2004) $ -->
+<!-- $Rev: 263024 $ $Date: 2005-08-27 19:24:05 -0700 (Sat, 27 Aug 2005) $ -->
 
 <!--
-Configuration for the main ring of a Geronimo server.
-
-This configuration should contain those services normally provided
-by the server.
+Configuration for Tomcat server.
 -->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/Tomcat"
+    parentId="org/apache/geronimo/RMINaming"
+    >
 
-<!-- TOMCAT CONFIGURATION STARTS HERE -->
+<!--    <import>-->
+<!--        <uri>org/apache/geronimo/Security</uri>-->
+<!--    </import>-->
 
     <dependency>
         <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
@@ -91,30 +96,31 @@ by the server.
     </dependency>
 
     <!-- JAAS Geronimo Login Configuration -->
-    <gbean name="tomcat-properties-realm"
-        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName">Geronimo</attribute>
-        <reference name="LoginModuleConfiguration">
-            <name>tomcat-properties</name>
-        </reference>
-        <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
-            <name>ServerInfo</name>
-        </reference>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
-    </gbean>
-
-    <gbean name="tomcat-properties" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
-        <attribute name="controlFlag">REQUIRED</attribute>
-        <reference name="LoginModule">
-            <name>properties-login</name>
-        </reference>
-    </gbean>
+<!--    <gbean name="tomcat-properties-realm"-->
+<!--        class="org.apache.geronimo.security.realm.GenericSecurityRealm">-->
+<!--        <attribute name="realmName">Geronimo</attribute>-->
+<!--        <reference name="LoginModuleConfiguration">-->
+<!--            <name>tomcat-properties</name>-->
+<!--        </reference>-->
+<!--        <reference name="ServerInfo">-->
+<!--            <module>org/apache/geronimo/System</module>-->
+<!--            <name>ServerInfo</name>-->
+<!--        </reference>-->
+<!--        <reference name="LoginService"><module>*</module><name>JaasLoginService</name></reference>-->
+<!--    </gbean>-->
+<!---->
+<!--    <gbean name="tomcat-properties" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">-->
+<!--        <attribute name="controlFlag">REQUIRED</attribute>-->
+<!--        <reference name="LoginModule">-->
+<!--            <module>org/apache/geronimo/Security</module>-->
+<!--            <name>properties-login</name>-->
+<!--        </reference>-->
+<!--    </gbean>-->
 
     <!-- The following is the equivalent of the server.xml file, but done with GBeans -->
 
     <!-- The TomcatContainer/Service -->
-    <gbean name="WebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
+    <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
         <attribute name="catalinaHome">var/catalina</attribute>
         <reference name="EngineGBean">
             <name>TomcatEngine</name>
@@ -139,7 +145,7 @@ by the server.
         <attribute name="connectionTimeoutMillis">20000</attribute>
         <attribute name="uploadTimeoutEnabled">false</attribute>
         <reference name="TomcatContainer">
-            <name>WebContainer</name>
+            <name>TomcatWebContainer</name>
         </reference>
     </gbean>
 
@@ -151,7 +157,7 @@ by the server.
         <attribute name="hostLookupEnabled">false</attribute>
         <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
         <reference name="TomcatContainer">
-            <name>WebContainer</name>
+            <name>TomcatWebContainer</name>
         </reference>
     </gbean>
 
@@ -173,7 +179,7 @@ by the server.
         <attribute name="secureProtocol">TLS</attribute>
         <attribute name="keystoreFileName">var/security/keystore</attribute>
         <attribute name="keystorePassword">secret</attribute>
-        <reference name="TomcatContainer"><name>WebContainer</name></reference>
+        <reference name="TomcatContainer"><name>TomcatWebContainer</name></reference>
         <reference name="ServerInfo">
             <module>org/apache/geronimo/System</module>
             <name>ServerInfo</name>
@@ -195,7 +201,7 @@ by the server.
         </reference>
         <reference name="TomcatValveChain">
             <name>FirstValve</name>
-        </reference> 
+        </reference>
     </gbean>
 
     <!-- Valve -->
@@ -213,7 +219,7 @@ by the server.
     -->
     </gbean>
     <!-- Uncomment this section to add this valve  to the chain.  This example consists of the Tomcat
-          SingleSignOn. 
+          SingleSignOn.
     <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
     </gbean>
@@ -241,7 +247,7 @@ by the server.
              Attempting to add the same Realm GBeans to the Engine *and* Host at the same time
              will result in an error.
 
-             Uncomment this to add the Realm to the Host 
+             Uncomment this to add the Realm to the Host
         <reference name="RealmGBean">
             <name>TomcatJAASRealm</name>
         </reference>
@@ -250,12 +256,13 @@ by the server.
              Attempting to add the same valve GBeans to the Engine *and* Host at the same time
              will result in an error.
 
-             Uncomment this to add the valve chain to the Host 
+             Uncomment this to add the valve chain to the Host
         <reference name="TomcatValveChain">
             <name>FirstValve</name>
-        </reference> 
+        </reference>
         -->
     </gbean>
 
 <!-- TOMCAT CONFIGURATION ENDS HERE -->
 
+</configuration>

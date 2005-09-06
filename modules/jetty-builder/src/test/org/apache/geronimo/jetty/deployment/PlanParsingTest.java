@@ -1,9 +1,9 @@
 package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
+import java.net.URI;
 import java.util.HashSet;
 import java.util.jar.JarFile;
-import java.net.URI;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;

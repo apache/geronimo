@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Arrays;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -53,7 +54,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements
     protected static Log log = LogFactory
             .getLog(CreateDestinationHandler.class);
 
-    private static final URI[] parentId = new URI[] {URI.create("org/apache/geronimo/Console")};
+    private static final List parentId = Arrays.asList(new URI[] {URI.create("org/apache/geronimo/Console")});
 
     static final GBeanInfo QUEUE_INFO;
 

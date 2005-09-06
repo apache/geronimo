@@ -36,4 +36,6 @@ public interface ModuleBuilder {
     void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 
     void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
+
+    String getSchemaNamespace();
 }

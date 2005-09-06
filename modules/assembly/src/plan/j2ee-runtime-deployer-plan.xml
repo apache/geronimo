@@ -81,18 +81,25 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <uri>geronimo/jars/geronimo-servicemix-builder-${geronimo_version}.jar</uri>
     </dependency>
 
-    ${webruntimedeployer}
-
     <!-- deployer gbeans -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
-        <reference name="Builders"><name>*</name></reference>
-        <reference name="Store"><module>org/apache/geronimo/System</module><name>*</name></reference>
+        <reference name="Builders">
+            <name>*</name>
+        </reference>
+        <reference name="Store">
+            <module>org/apache/geronimo/System</module>
+            <name>*</name>
+        </reference>
     </gbean>
 
     <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-        <reference name="XmlAttributeBuilders"><name>*</name></reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+        <reference name="XmlAttributeBuilders">
+            <name>*</name>
+        </reference>
         <reference name="XmlReferenceBuilders">
             <name>*</name>
         </reference>
@@ -109,14 +116,39 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="connectionTrackerObjectName">geronimo.server:name=ConnectionTracker,*</attribute>
         <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
         <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
-        <reference name="EJBConfigBuilder"><name>EJBBuilder</name></reference>
-        <reference name="EJBReferenceBuilder"><name>ServerEJBReferenceBuilder</name></reference>
-        <reference name="WebConfigBuilder"><name>WebBuilder</name></reference>
-        <reference name="ConnectorConfigBuilder"><name>ConnectorBuilder</name></reference>
-        <reference name="ResourceReferenceBuilder"><name>ConnectorBuilder</name></reference>
-        <reference name="AppClientConfigBuilder"><name>AppClientBuilder</name></reference>
-        <reference name="ServiceReferenceBuilder"><name>WebServiceBuilder</name></reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+        <reference name="EJBConfigBuilder">
+            <name>EJBBuilder</name>
+        </reference>
+        <reference name="EJBReferenceBuilder">
+            <name>ServerEJBReferenceBuilder</name>
+        </reference>
+        <reference name="WebConfigBuilder">
+            <name>WebBuilder</name>
+        </reference>
+        <reference name="ConnectorConfigBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ResourceReferenceBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="AppClientConfigBuilder">
+            <name>AppClientBuilder</name>
+        </reference>
+        <reference name="ServiceReferenceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+    </gbean>
+
+    <!-- web switching builder -->
+    <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
+        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/web/tomcat</attribute>
+        <references name="ModuleBuilders">
+            <pattern><gbean-name>geronimo.server:j2eeType=ModuleBuilder,name=JettyWebBuilder,*</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=ModuleBuilder,name=TomcatWebBuilder,*</gbean-name></pattern>
+        </references>
     </gbean>
 
     <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
@@ -132,7 +164,22 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="defaultIdleTimeoutMinutes">15</attribute>
         <attribute name="defaultXATransactionCaching">true</attribute>
         <attribute name="defaultXAThreadCaching">false</attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+    <gbean name="ClientConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
+        <attribute name="defaultParentId">org/apache/geronimo/Client</attribute>
+        <attribute name="defaultMaxSize">10</attribute>
+        <attribute name="defaultMinSize">0</attribute>
+        <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
+        <attribute name="defaultIdleTimeoutMinutes">15</attribute>
+        <attribute name="defaultXATransactionCaching">true</attribute>
+        <attribute name="defaultXAThreadCaching">false</attribute>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
     </gbean>
 
     <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
@@ -140,12 +187,25 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
         <attribute name="defaultServerParentId">org/apache/geronimo/Server</attribute>
         <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
-        <reference name="EJBReferenceBuilder"><name>ClientEJBReferenceBuilder</name></reference>
-        <reference name="ConnectorModuleBuilder"><name>ConnectorBuilder</name></reference>
-        <reference name="ResourceReferenceBuilder"><name>ConnectorBuilder</name></reference>
-        <reference name="ServiceReferenceBuilder"><name>WebServiceBuilder</name></reference>
-        <reference name="Store"><module>org/apache/geronimo/System</module><name>*</name></reference>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="EJBReferenceBuilder">
+            <name>ClientEJBReferenceBuilder</name>
+        </reference>
+        <reference name="ConnectorModuleBuilder">
+            <name>ClientConnectorBuilder</name>
+        </reference>
+        <reference name="ResourceReferenceBuilder">
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ServiceReferenceBuilder">
+            <name>WebServiceBuilder</name>
+        </reference>
+        <reference name="Store">
+            <module>org/apache/geronimo/System</module>
+            <name>*</name>
+        </reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
     </gbean>
 
     <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder">
@@ -174,7 +234,9 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
             servicemix/jars/spring-${servicemix_spring_version}.jar,
             servicemix/jars/servicemix-${servicemix_version}.jar
         </attribute>
-        <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
     </gbean>
 
 </configuration>

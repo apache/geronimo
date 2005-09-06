@@ -2,7 +2,7 @@
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     configId="org/apache/geronimo/Console"
-    parentId="org/apache/geronimo/RuntimeDeployer">
+    parentId="org/apache/geronimo/Server">
 
     <!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
     <dependency>
@@ -66,7 +66,8 @@
             <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
         </reference>
         <reference name="LoginModule">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
+<!--            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>-->
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Security,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
         </reference>
     </gbean>
 </application>

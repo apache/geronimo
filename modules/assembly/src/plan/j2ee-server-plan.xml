@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004 The Apache Software Foundation
+    Copyright 2004-2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--
+<!--                     
 Configuration for the main ring of a Geronimo server.
 
 This configuration should contain those services normally provided
@@ -42,15 +42,6 @@ by the server.
         <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-mail-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
         <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
@@ -62,32 +53,14 @@ by the server.
     <dependency>
         <uri>geronimo/jars/geronimo-timer-${geronimo_version}.jar</uri>
     </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-transaction-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
-    </dependency>
+<!--    <dependency>-->
+<!--        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>-->
+<!--    </dependency>-->
     <dependency>
         <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>howl/jars/howl-logger-${howl_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
     </dependency>
 
     <!-- required for rar 1.5 to load realms -->
@@ -163,72 +136,15 @@ by the server.
         <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
     </dependency>
 
+    <!-- mail -->
+    <dependency>
+        <uri>geronimo/jars/geronimo-mail-${geronimo_version}.jar</uri>
+    </dependency>
 
-
-    ${webcontainer}
-
-    <!-- Default security realm using properties files -->
-    <gbean name="properties-login"
-        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
-        <attribute name="serverSide">true</attribute>
-        <attribute name="options">
-            usersURI=var/security/users.properties
-            groupsURI=var/security/groups.properties
-        </attribute>
-        <attribute name="loginDomainName">geronimo-properties-realm</attribute>
-    </gbean>
-
-    <gbean name="geronimo-properties-realm"
-        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
-        <attribute name="realmName">geronimo-properties-realm</attribute>
-        <reference name="LoginModuleConfiguration">
-            <name>properties-login</name>
-        </reference>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
-    </gbean>
-    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
-         <attribute name="controlFlag">REQUIRED</attribute>
-         <reference name="LoginModule">
-             <name>properties-login</name>
-         </reference>
-     </gbean>
-
-    <gbean name="JMX"
-        class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
-        <attribute name="applicationConfigName">JMX</attribute>
-        <attribute name="realmName">geronimo-properties-realm</attribute>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
-    </gbean>
-
-    <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
-    <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
-        <references name="Configurations">
-            <pattern><gbean-name>geronimo.server:j2eeType=SecurityRealm,*</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationEntry,*</gbean-name></pattern>
-        </references>
-    </gbean>
-
-    <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
-        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
-        <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
-    </gbean>
-
-    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
-        <reference name="Realms"><application>*</application><module>*</module><name>*</name></reference>
-        <!--        <attribute name="reclaimPeriod">100000</attribute>-->
-        <attribute name="algorithm">HmacSHA1</attribute>
-        <attribute name="password">secret</attribute>
-    </gbean>
-
-    <gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
-        <attribute name="protocol">tcp</attribute>
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanRemoteLoginPort}</attribute>
-        <reference name="LoginService"><name>JaasLoginService</name></reference>
-    </gbean>
+    <!-- This little puppy will register a null transport for SMTP -->
+<!--    <dependency>-->
+<!--        <uri>geronimo-spec/jars/geronimo-null-SMTP-SNAPSHOT.jar</uri>-->
+<!--    </dependency>-->
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>
@@ -307,15 +223,10 @@ by the server.
 
     <gbean gbeanName="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
-    <!-- JMX Remoting -->
-    <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
-        <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
-        <attribute name="applicationConfigName">JMX</attribute>
-    </gbean>
 
     <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean">
         <attribute name="properties">
-                mail.smtp.host=mail.apache.com
+            mail.smtp.host=mail.apache.com
         </attribute>
     </gbean>
 

@@ -78,7 +78,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (storeName.equals(JMXUtil.getObjectName(store.getObjectName()))) {
-                return store.listConfiguations();
+                return store.listConfigurations();
             }
         }
         throw new NoSuchStoreException("No such store: " + storeName);

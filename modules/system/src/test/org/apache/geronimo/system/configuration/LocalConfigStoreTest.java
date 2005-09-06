@@ -92,6 +92,7 @@ public class LocalConfigStoreTest extends TestCase {
         kernel.setAttribute(gbeanName1, "value", "9900990099");
         assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));
 
+        kernel.invoke(configName, "saveState");
         // stop and unload the config
         kernel.stopGBean(configName);
         kernel.unloadGBean(configName);

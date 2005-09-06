@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Arrays;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -59,6 +60,7 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -131,7 +133,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
  */
 public class JettyModuleBuilder implements ModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
-    private final URI[] defaultParentId;
+    private final List defaultParentId;
     private final ObjectName jettyContainerObjectName;
     private final Collection defaultServlets;
     private final Collection defaultFilters;
@@ -148,6 +150,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     private final Kernel kernel;
     private static final String JETTY_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/web/jetty";
     private static final QName JETTY_CONFIG_QNAME = new QName(JETTY_CONFIG_NAMESPACE, "jetty");
+    private static final String JETTY_NAMESPACE = JETTY_CONFIG_NAMESPACE;//GerConnectorDocument.type.getDocumentElementName().getNamespaceURI();
 
     public JettyModuleBuilder(URI[] defaultParentId,
                               Integer defaultSessionTimeoutSeconds,
@@ -161,7 +164,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
                               WebServiceBuilder webServiceBuilder,
                               Repository repository,
                               Kernel kernel) throws GBeanNotFoundException {
-        this.defaultParentId = defaultParentId;
+        this.defaultParentId = defaultParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultParentId);
+
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.jettyContainerObjectName = jettyContainerObjectName;
@@ -255,13 +259,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
             throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
         }
 
-        URI[] parentId = ServiceConfigBuilder.getParentID(jettyWebApp.getParentId(), jettyWebApp.getImportArray());
-        if (parentId == null) {
-            parentId = defaultParentId;
+        List parentId = ServiceConfigBuilder.getParentID(jettyWebApp.getParentId(), jettyWebApp.getImportArray());
+        if (parentId.isEmpty()) {
+            parentId = new ArrayList(defaultParentId);
         }
-
-        assert parentId != null;
-        assert parentId.length >0;
         WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap);
         return module;
     }
@@ -382,6 +383,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        earContext.addParentId(defaultParentId);
         try {
             URI baseDir = URI.create(module.getTargetPath() + "/");
 
@@ -825,6 +827,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize webapp GBean", e);
         }
+    }
+
+    public String getSchemaNamespace() {
+        return JETTY_NAMESPACE;
     }
 
     private ClassLoader getWebClassLoader(EARContext earContext, WebModule webModule, ClassLoader cl, boolean contextPriorityClassLoader) throws DeploymentException {
@@ -1376,11 +1382,11 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true);
-        infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true);
-        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true);
-        infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true);
-        infoBuilder.addAttribute("jettyContainerObjectName", ObjectName.class, true);
+        infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true, true);
+        infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
+        infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
+        infoBuilder.addAttribute("jettyContainerObjectName", ObjectName.class, true, true);
         infoBuilder.addReference("DefaultServlets", Object.class);
         infoBuilder.addReference("DefaultFilters", Object.class);
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
