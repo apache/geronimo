@@ -277,7 +277,7 @@ by the server.
     </gbean>
 
     <!-- EJB Protocol -->
-    <gbean gbeanName="openejb:type=NetworkService,name=EJB" class="org.openejb.server.StandardServiceStackGBean">
+    <gbean gbeanName="geronimo:type=NetworkService,name=EJB" class="org.activeio.xnet.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
         <attribute name="host">${PlanServerHostname}</attribute>
