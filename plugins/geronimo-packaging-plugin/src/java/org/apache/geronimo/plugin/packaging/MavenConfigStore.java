@@ -47,7 +47,7 @@ import org.apache.geronimo.kernel.Kernel;
  */
 public class MavenConfigStore implements ConfigurationStore {
     private final Kernel kernel;
-    private final ObjectName objectN ame;
+    private final ObjectName objectName;
     private final Repository repository;
     private final ManageableAttributeStore attributeStore;
 
@@ -154,7 +154,7 @@ public class MavenConfigStore implements ConfigurationStore {
         // we don't store persistent state
     }
 
-    public List listConfiguations() {
+    public List listConfigurations() {
         throw new UnsupportedOperationException();
     }
 
