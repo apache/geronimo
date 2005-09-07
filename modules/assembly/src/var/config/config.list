@@ -5,6 +5,7 @@ org/apache/geronimo/Security
 org/apache/geronimo/SystemDatabase
 org/apache/geronimo/SystemJMS
 org/apache/geronimo/RuntimeDeployer
+org/apache/geronimo/JettyRuntimeDeployer
 org/apache/geronimo/TomcatRuntimeDeployer
 org/apache/geronimo/applications/Welcome
 org/apache/geronimo/Console

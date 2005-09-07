@@ -3,7 +3,7 @@
 <attributes>
     <configuration name="org/apache/geronimo/RuntimeDeployer">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/web/tomcat</attribute>
+            <attribute name="defaultNamespace">${PlanWebBuilderDefaultNamespace}</attribute>
         </gbean>
     </configuration>
     <configuration name="org/apache/geronimo/RMINaming">

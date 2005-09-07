@@ -78,25 +78,4 @@ Configuration for Jetty server.
         </reference>
     </gbean>
 
-    <gbean name="JettyClientCertSSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
-        <attribute name="host">${PlanServerHostname}</attribute>
-        <attribute name="port">${PlanClientCertHTTPSPort}</attribute>
-        <attribute name="keystoreFileName">var/security/keystore</attribute>
-        <attribute name="keystoreType">JKS</attribute>
-        <attribute name="keystorePassword">secret</attribute>
-        <attribute name="keyPassword">secret</attribute>
-        <attribute name="clientAuthRequired">true</attribute>
-        <attribute name="secureProtocol">TLS</attribute>
-        <attribute name="maxThreads">50</attribute>
-        <attribute name="minThreads">10</attribute>
-        <reference name="JettyContainer">
-            <name>JettyWebContainer</name>
-        </reference>
-        <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
-            <name>ServerInfo</name>
-        </reference>
-    </gbean>
-
-
 </configuration>
