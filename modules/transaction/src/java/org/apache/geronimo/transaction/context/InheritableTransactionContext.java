@@ -96,8 +96,11 @@ abstract class InheritableTransactionContext extends AbstractTransactionContext 
         if (transaction == null) {
             throw new IllegalStateException("There is no transaction in progress.");
         }
-
-        return transaction.delistResource(xaResource, flag);
+        boolean success = transaction.delistResource(xaResource, flag);
+        if (!success) {
+            transaction.setRollbackOnly();
+        }
+        return success;
     }
 
     public void registerSynchronization(Synchronization synchronization) throws RollbackException, SystemException {

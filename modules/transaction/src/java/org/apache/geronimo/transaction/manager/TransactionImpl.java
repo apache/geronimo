@@ -212,7 +212,7 @@ public class TransactionImpl implements Transaction {
             }
             return true;
         } catch (XAException e) {
-            log.warn("Unable to delist XAResource " + xaRes, e);
+            log.warn("Unable to delist XAResource " + xaRes + ", error code: " + e.errorCode, e);
             return false;
         }
     }
