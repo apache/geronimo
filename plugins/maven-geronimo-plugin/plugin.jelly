@@ -8,6 +8,7 @@
     xmlns:ant="jelly:ant"
     xmlns:maven="jelly:maven"
     xmlns:define="jelly:define"
+    xmlns:velocity="jelly:velocity"
     xmlns:deploy="geronimo:deploy"
     >
 
@@ -48,6 +49,10 @@
             name="stopRemoteServer"
             className="org.apache.geronimo.deployment.mavenplugin.StopRemoteServer"
             method="execute"/>
+        <define:jellybean
+            name="velocityFilter"
+            className="org.apache.geronimo.deployment.mavenplugin.VelocityFilter"
+            method="execute"/>
 
         <define:tag name="unpackServer" xmlns="jelly:ant">
             <j:if test="${geronimoVersion == null}">
@@ -60,7 +65,7 @@
                 <j:set var="targetDir" value="${maven.build.dir}"/>
             </j:if>
 
-            <unzip dest="${maven.build.dir}" src="${maven.repo.local}/${geronimoName}/distributions/${geronimoName}-${geronimo_version}.zip" />
+            <unzip dest="${maven.build.dir}" src="${maven.repo.local}/${geronimoName}/distributions/${geronimoName}-${geronimo_version}.zip"/>
 
             <!--copy stuff for this project into new geronimo repository-->
             <!-- this code deals with jar overrides correctly -->
@@ -72,16 +77,35 @@
                     <ant:copy tofile="${depDir}/${dependency.getArtifact()}" file="${artifact.path}"/>
                 </j:if>
             </j:forEach>
+            <deploy:copyVar/>
+        </define:tag>
+
+        <define:tag name="copyVar">
+            <j:if test="${geronimoVersion == null}">
+                <fail>Missing required attribute: geronimoVersion</fail>
+            </j:if>
+            <j:if test="${geronimoName == null}">
+                <j:set var="geronimoName" value="geronimo"/>
+            </j:if>
+            <j:if test="${targetDir == null}">
+                <j:set var="targetDir" value="${maven.build.dir}"/>
+            </j:if>
             <ant:available property="geronimo.deploy.var.available"
-                 file="${geronimo.deploy.var.source}"
-                 type="dir"/>
+                file="${geronimo.deploy.var.source}"
+                type="dir"/>
             <j:if test="${geronimo.deploy.var.available}">
+                <!-- copy everything -->
                 <copy todir="${targetDir}/${geronimoName}-${geronimo_version}/var" overwrite="true">
                     <fileset dir="${basedir}/${geronimo.deploy.var.source}">
                     </fileset>
                 </copy>
+                <!-- and recopy with filtering xml, list, and properties files -->
+                <deploy:velocityFilter
+                    sourceDir="${basedir}/${geronimo.deploy.var.source}"
+                    targetDir="${targetDir}/${geronimoName}-${geronimo_version}/var"
+                    force="true"
+                    context="${context}"/>
             </j:if>
-
 
         </define:tag>
 
