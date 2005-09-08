@@ -272,7 +272,6 @@
         <j:set var="PlanDerbyPort" value="1527"/>
         <j:set var="PlanRemoteLoginPort" value="4242"/>
         <j:set var="PlanLdapPort" value="1389"/>
-        <echo>CHOOSING CONTAINER ${geronimo.web.container}</echo>
         <j:if test="${context.getVariable('geronimo.web.container').equals('jetty')}">
             <echo>JETTY CONTAINER</echo>
             <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/web/jetty"/>
@@ -294,7 +293,6 @@
             <j:set var="PlanHTTPSPort2" value="8443"/>
             <j:set var="PlanAJPPort2" value="8009"/>
         </j:if>
-        <echo>CHOSE CONTAINER</echo>
 
         <fileScanner var="plans">
             <fileset dir="${basedir}/src/plan">
@@ -304,24 +302,6 @@
 
         <!-- Prepare the web container -->
         <ant:mkdir dir="${basedir}/target/tmp"/>
-        <!--        <velocity:merge-->
-        <!--            basedir="${basedir}/src/plan"-->
-        <!--            template="${geronimo.web.container}-config.xml"-->
-        <!--            name="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>-->
-        <!--        <loadfile property="webcontainer"-->
-        <!--            srcFile="${basedir}/target/tmp/${geronimo.web.container}-config.xml"/>-->
-        <velocity:merge
-            basedir="${basedir}/src/plan"
-            template="${geronimo.web.container}-deployer-config.xml"
-            name="${basedir}/target/tmp/${geronimo.web.container}-deployer-config.xml"/>
-        <loadfile property="webdeployer"
-            srcFile="${basedir}/target/tmp/${geronimo.web.container}-deployer-config.xml"/>
-        <velocity:merge
-            basedir="${basedir}/src/plan"
-            template="${geronimo.web.container}-runtime-deployer-config.xml"
-            name="${basedir}/target/tmp/${geronimo.web.container}-runtime-deployer-config.xml"/>
-        <loadfile property="webruntimedeployer"
-            srcFile="${basedir}/target/tmp/${geronimo.web.container}-runtime-deployer-config.xml"/>
 
         <ant:mkdir dir="${basedir}/target/plan"/>
         <j:forEach var="plan" items="${plans.iterator()}">
