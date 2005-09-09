@@ -266,8 +266,13 @@
         <j:set var="PlanOpenEJBPort" value="4201"/>
         <j:set var="PlanClientAddresses" value="127.0.0.1"/>
         <j:set var="PlanIIOPPort" value="9000"/>
-        <j:set var="PlanORBPort" value="2001"/>
+        <j:set var="PlanCOSNamingHost" value="localhost"/>
         <j:set var="PlanCOSNamingPort" value="1050"/>
+        <!-- why aren't these used? -->
+<!--        <j:set var="PlanORBHost" value="0.0.0.0"/>-->
+<!--        <j:set var="PlanORBPort" value="2001"/>-->
+        <j:set var="PlanORBSSLHost" value="0.0.0.0"/>
+        <j:set var="PlanORBSSLPort" value="2001"/>
         <j:set var="PlanActiveMQPort" value="61616"/>
         <j:set var="PlanDerbyPort" value="1527"/>
         <j:set var="PlanRemoteLoginPort" value="4242"/>
@@ -506,6 +511,21 @@
             <!--                password="manager"-->
             <!--                plan="${basedir}/target/plan/j2ee-tomcat-plan.xml"-->
             <!--            />-->
+
+            <!-- building server corba configuration-->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/j2ee-server-corba-plan.xml"
+                />
+            <!-- building app client corba configuration-->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/j2ee-client-corba-plan.xml"
+                />
 
 
             <!-- building tranql connector default database configuration-->
