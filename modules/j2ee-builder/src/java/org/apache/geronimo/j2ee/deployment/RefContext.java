@@ -213,7 +213,7 @@ public class RefContext {
     }
 
     public GBeanData locateComponent(String resourceLink, URI moduleURI, String moduleType, String type, J2eeContext j2eeContext, NamingContext context, String queryType) throws UnresolvedReferenceException {
-        GBeanData match = locateComponentInApplication(resourceLink, moduleURI, moduleType, type, j2eeContext, queryType, context);
+        GBeanData match = locateComponentInApplication(resourceLink, moduleURI, moduleType, type, j2eeContext, queryType, context, true);
         if (match == null) {
             //no matches in current context, look in other modules with J2EEApplication=null
             return locateGBeanInKernel(resourceLink, type, j2eeContext, queryType);
@@ -237,26 +237,26 @@ public class RefContext {
         GBeanData gbeanData;
         J2eeContext j2eeContext = namingContext.getJ2eeContext();
         if (isSession) {
-            gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.STATELESS_SESSION_BEAN, j2eeContext, "remote ejb", namingContext);
+            gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.STATELESS_SESSION_BEAN, j2eeContext, "remote ejb", namingContext, false);
             if (gbeanData == null) {
-                gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.STATEFUL_SESSION_BEAN, j2eeContext, "remote ejb", namingContext);
+                gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.STATEFUL_SESSION_BEAN, j2eeContext, "remote ejb", namingContext, true);
             }
         } else {
-            gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.ENTITY_BEAN, j2eeContext, "remote ejb", namingContext);
+            gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.ENTITY_BEAN, j2eeContext, "remote ejb", namingContext, true);
         }
         return gbeanData;
     }
 
-    private GBeanData locateComponentInApplication(String resourceLink, URI moduleURI, String moduleType, String type, J2eeContext j2eeContext, String queryType, NamingContext context) throws UnresolvedReferenceException {
-        GBeanData match = locateComponentInModule(resourceLink, moduleURI, moduleType, type, j2eeContext, queryType, context);
+    private GBeanData locateComponentInApplication(String resourceLink, URI moduleURI, String moduleType, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean requireMatchInExplicitModule) throws UnresolvedReferenceException {
+        GBeanData match = locateComponentInModule(resourceLink, moduleURI, moduleType, type, j2eeContext, queryType, context, requireMatchInExplicitModule);
         if (match == null) {
             //if we got this far we resourceLink has no #.  look in "any module" in this application
-            match = locateGBeanInContext(null, "*", resourceLink, type, j2eeContext, queryType, context, true);
+            match = locateGBeanInContext(null, "*", resourceLink, type, j2eeContext, queryType, context, false);
         }
         return match;
     }
 
-    private GBeanData locateComponentInModule(String resourceLink, URI moduleURI, String moduleType, String type, J2eeContext j2eeContext, String queryType, NamingContext context) throws UnresolvedReferenceException {
+    private GBeanData locateComponentInModule(String resourceLink, URI moduleURI, String moduleType, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean requireMatchInExplicitModule) throws UnresolvedReferenceException {
         GBeanData match;
         String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
         String module = moduleURI == null? "": moduleURI.getPath();
@@ -264,19 +264,19 @@ public class RefContext {
         if (resourceLink.indexOf('#') > -1) {
             //presence of # means they explicitly want only gbeans in specified module in this application.
             module = moduleURI.resolve(resourceLink).getPath();
-            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context, false);
+            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context, requireMatchInExplicitModule);
         } else {
             //no # means look first in current module in this application
             //module will be emply string if this is a standalone module
             if (module.equals("")) {
                 module = "*";
             }
-            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context, true);
+            match = locateGBeanInContext(moduleType, module, name, type, j2eeContext, queryType, context, false);
         }
         return match;
     }
 
-    private GBeanData locateGBeanInContext(String moduleType, String moduleName, String name, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean acceptNull) throws UnresolvedReferenceException {
+    private GBeanData locateGBeanInContext(String moduleType, String moduleName, String name, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean requireMatch) throws UnresolvedReferenceException {
         ObjectName match = null;
         ObjectName query = null;
         //TODO make sure this is reasonable
@@ -296,7 +296,7 @@ public class RefContext {
             match = (ObjectName) matches.iterator().next();
         }
         if (match == null) {
-            if (acceptNull) {
+            if (!requireMatch) {
                 return null;
             } else {
                 throw new UnresolvedReferenceException("Could not resolve reference: module: " + moduleName + ", component name: " + name, false, query.toString());
