@@ -99,7 +99,6 @@ public class LoginKerberosTest extends AbstractTest {
             assertEquals("server-side subject should have one identification principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
             assertEquals("server-side subject should have one kerberos principal", 1, subject.getPrincipals(KerberosPrincipal.class).size());
             RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
-            assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
             context.logout();
 
