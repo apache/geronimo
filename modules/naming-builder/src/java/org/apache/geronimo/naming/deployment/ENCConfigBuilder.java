@@ -165,7 +165,7 @@ public class ENCConfigBuilder {
     }
 
 
-    public static void addEnvEntries(EnvEntryType[] envEntries, ComponentContextBuilder builder, ClassLoader classLoader) throws DeploymentException {
+    static void addEnvEntries(EnvEntryType[] envEntries, ComponentContextBuilder builder, ClassLoader classLoader) throws DeploymentException {
         for (int i = 0; i < envEntries.length; i++) {
             EnvEntryType envEntry = envEntries[i];
             String name = getStringValue(envEntry.getEnvEntryName());
@@ -182,7 +182,7 @@ public class ENCConfigBuilder {
 
     }
 
-    public static void addResourceRefs(EARContext earContext, URI moduleURI, ResourceRefType[] resourceRefs, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    static void addResourceRefs(EARContext earContext, URI moduleURI, ResourceRefType[] resourceRefs, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
@@ -264,7 +264,7 @@ public class ENCConfigBuilder {
         return containerId;
     }
 
-    public static void addResourceEnvRefs(EARContext earContext, ResourceEnvRefType[] resourceEnvRefArray, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    static void addResourceEnvRefs(EARContext earContext, ResourceEnvRefType[] resourceEnvRefArray, Map refMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         if (refMap == null) {
             refMap = Collections.EMPTY_MAP;
         }
@@ -331,7 +331,7 @@ public class ENCConfigBuilder {
         return containerId;
     }
 
-    public static void addMessageDestinationRefs(RefContext refContext, NamingContext namingContext, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    static void addMessageDestinationRefs(RefContext refContext, NamingContext namingContext, MessageDestinationRefType[] messageDestinationRefs, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         for (int i = 0; i < messageDestinationRefs.length; i++) {
             MessageDestinationRefType messageDestinationRef = messageDestinationRefs[i];
             String name = getStringValue(messageDestinationRef.getMessageDestinationRefName());
@@ -358,7 +358,7 @@ public class ENCConfigBuilder {
                     linkName = destination.getAdminObjectLink().trim();
                 }
             } else {
-                //well, we know for sure an admin object is not going to be defined in a modules that can have a message-destination 
+                //well, we know for sure an admin object is not going to be defined in a modules that can have a message-destination
                 int pos = linkName.indexOf('#');
                 if (pos > -1) {
                     linkName = linkName.substring(pos + 1);
@@ -375,7 +375,7 @@ public class ENCConfigBuilder {
 
     }
 
-    public static void addEJBRefs(NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    static void addEJBRefs(NamingContext earContext, NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         J2eeContext j2eeContext = ejbContext.getJ2eeContext();
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
@@ -418,7 +418,7 @@ public class ENCConfigBuilder {
                                 String cssLink = remoteRef.getCssLink().trim();
                                 //TODO is this correct?
                                 String moduleType = null;
-                                cssBean = refContext.locateComponentName(cssLink, moduleURI, moduleType, NameFactory.CORBA_CSS, j2eeContext, ejbContext, "css gbean");
+                                cssBean = refContext.locateComponentName(cssLink, moduleURI, moduleType, NameFactory.CORBA_CSS, earContext.getJ2eeContext(), earContext, "css gbean");
                             } else {
                                 GerCssType css = remoteRef.getCss();
                                 cssBean = NameFactory.getComponentName(getStringValue(css.getDomain()),
@@ -427,7 +427,7 @@ public class ENCConfigBuilder {
                                     getStringValue(css.getModule()),
                                     getStringValue(css.getName()),
                                     getStringValue(NameFactory.CORBA_CSS),
-                                    j2eeContext);
+                                    earContext.getJ2eeContext());
                             }
                             ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
                                                                         getStringValue(remoteRef.getName()),
@@ -462,7 +462,7 @@ public class ENCConfigBuilder {
         }
     }
 
-    public static void addEJBLocalRefs(NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    static void addEJBLocalRefs(NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
         J2eeContext j2eeContext = ejbContext.getJ2eeContext();
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
@@ -515,7 +515,7 @@ public class ENCConfigBuilder {
     }
 
     //TODO current implementation does not deal with portComponentRef links.
-    public static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, Map serviceRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
+    static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, Map serviceRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
 
         RefContext refContext = earContext.getRefContext();
 
@@ -752,7 +752,7 @@ public class ENCConfigBuilder {
 
         RefContext refContext = earContext.getRefContext();
         // ejb-ref
-        addEJBRefs(ejbContext, refContext, moduleURI, ejbRefs, mapEjbRefs(gerEjbRefs), cl, builder);
+        addEJBRefs(earContext, ejbContext, refContext, moduleURI, ejbRefs, mapEjbRefs(gerEjbRefs), cl, builder);
 
         // ejb-local-ref
         addEJBLocalRefs(ejbContext, refContext, moduleURI, ejbLocalRefs, mapEjbLocalRefs(gerEjbLocalRef), cl, builder);

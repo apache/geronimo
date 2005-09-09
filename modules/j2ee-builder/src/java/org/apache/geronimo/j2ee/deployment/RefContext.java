@@ -259,7 +259,7 @@ public class RefContext {
     private GBeanData locateComponentInModule(String resourceLink, URI moduleURI, String moduleType, String type, J2eeContext j2eeContext, String queryType, NamingContext context) throws UnresolvedReferenceException {
         GBeanData match;
         String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
-        String module = moduleURI.getPath();
+        String module = moduleURI == null? "": moduleURI.getPath();
 
         if (resourceLink.indexOf('#') > -1) {
             //presence of # means they explicitly want only gbeans in specified module in this application.
