@@ -48,7 +48,6 @@ public class ContextManager {
     private static Map subjectContexts = new IdentityHashMap();
     private static Map subjectIds = new Hashtable();
     private static long nextSubjectId = System.currentTimeMillis();
-    private static Map principals = new Hashtable();
 
     private static long nextPrincipalId = System.currentTimeMillis();
 
@@ -240,29 +239,6 @@ public class ContextManager {
 
         subjectIds.remove(context.id);
         subjectContexts.remove(subject);
-    }
-
-    public static RealmPrincipal registerPrincipal(RealmPrincipal principal) {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) sm.checkPermission(SET_CONTEXT);
-
-
-        if (principal == null) throw new IllegalArgumentException("Principal must not be null");
-
-        RealmPrincipal result = (RealmPrincipal) principals.get(principal);
-
-        if (result == null) {
-            synchronized (principals) {
-                result = (RealmPrincipal) principals.get(principal);
-                if (result == null) {
-                    principal.setId(nextPrincipalId++);
-                    principals.put(principal, principal);
-                    result = principal;
-                }
-            }
-        }
-
-        return result;
     }
 
     /**

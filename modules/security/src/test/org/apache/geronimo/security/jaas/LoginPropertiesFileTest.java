@@ -160,8 +160,6 @@ public class LoginPropertiesFileTest extends AbstractTest {
         assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
         assertEquals("subject should have five principals (" + subject.getPrincipals().size() + ")", 5, subject.getPrincipals().size());
         assertEquals("subject should have two realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 2, subject.getPrincipals(RealmPrincipal.class).size());
-        RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
         context.logout();
 

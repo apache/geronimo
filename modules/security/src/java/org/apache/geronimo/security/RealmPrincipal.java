@@ -29,7 +29,6 @@ public class RealmPrincipal implements Principal, Serializable {
     private final String loginDomain;
     private final Principal principal;
     private transient String name = null;
-    private transient long id;
 
     public RealmPrincipal(String loginDomain, Principal principal) {
         if (loginDomain == null) throw new IllegalArgumentException("loginDomain is null");
@@ -37,14 +36,6 @@ public class RealmPrincipal implements Principal, Serializable {
 
         this.loginDomain = loginDomain;
         this.principal = principal;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    void setId(long id) {
-        this.id = id;
     }
 
     /**

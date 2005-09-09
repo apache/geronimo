@@ -18,7 +18,6 @@
 package org.apache.geronimo.security.jaas;
 
 import java.io.File;
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
@@ -193,8 +192,6 @@ public class TimeoutTest extends AbstractTest {
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
         assertTrue("server subject should have five principals", subject.getPrincipals().size() == 5);
         assertTrue("server subject should have two realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 2);
-        RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
         assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
 

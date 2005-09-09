@@ -90,8 +90,6 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
         assertTrue("server subject should have one private credential ("+subject.getPrivateCredentials().size()+")", subject.getPrivateCredentials().size() == 1);
-        RealmPrincipal principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
         context.logout();
 
@@ -120,8 +118,6 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
         assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
         assertTrue("server subject should have one private credential ("+subject.getPrivateCredentials().size()+")", subject.getPrivateCredentials().size() == 1);
-        principal = (RealmPrincipal) subject.getPrincipals(RealmPrincipal.class).iterator().next();
-        assertTrue("id of principal should be non-zero", principal.getId() != 0);
 
         context.logout();
 

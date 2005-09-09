@@ -115,7 +115,7 @@ public class JaasSecurityContext {
         for (Iterator it = subject.getPrincipals().iterator(); it.hasNext();) {
             Principal p = (Principal) it.next();
             if(!(p instanceof RealmPrincipal) && !processedPrincipals.contains(p)) {
-                list.add(ContextManager.registerPrincipal(new RealmPrincipal(loginDomainName, p)));
+                list.add(new RealmPrincipal(loginDomainName, p));
                 processedPrincipals.add(p);
             }
         }
@@ -127,7 +127,7 @@ public class JaasSecurityContext {
         for (int i = 0; i < principals.length; i++) {
             Principal p = principals[i];
             list.add(p);
-            list.add(ContextManager.registerPrincipal(new RealmPrincipal(loginDomainName, p)));
+            list.add(new RealmPrincipal(loginDomainName, p));
             processedPrincipals.add(p);
         }
         subject.getPrincipals().addAll(list);
