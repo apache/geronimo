@@ -27,6 +27,23 @@ CSSBean examples for app client
     configId="org/apache/geronimo/ClientCorba"
     >
 
+    <gbean name="DyanmicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>
+
+    <gbean name="Server" class="org.openejb.corba.CORBABean">
+        <reference name="ThreadPool">
+            <module>org/apache/geronimo/Client</module>
+            <name>DefaultThreadPool</name>
+        </reference>
+        <reference name="SecurityService">
+            <module>*</module>
+            <name>SecurityService</name>
+        </reference>
+        <attribute name="args">-ORBPort, 9683, -ORBInitRef, NameService=corbaloc::localhost:2809/NameService</attribute>
+        <attribute name="props">
+            com.sun.CORBA.ORBServerHost=localhost
+        </attribute>
+    </gbean>
+
     <gbean name="SSLClientCert" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
             <module>org/apache/geronimo/Client</module>
@@ -101,86 +118,6 @@ CSSBean examples for app client
                         <css:GSSUPStatic username="j2ee" password="j2ee" domain="default" />
                         <css:sasMech>
                             <css:ITTAbsent/>
-                        </css:sasMech>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
-    </gbean>
-
-    <gbean name="SSLIdentityTokenPrincipal" class="org.openejb.corba.CSSBean">
-        <reference name="ThreadPool">
-            <module>org/apache/geronimo/Client</module>
-            <name>DefaultThreadPool</name>
-        </reference>
-        <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Client</module>
-            <name>TransactionContextManager</name>
-        </reference>
-        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
-        <attribute name="description">SSLIdentityTokenPrincipal</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
-        <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInClient</css:supports>
-                            <css:requires>Integrity Confidentiality</css:requires>
-                        </css:SSL>
-                        <css:sasMech>
-                            <css:ITTPrincipalNameDynamic domain="cts-properties-realm"/>
-                        </css:sasMech>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
-    </gbean>
-
-    <gbean name="SSLIdentityTokenCert" class="org.openejb.corba.CSSBean">
-        <reference name="ThreadPool">
-            <module>org/apache/geronimo/Client</module>
-            <name>DefaultThreadPool</name>
-        </reference>
-        <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Client</module>
-            <name>TransactionContextManager</name>
-        </reference>
-        <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
-        <attribute name="description">SSLIdentityTokenCert</attribute>
-        <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
-                            <css:requires></css:requires>
-                        </css:SSL>
-                    </css:compoundSecMech>
-                </css:compoundSecMechTypeList>
-            </css:css>
-        </xml-attribute>
-        <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
-                <css:compoundSecMechTypeList>
-                    <css:compoundSecMech>
-                        <css:SSL>
-                            <css:supports>Integrity Confidentiality EstablishTrustInClient</css:supports>
-                            <css:requires>Integrity Confidentiality</css:requires>
-                        </css:SSL>
-                        <css:sasMech>
-                            <css:ITTPrincipalNameDynamic domain="cts-cert-realm"/>
                         </css:sasMech>
                     </css:compoundSecMech>
                 </css:compoundSecMechTypeList>
