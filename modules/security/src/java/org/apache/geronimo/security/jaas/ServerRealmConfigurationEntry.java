@@ -66,7 +66,9 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
         Properties options = new Properties();
         options.put(JaasLoginCoordinator.OPTION_REALM, realmName);
         options.put(JaasLoginCoordinator.OPTION_KERNEL, kernel.getKernelName());
-        options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
+        if (loginService != null) {
+            options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
+        }
 
         options.put("realm", realmName);
         options.put("kernel", kernel.getKernelName());
