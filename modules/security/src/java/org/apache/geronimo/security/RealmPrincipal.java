@@ -84,7 +84,10 @@ public class RealmPrincipal implements Principal, Serializable {
      * @return a hashcode for this principal.
      */
     public int hashCode() {
-        return getName().hashCode();
+        int result;
+        result = loginDomain.hashCode();
+        result = 29 * result + principal.hashCode();
+        return result;
     }
 
     /**
