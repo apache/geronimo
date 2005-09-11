@@ -141,7 +141,7 @@ public class GBeanAttribute {
     }
 
     static GBeanAttribute createFrameworkAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker) {
-        return new GBeanAttribute(gbeanInstance, name, type, getInvoker, null, false, null, false);
+        return new GBeanAttribute(gbeanInstance, name, type, getInvoker, null, false, null, true);
     }
 
     static GBeanAttribute createFrameworkAttribute(GBeanInstance gbeanInstance, String name, Class type, MethodInvoker getInvoker, MethodInvoker setInvoker, boolean persistent, Object persistentValue, boolean manageable) {
