@@ -37,8 +37,7 @@ public class DecouplingCallbackHandler implements CallbackHandler {
     public DecouplingCallbackHandler() {
     }
 
-    public void handle(Callback[] callbacks)
-            throws IllegalArgumentException, UnsupportedCallbackException {
+    public void handle(Callback[] callbacks) throws IllegalArgumentException, UnsupportedCallbackException {
         if (exploring) {
             source = callbacks;
             throw new UnsupportedCallbackException(callbacks != null && callbacks.length > 0 ? callbacks[0] : null, "DO NOT PROCEED WITH THIS LOGIN");

@@ -24,17 +24,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
-import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingClient;
+
 
 /**
  * A LoginModule implementation which connects to a Geronimo server under
@@ -42,7 +43,7 @@ import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingClient;
  * mix of client-side and server-side login modules.  It treats any client
  * side module as something it should manage and execute, while a server side
  * login module would be managed and executed by the Geronimo server.
- *
+ * <p/>
  * Note that this can actually be run from within a Geronimo server, in which
  * case the client/server distinction is somewhat less important, and the
  * communication is optimized by avoiding network traffic.
@@ -64,16 +65,14 @@ public class JaasLoginCoordinator implements LoginModule {
     private CallbackHandler handler;
     private Subject subject;
     private Set processedPrincipals = new HashSet();
-    private JaasLoginModuleConfiguration[] config;
-    private JaasClientId client;
+    private JaasClientId clientHandle;
     LoginModuleConfiguration[] workers;
 
-    public void initialize(Subject subject, CallbackHandler callbackHandler,
-                           Map sharedState, Map options) {
+    public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         serverHost = (String) options.get(OPTION_HOST);
         Object port = options.get(OPTION_PORT);
-        if(port != null) {
-            serverPort = Integer.parseInt((String)port);
+        if (port != null) {
+            serverPort = Integer.parseInt((String) port);
         }
         realmName = (String) options.get(OPTION_REALM);
         kernelName = (String) options.get(OPTION_KERNEL);
@@ -85,7 +84,7 @@ public class JaasLoginCoordinator implements LoginModule {
         }
         service = connect();
         handler = callbackHandler;
-        if(subject == null) {
+        if (subject == null) {
             this.subject = new Subject();
         } else {
             this.subject = subject;
@@ -94,12 +93,13 @@ public class JaasLoginCoordinator implements LoginModule {
     }
 
     public boolean login() throws LoginException {
-        client = service.connectToRealm(realmName);
-        config = service.getLoginConfiguration(client);
+        clientHandle = service.connectToRealm(realmName);
+        JaasLoginModuleConfiguration[] config = service.getLoginConfiguration(clientHandle);
         workers = new LoginModuleConfiguration[config.length];
+
         for (int i = 0; i < workers.length; i++) {
             LoginModule wrapper;
-            if(config[i].isServerSide()) { 
+            if (config[i].isServerSide()) {
                 wrapper = new ServerLoginModule(i);
             } else {
                 LoginModule source = config[i].getLoginModule(JaasLoginCoordinator.class.getClassLoader());
@@ -108,14 +108,14 @@ public class JaasLoginCoordinator implements LoginModule {
             workers[i] = new LoginModuleConfiguration(wrapper, config[i].getFlag());
             workers[i].getModule().initialize(subject, handler, new HashMap(), config[i].getOptions());
         }
-        return LoginUtils.computeLogin(workers);
+        return performLogin(workers);
     }
 
     public boolean commit() throws LoginException {
         for (int i = 0; i < workers.length; i++) {
             workers[i].getModule().commit();
         }
-        Principal[] principals = service.loginSucceeded(client);
+        Principal[] principals = service.loginSucceeded(clientHandle);
         for (int i = 0; i < principals.length; i++) {
             Principal principal = principals[i];
             subject.getPrincipals().add(principal);
@@ -129,7 +129,7 @@ public class JaasLoginCoordinator implements LoginModule {
                 workers[i].getModule().abort();
             }
         } finally {
-            service.loginFailed(client);
+            service.loginFailed(clientHandle);
         }
         clear();
         return true;
@@ -141,7 +141,7 @@ public class JaasLoginCoordinator implements LoginModule {
                 workers[i].getModule().logout();
             }
         } finally {
-            service.logout(client);
+            service.logout(clientHandle);
         }
         clear();
         return true;
@@ -160,18 +160,63 @@ public class JaasLoginCoordinator implements LoginModule {
         handler = null;
         subject = null;
         processedPrincipals.clear();
-        config = null;
-        client = null;
+        clientHandle = null;
         workers = null;
     }
 
     private JaasLoginServiceMBean connect() {
-        if(serverHost != null && serverPort > 0) {
+        if (serverHost != null && serverPort > 0) {
             return JaasLoginServiceRemotingClient.create(serverHost, serverPort);
         } else {
             Kernel kernel = KernelRegistry.getKernel(kernelName);
             return (JaasLoginServiceMBean) kernel.getProxyManager().createProxy(serviceName, JaasLoginServiceMBean.class);
         }
+    }
+
+    /**
+     * See http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/Configuration.html
+     *
+     * @param modules
+     * @return
+     * @throws LoginException
+     */
+    private static boolean performLogin(LoginModuleConfiguration[] modules) throws LoginException {
+        Boolean success = null;
+        Boolean backup = null;
+
+        for (int i = 0; i < modules.length; i++) {
+            LoginModuleConfiguration module = modules[i];
+            boolean result = module.getModule().login();
+            if (module.getControlFlag() == LoginModuleControlFlag.REQUIRED) {
+                if (success == null || success.booleanValue()) {
+                    success = result ? Boolean.TRUE : Boolean.FALSE;
+                }
+            } else if (module.getControlFlag() == LoginModuleControlFlag.REQUISITE) {
+                if (!result) {
+                    return false;
+                } else if (success == null) {
+                    success = Boolean.TRUE;
+                }
+            } else if (module.getControlFlag() == LoginModuleControlFlag.SUFFICIENT) {
+                if (result && (success == null || success.booleanValue())) {
+                    return true;
+                }
+            } else if (module.getControlFlag() == LoginModuleControlFlag.OPTIONAL) {
+                if (backup == null || backup.booleanValue()) {
+                    backup = result ? Boolean.TRUE : Boolean.FALSE;
+                }
+            }
+        }
+        // all required and requisite modules succeeded, or at least one required module failed
+        if (success != null) {
+            return success.booleanValue();
+        }
+        // no required or requisite modules, no sufficient modules succeeded, fall back to optional modules
+        if (backup != null) {
+            return backup.booleanValue();
+        }
+        // perhaps only a sufficient module, and it failed
+        return false;
     }
 
     private class ClientLoginModule implements LoginModule {
@@ -183,26 +228,33 @@ public class JaasLoginCoordinator implements LoginModule {
             this.index = index;
         }
 
-        public void initialize(Subject subject, CallbackHandler callbackHandler,
-                               Map sharedState, Map options) {
+        public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
             source.initialize(subject, callbackHandler, sharedState, options);
         }
 
         public boolean login() throws LoginException {
-           return source.login();
+            return source.login();
         }
 
+        /**
+         * Commit the LoginModule that is being wrapped.  Send the resulting
+         * principals that are obtained back to the server.
+         *
+         * @return true if this method succeeded, or false if this
+         *         <code>LoginModule</code> should be ignored.
+         * @throws LoginException if commit fails
+         */
         public boolean commit() throws LoginException {
             boolean result = source.commit();
             List list = new ArrayList();
             for (Iterator it = subject.getPrincipals().iterator(); it.hasNext();) {
                 Principal p = (Principal) it.next();
-                if(!processedPrincipals.contains(p)) {
+                if (!processedPrincipals.contains(p)) {
                     list.add(p);
                     processedPrincipals.add(p);
                 }
             }
-            service.clientLoginModuleCommit(client, index, (Principal[]) list.toArray(new Principal[list.size()]));
+            service.clientLoginModuleCommit(clientHandle, index, (Principal[]) list.toArray(new Principal[list.size()]));
             return result;
         }
 
@@ -224,30 +276,41 @@ public class JaasLoginCoordinator implements LoginModule {
             this.index = index;
         }
 
-        public void initialize(Subject subject, CallbackHandler handler,
-                               Map sharedState, Map options) {
+        public void initialize(Subject subject, CallbackHandler handler, Map sharedState, Map options) {
             this.handler = handler;
         }
 
+        /**
+         * Perform a login on the server side.
+         * <p/>
+         * Here we get the Callbacks from the server side, pass them to the
+         * local handler so that they may be filled.  We pass the resulting
+         * set of Callbacks back to the server.
+         *
+         * @return true if the authentication succeeded, or false if this
+         *         <code>LoginModule</code> should be ignored.
+         * @throws LoginException if the authentication fails
+         */
         public boolean login() throws LoginException {
             try {
-                callbacks = service.getServerLoginCallbacks(client, index);
-                if(handler != null) {
+                callbacks = service.getServerLoginCallbacks(clientHandle, index);
+                if (handler != null) {
                     handler.handle(callbacks);
-                } else if(callbacks != null && callbacks.length > 0) {
-                    System.err.println("No callback handler available for "+callbacks.length+" callbacks!");
+                } else if (callbacks != null && callbacks.length > 0) {
+                    System.err.println("No callback handler available for " + callbacks.length + " callbacks!");
                 }
-                return service.performServerLogin(client, index, callbacks);
-            } catch (LoginException e) {
-                throw e;
+                return service.performServerLogin(clientHandle, index, callbacks);
+            } catch (LoginException le) {
+                throw le;
             } catch (Exception e) {
-                e.printStackTrace();
-                throw new LoginException("Unable to log in: "+e.getMessage());
+                LoginException le = new LoginException("Error filling callback list");
+                le.initCause(e);
+                throw le;
             }
         }
 
         public boolean commit() throws LoginException {
-            return service.serverLoginModuleCommit(client, index);
+            return service.serverLoginModuleCommit(clientHandle, index);
         }
 
         public boolean abort() throws LoginException {

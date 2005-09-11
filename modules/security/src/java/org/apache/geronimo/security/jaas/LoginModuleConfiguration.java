@@ -24,8 +24,8 @@ import javax.security.auth.spi.LoginModule;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class LoginModuleConfiguration {
-    private LoginModule module;
-    private LoginModuleControlFlag controlFlag;
+    private final LoginModule module;
+    private final LoginModuleControlFlag controlFlag;
 
     public LoginModuleConfiguration(LoginModule module, LoginModuleControlFlag controlFlag) {
         this.module = module;

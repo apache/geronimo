@@ -43,7 +43,7 @@ public class JaasSecurityContext {
     private boolean done;
     private final JaasLoginModuleConfiguration[] modules;
     private final LoginModule[] loginModules;
-    private DecouplingCallbackHandler handler;
+    private DecouplingCallbackHandler handler = new DecouplingCallbackHandler();
     private final Set processedPrincipals = new HashSet();
 
     public JaasSecurityContext(String realmName, JaasLoginModuleConfiguration[] modules, ClassLoader classLoader) {
@@ -103,10 +103,8 @@ public class JaasSecurityContext {
         checkRange(index);
         return modules[index].getOptions();
     }
+
     public DecouplingCallbackHandler getHandler() {
-        if(handler == null) { //lazy create
-            handler = new DecouplingCallbackHandler();
-        }
         return handler;
     }
 

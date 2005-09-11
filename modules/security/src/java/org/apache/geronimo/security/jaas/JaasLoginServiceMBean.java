@@ -81,7 +81,7 @@ public interface JaasLoginServiceMBean {
      * Gets the login module configuration for the specified realm.  The
      * caller needs that in order to perform the authentication process.
      */
-    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasClientId userIdentifier) throws LoginException ;
+    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasClientId clientHandle) throws LoginException ;
 
     /**
      * Retrieves callbacks for a server side login module.  When the client
@@ -90,7 +90,7 @@ public interface JaasLoginServiceMBean {
      * server-side, the client gets the callbacks (using this method),
      * populates them, and sends them back to the server.
      */
-    public Callback[] getServerLoginCallbacks(JaasClientId userIdentifier, int loginModuleIndex) throws LoginException;
+    public Callback[] getServerLoginCallbacks(JaasClientId clientHandle, int loginModuleIndex) throws LoginException;
 
     /**
      * Returns populated callbacks for a server side login module.  When the
@@ -99,7 +99,7 @@ public interface JaasLoginServiceMBean {
      * server-side, the client gets the callbacks, populates them, and sends
      * them back to the server (using this method).
      */
-    public boolean performServerLogin(JaasClientId userIdentifier, int loginModuleIndex, Callback[] results) throws LoginException;
+    public boolean performServerLogin(JaasClientId clientHandle, int loginModuleIndex, Callback[] results) throws LoginException;
 
     /**
      * Indicates that the overall login succeeded, and some principals were
@@ -107,7 +107,7 @@ public interface JaasLoginServiceMBean {
      * once for each client-side login module, to specify Principals for each
      * module.
      */
-    public void clientLoginModuleCommit(JaasClientId userIdentifier, int loginModuleIndex, Principal[] clientLoginModulePrincipals) throws LoginException;
+    public void clientLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex, Principal[] clientLoginModulePrincipals) throws LoginException;
 
     /**
      * Indicates that the overall login succeeded, and a particular server-side
@@ -115,23 +115,23 @@ public interface JaasLoginServiceMBean {
      * once for each server-side login module that was processed before the
      * overall authentication succeeded.
      */
-    public boolean serverLoginModuleCommit(JaasClientId userIdentifier, int loginModuleIndex) throws LoginException;
+    public boolean serverLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex) throws LoginException;
 
     /**
      * Indicates that the overall login succeeded.  All login modules that were
      * touched should have been logged in and committed before calling this.
      */
-    public Principal[] loginSucceeded(JaasClientId userIdentifier) throws LoginException;
+    public Principal[] loginSucceeded(JaasClientId clientHandle) throws LoginException;
 
     /**
      * Indicates that the overall login failed, and the server should release
      * any resources associated with the user ID.
      */
-    public void loginFailed(JaasClientId userIdentifier);
+    public void loginFailed(JaasClientId clientHandle);
 
     /**
      * Indicates that the client has logged out, and the server should release
      * any resources associated with the user ID.
      */
-    public void logout(JaasClientId userIdentifier) throws LoginException;
+    public void logout(JaasClientId clientHandle) throws LoginException;
 }

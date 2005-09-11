@@ -30,7 +30,6 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.login.LoginException;
@@ -38,20 +37,20 @@ import javax.security.auth.spi.LoginModule;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+
 
 /**
  * The single point of contact for Geronimo JAAS realms.  Instead of attempting
@@ -77,10 +76,10 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     private int expiredLoginScanIntervalMillis = DEFAULT_EXPIRED_LOGIN_SCAN_INTERVAL;
     private int maxLoginDurationMillis = DEFAULT_MAX_LOGIN_DURATION;
 
+
     public JaasLoginService(String algorithm, String password, ClassLoader classLoader, String objectName) {
         this.classLoader = classLoader;
         this.algorithm = algorithm;
-        //todo: password could just be randomly generated??
         key = new SecretKeySpec(password.getBytes(), algorithm);
         this.objectName = objectName;
     }
@@ -157,7 +156,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * with the server.  On the server side, that means maintaining the
      * Subject and Principals for the user.
      *
-     * @return The UserIdentifier used as an argument for the rest of the
+     * @return The client handle used as an argument for the rest of the
      *         methods in this class.
      */
     public JaasClientId connectToRealm(String realmName) {
@@ -174,8 +173,8 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * Gets the login module configuration for the specified realm.  The
      * caller needs that in order to perform the authentication process.
      */
-    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasClientId userIdentifier) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(userIdentifier);
+    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasClientId clientHandle) throws LoginException {
+        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
         if (context == null) {
             throw new ExpiredLoginModuleException();
         }
@@ -195,11 +194,11 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * server-side, the client gets the callbacks (using this method),
      * populates them, and sends them back to the server.
      */
-    public Callback[] getServerLoginCallbacks(JaasClientId userIdentifier, int loginModuleIndex) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(userIdentifier);
+    public Callback[] getServerLoginCallbacks(JaasClientId clientHandle, int loginModuleIndex) throws LoginException {
+        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
         checkContext(context, loginModuleIndex, true);
         LoginModule module = context.getLoginModule(loginModuleIndex);
-        //todo: properly handle shared state
+
         context.getHandler().setExploring();
         try {
             module.initialize(context.getSubject(), context.getHandler(), new HashMap(), context.getOptions(loginModuleIndex));
@@ -218,15 +217,6 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         return context.getHandler().finalizeCallbackList();
     }
 
-    private void checkContext(JaasSecurityContext context, int loginModuleIndex, boolean expectServerSide) throws LoginException {
-        if (context == null) {
-            throw new ExpiredLoginModuleException();
-        }
-        if (loginModuleIndex < 0 || loginModuleIndex >= context.getModules().length || (context.isServerSide(loginModuleIndex) != expectServerSide)) {
-            throw new LoginException("Invalid login module specified");
-        }
-    }
-
     /**
      * Returns populated callbacks for a server side login module.  When the
      * client is going through the configured login modules, if a specific
@@ -234,8 +224,8 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * server-side, the client gets the callbacks, populates them, and sends
      * them back to the server (using this method).
      */
-    public boolean performServerLogin(JaasClientId userIdentifier, int loginModuleIndex, Callback[] results) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(userIdentifier);
+    public boolean performServerLogin(JaasClientId clientHandle, int loginModuleIndex, Callback[] results) throws LoginException {
+        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
         checkContext(context, loginModuleIndex, true);
         try {
             context.getHandler().setClientResponse(results);
@@ -251,8 +241,8 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * once for each client-side login module, to specify Principals for each
      * module.
      */
-    public void clientLoginModuleCommit(JaasClientId userIdentifier, int loginModuleIndex, Principal[] clientLoginModulePrincipals) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(userIdentifier);
+    public void clientLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex, Principal[] clientLoginModulePrincipals) throws LoginException {
+        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
         checkContext(context, loginModuleIndex, false);
         context.processPrincipals(clientLoginModulePrincipals, context.getLoginDomainName(loginModuleIndex));
     }
@@ -263,8 +253,8 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * once for each server-side login module that was processed before the
      * overall authentication succeeded.
      */
-    public boolean serverLoginModuleCommit(JaasClientId userIdentifier, int loginModuleIndex) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(userIdentifier);
+    public boolean serverLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex) throws LoginException {
+        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
         checkContext(context, loginModuleIndex, true);
         boolean result = context.getLoginModule(loginModuleIndex).commit();
         context.processPrincipals(context.getLoginDomainName(loginModuleIndex));
@@ -275,8 +265,8 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * Indicates that the overall login succeeded.  All login modules that were
      * touched should have been logged in and committed before calling this.
      */
-    public Principal[] loginSucceeded(JaasClientId userIdentifier) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(userIdentifier);
+    public Principal[] loginSucceeded(JaasClientId clientHandle) throws LoginException {
+        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
         if (context == null) {
             throw new ExpiredLoginModuleException();
         }
@@ -301,25 +291,34 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * Indicates that the overall login failed, and the server should release
      * any resources associated with the user ID.
      */
-    public void loginFailed(JaasClientId userIdentifier) {
-        activeLogins.remove(userIdentifier);
+    public void loginFailed(JaasClientId clientHandle) {
+        activeLogins.remove(clientHandle);
     }
 
     /**
      * Indicates that the client has logged out, and the server should release
      * any resources associated with the user ID.
      */
-    public void logout(JaasClientId userIdentifier) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(userIdentifier);
+    public void logout(JaasClientId clientHandle) throws LoginException {
+        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
         if (context == null) {
             throw new ExpiredLoginModuleException();
         }
         ContextManager.unregisterSubject(context.getSubject());
-        activeLogins.remove(userIdentifier);
+        activeLogins.remove(clientHandle);
         for (int i = 0; i < context.getModules().length; i++) {
             if (context.isServerSide(i)) {
                 context.getLoginModule(i).logout();
             }
+        }
+    }
+
+    private void checkContext(JaasSecurityContext context, int loginModuleIndex, boolean expectServerSide) throws LoginException {
+        if (context == null) {
+            throw new ExpiredLoginModuleException();
+        }
+        if (loginModuleIndex < 0 || loginModuleIndex >= context.getModules().length || (context.isServerSide(loginModuleIndex) != expectServerSide)) {
+            throw new LoginException("Invalid login module specified");
         }
     }
 
@@ -392,6 +391,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     }
 
     private class ExpirationMonitor implements Runnable { //todo: different timeouts per realm?
+
         public void run() {
             long now = System.currentTimeMillis();
             List list = new LinkedList();
@@ -419,7 +419,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginService.class, "JaasLoginService"); //just a gbean
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginService.class, "JaasLoginService");
 
         infoFactory.addAttribute("algorithm", String.class, true);
         infoFactory.addAttribute("password", String.class, true);
