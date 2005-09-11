@@ -210,11 +210,11 @@ public class GBeanInfoBuilder {
     }
 
     public void addAttribute(String name, Class type, boolean persistent) {
-        addAttribute(name, type.getName(), persistent, false);
+        addAttribute(name, type.getName(), persistent, true);
     }
 
     public void addAttribute(String name, String type, boolean persistent) {
-        addAttribute(name, type, persistent, false);
+        addAttribute(name, type, persistent, true);
     }
 
     public void addAttribute(String name, Class type, boolean persistent, boolean manageable) {

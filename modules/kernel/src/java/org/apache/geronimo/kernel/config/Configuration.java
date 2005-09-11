@@ -617,15 +617,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Configuration.class);//does not use jsr-77 naming
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("id", URI.class, true);
-        infoFactory.addAttribute("type", ConfigurationModuleType.class, true);
-        infoFactory.addAttribute("parentId", URI[].class, true);
-        infoFactory.addAttribute("domain", String.class, true);
-        infoFactory.addAttribute("server", String.class, true);
-        infoFactory.addAttribute("classPath", List.class, true);
-        infoFactory.addAttribute("dependencies", List.class, true);
-        infoFactory.addAttribute("gBeanState", byte[].class, true);
-        infoFactory.addAttribute("baseURL", URL.class, true);
+        infoFactory.addAttribute("id", URI.class, true, false);
+        infoFactory.addAttribute("type", ConfigurationModuleType.class, true, false);
+        infoFactory.addAttribute("parentId", URI[].class, true, false);
+        infoFactory.addAttribute("domain", String.class, true, false);
+        infoFactory.addAttribute("server", String.class, true, false);
+        infoFactory.addAttribute("classPath", List.class, true, false);
+        infoFactory.addAttribute("dependencies", List.class, true, false);
+        infoFactory.addAttribute("gBeanState", byte[].class, true, false);
+        infoFactory.addAttribute("baseURL", URL.class, true, false);
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Repositories", Repository.class, "GBean");
