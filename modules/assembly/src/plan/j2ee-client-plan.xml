@@ -98,22 +98,22 @@ by the app client.
         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
     </dependency>
 
-<!--    <dependency>-->
-<!--        <uri>scout/jars/jaxr-api-1.0-SNAPSHOT.jar</uri>-->
-<!--    </dependency>-->
-<!---->
-<!--    <dependency>-->
-<!--        <uri>scout/jars/scout-1.0-SNAPSHOT.jar</uri>-->
-<!--    </dependency>-->
-<!---->
-<!--    <dependency>-->
-<!--        <uri>juddi/jars/juddi-SNAPSHOT.jar</uri>-->
-<!--    </dependency>-->
-<!---->
-<!--    <dependency>-->
-<!--        <uri>jdom/jars/jdom-1.0.jar</uri>-->
-<!--    </dependency>-->
-<!---->
+    <!--scout -->
+    <dependency>
+        <uri>scout/jars/jaxr-api-${scout_version}.jar</uri>
+    </dependency>
+
+    <dependency>
+        <uri>scout/jars/scout-${scout_version}.jar</uri>
+    </dependency>
+    
+    <dependency>
+        <uri>juddi/jars/juddi-${juddi_version}.jar</uri>
+    </dependency>
+    
+    <dependency>
+        <uri>jdom/jars/jdom-1.0.jar</uri>
+    </dependency>
 
     <!-- Naming properties -->
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
@@ -158,5 +158,7 @@ by the app client.
         <reference name="TransactionManager"><name>TransactionManager</name></reference>
         <reference name="XidImporter"><name>TransactionManager</name></reference>
     </gbean>
+
+   <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
 </configuration>
