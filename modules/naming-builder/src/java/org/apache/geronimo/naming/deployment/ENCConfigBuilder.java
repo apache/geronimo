@@ -228,7 +228,7 @@ public class ENCConfigBuilder {
                     ref = refContext.getConnectionFactoryRef(containerId, iface);
                     builder.bind(name, ref);
                 } catch (UnresolvedReferenceException e) {
-                    throw new DeploymentException("Unable to resolve resource reference '"+name+"' ("+(e.isMultiple() ? "found multiple matching resources" : "no matching resources found")+")");
+                    throw new DeploymentException("Unable to resolve resource reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
                 }
             }
         }
@@ -286,7 +286,7 @@ public class ENCConfigBuilder {
 
                 builder.bind(name, ref);
             } catch (UnresolvedReferenceException e) {
-                throw new DeploymentException("Unable to resolve resource env reference '"+name+"' ("+(e.isMultiple() ? "found multiple matching resources" : "no matching resources found")+")");
+                throw new DeploymentException("Unable to resolve resource env reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
             }
         }
     }
@@ -344,7 +344,7 @@ public class ENCConfigBuilder {
                 throw new DeploymentException("could not load class " + type, e);
             }
             URI moduleURI = URI.create("");
-            GerMessageDestinationType destination = (GerMessageDestinationType)refContext.getMessageDestination(linkName);
+            GerMessageDestinationType destination = (GerMessageDestinationType) refContext.getMessageDestination(linkName);
             if (destination != null) {
                 if (destination.isSetAdminObjectLink()) {
                     if (destination.isSetAdminObjectModule()) {
@@ -422,17 +422,17 @@ public class ENCConfigBuilder {
                             } else {
                                 GerCssType css = remoteRef.getCss();
                                 cssBean = NameFactory.getComponentName(getStringValue(css.getDomain()),
-                                    getStringValue(css.getServer()),
-                                    getStringValue(css.getApplication()),
-                                    getStringValue(css.getModule()),
-                                    getStringValue(css.getName()),
-                                    getStringValue(NameFactory.CORBA_CSS),
-                                    earContext.getJ2eeContext());
+                                        getStringValue(css.getServer()),
+                                        getStringValue(css.getApplication()),
+                                        getStringValue(css.getModule()),
+                                        getStringValue(css.getName()),
+                                        getStringValue(NameFactory.CORBA_CSS),
+                                        earContext.getJ2eeContext());
                             }
                             ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
-                                                                        getStringValue(remoteRef.getName()),
-                                                                        ObjectName.getInstance(cssBean),
-                                                                        home);
+                                    getStringValue(remoteRef.getName()),
+                                    ObjectName.getInstance(cssBean),
+                                    home);
                         } catch (URISyntaxException e) {
                             throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
                         } catch (MalformedObjectNameException e) {
@@ -727,6 +727,7 @@ public class ENCConfigBuilder {
                                             GerServiceRefType[] gerServiceRefs,
                                             ClassLoader cl) throws DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder();
+        RefContext refContext = earContext.getRefContext();
 
         if (userTransaction != null) {
             builder.addUserTransaction(userTransaction);
@@ -734,6 +735,9 @@ public class ENCConfigBuilder {
 
         ObjectName corbaGBean = earContext.getCORBAGBeanObjectName();
         if (corbaGBean != null) {
+            if (corbaGBean.isPattern()) {
+                corbaGBean = refContext.locateUniqueName(earContext, corbaGBean);
+            }
             builder.addORB(corbaGBean);
         }
 
@@ -750,7 +754,6 @@ public class ENCConfigBuilder {
             ejbContext = earContext;
         }
 
-        RefContext refContext = earContext.getRefContext();
         // ejb-ref
         addEJBRefs(earContext, ejbContext, refContext, moduleURI, ejbRefs, mapEjbRefs(gerEjbRefs), cl, builder);
 

@@ -203,7 +203,7 @@ public class RefContext {
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException("We built this name...");
         }
-        ObjectName mejbName = locateUniqueName(query, "Management EJB");
+        ObjectName mejbName = locateUniqueNameInKernel(query, "Management EJB");
         return mejbName.getCanonicalName();
     }
 
@@ -277,7 +277,6 @@ public class RefContext {
     }
 
     private GBeanData locateGBeanInContext(String moduleType, String moduleName, String name, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean requireMatch) throws UnresolvedReferenceException {
-        ObjectName match = null;
         ObjectName query = null;
         //TODO make sure this is reasonable
         if (moduleType == null) {
@@ -288,13 +287,7 @@ public class RefContext {
         } catch (MalformedObjectNameException e1) {
             throw (UnresolvedReferenceException) new UnresolvedReferenceException("Could not construct " + queryType + " object name query", false, null).initCause(e1);
         }
-        Set matches = context.listGBeans(query);
-        if (matches.size() > 1) {
-            throw new UnresolvedReferenceException("More than one match for query " + matches, true, query.getCanonicalName());
-        }
-        if (matches.size() == 1) {
-            match = (ObjectName) matches.iterator().next();
-        }
+        ObjectName match = locateUniqueNameInContext(context, query);
         if (match == null) {
             if (!requireMatch) {
                 return null;
@@ -310,6 +303,18 @@ public class RefContext {
         }
     }
 
+    private ObjectName locateUniqueNameInContext(NamingContext context, ObjectName query) throws UnresolvedReferenceException {
+        ObjectName match = null;
+        Set matches = context.listGBeans(query);
+        if (matches.size() > 1) {
+            throw new UnresolvedReferenceException("More than one match for query " + matches, true, query.getCanonicalName());
+        }
+        if (matches.size() == 1) {
+            match = (ObjectName) matches.iterator().next();
+        }
+        return match;
+    }
+
     private GBeanData locateGBeanInKernel(String name, String type, J2eeContext j2eeContext, String queryType) throws UnresolvedReferenceException {
         ObjectName query;
         try {
@@ -321,7 +326,7 @@ public class RefContext {
     }
 
 
-    private ObjectName locateUniqueName(ObjectName query, String type) throws UnresolvedReferenceException {
+    private ObjectName locateUniqueNameInKernel(ObjectName query, String type) throws UnresolvedReferenceException {
         Set names = kernel.listGBeans(query);
         if (names.size() != 1) {
             throw new UnresolvedReferenceException(type, names.size() > 1, query.getCanonicalName());
@@ -330,14 +335,21 @@ public class RefContext {
     }
 
     private GBeanData locateUniqueGBeanData(ObjectName query, String type) throws UnresolvedReferenceException {
-        ObjectName match = locateUniqueName(query, type);
+        ObjectName match = locateUniqueNameInKernel(query, type);
         try {
             return kernel.getGBeanData(match);
         } catch (GBeanNotFoundException e) {
             throw new IllegalStateException("BUG! kernel listed a gbean but could not get its gbeanData: " + match);
 
         }
+    }
 
+    public ObjectName locateUniqueName(NamingContext context, ObjectName query) throws UnresolvedReferenceException {
+        ObjectName match = locateUniqueNameInContext(context, query);
+        if (match == null) {
+            match = locateUniqueNameInKernel(query, "type unknown");
+        }
+        return match;
     }
 
 }
