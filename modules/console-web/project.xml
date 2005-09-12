@@ -28,7 +28,6 @@
 
     <name>Geronimo :: Console Web</name>
     <id>geronimo-console-web</id>
-    <type>war</type>
     <shortDescription></shortDescription>
     <description></description>
     <siteDirectory></siteDirectory>

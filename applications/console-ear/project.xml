@@ -5,7 +5,6 @@
 
     <id>geronimo-console</id>
     <name>Geronimo :: Console :: Application EAR</name>
-    <type>ear</type>
 
     <dependencies>
         <dependency>
