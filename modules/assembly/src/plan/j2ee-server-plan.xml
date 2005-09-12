@@ -136,16 +136,6 @@ by the server.
         <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
     </dependency>
 
-    <!-- mail -->
-    <dependency>
-        <uri>geronimo/jars/geronimo-mail-${geronimo_version}.jar</uri>
-    </dependency>
-
-    <!-- This little puppy will register a null transport for SMTP -->
-<!--    <dependency>-->
-<!--        <uri>geronimo-spec/jars/geronimo-null-SMTP-SNAPSHOT.jar</uri>-->
-<!--    </dependency>-->
-
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>
         <attribute name="poolSize">30</attribute>
@@ -222,13 +212,6 @@ by the server.
     </gbean>
 
     <gbean gbeanName="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
-
-
-    <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean">
-        <attribute name="properties">
-            mail.smtp.host=mail.apache.com
-        </attribute>
-    </gbean>
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
