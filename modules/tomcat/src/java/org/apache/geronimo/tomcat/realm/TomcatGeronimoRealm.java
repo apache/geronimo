@@ -87,7 +87,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                          Response response,
                                          SecurityConstraint[] constraints)
             throws IOException {
-
+        
         //Get an authenticated subject, if there is one
         Subject subject = null;
         try {
@@ -114,7 +114,14 @@ public class TomcatGeronimoRealm extends JAASRealm {
             /**
              * JACC v1.0 secion 4.1.1
              */
-            WebUserDataPermission wudp = new WebUserDataPermission(request);
+            String transportType;
+            if (request.isSecure()) {
+                transportType = "CONFIDENTIAL";
+                //What about INTEGRAL?? Does Tomcat support it??
+            } else {
+                transportType = "NONE";
+            }
+            WebUserDataPermission wudp = new WebUserDataPermission(request.getServletPath(), new String[]{request.getMethod()}, transportType);
             acc.checkPermission(wudp);
 
         } catch (AccessControlException ace) {
@@ -138,7 +145,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
      */
     public boolean hasResourcePermission(Request request,
                                          Response response,
-                                         SecurityConstraint[] constraint,
+                                         SecurityConstraint[] constraints,
                                          Context context)
             throws IOException {
 
@@ -172,9 +179,12 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         // Which user principal have we already authenticated?
         Principal principal = request.getUserPrincipal();
-
+ 
         //If we have no principal, then we should use the default.
         if (principal == null) {
+            if (request.isSecure())
+                return true;
+            
             return false;
         } else {
             ContextManager.setCurrentCaller(((JAASTomcatPrincipal) principal).getSubject());
@@ -404,7 +414,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
             return null;
         }
     }
-
 
     /**
      * Prepare for active use of the public methods of this <code>Component</code>.
