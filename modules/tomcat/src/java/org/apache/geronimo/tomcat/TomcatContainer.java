@@ -27,6 +27,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Connector;
+import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +41,8 @@ import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.webservices.SoapHandler;
 import org.apache.geronimo.webservices.WebServiceContainer;
+
+
 
 /**
  * Apache Tomcat GBean
@@ -169,6 +172,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
             embedded.stop();
             embedded = null;
         }
+        
     }
 
     /**
@@ -266,8 +270,19 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     public void removeContext(TomcatContext ctx) {
         Context context = ctx.getContext();
 
-        if (context != null)
-            embedded.removeContext(context);
+        if (context != null){
+            if (context instanceof StandardContext){
+                StandardContext stdctx = (StandardContext)context;
+                try{
+                    stdctx.stop();
+                    stdctx.destroy();
+                } catch (Exception e){
+                    throw new RuntimeException(e);
+                }
+
+            }
+            context.getParent().removeChild(context);
+        }
 
     }
 
@@ -305,11 +320,12 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     public void removeWebService(String contextPath) {
         TomcatEJBWebServiceContext context = (TomcatEJBWebServiceContext) webServices.get(contextPath);
         try{
+            context.stop();
             context.destroy();
         } catch (Exception e){
             throw new RuntimeException(e);
         }
-        embedded.removeContext(context);
+        context.getParent().removeChild(context);
         webServices.remove(contextPath);
     }
 
