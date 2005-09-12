@@ -29,8 +29,9 @@ import javax.servlet.UnavailableException;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.Servlet;
+
 import org.mortbay.jetty.servlet.ServletHolder;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
 
 
 /**
@@ -43,14 +44,17 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * @version $Rev$ $Date$
  * @see org.apache.geronimo.jetty.JAASJettyRealm#isUserInRole(java.security.Principal, java.lang.String)
  */
-public class JettyServletHolder extends ServletHolder {
+public class JettyServletHolder extends ServletHolder implements Servlet {
     private static final ThreadLocal currentServletName = new ThreadLocal();
+    private final String objectName;
 
     //todo consider interface instead of this constructor for endpoint use.
     public JettyServletHolder() {
+        this.objectName = null;
     }
 
-    public JettyServletHolder(String servletName,
+    public JettyServletHolder(String objectName,
+                              String servletName,
                               String servletClassName,
                               String jspFile,
                               Map initParams,
@@ -71,6 +75,7 @@ public class JettyServletHolder extends ServletHolder {
             context.registerServletHolder(this, servletName, servletMappings, webRoleRefPermissions == null? Collections.EMPTY_MAP: webRoleRefPermissions);
 //            start();
         }
+        this.objectName = objectName;
     }
 
     //todo how do we stop/destroy the servlet?
@@ -106,6 +111,22 @@ public class JettyServletHolder extends ServletHolder {
         currentServletName.set(servletName);
     }
 
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -120,11 +141,14 @@ public class JettyServletHolder extends ServletHolder {
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
+        infoBuilder.addAttribute("objectName", String.class, false);
+        infoBuilder.addInterface(Servlet.class);
 
         infoBuilder.addReference("Previous", ServletHolder.class, NameFactory.SERVLET);
         infoBuilder.addReference("JettyServletRegistration", JettyServletRegistration.class, NameFactory.WEB_MODULE);
 
-        infoBuilder.setConstructor(new String[] {"servletName",
+        infoBuilder.setConstructor(new String[] {"objectName",
+                                                 "servletName",
                                                  "servletClass",
                                                  "jspFile",
                                                  "initParams",
