@@ -476,33 +476,32 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 SecurityHolder securityHolder = new SecurityHolder();
                 securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
 
-                if (tomcatWebApp.isSetSecurity()) {
+                /**
+                 * TODO - go back to commented version when possible.
+                 */
+                String policyContextID = webModuleName.getCanonicalName().replaceAll("[, :]", "_");
+                securityHolder.setPolicyContextID(policyContextID);
 
-                    securityHolder.setSecurity(true);
-                    /**
-                     * TODO - go back to commented version when possible.
-                     */
-                    String policyContextID = webModuleName.getCanonicalName().replaceAll("[, :]", "_");
-                    securityHolder.setPolicyContextID(policyContextID);
-
-                    ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
-                    securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
-                    PermissionCollection checkedPermissions = new Permissions();
-                    for (Iterator iterator = rolePermissions.values().iterator(); iterator.hasNext();) {
-                        PermissionCollection permissionsForRole = (PermissionCollection) iterator.next();
-                        for (Enumeration iterator2 = permissionsForRole.elements(); iterator2.hasMoreElements();) {
-                            Permission permission = (Permission) iterator2.nextElement();
-                            checkedPermissions.add(permission);
-                        }
+                ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
+                securityHolder.setExcluded(componentPermissions.getExcludedPermissions());
+                PermissionCollection checkedPermissions = new Permissions();
+                for (Iterator iterator = rolePermissions.values().iterator(); iterator.hasNext();) {
+                    PermissionCollection permissionsForRole = (PermissionCollection) iterator.next();
+                    for (Enumeration iterator2 = permissionsForRole.elements(); iterator2.hasMoreElements();) {
+                        Permission permission = (Permission) iterator2.nextElement();
+                        checkedPermissions.add(permission);
                     }
-                    securityHolder.setChecked(checkedPermissions);
-                    earContext.addSecurityContext(policyContextID, componentPermissions);
-//                    if (tomcatWebApp.isSetSecurity()) {
+                }
+                securityHolder.setChecked(checkedPermissions);
+                earContext.addSecurityContext(policyContextID, componentPermissions);
+                if (tomcatWebApp.isSetSecurity()) {
                     SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(tomcatWebApp.getSecurity());
                     earContext.setSecurityConfiguration(securityConfiguration);
-//                    }
-                    DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
-                    securityHolder.setDefaultPrincipal(defaultPrincipal);
+                }
+                DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
+                securityHolder.setDefaultPrincipal(defaultPrincipal);
+                if (defaultPrincipal != null){
+                    securityHolder.setSecurity(true);
                 }
 
                 webModuleData.setAttribute("securityHolder", securityHolder);
