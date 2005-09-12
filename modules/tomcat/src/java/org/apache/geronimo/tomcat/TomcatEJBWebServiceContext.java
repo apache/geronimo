@@ -59,6 +59,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.setPath(contextPath);
         this.setDocBase("");
         this.setParentClassLoader(classLoader);
+        this.setDelegate(true);
         
         log.info("EJB Webservice Context = " + contextPath);        
         if (securityRealmName != null) {
