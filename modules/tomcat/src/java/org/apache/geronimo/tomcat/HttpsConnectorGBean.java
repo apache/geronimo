@@ -17,6 +17,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnector {
     private final ServerInfo serverInfo;
     private String keystoreFileName;
+    private String truststoreFileName;
 
     public HttpsConnectorGBean(String name, String protocol, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, protocol, host, port, container);
@@ -70,6 +71,15 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
         connector.setAttribute("keystoreFile", serverInfo.resolvePath(keystoreFileName));
     }
 
+    public String getTruststoreFileName() {
+        return truststoreFileName; // don't look it up as we need it to be relative
+    }
+
+    public void setTruststoreFileName(String name) {
+        truststoreFileName = name;
+        connector.setAttribute("truststoreFile", serverInfo.resolvePath(truststoreFileName));
+    }
+    
     /**
      * Sets the password used to access the keystore, and by default, used to
      * access the server private key inside the keystore.  Not all connectors
@@ -79,6 +89,10 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
      */
     public void setKeystorePassword(String password) {
         connector.setAttribute("keystorePass", password);
+    }
+
+    public void setTruststorePassword(String password) {
+        connector.setAttribute("truststorePass", password);
     }
 
     /**
@@ -99,6 +113,14 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
         connector.setAttribute("keystoreType", type);
     }
 
+    public String getTruststoreType() {
+        return (String)connector.getAttribute("truststoreType");
+    }
+
+    public void setTruststoreType(String type) {
+        connector.setAttribute("truststoreType", type);
+    }
+    
     /**
      * Gets the certificate algorithm used to access the keystore.  This may
      * be different for different JVM vendors, but should not usually be
@@ -167,12 +189,15 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Connector", HttpsConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
         infoFactory.addAttribute("keystoreFileName", String.class, true, true);
+        infoFactory.addAttribute("truststoreFileName", String.class, true, true);
         infoFactory.addAttribute("algorithm", String.class, true, true);
         infoFactory.addAttribute("keystorePassword", String.class, true, true);
+        infoFactory.addAttribute("truststorePassword", String.class, true, true);
 // todo should we support this?
 //        infoFactory.addAttribute("keyPassword", String.class, true, true);
         infoFactory.addAttribute("secureProtocol", String.class, true, true);
         infoFactory.addAttribute("keystoreType", String.class, true, true);
+        infoFactory.addAttribute("truststoreType", String.class, true, true);
         infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
         infoFactory.addInterface(SecureConnector.class);
 
