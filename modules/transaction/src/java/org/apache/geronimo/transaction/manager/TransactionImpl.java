@@ -523,7 +523,7 @@ public class TransactionImpl implements Transaction {
             try {
                 xaRes.end(manager.getBranchId(), flags);
             } catch (XAException e) {
-                log.warn("Error ending association for XAResource " + xaRes + "; transaction will roll back", e);
+                log.warn("Error ending association for XAResource " + xaRes + "; transaction will roll back. XA error code: " + e.errorCode, e);
                 synchronized (this) {
                     status = Status.STATUS_MARKED_ROLLBACK;
                 }
