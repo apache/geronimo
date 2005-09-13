@@ -573,11 +573,14 @@ public class TransactionImpl implements Transaction {
                 continue;
             }
         }
-        try {
-            txnLog.commit(xid, logMark);
-        } catch (LogException e) {
-            log.error("Unexpected exception logging commit completion for xid " + xid, e);
-            throw (SystemException)new SystemException("Unexpected error logging commit completion for xid " + xid).initCause(e);
+        //if all resources were read only, we didn't write a prepare record.
+        if (!rms.isEmpty()) {
+            try {
+                txnLog.commit(xid, logMark);
+            } catch (LogException e) {
+                log.error("Unexpected exception logging commit completion for xid " + xid, e);
+                throw (SystemException)new SystemException("Unexpected error logging commit completion for xid " + xid).initCause(e);
+            }
         }
         synchronized (this) {
             status = Status.STATUS_COMMITTED;
