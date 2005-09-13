@@ -27,7 +27,6 @@ import javax.transaction.xa.XAResource;
 
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.InstanceContext;
-import org.tranql.cache.InTxCache;
 
 
 /**
@@ -70,9 +69,9 @@ public interface TransactionContext {
 
     void flushState() throws Throwable;
 
-    void setInTxCache(InTxCache inTxCache);
+    void setInTxCache(Flushable flushable);
 
-    InTxCache getInTxCache();
+    Flushable getInTxCache();
 
     void setManagedConnectionInfo(ConnectionReleaser key, Object info);
 

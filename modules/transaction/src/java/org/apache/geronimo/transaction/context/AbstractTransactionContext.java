@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.DoubleKeyedHashMap;
 import org.apache.geronimo.transaction.InstanceContext;
-import org.tranql.cache.InTxCache;
 
 
 /**
@@ -40,7 +39,7 @@ abstract class AbstractTransactionContext implements TransactionContext {
     private InstanceContext currentContext;
     private final DoubleKeyedHashMap associatedContexts = new DoubleKeyedHashMap();
     private final DoubleKeyedHashMap dirtyContexts = new DoubleKeyedHashMap();
-    private InTxCache inTxCache;
+    private Flushable inTxCache;
 
     public final void associate(InstanceContext context) throws Throwable {
         if (associatedContexts.put(context.getContainerId(), context.getId(), context) == null) {
@@ -117,11 +116,11 @@ abstract class AbstractTransactionContext implements TransactionContext {
         }
     }
 
-    public final void setInTxCache(InTxCache inTxCache) {
+    public final void setInTxCache(Flushable inTxCache) {
         this.inTxCache = inTxCache;
     }
-    
-    public final InTxCache getInTxCache() {
+
+    public final Flushable getInTxCache() {
         return inTxCache;
     }
 
