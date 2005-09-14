@@ -416,17 +416,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("unshareableResources", Set.class, true);
         infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
-        infoBuilder.addAttribute("userTransaction",
-                OnlineUserTransaction.class, true);
-        infoBuilder.addReference("TransactionContextManager",
-                TransactionContextManager.class, NameFactory.JTA_RESOURCE);
-        infoBuilder.addReference("TrackedConnectionAssociator",
-                TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
+        infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
+        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
 
-        infoBuilder.addReference("Container", TomcatContainer.class,
-                NameFactory.GERONIMO_SERVICE);
-        infoBuilder.addReference("RoleDesignateSource",
-                RoleDesignateSource.class, NameFactory.JACC_MANAGER);
+        infoBuilder.addReference("Container", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);

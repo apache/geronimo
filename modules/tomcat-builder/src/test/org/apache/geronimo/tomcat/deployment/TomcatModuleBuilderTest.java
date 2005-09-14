@@ -340,9 +340,9 @@ public class TomcatModuleBuilderTest extends TestCase {
                 "tomcatHost", "WebResource", moduleContext);
 
         tmName = NameFactory.getComponentName(null, null, null, null, null,
-                "TransactionManager", NameFactory.JTA_RESOURCE, moduleContext);
+                "TransactionManager", NameFactory.TRANSACTION_MANAGER, moduleContext);
         tcmName = NameFactory.getComponentName(null, null, null, null, null,
-                "TransactionContextManager", NameFactory.JTA_RESOURCE,
+                "TransactionContextManager", NameFactory.TRANSACTION_CONTEXT_MANAGER,
                 moduleContext);
         ctcName = new ObjectName(
                 "geronimo.server:role=ConnectionTrackingCoordinator");

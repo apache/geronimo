@@ -25,50 +25,56 @@ import javax.management.ObjectName;
  */
 public class NameFactory {
 
-    //name components
-    public static String J2EE_SERVER = "J2EEServer";
-    public static String J2EE_APPLICATION = "J2EEApplication";
-    public static String J2EE_MODULE = "J2EEModule";
-    public static String J2EE_TYPE = "j2eeType";
-    public static String J2EE_NAME = "name";
+    // Manadatory key properties from JSR77.3.1.1.1.3
+    public static final String J2EE_TYPE = "j2eeType";
+    public static final String J2EE_NAME = "name";
 
-    //types
-    public static String J2EE_DOMAIN = "J2EEDomain";
-    public static String JVM = "JVM";
-    public static String APP_CLIENT_MODULE = "AppClientModule";
+    // ManagedObject j2eeTypes from JSR77.3-1
+    public static final String J2EE_DOMAIN = "J2EEDomain";
+    public static final String J2EE_SERVER = "J2EEServer";
+    public static final String J2EE_APPLICATION = "J2EEApplication";
+    public static final String APP_CLIENT_MODULE = "AppClientModule";
+    public static final String EJB_MODULE = "EJBModule";
+    public static final String WEB_MODULE = "WebModule";
+    public static final String RESOURCE_ADAPTER_MODULE = "ResourceAdapterModule";
+    public static final String ENTITY_BEAN = "EntityBean";
+    public static final String STATEFUL_SESSION_BEAN = "StatefulSessionBean";
+    public static final String STATELESS_SESSION_BEAN = "StatelessSessionBean";
+    public static final String MESSAGE_DRIVEN_BEAN = "MessageDrivenBean";
+    public static final String SERVLET = "Servlet";
+    public static final String RESOURCE_ADAPTER = "ResourceAdapter";
+    public static final String JAVA_MAIL_RESOURCE = "JavaMailResource";
+    public static final String JCA_RESOURCE = "JCAResource";
+    public static final String JCA_CONNECTION_FACTORY = "JCAConnectionFactory";
+    public static final String JCA_MANAGED_CONNECTION_FACTORY = "JCAManagedConnectionFactory";
+    public static final String JDBC_RESOURCE = "JDBCResource";
+    public static final String JDBC_DATASOURCE = "JDBCDataSource";
+    public static final String JDBC_DRIVER = "JDBCDriver";
+    public static final String JMS_RESOURCE = "JMSResource";
+    public static final String JNDI_RESOURCE = "JNDIResource";
+    public static final String JTA_RESOURCE = "JTAResource";
+    public static final String RMI_IIOP_RESOURCE = "RMI_IIOPResource";
+    public static final String URL_RESOURCE = "URLResource";
+    public static final String JVM = "JVM";
 
-    public static String EJB = "EJB";
-    public static String EJB_MODULE = "EJBModule";
-    public static String MESSAGE_DRIVEN_BEAN = "MessageDrivenBean";
-    public static String ENTITY_BEAN = "EntityBean";
-    public static String STATEFUL_SESSION_BEAN = "StatefulSessionBean";
-    public static String STATELESS_SESSION_BEAN = "StatelessSessionBean";
-
-    public static String WEB_MODULE = "WebModule";
-    public static String SERVLET = "Servlet";
-
-    public static String RESOURCE_ADAPTER_MODULE = "ResourceAdapterModule";
-    public static String RESOURCE_ADAPTER = "ResourceAdapter";
-    public static String JAVA_MAIL_RESOURCE = "JavaMailResource";
-    public static String JCA_RESOURCE = "JCAResource";
-    public static String JCA_CONNECTION_FACTORY = "JCAConnectionFactory";
-    public static String JCA_CONNECTION_TRACKER = "JCAConnectionTracker";
-    public static String JCA_MANAGED_CONNECTION_FACTORY = "JCAManagedConnectionFactory";
-    public static String JDBC_RESOURCE = "JDBCResource";
-    public static String JDBC_DATASOURCE = "JDBCDataSource";
-    public static String JDBC_DRIVER = "JDBCDriver";
-    public static String JMS_RESOURCE = "JMSResource";
-
-    public static String JNDI_RESOURCE = "JNDIResource";
-    public static String JTA_RESOURCE = "JTAResource";
-
-    public static String RMI_IIOP_RESOURCE = "RMI_IIOPResource";
-    public static String URL_RESOURCE = "URLResource";
+    // abstract name components
+    public static final String J2EE_DEPLOYABLE_OBJECT = "J2EEDeployableObject";
+    public static final String J2EE_MODULE = "J2EEModule";
+    public static final String EJB = "EJB";
+    public static final String SESSION_BEAN = "SessionBean";
+    public static final String J2EE_RESOURCE = "J2EEResource";
 
     //used for J2EEApplication= when component is not deployed in an ear.
-    public static String NULL = "null";
+    public static final String NULL = "null";
 
     //geronimo extensions
+    // todo should these really be j2eeType or should we have a Geronimo-specific property?
+    public static final String TRANSACTION_MANAGER = "TransactionManager";
+    public static final String TRANSACTION_CONTEXT_MANAGER = "TransactionContextManager";
+    public static final String TRANSACTION_LOG = "TransactionLog";
+    public static final String XID_FACTORY = "XIDFactory";
+    public static final String XID_IMPORTER = "XIDImporter";
+    public static final String JCA_CONNECTION_TRACKER = "JCAConnectionTracker";
     public static final String JCA_ADMIN_OBJECT = "JCAAdminObject";
     public static final String JCA_ACTIVATION_SPEC = "JCAActivationSpec";
     //TODO shouldn't we use the RESOURCE_ADAPTER string?
@@ -81,11 +87,8 @@ public class NameFactory {
     public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
     public static final String CORBA_SERVICE = "CORBABean";
     public static final String JACC_MANAGER = "JACCManager";
-
     public static final String SYSTEM_LOG = "SystemLog";
-
-    public static String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
-
+    public static final String JAXR_CONNECTION_FACTORY = "JAXRConnectionFactory";
     public static final String CONFIG_BUILDER = "ConfigBuilder";
     public static final String MODULE_BUILDER = "ModuleBuilder";
     public static final String SECURITY_REALM = "SecurityRealm";
@@ -99,7 +102,7 @@ public class NameFactory {
     public static final String CONFIGURATION_ENTRY = "ConfigurationEntry";
     public static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList"; //duplicated in FileConfigurationList
 //    public static final String URL_PATTERN = "URLPattern";
-    public static String DEFAULT_SERVLET = "DefaultServlet";
+    public static final String DEFAULT_SERVLET = "DefaultServlet";
     public static final String SERVLET_WEB_SERVICE_TEMPLATE = "ServletWebServiceTemplate";
     public static final String CORBA_CSS = "CORBACSS";
     public static final String CORBA_TSS = "CORBATSS";
@@ -169,13 +172,13 @@ public class NameFactory {
         if ("*".equals(serverName)) {
             query = true;
         } else {
-            buffer.append(sep).append(J2EE_SERVER + "=").append(context.getJ2eeServerName(serverName));
+            buffer.append(sep).append(J2EE_SERVER).append("=").append(context.getJ2eeServerName(serverName));
             sep = ",";
         }
         if ("*".equals(applicationName)) {
             query = true;
         } else {
-            buffer.append(sep).append(J2EE_APPLICATION + "=").append(context.getJ2eeApplicationName(applicationName));
+            buffer.append(sep).append(J2EE_APPLICATION).append("=").append(context.getJ2eeApplicationName(applicationName));
             sep = ",";
         }
         if ("*".equals(moduleName)) {
@@ -187,14 +190,14 @@ public class NameFactory {
         if ("*".equals(type)) {
             query = true;
         } else {
-            buffer.append(sep).append(J2EE_TYPE + "=").append(context.getJ2eeType(type));
+            buffer.append(sep).append(J2EE_TYPE).append("=").append(context.getJ2eeType(type));
             sep = ",";
         }
         //explicit attributes, must be included: if * then make a query
         if ("*".equals(name)) {
             query = true;
         } else {
-            buffer.append(sep).append(J2EE_NAME + "=").append(context.getJ2eeName(name));
+            buffer.append(sep).append(J2EE_NAME).append("=").append(context.getJ2eeName(name));
             sep = ",";
         }
         //make a query, possibly

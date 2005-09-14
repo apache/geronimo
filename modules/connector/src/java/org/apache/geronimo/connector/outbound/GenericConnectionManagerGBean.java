@@ -43,7 +43,7 @@ public class GenericConnectionManagerGBean {
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
-        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
 
         infoBuilder.setConstructor(new String[]{
             "transactionSupport",

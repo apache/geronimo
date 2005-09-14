@@ -394,7 +394,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(HOWLLog.class, NameFactory.JTA_RESOURCE);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(HOWLLog.class, NameFactory.TRANSACTION_LOG);
         infoFactory.addAttribute("bufferClassName", String.class, true);
         infoFactory.addAttribute("bufferSizeKBytes", Integer.TYPE, true);
         infoFactory.addAttribute("checksumEnabled", Boolean.TYPE, true);
@@ -408,7 +408,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         infoFactory.addAttribute("minBuffers", Integer.TYPE, true);
         infoFactory.addAttribute("threadsWaitingForceThreshold", Integer.TYPE, true);
 
-        infoFactory.addReference("XidFactory", XidFactory.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addInterface(TransactionLog.class);

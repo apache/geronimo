@@ -71,10 +71,10 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TransactionManagerImplGBean.class, NameFactory.JTA_RESOURCE);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TransactionManagerImplGBean.class, NameFactory.TRANSACTION_MANAGER);
 
         infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
-        infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.JTA_RESOURCE);
+        infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.TRANSACTION_LOG);
         infoBuilder.addReference("ResourceManagers", ResourceManager.class);//two kinds of things, so specify the type in each pattern.
 
         infoBuilder.addInterface(ExtendedTransactionManager.class);

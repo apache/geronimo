@@ -49,7 +49,7 @@ public class VMStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addAttribute("repeatCount", int.class, true);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.setConstructor(new String[] {"repeatCount", "TransactionContextManager", "ThreadPool"});

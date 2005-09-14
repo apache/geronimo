@@ -29,7 +29,7 @@ public class XidFactoryImplGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(XidFactoryImplGBean.class, NameFactory.JTA_RESOURCE);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(XidFactoryImplGBean.class, NameFactory.XID_FACTORY);
         infoFactory.addInterface(XidFactory.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

@@ -47,7 +47,7 @@ public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer 
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
 
         infoFactory.setConstructor(new String[] {"TransactionContextManager", "ThreadPool"});
         GBEAN_INFO = infoFactory.getBeanInfo();

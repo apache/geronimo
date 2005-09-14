@@ -36,7 +36,7 @@ public class TransactionContextManagerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
 
         infoFactory.addOperation("getTransactionManager");
         infoFactory.addOperation("getContext");
@@ -50,8 +50,8 @@ public class TransactionContextManagerGBean {
         infoFactory.addOperation("setRollbackOnly");
         infoFactory.addOperation("setTransactionTimeout", new Class[] {int.class});
 
-        infoFactory.addReference("TransactionManager", ExtendedTransactionManager.class, NameFactory.JTA_RESOURCE);
-        infoFactory.addReference("XidImporter", XidImporter.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TransactionManager", ExtendedTransactionManager.class, NameFactory.TRANSACTION_MANAGER);
+        infoFactory.addReference("XidImporter", XidImporter.class, NameFactory.TRANSACTION_MANAGER);
 
         infoFactory.addInterface(XATerminator.class);
         infoFactory.addInterface(XAWork.class);

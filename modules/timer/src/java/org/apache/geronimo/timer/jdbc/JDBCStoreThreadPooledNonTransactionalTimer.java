@@ -56,7 +56,7 @@ public class JDBCStoreThreadPooledNonTransactionalTimer extends ThreadPooledTime
 
         infoFactory.addReference("ManagedConnectionFactoryWrapper", ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoFactory.addReference("DerbySystem", Serializable.class, NameFactory.GERONIMO_SERVICE);
         
         infoFactory.addAttribute("kernel", Kernel.class, false);

@@ -54,7 +54,7 @@ public class GeronimoWorkManagerGBean extends GeronimoWorkManager implements GBe
 
         infoFactory.addOperation("getXATerminator");
 
-        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.JTA_RESOURCE);
+        infoFactory.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
 
         infoFactory.setConstructor(new String[]{
             "syncMaximumPoolSize",
