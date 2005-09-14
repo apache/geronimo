@@ -20,15 +20,17 @@ package org.apache.geronimo.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.ResourceAdapter;
 
 public class ResourceAdapterImplGBean {
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("JCAResource", String.class, true);
+        infoBuilder.addInterface(ResourceAdapter.class);
 
         infoBuilder.setConstructor(new String[]{
             "objectName",

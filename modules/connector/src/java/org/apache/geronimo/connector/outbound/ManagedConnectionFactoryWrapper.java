@@ -37,11 +37,12 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
+import org.apache.geronimo.management.JCAManagedConnectionFactory;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager {
+public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicGBean, ResourceManager, JCAManagedConnectionFactory {
 
     private static final Log log = LogFactory.getLog(ManagedConnectionFactoryWrapper.class);
 
@@ -292,5 +293,21 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     public void returnResource(NamedXAResource xaResource) {
         ((ConnectionManagerContainer.ReturnableXAResource) xaResource).returnConnection();
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
     }
 }

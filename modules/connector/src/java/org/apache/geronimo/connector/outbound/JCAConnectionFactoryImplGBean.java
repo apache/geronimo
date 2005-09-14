@@ -20,13 +20,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.JCAConnectionFactory;
 
 /**
  * 
  * @version $Revision$
  */
 public class JCAConnectionFactoryImplGBean {
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -34,8 +35,8 @@ public class JCAConnectionFactoryImplGBean {
         infoFactory.addReference("J2EEServer", J2EEServer.class);
 
         infoFactory.addAttribute("objectName", String.class, false);
-//        infoFactory.addAttribute("server", String.class, false);
         infoFactory.addAttribute("managedConnectionFactory", String.class, true);
+        infoFactory.addInterface(JCAConnectionFactory.class);
 
         infoFactory.setConstructor(new String[]{"objectName", "J2EEServer", "managedConnectionFactory"});
 

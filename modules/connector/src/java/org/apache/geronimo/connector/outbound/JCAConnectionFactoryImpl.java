@@ -21,30 +21,44 @@ import java.util.Hashtable;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
  * @version $Rev$ $Date$
  */
-public class JCAConnectionFactoryImpl {
-    private final J2EEServer server;
+public class JCAConnectionFactoryImpl implements JCAConnectionFactory  {
+    private final String objectName;
     private final String managedConnectionFactory;
 
     public JCAConnectionFactoryImpl(String objectName, J2EEServer server, String managedConnectionFactory) {
+        // todo do we really need to do this at runtime - shouldn't the builder set this up correctly?
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
-        this.server = server;
+        this.objectName = objectName;
         this.managedConnectionFactory = managedConnectionFactory;
     }
 
-//    public String getServer() {
-//        return server.getObjectName();
-//    }
-
     public String getManagedConnectionFactory() {
         return managedConnectionFactory;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
     }
 
     /**

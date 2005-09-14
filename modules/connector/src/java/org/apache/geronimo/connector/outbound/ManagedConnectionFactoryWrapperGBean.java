@@ -22,6 +22,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.manager.ResourceManager;
+import org.apache.geronimo.management.JCAManagedConnectionFactory;
 
 /**
  *
@@ -50,6 +51,7 @@ public class ManagedConnectionFactoryWrapperGBean {
         infoFactory.addOperation("$getManagedConnectionFactory");
 
         infoFactory.addInterface(ResourceManager.class);
+        infoFactory.addInterface(JCAManagedConnectionFactory.class);
 
         infoFactory.addReference("ResourceAdapterWrapper", ResourceAdapterWrapper.class, NameFactory.RESOURCE_ADAPTER);
         infoFactory.addReference("ConnectionManagerContainer", ConnectionManagerContainer.class, NameFactory.JCA_CONNECTION_MANAGER);

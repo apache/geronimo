@@ -16,21 +16,37 @@
  */
 package org.apache.geronimo.connector;
 
-import javax.management.MalformedObjectNameException;
+import org.apache.geronimo.management.ResourceAdapter;
 
 /**
  * @version $Rev:  $ $Date:  $
  */
-public class ResourceAdapterImpl {
+public class ResourceAdapterImpl implements ResourceAdapter {
+    private final String objectName;
     private final String jcaResource;
 
-    public ResourceAdapterImpl(String objectName, String jcaResource) throws MalformedObjectNameException {
+    public ResourceAdapterImpl(String objectName, String jcaResource) {
+        this.objectName = objectName;
         this.jcaResource = jcaResource;
     }
 
-    public String getJCAResource() {
-        return jcaResource;
+    public String[] getJCAResources() {
+        return new String[] {jcaResource};
     }
 
+    public String getObjectName() {
+        return objectName;
+    }
 
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
 }
