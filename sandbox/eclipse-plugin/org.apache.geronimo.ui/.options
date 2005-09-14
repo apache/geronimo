@@ -1,4 +1,0 @@
-# Debugging options for the org.eclipse.jst.server.geronimo.ui plugin
-
-# Turn on general debugging
-org.eclipse.jst.server.geronimo.ui/debug=true
