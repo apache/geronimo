@@ -29,6 +29,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.JavaMailResource;
 
 
 /**
@@ -44,7 +45,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * @see POP3StoreGBean
  * @see IMAPStoreGBean
  */
-public class MailGBean implements GBeanLifecycle {
+public class MailGBean implements GBeanLifecycle, JavaMailResource {
 
     private final Log log = LogFactory.getLog(MailGBean.class);
 
@@ -89,13 +90,6 @@ public class MailGBean implements GBeanLifecycle {
         setUser(user);
         setDebug(debug);
 
-    }
-
-    /**
-     * Returns the GBean name of this Mail GBean
-     */
-    public String getObjectName() {
-        return objectName;
     }
 
     /**
@@ -345,6 +339,25 @@ public class MailGBean implements GBeanLifecycle {
         log.info("Failed " + objectName);
     }
 
+    /**
+     * Returns the GBean name of this Mail GBean
+     */
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -362,6 +375,7 @@ public class MailGBean implements GBeanLifecycle {
         infoFactory.addAttribute("debug", Boolean.class, true);
         infoFactory.addOperation("$getResource");
         infoFactory.addOperation("getProtocols");
+        infoFactory.addInterface(JavaMailResource.class);
 
         infoFactory.setConstructor(new String[]{"objectName",
                                                 "Protocols",

@@ -40,7 +40,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
- 
+import org.apache.geronimo.management.J2EEManagedObject;
+
 /**
  * GBean implementing Management interface and supplying proxies to act as the MEJB container.
  *
@@ -48,9 +49,11 @@ import org.apache.geronimo.kernel.jmx.MBeanServerDelegate;
  */
 public class MEJB implements Management {
     private final MBeanServer mbeanServer;
+    private final String objectName;
 
-    public MEJB(Kernel kernel) {
+    public MEJB(String objectName, Kernel kernel) {
         mbeanServer = new MBeanServerDelegate(kernel);
+        this.objectName = objectName;
     }
 
     public MBeanInfo getMBeanInfo(ObjectName objectName) throws InstanceNotFoundException, IntrospectionException, ReflectionException {
@@ -118,14 +121,32 @@ public class MEJB implements Management {
     public void remove() throws RemoveException {
     }
 
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MEJB.class);
+        infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(Management.class);
+        infoBuilder.addInterface(J2EEManagedObject.class);
 
-        infoBuilder.setConstructor(new String[]{"kernel"});
+        infoBuilder.setConstructor(new String[]{"objectName", "kernel"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
