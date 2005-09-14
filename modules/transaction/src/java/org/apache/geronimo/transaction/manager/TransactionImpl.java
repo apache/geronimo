@@ -174,7 +174,7 @@ public class TransactionImpl implements Transaction {
             activeXaResources.put(xaRes, addBranchXid(xaRes,  branchId));
             return true;
         } catch (XAException e) {
-            log.warn("Unable to enlist XAResource " + xaRes, e);
+            log.warn("Unable to enlist XAResource " + xaRes + ", errorCode: " + e.errorCode, e);
             return false;
         }
     }
