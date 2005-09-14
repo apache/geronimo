@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<!--                     
+<!--
 Configuration for the main ring of a Geronimo server.
 
 This configuration should contain those services normally provided
@@ -138,7 +138,7 @@ by the server.
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
         <attribute name="keepAliveTime">5000</attribute>
-        <attribute name="poolSize">30</attribute>
+        <attribute name="poolSize">300</attribute>
         <attribute name="poolName">DefaultThreadPool</attribute>
     </gbean>
 

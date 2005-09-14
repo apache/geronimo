@@ -38,7 +38,7 @@
                             <transaction-caching/>
                         </xa-transaction>
                         <single-pool>
-                            <max-size>10</max-size>
+                            <max-size>100</max-size>
                             <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
                             <match-one/>
                         </single-pool>
