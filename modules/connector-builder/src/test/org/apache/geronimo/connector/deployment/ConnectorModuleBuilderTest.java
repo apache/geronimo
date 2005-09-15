@@ -467,7 +467,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 assertNotNull(managedConnectionFactoryInfo);
                 GBeanInfo managedConnectionFactoryGBeanInfo = managedConnectionFactoryInfo.getGBeanInfo();
                 List attributes3 = managedConnectionFactoryGBeanInfo.getPersistentAttributes();
-                assertEquals(11, attributes3.size());
+                assertEquals(10, attributes3.size());
             }
 
 

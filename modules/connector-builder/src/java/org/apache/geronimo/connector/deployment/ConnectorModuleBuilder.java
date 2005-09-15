@@ -658,14 +658,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     }
 
     private ObjectName configureConnectionManager(EARContext earContext, J2eeContext j2eeContext, String ddTransactionSupport, GerConnectiondefinitionInstanceType connectionfactoryInstance, ClassLoader cl) throws DeploymentException {
-        if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
+//        if (connectionfactoryInstance.getConnectionmanagerRef() != null) {
             //we don't configure anything, just use the supplied gbean
-            try {
-                return ObjectName.getInstance(connectionfactoryInstance.getConnectionmanagerRef());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Invalid ObjectName string supplied for ConnectionManager reference", e);
-            }
-        }
+//            try {
+//                return ObjectName.getInstance(connectionfactoryInstance.getConnectionmanagerRef());
+//            } catch (MalformedObjectNameException e) {
+//                throw new DeploymentException("Invalid ObjectName string supplied for ConnectionManager reference", e);
+//            }
+//        }
 
         // create the object name for our connection manager
         ObjectName connectionManagerObjectName = null;
@@ -761,9 +761,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         // ManagedConnectionFactory
         setDynamicGBeanDataAttributes(managedConnectionFactoryInstanceGBeanData, connectiondefinitionInstance.getConfigPropertySettingArray(), cl);
         try {
-            if (connectiondefinitionInstance.isSetGlobalJndiName()) {
-                managedConnectionFactoryInstanceGBeanData.setAttribute("globalJNDIName", connectiondefinitionInstance.getGlobalJndiName().trim());
-            }
             if (resourceAdapterObjectName != null) {
                 managedConnectionFactoryInstanceGBeanData.setReferencePattern("ResourceAdapterWrapper", resourceAdapterObjectName);
             }

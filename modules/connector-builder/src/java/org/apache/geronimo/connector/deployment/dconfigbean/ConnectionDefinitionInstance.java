@@ -117,15 +117,15 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         pcs.firePropertyChange("name", old, name);
     }
 
-    public String getGlobalJNDIName() {
-        return getConnectiondefinitionInstance().getGlobalJndiName();
-    }
-
-    public void setGlobalJNDIName(String globalJNDIName) {
-        String old = getGlobalJNDIName();
-        getConnectiondefinitionInstance().setGlobalJndiName(globalJNDIName);
-        pcs.firePropertyChange("globalJNDIName", old, globalJNDIName);
-    }
+//    public String getGlobalJNDIName() {
+//        return getConnectiondefinitionInstance().getGlobalJndiName();
+//    }
+//
+//    public void setGlobalJNDIName(String globalJNDIName) {
+//        String old = getGlobalJNDIName();
+//        getConnectiondefinitionInstance().setGlobalJndiName(globalJNDIName);
+//        pcs.firePropertyChange("globalJNDIName", old, globalJNDIName);
+//    }
 
 //    public boolean isUseConnectionRequestInfo() {
 //        return getConnectionManager().getUseConnectionRequestInfo();

@@ -10,7 +10,6 @@
     <resource>
         <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT</external-rar>
         <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-            version="1.5"
             configId="org/apache/geronimo/DefaultDatabase"
             parentId="org/apache/geronimo/Server">
 
@@ -48,8 +47,6 @@
                                     <match-one/>
                                 </single-pool>
                             </connectionmanager>
-                            <global-jndi-name>tranql/axion</global-jndi-name>
-                            <!--credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface-->
                         </connectiondefinition-instance>
                     </connection-definition>
                 </outbound-resourceadapter>

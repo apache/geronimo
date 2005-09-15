@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector" version="1.0"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
     configId="org/apache/geronimo/j2ee/deployment/test"
     parentId="org/apache/geronimo/Server">
 
@@ -40,8 +40,6 @@
                             <partition-by-subject/>
                         </partitioned-pool>
                     </connectionmanager>
-                    <global-jndi-name>connectionfactories/testcf</global-jndi-name>
-                    <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
                 </connectiondefinition-instance>
                 <connectiondefinition-instance>
                     <name>SecondTestOutboundConnectionFactory</name>

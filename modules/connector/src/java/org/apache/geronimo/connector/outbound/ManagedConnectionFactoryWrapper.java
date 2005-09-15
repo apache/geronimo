@@ -18,7 +18,6 @@
 package org.apache.geronimo.connector.outbound;
 
 import javax.management.ObjectName;
-import javax.naming.NamingException;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
@@ -34,7 +33,6 @@ import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.geronimo.GeronimoContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 import org.apache.geronimo.management.JCAManagedConnectionFactory;
@@ -55,10 +53,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     private final Class[] allImplementedInterfaces;
 
-    private String globalJNDIName;
-
-    private ResourceAdapterWrapper resourceAdapterWrapper;
-    private ConnectionManagerContainer connectionManagerContainer;
+    private final ResourceAdapterWrapper resourceAdapterWrapper;
+    private final ConnectionManagerContainer connectionManagerContainer;
 
     private ManagedConnectionFactory managedConnectionFactory;
 
@@ -88,6 +84,8 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         allImplementedInterfaces = null;
         isProxyable = false;
         classLoader = null;
+        resourceAdapterWrapper = null;
+        connectionManagerContainer = null;
     }
 
     public ManagedConnectionFactoryWrapper(String managedConnectionFactoryClass,
@@ -96,7 +94,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                                            String connectionFactoryImplClass,
                                            String connectionInterface,
                                            String connectionImplClass,
-                                           String globalJNDIName,
                                            ResourceAdapterWrapper resourceAdapterWrapper,
                                            ConnectionManagerContainer connectionManagerContainer,
                                            Kernel kernel,
@@ -125,7 +122,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         }
         isProxyable = mightBeProxyable;
 
-        this.globalJNDIName = globalJNDIName;
         this.resourceAdapterWrapper = resourceAdapterWrapper;
         this.connectionManagerContainer = connectionManagerContainer;
 
@@ -164,24 +160,12 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return connectionImplClass;
     }
 
-    public String getGlobalJNDIName() {
-        return globalJNDIName;
-    }
-
     public ResourceAdapterWrapper getResourceAdapterWrapper() {
         return resourceAdapterWrapper;
     }
 
-    public void setResourceAdapterWrapper(ResourceAdapterWrapper resourceAdapterWrapper) {
-        this.resourceAdapterWrapper = resourceAdapterWrapper;
-    }
-
     public ConnectionManagerContainer getConnectionManagerFactory() {
         return connectionManagerContainer;
-    }
-
-    public void setConnectionManagerFactory(ConnectionManagerContainer connectionManagerContainer) {
-        this.connectionManagerContainer = connectionManagerContainer;
     }
 
     public void doStart() throws Exception {
@@ -215,12 +199,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         if (interceptor != null) {
             interceptor.setInternalProxy(connectionFactory);
         }
-        //If a globalJNDIName is supplied, bind it.
-        if (globalJNDIName != null) {
-            GeronimoContextManager.bind(globalJNDIName, proxy);
-            log.debug("Bound connection factory into global 'ger:' context at " + globalJNDIName);
-        }
-
     }
 
     public void doStop() {
@@ -228,14 +206,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             interceptor.setInternalProxy(null);
         }
         connectionFactory = null;
-        if (globalJNDIName != null) {
-            try {
-                GeronimoContextManager.unbind(globalJNDIName);
-            } catch (NamingException e) {
-                // this will happen on failure since doStop is called twice
-                // the error is not important
-            }
-        }
     }
 
     public void doFail() {

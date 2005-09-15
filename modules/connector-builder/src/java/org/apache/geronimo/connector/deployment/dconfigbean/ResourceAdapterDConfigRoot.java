@@ -28,7 +28,6 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
-import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
@@ -62,7 +61,6 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
         if(in == null) {
             GerConnectorDocument doc = GerConnectorDocument.Factory.newInstance();
             doc.addNewConnector().addNewResourceadapter();
-            doc.getConnector().setVersion(GerVersionType.X_1_5);
             return doc;
         } else {
             try {
@@ -102,9 +100,6 @@ public class ResourceAdapterDConfigRoot extends DConfigBeanRootSupport {
 
     public void fromXML(InputStream inputStream) throws XmlException, IOException {
         super.fromXML(inputStream);
-        if (!getConnectorDocument().getConnector().getVersion().equals(GerVersionType.X_1_5)) {
-            throw new IllegalStateException("Wrong version, expected 1.5");
-        }
         //TODO this is so totally wrong...
         replaceResourceAdapterDConfigBean(getConnectorDocument().getConnector().getResourceadapterArray()[0]);
     }

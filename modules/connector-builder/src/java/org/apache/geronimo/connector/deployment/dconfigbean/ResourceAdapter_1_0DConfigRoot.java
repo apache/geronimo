@@ -19,7 +19,6 @@ package org.apache.geronimo.connector.deployment.dconfigbean;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.spi.DConfigBean;
@@ -28,7 +27,6 @@ import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
-import org.apache.geronimo.xbeans.geronimo.GerVersionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
 
@@ -49,7 +47,6 @@ public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {
     public ResourceAdapter_1_0DConfigRoot(DDBeanRoot ddBean) {
         super(ddBean, GerConnectorDocument.Factory.newInstance());
         GerConnectionDefinitionType connectionDefinition = getConnectorDocument().addNewConnector().addNewResourceadapter().addNewOutboundResourceadapter().addNewConnectionDefinition();
-        getConnectorDocument().getConnector().setVersion(GerVersionType.X_1_0);
         replaceConnectionDefinitionDConfigBean(connectionDefinition);
     }
 
@@ -76,9 +73,6 @@ public class ResourceAdapter_1_0DConfigRoot extends DConfigBeanRootSupport {
 
     public void fromXML(InputStream inputStream) throws XmlException, IOException {
         super.fromXML(inputStream);
-        if (!getConnectorDocument().getConnector().getVersion().equals(GerVersionType.X_1_0)) {
-            throw new IllegalStateException("Wrong version, expected 1.0");
-        }
         //TODO this is so totally wrong...
         replaceConnectionDefinitionDConfigBean(getConnectorDocument().getConnector().getResourceadapterArray()[0].getOutboundResourceadapter().getConnectionDefinitionArray(0));
     }

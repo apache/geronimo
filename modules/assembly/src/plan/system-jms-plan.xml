@@ -19,7 +19,6 @@
 <!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    version="1.5"
     configId="org/apache/geronimo/SystemJMS"
     parentId="org/apache/geronimo/ActiveMQServer">
     <resourceadapter>
@@ -49,8 +48,6 @@
                             <match-one/>
                         </single-pool>
                     </connectionmanager>
-                    <global-jndi-name>jms/ConnectionFactoryLocalTx</global-jndi-name>
-                    <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
                 </connectiondefinition-instance>
             </connection-definition>
         </outbound-resourceadapter>

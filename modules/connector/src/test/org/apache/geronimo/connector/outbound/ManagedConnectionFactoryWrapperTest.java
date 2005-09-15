@@ -23,11 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Collections;
-import java.util.Hashtable;
 import javax.management.ObjectName;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.resource.cci.Connection;
 import javax.resource.cci.ConnectionFactory;
 
@@ -39,14 +35,14 @@ import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -57,7 +53,6 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
     private ObjectName managedConnectionFactoryName;
     private ObjectName ctcName;
     private ObjectName cmfName;
-    private static final String GLOBAL_NAME = "GLOBAL_NAME";
     private static final String KERNEL_NAME = "testKernel";
     private static final String TARGET_NAME = "testCFName";
 
@@ -108,40 +103,6 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
 
     }
 
-    public void testGlobalLookup() throws Exception {
-        Hashtable env = new Hashtable();
-        env.put("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        env.put("java.naming.factory.url.pkgs", "org.apache.geronimo.naming");
-        env.put("java.naming.provider.url", "rmi://localhost:1099");
-
-        Context ctx = new InitialContext(env);
-        ConnectionFactory cf = (ConnectionFactory) ctx.lookup("geronimo:" + GLOBAL_NAME);
-        assertNotNull(cf);
-        kernel.stopGBean(managedConnectionFactoryName);
-        try {
-            ctx.lookup("geronimo:" + GLOBAL_NAME);
-            fail();
-        } catch (NamingException ne) {
-        }
-        kernel.startGBean(managedConnectionFactoryName);
-        ConnectionFactory cf2 = (ConnectionFactory) ctx.lookup("geronimo:" + GLOBAL_NAME);
-        assertNotNull(cf2);
-    }
-
-//    public void testLocalLookup() throws Exception {
-//        ReferenceFactory referenceFactory = new JMXReferenceFactory("geronimo.server", "geronimo");
-//        ComponentContextBuilder builder = new ComponentContextBuilder();
-//        GerLocalRefType localRef = GerLocalRefType.Factory.newInstance();
-//        localRef.setRefName("resourceref");
-//        localRef.setKernelName(KERNEL_NAME);
-//        localRef.setTargetName(TARGET_NAME);
-////        builder.addResourceRef("resourceref", ConnectionFactory.class, localRef);
-//        ReadOnlyContext roc = builder.getContext();
-//        Object o = roc.lookup("env/resourceref");
-//        assertNotNull(o);
-//        assertTrue(o instanceof ConnectionFactory);
-//    }
-
     protected void setUp() throws Exception {
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
@@ -167,7 +128,6 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         mcfw.setAttribute("connectionFactoryImplClass", MockConnectionFactory.class.getName());
         mcfw.setAttribute("connectionInterface", Connection.class.getName());
         mcfw.setAttribute("connectionImplClass", MockConnection.class.getName());
-        mcfw.setAttribute("globalJNDIName", GLOBAL_NAME);
         //"ResourceAdapterWrapper",
         mcfw.setReferencePatterns("ConnectionManagerContainer", Collections.singleton(cmfName));
         //"ManagedConnectionFactoryListener",
