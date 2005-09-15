@@ -61,6 +61,7 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
                               Integer loadOnStartup,
                               Set servletMappings,
                               Map webRoleRefPermissions,
+                              String runAsRole,
                               ServletHolder previous,  //dependency for startup ordering
                               JettyServletRegistration context) throws Exception {
         super(context == null? null: context.getServletHandler(), servletName, servletClassName, jspFile);
@@ -69,12 +70,13 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
         if (context != null) {
             putAll(initParams);
             if (loadOnStartup != null) {
+                //This has no effect on the actual start order, the gbean references "previous" control that.
                 setInitOrder(loadOnStartup.intValue());
             }
             //this now starts the servlet in the appropriate context
             context.registerServletHolder(this, servletName, servletMappings, webRoleRefPermissions == null? Collections.EMPTY_MAP: webRoleRefPermissions);
-//            start();
         }
+        setRunAs(runAsRole);
         this.objectName = objectName;
     }
 
@@ -141,6 +143,7 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
         infoBuilder.addAttribute("loadOnStartup", Integer.class, true);
         infoBuilder.addAttribute("servletMappings", Set.class, true);
         infoBuilder.addAttribute("webRoleRefPermissions", Map.class, true);
+        infoBuilder.addAttribute("runAsRole", String.class, true);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addInterface(Servlet.class);
 
@@ -155,6 +158,7 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
                                                  "loadOnStartup",
                                                  "servletMappings",
                                                  "webRoleRefPermissions",
+                                                 "runAsRole",
                                                  "Previous",
                                                  "JettyServletRegistration"});
 

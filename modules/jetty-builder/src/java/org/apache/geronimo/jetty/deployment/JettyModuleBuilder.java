@@ -996,6 +996,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
         Set mappings = (Set) servletMappings.get(servletName);
         servletData.setAttribute("servletMappings", mappings == null ? Collections.EMPTY_SET : mappings);
 
+        //run-as
+        if (servletType.isSetRunAs()) {
+            servletData.setAttribute("runAsRole", servletType.getRunAs().getRoleName().getStringValue().trim());
+        }
 
         //WebRoleRefPermissions
         SecurityRoleRefType[] securityRoleRefTypeArray = servletType.getSecurityRoleRefArray();
