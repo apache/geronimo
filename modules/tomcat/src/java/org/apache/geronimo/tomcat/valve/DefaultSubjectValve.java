@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,40 +16,41 @@
  */
 package org.apache.geronimo.tomcat.valve;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.security.auth.Subject;
+
 import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.geronimo.security.ContextManager;
 
-import javax.servlet.ServletException;
-import javax.security.jacc.PolicyContext;
-import javax.security.auth.Subject;
-import java.io.IOException;
-
 /**
- * @version $Rev$ $Date$
+ * @version $Rev:  $ $Date:  $
  */
+public class DefaultSubjectValve extends ValveBase {
 
-public class PolicyContextValve extends ValveBase {
+    private final Subject defaultSubject;
 
-    private final String policyContextID;
-
-    public PolicyContextValve(String policyContextID) {
-        this.policyContextID = policyContextID;
+    public DefaultSubjectValve(Subject defaultSubject) {
+        this.defaultSubject = defaultSubject;
     }
 
     public void invoke(Request request, Response response) throws IOException, ServletException {
-
-        String oldId = PolicyContext.getContextID();
-
-        PolicyContext.setContextID(policyContextID);
-        PolicyContext.setHandlerData(request);
-
-        // Pass this request on to the next valve in our pipeline
-        try {
+        boolean setSubject = ContextManager.getCurrentCaller() == null;
+        if (setSubject) {
+            ContextManager.setCurrentCaller(defaultSubject);
+            ContextManager.setNextCaller(defaultSubject);
+            try {
+                getNext().invoke(request, response);
+            } finally {
+                ContextManager.setCurrentCaller(null);
+                ContextManager.setNextCaller(null);
+            }
+        } else {
             getNext().invoke(request, response);
-        } finally {
-            PolicyContext.setContextID(oldId);
         }
+
     }
 }

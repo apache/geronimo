@@ -30,6 +30,7 @@ import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,23 +48,24 @@ import org.apache.geronimo.tomcat.valve.ComponentContextValve;
 import org.apache.geronimo.tomcat.valve.InstanceContextValve;
 import org.apache.geronimo.tomcat.valve.PolicyContextValve;
 import org.apache.geronimo.tomcat.valve.TransactionContextValve;
+import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
 public class GeronimoStandardContext extends StandardContext{
-    
+
     private static final Log log = LogFactory.getLog(GeronimoStandardContext.class);
 
     private static final long serialVersionUID = 3834587716552831032L;
 
     private Subject defaultSubject = null;
-    
+
     private Map webServiceMap = null;
-    
+
     public void setContextProperties(TomcatContext ctx){
-    
+
         // Create ReadOnlyContext
         javax.naming.Context enc = null;
         Map componentContext = ctx.getComponentContext();
@@ -85,12 +87,12 @@ public class GeronimoStandardContext extends StandardContext{
         }
 
         //Set the InstanceContextValve
-        InstanceContextValve instanceContextValve = 
+        InstanceContextValve instanceContextValve =
             new InstanceContextValve(ctx.getUnshareableResources(),
                     ctx.getApplicationManagedSecurityResources(),
                     ctx.getTrackedConnectionAssociator());
         addValve(instanceContextValve);
-            
+
         // Set ComponentContext valve
         if (enc != null) {
             ComponentContextValve contextValve = new ComponentContextValve(enc);
@@ -109,9 +111,9 @@ public class GeronimoStandardContext extends StandardContext{
         SecurityHolder securityHolder = ctx.getSecurityHolder();
         if (securityHolder != null){
             if (securityHolder.getPolicyContextID() != null) {
-                
+
                 PolicyContext.setContextID(securityHolder.getPolicyContextID());
-                
+
                 /**
                  * Register our default subject with the ContextManager
                  */
@@ -120,26 +122,40 @@ public class GeronimoStandardContext extends StandardContext{
                     defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
                     ContextManager.registerSubject(defaultSubject);
                     SubjectId id = ContextManager.getSubjectId(defaultSubject);
-                    defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));       
+                    defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
                 }
-                
+
                 PolicyContextValve policyValve = new PolicyContextValve(
                     securityHolder.getPolicyContextID());
                 addValve(policyValve);
-            }    
+
+                //This is definitely a hack, but I don't see a reasonable way to install the defaultSubject.
+                //Obviously this won't work if there are permissions.  Setting the default subject if there are
+                //permissions breaks authentication.
+                boolean hasPermissions = securityHolder.getChecked().elements().hasMoreElements() ||
+                        securityHolder.getExcluded().elements().hasMoreElements();
+                if (!hasPermissions && defaultSubject != null) {
+                    Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
+                    addValve(defaultSubjectValve);
+                } else {
+                    //this will clear the thread of any read subject added by some other web app
+                    addValve(new DefaultSubjectValve(null));
+                }
+            }
         }
-        
+
         // Add User Defined Valves
         List valveChain = ctx.getValveChain();
         if (valveChain != null){
             Iterator iterator = valveChain.iterator();
             while(iterator.hasNext()){
-                addValve((Valve)iterator.next());
+                Valve valve = (Valve)iterator.next();
+                addValve(valve);
             }
         }
 
         this.webServiceMap = ctx.getWebServices();
-        
+
         this.setCrossContext(ctx.isCrossContext());
     }
 
@@ -152,21 +168,21 @@ public class GeronimoStandardContext extends StandardContext{
         if (defaultSubject != null){
             ContextManager.unregisterSubject(defaultSubject);
         }
-        
+
        super.stop();
     }
-    
+
     public void addChild(Container child){
         Wrapper wrapper = (Wrapper) child;
-        
+
         String servletClassName = wrapper.getServletClass();
         if (servletClassName == null){
             super.addChild(child);
             return;
         }
-        
+
         ClassLoader cl = this.getParentClassLoader();
-        
+
         Class baseServletClass = null;
         Class servletClass = null;
         try{
@@ -177,7 +193,7 @@ public class GeronimoStandardContext extends StandardContext{
                 //Nope - its probably a webservice, so lets see...
                 if (webServiceMap != null){
                     StoredObject storedObject = (StoredObject)webServiceMap.get(wrapper.getName());
-                        
+
                     if (storedObject != null){
                         WebServiceContainer webServiceContainer = null;
                         try{
@@ -188,12 +204,12 @@ public class GeronimoStandardContext extends StandardContext{
                         //Yep its a web service
                         //So swap it out with a POJOWebServiceServlet
                         wrapper.setServletClass("org.apache.geronimo.webservices.POJOWebServiceServlet");
-                    
+
                         //Set the WebServiceContainer stuff
                         String webServicecontainerID = wrapper.getName() + WebServiceContainerInvoker.WEBSERVICE_CONTAINER + webServiceContainer.hashCode();
                         getServletContext().setAttribute(webServicecontainerID, webServiceContainer);
                         wrapper.addInitParameter(WebServiceContainerInvoker.WEBSERVICE_CONTAINER, webServicecontainerID);
-    
+
                         //Set the SEI Class in the attribute
                         String pojoClassID = wrapper.getName() + POJOWebServiceServlet.POJO_CLASS + servletClass.hashCode();
                         getServletContext().setAttribute(pojoClassID, servletClass);
@@ -204,7 +220,7 @@ public class GeronimoStandardContext extends StandardContext{
         } catch (ClassNotFoundException e){
             throw new RuntimeException(e.getMessage(), e);
         }
-                
+
         super.addChild(child);
     }
 }
