@@ -39,6 +39,7 @@ import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
@@ -107,6 +108,7 @@ import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * @version $Rev$ $Date$
@@ -122,7 +124,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final List defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
-    private static final String GERCONNECTOR_NAMESPACE = GerConnectorDocument.type.getDocumentElementName().getNamespaceURI();
+    static final String GERCONNECTOR_NAMESPACE = GerConnectorDocument.type.getDocumentElementName().getNamespaceURI();
 
     public ConnectorModuleBuilder(URI[] defaultParentId,
                                   int defaultMaxSize,
@@ -184,7 +186,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
         GerConnectorType gerConnector = null;
         try {
-            // load the geronimo-application-client.xml from either the supplied plan or from the earFile
+            // load the geronimo connector plan from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
                     gerConnector = (GerConnectorType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
@@ -210,6 +212,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 throw new DeploymentException("A connector module must be deployed using a Geronimo deployment plan" +
                         " (either META-INF/geronimo-ra.xml in the RAR file or a standalone deployment plan passed to the deployer).");
             }
+            ConnectorPlanRectifier.rectifyPlan(gerConnector);
             gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerConnector);
             //for workmanager
             gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerConnector);
@@ -229,6 +232,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         List parentId = ServiceConfigBuilder.getParentID(gerConnector.getParentId(), gerConnector.getImportArray());
         return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
     }
+
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();

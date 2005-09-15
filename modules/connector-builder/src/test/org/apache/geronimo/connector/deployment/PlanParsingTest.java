@@ -5,6 +5,7 @@ import java.io.File;
 import junit.framework.TestCase;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -94,6 +95,23 @@ public class PlanParsingTest extends TestCase {
         } catch (XmlException e) {
             //expected
         }
+    }
+
+    public void testRectifyPlan() throws Exception {
+        File resourcePlan = new File(basedir, "src/test-data/data/old-schema-plan.xml");
+        assertTrue(resourcePlan.exists());
+
+        XmlObject plan = SchemaConversionUtils.parse(resourcePlan.toURL());
+        GerConnectorDocument doc = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
+        if (doc == null) {
+            doc = (GerConnectorDocument) plan;
+        }
+        GerConnectorType gerConnector = doc.getConnector();
+        ConnectorPlanRectifier.rectifyPlan(gerConnector);
+        gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerConnector);
+        //for workmanager
+        gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerConnector);
+            SchemaConversionUtils.validateDD(doc);
     }
 
 }
