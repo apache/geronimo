@@ -185,8 +185,15 @@ by the server.
         <reference name="Server"><gbean-name>openejb:type=Server,name=EJB</gbean-name></reference>
     </gbean>
     <gbean gbeanName="openejb:type=Server,name=EJB" class="org.openejb.server.ejbd.EjbServerGBean">
-        <reference name="ContainerIndex"><gbean-name>openejb:type=ContainerIndex</gbean-name></reference>
+        <reference name="ContainerIndex">
+            <gbean-name>openejb:type=ContainerIndex</gbean-name>
+        </reference>
+        <reference name="ORBRefs">
+            <module>*</module>
+            <name>Server</name>
+        </reference>
     </gbean>
+
     <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
     <gbean gbeanName="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
         <references name="EJBContainers">
