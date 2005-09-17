@@ -37,6 +37,10 @@ after the system GBeans but before the server GBeans.
     <dependency>
         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
     </dependency>
+    <!-- activation must come before spec-j2ee to override stock mailcap file in its javamail api -->
+    <dependency>
+        <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
+    </dependency>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
     </dependency>
