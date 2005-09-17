@@ -1,6 +1,8 @@
 package org.apache.geronimo.tomcat;
 
 import java.util.Map;
+import javax.net.ssl.KeyManagerFactory;
+
 import org.apache.geronimo.management.geronimo.SecureConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -18,6 +20,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
     private final ServerInfo serverInfo;
     private String keystoreFileName;
     private String truststoreFileName;
+    private String algorithm;
 
     public HttpsConnectorGBean(String name, String protocol, String host, int port, TomcatContainer container, ServerInfo serverInfo) throws Exception {
         super(name, protocol, host, port, container);
@@ -127,7 +130,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
      * changed otherwise.
      */
     public String getAlgorithm() {
-        return (String)connector.getAttribute("algorithm");
+        return algorithm;
     }
 
     /**
@@ -136,6 +139,10 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
      * changed otherwise.
      */
     public void setAlgorithm(String algorithm) {
+        this.algorithm = algorithm;
+        if ("default".equalsIgnoreCase(algorithm)) {
+            algorithm = KeyManagerFactory.getDefaultAlgorithm();
+        }
         connector.setAttribute("algorithm", algorithm);
     }
 

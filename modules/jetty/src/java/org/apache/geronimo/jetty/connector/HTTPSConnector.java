@@ -70,15 +70,14 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
 
     /**
      * Algorithm to use.
-     * As different JVMs have different implementations available, the default
-     * algorithm can be used by supplying a null value.
+     * As different JVMs have different implementations available, the default algorithm can be used by supplying the value "Default".
      *
-     * @param algorithm the algorithm to use, or null to use the default from {@link javax.net.ssl.KeyManagerFactory#getDefaultAlgorithm()}
+     * @param algorithm the algorithm to use, or "Default" to use the default from {@link javax.net.ssl.KeyManagerFactory#getDefaultAlgorithm()}
      */
     public void setAlgorithm(String algorithm) {
-        // cache the value so the null 
+        // cache the value so the null
         this.algorithm = algorithm;
-        if (algorithm == null) {
+        if ("default".equalsIgnoreCase(algorithm)) {
             algorithm = KeyManagerFactory.getDefaultAlgorithm();
         }
         https.setAlgorithm(algorithm);

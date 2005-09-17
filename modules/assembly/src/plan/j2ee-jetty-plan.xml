@@ -71,6 +71,7 @@ Configuration for Jetty server.
         <attribute name="keystorePassword">secret</attribute>
         <attribute name="keyPassword">secret</attribute>
         <attribute name="clientAuthRequired">false</attribute>
+        <attribute name="algorithm">Default</attribute>
         <attribute name="secureProtocol">TLS</attribute>
         <attribute name="maxThreads">50</attribute>
         <attribute name="minThreads">10</attribute>

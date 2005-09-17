@@ -155,6 +155,7 @@ Configuration for Tomcat server.
         <attribute name="acceptQueueSize">100</attribute>
         <attribute name="uploadTimeoutEnabled">false</attribute>
         <attribute name="clientAuthRequired">false</attribute>
+        <attribute name="algorithm">Default</attribute>
         <attribute name="secureProtocol">TLS</attribute>
         <attribute name="keystoreFileName">var/security/keystore</attribute>
         <attribute name="keystorePassword">secret</attribute>
