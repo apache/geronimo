@@ -74,13 +74,21 @@ public class LogManagerPortlet extends GenericPortlet {
         String configFile = actionRequest.getParameter("configFile");
         String configuration = actionRequest.getParameter("append");
         String refreshPeriod = actionRequest.getParameter("refreshPeriod");
+        String currentLevel = log.getRootLoggerLevel();
 
         if ("update".equals(action)) {
             if (refreshPeriod != null) {
-                log.setRefreshPeriodSeconds(Integer.parseInt(refreshPeriod));
+                int refreshPeriodInt = Integer.parseInt(refreshPeriod);
+                if (refreshPeriodInt != log.getRefreshPeriodSeconds()) {
+                    log.setRefreshPeriodSeconds(refreshPeriodInt);
+                }
             }
-            log.setConfigFileName(configFile);
-            log.setRootLoggerLevel(logLevel);
+            if (!log.getConfigFileName().equals(configFile)) {
+                log.setConfigFileName(configFile);
+            }
+            if (!currentLevel.equals(logLevel)) {
+                log.setRootLoggerLevel(logLevel);
+            }
         }
     }
 }

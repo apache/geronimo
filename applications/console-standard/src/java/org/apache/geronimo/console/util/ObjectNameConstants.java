@@ -28,24 +28,17 @@ public interface ObjectNameConstants {
 
     public static final String ROOT_LOGGER_OBJECT_NAME = "geronimo.server:name=Logger,J2EEServer=geronimo,J2EEApplication=null,j2eeType=GBean,J2EEModule=org/apache/geronimo/System";
 
-    public static final String REQUEST_LOGGER_OBJECT_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=JettyRequestLog";
+    public static final String REQUEST_LOGGER_OBJECT_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Jetty,J2EEServer=geronimo,j2eeType=GBean,name=JettyRequestLog";
 
     public static final String DERBY_OBJECT_NAME = "geronimo.server:name=DerbySystem,J2EEServer=geronimo,J2EEApplication=null,j2eeType=GBean,J2EEModule=null";
 
     public static final String REPO_OBJECT_NAME = "geronimo.server:name=Repository,J2EEServer=geronimo,J2EEApplication=null,j2eeType=GBean,J2EEModule=org/apache/geronimo/System";
-
-    public static final String WEBCONTAINER_OBJECT_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer";
 
     public static final String SERVER_INFO_OBJECT_NAME = "geronimo.server:name=ServerInfo,J2EEServer=geronimo,J2EEApplication=null,j2eeType=GBean,J2EEModule=org/apache/geronimo/System";
 
     public static final String JVM_IMPL_NAME = "geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM";
 
     public static final String DEPLOYER_OBJECT_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/RuntimeDeployer,J2EEServer=geronimo,j2eeType=Deployer,name=Deployer";
-
-    public static final String JETTY_HTTP_CONNECTOR_NAME = "geronimo.server:J2EEServer=geronimo,j2eeType=GBean,name=JettyWebConnector,*";
-
-    // TODO: Put the appropriate name here
-    public static final String JETTY_HTTPS_CONNECTOR_NAME = "geronimo.server:name=JettyWebConnector.HTTPS.8443,J2EEServer=geronimo,j2eeType=GBean,*";
 
     public static final String JCA_MANAGED_CF_QUERY = "*:j2eeType=JCAManagedConnectionFactory,*";
 

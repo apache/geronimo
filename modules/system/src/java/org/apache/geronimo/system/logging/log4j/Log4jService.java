@@ -149,7 +149,13 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
      * @param level The level to change the logger to.
      */
     public synchronized void setRootLoggerLevel(final String level) {
-        LogManager.getRootLogger().setLevel(XLevel.toLevel(level));
+
+        String currentLevel = this.getRootLoggerLevel();
+
+        // ensure that the level has really been changed
+        if (!currentLevel.equals(level)) {
+            LogManager.getRootLogger().setLevel(XLevel.toLevel(level));
+        }
     }
 
     /**
@@ -252,8 +258,11 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
             throw new IllegalArgumentException("configurationFile is null");
         }
 
-        this.configurationFile = configurationFile;
-        lastChanged = -1;
+        // ensure that the file name has really been updated
+        if (!this.configurationFile.equals(configurationFile)) {
+            this.configurationFile = configurationFile;
+            lastChanged = -1;
+        }
     }
 
     /**
