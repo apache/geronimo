@@ -24,7 +24,6 @@ import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -32,6 +31,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.JVM;
 
@@ -41,7 +41,7 @@ import org.apache.geronimo.management.geronimo.JVM;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class ServerInfoPortlet extends GenericPortlet {
+public class ServerInfoPortlet extends BasePortlet {
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/infomanager/svrInfoNormal.jsp";
 
     private static final String MAXIMIZEDVIEW_JSP = "/WEB-INF/view/infomanager/svrInfoMaximized.jsp";

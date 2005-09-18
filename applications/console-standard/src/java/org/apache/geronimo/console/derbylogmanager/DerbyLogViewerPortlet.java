@@ -19,7 +19,6 @@ package org.apache.geronimo.console.derbylogmanager;
 
 import java.io.IOException;
 
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
@@ -27,7 +26,9 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-public class DerbyLogViewerPortlet extends GenericPortlet {
+import org.apache.geronimo.console.BasePortlet;
+
+public class DerbyLogViewerPortlet extends BasePortlet {
 
     protected PortletRequestDispatcher normalView;
 

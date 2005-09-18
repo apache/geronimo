@@ -19,14 +19,15 @@ package org.apache.geronimo.console.securitymanager;
 
 import java.io.IOException;
 
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-public abstract class AbstractSecurityManagerPortlet extends GenericPortlet {
+import org.apache.geronimo.console.BasePortlet;
+
+public abstract class AbstractSecurityManagerPortlet extends BasePortlet {
 
     protected PortletRequestDispatcher normalView;
 

@@ -24,7 +24,6 @@ import java.util.Map;
 import javax.jms.ConnectionFactory;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
@@ -33,6 +32,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.jmsmanager.handlers.CreateDestinationHandler;
 import org.apache.geronimo.console.jmsmanager.handlers.PortletResponseHandler;
 import org.apache.geronimo.console.jmsmanager.handlers.RemoveDestinationHandler;
@@ -44,7 +44,7 @@ import org.apache.geronimo.console.jmsmanager.renderers.ViewDLQRenderer;
 import org.apache.geronimo.console.jmsmanager.renderers.ViewDestinationsRenderer;
 import org.apache.geronimo.console.jmsmanager.renderers.ViewMessagesRenderer;
 
-public class JMSManagerPortlet extends GenericPortlet {
+public class JMSManagerPortlet extends BasePortlet {
 
     private PortletRequestDispatcher edit;
 

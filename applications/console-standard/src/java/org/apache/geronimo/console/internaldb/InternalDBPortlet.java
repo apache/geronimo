@@ -23,7 +23,6 @@ import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -31,7 +30,9 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-public class InternalDBPortlet extends GenericPortlet {
+import org.apache.geronimo.console.BasePortlet;
+
+public class InternalDBPortlet extends BasePortlet {
 
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/internaldb/internalDBNormal.jsp";
 

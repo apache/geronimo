@@ -103,6 +103,9 @@ public class PortletManager {
             server = helper.getServers(getCurrentDomain(request))[0]; //todo: some day, select a server from the domain
             request.getPortletSession().setAttribute(SERVER_KEY, server, PortletSession.APPLICATION_SCOPE);
         }
+        else {
+            // to do     handle "should not occur" error   - message?
+        }
         return server;
     }
 

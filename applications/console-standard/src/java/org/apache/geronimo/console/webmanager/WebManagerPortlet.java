@@ -28,6 +28,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.WebContainer;
 
@@ -36,7 +37,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
  *
  * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
  */
-public class WebManagerPortlet extends BaseWebPortlet {
+public class WebManagerPortlet extends BasePortlet {
     private PortletRequestDispatcher normalView;
 
     private PortletRequestDispatcher maximizedView;
@@ -46,21 +47,45 @@ public class WebManagerPortlet extends BaseWebPortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         try {
-            String managerName = PortletManager.getWebManagerNames(actionRequest)[0];  //todo: handle multiple
-            String containerName = PortletManager.getWebContainerNames(actionRequest, managerName)[0];  //todo: handle multiple
-            WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
-            String server = getServerType(container.getClass());
-            String action = actionRequest.getParameter("stats");
-            if (action != null) {
-                boolean stats = action.equals("true");
-                if(server.equals(SERVER_JETTY)) {
-                    setProperty(container, "collectStatistics", stats ? Boolean.TRUE : Boolean.FALSE);
+            String[] names = PortletManager.getWebManagerNames(actionRequest);  //todo: handle multiple
+            if (names != null) {
+                String managerName = names[0];  //todo: handle multiple
+                String[] containers = PortletManager.getWebContainerNames(actionRequest, managerName);  //todo: handle multiple
+                if (containers != null) {
+                    String containerName = containers[0];  //todo: handle multiple
+                    WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
+                    String server = getWebServerType(container.getClass());
+                    String action = actionRequest.getParameter("stats");
+                    if (action != null) {
+                        boolean stats = action.equals("true");
+                        if(server.equals(WEB_SERVER_JETTY)) {
+                            setProperty(container, "collectStatistics", stats ? Boolean.TRUE : Boolean.FALSE);
+                        }
+                        else if (server.equals(WEB_SERVER_TOMCAT)) {
+                            //todo:   Any Tomcat specific processing?
+                        }
+                        else {
+                            //todo:   Handle "should not occur" condition
+                        }
+                    }
+                    if (actionRequest.getParameter("resetStats") != null) {
+                        if(server.equals(WEB_SERVER_JETTY)) {
+                            callOperation(container, "resetStatistics", null);
+                        }
+                        else if (server.equals(WEB_SERVER_TOMCAT)) {
+                            //todo:   Any Tomcat specific processing?
+                        }
+                        else {
+                            //todo:   Handle "should not occur" condition
+                        }
+                    }
+                }
+                else {
+                    // todo  - Handle "should not occur" error  - message?
                 }
             }
-            if (actionRequest.getParameter("resetStats") != null) {
-                if(server.equals(SERVER_JETTY)) {
-                    callOperation(container, "resetStatistics", null);
-                }
+            else {
+                // todo  - Handle "should not occur" error  - message?
             }
         } catch (Exception e) {
             throw new PortletException(e);
@@ -73,18 +98,33 @@ public class WebManagerPortlet extends BaseWebPortlet {
             return;
         }
         try {
-            String managerName = PortletManager.getWebManagerNames(renderRequest)[0];  //todo: handle multiple
-            String containerName = PortletManager.getWebContainerNames(renderRequest, managerName)[0];  //todo: handle multiple
-            WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
-            String server = getServerType(container.getClass());
-            StatisticsHelper helper = null;
-            if(server.equals(SERVER_JETTY)) {
-                helper = new JettyStatisticsHelper();
-            } else if(server.equals(SERVER_TOMCAT)) {
-                //todo
+            String[] names = PortletManager.getWebManagerNames(renderRequest);  //todo: handle multiple
+            if (names != null) {
+                String managerName = names[0];  //todo: handle multiple
+                String[] containers = PortletManager.getWebContainerNames(renderRequest, managerName);  //todo: handle multiple
+                if (containers != null) {
+                    String containerName = containers[0];  //todo: handle multiple
+                    WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
+                    String server = getWebServerType(container.getClass());
+                    StatisticsHelper helper = null;
+                    if(server.equals(WEB_SERVER_JETTY)) {
+                        helper = new JettyStatisticsHelper();
+                    } else if(server.equals(WEB_SERVER_TOMCAT)) {
+                        //todo     - Handle Tomcat logs
+                    }
+                    else {
+                        // todo   - Log error, unknown server
+                    }
+                    if(helper != null) {
+                        helper.gatherStatistics(container, renderRequest);
+                    }
+                }
+                else {
+                    // todo  - Handle "should not occur" error  - message?
+                }
             }
-            if(helper != null) {
-                helper.gatherStatistics(container, renderRequest);
+            else {
+                // todo  - Handle "should not occur" error  - message?
             }
         } catch (Exception e) {
             throw new PortletException(e);

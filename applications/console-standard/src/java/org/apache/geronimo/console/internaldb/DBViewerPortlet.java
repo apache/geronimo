@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -29,7 +28,9 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-public class DBViewerPortlet extends GenericPortlet {
+import org.apache.geronimo.console.BasePortlet;
+
+public class DBViewerPortlet extends BasePortlet {
 
     private static final int RDBMS_DERBY = 1;
 

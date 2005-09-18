@@ -26,7 +26,6 @@ import java.util.List;
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -38,6 +37,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.portlet.PortletFileUpload;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -45,7 +45,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
-public class DeploymentPortlet extends GenericPortlet {
+public class DeploymentPortlet extends BasePortlet {
     private final String LINE_SEP = System.getProperty("line.separator");
 
     private PortletRequestDispatcher deployView;

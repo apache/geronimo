@@ -33,7 +33,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
@@ -42,6 +41,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.databasemanager.DataSourceInfo;
 import org.apache.geronimo.console.jmsmanager.activemqCF.ActiveMQConnectorHelper;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -50,7 +50,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
-public class JMSConnectionFactoryManagerPortlet extends GenericPortlet {
+public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
 
     private final static ActiveMQConnectorHelper helper = new ActiveMQConnectorHelper();
 

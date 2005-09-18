@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.File;
 
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
@@ -31,10 +30,11 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.portlet.PortletSession;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.system.logging.SystemLog;
 
-public class LogViewerPortlet extends GenericPortlet {
+public class LogViewerPortlet extends BasePortlet {
     private final static String CRITERIA_KEY = "org.apache.geronimo.console.log.CRITERIA";
 
     protected PortletRequestDispatcher searchView;

@@ -27,7 +27,6 @@ import java.util.List;
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
@@ -35,6 +34,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
+import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.console.util.SecurityConstants;
 import org.apache.geronimo.kernel.Kernel;
@@ -48,7 +48,7 @@ import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
-public class ConfigManagerPortlet extends GenericPortlet {
+public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String START_ACTION = "start";
 

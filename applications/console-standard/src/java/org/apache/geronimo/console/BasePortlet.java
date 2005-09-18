@@ -19,8 +19,12 @@ package org.apache.geronimo.console;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import javax.portlet.GenericPortlet;
+import javax.portlet.PortletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.management.geronimo.WebContainer;
 
 /**
  * Superclass with some generic functionality for console portlets
@@ -29,6 +33,22 @@ import org.apache.commons.logging.LogFactory;
  */
 public class BasePortlet extends GenericPortlet {
     private final static Log log = LogFactory.getLog(BasePortlet.class);
+    protected final static String WEB_SERVER_JETTY = "jetty";
+    protected final static String WEB_SERVER_TOMCAT = "tomcat";
+    protected final static String WEB_SERVER_GENERIC = "generic";
+
+    protected final static String getWebServerType(Class cls) {
+        Class[] intfs = cls.getInterfaces();
+        for (int i = 0; i < intfs.length; i++) {
+            Class intf = intfs[i];
+            if(intf.getName().indexOf("Jetty") > -1) {
+                return WEB_SERVER_JETTY;
+            } else if(intf.getName().indexOf("Tomcat") > -1) {
+                return WEB_SERVER_TOMCAT;
+            }
+        }
+        return WEB_SERVER_GENERIC;
+    }
 
     public final static void setProperty(Object target, String name, Object value) {
         boolean found = false;
