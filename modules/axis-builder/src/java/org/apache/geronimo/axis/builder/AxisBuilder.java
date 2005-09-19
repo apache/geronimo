@@ -258,12 +258,13 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
             serviceQName = new QName(namespace, serviceLocalName);
             javax.wsdl.Service service = definition.createService();
             service.setQName(serviceQName);
-            GerPortCompletionType[] ports = serviceCompletion.getPortArray();
-            for (int i = 0; i < ports.length; i++) {
-                GerPortCompletionType port = ports[i];
+            GerPortCompletionType[] portCompletions = serviceCompletion.getPortCompletionArray();
+            for (int i = 0; i < portCompletions.length; i++) {
+                GerPortCompletionType portCompletion = portCompletions[i];
+                GerPortType port = portCompletion.getPort();
                 URL location = getLocation(port);
                 String portName = port.getPortName().trim();
-                String bindingName = port.getBindingName().trim();
+                String bindingName = portCompletion.getBindingName().trim();
                 QName bindingQName = new QName(namespace, bindingName);
                 Binding binding = definition.getBinding(bindingQName);
                 if (binding == null) {
