@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" xmlns:maven="jelly:maven" default="multiproject:build">
+  <goal name="multiproject:build">
+    <attainGoal name="multiproject:ejb-install" />
+    <attainGoal name="multiproject:war-install" />
+    <attainGoal name="multiproject:ear" />
+  </goal>
+  <goal name="multiproject:war">
+    <maven:reactor
+      basedir="."
+      banner="Creating WAR files"
+      includes="${maven.multiproject.war.includes}"
+      excludes="${maven.multiproject.war.excludes}"
+      postProcessing="true"
+      goals="war"
+      ignoreFailures="${maven.multiproject.ignoreFailures}"
+    />
+  </goal>
+  <goal name="multiproject:ear">
+    <maven:reactor
+      basedir="."
+      banner="Creating EAR files"
+      includes="${maven.multiproject.ear.includes}"
+      excludes="${maven.multiproject.ear.excludes}"
+      postProcessing="true"
+      goals="ear"
+      ignoreFailures="${maven.multiproject.ignoreFailures}"
+    />
+  </goal>
+  <goal name="multiproject:ejb">
+    <maven:reactor
+      basedir="."
+      banner="Creating EJB files"
+      includes="${maven.multiproject.ejb.includes}"
+      excludes="${maven.multiproject.ejb.excludes}"
+      postProcessing="true"
+      goals="war"
+      ignoreFailures="${maven.multiproject.ignoreFailures}"
+    />
+  </goal>
+  <goal name="multiproject:war-install">
+    <maven:reactor
+      basedir="."
+      banner="Installing WAR files"
+      includes="${maven.multiproject.war.includes}"
+      excludes="${maven.multiproject.war.excludes}"
+      postProcessing="true"
+      goals="war:install"
+      ignoreFailures="${maven.multiproject.ignoreFailures}"
+    />
+  </goal>
+  <goal name="multiproject:ejb-install">
+    <maven:reactor
+      basedir="."
+      banner="Installing EJB files"
+      includes="${maven.multiproject.ejb.includes}"
+      excludes="${maven.multiproject.ejb.excludes}"
+      postProcessing="true"
+      goals="ejb:install"
+      ignoreFailures="${maven.multiproject.ignoreFailures}"
+    />
+  </goal>
+  <goal name="multiproject:cactus">
+<!--    <attainGoal name="multiproject:build" />-->
+<!--    <maven:maven descriptor="components/ears/ear/project.xml" goals="cactus:test-ear" />-->
+    <maven:reactor
+      basedir="."
+      banner="Testing EAR files"
+      includes="${maven.multiproject.ear.includes}"
+      excludes="${maven.multiproject.ear.excludes}"
+      postProcessing="false"
+      goals="cactus:test-ear"
+      ignoreFailures="${maven.multiproject.ignoreFailures}"
+    />
+  </goal>
+</project>

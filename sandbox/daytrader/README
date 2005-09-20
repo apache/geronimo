@@ -1,0 +1,16 @@
+The code in this directory contains the code for the benchmark sample called Day Trader.  This sample was contributed by IBM to the Apache Geronimo project under the ASF license to further functional and performance testing of Geronimo.  
+
+STATUS
+The work in this directory is a work in progress and the maven scripts do not currently build a functional ear.  To allow users to evaluate and work with the benchmark sample the files necessary to get the benchmark working are included.  They are:
+
+dayTrader.ear
+dayTrader-plan.xml
+
+INSTALL
+In addition to these files the ./bin directory contains some shell scripts to facilitate the installation of the application.  These files might need to be modified to conform to the working layout of your filesystem.  
+
+One last item, the derby directory contains scripts, DDL and command files to create the database for the application.  To create and populate the database follow these instructions.  The scripts may need to be modified for your local file system.
+
+./createDB.sh will connect to a running instance of Geronimo and create the tradedb database as well as create the tables for the sample.
+
+Many thanks to Gianny Damour and David Jencks for helping to get the sample to its working state at this point.

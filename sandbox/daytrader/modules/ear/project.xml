@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <extend>../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <id>daytrader-ear</id>
+  <name>DayTrader Enterprise Application</name>
+  <currentVersion>1.0-SNAPSHOT</currentVersion>
+  <package>org.apache.geronimo.samples.daytrader.ejb</package>
+  <description>Day Trader Enterprise Archive</description>
+  <dependencies>
+    <dependency>
+      <groupId>daytrader</groupId>
+      <artifactId>daytrader-core</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <properties>
+          <ear.bundle>true</ear.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>daytrader</groupId>
+      <artifactId>daytrader-wsappclient</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <properties>
+          <ear.bundle>true</ear.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>daytrader</groupId>
+      <artifactId>daytrader-web</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>war</type>
+      <properties>
+          <ear.bundle>true</ear.bundle>
+          <ear.appxml.war.context-root>/daytrader</ear.appxml.war.context-root>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>daytrader</groupId>
+      <artifactId>daytrader-ejb</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>ejb</type>
+      <properties>
+          <ear.bundle>true</ear.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>daytrader</groupId>
+      <artifactId>daytrader-streamer</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <properties>
+          <ear.bundle>true</ear.bundle>
+      </properties>
+    </dependency>
+<!--    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee</artifactId>
+      <version>1.4-rc4</version>
+    </dependency> -->
+    
+  </dependencies>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/NaughtyTest.java</exclude>
+      </excludes>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>src/conf</directory>
+        <includes>
+          <include>*.properties</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>
