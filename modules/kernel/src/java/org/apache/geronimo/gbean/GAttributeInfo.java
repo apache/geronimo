@@ -75,7 +75,8 @@ public class GAttributeInfo implements Serializable {
         this.name = name;
         this.type = type;
         this.persistent = persistent;
-        this.manageable = manageable;
+        //non persistent attributes cannot be manageable
+        this.manageable = manageable & persistent;
         this.readable = readable;
         this.writable = writable;
         this.getterName = getterName;
