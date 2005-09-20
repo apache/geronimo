@@ -25,15 +25,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.J2EEDomain;
-import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.EJBManager;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.JMSConnector;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.commons.logging.Log;
@@ -132,6 +124,12 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerObjectName);
         return manager.getContainers();
+    }
+
+    public static WebAccessLog getWebAccessLog(PortletRequest request, String managerObjectName, String containerObjectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        WebManager manager = (WebManager) helper.getObject(managerObjectName);
+        return helper.getWebAccessLog(manager, containerObjectName);
     }
 
     public static WebContainer getWebContainer(PortletRequest request, String containerObjectName) {

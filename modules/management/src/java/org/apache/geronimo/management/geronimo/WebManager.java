@@ -44,4 +44,14 @@ public interface WebManager extends NetworkManager {
      * @return The ObjectName of the new connector.
      */
     public String addConnector(String containerObjectName, String uniqueName, String protocol, String host, int port);
+
+    /**
+     * Gets the ObjectName of the WebAccessLog implementation for a web
+     * container.  May be null if the access log cannot be managed.
+     *
+     * @param containerObjectName The ObjectName of the container whose access
+     *                            log you're interested in.
+     *
+     */
+    public String getAccessLog(String containerObjectName);
 }

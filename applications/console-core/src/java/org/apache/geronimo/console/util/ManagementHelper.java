@@ -34,17 +34,7 @@ import org.apache.geronimo.management.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.Servlet;
 import org.apache.geronimo.management.ResourceAdapter;
-import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.geronimo.J2EEApplication;
-import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.EJBConnector;
-import org.apache.geronimo.management.geronimo.EJBManager;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.JMSConnector;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
 
@@ -75,6 +65,8 @@ public interface ManagementHelper {
     JMSResource[] getJMSResources(J2EEServer server);
     JVM[] getJavaVMs(J2EEServer server);
     WebManager[] getWebManagers(J2EEServer server);
+    WebAccessLog getWebAccessLog(WebManager manager, WebContainer container);
+    WebAccessLog getWebAccessLog(WebManager manager, String containerObjectName);
     WebContainer[] getWebContainers(WebManager manager);
     WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container, String protocol);
     WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container);

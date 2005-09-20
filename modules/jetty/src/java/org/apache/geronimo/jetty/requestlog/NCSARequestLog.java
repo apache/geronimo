@@ -26,7 +26,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 /**
  * @version $Rev$ $Date$
  */
-public class NCSARequestLog implements GBeanLifecycle {
+public class NCSARequestLog implements GBeanLifecycle, JettyRequestLog {
     private final JettyContainer container;
     private final ServerInfo serverInfo;
     private final org.mortbay.http.NCSARequestLog requestLog;
@@ -104,6 +104,10 @@ public class NCSARequestLog implements GBeanLifecycle {
         return preferProxiedForAddress;
     }
 
+    public String getAbsoluteFilePath() {
+        return requestLog == null ? null : requestLog.getDatedFilename();
+    }
+
     public void doStart() throws Exception {
         requestLog.setFilename(serverInfo.resolvePath(filename));
         container.setRequestLog(requestLog);
@@ -127,14 +131,8 @@ public class NCSARequestLog implements GBeanLifecycle {
         infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
-        infoFactory.addAttribute("filename", String.class, true);
-        infoFactory.addAttribute("logDateFormat", String.class, true);
-        infoFactory.addAttribute("logTimeZone", String.class, true);
-        infoFactory.addAttribute("retainDays", int.class, true);
-        infoFactory.addAttribute("extended", boolean.class, true);
-        infoFactory.addAttribute("append", boolean.class, true);
-        infoFactory.addAttribute("ignorePaths", String[].class, true);
-        infoFactory.addAttribute("preferProxiedForAddress", boolean.class, true);
+        infoFactory.addInterface(JettyRequestLog.class, new String[]{"filename", "logDateFormat", "logTimeZone",
+                "retainDays", "extended", "append", "ignorePaths", "preferProxiedForAddress", });
 
         infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,52 +14,29 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.system.logging;
+package org.apache.geronimo.management.geronimo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
+ * A web container access log manager.
+ *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface SystemLog {
+public interface WebAccessLog {
     /**
      * The most search lines that will ever be returned, no matter what you
      * ask for.  This is to conserve memory and transfer bandwidth.
      */
     public final static int MAX_SEARCH_RESULTS = 1000;
-    /**
-     * Gets the name of the file that configures the log system
-     */
-    String getConfigFileName();
-    /**
-     * Sets the name of the file that the log system should configure itself from.
-     */
-    void setConfigFileName(String fileName);
-    /**
-     * Gets the name of the log level used for the root logger.
-     */
-    String getRootLoggerLevel();
-    /**
-     * Sets the name of the log level used for the root logger.  Legal values
-     * are defined in GeronimoLogging.java (currently TRACE, DEBUG, INFO,
-     * WARN, ERROR, FATAL)
-     */
-    void setRootLoggerLevel(String level);
-    /**
-     * Indicates how often the log system should check to see if its
-     * configuration file has been updated.
-     */
-    int getRefreshPeriodSeconds();
-    /**
-     * Sets how often the log system should check to see if its
-     * configuration file has been updated.
-     */
-    void setRefreshPeriodSeconds(int seconds);
+
     /**
      * Gets the name of all log files used by this log system.  Typically there
      * is only one, but specialized cases may use more.
      */
     String[] getLogFileNames();
+
     /**
      * Searches the log for records matching the specified parameters.  The
      * maximum results returned will be the lesser of 1000 and the
@@ -67,8 +44,9 @@ public interface SystemLog {
      *
      * @see #MAX_SEARCH_RESULTS
      */
-    SearchResults getMatchingItems(String logFile, Integer firstLine, Integer lastLine, String minLevel,
-                                  String regex, int maxResults, boolean includeStackTraces);
+    SearchResults getMatchingItems(String logFile, String host, String user, String method,
+                                   String uri, Date startDate, Date endDate,
+                                   Integer skipResults, Integer maxResults);
 
     public static class LogMessage implements Serializable {
         private final int lineNumber;
@@ -89,9 +67,9 @@ public interface SystemLog {
     }
 
     public static class SearchResults implements Serializable {
-        private final int lineCount; // total lines in file
+        private final int lineCount; // total lines in log file
         private final LogMessage[] results;
-        private final boolean capped;
+        private final boolean capped; // whether there were more matched than are returned here
 
         public SearchResults(int lineCount, LogMessage[] results, boolean capped) {
             this.lineCount = lineCount;

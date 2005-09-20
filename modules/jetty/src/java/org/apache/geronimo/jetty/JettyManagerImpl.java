@@ -34,6 +34,7 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.connector.HTTPSConnector;
 import org.apache.geronimo.jetty.connector.AJP13Connector;
 import org.apache.geronimo.jetty.connector.JettyConnector;
+import org.apache.geronimo.jetty.requestlog.JettyLogManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -174,6 +175,17 @@ public class JettyManagerImpl implements WebManager {
             }
         }
         return (String[]) result.toArray(new String[result.size()]);
+    }
+
+    public String getAccessLog(String containerObjectName) {
+        GBeanQuery query = new GBeanQuery(null, JettyLogManager.class.getName());
+        Set names = kernel.listGBeans(query);
+        if(names.size() == 0) {
+            return null;
+        } else if(names.size() > 1) {
+            throw new IllegalStateException("Should not be more than one Jetty access log manager");
+        }
+        return ((ObjectName)names.iterator().next()).getCanonicalName();
     }
 
     /**

@@ -196,7 +196,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         infoBuilder.addAttribute("requestsDurationMax", Long.TYPE, false);
         infoBuilder.addOperation("resetStatistics");
 
-        infoBuilder.addAttribute("requestLog", RequestLog.class, false);
+        infoBuilder.addAttribute("requestLog", RequestLog.class, false, false);
 
         infoBuilder.addOperation("addListener", new Class[]{HttpListener.class});
         infoBuilder.addOperation("removeListener", new Class[]{HttpListener.class});

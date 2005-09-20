@@ -21,17 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.geronimo.J2EEApplication;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.EJBManager;
-import org.apache.geronimo.management.geronimo.EJBConnector;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.management.geronimo.JMSConnector;
-import org.apache.geronimo.management.geronimo.WebManager;
+
+import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.AppClientModule;
@@ -258,6 +249,23 @@ public class KernelManagementHelper implements ManagementHelper {
             Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
             result = new WebManager[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return result;
+    }
+
+    public WebAccessLog getWebAccessLog(WebManager manager, WebContainer container) {
+        return getWebAccessLog(manager, kernel.getObjectNameFor(container).getCanonicalName());
+    }
+
+    public WebAccessLog getWebAccessLog(WebManager manager, String container) {
+        WebAccessLog result = null;
+        try {
+log.warn("Checking access log for "+kernel.getObjectNameFor(manager)+" / "+container);            
+            String name = manager.getAccessLog(container);
+            Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+            result = (WebAccessLog) temp;
         } catch (Exception e) {
             log.error("Unable to look up related GBean", e);
         }

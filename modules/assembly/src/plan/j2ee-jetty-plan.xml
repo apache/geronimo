@@ -31,10 +31,21 @@ Configuration for Jetty server.
         <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
 
-    <!-- david jencks is not convinced that this gbean should be in this plan and thinks it might
-    belong in the console plan -->
-    <gbean name="JettyWebManager" class="org.apache.geronimo.jetty.JettyManagerImpl">
+    <!-- david jencks is not convinced that these 2 gbeans should be in this
+         plan and thinks they might belong in the console plan.  Aaron thinks
+         they definitely don't belong in the console plan, but could go into
+         a management layer plan. -->
+    <gbean name="JettyWebManager" class="org.apache.geronimo.jetty.JettyManagerImpl"/>
+    
+    <gbean name="JettyAccessLogManager" class="org.apache.geronimo.jetty.requestlog.JettyLogManagerImpl">
+        <references name="LogGBeans">
+            <pattern>
+                <!-- This is lame and should be replaced by an interface reference -->
+                <gbean-name>geronimo.server:name=JettyRequestLog,*</gbean-name>
+            </pattern>
+        </references>
     </gbean>
+    
 
     <!-- default WAR container using Jetty -->
     <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">

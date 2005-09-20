@@ -148,15 +148,15 @@ function <portlet:namespace/>refresh(){
         </tr>   
     <c:forEach var="line" items="${logs}">
         <tr>
-            <td class="Smaller">                
-            ${line}
+            <td class="Smaller">
+${line.lineNumber}&nbsp;${line.lineContent}
             </td>
         </tr>
     </c:forEach>
     </table>
 </c:when>
 <c:otherwise>
- No logs found.
+ No log entries found.
 </c:otherwise>
 </c:choose>  
 </td>     

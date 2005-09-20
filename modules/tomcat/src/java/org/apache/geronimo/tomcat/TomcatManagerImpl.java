@@ -177,6 +177,18 @@ public class TomcatManagerImpl implements WebManager {
         return (String[]) result.toArray(new String[result.size()]);
     }
 
+    public String getAccessLog(String containerObjectName) {
+//        GBeanQuery query = new GBeanQuery(null, TomcatLogManager.class.getName());
+//        Set names = kernel.listGBeans(query);
+//        if(names.size() == 0) {
+//            return null;
+//        } else if(names.size() > 1) {
+//            throw new IllegalStateException("Should not be more than one Jetty access log manager");
+//        }
+//        return ((ObjectName)names.iterator().next()).getCanonicalName();
+        return null;
+    }
+
     /**
      * Gets the ObjectNames of any existing connectors associated with this network technology.
      */
