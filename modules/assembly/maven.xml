@@ -279,6 +279,7 @@
         <j:set var="PlanLdapPort" value="1389"/>
         <j:if test="${context.getVariable('geronimo.web.container').equals('jetty')}">
             <echo>JETTY CONTAINER</echo>
+            <j:set var="PlanWebServerName" value="Jetty"/>
             <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/web/jetty"/>
             <j:set var="PlanHTTPPort" value="8080"/>
             <j:set var="PlanHTTPSPort" value="8443"/>
@@ -290,6 +291,7 @@
         </j:if>
         <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">
             <echod>TOMCAT CONTAINER</echod>
+            <j:set var="PlanWebServerName" value="Tomcat"/>
             <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/web/tomcat"/>
             <j:set var="PlanHTTPPort" value="8090"/>
             <j:set var="PlanHTTPSPort" value="8453"/>
