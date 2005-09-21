@@ -33,7 +33,7 @@
     </dependency>
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/Server,org/apache/geronimo/Jetty,org/apache/geronimo/Security</attribute>
+        <attribute name="defaultParentId">org/apache/geronimo/Server,org/apache/geronimo/Jetty</attribute>
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
