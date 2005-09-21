@@ -1,1 +1,74 @@
-<?xml version="1.0" encoding="UTF-8"?><!--    Copyright 2004 The Apache Software Foundation    Licensed under the Apache License, Version 2.0 (the "License");    you may not use this file except in compliance with the License.    You may obtain a copy of the License at         http://www.apache.org/licenses/LICENSE-2.0      Unless required by applicable law or agreed to in writing, software    distributed under the License is distributed on an "AS IS" BASIS,    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.    See the License for the specific language governing permissions and    limitations under the License.-->  <!--Configuration for the innermost ring of a Geronimo server.This configuration should only contain critical services needed torun other Configurations - for example, the ServerInfo, Loggingand Repository services used to load them.This configuration should *NOT* be used to provide server or applicationspecific services - those should be provided by children.--><configuration    xmlns="http://geronimo.apache.org/xml/ns/deployment"    configId="org/apache/geronimo/ClientSystem"    domain="geronimo.client"    server="client"    >    <!-- ServerInfo service -->    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>    <!-- URLFactory service -->    <gbean name="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>    <!-- Configuration Manager service -->    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">        <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>    </gbean>    <!-- User-editable attribute service -->    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">        <reference name="ServerInfo"><name>ServerInfo</name></reference>        <attribute name="configFile">var/config/config.xml</attribute>        <!-- The client container should not alter the saved configuration -->        <attribute name="readOnly">true</attribute>    </gbean>    <!-- Configuration Store service -->    <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">        <attribute name="root">config-store</attribute>        <reference name="ServerInfo"><name>ServerInfo</name></reference>        <reference name="AttributeStore"><name>AttributeManager</name></reference>    </gbean>    <!-- Repository -->    <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">        <attribute name="root">repository/</attribute>        <reference name="ServerInfo"><name>ServerInfo</name></reference>    </gbean>    <!-- Logging service -->    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">        <attribute name="configFileName">var/log/client-log4j.properties</attribute>        <attribute name="refreshPeriodSeconds">60</attribute>        <reference name="ServerInfo"><name>ServerInfo</name></reference>    </gbean></configuration>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  
+
+<!--
+Configuration for the innermost ring of a Geronimo server.
+This configuration should only contain critical services needed to
+run other Configurations - for example, the ServerInfo, Logging
+and Repository services used to load them.
+
+This configuration should *NOT* be used to provide server or application
+specific services - those should be provided by children.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="org/apache/geronimo/ClientSystem"
+    domain="geronimo.client"
+    server="client"
+    >
+
+    <!-- ServerInfo service -->
+    <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
+
+    <!-- URLFactory service -->
+    <gbean name="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
+
+    <!-- Configuration Manager service -->
+    <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
+        <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
+    </gbean>
+
+    <!-- User-editable attribute service -->
+    <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <attribute name="configFile">var/config/config.xml</attribute>
+        <!-- The client container should not alter the saved configuration -->
+        <attribute name="readOnly">true</attribute>
+    </gbean>
+
+    <!-- Configuration Store service -->
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
+        <attribute name="root">config-store</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <reference name="AttributeStore"><name>AttributeManager</name></reference>
+    </gbean>
+
+    <!-- Repository -->
+    <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
+        <attribute name="root">repository/</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+    </gbean>
+
+    <!-- Logging service -->
+    <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
+        <attribute name="configFileName">var/log/client-log4j.properties</attribute>
+        <attribute name="refreshPeriodSeconds">60</attribute>
+        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+    </gbean>
+</configuration>
