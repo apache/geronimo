@@ -567,21 +567,7 @@ public class SchemaInfoBuilder {
         throw new DeploymentException("No element of class " + clazz.getName() + " found");
     }
 
-    public static void updatePortLocations(Service service, Map portLocations) throws DeploymentException {
-        for (Iterator iterator = portLocations.entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String portName = (String) entry.getKey();
-            String location = (String) entry.getValue();
-            Port port = service.getPort(portName);
-            if (port == null) {
-                throw new DeploymentException("No port named " + portName + " found in service " + service.getQName());
-            }
-            SOAPAddress soapAddress = (SOAPAddress) getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
-            soapAddress.setLocationURI(location);
-        }
-    }
-
-    public void movePortLocation(String portComponentName, String servletLocation) throws DeploymentException {
+    public String movePortLocation(String portComponentName, String servletLocation) throws DeploymentException {
         DefinitionsDocument doc = (DefinitionsDocument) wsdlMap.get(uris.get(0));
         TDefinitions definitions = doc.getDefinitions();
         TService[] services = definitions.getServiceArray();
@@ -600,7 +586,7 @@ public class SchemaInfoBuilder {
                                 servletLocation = originalURI.getPath();
                             }
                             portCursor.setAttributeText(LOCATION_QNAME, AxisWebServiceContainer.LOCATION_REPLACEMENT_TOKEN + servletLocation);
-                            return;
+                            return servletLocation;
                         }
                     } catch (URISyntaxException e) {
                         throw new DeploymentException("Could not construct URI for ejb location in wsdl", e);

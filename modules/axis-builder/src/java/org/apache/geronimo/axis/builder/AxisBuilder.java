@@ -157,11 +157,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         targetGBean.setAttribute("serviceInfo", serviceInfo);
         JavaServiceDesc serviceDesc = serviceInfo.getServiceDesc();
         URI location = null;
-        try {
-            location = new URI(serviceDesc.getEndpointURL());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid webservice endpoint URI", e);
-        }
+        location = portInfo.getContextURI();
         targetGBean.setAttribute("location", location);
         URI wsdlURI = null;
         try {
@@ -304,12 +300,12 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
 
                 GerPortType gerPort = (GerPortType) portMap.get(portName);
 
-                URL location = gerPort == null? getAddressLocation(port): getLocation(gerPort);
+                URL location = gerPort == null ? getAddressLocation(port) : getLocation(gerPort);
                 //skip non-soap ports
                 if (location == null) {
                     continue;
                 }
-                String credentialsName = gerPort == null || gerPort.getCredentialsName() == null? null : gerPort.getCredentialsName().trim();
+                String credentialsName = gerPort == null || gerPort.getCredentialsName() == null ? null : gerPort.getCredentialsName().trim();
 
                 Binding binding = port.getBinding();
 

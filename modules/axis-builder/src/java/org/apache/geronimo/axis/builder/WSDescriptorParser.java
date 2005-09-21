@@ -320,7 +320,6 @@ public class WSDescriptorParser {
                 seiMappings.put(seiMapping.getServiceEndpointInterface().getStringValue(), seiMapping);
             }
 
-//            Map portLocations = new HashMap();
             PortComponentType[] portComponents = webserviceDescription.getPortComponentArray();
             for (int j = 0; j < portComponents.length; j++) {
                 PortComponentType portComponent = portComponents[j];
@@ -332,16 +331,18 @@ public class WSDescriptorParser {
                     throw new DeploymentException("Wrong kind of web service described in web service descriptor: expected " + (isEJB ? "EJB" : "POJO(Servlet)"));
                 }
                 String linkName;
+                String servletLocation;
                 if (serviceImplBeanType.isSetServletLink()) {
                     linkName = serviceImplBeanType.getServletLink().getStringValue().trim();
-                    String servletLocation = (String) servletLocations.get(linkName);
+                    servletLocation = (String) servletLocations.get(linkName);
                     if (servletLocation == null) {
                         throw new DeploymentException("No servlet mapping for port " + portQName);
                     }
                     schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), servletLocation);
                 } else {
                     linkName = serviceImplBeanType.getEjbLink().getStringValue().trim();
-                    schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), null);
+                    servletLocation = (String) servletLocations.get(linkName);
+                    servletLocation = schemaInfoBuilder.movePortLocation(portQName.getLocalPart(), servletLocation);
                 }
                 PortComponentHandlerType[] handlers = portComponent.getHandlerArray();
 
@@ -353,7 +354,12 @@ public class WSDescriptorParser {
                 ServiceEndpointInterfaceMappingType seiMapping = (ServiceEndpointInterfaceMappingType) seiMappings.get(seiInterfaceName);
 
                 String wsdlLocation = webserviceDescription.getWsdlFile().getStringValue().trim();
-                URI contextURI = getAddressLocation(port);
+                URI contextURI = null;
+                try {
+                    contextURI = new URI(servletLocation);
+                } catch (URISyntaxException e) {
+                    throw new DeploymentException("Could not construct URI for web service location", e);
+                }
 
                 PortInfo portInfo = new PortInfo(portComponentName, portQName, schemaInfoBuilder, javaWsdlMapping, seiInterfaceName, handlers, port, seiMapping, wsdlLocation, contextURI);
 
@@ -363,18 +369,6 @@ public class WSDescriptorParser {
             }
         }
         return portMap;
-    }
-
-    private static URI getAddressLocation(Port port) throws DeploymentException {
-        SOAPAddress soapAddress = (SOAPAddress) SchemaInfoBuilder.getExtensibilityElement(SOAPAddress.class, port.getExtensibilityElements());
-        String locationURIString = soapAddress.getLocationURI();
-        try {
-            URI location = new URI(locationURIString);
-            URI contextPath = new URI(location.getPath());
-            return contextPath;
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not construct web service location URL from " + locationURIString);
-        }
     }
 
     public static Map parseWebServiceDescriptor(URL wsDDUrl, JarFile moduleFile, boolean isEJB, Map servletLocations) throws DeploymentException {
