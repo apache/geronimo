@@ -199,13 +199,13 @@
         <ant:mkdir dir="${geronimo.assembly.dir}/var/ldap"/>
 
         <!-- Add tomcat files -->
-<!--        <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">-->
-            <ant:copy todir="${geronimo.assembly.dir}/var/catalina/conf"
-                file="${project.root}/modules/tomcat/src/var/web.xml"/>
-            <ant:copy todir="${geronimo.assembly.dir}/var/catalina/ROOT">
-                <ant:fileset dir="${project.root}/modules/tomcat/src/var/ROOT"/>
-            </ant:copy>
-<!--        </j:if>-->
+        <!--        <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">-->
+        <ant:copy todir="${geronimo.assembly.dir}/var/catalina/conf"
+            file="${project.root}/modules/tomcat/src/var/web.xml"/>
+        <ant:copy todir="${geronimo.assembly.dir}/var/catalina/ROOT">
+            <ant:fileset dir="${project.root}/modules/tomcat/src/var/ROOT"/>
+        </ant:copy>
+        <!--        </j:if>-->
 
         <!-- Load the repository -->
         <ant:mkdir dir="${geronimo.assembly.dir}/repository"/>
@@ -269,8 +269,8 @@
         <j:set var="PlanCOSNamingHost" value="localhost"/>
         <j:set var="PlanCOSNamingPort" value="1050"/>
         <!-- why aren't these used? -->
-<!--        <j:set var="PlanORBHost" value="0.0.0.0"/>-->
-<!--        <j:set var="PlanORBPort" value="2001"/>-->
+        <!--        <j:set var="PlanORBHost" value="0.0.0.0"/>-->
+        <!--        <j:set var="PlanORBPort" value="2001"/>-->
         <j:set var="PlanORBSSLHost" value="0.0.0.0"/>
         <j:set var="PlanORBSSLPort" value="2001"/>
         <j:set var="PlanActiveMQPort" value="61616"/>
@@ -468,6 +468,7 @@
         <!-- ============================================== -->
 
         <attainGoal name="online.deploy"/>
+        <attainGoal name="init-database"/>
 
         <!-- Prepare the Installer directory -->
         <ant:copy todir="${basedir}/target/installer">
@@ -743,17 +744,30 @@
     <!--        </j:if>-->
     <!--    </goal>-->
 
-    <!-- this does not appear to be used -->
-    <!--    <goal name="init-database">-->
-    <!--        <j:invokeStatic className="java.lang.System" method="setProperty">-->
-    <!--            <j:arg type="java.lang.String" value="derby.system.home"/>-->
-    <!--            <j:arg type="java.lang.String" value="${derby.system.home}"/>-->
-    <!--        </j:invokeStatic>-->
-    <!--        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver" url="jdbc:derby:SystemDatabase;create=true" userid="" password="">-->
-    <!--            <ant:fileset dir="src/sql"/>-->
-    <!--            <ant:classpath>-->
-    <!--                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>-->
-    <!--            </ant:classpath>-->
-    <!--        </ant:sql>-->
-    <!--    </goal>-->
+    <!--     this does not appear to be used -->
+    <goal name="init-database">
+        <ant:delete dir="${derby.system.home}"/>
+        <ant:mkdir dir="${derby.system.home}"/>
+
+        <!-- setup the lame system properties that derby needs -->
+        <j:invokeStatic className="java.lang.System" method="setProperty">
+            <j:arg type="java.lang.String" value="derby.system.home"/>
+            <j:arg type="java.lang.String" value="${derby.system.home}"/>
+        </j:invokeStatic>
+        <j:invokeStatic className="java.lang.System" method="setProperty">
+            <j:arg type="java.lang.String" value="derby.storage.fileSyncTransactionLog"/>
+            <j:arg type="java.lang.String" value="true"/>
+        </j:invokeStatic>
+        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver"
+            url="jdbc:derby:SystemDatabase;create=true"
+            userid="" password=""
+            autocommit="true"
+            onerror="abort"
+            delimiter=";">
+            <ant:fileset dir="src/sql"/>
+            <ant:classpath>
+                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>
+            </ant:classpath>
+        </ant:sql>
+    </goal>
 </project>
