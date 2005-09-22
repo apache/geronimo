@@ -19,207 +19,243 @@ package org.apache.geronimo.kernel;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
- * Utilities for loading classes.
+ * Utility class for loading classes by a variety of name variations.
+ * <p/>
+ * Supported names types are:
+ * <p/>
+ * 1)  Fully qualified class name (e.g., "java.lang.String", "org.apache.geronimo.kernel.ClassLoading"
+ * 2)  Method signature encoding ("Ljava.lang.String;", "J", "I", etc.)
+ * 3)  Primitive type names ("int", "boolean", etc.)
+ * 4)  Method array signature strings ("[I", "[Ljava.lang.String")
+ * 5)  Arrays using Java code format ("int[]", "java.lang.String[][]")
+ * <p/>
+ * The classes are loaded using the provided class loader.  For the basic types, the primitive
+ * reflection types are returned.
  *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
 public class ClassLoading {
+
     /**
-     * Load a class for the given name.
-     * <p/>
-     * <p>Handles loading primitive types as well as VM class and array syntax.
-     *
-     * @param className The name of the Class to be loaded.
-     * @param classLoader The class loader to load the Class object from.
-     * @return The Class object for the given name.
-     * @throws ClassNotFoundException Failed to load Class object.
+     * Table for mapping primitive class names/signatures to the implementing
+     * class object
      */
-    public static Class loadClass(final String className, final ClassLoader classLoader) throws ClassNotFoundException {
+    private static final HashMap PRIMITIVE_CLASS_MAP = new HashMap();
+
+    /**
+     * Table for mapping primitive classes back to their name signature type, which
+     * allows a reverse mapping to be performed from a class object into a resolvable
+     * signature.
+     */
+    private static final HashMap CLASS_TO_SIGNATURE_MAP = new HashMap();
+
+
+    /**
+     * Setup the primitives map.  We make any entry for each primitive class using both the
+     * human readable name and the method signature shorthand type.
+     */
+    static {
+        PRIMITIVE_CLASS_MAP.put("boolean", boolean.class);
+        PRIMITIVE_CLASS_MAP.put("Z", boolean.class);
+        PRIMITIVE_CLASS_MAP.put("byte", byte.class);
+        PRIMITIVE_CLASS_MAP.put("B", byte.class);
+        PRIMITIVE_CLASS_MAP.put("char", char.class);
+        PRIMITIVE_CLASS_MAP.put("C", char.class);
+        PRIMITIVE_CLASS_MAP.put("short", short.class);
+        PRIMITIVE_CLASS_MAP.put("S", short.class);
+        PRIMITIVE_CLASS_MAP.put("int", int.class);
+        PRIMITIVE_CLASS_MAP.put("I", int.class);
+        PRIMITIVE_CLASS_MAP.put("long", long.class);
+        PRIMITIVE_CLASS_MAP.put("J", long.class);
+        PRIMITIVE_CLASS_MAP.put("float", float.class);
+        PRIMITIVE_CLASS_MAP.put("F", float.class);
+        PRIMITIVE_CLASS_MAP.put("double", double.class);
+        PRIMITIVE_CLASS_MAP.put("D", double.class);
+        PRIMITIVE_CLASS_MAP.put("void", void.class);
+        PRIMITIVE_CLASS_MAP.put("V", void.class);
+
+        // Now build a reverse mapping table.  The table above has a many-to-one mapping for
+        // class names.  To do the reverse, we need to pick just one.  As long as the
+        // returned name supports "round tripping" of the requests, this will work fine.
+
+        CLASS_TO_SIGNATURE_MAP.put(boolean.class, "Z");
+        CLASS_TO_SIGNATURE_MAP.put(byte.class, "B");
+        CLASS_TO_SIGNATURE_MAP.put(char.class, "C");
+        CLASS_TO_SIGNATURE_MAP.put(short.class, "S");
+        CLASS_TO_SIGNATURE_MAP.put(int.class, "I");
+        CLASS_TO_SIGNATURE_MAP.put(long.class, "J");
+        CLASS_TO_SIGNATURE_MAP.put(float.class, "F");
+        CLASS_TO_SIGNATURE_MAP.put(double.class, "D");
+        CLASS_TO_SIGNATURE_MAP.put(void.class, "V");
+    }
+
+
+    /**
+     * Load a class that matches the requested name, using the provided class loader context.
+     * <p/>
+     * The class name may be a standard class name, the name of a primitive type Java
+     * reflection class (e.g., "boolean" or "int"), or a type in method type signature
+     * encoding.  Array classes in either encoding form are also processed.
+     *
+     * @param className The name of the required class.
+     * @param classLoader The class loader used to resolve the class object.
+     * @return The Class object resolved from "className".
+     * @throws ClassNotFoundException When unable to resolve the class object.
+     * @throws IllegalArgumentException If either argument is null.
+     */
+    public static Class loadClass(String className, ClassLoader classLoader) throws ClassNotFoundException {
+
+        // the tests require IllegalArgumentExceptions for null values on either of these.
         if (className == null) {
             throw new IllegalArgumentException("className is null");
         }
+
         if (classLoader == null) {
             throw new IllegalArgumentException("classLoader is null");
         }
-
-        // First just try to load
+        // The easiest case is a proper class name.  We just have the class loader resolve this.
+        // If the class loader throws a ClassNotFoundException, then we need to check each of the
+        // special name encodings we support.
         try {
             return classLoader.loadClass(className);
         } catch (ClassNotFoundException ignore) {
-            // handle special cases below
+            // if not found, continue on to the other name forms.
         }
 
-        Class type = null;
 
-        // Check if it is a primitive type
-        type = getPrimitiveType(className);
-        if (type != null) return type;
-
-        // Check if it is a vm primitive
-        type = getVMPrimitiveType(className);
-        if (type != null) return type;
-
-        // Handle VM class syntax (Lclassname;)
-        if (className.charAt(0) == 'L' && className.charAt(className.length() - 1) == ';') {
-            return classLoader.loadClass(className.substring(1, className.length() - 1));
+        // The second easiest version to resolve is a direct map to a primitive type name
+        // or method signature.  Check our name-to-class map for one of those.
+        Class resolvedClass = (Class) PRIMITIVE_CLASS_MAP.get(className);
+        if (resolvedClass != null) {
+            return resolvedClass;
         }
 
-        // Handle VM array syntax ([type)
+        // Class names in method signature have the format "Lfully.resolved.name;",
+        // so if it ends in a semicolon and begins with an "L", this must be in
+        // this format.  Have the class loader try to load this.  There are no other
+        // options if this fails, so just allow the class loader to throw the
+        // ClassNotFoundException.
+        if (className.endsWith(";") && className.startsWith("L")) {
+            // pick out the name portion
+            String typeName = className.substring(1, className.length() - 1);
+            // and delegate the loading to the class loader.
+            return classLoader.loadClass(typeName);
+        }
+
+        // All we have left now are the array types.  Method signature array types
+        // have a series of leading "[" characters to specify the number of dimensions.
+        // The other array type we handle uses trailing "[]" for the dimensions, just
+        // like the Java language syntax.
+
+        // first check for the signature form ([[[[type).
         if (className.charAt(0) == '[') {
-            int arrayDimension = className.lastIndexOf('[') + 1;
-            String componentClassName = className.substring(arrayDimension, className.length());
-            type = loadClass(componentClassName, classLoader);
+            // we have at least one array marker, now count how many leading '['s we have
+            // to get the dimension count.
+            int count = 0;
+            int nameLen = className.length();
 
-            int dim[] = new int[arrayDimension];
-            java.util.Arrays.fill(dim, 0);
-            return Array.newInstance(type, dim).getClass();
-        }
-
-        // Handle user friendly type[] syntax
-        if (className.endsWith("[]")) {
-            // get the base component class name and the arrayDimensions
-            int arrayDimension = 0;
-            String componentClassName = className;
-            while (componentClassName.endsWith("[]")) {
-                componentClassName = componentClassName.substring(0, componentClassName.length() - 2);
-                arrayDimension++;
+            while (count < nameLen && className.charAt(count) == '[') {
+                count++;
             }
 
-            // load the base type
-            type = loadClass(componentClassName, classLoader);
+            // pull of the name subtype, which is everything after the last '['
+            String arrayTypeName = className.substring(count, className.length());
+            // resolve the type using a recursive call, which will load any of the primitive signature
+            // types as well as class names.
+            Class arrayType = loadClass(arrayTypeName, classLoader);
 
-            // return the array type
-            int[] dim = new int[arrayDimension];
-            java.util.Arrays.fill(dim, 0);
-            return Array.newInstance(type, dim).getClass();
+            // Resolving array types require a little more work.  The array classes are
+            // created dynamically when the first instance of a given dimension and type is
+            // created.  We need to create one using reflection to do this.
+            return getArrayClass(arrayType, count);
         }
 
-        // Else we can not load (give up)
+
+        // ok, last chance.  Now check for an array specification in Java language
+        // syntax.  This will be a type name followed by pairs of "[]" to indicate
+        // the number of dimensions.
+        if (className.endsWith("[]")) {
+            // get the base component class name and the arrayDimensions
+            int count = 0;
+            int position = className.length();
+
+            while (position > 1 && className.substring(position - 2, position).equals("[]")) {
+                // count this dimension
+                count++;
+                // and step back the probe position.
+                position -= 2;
+            }
+
+            // position now points at the location of the last successful test.  This makes it
+            // easy to pick off the class name.
+
+            String typeName = className.substring(0, position);
+
+            // load the base type, again, doing this recursively
+            Class arrayType = loadClass(typeName, classLoader);
+            // and turn this into the class object
+            return getArrayClass(arrayType, count);
+        }
+
+        // We're out of options, just toss an exception over the wall.
         throw new ClassNotFoundException(className);
     }
 
-    public static String getClassName(Class clazz) {
-        StringBuffer rc = new StringBuffer();
-        while (clazz.isArray()) {
-            rc.append('[');
-            clazz = clazz.getComponentType();
-        }
-        if (!clazz.isPrimitive()) {
-            rc.append('L');
-            rc.append(clazz.getName());
-            rc.append(';');
-        } else {
-            rc.append(VM_PRIMITIVES_REVERSE.get(clazz));
-        }
-        return rc.toString();
-    }
 
     /**
-     * Primitive type name -> class map.
-     */
-    private static final Map PRIMITIVES = new HashMap();
-
-    /** Setup the primitives map. */
-    static {
-        PRIMITIVES.put("boolean", Boolean.TYPE);
-        PRIMITIVES.put("byte", Byte.TYPE);
-        PRIMITIVES.put("char", Character.TYPE);
-        PRIMITIVES.put("short", Short.TYPE);
-        PRIMITIVES.put("int", Integer.TYPE);
-        PRIMITIVES.put("long", Long.TYPE);
-        PRIMITIVES.put("float", Float.TYPE);
-        PRIMITIVES.put("double", Double.TYPE);
-        PRIMITIVES.put("void", Void.TYPE);
-    }
-
-    /**
-     * Get the primitive type for the given primitive name.
-     *
-     * @param name Primitive type name (boolean, byte, int, ...)
-     * @return Primitive type or null.
-     */
-    private static Class getPrimitiveType(final String name) {
-        return (Class) PRIMITIVES.get(name);
-    }
-
-    /**
-     * VM primitive type name -> primitive type
-     */
-    private static final HashMap VM_PRIMITIVES = new HashMap();
-
-    /** Setup the vm primitives map. */
-    static {
-        VM_PRIMITIVES.put("B", byte.class);
-        VM_PRIMITIVES.put("C", char.class);
-        VM_PRIMITIVES.put("D", double.class);
-        VM_PRIMITIVES.put("F", float.class);
-        VM_PRIMITIVES.put("I", int.class);
-        VM_PRIMITIVES.put("J", long.class);
-        VM_PRIMITIVES.put("S", short.class);
-        VM_PRIMITIVES.put("Z", boolean.class);
-        VM_PRIMITIVES.put("V", void.class);
-    }
-
-    /**
-     * VM primitive type primitive type ->  name
-     */
-    private static final HashMap VM_PRIMITIVES_REVERSE = new HashMap();
-
-    /** Setup the vm primitives reverse map. */
-    static {
-        VM_PRIMITIVES_REVERSE.put(byte.class, "B");
-        VM_PRIMITIVES_REVERSE.put(char.class, "C");
-        VM_PRIMITIVES_REVERSE.put(double.class, "D");
-        VM_PRIMITIVES_REVERSE.put(float.class, "F");
-        VM_PRIMITIVES_REVERSE.put(int.class, "I");
-        VM_PRIMITIVES_REVERSE.put(long.class, "J");
-        VM_PRIMITIVES_REVERSE.put(short.class, "S");
-        VM_PRIMITIVES_REVERSE.put(boolean.class, "Z");
-        VM_PRIMITIVES_REVERSE.put(void.class, "V");
-    }
-
-    /**
-     * Get the primitive type for the given VM primitive name.
+     * Map a class object back to a class name.  The returned class object
+     * must be "round trippable", which means
      * <p/>
-     * <p>Mapping:
-     * <pre>
-     *   B - byte
-     *   C - char
-     *   D - double
-     *   F - float
-     *   I - int
-     *   J - long
-     *   S - short
-     *   Z - boolean
-     *   V - void
-     * </pre>
+     * type == ClassLoading.loadClass(ClassLoading.getClassName(type), classLoader)
+     * <p/>
+     * must be true.  To ensure this, the class name is always returned in
+     * method signature format.
      *
-     * @param name VM primitive type name (B, C, J, ...)
-     * @return Primitive type or null.
+     * @param type The class object we convert into name form.
+     * @return A string representation of the class name, in method signature
+     *         format.
      */
-    private static Class getVMPrimitiveType(final String name) {
-        return (Class) VM_PRIMITIVES.get(name);
+    public static String getClassName(Class type) {
+        StringBuffer name = new StringBuffer();
+
+        // we test these in reverse order from the resolution steps,
+        // first handling arrays, then primitive types, and finally
+        // "normal" class objects.
+
+        // First handle arrays.  If a class is an array, the type is
+        // element stored at that level.  So, for a 2-dimensional array
+        // of ints, the top-level type will be "[I".  We need to loop
+        // down the hierarchy until we hit a non-array type.
+        while (type.isArray()) {
+            // add another array indicator at the front of the name,
+            // and continue with the next type.
+            name.append('[');
+            type = type.getComponentType();
+        }
+
+        // we're down to the base type.  If this is a primitive, then
+        // we poke in the single-character type specifier.
+        if (type.isPrimitive()) {
+            name.append((String) CLASS_TO_SIGNATURE_MAP.get(type));
+        }
+        // a "normal" class.  This gets expressing using the "Lmy.class.name;" syntax.
+        else {
+            name.append('L');
+            name.append(type.getName());
+            name.append(';');
+        }
+        return name.toString();
     }
 
-    /**
-     * Map of primitive types to their wrapper classes
-     */
-    private static final Map PRIMITIVE_WRAPPERS = new HashMap();
-
-    /** Setup the wrapper map. */
-    static {
-        PRIMITIVE_WRAPPERS.put(Boolean.TYPE, Boolean.class);
-        PRIMITIVE_WRAPPERS.put(Byte.TYPE, Byte.class);
-        PRIMITIVE_WRAPPERS.put(Character.TYPE, Character.class);
-        PRIMITIVE_WRAPPERS.put(Double.TYPE, Double.class);
-        PRIMITIVE_WRAPPERS.put(Float.TYPE, Float.class);
-        PRIMITIVE_WRAPPERS.put(Integer.TYPE, Integer.class);
-        PRIMITIVE_WRAPPERS.put(Long.TYPE, Long.class);
-        PRIMITIVE_WRAPPERS.put(Short.TYPE, Short.class);
-        PRIMITIVE_WRAPPERS.put(Void.TYPE, Void.class);
+    private static Class getArrayClass(Class type, int dimension) {
+        // Array.newInstance() requires an array of the requested number of dimensions
+        // that gives the size for each dimension.  We just request 0 in each of the
+        // dimentions, which is not unlike a black hole sigularity.
+        int dimensions[] = new int[dimension];
+        // create an instance and return the associated class object.
+        return Array.newInstance(type, dimensions).getClass();
     }
 }
 

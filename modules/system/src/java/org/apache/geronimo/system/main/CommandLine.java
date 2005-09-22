@@ -34,7 +34,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
-import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 
 /**
@@ -47,9 +46,6 @@ public class CommandLine {
         // This MUST be done before the first log is acquired
         GeronimoLogging.initialize(GeronimoLogging.ERROR);
         log = LogFactory.getLog(CommandLine.class.getName());
-
-        // Install our url factory
-        GeronimoURLFactory.install();
     }
 
     /**

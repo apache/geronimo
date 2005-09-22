@@ -17,47 +17,46 @@
 
 package org.apache.geronimo.common.propertyeditor;
 
+
 /**
- * An exception throw to indicate a problem with property editor conversion.
+ * An exception for property editor conversion problems.
  *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
-public class PropertyEditorException
-    extends RuntimeException
-{
+public class PropertyEditorException extends RuntimeException {
+
     /**
-     * Construct a <tt>PropertyEditorException</tt> with a specified detail message.
-     *
-     * @param msg     Detail message
-     */
-    public PropertyEditorException(final String msg) {
-        super(msg);
-    }
-    
-    /**
-     * Construct a <tt>PropertyEditorException</tt> with a specified detail Throwable
-     * and message.
-     *
-     * @param msg     Detail message
-     * @param detail  Detail Throwable
-     */
-    public PropertyEditorException(final String msg, final Throwable detail) {
-        super(msg, detail);
-    }
-    
-    /**
-     * Construct a <tt>PropertyEditorException</tt> with a specified detail Throwable.
-     *
-     * @param detail  Detail Throwable
-     */
-    public PropertyEditorException(final Throwable detail) {
-        super(detail);
-    }
-    
-    /**
-     * Construct a <tt>PropertyEditorException</tt> with no specified detail message.
+     * Default constructor for a PropertyException.
      */
     public PropertyEditorException() {
-        super();
     }
+
+    /**
+     * PropertyEditorException with a wrappered inner exception.
+     *
+     * @param cause Original root cause of the PropertyEditorException.
+     */
+    public PropertyEditorException(Throwable cause) {
+        super(cause);
+    }
+
+    /**
+     * A PropertyEditorException with just an error message.
+     *
+     * @param message The text error message describing the condition.
+     */
+    public PropertyEditorException(String message) {
+        super(message);
+    }
+
+    /**
+     * An exception with both a message and an internal exception.
+     *
+     * @param message The test error message.
+     * @param cause The root cause for the exception.
+     */
+    public PropertyEditorException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }

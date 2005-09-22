@@ -36,9 +36,6 @@ specific services - those should be provided by children.
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 
-    <!-- URLFactory service -->
-    <gbean name="URLFactory" class="org.apache.geronimo.system.url.GeronimoURLFactory"/>
-
     <!-- Configuration Manager service -->
     <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
         <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>

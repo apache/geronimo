@@ -14,32 +14,33 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.common.propertyeditor;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 
 /**
- * A property editor for {@link Date}.
+ * A property editor for Date typed properties.
  *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
-public class DateEditor
-    extends TextPropertyEditorSupport
-{
+public class DateEditor extends TextPropertyEditorSupport {
     /**
-     * Returns a Date for the input object converted to a string.
+     * Convert the text value of the property into a Date object instance.
      *
-     * @return a Date object
+     * @return a Date object constructed from the property text value.
+     * @throws PropertyEditorException Unable to parse the string value into a Date.
      */
-    public Object getValue()
-    {
+    public Object getValue() {
         try {
-            DateFormat df = DateFormat.getDateInstance();
-            return df.parse(getAsText());
-        }
-        catch (ParseException e) {
+            // Get a date formatter to parse this.
+            // This retrieves the formatter using the current execution locale,
+            // which could present an intererting problem when applied to deployment
+            // plans written in other locales.  Sort of a Catch-22 situation.
+            DateFormat formatter = DateFormat.getDateInstance();
+            return formatter.parse(getAsText().trim());
+        } catch (ParseException e) {
+            // any format errors show up as a ParseException, which we turn into a PropertyEditorException.
             throw new PropertyEditorException(e);
         }
     }

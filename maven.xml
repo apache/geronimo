@@ -211,6 +211,17 @@
                failonerror="true"
             />
         </define:tag>
+        <define:tag name="checkout-tag">
+            <ant:cvs command="checkout -P"
+               quiet="${maven.scm.cvs.quiet}"
+               cvsRsh="ssh"
+               cvsRoot="${root}"
+               dest="${dest}"
+               package="${module}"
+               tag="${tag}"
+               failonerror="true"
+            />
+        </define:tag>
         <define:tag name="update">
             <echo message="updating ${dir}"/>
             <ant:cvs command="update -P -d"

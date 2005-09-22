@@ -20,30 +20,36 @@ package org.apache.geronimo.common.propertyeditor;
 import java.beans.PropertyEditorSupport;
 
 /**
- * A property editor support class for textual properties.
+ * A base class for text based properties.  This class basically does nothing
+ * but override the defaute PropertyEditorSupport setAsText() method, which
+ * throws an IllegalArgumentException when called.
  *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
-public class TextPropertyEditorSupport
-    extends PropertyEditorSupport
-{
-    protected TextPropertyEditorSupport(final Object source)
-    {
+public class TextPropertyEditorSupport extends PropertyEditorSupport {
+    /**
+     * A property editor with a provided source object.
+     *
+     * @param source The source of the editted information.
+     */
+    protected TextPropertyEditorSupport(Object source) {
         super(source);
     }
-    
-    protected TextPropertyEditorSupport()
-    {
+
+    /**
+     * Default no-argument constructor.
+     */
+    protected TextPropertyEditorSupport() {
         super();
     }
-    
+
     /**
-     * Sets the property value by parsing a given String.
+     * By default, set the property value by directly passing the
+     * provided string value through to the setValue() method.
      *
-     * @param text  The string to be parsed.
+     * @param value The new property value, as a string.
      */
-    public void setAsText(final String text)
-    {
-        setValue(text);
+    public void setAsText(String value) {
+        setValue(value);
     }
 }

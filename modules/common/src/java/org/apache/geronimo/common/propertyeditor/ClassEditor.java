@@ -20,23 +20,27 @@ package org.apache.geronimo.common.propertyeditor;
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * A property editor for {@link Class}.
+ * A property editor for converting class names into class object instances
  *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
 public class ClassEditor extends TextPropertyEditorSupport {
     /**
-     * Returns a Class for the input object converted to a string.
+     * Return a resolved class using the text value of the property as the name.
+     * The class is loading using the current context class loader, using the resolution
+     * rules defined by ClassLoading.java.
      *
-     * @return a Class object
-     * @throws PropertyEditorException Failed to create Class instance.
+     * @return a Class object created from the text value of the name.
+     * @throws PropertyEditorException Unable to resolve the Class object from the name.
      */
     public Object getValue() {
         try {
-            String classname = getAsText();
-            return ClassLoading.loadClass(classname, Thread.currentThread().getContextClassLoader());
+            // load this using the current thread's context loader.
+            String className = getAsText().trim();
+            return ClassLoading.loadClass(className, Thread.currentThread().getContextClassLoader());
         } catch (Exception e) {
-            throw new PropertyEditorException(e);
+            // not found exceptions are just turned into wrapped property exceptions.
+            throw new PropertyEditorException("Unable to resolve class " + getAsText(), e);
         }
     }
 }

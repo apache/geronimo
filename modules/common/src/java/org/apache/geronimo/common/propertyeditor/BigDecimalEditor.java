@@ -14,26 +14,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.common.propertyeditor;
 
 import java.math.BigDecimal;
 
 /**
- * A property editor for {@link BigDecimal}.
+ * A property editor for BigDecimal typed properties.
  *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
-public class BigDecimalEditor
-    extends TextPropertyEditorSupport
-{
+public class BigDecimalEditor extends TextPropertyEditorSupport {
     /**
-     * Returns a BigDecimal for the input object converted to a string.
+     * Convert the text value of the property into a BigDecimal instance.
      *
-     * @return a BigDecimal object
+     * @return a BigDecimal object constructed from the property text value.
      */
-    public Object getValue()
-    {
-        return new BigDecimal(getAsText());
+    public Object getValue() {
+        try {
+            // just instantiate a BigDecimal instance from the test string value.
+            return new BigDecimal(getAsText().trim());
+        } catch (NumberFormatException e) {
+            // any format errors show up as a NumberFormatException, which we turn into a PropertyEditorException.
+            throw new PropertyEditorException(e);
+        }
     }
 }

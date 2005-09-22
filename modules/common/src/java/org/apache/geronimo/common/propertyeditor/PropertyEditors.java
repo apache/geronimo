@@ -20,119 +20,142 @@ package org.apache.geronimo.common.propertyeditor;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.geronimo.kernel.ClassLoading;
 
 /**
- * A collection of PropertyEditor utilities.
+ * The property editor manager.  This orchestrates Geronimo usage of
+ * property editors, allowing additional search paths to be added and
+ * specific editors to be registered.
  *
- * <p>Allows editors to be nested sub-classes named PropertyEditor.
- *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
-public class PropertyEditors
-{
+public class PropertyEditors {
     /**
-     * Augment the PropertyEditorManager search path to incorporate the
-     * Geronimo specific editors.
+     * We need to register the standard register seach path and explicitly
+     * register a boolean editor to make sure ours overrides.
      */
-    static
-    {
-        // Append our package to the serach path
+    static {
+        // Append the geronimo propertyeditors package to the global search path.
         appendEditorSearchPath("org.apache.geronimo.common.propertyeditor");
+        // and explicitly register the Boolean editor.
         PropertyEditorManager.registerEditor(Boolean.class, BooleanEditor.class);
     }
 
     /**
-     * Locate a value editor for a given target type.
+     * Locate an editor for qiven class of object.
      *
-     * @param type   The class of the object to be edited.
-     * @return       An editor for the given type or null if none was found.
+     * @param type The target object class of the property.
+     * @return The resolved editor, if any.  Returns null if a suitable editor
+     *         could not be located.
      */
-    public static PropertyEditor findEditor(final Class type)
-    {
+    public static PropertyEditor findEditor(Class type) {
+        // explicit argument checking is required.
         if (type == null) {
             throw new IllegalArgumentException("type is null");
         }
 
+
+        // try to locate this directly from the editor manager first.
         PropertyEditor editor = PropertyEditorManager.findEditor(type);
 
-        // Try to use adapter for array types
-        if (editor == null && type.isArray()) {
-            Class ctype = type.getComponentType();
-            editor = findEditor(ctype);
-            if (editor != null) {
-                editor = new ArrayPropertyEditorAdapter(ctype, editor);
-            }
+        // we're outta here if we got one.
+        if (editor != null) {
+            return editor;
         }
 
-        return editor;
+        // it's possible this was a request for an array class.  We might not
+        // recognize the array type directly, but the component type might be
+        // resolvable
+        if (type.isArray()) {
+            // do a recursive lookup on the base type
+            editor = findEditor(type.getComponentType());
+            // if we found a suitable editor for the base component type,
+            // wrapper this in an array adaptor for real use
+            if (editor != null) {
+                return new ArrayPropertyEditorAdapter(type.getComponentType(), editor);
+            }
+        }
+        // nothing found
+        return null;
     }
 
     /**
-     * Locate a value editor for a given target type.
+     * Locate an editor for qiven class of object, resolved within the context of
+     * a specific ClassLoader instance.
      *
-     * @param typeName    The class name of the object to be edited.
-     * @return            An editor for the given type or null if none was found.
+     * @param typeName The type name of target property class.
+     * @param loader The source ClassLoader instance.
+     * @return The resolved editor, if any.  Returns null if a suitable editor
+     *         could not be located.
+     * @throws ClassNotFoundException Thrown if unable to resolve an appropriate editor class.
      */
-    public static PropertyEditor findEditor(final String typeName, ClassLoader classLoader)
-        throws ClassNotFoundException
-    {
+    public static PropertyEditor findEditor(String typeName, ClassLoader loader) throws ClassNotFoundException {
+        // explicit argument checking is required.
         if (typeName == null) {
             throw new IllegalArgumentException("typeName is null");
         }
 
         Class type = null;
+        // load using the ClassLoading utility, which also manages arrays and primitive classes.
         try {
-            type = ClassLoading.loadClass(typeName, classLoader);
-        }
-        catch (ClassNotFoundException e) {
-            // look for a nested class
-            type = ClassLoading.loadClass(typeName + "$PropertyEditor", classLoader);
+            type = ClassLoading.loadClass(typeName, loader);
+        } catch (ClassNotFoundException e) {
+            // We also support anonymous inner class nesting of property editors.  In that situation,
+            // the package/class names are the same, but add on the inner class specifier.
+            // If this one fails, we jump directly out with the ClassNotFoundException.
+            type = ClassLoading.loadClass(typeName + "$PropertyEditor", loader);
         }
 
-        // PropertyEditorManager uses the classloader for object, then system, them context
-        // We need to force the context loader to that of the user as the Editor may be
-        // located in a child loader from the type being loader 
+        // The PropertyEditorManager class uses the context class loader for all of its resolution
+        // steps.  We need force PropertyManagerEditor to use our loader, so we override the
+        // current context loader.
         ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(classLoader);
+            Thread.currentThread().setContextClassLoader(loader);
+            // now call the base findEditor() method that works directly from the property type.
             return findEditor(type);
         } finally {
+            // make sure we restore the context....this will happen even if findEditor()
+            // results in an exception.
             Thread.currentThread().setContextClassLoader(oldLoader);
         }
     }
 
     /**
-     * Get a value editor for a given target type.
+     * Get a property editor for a given property type.  This is like
+     * findEditor, but throws an exception if the property is not found.
      *
-     * @param type    The class of the object to be edited.
-     * @return        An editor for the given type.
-     *
-     * @throws PropertyEditorException   No editor was found.
+     * @param type The target object class of the property.
+     * @return The resolved editor, if any.  Throws an exception if this cannot
+     *         be resolved.
+     * @throws PropertyEditorException Unable to find a suitable editor for this class.
      */
-    public static PropertyEditor getEditor(final Class type)
-    {
+    public static PropertyEditor getEditor(Class type) {
+        // just call the non-exceptional lookup
         PropertyEditor editor = findEditor(type);
+        // this one throws an exception if not found.
         if (editor == null) {
             throw new PropertyEditorException("No property editor for type: " + type);
         }
-
         return editor;
     }
 
     /**
-     * Register an editor class to be used to editor values of a given target class.
+     * Explicity register an editor class for a given target class.
      *
-     * @param type         The class of the objetcs to be edited.
-     * @param editorType   The class of the editor.
+     * @param type The property class.
+     * @param editorType The editor class matched up with this type.
      */
-    public static void registerEditor(final Class type, final Class editorType)
-    {
+    public static void registerEditor(Class type, Class editorType) {
+        // explicit argument checking is required.
         if (type == null) {
             throw new IllegalArgumentException("type is null");
         }
+
+        // explicit argument checking is required.
         if (editorType == null) {
             throw new IllegalArgumentException("editorType is null");
         }
@@ -141,110 +164,132 @@ public class PropertyEditors
     }
 
     /**
-     * Register an editor class to be used to editor values of a given target class.
+     * Explicity register a property/editor class pair by class name.
      *
-     * @param typeName         The classname of the objetcs to be edited.
-     * @param editorTypeName   The class of the editor.
+     * @param typeName The classname of the property.
+     * @param editorName The classname of the property editor.
+     * @throws ClassNotFoundException Thrown if unable to resolve either the type or the editor from their names.
      */
-    public static void registerEditor(final String typeName,
-                                      final String editorTypeName)
-        throws ClassNotFoundException
-    {
+    public static void registerEditor(String typeName, String editorName) throws ClassNotFoundException {
+        // explicit argument checking is required.
         if (typeName == null) {
             throw new IllegalArgumentException("typeName is null");
         }
-        if (editorTypeName == null) {
+
+        // explicit argument checking is required.
+        if (editorName == null) {
             throw new IllegalArgumentException("editorTypeName is null");
         }
+        // we use the current context loader for this
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        Class type = ClassLoading.loadClass(typeName, classLoader);
-        Class editorType = ClassLoading.loadClass(editorTypeName, classLoader);
+        // load both of these loaders using our ClassLoading support.
+        Class type = ClassLoading.loadClass(typeName, loader);
+        Class editor = ClassLoading.loadClass(editorName, loader);
 
-        registerEditor(type, editorType);
+        // we have resolved classes, so register the class information.
+        registerEditor(type, editor);
     }
 
     /**
-     * Gets the package names that will be searched for property editors.
+     * Get a list containing all of the packages in the editor search path.
      *
-     * @return   The package names that will be searched for property editors.
+     * @return a List object containing all of the registered search paths.
      */
-    public static List getEditorSearchPath()
-    {
-        String[] path = PropertyEditorManager.getEditorSearchPath();
+    public static List getEditorSearchPath() {
+        // grrrr, Arrays.asList() returns a readonly List item, which makes it difficult
+        // to append additional items.  This means we have to do this manually.
 
-        List list = new ArrayList(path.length);
-        for (int i=0; i<path.length; i++) {
-            list.add(path[i]);
+        // start by getting the list from the editor manager, which is returned as an
+        // array of Strings.
+        String[] paths = PropertyEditorManager.getEditorSearchPath();
+
+        // get a list matching the initial size...we don't always request this with the intend to append.
+        List pathList = new ArrayList(paths.length);
+
+        // now MANUALLY add each of the items in the array.
+        for (int i = 0; i < paths.length; i++) {
+            pathList.add(paths[i]);
         }
 
-        return list;
+        return pathList;
     }
 
     /**
-     * Sets the package names that will be searched for property editors.
+     * Sets the search order used for property editor resolution.
      *
-     * @param path   The serach path.
+     * @param path The serach path.
      */
-    public static void setEditorSearchPath(final List path)
-    {
+    public static void setEditorSearchPath(List path) {
+        // explicit argument checking is required.
         if (path == null) {
             throw new IllegalArgumentException("path is null");
         }
 
-        String[] elements = (String[])path.toArray(new String[path.size()]);
+        // we deal in Lists, PropertyEditorManager does arrays, so we need to
+        // extract the elements into a array of Strings.
+        String[] elements = (String[]) path.toArray(new String[path.size()]);
         PropertyEditorManager.setEditorSearchPath(elements);
     }
 
     /**
-     * Append package names to the property editor search path.
+     * Append additional package names to the property editor search path.
      *
-     * @param names   The package names to append.
+     * @param names The package names to append.
      */
-    public static void appendEditorSearchPath(final List names)
-    {
-        if (names == null) {
+    public static void appendEditorSearchPath(List newNames) {
+        // explicit argument checking is required.
+        if (newNames == null) {
             throw new IllegalArgumentException("names is null");
         }
-        if (names.size() == 0) return;
 
-        List path = getEditorSearchPath();
-        path.addAll(names);
+        // if there's nothing to do, then do nothing :-)
+        if (newNames.isEmpty()) {
+            return;
+        }
 
-        setEditorSearchPath(path);
+        // append to the current names list, and set ammended list back as the current
+        // search order.
+        List currentPath = getEditorSearchPath();
+        currentPath.addAll(newNames);
+
+        setEditorSearchPath(currentPath);
     }
 
     /**
-     * Append package names to the property editor search path.
+     * Append an array of package names to the editor search path.
      *
-     * @param names   The package names to append.
+     * @param names A string array containing the added names.
      */
-    public static void appendEditorSearchPath(final String[] names)
-    {
-        if (names == null) {
+    public static void appendEditorSearchPath(String[] newNames) {
+        // explicit argument checking is required.
+        if (newNames == null) {
             throw new IllegalArgumentException("names is null");
         }
-        if (names.length == 0) return;
 
-        List list = new ArrayList(names.length);
-        for (int i=0; i<names.length; i++) {
-            list.add(names[i]);
+        // only bother continuing if the array contains something.
+        if (newNames.length != 0) {
+            // just convert this to a list and add as normal.
+            appendEditorSearchPath(Arrays.asList(newNames));
         }
-
-        appendEditorSearchPath(list);
     }
 
     /**
-     * Append a package name to the property editor search path.
+     * Append a single package name to the editor search path.
      *
-     * @param name   The package name to append.
+     * @param name The new path name.
      */
-    public static void appendEditorSearchPath(final String name)
-    {
-        if (name == null) {
+    public static void appendEditorSearchPath(String newName) {
+        // explicit argument checking is required.
+        if (newName == null) {
             throw new IllegalArgumentException("name is null");
         }
 
-        appendEditorSearchPath(new String[] { name });
+        // append to the current names list, and set ammended list back as the current
+        // search order.
+        List currentPath = getEditorSearchPath();
+        currentPath.add(newName);
+
+        setEditorSearchPath(currentPath);
     }
 }

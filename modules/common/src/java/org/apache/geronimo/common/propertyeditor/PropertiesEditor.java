@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.common.propertyeditor;
 
 import java.io.ByteArrayInputStream;
@@ -22,31 +21,31 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * A property editor for {@link Properties}.
+ * A property editor for indirect property bundles.  This editor
+ * transforms the text value of the propery into a Property resource bundle.
  *
- * @version $Rev$ $Date$
+ * @version $Rev$
  */
-public class PropertiesEditor
-   extends TextPropertyEditorSupport
-{
+public class PropertiesEditor extends TextPropertyEditorSupport {
     /**
-     * Returns a Properties object initialized with the input object
-     * as a properties file based string.
+     * Treats the text value of this property as an input stream that
+     * is converted into a Property bundle.
      *
      * @return a Properties object
-     *
-     * @throws PropertyEditorException  An IOException occured.
+     * @throws PropertyEditorException An error occurred creating the Properties object.
      */
-    public Object getValue()
-    {
+    public Object getValue() {
         try {
-            ByteArrayInputStream is = new ByteArrayInputStream(getAsText().getBytes());
-            Properties p = new Properties();
-            p.load(is);
-            
-            return p;
-        }
-        catch (IOException e) {
+            // convert the text value into an in-memory input stream we can used for
+            // property loading.
+            ByteArrayInputStream stream = new ByteArrayInputStream(getAsText().getBytes());
+            // load this into a properties instance.
+            Properties bundle = new Properties();
+            bundle.load(stream);
+
+            return bundle;
+        } catch (IOException e) {
+            // any errors here are just a property exception
             throw new PropertyEditorException(e);
         }
     }

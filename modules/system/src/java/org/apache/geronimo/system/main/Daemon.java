@@ -43,7 +43,6 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.jmx.MBeanServerKernelBridge;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
-import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -111,9 +110,6 @@ public class Daemon {
             // This MUST be done before the first log is acquired (WHICH THE STARTUP MONITOR 5 LINES LATER DOES!)
             GeronimoLogging.initialize(verboseArg == null ? GeronimoLogging.WARN : verboseArg == ARGUMENT_VERBOSE ? GeronimoLogging.INFO : GeronimoLogging.DEBUG);
             log = LogFactory.getLog(Daemon.class.getName());
-
-            // Install our url factory
-            GeronimoURLFactory.install();
         }
 
         if(verboseArg != null || progressArg != null) {

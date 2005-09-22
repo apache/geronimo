@@ -36,7 +36,6 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
-import org.apache.geronimo.system.url.GeronimoURLFactory;
 
 /**
  *
@@ -49,9 +48,6 @@ public class StartServer {
     static {
         // This MUST be done before the first log is acquired
         GeronimoLogging.initialize(GeronimoLogging.INFO);
-
-        // Install our url factory
-        GeronimoURLFactory.install();
     }
 
     private String geronimoHome;
