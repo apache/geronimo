@@ -188,6 +188,19 @@ Configuration for Tomcat server.
         </reference>
     </gbean>
 
+    <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
+        <references name="LogGBeans">
+            <pattern>
+                <!-- This is lame and should be replaced by an interface reference -->
+                <gbean-name>geronimo.server:name=FirstValve,*</gbean-name>
+            </pattern>
+        </references>
+    </gbean>
+
     <!-- Valve -->
     <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
         <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
