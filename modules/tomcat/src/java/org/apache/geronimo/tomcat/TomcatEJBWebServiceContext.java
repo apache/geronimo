@@ -39,6 +39,8 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.tomcat.realm.TomcatJAASRealm;
+import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
+import org.apache.geronimo.tomcat.realm.TomcatEJBWSGeronimoRealm;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 public class TomcatEJBWebServiceContext extends StandardContext{
@@ -53,57 +55,57 @@ public class TomcatEJBWebServiceContext extends StandardContext{
     public TomcatEJBWebServiceContext(String contextPath, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) {
 
         super();
-        
+
         this.contextPath = contextPath;
         this.webServiceContainer = webServiceContainer;
         this.setPath(contextPath);
         this.setDocBase("");
         this.setParentClassLoader(classLoader);
         this.setDelegate(true);
-        
-        log.info("EJB Webservice Context = " + contextPath);        
+
+        log.info("EJB Webservice Context = " + contextPath);
         if (securityRealmName != null) {
-            
-            TomcatJAASRealm realm = new TomcatJAASRealm();
+
+            TomcatEJBWSGeronimoRealm realm = new TomcatEJBWSGeronimoRealm();
             realm.setAppName(securityRealmName);
             realm.setUserClassNames("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
             realm.setRoleClassNames("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
             setRealm(realm);
             this.realm = realm;
-            
+
             if ("NONE".equals(transportGuarantee)) {
                 isSecureTransportGuarantee = false;
-            } else if ("INTEGRAL".equals(transportGuarantee) || 
+            } else if ("INTEGRAL".equals(transportGuarantee) ||
                        "CONFIDENTIAL".equals(transportGuarantee)) {
                 isSecureTransportGuarantee = true;
             } else {
                 throw new IllegalArgumentException("Invalid transport-guarantee: " + transportGuarantee);
             }
-                        
-            if ("BASIC".equals(authMethod) || 
-                "DIGEST".equals(authMethod) || 
+
+            if ("BASIC".equals(authMethod) ||
+                "DIGEST".equals(authMethod) ||
                 "CLIENT-CERT".equals(authMethod)) {
 
                 //Setup a login configuration
                 LoginConfig loginConfig = new LoginConfig();
                 loginConfig.setAuthMethod(authMethod);
                 loginConfig.setRealmName(realmName);
-                this.setLoginConfig(loginConfig);                
-                
+                this.setLoginConfig(loginConfig);
+
                 //Setup a default Security Constraint
                 SecurityCollection collection = new SecurityCollection();
                 collection.addMethod("GET");
                 collection.addMethod("POST");
                 collection.addPattern("/*");
-                collection.setName("default");  
+                collection.setName("default");
                 SecurityConstraint sc = new SecurityConstraint();
                 sc.addAuthRole("*");
                 sc.addCollection(collection);
                 sc.setAuthConstraint(true);
                 sc.setUserConstraint(transportGuarantee);
                 this.addConstraint(sc);
-                this.addSecurityRole("default");               
-                
+                this.addSecurityRole("default");
+
                 //Set the proper authenticator
                 if ("BASIC".equals(authMethod) ){
                     this.addValve(new BasicAuthenticator());
@@ -112,7 +114,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
                 } else if ("CLIENT-CERT".equals(authMethod) ){
                     this.addValve(new SSLAuthenticator());
                 }
-               
+
             } else {
                 throw new IllegalArgumentException("Invalid authMethod: " + authMethod);
             }
@@ -123,7 +125,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.addValve(new EJBWebServiceValve());
 
     }
-    
+
     public class EJBWebServiceValve extends ValveBase{
 
         public void invoke(Request req, Response res) throws IOException, ServletException {
@@ -164,11 +166,11 @@ public class TomcatEJBWebServiceContext extends StandardContext{
                 } finally {
                     currentThread.setContextClassLoader(oldClassLoader);
                 }
-            }            
+            }
         }
-        
+
     }
-    
+
     public static class RequestAdapter implements WebServiceContainer.Request {
         private final Request request;
         private URI uri;
@@ -282,5 +284,5 @@ public class TomcatEJBWebServiceContext extends StandardContext{
             response.setStatus(response.getStatus(), responseString);
         }
     }
-    
+
 }

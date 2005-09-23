@@ -28,6 +28,7 @@ import javax.security.auth.callback.CallbackHandler;
  */
 public class CertificateChainCallbackHandler implements CallbackHandler {
     Certificate[] certificateChain;
+
     public CertificateChainCallbackHandler(Certificate[] certificateChain) {
         this.certificateChain = certificateChain;
     }
@@ -38,6 +39,12 @@ public class CertificateChainCallbackHandler implements CallbackHandler {
             if (callback instanceof CertificateChainCallback) {
                 CertificateChainCallback cc = (CertificateChainCallback) callback;
                 cc.setCertificateChain(certificateChain);
+            } else if (callback instanceof CertificateCallback
+                    && certificateChain != null
+                    && certificateChain.length > 0
+                    && certificateChain[0] instanceof X509Certificate) {
+                CertificateCallback cc = (CertificateCallback) callback;
+                cc.setCertificate((X509Certificate) certificateChain[0]);
             } else {
                 throw new UnsupportedCallbackException(callback);
             }

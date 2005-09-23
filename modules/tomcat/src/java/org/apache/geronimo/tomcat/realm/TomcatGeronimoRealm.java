@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 
 import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.AccountExpiredException;
 import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
@@ -45,6 +47,9 @@ import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
+import org.apache.geronimo.security.realm.providers.CertificateCallbackHandler;
+import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 
@@ -55,7 +60,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
 //    private Context context = null;
     private static ThreadLocal currentRequest = new ThreadLocal();
-    
+
     private boolean enabled = false;
 
     /**
@@ -87,7 +92,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                          Response response,
                                          SecurityConstraint[] constraints)
             throws IOException {
-        
+
         //Get an authenticated subject, if there is one
         Subject subject = null;
         try {
@@ -179,12 +184,12 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         // Which user principal have we already authenticated?
         Principal principal = request.getUserPrincipal();
- 
+
         //If we have no principal, then we should use the default.
         if (principal == null) {
             if (request.isSecure())
                 return true;
-            
+
             return false;
         } else {
             ContextManager.setCurrentCaller(((JAASTomcatPrincipal) principal).getSubject());
@@ -196,7 +201,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
 
             /**
-             * JACC v1.0 secion 4.1.2
+             * JACC v1.0 section 4.1.2
              */
             acc.checkPermission(new WebResourcePermission(request));
 
@@ -320,6 +325,21 @@ public class TomcatGeronimoRealm extends JAASRealm {
      */
     public Principal authenticate(String username, String credentials) {
 
+        CallbackHandler callbackHandler = new PasswordCallbackHandler(username, credentials.toCharArray());
+        return authenticate(callbackHandler, username);
+    }
+
+    public Principal authenticate(X509Certificate[] certs) {
+        if (certs == null || certs.length == 0) {
+            return null;
+        }
+        CallbackHandler callbackHandler = new CertificateChainCallbackHandler(certs);
+        String principalName = certs[0].getSubjectX500Principal().getName();
+        return authenticate(callbackHandler, principalName);
+    }
+
+    public Principal authenticate(CallbackHandler callbackHandler, String principalName) {
+
         // Establish a LoginContext to use for authentication
         try {
             LoginContext loginContext = null;
@@ -327,7 +347,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 appName = "Tomcat";
 
             if (log.isDebugEnabled())
-                log.debug(sm.getString("jaasRealm.beginLogin", username, appName));
+                log.debug(sm.getString("jaasRealm.beginLogin", principalName, appName));
 
             // What if the LoginModule is in the container class loader ?
             ClassLoader ocl = null;
@@ -338,7 +358,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
 
             try {
-                loginContext = new LoginContext(appName, new JAASCallbackHandler(this, username, credentials));
+                loginContext = new LoginContext(appName, callbackHandler);
             } catch (Throwable e) {
                 log.error(sm.getString("jaasRealm.unexpectedError"), e);
                 return (null);
@@ -349,7 +369,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
 
             if (log.isDebugEnabled())
-                log.debug("Login context created " + username);
+                log.debug("Login context created " + principalName);
 
             // Negotiate a login via this LoginContext
             Subject subject = null;
@@ -358,14 +378,14 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 Subject tempSubject = loginContext.getSubject();
                 if (tempSubject == null) {
                     if (log.isDebugEnabled())
-                        log.debug(sm.getString("jaasRealm.failedLogin", username));
+                        log.debug(sm.getString("jaasRealm.failedLogin", principalName));
                     return (null);
                 }
 
                 subject = ContextManager.getServerSideSubject(tempSubject);
                 if (subject == null) {
                     if (log.isDebugEnabled())
-                        log.debug(sm.getString("jaasRealm.failedLogin", username));
+                        log.debug(sm.getString("jaasRealm.failedLogin", principalName));
                     return (null);
                 }
 
@@ -373,18 +393,18 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
             } catch (AccountExpiredException e) {
                 if (log.isDebugEnabled())
-                    log.debug(sm.getString("jaasRealm.accountExpired", username));
+                    log.debug(sm.getString("jaasRealm.accountExpired", principalName));
                 return (null);
             } catch (CredentialExpiredException e) {
                 if (log.isDebugEnabled())
-                    log.debug(sm.getString("jaasRealm.credentialExpired", username));
+                    log.debug(sm.getString("jaasRealm.credentialExpired", principalName));
                 return (null);
             } catch (FailedLoginException e) {
                 if (log.isDebugEnabled())
-                    log.debug(sm.getString("jaasRealm.failedLogin", username));
+                    log.debug(sm.getString("jaasRealm.failedLogin", principalName));
                 return (null);
             } catch (LoginException e) {
-                log.warn(sm.getString("jaasRealm.loginException", username), e);
+                log.warn(sm.getString("jaasRealm.loginException", principalName), e);
                 return (null);
             } catch (Throwable e) {
                 log.error(sm.getString("jaasRealm.unexpectedError"), e);
@@ -392,7 +412,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
 
             if (log.isDebugEnabled())
-                log.debug(sm.getString("jaasRealm.loginContextCreated", username));
+                log.debug(sm.getString("jaasRealm.loginContextCreated", principalName));
 
             // Return the appropriate Principal for this authenticated Subject
 /*            Principal principal = createPrincipal(username, subject);
@@ -404,7 +424,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 log.debug(sm.getString("jaasRealm.authenticateSuccess", username));
             }
 */
-            JAASTomcatPrincipal jaasPrincipal = new JAASTomcatPrincipal(username);
+            JAASTomcatPrincipal jaasPrincipal = new JAASTomcatPrincipal(principalName);
             jaasPrincipal.setSubject(subject);
 
             return (jaasPrincipal);
@@ -414,7 +434,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
             return null;
         }
     }
-
     /**
      * Prepare for active use of the public methods of this <code>Component</code>.
      *
