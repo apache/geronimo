@@ -215,4 +215,6 @@ by the server.
 
     <gbean gbeanName="geronimo.server:J2EEApplication=null,EJBModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
 
+    <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
+
 </configuration>
