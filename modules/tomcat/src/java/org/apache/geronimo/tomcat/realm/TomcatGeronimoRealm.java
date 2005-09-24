@@ -21,7 +21,6 @@ import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
-
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.AccountExpiredException;
@@ -42,15 +41,13 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.deploy.SecurityConstraint;
-import org.apache.catalina.realm.JAASCallbackHandler;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
-import org.apache.geronimo.security.realm.providers.CertificateCallbackHandler;
-import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
+import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
+import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
 
 
@@ -58,10 +55,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
     private static final Log log = LogFactory.getLog(TomcatGeronimoRealm.class);
 
-//    private Context context = null;
     private static ThreadLocal currentRequest = new ThreadLocal();
-
-    private boolean enabled = false;
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
@@ -144,7 +138,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
      *
      * @param request    Request we are processing
      * @param response   Response we are creating
-     * @param constraint Security constraint we are enforcing
+     * @param constraints Security constraints we are enforcing
      * @param context    The Context to which client of this class is attached.
      * @throws java.io.IOException if an input/output error occurs
      */
@@ -325,7 +319,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
      */
     public Principal authenticate(String username, String credentials) {
 
-        CallbackHandler callbackHandler = new PasswordCallbackHandler(username, credentials.toCharArray());
+        char[] cred = credentials == null? null: credentials.toCharArray();
+        CallbackHandler callbackHandler = new PasswordCallbackHandler(username, cred);
         return authenticate(callbackHandler, username);
     }
 
