@@ -84,7 +84,6 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
     }
 
     public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute) {
-        log.debug("Checking value for "+configurationName+"/"+gbean+"/"+attribute.getName());
         Map config = (Map) configurations.get(configurationName);
         if(config == null) {
             return null; // nothing specified for this configuration
@@ -103,11 +102,11 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         try {
             PropertyEditor editor = PropertyEditors.findEditor(attribute.getType(), getClass().getClassLoader());
             if (editor == null) {
-                log.error("Unable to parse attribute of type "+attribute.getType()+"; no editor found");
+                log.debug("Unable to parse attribute of type "+attribute.getType()+"; no editor found");
                 return null;
             }
             editor.setAsText(value);
-            log.info("Setting value for "+configurationName+"/"+gbean+"/" + attribute.getName() + " to value " + value);
+            log.debug("Setting value for "+configurationName+"/"+gbean+"/" + attribute.getName() + " to value " + value);
             return editor.getValue();
         } catch (ClassNotFoundException e) {
             //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue
