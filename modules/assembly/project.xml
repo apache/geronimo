@@ -422,6 +422,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -1304,17 +1313,6 @@
             <version>${stax_api_version}</version>
             <properties>
                 <repository>true</repository>
-            </properties>
-        </dependency>
-
-
-        <dependency>
-            <!-- used for corba asn1 security decoding -->
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov</artifactId>
-            <version>${bouncycastle_version}</version>
-            <properties>
-               <repository>true</repository>
             </properties>
         </dependency>
 

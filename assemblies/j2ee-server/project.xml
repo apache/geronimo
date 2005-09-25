@@ -594,15 +594,6 @@
             </properties>
         </dependency>
 
-        <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>bcprov</artifactId>
-            <version>${bouncycastle_version}</version>
-            <properties>
-               <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-
         <!-- end corba support-->
 
         <!-- spring support-->

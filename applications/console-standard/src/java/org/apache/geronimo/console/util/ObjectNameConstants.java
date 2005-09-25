@@ -44,4 +44,6 @@ public interface ObjectNameConstants {
 
     public static final String CONFIG_GBEAN_PREFIX = "geronimo.config:name=";
 
+    public static final String KEYSTORE_OBJ_NAME = "geronimo.security:type=KeyStore";
+
 }

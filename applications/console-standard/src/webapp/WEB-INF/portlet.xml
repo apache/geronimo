@@ -858,7 +858,7 @@ limitations under the License.
         <portlet-name>Keystore</portlet-name>
         <display-name>Keystore Portlet</display-name>
 
-        <portlet-class>org.apache.geronimo.console.EmptyPortlet</portlet-class>
+        <portlet-class>org.apache.geronimo.console.certmanager.CertManagerPortlet</portlet-class>
 
         <expiration-cache>-1</expiration-cache>
 

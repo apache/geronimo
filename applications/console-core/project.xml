@@ -79,7 +79,7 @@
             <artifactId>regexp</artifactId>
             <version>${regexp_version}</version>
         </dependency>
-        
+
         <!-- JMS dependencies -->
          <dependency>
             <groupId>geronimo-spec</groupId>
@@ -104,6 +104,12 @@
             <version>${mx4j_version}</version>
         </dependency>
 
+        <!-- Keystore dependency -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
     </dependencies>
 
     <build>

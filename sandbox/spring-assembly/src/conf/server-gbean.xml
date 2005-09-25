@@ -91,9 +91,6 @@
         <uri>geronimo-spec/jars/geronimo-spec-corba-2.3-rc4.jar</uri>
     </dependency>
     <dependency>
-        <uri>bouncycastle/jars/bcprov-jdk14-124.jar</uri>
-    </dependency>
-    <dependency>
         <uri>avalon/jars/avalon-framework-4.1.4.jar</uri>
     </dependency>
     <dependency>
