@@ -372,7 +372,34 @@
 
         <dependency>
             <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-local</artifactId>
+            <version>${tranql_vendors_version}</version>
+            <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tranql</groupId>
             <artifactId>tranql-connector-derby-embed-xa</artifactId>
+            <version>${tranql_vendors_version}</version>
+            <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-client-local</artifactId>
+            <version>${tranql_vendors_version}</version>
+            <type>rar</type>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-client-xa</artifactId>
             <version>${tranql_vendors_version}</version>
             <type>rar</type>
             <properties>
