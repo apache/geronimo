@@ -44,6 +44,7 @@ public class Bootstrap {
     private String j2eeDeployerPlan;
     private String deployerClassPath;
     private String deployerEndorsedDirs;
+    private String deployerExtensionDirs;
     private String deployerGBean;
     private String deploymentFactory;
 
@@ -103,6 +104,14 @@ public class Bootstrap {
         this.deployerEndorsedDirs = deployerEndorsedDirs;
     }
 
+    public String getDeployerExtensionDirs() {
+        return deployerExtensionDirs;
+    }
+
+    public void setDeployerExtensionDirs(String deployerExtensionDirs) {
+        this.deployerExtensionDirs = deployerExtensionDirs;
+    }
+
     public String getDeployerGBean() {
         return deployerGBean;
     }
@@ -145,6 +154,7 @@ public class Bootstrap {
             mainAttributes.putValue(CommandLineManifest.MAIN_METHOD.toString(), "deploy");
             mainAttributes.putValue(CommandLineManifest.CONFIGURATIONS.toString(), j2eeDeployerConfig.getConfigId());
             mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), deployerEndorsedDirs);
+            mainAttributes.putValue(CommandLineManifest.EXTENSION_DIRS.toString(), deployerExtensionDirs);
 
             // attribute that indicates to a JSR-88 tool that we have a Deployment factory
             mainAttributes.putValue("J2EE-DeploymentFactory-Implementation-Class", deploymentFactory);
@@ -172,7 +182,7 @@ public class Bootstrap {
                 }
                 throw new Error(e);
             }
-            
+
             //get the domain and server from the parent xml config
             String domain = deployerSystemConfig.getDomain();
             String server = deployerSystemConfig.getServer();

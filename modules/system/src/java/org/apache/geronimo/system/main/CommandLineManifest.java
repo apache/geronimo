@@ -31,8 +31,8 @@ import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Rev$ $Date$
  */
 public class CommandLineManifest {
@@ -40,6 +40,7 @@ public class CommandLineManifest {
     public static final Attributes.Name MAIN_METHOD = new Attributes.Name("Main-Method");
     public static final Attributes.Name CONFIGURATIONS = new Attributes.Name("Configurations");
     public static final Attributes.Name ENDORSED_DIRS = new Attributes.Name("Endorsed-Dirs");
+    public static final Attributes.Name EXTENSION_DIRS = new Attributes.Name("Extension-Dirs");
 
     public static CommandLineManifest getManifestEntries() {
         // find the startup jar
@@ -99,12 +100,22 @@ public class CommandLineManifest {
         String endorsedDirsString = mainAttributes.getValue(ENDORSED_DIRS);
         if (endorsedDirsString != null) {
             for (StringTokenizer tokenizer = new StringTokenizer(endorsedDirsString, " "); tokenizer.hasMoreTokens();) {
-                String configuration = tokenizer.nextToken();
-                endorsedDirs.add(configuration);
+                String directory = tokenizer.nextToken();
+                endorsedDirs.add(directory);
             }
         }
 
-        CommandLineManifest commandLineManifest = new CommandLineManifest(mainGBean, mainMethod, configurations, endorsedDirs);
+        // get the list of extension directories
+        List extensionDirs = new ArrayList();
+        String extensionDirsString = mainAttributes.getValue(EXTENSION_DIRS);
+        if (extensionDirsString != null) {
+            for (StringTokenizer tokenizer = new StringTokenizer(extensionDirsString, " "); tokenizer.hasMoreTokens();) {
+                String directory = tokenizer.nextToken();
+                extensionDirs.add(directory);
+            }
+        }
+
+        CommandLineManifest commandLineManifest = new CommandLineManifest(mainGBean, mainMethod, configurations, endorsedDirs, extensionDirs);
         return commandLineManifest;
     }
 
@@ -112,12 +123,14 @@ public class CommandLineManifest {
     private final String mainMethod;
     private final List configurations;
     private final List endorsedDirs;
+    private final List extensionDirs;
 
-    public CommandLineManifest(ObjectName mainGBean, String mainMethod, List configurations, List endorsedDirs) {
+    public CommandLineManifest(ObjectName mainGBean, String mainMethod, List configurations, List endorsedDirs, List extensionDirs) {
         this.mainGBean = mainGBean;
         this.mainMethod = mainMethod;
         this.configurations = Collections.unmodifiableList(configurations);
         this.endorsedDirs = endorsedDirs;
+        this.extensionDirs = extensionDirs;
     }
 
     public ObjectName getMainGBean() {
@@ -134,5 +147,9 @@ public class CommandLineManifest {
 
     public List getEndorsedDirs() {
         return endorsedDirs;
+    }
+
+    public List getExtensionDirs() {
+        return extensionDirs;
     }
 }

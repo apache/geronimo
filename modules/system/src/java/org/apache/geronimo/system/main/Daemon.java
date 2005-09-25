@@ -131,23 +131,14 @@ public class Daemon {
 
             // setup the endorsed dir entry
             CommandLineManifest manifestEntries = CommandLineManifest.getManifestEntries();
-            String endorsedDirs = System.getProperty("java.endorsed.dirs", "");
-            for (Iterator iterator = manifestEntries.getEndorsedDirs().iterator(); iterator.hasNext();) {
-                String directoryName = (String) iterator.next();
-                File directory = new File(directoryName);
-                if (!directory.isAbsolute()) {
-                    directory = new File(geronimoInstallDirectory, directoryName);
-                }
 
-                if (endorsedDirs.length() > 0) {
-                    endorsedDirs += File.pathSeparatorChar;
-                }
-                endorsedDirs += directory.getAbsolutePath();
-            }
-            if (endorsedDirs.length() > 0) {
-                System.setProperty("java.endorsed.dirs", endorsedDirs);
-            }
-            log.debug("java.endorsed.dirs=" + System.getProperty("java.endorsed.dirs"));
+            String endorsedDirs = "java.endorsed.dirs";
+            List endorsedDirsFromManifest = manifestEntries.getEndorsedDirs();
+            AddToSystemProperty(endorsedDirs, endorsedDirsFromManifest, geronimoInstallDirectory);
+
+            String extensionDirs = "java.ext.dirs";
+            List extensionDirsFromManifest = manifestEntries.getExtensionDirs();
+            AddToSystemProperty(extensionDirs, extensionDirsFromManifest, geronimoInstallDirectory);
 
 
             // load this configuration
@@ -289,6 +280,26 @@ public class Daemon {
             System.exit(3);
             throw new AssertionError();
         }
+    }
+
+    private void AddToSystemProperty(String propertyName, List dirsFromManifest, File geronimoInstallDirectory) {
+        String dirs = System.getProperty(propertyName, "");
+        for (Iterator iterator = dirsFromManifest.iterator(); iterator.hasNext();) {
+            String directoryName = (String) iterator.next();
+            File directory = new File(directoryName);
+            if (!directory.isAbsolute()) {
+                directory = new File(geronimoInstallDirectory, directoryName);
+            }
+
+            if (dirs.length() > 0) {
+                dirs += File.pathSeparatorChar;
+            }
+            dirs += directory.getAbsolutePath();
+        }
+        if (dirs.length() > 0) {
+            System.setProperty(propertyName, dirs);
+        }
+        log.debug(propertyName + "=" + System.getProperty(propertyName));
     }
 
     /**

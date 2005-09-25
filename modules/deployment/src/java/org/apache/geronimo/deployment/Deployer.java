@@ -84,7 +84,7 @@ public class Deployer {
         }
 
         try {
-            return deploy(planFile, moduleFile, null, true, null, null, null);
+            return deploy(planFile, moduleFile, null, true, null, null, null, null);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile +", module=" + originalModuleFile, e);
             throw cleanseDeploymentException(e);
@@ -105,7 +105,7 @@ public class Deployer {
         }
     }
 
-    public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs) throws DeploymentException {
+    public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs, String extensionDirs) throws DeploymentException {
         if (planFile == null && moduleFile == null) {
             throw new DeploymentException("No plan or module specified");
         }
@@ -180,6 +180,9 @@ public class Deployer {
                 if (endorsedDirs != null) {
                     mainAttributes.putValue(CommandLineManifest.ENDORSED_DIRS.toString(), endorsedDirs);
                 }
+                if (extensionDirs != null) {
+                    mainAttributes.putValue(CommandLineManifest.EXTENSION_DIRS.toString(), extensionDirs);
+                }
             } else {
                 manifest = null;
             }
@@ -238,7 +241,7 @@ public class Deployer {
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
-        infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class, String.class});
+        infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class});
 
         infoFactory.addReference("Builders", ConfigurationBuilder.class, "ConfigBuilder");
         infoFactory.addReference("Store", ConfigurationStore.class, "ConfigurationStore");

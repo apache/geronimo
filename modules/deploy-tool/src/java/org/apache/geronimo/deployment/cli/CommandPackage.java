@@ -51,35 +51,40 @@ public class CommandPackage extends AbstractCommand {
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] argArray) throws DeploymentException {
-        if(connection.isOnline()) {
+        if (connection.isOnline()) {
             throw new DeploymentException("This command cannot be run when the server is running.  Make sure the server is shut down first.");
         }
 
         String classPath = null;
         String mainClass = null;
         String endorsedDirs = null;
+        String extensionDirs = null;
         boolean install = false;
 
         // Read off the optional arguments (clasPath, mainClass, endorsedDirs, and install)
         LinkedList args = new LinkedList(Arrays.asList(argArray));
         for (Iterator iterator = args.iterator(); iterator.hasNext();) {
             String arg = (String) iterator.next();
-            if(arg.equals("--classPath")) {
+            if (arg.equals("--classPath")) {
                 iterator.remove();
                 classPath = (String) iterator.next();
                 iterator.remove();
-            } else if(arg.equals("--mainClass")) {
+            } else if (arg.equals("--mainClass")) {
                 iterator.remove();
                 mainClass = (String) iterator.next();
                 iterator.remove();
-            } else if(arg.equals("--endorsedDirs")) {
+            } else if (arg.equals("--endorsedDirs")) {
                 iterator.remove();
                 endorsedDirs = (String) iterator.next();
                 iterator.remove();
-            } else if(arg.equals("--install")) {
+            } else if (arg.equals("--extensionDirs")) {
+                iterator.remove();
+                extensionDirs = (String) iterator.next();
+                iterator.remove();
+            } else if (arg.equals("--install")) {
                 iterator.remove();
                 install = true;
-            } else if(arg.startsWith("--")) {
+            } else if (arg.startsWith("--")) {
                 throw new DeploymentSyntaxException("Invalid option '" + arg + "'");
             } else {
                 break;
@@ -89,12 +94,12 @@ public class CommandPackage extends AbstractCommand {
         // if we have any other options on the comman line they are invalid
         for (Iterator iterator = args.iterator(); iterator.hasNext();) {
             String arg = (String) iterator.next();
-            if(arg.startsWith("--")) {
+            if (arg.startsWith("--")) {
                 throw new DeploymentSyntaxException("All command line options must appear before module, plan or packageFile: " + arg);
             }
         }
 
-        if(args.isEmpty()) {
+        if (args.isEmpty()) {
             throw new DeploymentSyntaxException("No fileName specified for package command");
         }
 
@@ -102,31 +107,31 @@ public class CommandPackage extends AbstractCommand {
         File packageFile;
         packageFile = new File((String) args.removeLast());
         File parent = packageFile.getAbsoluteFile().getParentFile();
-        if(!parent.exists() || !parent.canWrite()) {
-            throw new DeploymentSyntaxException("Cannot write to output file "+packageFile.getAbsolutePath());
+        if (!parent.exists() || !parent.canWrite()) {
+            throw new DeploymentSyntaxException("Cannot write to output file " + packageFile.getAbsolutePath());
         }
 
         // Read off the plan and module
         File module = null;
         File plan = null;
-        if(!args.isEmpty()) {
+        if (!args.isEmpty()) {
             // if the arg is a directory or jar file, it must be the module; otherwise it is the plan
             File test = new File((String) args.removeLast()).getAbsoluteFile();
-            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
+            if (DeployUtils.isJarFile(test) || test.isDirectory()) {
                 module = test;
             } else {
                 plan = test;
             }
         }
-        if(!args.isEmpty()) {
+        if (!args.isEmpty()) {
             File test = new File((String) args.removeLast()).getAbsoluteFile();
-            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
-                if(module != null) {
+            if (DeployUtils.isJarFile(test) || test.isDirectory()) {
+                if (module != null) {
                     throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
                 }
                 module = test;
             } else {
-                if(plan != null) {
+                if (plan != null) {
                     throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
                 }
                 plan = test;
@@ -134,20 +139,20 @@ public class CommandPackage extends AbstractCommand {
         }
 
         // are there extra left over args on the command prompt
-        if(!args.isEmpty()) {
+        if (!args.isEmpty()) {
             throw new DeploymentSyntaxException("Too many arguments for package command");
         }
 
         // invoke the deployer
-        List list = (List) connection.invokeOfflineDeployer(
-                new Object[]{
-                    plan,
-                    module,
-                    packageFile,
-                    install ? Boolean.TRUE : Boolean.FALSE,
-                    mainClass,
-                    classPath,
-                    endorsedDirs},
+        List list = (List) connection.invokeOfflineDeployer(new Object[]{
+            plan,
+            module,
+            packageFile,
+            install ? Boolean.TRUE : Boolean.FALSE,
+            mainClass,
+            classPath,
+            endorsedDirs,
+            extensionDirs},
                 new String[]{
                     File.class.getName(),
                     File.class.getName(),
@@ -155,11 +160,12 @@ public class CommandPackage extends AbstractCommand {
                     boolean.class.getName(),
                     String.class.getName(),
                     String.class.getName(),
+                    String.class.getName(),
                     String.class.getName()});
 
         // print the configurations created
         for (int j = 0; j < list.size(); j++) {
-            out.println("Packaged configuration "+list.get(j)+" to "+packageFile);
+            out.println("Packaged configuration " + list.get(j) + " to " + packageFile);
         }
     }
 }

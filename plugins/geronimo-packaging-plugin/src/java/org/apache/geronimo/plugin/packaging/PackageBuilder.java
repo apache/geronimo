@@ -73,6 +73,7 @@ public class PackageBuilder {
             String.class.getName(),
             String.class.getName(),
             String.class.getName(),
+            String.class.getName(),
     };
 
     static {
@@ -96,6 +97,7 @@ public class PackageBuilder {
     private String mainClass;
     private String classPath;
     private String endorsedDirs;
+    private String extensionDirs;
 
     public File getRepository() {
         return repository;
@@ -208,6 +210,14 @@ public class PackageBuilder {
         this.endorsedDirs = endorsedDirs;
     }
 
+    public String getExtensionDirs() {
+        return extensionDirs;
+    }
+
+    public void setExtensionDirs(String extensionDirs) {
+        this.extensionDirs = extensionDirs;
+    }
+
     public void execute() throws Exception {
         Kernel kernel = createKernel(repository);
 
@@ -301,7 +311,7 @@ public class PackageBuilder {
     }
 
     private List invokeDeployer(Kernel kernel, ObjectName deployer) throws Exception {
-        Object[] args = {planFile, moduleFile, packageFile, Boolean.FALSE, mainClass, classPath, endorsedDirs};
+        Object[] args = {planFile, moduleFile, packageFile, Boolean.FALSE, mainClass, classPath, endorsedDirs, extensionDirs};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }

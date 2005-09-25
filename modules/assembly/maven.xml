@@ -94,6 +94,7 @@
         <j:set var="libDir" value="${geronimo.assembly.dir}/lib"/>
         <ant:mkdir dir="${libDir}"/>
         <ant:mkdir dir="${libDir}/endorsed"/>
+        <ant:mkdir dir="${libDir}/ext"/>
 
         <j:forEach var="artifact" items="${pom.artifacts}">
             <j:set var="dependency" value="${artifact.dependency}"/>
@@ -377,6 +378,8 @@
             <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
             <ant:arg value="--endorsedDirs"/>
             <ant:arg value="lib/endorsed"/>
+            <ant:arg value="--extensionDirs"/>
+            <ant:arg value="lib/ext"/>
             <ant:arg value="--install"/>
             <ant:arg value="target/plan/system-plan.xml"/>
             <ant:arg value="${geronimo.assembly.dir}/bin/server.jar"/>
