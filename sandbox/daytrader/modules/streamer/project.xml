@@ -47,10 +47,10 @@
     </unitTest>
     <resources>
       <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>*.properties</include>
-        </includes>
+          <directory>src/client</directory>
+          <includes>
+              <include>META-INF/application-client.xml</include>
+          </includes>
       </resource>
     </resources>
   </build>

@@ -3,7 +3,7 @@
     configId="Trade">
 
     <module>
-        <web>tradeWeb.war</web>
+        <web>daytrader-web-1.0-SNAPSHOT.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/web"
             configId="Web" parentId="Trade">
             <context-priority-classloader>false</context-priority-classloader>
@@ -30,7 +30,7 @@
     ##
     -->
     <module>
-        <ejb>tradeEJB.jar</ejb>     <!--  Note this must match the -->
+        <ejb>daytrader-ejb-1.0-SNAPSHOT.jar</ejb>     <!--  Note this must match the -->
         <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
                      configId="TradeEJBs"
                      parentId="Web">
@@ -505,14 +505,13 @@
 
 
     <module>
-        <java>tradeStreamerAppClient.jar</java>
+        <java>daytrader-streamer-1.0-SNAPSHOT.jar</java>
         <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
             configId="foo"
             clientConfigId="tradeStreamerAppclient">
             <resource>
                 <external-rar>activemq/rars/activemq-ra-3.2-SNAPSHOT.rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-           version="1.5"
            configId="org/apache/geronimo/SystemJMS"
            parentId="org/apache/geronimo/ActiveMQServer">
                     <resourceadapter>
@@ -567,7 +566,6 @@
         <external-path>tranql/rars/tranql-connector-derby-embed-xa-1.0-SNAPSHOT.rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-            version="1.5"
             configId="TradeDataSource"
             parentId="org/apache/geronimo/Server">
 
@@ -615,7 +613,6 @@
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
-            version="1.5"
             configId="TradeJMS"
             parentId="TradeDataSource">
 

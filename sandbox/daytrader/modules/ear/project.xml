@@ -71,12 +71,12 @@
       </excludes>
     </unitTest>
     <resources>
-      <resource>
-        <directory>src/conf</directory>
-        <includes>
-          <include>*.properties</include>
-        </includes>
-      </resource>
+        <resource>
+            <directory>src/application</directory>
+            <includes>
+                <include>META-INF/application-client.xml</include>
+            </includes>
+        </resource>
     </resources>
   </build>
 </project>
