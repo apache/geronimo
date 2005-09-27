@@ -59,7 +59,7 @@ http://issues.apache.org/jira/browse/GERONIMO?
   (that last must be all on one line)
 
 
-Significant Changes Since the M5 Release
+Significant Changes Since the M4 Release
 ----------------------------------------
  * Complete Tomcat integration
  * A web management console (developer preview)
