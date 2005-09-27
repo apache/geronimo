@@ -1,0 +1,114 @@
+Release Notes -- Apache Geronimo -- Version 1.0 Milestone 5
+
+Geronimo URLs
+-------------
+Home Page:     http://geronimo.apache.org/
+Downloads:     http://geronimo.apache.org/downloads.html
+Documentation: http://geronimo.apache.org/documentation.html
+Mailing Lists: http://geronimo.apache.org/mailing.html
+Source Code:   http://geronimo.apache.org/svn.html
+Bug Tracking:  http://issues.apache.org/jira/browse/GERONIMO
+Wiki:          http://wiki.apache.org/geronimo
+
+
+System Requirements
+-------------------
+You need a platform that supports JDK 1.4 (and some features
+such as CORBA currently depend on Sun implementation classes and
+are known to not work under 1.5, so a Sun 1.4.2_08 JVM would be the
+best bet).
+
+Most testing has been done on Linux, Mac OS X, and Windows.
+
+
+Installing & Starting Geronimo
+------------------------------
+To install, simply unpack the zip or tar file containing Geronimo,
+or run the installer package for a more interactive installation
+process (including the ability to change ports and the default
+administrator account)
+
+To start Geronimo, change to the Geronimo directory and run
+
+   java -jar bin/server.jar
+
+
+Deploying Applications
+------------------------------
+To deploy a J2EE module or application, start Geronimo and then
+run (for example):
+
+   java -jar bin/deployer.jar deploy my-web-app.war [deploy plan]
+
+You will need to use the username "system" and password "manager"
+unless you customized those during the install process.
+
+For more information on the commands and options supported by the
+deploy tool, run
+
+   java -jar bin/deployer.jar help [command]
+
+
+Current Road Map at a Glance
+----------------------------
+http://wiki.apache.org/geronimo/RoadMap
+
+http://issues.apache.org/jira/browse/GERONIMO?
+      report=com.atlassian.jira.plugin.system.project:roadmap-panel
+
+  (that last must be all on one line)
+
+
+Significant Changes Since the M5 Release
+----------------------------------------
+ * Complete Tomcat integration
+ * A web management console (developer preview)
+ * Official J2EE Certification 
+
+
+Significant Missing Features
+----------------------------
+ * Fully featured web management console
+ * Deployment from a machine other than the server
+ * J2EE Application Client that works from a machine other than the server
+ * A build that uses Tomcat by default (Tomcat can be activated as a
+   manual process, but as of M5 we will be distributing both Jetty and
+   Tomcat builds)
+ * A hot deploy directory (though the deploy tool can hot deploy)
+ * JSR-88 support for Geronimo deployment plan configuration
+ * Full functionality on non-Sun JVMs (a portable CORBA implementation
+   is not expected for version 1.0)
+ * Clustering (also not expected for version 1.0)
+
+
+Overall Project Status
+----------------------
+Many of the remaining changes are focused on usability at this time.
+However, Geronimo has also not been extensively performance tested.
+Your help would be appreciated!
+
+Documentation efforts are underway, and freely available documentation
+covers many aspects of the product.
+
+For more information on specific bugs or features, or to help with
+testing efforts, please visit JIRA, our bug/issue tracking system, at
+http://issues.apache.org/jira/browse/GERONIMO
+
+
+Certification Status
+--------------------
+Geronimo is pursuing full J2EE certification (it's not enough to just
+pass the automated tests).  Stay tuned!
+
+
+Specific Issues Addressed in M5 Release
+---------------------------------------
+
+** New Features
+    * [GERONIMO-XXX] - Description
+
+** Improvements
+    * [GERONIMO-XXX] - Description
+
+** Bug Fixes
+    * [GERONIMO-XXX] - Description
