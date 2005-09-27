@@ -28,7 +28,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0-M5-SNAPSHOT</version>
         </dependency>
 
         <dependency>
