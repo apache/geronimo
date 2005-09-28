@@ -19,8 +19,11 @@ package org.apache.geronimo.schema;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
 import java.net.URL;
 import javax.xml.namespace.QName;
 
@@ -43,58 +46,41 @@ import org.w3c.dom.Element;
 public class SchemaConversionUtils {
     static final String J2EE_NAMESPACE = "http://java.sun.com/xml/ns/j2ee";
 
-    static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming";
-    private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security";
-    private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment";
+    static final String GERONIMO_NAMING_NAMESPACE = "http://geronimo.apache.org/xml/ns/naming-1.0";
+    private static final String GERONIMO_SECURITY_NAMESPACE = "http://geronimo.apache.org/xml/ns/security-1.0";
+    private static final String GERONIMO_SERVICE_NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.0";
 
     private static final QName RESOURCE_ADAPTER_VERSION = new QName(J2EE_NAMESPACE, "resourceadapter-version");
     private static final QName TAGLIB = new QName(J2EE_NAMESPACE, "taglib");
     private static final QName CMP_VERSION = new QName(J2EE_NAMESPACE, "cmp-version");
 
+    private static final Map GERONIMO_SCHEMA_CONVERSIONS = new HashMap();
+
+    static {
+
+        GERONIMO_SCHEMA_CONVERSIONS.put("ejb-ref", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("ejb-local-ref", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("service-ref", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("resource-ref", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("resource-env-ref", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("cmp-connection-factory", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", GERONIMO_NAMING_NAMESPACE);
+
+        GERONIMO_SCHEMA_CONVERSIONS.put("security", GERONIMO_SECURITY_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("default-principal", GERONIMO_SECURITY_NAMESPACE);
+
+        GERONIMO_SCHEMA_CONVERSIONS.put("gbean", GERONIMO_SERVICE_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("import", GERONIMO_SERVICE_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("dependency", GERONIMO_SERVICE_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("include", GERONIMO_SERVICE_NAMESPACE);
+    }
+
     private SchemaConversionUtils() {
     }
 
-    public static XmlObject parse(URL url) throws IOException, XmlException {
-        ArrayList errors = new ArrayList();
-        XmlObject parsed = XmlObject.Factory.parse(url, createXmlOptions(errors));
-        if (errors.size() != 0) {
-            throw new XmlException(errors.toArray().toString());
-        }
-        return parsed;
-    }
-
-    public static XmlObject parse(InputStream is) throws IOException, XmlException {
-        ArrayList errors = new ArrayList();
-        XmlObject parsed = XmlObject.Factory.parse(is, createXmlOptions(errors));
-        if (errors.size() != 0) {
-            throw new XmlException(errors.toArray().toString());
-        }
-        return parsed;
-    }
-
-    public static XmlObject parse(String xml) throws XmlException {
-        ArrayList errors = new ArrayList();
-        XmlObject parsed = XmlObject.Factory.parse(xml, createXmlOptions(errors));
-        if (errors.size() != 0) {
-            throw new XmlException(errors.toArray().toString());
-        }
-        return parsed;
-    }
-
-    public static XmlObject parse(Element element) throws XmlException {
-        ArrayList errors = new ArrayList();
-        XmlObject parsed = XmlObject.Factory.parse(element, createXmlOptions(errors));
-        if (errors.size() != 0) {
-            throw new XmlException(errors.toArray().toString());
-        }
-        return parsed;
-    }
-
-    public static XmlOptions createXmlOptions(ArrayList errors) {
-        XmlOptions options = new XmlOptions();
-        options.setLoadLineNumbers();
-        options.setErrorListener(errors);
-        return options;
+    public static void registerNamespaceConversions(Map conversions) {
+        GERONIMO_SCHEMA_CONVERSIONS.putAll(conversions);
     }
 
     public static ApplicationDocument convertToApplicationSchema(XmlObject xmlObject) throws XmlException {
@@ -339,89 +325,55 @@ public class SchemaConversionUtils {
         return (WebAppDocument) xmlObject;
     }
 
-    public static XmlObject convertToGeronimoNamingSchema(XmlObject xmlObject) {
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor end = xmlObject.newCursor();
+    public static void convertToGeronimoSubSchemas(XmlCursor cursor) {
+        cursor.toStartDoc();
+        XmlCursor end = cursor.newCursor();
         try {
             while (cursor.hasNextToken()) {
                 if (cursor.isStart()) {
                     String localName = cursor.getName().getLocalPart();
-                    if (localName.equals("ejb-ref")
-                            || localName.equals("ejb-local-ref")
-                            || localName.equals("service-ref")
-                            || localName.equals("resource-ref")
-                            || localName.equals("resource-env-ref")
-                            || localName.equals("cmp-connection-factory")
-                            || localName.equals("workmanager")
-                            || localName.equals("resource-adapter")) {
-                        convertElementToSchema(cursor, end, GERONIMO_NAMING_NAMESPACE);
+                    String namespace = (String) GERONIMO_SCHEMA_CONVERSIONS.get(localName);
+                    if (namespace != null) {
+                        convertElementToSchema(cursor, end, namespace);
                     }
                 }
                 cursor.toNextToken();
             }
         } finally {
-            cursor.dispose();
             end.dispose();
         }
-        return xmlObject;
     }
 
-    public static XmlObject convertToGeronimoSecuritySchema(XmlObject xmlObject) {
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor end = xmlObject.newCursor();
+    public static XmlObject fixGeronimoSchema(XmlObject rawPlan, String desiredElement, SchemaType desiredType) throws XmlException {
+        XmlCursor cursor = rawPlan.newCursor();
         try {
-            while (cursor.hasNextToken()) {
-                if (cursor.isStart()) {
-                    String localName = cursor.getName().getLocalPart();
-                    if (localName.equals("security") || localName.equals("default-principal")) {
-                        convertElementToSchema(cursor, end, GERONIMO_SECURITY_NAMESPACE);
-                    }
-                }
-                cursor.toNextToken();
-            }
-        } finally {
-            cursor.dispose();
-            end.dispose();
-        }
-        return xmlObject;
-    }
+            if (findNestedElement(cursor, desiredElement)) {
+                cursor.push();
+                convertToGeronimoSubSchemas(cursor);
+                cursor.pop();
+                XmlObject temp = cursor.getObject();
 
-    public static XmlObject convertToGeronimoServiceSchema(XmlObject xmlObject) {
-        XmlCursor cursor = xmlObject.newCursor();
-        XmlCursor end = xmlObject.newCursor();
-        try {
-            while (cursor.hasNextToken()) {
-                if (cursor.isStart()) {
-                    String localName = cursor.getName().getLocalPart();
-                    if (localName.equals("gbean")
-                            || localName.equals("import")
-                            || localName.equals("dependency")
-                            || localName.equals("include")) {
-                        convertElementToSchema(cursor, end, GERONIMO_SERVICE_NAMESPACE);
-                    }
+                XmlObject result = temp.changeType(desiredType);
+                if (result == null || result.schemaType() != desiredType) {
+                    result = temp.copy().changeType(desiredType);
                 }
-                cursor.toNextToken();
+                validateDD(result);
+                return result;
+            } else {
+                return null;
             }
         } finally {
             cursor.dispose();
-            end.dispose();
         }
-        return xmlObject;
     }
 
     public static XmlObject getNestedObject(XmlObject xmlObject, String desiredElement) {
         XmlCursor cursor = xmlObject.newCursor();
         try {
-            while (cursor.hasNextToken()) {
-                if (cursor.isStart()) {
-                    String localName = cursor.getName().getLocalPart();
-                    if (localName.equals(desiredElement)) {
-                        XmlObject child = cursor.getObject();
-                        //The copy seems to be needed to make the type change work for some documents!
-                        return child.copy();
-                    }
-                }
-                cursor.toNextToken();
+            if (findNestedElement(cursor, desiredElement)) {
+                XmlObject child = cursor.getObject();
+                //The copy seems to be needed to make the type change work for some documents!
+                return child.copy();
             }
         } finally {
             cursor.dispose();
@@ -429,21 +381,28 @@ public class SchemaConversionUtils {
         throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "/n" + xmlObject);
     }
 
+    public static boolean findNestedElement(XmlCursor cursor, String desiredElement) {
+        while (cursor.hasNextToken()) {
+            if (cursor.isStart()) {
+                String localName = cursor.getName().getLocalPart();
+                if (localName.equals(desiredElement)) {
+                    return true;
+                }
+            }
+            cursor.toNextToken();
+        }
+        return false;
+    }
+
     public static XmlObject getNestedObjectAsType(XmlObject xmlObject, String desiredElement, SchemaType type) {
         XmlCursor cursor = xmlObject.newCursor();
         try {
-            while (cursor.hasNextToken()) {
-                if (cursor.isStart()) {
-                    String localName = cursor.getName().getLocalPart();
-                    if (localName.equals(desiredElement)) {
-                        XmlObject child = cursor.getObject();
-                        //The copy seems to be needed to make the type change work for some documents!
-                        XmlObject result = child.copy().changeType(type);
-                        assert result.schemaType() == type;
-                        return result;
-                    }
-                }
-                cursor.toNextToken();
+            if (findNestedElement(cursor, desiredElement)) {
+                XmlObject child = cursor.getObject();
+                //The copy seems to be needed to make the type change work for some documents!
+                XmlObject result = child.copy().changeType(type);
+                assert result.schemaType() == type;
+                return result;
             }
         } finally {
             cursor.dispose();

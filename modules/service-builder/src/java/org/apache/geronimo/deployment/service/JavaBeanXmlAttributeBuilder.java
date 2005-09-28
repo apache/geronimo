@@ -37,7 +37,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
 
-    private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment/javabean";
+    private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment/javabean-1.0";
 
     public String getNamespace() {
         return NAMESPACE;

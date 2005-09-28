@@ -17,8 +17,8 @@
 -->
 
 <xs:schema
-    targetNamespace="http://geronimo.apache.org/xml/ns/deployment"
-    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    targetNamespace="http://geronimo.apache.org/xml/ns/deployment-1.0"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -28,7 +28,7 @@
             Schema for Geronimo Services deployment plans.
             Instance documents should begin with the element:
 
-            &gt;gbeans xmlns="http://geronimo.apache.org/xml/ns/deployment"&lt;
+            &gt;gbeans xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"&lt;
         </xs:documentation>
     </xs:annotation>
 

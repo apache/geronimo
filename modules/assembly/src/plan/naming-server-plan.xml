@@ -23,7 +23,7 @@ Holds the RMI naming server configuration.  This needs to be started
 after the system GBeans but before the server GBeans.
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="org/apache/geronimo/RMINaming"
     parentId="org/apache/geronimo/System"
     >

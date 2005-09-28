@@ -108,7 +108,7 @@ public class DatabaseManagerHelper {
         StringBuffer sb = new StringBuffer();
         sb.append("<?xml version=\"1.0\"?>\n");
         sb
-                .append("<connector xmlns=\"http://geronimo.apache.org/xml/ns/j2ee/connector\"\n");
+                .append("<connector xmlns=\"http://geronimo.apache.org/xml/ns/j2ee/connector-1.0\"\n");
         sb.append("    version=\"1.5\" configId=\"{0}\" parentId=\"{1}\">\n");
         sb.append("  <dependency>\n");
         sb.append("    <uri>{2}</uri>\n");

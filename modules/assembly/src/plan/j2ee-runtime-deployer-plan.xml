@@ -22,7 +22,7 @@ limitations under the License.
 Child of the org/apache/geronimo/Server configuration that includes deployment services
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="org/apache/geronimo/RuntimeDeployer"
     parentId="org/apache/geronimo/Server"
     >
@@ -145,7 +145,7 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
 
     <!-- web switching builder -->
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
-        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/web/tomcat</attribute>
+        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</attribute>
         <references name="ModuleBuilders">
             <pattern><gbean-name>geronimo.server:j2eeType=ModuleBuilder,name=JettyWebBuilder,*</gbean-name></pattern>
             <pattern><gbean-name>geronimo.server:j2eeType=ModuleBuilder,name=TomcatWebBuilder,*</gbean-name></pattern>

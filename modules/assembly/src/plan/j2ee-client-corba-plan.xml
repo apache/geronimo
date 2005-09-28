@@ -56,7 +56,7 @@ CSSBean examples for app client
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientCert</attribute>
         <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
+            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
                     <css:compoundSecMech>
                         <css:SSL>
@@ -68,7 +68,7 @@ CSSBean examples for app client
             </css:css>
         </xml-attribute>
         <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
+            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
                     <css:compoundSecMech>
                         <css:SSL>
@@ -96,7 +96,7 @@ CSSBean examples for app client
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <attribute name="description">SSLClientPassword</attribute>
         <xml-attribute name="nssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
+            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
                     <css:compoundSecMech>
                         <css:SSL>
@@ -108,7 +108,7 @@ CSSBean examples for app client
             </css:css>
         </xml-attribute>
         <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
+            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
                     <css:compoundSecMech>
                         <css:SSL>
@@ -138,7 +138,7 @@ CSSBean examples for app client
         <attribute name="description">NoSecurity</attribute>
         <attribute name="cssArgs"></attribute>
         <xml-attribute name="cssConfig">
-            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config_1_0">
+            <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
                 <css:compoundSecMechTypeList>
                     <css:compoundSecMech>
                         <css:SSL>

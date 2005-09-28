@@ -17,7 +17,7 @@
 -->
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     configId="org/openejb/itests"
     parentId="org/apache/geronimo/Server">
 

@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
     configId="org/apache/geronimo/j2ee/deployment/test"
     parentId="org/apache/geronimo/Server">
 

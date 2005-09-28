@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <attributes>
-    <configuration name="org/apache/geronimo/RuntimeDeployer">
-        <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">${PlanWebBuilderDefaultNamespace}</attribute>
-        </gbean>
-    </configuration>
     <configuration name="org/apache/geronimo/RMINaming">
         <gbean name="RMIRegistry">
             <attribute name="port">${PlanNamingPort}</attribute>
@@ -41,16 +36,12 @@
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPSPort}</attribute>
         </gbean>
-        <gbean name="JettyClientCertSSLConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanClientCertHTTPSPort}</attribute>
-        </gbean>
     </configuration>
     <configuration name="org/apache/geronimo/Tomcat">
         <gbean name="TomcatWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPPort2}</attribute>
-            <attribute name="redirectPort">${PlanHTTPSPort}</attribute>
+            <attribute name="redirectPort">${PlanHTTPSPort2}</attribute>
         </gbean>
         <gbean name="TomcatAJPConnector">
             <attribute name="host">${PlanServerHostname}</attribute>

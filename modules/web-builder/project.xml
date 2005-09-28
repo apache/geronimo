@@ -63,6 +63,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-deploy-config</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -118,6 +124,12 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-test-ddbean</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
 

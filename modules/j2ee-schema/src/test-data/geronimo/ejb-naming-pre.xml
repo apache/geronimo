@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
     configId="org/openejb/Itests"
     parentId="org/apache/geronimo/DefaultDatabase">
 

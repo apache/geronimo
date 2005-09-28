@@ -22,7 +22,7 @@
 Configuration for the Geronimo deployer
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="org/apache/geronimo/OfflineDeployer"
     parentId="org/apache/geronimo/DeployerSystem"
     >
@@ -384,7 +384,7 @@ Configuration for the Geronimo deployer
 
     <!-- web switching builder -->
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
-        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/web/tomcat</attribute>
+        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</attribute>
         <references name="ModuleBuilders">
             <pattern>
                 <gbean-name>geronimo.deployer:j2eeType=ModuleBuilder,name=JettyWebBuilder,*</gbean-name>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+    targetNamespace="http://foo.org/types"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+    <element name="RequestWrapper" type="xsd:anyType"/>
+    <element name="ResponseWrapper" type="xsd:anyType"/>
+    <element name="PolicyRequestWrapper" type="xsd:anyType"/>
+    <element name="PolicyResponseWrapper" type="xsd:anyType"/>
+</schema>

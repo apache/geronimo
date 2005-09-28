@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="test/plan1"
     >
     <dependency>
@@ -8,7 +8,7 @@
         <artifactId>geronimo-kernel</artifactId>
         <version>DEV</version>
     </dependency>
-    
+
     <!-- Use the default deployer -->
     <gbean gbeanName="geronimo.deployer:role=Builder,type=EAR,config=org/apache/geronimo/Server" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>

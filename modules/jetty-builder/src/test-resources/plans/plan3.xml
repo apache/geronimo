@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://geronimo.apache.org/xml/ns/web/jetty"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
     configId="goodservlet"
     parentId="org/apache/geronimo/DefaultDatabase">
 

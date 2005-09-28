@@ -27,7 +27,7 @@ import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.shared.ModuleType;
 
-import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
@@ -46,7 +46,7 @@ public class DDBeanRootImpl implements DDBeanRoot {
         try {
             is = descriptor.openStream();
         try {
-        XmlObject xmlObject = SchemaConversionUtils.parse(is);
+        XmlObject xmlObject = XmlBeansUtil.parse(is);
             XmlCursor c = xmlObject.newCursor();
             try {
                 c.toStartDoc();

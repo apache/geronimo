@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
     configId="org/apache/geronimo/Console"
     parentId="org/apache/geronimo/Server">
 

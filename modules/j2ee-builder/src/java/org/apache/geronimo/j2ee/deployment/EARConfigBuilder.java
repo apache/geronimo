@@ -43,6 +43,7 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.GBeanData;
@@ -72,8 +73,6 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
-
-    private static final QName APPLICATION_QNAME = new QName("http://geronimo.apache.org/xml/ns/j2ee/application", "application");
 
     private final Kernel kernel;
     private final Repository repository;
@@ -167,7 +166,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
             //we found something called application.xml in the right place, if we can't parse it it's an error
             try {
-                XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
+                XmlObject xmlObject = XmlBeansUtil.parse(specDD);
                 application = SchemaConversionUtils.convertToApplicationSchema(xmlObject).getApplication();
             } catch (XmlException e) {
                 throw new DeploymentException("Could not parse application.xml", e);
@@ -178,36 +177,25 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         try {
             // load the geronimo-application.xml from either the supplied plan or from the earFile
             GerApplicationDocument gerApplicationDoc = null;
+            XmlObject rawPlan = null;
             try {
                 if (planFile != null) {
-                    XmlObject xml = SchemaConversionUtils.parse(planFile.toURL());
-                    XmlCursor cursor = xml.newCursor();
-                    try {
-                        cursor.toFirstChild();
-                        QName qname = cursor.getName();
-                        if (APPLICATION_QNAME.equals(qname)) {
-                            gerApplicationDoc = (GerApplicationDocument) xml.changeType(GerApplicationDocument.type);
-                        } else {
-                            return null;
-                        }
-                    } finally {
-                        cursor.dispose();
+                    rawPlan = XmlBeansUtil.parse(planFile.toURL());
+                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "application", GerApplicationType.type);
+                    if (gerApplication == null) {
+                        return null;
                     }
                 } else {
                     URL path = DeploymentUtil.createJarURL(earFile, "META-INF/geronimo-application.xml");
-                    gerApplicationDoc = GerApplicationDocument.Factory.parse(path);
+                    rawPlan = XmlBeansUtil.parse(path);
+                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "application", GerApplicationType.type);
                 }
             } catch (IOException e) {
+                //TODO isn't this an error?
             }
 
             // if we got one extract the validate it otherwise create a default one
-            if (gerApplicationDoc != null) {
-                gerApplicationDoc = (GerApplicationDocument) SchemaConversionUtils.convertToGeronimoServiceSchema(gerApplicationDoc);
-                gerApplicationDoc = (GerApplicationDocument) SchemaConversionUtils.convertToGeronimoNamingSchema(gerApplicationDoc);
-                gerApplicationDoc = (GerApplicationDocument) SchemaConversionUtils.convertToGeronimoSecuritySchema(gerApplicationDoc);
-                SchemaConversionUtils.validateDD(gerApplicationDoc);
-                gerApplication = gerApplicationDoc.getApplication();
-            } else {
+            if (gerApplication == null) {
                 gerApplication = createDefaultPlan(application, earFile);
             }
         } catch (XmlException e) {

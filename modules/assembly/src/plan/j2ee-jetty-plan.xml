@@ -22,7 +22,7 @@
 Configuration for Jetty server.
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="org/apache/geronimo/Jetty"
     parentId="org/apache/geronimo/RMINaming"
     >
@@ -36,7 +36,7 @@ Configuration for Jetty server.
          they definitely don't belong in the console plan, but could go into
          a management layer plan. -->
     <gbean name="JettyWebManager" class="org.apache.geronimo.jetty.JettyManagerImpl"/>
-    
+
     <gbean name="JettyAccessLogManager" class="org.apache.geronimo.jetty.requestlog.JettyLogManagerImpl">
         <references name="LogGBeans">
             <pattern>
@@ -45,7 +45,7 @@ Configuration for Jetty server.
             </pattern>
         </references>
     </gbean>
-    
+
 
     <!-- default WAR container using Jetty -->
     <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">

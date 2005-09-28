@@ -17,8 +17,8 @@
 -->
 
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/web"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security"
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
     configId="org/apache/geronimo/Demo"
     parentId="org/apache/geronimo/SampleSecurityRealm">
 

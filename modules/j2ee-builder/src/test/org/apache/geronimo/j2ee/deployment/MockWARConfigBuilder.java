@@ -36,13 +36,14 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public ClassLoader cl;
     public String contextRoot;
     private Map portMap = null;
+    private String namespace = "foo";
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return new WebModule(true, null, null, moduleFile, "war", null, null, null, contextRoot, portMap);
+        return new WebModule(true, null, null, moduleFile, "war", null, null, null, contextRoot, portMap, namespace);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
-        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null, contextRoot, portMap);
+        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {

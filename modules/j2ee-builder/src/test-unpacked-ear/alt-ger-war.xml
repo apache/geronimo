@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<jetty:web-app xmlns:jetty="http://geronimo.apache.org/xml/ns/web/jetty">
+<jetty:web-app xmlns:jetty="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0">
     <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
     <!--
         <jetty:security>

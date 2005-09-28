@@ -18,7 +18,7 @@
 
 
 <!--dependencies for axis-->
-<service xmlns="http://geronimo.apache.org/xml/ns/deployment">
+<service xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
 
     <dependency>
         <uri>axis/jars/axis-${axis_version}.jar</uri>

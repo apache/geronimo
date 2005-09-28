@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
     clientConfigId="test-client"
     configId="client"
     parentId="org/apache/geronimo/DefaultDatabase">
@@ -9,7 +9,7 @@
     </resource-ref>
     <resource>
         <external-rar>tranql/rars/tranql-connector-1.0-SNAPSHOT</external-rar>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
             configId="org/apache/geronimo/DefaultDatabase"
             parentId="org/apache/geronimo/Server">
 

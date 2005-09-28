@@ -30,12 +30,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.jar.JarFile;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -44,6 +40,8 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
@@ -61,7 +59,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -69,7 +66,6 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
 
 /**
  * @version $Rev$ $Date$
@@ -84,7 +80,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private static final Map xmlReferenceBuilderMap = new HashMap();
     private Map attrRefMap;
     private Map refRefMap;
-    private static final QName SERVICE_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment", "configuration");
+    private static final QName SERVICE_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.0", "configuration");
+
 
     public ServiceConfigBuilder(URI[] defaultParentId, Repository repository) {
         this(defaultParentId, repository, null, null, null);
@@ -121,8 +118,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
 
         try {
-            XmlObject xmlObject = XmlObject.Factory.parse(planFile);
-//            ConfigurationDocument configurationDoc = ConfigurationDocument.Factory.parse(planFile);
+            XmlObject xmlObject = XmlBeansUtil.parse(planFile);
             XmlCursor cursor = xmlObject.newCursor();
             try {
                 cursor.toFirstChild();
@@ -138,11 +134,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             } else {
                 configurationDoc = (ConfigurationDocument) xmlObject.changeType(ConfigurationDocument.type);
             }
-            XmlOptions xmlOptions = new XmlOptions();
-            xmlOptions.setLoadLineNumbers();
             Collection errors = new ArrayList();
-            xmlOptions.setErrorListener(errors);
-            if (!configurationDoc.validate(xmlOptions)) {
+            if (!configurationDoc.validate(XmlBeansUtil.createXmlOptions(errors))) {
                 throw new DeploymentException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + configurationDoc.toString());
             }
             return configurationDoc.getConfiguration();
@@ -272,8 +265,12 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 // it has a geronimo-service.xml file
                 ServiceDocument serviceDoc = null;
                 try {
-                    serviceDoc = ServiceDocument.Factory.parse(is);
-                } catch (org.apache.xmlbeans.XmlException e) {
+                    Collection errors = new ArrayList();
+                    serviceDoc = ServiceDocument.Factory.parse(is, XmlBeansUtil.createXmlOptions(errors));
+                    if (errors.size() > 0) {
+                        throw new DeploymentException("Invalid service doc: " + errors);
+                    }
+                } catch (XmlException e) {
                     throw new DeploymentException("Invalid geronimo-service.xml file in " + url, e);
                 } catch (IOException e) {
                     throw new DeploymentException("Unable to parse geronimo-service.xml file in " + url, e);
