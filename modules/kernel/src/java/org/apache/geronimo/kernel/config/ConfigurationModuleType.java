@@ -25,6 +25,11 @@ import java.io.Serializable;
  * @version $Rev$ $Date$
  */
 public class ConfigurationModuleType implements Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4121586344416418391L;
+    
     public static final ConfigurationModuleType EAR = new ConfigurationModuleType("EAR", 0);
 
     public static final ConfigurationModuleType EJB = new ConfigurationModuleType("EJB", 1);
