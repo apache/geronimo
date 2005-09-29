@@ -1,6 +1,6 @@
 Welcome to Geronimo
 ===================
-
+ 
 To build me please install Maven from here - version 1.0.2 or later.
 
 	http://maven.apache.org/
