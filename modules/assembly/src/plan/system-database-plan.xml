@@ -18,7 +18,7 @@
 
 <!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
     configId="org/apache/geronimo/SystemDatabase"
     parentId="org/apache/geronimo/Server">
 

@@ -37,6 +37,8 @@ import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlCursor;
@@ -97,7 +99,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         XmlObject xmlObject;
         if (plan instanceof File) {
             try {
-                xmlObject = SchemaConversionUtils.parse(((File) plan).toURL());
+                xmlObject = XmlBeansUtil.parse(((File) plan).toURL());
             } catch (IOException e) {
                 throw new DeploymentException("Could not read plan file", e);
             } catch (XmlException e) {
@@ -110,12 +112,17 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         }
         XmlCursor cursor = xmlObject.newCursor();
         try {
-            cursor.toFirstChild();
-            String namespace = cursor.getName().getNamespaceURI();
-            return namespace;
+            while (cursor.hasNextToken()){
+                if (cursor.isStart()) {
+                    String namespace = cursor.getName().getNamespaceURI();
+                    return namespace;
+                }
+                cursor.toNextToken();
+            }
         } finally {
             cursor.dispose();
         }
+        throw new DeploymentException("Cannot find namespace in xmlObject: " + xmlObject.xmlText());
     }
 
     private ModuleBuilder getBuilderFromNamespace(String namespace) throws DeploymentException {
@@ -136,22 +143,19 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
-        XmlObject plan = module.getVendorDD();
-        String namespace = getNamespaceFromPlan(plan);
+        String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         builder.installModule(earFile, earContext, module);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        XmlObject plan = module.getVendorDD();
-        String namespace = getNamespaceFromPlan(plan);
+        String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         builder.initContext(earContext, module, cl);
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        XmlObject plan = module.getVendorDD();
-        String namespace = getNamespaceFromPlan(plan);
+        String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         builder.addGBeans(earContext, module, cl);
     }

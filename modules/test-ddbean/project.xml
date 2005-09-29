@@ -66,6 +66,11 @@
                 <xmlbeans>true</xmlbeans>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
     </dependencies>
 
 

@@ -22,7 +22,7 @@
 Configuration for the Apache Tomcat web container
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     parentId="org/apache/geronimo/System"
     configId="org/apache/geronimo/Tomcat"
     >

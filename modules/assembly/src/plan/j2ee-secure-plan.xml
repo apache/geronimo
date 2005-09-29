@@ -25,7 +25,7 @@ The core Geronimo configuration does not use this, but the demo
 web application, for example, does.
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="org/apache/geronimo/SampleSecurityRealm"
     parentId="org/apache/geronimo/Server"
     >

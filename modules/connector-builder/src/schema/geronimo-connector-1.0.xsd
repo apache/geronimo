@@ -17,22 +17,22 @@
 -->
 
 <xs:schema xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
-    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
-    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/connector"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.0"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.0" schemaLocation="geronimo-config-1.0.xsd"/>
 
     <xs:annotation>
         <xs:documentation>
             <![CDATA[
             documents using this schema should start like:
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
     version="1.5">
 
           @(#)geronimo-connector_1_5.xsds

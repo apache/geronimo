@@ -18,7 +18,7 @@
 
 
 <!--dependencies for jetty-->
-<service xmlns="http://geronimo.apache.org/xml/ns/deployment">
+<service xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
 
     <dependency>
         <uri>tomcat/jars/jasper-compiler-${jasper_version}.jar</uri>

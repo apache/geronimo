@@ -17,21 +17,21 @@
 -->
 <!-- @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
 <xs:schema
-    xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client"
-    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client"
-    xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
-    xmlns:connector="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    xmlns:security="http://geronimo.apache.org/xml/ns/security"
-    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
+    xmlns:connector="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming" schemaLocation="geronimo-naming.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/security" schemaLocation="geronimo-security.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector" schemaLocation="geronimo-connector_1_5.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment" schemaLocation="geronimo-config.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.0" schemaLocation="geronimo-security-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0" schemaLocation="geronimo-connector-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.0" schemaLocation="geronimo-config-1.0.xsd"/>
 
     <xs:element name="application-client" type="geronimo:application-clientType"/>
 

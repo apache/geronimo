@@ -155,15 +155,15 @@
         <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-pkgen-builder-${openejb_version}.jar"
             dest="${geronimo.assembly.dir}">
             <ant:patternset>
-                <ant:include name="META-INF/schema/openejb-pkgen.xsd"/>
+                <ant:include name="META-INF/schema/openejb-pkgen*.xsd"/>
             </ant:patternset>
         </ant:unzip>
         <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar"
             dest="${geronimo.assembly.dir}">
             <ant:patternset>
-                <ant:include name="META-INF/schema/openejb-jar.xsd"/>
-                <ant:include name="META-INF/schema/corba-css-config_1_0.xsd"/>
-                <ant:include name="META-INF/schema/corba-tss-config_1_0.xsd"/>
+                <ant:include name="META-INF/schema/openejb-jar*.xsd"/>
+                <ant:include name="META-INF/schema/corba-css-config*.xsd"/>
+                <ant:include name="META-INF/schema/corba-tss-config*.xsd"/>
             </ant:patternset>
         </ant:unzip>
         <ant:move todir="${geronimo.assembly.dir}/schema">
@@ -176,11 +176,11 @@
         <!-- update include paths in all schemas -->
         <ant:fileScanner var="schemaScanner">
             <ant:fileset dir="${geronimo.assembly.dir}/schema">
-                <ant:include name="geronimo-application.xsd"/>
-                <ant:include name="geronimo-application-client.xsd"/>
-                <ant:include name="geronimo-jetty.xsd"/>
-                <ant:include name="geronimo-tomcat.xsd"/>
-                <ant:include name="geronimo-connector_1_5.xsd"/>
+                <ant:include name="geronimo-application*.xsd"/>
+                <ant:include name="geronimo-application-client*.xsd"/>
+                <ant:include name="geronimo-jetty*.xsd"/>
+                <ant:include name="geronimo-tomcat*.xsd"/>
+                <ant:include name="geronimo-connector*.xsd"/>
             </ant:fileset>
         </ant:fileScanner>
         <j:forEach var="schema" items="${schemaScanner.iterator()}">
@@ -191,7 +191,6 @@
         </j:forEach>
 
         <!-- copy in data files -->
-        <!-- the persistent config list must be recopied in due to user of online deployer -->
         <ant:copy todir="${geronimo.assembly.dir}/var">
             <ant:fileset dir="src/var"/>
         </ant:copy>
@@ -200,13 +199,11 @@
         <ant:mkdir dir="${geronimo.assembly.dir}/var/ldap"/>
 
         <!-- Add tomcat files -->
-        <!--        <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">-->
         <ant:copy todir="${geronimo.assembly.dir}/var/catalina/conf"
             file="${project.root}/modules/tomcat/src/var/web.xml"/>
         <ant:copy todir="${geronimo.assembly.dir}/var/catalina/ROOT">
             <ant:fileset dir="${project.root}/modules/tomcat/src/var/ROOT"/>
         </ant:copy>
-        <!--        </j:if>-->
 
         <!-- Load the repository -->
         <ant:mkdir dir="${geronimo.assembly.dir}/repository"/>
@@ -278,22 +275,29 @@
         <j:set var="PlanDerbyPort" value="1527"/>
         <j:set var="PlanRemoteLoginPort" value="4242"/>
         <j:set var="PlanLdapPort" value="1389"/>
+        <j:set var="PlanJettyWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"/>
+        <j:set var="PlanTomcatWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"/>
+        <j:set var="PlanHTTPPortPrimary" value="8080"/>
+        <j:set var="PlanHTTPSPortPrimary" value="8443"/>
+        <j:set var="PlanAJPPortPrimary" value="8009"/>
+        <j:set var="PlanHTTPPortSecondary" value="8090"/>
+        <j:set var="PlanHTTPSPortSecondary" value="8453"/>
+        <j:set var="PlanAJPPortSecondary" value="8019"/>
         <j:if test="${context.getVariable('geronimo.web.container').equals('jetty')}">
             <echo>JETTY CONTAINER</echo>
             <j:set var="PlanWebServerName" value="Jetty"/>
-            <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/web/jetty"/>
+            <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"/>
             <j:set var="PlanHTTPPort" value="8080"/>
             <j:set var="PlanHTTPSPort" value="8443"/>
-            <j:set var="PlanClientCertHTTPSPort" value="8444"/>
             <j:set var="PlanAJPPort" value="8009"/>
             <j:set var="PlanHTTPPort2" value="8090"/>
             <j:set var="PlanHTTPSPort2" value="8453"/>
             <j:set var="PlanAJPPort2" value="8019"/>
         </j:if>
         <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">
-            <echod>TOMCAT CONTAINER</echod>
+            <echo>TOMCAT CONTAINER</echo>
             <j:set var="PlanWebServerName" value="Tomcat"/>
-            <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/web/tomcat"/>
+            <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"/>
             <j:set var="PlanHTTPPort" value="8090"/>
             <j:set var="PlanHTTPSPort" value="8453"/>
             <j:set var="PlanAJPPort" value="8019"/>
@@ -314,16 +318,31 @@
         <ant:mkdir dir="${basedir}/target/plan"/>
         <j:forEach var="plan" items="${plans.iterator()}">
             <j:set var="planName" value="${plan.name}"/>
-            <echo>Preprocessing ${planName}</echo>
+            <echo>Preprocessing plan ${planName}</echo>
             <velocity:merge
                 basedir="${basedir}/src/plan"
                 template="${planName}"
                 name="${basedir}/target/plan/${planName}"/>
         </j:forEach>
 
-        <velocity:merge basedir="${basedir}/src/var/config"
-            template="config.xml"
-            name="${geronimo.assembly.dir}/var/config/config.xml"/>
+        <fileScanner var="configs">
+            <fileset dir="${basedir}/src/var/config">
+                <include name="config*.xml"/>
+                <include name="config*.list"/>
+            </fileset>
+        </fileScanner>
+
+        <j:forEach var="config" items="${configs.iterator()}">
+            <j:set var="configName" value="${config.name}"/>
+            <echo>Preprocessing config ${configName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/var/config"
+                template="${configName}"
+                name="${geronimo.assembly.dir}/var/config/${configName}"/>
+        </j:forEach>
+
+        <ant:copy tofile="${geronimo.assembly.dir}/var/config/config.both.xml" file="${geronimo.assembly.dir}/var/config/config.xml"/>
+        <ant:copy tofile="${geronimo.assembly.dir}/var/config/config.both.list" file="${geronimo.assembly.dir}/var/config/config.list"/>
 
         <!-- copy the final plans -->
         <ant:mkdir dir="${geronimo.assembly.dir}/doc"/>
@@ -621,6 +640,13 @@
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
                 password="manager"
+                plan="${basedir}/target/plan/welcome-jetty-plan.xml"
+                module="${maven.repo.local}/geronimo/wars/geronimo-welcome-${pom.currentVersion}.war"/>
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/welcome-tomcat-plan.xml"
                 module="${maven.repo.local}/geronimo/wars/geronimo-welcome-${pom.currentVersion}.war"/>
 
             <!-- Management console -->
@@ -628,6 +654,13 @@
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
                 password="manager"
+                plan="${basedir}/target/plan/webconsole-jetty-plan.xml"
+                module="${maven.repo.local}/geronimo/ears/geronimo-console-${pom.currentVersion}.ear"/>
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/webconsole-tomcat-plan.xml"
                 module="${maven.repo.local}/geronimo/ears/geronimo-console-${pom.currentVersion}.ear"/>
 
             <!-- Debug Tool -->
@@ -642,6 +675,13 @@
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
                 password="manager"
+                plan="${basedir}/target/plan/uddi-server-jetty-plan.xml"
+                module="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/uddi-server-tomcat-plan.xml"
                 module="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
 
             <!-- create SystemDatabase -->
@@ -655,11 +695,9 @@
 
             <!-- re-copy in persistent config list -->
             <echo message="refreshing persistent configuration list"/>
-            <ant:copy todir="${geronimo.assembly.dir}/var" overwrite="true">
-                <ant:fileset dir="src/var">
-                    <include name="config/config.list"/>
-                </ant:fileset>
-            </ant:copy>
+            <ant:copy tofile="${geronimo.assembly.dir}/var/config/config.list"
+                file="${geronimo.assembly.dir}/var/config/config.both.list"
+                overwrite="true"/>
         </j:if>
 
     </goal>

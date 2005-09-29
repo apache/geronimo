@@ -56,6 +56,8 @@ import org.apache.geronimo.xbeans.wsdl.DefinitionsDocument;
 import org.apache.geronimo.xbeans.wsdl.TDefinitions;
 import org.apache.geronimo.xbeans.wsdl.TPort;
 import org.apache.geronimo.xbeans.wsdl.TService;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaParticle;
@@ -90,7 +92,7 @@ public class SchemaInfoBuilder {
             throw new RuntimeException("Could not locate soap encoding schema");
         }
         ArrayList errors = new ArrayList();
-        XmlOptions xmlOptions = SchemaConversionUtils.createXmlOptions(errors);
+        XmlOptions xmlOptions = XmlBeansUtil.createXmlOptions(errors);
         try {
             SchemaDocument parsed = SchemaDocument.Factory.parse(is, xmlOptions);
             if (errors.size() != 0) {
@@ -355,7 +357,7 @@ public class SchemaInfoBuilder {
 
     static XmlObject parseWithNamespaces(Element element, Map namespaceMap) throws XmlException {
         ArrayList errors = new ArrayList();
-        XmlOptions xmlOptions = SchemaConversionUtils.createXmlOptions(errors);
+        XmlOptions xmlOptions = XmlBeansUtil.createXmlOptions(errors);
         SchemaDocument parsed = SchemaDocument.Factory.parse(element, xmlOptions);
         if (errors.size() != 0) {
             throw new XmlException(errors.toArray().toString());

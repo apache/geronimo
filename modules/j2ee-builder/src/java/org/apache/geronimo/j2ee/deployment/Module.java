@@ -43,10 +43,11 @@ public abstract class Module {
     private final XmlObject specDD;
     private final XmlObject vendorDD;
     private final String originalSpecDD;
+    private final String namespace;
 
     private URI uniqueModuleLocation;
 
-    protected Module(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
+    protected Module(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
         assert targetPath != null: "targetPath is null";
 
         this.standAlone = standAlone;
@@ -57,6 +58,7 @@ public abstract class Module {
         this.specDD = specDD;
         this.vendorDD = vendorDD;
         this.originalSpecDD = originalSpecDD;
+        this.namespace = namespace;
 
         if (standAlone) {
             name = configId.toString();
@@ -113,6 +115,10 @@ public abstract class Module {
 
     public String getOriginalSpecDD() {
         return originalSpecDD;
+    }
+
+    public String getNamespace() {
+        return namespace;
     }
 
     public int hashCode() {

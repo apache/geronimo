@@ -1,0 +1,10 @@
+org/apache/geronimo/System
+org/apache/geronimo/RMINaming
+org/apache/geronimo/Server
+org/apache/geronimo/Security
+org/apache/geronimo/SystemDatabase
+org/apache/geronimo/SystemJMS
+org/apache/geronimo/RuntimeDeployer
+org/apache/geronimo/TomcatRuntimeDeployer
+org/apache/geronimo/applications/Welcome/Tomcat
+org/apache/geronimo/Console/Tomcat

@@ -365,15 +365,20 @@ public class SchemaConversionUtilsTest extends TestCase {
         File srcXml = new File(basedir, "src/test-data/geronimo/ejb-naming-pre.xml");
         File expectedOutputXml = new File(basedir, "src/test-data/geronimo/ejb-naming-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
-        xmlObject = SchemaConversionUtils.convertToGeronimoNamingSchema(xmlObject);
-        //        System.out.println(xmlObject.toString());
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-        xmlObject = SchemaConversionUtils.convertToGeronimoNamingSchema(xmlObject);
-        boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
-        assertTrue("Differences: " + problems, ok2);
+        XmlCursor cursor = xmlObject.newCursor();
+        try {
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            //        System.out.println(xmlObject.toString());
+            XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+            List problems = new ArrayList();
+            boolean ok = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok);
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok2);
+        } finally {
+            cursor.dispose();
+        }
     }
 //
     public void testGetNestedObjectAsType() throws Exception {

@@ -19,7 +19,7 @@
 <!-- $Rev: 126313 $ $Date: 2005-01-24 21:03:52 +0000 (Mon, 24 Jan 2005) $ -->
 
 <configuration
-  xmlns="http://geronimo.apache.org/xml/ns/deployment"
+  xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
   configId="org/apache/geronimo/SpringDeployer"
   parentId="org/apache/geronimo/SpringRuntime"
   >

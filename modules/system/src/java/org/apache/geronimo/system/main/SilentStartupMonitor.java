@@ -60,7 +60,8 @@ public class SilentStartupMonitor implements StartupMonitor {
     }
 
     public void serverStartFailed(Exception problem) {
-        System.out.println("Geronimo startup failed");
+        System.out.println("Geronimo startup failed:");
+        problem.printStackTrace(System.out);
     }
 
     public void loadFailed(String configuration, Exception problem) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
     configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
     parentId="${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car"
     >

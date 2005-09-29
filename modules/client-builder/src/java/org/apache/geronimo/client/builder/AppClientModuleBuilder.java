@@ -41,9 +41,11 @@ import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.GBeanData;
@@ -80,6 +82,7 @@ import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
 
 /**
@@ -159,7 +162,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         //we found application-client.xml, if it won't parse it's an error.
         try {
             // parse it
-            XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
+            XmlObject xmlObject = XmlBeansUtil.parse(specDD);
             ApplicationClientDocument appClientDoc = SchemaConversionUtils.convertToApplicationClientSchema(xmlObject);
             appClient = appClientDoc.getApplicationClient();
         } catch (XmlException e) {
@@ -195,34 +198,26 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, URI earConfigId) throws DeploymentException {
         GerApplicationClientType gerAppClient = null;
+        XmlObject rawPlan = null;
         try {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    gerAppClient = (GerApplicationClientType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                            "application-client",
-                            GerApplicationClientType.type);
+                    rawPlan = (XmlObject) plan;
                 } else {
-                    GerApplicationClientDocument gerAppClientDoc = null;
                     if (plan != null) {
-                        gerAppClientDoc = GerApplicationClientDocument.Factory.parse((File) plan);
+                        rawPlan = XmlBeansUtil.parse((File) plan);
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-application-client.xml");
-                        gerAppClientDoc = GerApplicationClientDocument.Factory.parse(path);
-                    }
-                    if (gerAppClientDoc != null) {
-                        gerAppClient = gerAppClientDoc.getApplicationClient();
+                        rawPlan = XmlBeansUtil.parse(path);
                     }
                 }
             } catch (IOException e) {
             }
 
             // if we got one extract the validate it otherwise create a default one
-            if (gerAppClient != null) {
-                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoSecuritySchema(gerAppClient);
-                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerAppClient);
-                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerAppClient);
-                SchemaConversionUtils.validateDD(gerAppClient);
+            if (rawPlan != null) {
+                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "application-client", GerApplicationClientType.type);
             } else {
                 String path;
                 if (standAlone) {

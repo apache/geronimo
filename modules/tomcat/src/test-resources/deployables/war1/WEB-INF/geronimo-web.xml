@@ -17,7 +17,7 @@
 -->
 
 <tomcat:web-app
-    xmlns:tomcat="http://geronimo.apache.org/xml/ns/web/tomcat"
+    xmlns:tomcat="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
     configId="org/apache/geronimo/tomcat/Test"
     >
     <tomcat:context-root>/test</tomcat:context-root>

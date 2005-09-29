@@ -17,8 +17,8 @@
 -->
 
 <xs:schema
-    xmlns:tomcat="http://geronimo.apache.org/xml/ns/web/tomcat"
-    targetNamespace="http://geronimo.apache.org/xml/ns/web/tomcat"
+    xmlns:tomcat="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0"
+    targetNamespace="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
@@ -36,5 +36,5 @@
     </xs:complexType>
 
     <xs:complexType name="emptyType"/>
-    
+
 </xs:schema>

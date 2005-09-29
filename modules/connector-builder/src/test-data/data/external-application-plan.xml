@@ -16,14 +16,14 @@
     limitations under the License.
 -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
     configId="org/apache/geronimo/j2ee/deployment/test"
     >
     <!--parentId="org/apache/geronimo/Server"-->
 
     <module>
         <connector>test-rar-10-noger.rar</connector>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
             configId="org/apache/geronimo/j2ee/deployment/test"
             parentId="org/apache/geronimo/Server">
 
@@ -83,7 +83,7 @@
     </module>
     <module>
         <connector>test-rar-15-noger.rar</connector>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
             configId="org/apache/geronimo/j2ee/deployment/test"
             parentId="org/apache/geronimo/Server">
 

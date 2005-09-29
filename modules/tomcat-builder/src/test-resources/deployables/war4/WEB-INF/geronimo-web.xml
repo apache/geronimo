@@ -16,14 +16,14 @@
     limitations under the License.
 -->
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/web"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security"
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
     configId="org/apache/geronimo/test">
 
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>
     <container-config>
-        <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat">
+        <tomcat xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0/tomcat">
 <!--            <host>tomcathost</host>-->
             <valve-chain>FirstValve</valve-chain>
             <tomcat-realm>TomcatRealm</tomcat-realm>

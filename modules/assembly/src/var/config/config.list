@@ -7,5 +7,5 @@ org/apache/geronimo/SystemJMS
 org/apache/geronimo/RuntimeDeployer
 org/apache/geronimo/JettyRuntimeDeployer
 org/apache/geronimo/TomcatRuntimeDeployer
-org/apache/geronimo/applications/Welcome
-org/apache/geronimo/Console
+org/apache/geronimo/applications/Welcome/${PlanWebServerName}
+org/apache/geronimo/Console/${PlanWebServerName}

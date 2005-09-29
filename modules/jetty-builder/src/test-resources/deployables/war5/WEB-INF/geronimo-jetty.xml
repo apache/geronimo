@@ -6,9 +6,9 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,20 +17,20 @@
 -->
 
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/web/jetty"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security"
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
     configId="org/apache/geronimo/test">
 
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>
+    <resource-ref>
+        <ref-name>jdbc/DB1</ref-name>
+        <target-name>DefaultDatabase</target-name>
+    </resource-ref>
     <security-realm-name>demo-properties-realm</security-realm-name>
     <sec:security>
         <sec:default-principal realm-name="demo-properties-realm">
             <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
         </sec:default-principal>
     </sec:security>
-    <resource-ref>
-        <ref-name>jdbc/DB1</ref-name>
-        <target-name>DefaultDatabase</target-name>
-    </resource-ref>
 </web-app>

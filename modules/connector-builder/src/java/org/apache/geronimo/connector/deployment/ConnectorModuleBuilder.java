@@ -64,9 +64,11 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -178,7 +180,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         //we found ra.xml, if it won't parse it's an error.
         try {
             // parse it
-            XmlObject xmlObject = SchemaConversionUtils.parse(specDD);
+            XmlObject xmlObject = XmlBeansUtil.parse(specDD);
             ConnectorDocument connectorDoc = SchemaConversionUtils.convertToConnectorSchema(xmlObject);
             connector = connectorDoc.getConnector();
         } catch (XmlException e) {
@@ -194,11 +196,15 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                             GerConnectorType.type);
                 } else {
                     GerConnectorDocument gerConnectorDoc = null;
+                    ArrayList errors = new ArrayList();
                     if (plan != null) {
-                        gerConnectorDoc = GerConnectorDocument.Factory.parse((File) plan);
+                        gerConnectorDoc = GerConnectorDocument.Factory.parse((File) plan, XmlBeansUtil.createXmlOptions(errors));
                     } else {
                         URL path = DeploymentUtil.createJarURL(moduleFile, "META-INF/geronimo-ra.xml");
-                        gerConnectorDoc = GerConnectorDocument.Factory.parse(path);
+                        gerConnectorDoc = GerConnectorDocument.Factory.parse(path, XmlBeansUtil.createXmlOptions(errors));
+                    }
+                    if (errors.size() > 0) {
+                        throw new DeploymentException("Could not parse connector doc: " + errors);
                     }
                     if (gerConnectorDoc != null) {
                         gerConnector = gerConnectorDoc.getConnector();
@@ -213,9 +219,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                         " (either META-INF/geronimo-ra.xml in the RAR file or a standalone deployment plan passed to the deployer).");
             }
             ConnectorPlanRectifier.rectifyPlan(gerConnector);
-            gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoServiceSchema(gerConnector);
-            //for workmanager
-            gerConnector = (GerConnectorType) SchemaConversionUtils.convertToGeronimoNamingSchema(gerConnector);
+            XmlCursor cursor = gerConnector.newCursor();
+            try {
+                SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            } finally {
+                cursor.dispose();
+            }
+
             SchemaConversionUtils.validateDD(gerConnector);
         } catch (XmlException e) {
             throw new DeploymentException(e);
