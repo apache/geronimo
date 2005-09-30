@@ -1,109 +1,188 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <userInput>
-  <panel order="0">
-    <field type="title" txt="Security Configuration" />
-    <field type="staticText" txt="Please select security options for Geronimo"/>
-    <divider />
-    <field type="text" variable="SecurityDefaultUser">
-      <description txt="User name used to manage and deploy to the Geronimo server" />
-      <spec txt="Username:" size="15" set="system" />
-      <createForPack name="Server" />
-    </field>
-    <field type="text" variable="SecurityDefaultPassword">
-      <description txt="Password used to manage and deploy to the Geronimo server" />
-      <spec txt="Password:" size="15" set="manager" />
-      <createForPack name="Server" />
-    </field>
-    <field type="rule" variable="PlanRemoteLoginPort">
-      <description txt="The network port that should be used to listen for remote login attempts" />
-      <spec txt="Remote Login Port:" layout="N:5:5" set="0:4242" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-  </panel>
-  <panel order="1">
-    <field type="title" txt="Web Configuration" />
-    <field type="staticText" txt="Please select Web server configuration options for Geronimo"/>
-    <divider />
-    <field type="text" variable="PlanServerHostname">
-      <description txt="Hostname the server should bind to (usually localhost or 0.0.0.0)" />
-      <spec txt="Hostname:" size="50" set="localhost" />
-      <createForPack name="Server" />
-    </field>
-    <field type="rule" variable="PlanHTTPPort">
-      <description txt="The standard network port that the web container should use" />
-      <spec txt="HTTP Port:" layout="N:5:5" set="0:8080" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-    <field type="rule" variable="PlanHTTPSPort">
-      <description txt="The secure network port that the web container should use" />
-      <spec txt="HTTPS Port:" layout="N:5:5" set="0:8443" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-    <field type="rule" variable="PlanAJPPort">
-      <description txt="The Apache AJP network port that the web container should use" />
-      <spec txt="AJP Port:" layout="N:5:5" set="0:8009" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-  </panel>
-  <panel order="2">
-    <field type="title" txt="EJB/IIOP Configuration" />
-    <field type="staticText" txt="Please select EJB server configuration options for Geronimo"/>
-    <divider />
-    <field type="rule" variable="PlanNamingPort">
-      <description txt="The network port that the Geronimo naming service should use" />
-      <spec txt="Naming Port:" layout="N:5:5" set="0:1099" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="Server" />
-    </field>
-    <field type="rule" variable="PlanOpenEJBPort">
-      <description txt="The network port that the EJB container should use" />
-      <spec txt="EJB Port:" layout="N:5:5" set="0:4201" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-    <field type="text" variable="PlanClientAddresses">
-      <description txt="IP addresses the server should accept EJB client connections from" />
-      <spec txt="Clients:" size="50" set="127.0.0.1" />
-      <createForPack name="J2EE Features" />
-    </field>
-    <field type="rule" variable="PlanIIOPPort">
-      <description txt="The network port that the RMI/IIOP listener should use" />
-      <spec txt="IIOP Port:" layout="N:5:5" set="0:9000" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-    <field type="rule" variable="PlanORBPort">
-      <description txt="The network port that the IIOP ORB should use" />
-      <spec txt="ORB Port:" layout="N:5:5" set="0:2001" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-    <field type="rule" variable="PlanCOSNamingPort">
-      <description txt="The network port that the CORBA Naming Service should use" />
-      <spec txt="CosNaming Port:" layout="N:5:5" set="0:1050" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-  </panel>
-  <panel order="3">
-    <field type="title" txt="Service Configuration" />
-    <field type="staticText" txt="Please configure additional services"/>
-    <divider />
-    <field type="rule" variable="PlanActiveMQPort">
-      <description txt="The network port that the ActiveMQ JMS server should use" />
-      <spec txt="JMS Port:" layout="N:5:5" set="0:61616" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-    <field type="rule" variable="PlanDerbyPort">
-      <description txt="The network port that the Derby DB should use" />
-      <spec txt="Derby Port:" layout="N:5:5" set="0:1527" />
-      <validator class="com.izforge.izpack.util.NotEmptyValidator" />
-      <createForPack name="J2EE Features" />
-    </field>
-  </panel>
+    <panel order="0">
+        <field type="title" txt="Security Configuration"/>
+        <field type="staticText" txt="Please select security options for Geronimo"/>
+        <divider/>
+        <field type="text" variable="SecurityDefaultUser">
+            <description txt="User name used to manage and deploy to the Geronimo server"/>
+            <spec txt="Username:" size="15" set="system"/>
+            <createForPack name="Server"/>
+        </field>
+        <field type="text" variable="SecurityDefaultPassword">
+            <description txt="Password used to manage and deploy to the Geronimo server"/>
+            <spec txt="Password:" size="15" set="manager"/>
+            <createForPack name="Server"/>
+        </field>
+        <field type="rule" variable="PlanRemoteLoginPort">
+            <description txt="The network port that should be used to listen for remote login attempts"/>
+            <spec txt="Remote Login Port:" layout="N:5:5" set="0:4242"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="J2EE Features"/>
+        </field>
+    </panel>
+    <panel order="1">
+        <field type="title" txt="Jetty Web Configuration"/>
+        <field type="staticText" txt="Please select Jetty Web server configuration options for Geronimo"/>
+        <divider/>
+        <field type="text" variable="PlanServerHostname">
+            <description txt="Hostname the server should bind to (usually localhost or 0.0.0.0)"/>
+            <spec txt="Hostname:" size="50" set="0.0.0.0"/>
+            <createForPack name="Jetty Web Container"/>
+        </field>
+        <field type="rule" variable="PlanHTTPPort">
+            <description txt="The standard network port that the web container should use"/>
+            <spec txt="HTTP Port:" layout="N:5:5" set="0:8080"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="Jetty Web Container"/>
+        </field>
+        <field type="rule" variable="PlanHTTPSPort">
+            <description txt="The secure network port that the web container should use"/>
+            <spec txt="HTTPS Port:" layout="N:5:5" set="0:8443"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="Jetty Web Container"/>
+        </field>
+        <field type="rule" variable="PlanAJPPort">
+            <description txt="The Apache AJP network port that the web container should use"/>
+            <spec txt="AJP Port:" layout="N:5:5" set="0:8009"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="Jetty Web Container"/>
+        </field>
+        <field type="text" variable="PlanWebServerName">
+            <description txt="Name of web container (do not modify)"/>
+            <spec txt="Web Server (Do not modify)" size="5" set="Jetty"/>
+            <createForPack name="Jetty Web Container"/>
+        </field>
+        <field type="text" variable="PlanWebBuilderDefaultNamespace">
+            <description txt="Namspace for web plan schema (do not modify)"/>
+            <spec txt="Web plan namespace (Do not modify)" size="53" set="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"/>
+            <createForPack name="Jetty Web Container"/>
+        </field>
+    </panel>
+    <panel order="2">
+        <field type="title" txt="Tomcat Web Configuration"/>
+        <field type="staticText" txt="Please select Tomcat Web server configuration options for Geronimo"/>
+        <divider/>
+        <field type="text" variable="PlanServerHostname">
+            <description txt="Hostname the server should bind to (usually localhost or 0.0.0.0)"/>
+            <spec txt="Hostname:" size="50" set="0.0.0.0"/>
+            <createForPack name="Tomcat Web Container"/>
+        </field>
+        <field type="rule" variable="PlanHTTPPort2">
+            <description txt="The standard network port that the web container should use"/>
+            <spec txt="HTTP Port:" layout="N:5:5" set="0:8080"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="Tomcat Web Container"/>
+        </field>
+        <field type="rule" variable="PlanHTTPSPort2">
+            <description txt="The secure network port that the web container should use"/>
+            <spec txt="HTTPS Port:" layout="N:5:5" set="0:8443"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="Tomcat Web Container"/>
+        </field>
+        <field type="rule" variable="PlanAJPPort2">
+            <description txt="The Apache AJP network port that the web container should use"/>
+            <spec txt="AJP Port:" layout="N:5:5" set="0:8009"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="Tomcat Web Container"/>
+        </field>
+        <field type="text" variable="PlanWebServerName">
+            <description txt="Name of web container (do not modify)"/>
+            <spec txt="Web Server (Do not modify)" size="5" set="Tomcat"/>
+            <createForPack name="Tomcat Web Container"/>
+        </field>
+        <field type="text" variable="PlanWebBuilderDefaultNamespace">
+            <description txt="Namspace for web plan schema (do not modify)"/>
+            <spec txt="Web plan namespace (Do not modify)" size="55" set="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"/>
+            <createForPack name="Tomcat Web Container"/>
+        </field>
+    </panel>
+    <panel order="3">
+        <field type="title" txt="EJB Configuration"/>
+        <field type="staticText" txt="Please select EJB server configuration options for Geronimo"/>
+        <divider/>
+        <field type="rule" variable="PlanNamingPort">
+            <description txt="The network port that the Geronimo naming service should use"/>
+            <spec txt="Naming Port:" layout="N:5:5" set="0:1099"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="Server"/>
+        </field>
+        <field type="rule" variable="PlanOpenEJBPort">
+            <description txt="The network port that the EJB container should use"/>
+            <spec txt="EJB Port:" layout="N:5:5" set="0:4201"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="J2EE Features"/>
+        </field>
+        <field type="text" variable="PlanClientAddresses">
+            <description txt="IP addresses the server should accept EJB client connections from"/>
+            <spec txt="Clients:" size="50" set="0.0.0.0"/>
+            <createForPack name="J2EE Features"/>
+        </field>
+    </panel>
+    <panel order="4">
+        <field type="title" txt="CORBA Configuration"/>
+        <field type="staticText" txt="Please select CORBA configuration options for Geronimo"/>
+        <divider/>
+        <field type="rule" variable="PlanIIOPPort">
+            <description txt="The network port that the RMI/IIOP listener should use"/>
+            <spec txt="IIOP Port:" layout="N:5:5" set="0:9000"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="CORBA Features"/>
+        </field>
+        <field type="text" variable="PlanORBSSLHost">
+            <description txt="The network port that the IIOP ORB should use. Do not change, it cannot be reset from the installer."/>
+            <spec txt="ORB Host:" size="50" set="localhost"/>
+            <createForPack name="CORBA Features"/>
+        </field>
+        <field type="rule" variable="PlanORBSSLPort">
+            <description txt="The network port that the IIOP ORB should use. Do not change, it cannot be reset from the installer."/>
+            <spec txt="ORB Port:" layout="N:5:5" set="0:2001"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="CORBA Features"/>
+        </field>
+        <field type="text" variable="PlanCOSNamingHost">
+            <description txt="The network port that the CORBA Naming Service should use"/>
+            <spec txt="CosNaming Host:" size="50" set="localhost"/>
+            <createForPack name="CORBA Features"/>
+        </field>
+        <field type="rule" variable="PlanCOSNamingPort">
+            <description txt="The network port that the CORBA Naming Service should use"/>
+            <spec txt="CosNaming Port:" layout="N:5:5" set="0:1050"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="CORBA Features"/>
+        </field>
+    </panel>
+    <panel order="5">
+        <field type="title" txt="Derby Configuration"/>
+        <field type="staticText" txt="Please configure Derby"/>
+        <divider/>
+        <field type="rule" variable="PlanDerbyPort">
+            <description txt="The network port that the Derby DB should use"/>
+            <spec txt="Derby Port:" layout="N:5:5" set="0:1527"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="J2EE Features"/>
+        </field>
+    </panel>
+    <panel order="6">
+        <field type="title" txt="Activemq Configuration"/>
+        <field type="staticText" txt="Please configure activemq services"/>
+        <divider/>
+        <field type="rule" variable="PlanActiveMQPort">
+            <description txt="The network port that the ActiveMQ JMS server should use"/>
+            <spec txt="JMS Port:" layout="N:5:5" set="0:61616"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="JMS Features"/>
+        </field>
+    </panel>
+    <panel order="7">
+        <field type="title" txt="Directory (LDAP) Configuration"/>
+        <field type="staticText" txt="Please configure Directory services"/>
+        <divider/>
+        <field type="rule" variable="PlanLdapPort">
+            <description txt="The network port that the directory server should use"/>
+            <spec txt="Directory Port:" layout="N:5:5" set="0:1389"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="LDAP Server"/>
+        </field>
+    </panel>
 </userInput>

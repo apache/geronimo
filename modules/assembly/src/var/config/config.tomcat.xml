@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<attributes>
+<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes">
     <configuration name="org/apache/geronimo/RMINaming">
         <gbean name="RMIRegistry">
             <attribute name="port">${PlanNamingPort}</attribute>
