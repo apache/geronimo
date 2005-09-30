@@ -47,6 +47,7 @@
             <file src="RELEASE-NOTES-1.0-M2.txt" targetdir="$INSTALL_PATH"/>
             <file src="RELEASE-NOTES-1.0-M3.txt" targetdir="$INSTALL_PATH"/>
             <file src="RELEASE-NOTES-1.0-M4.txt" targetdir="$INSTALL_PATH"/>
+            <file src="RELEASE-NOTES-1.0-M5.txt" targetdir="$INSTALL_PATH"/>
             <file src="bin" targetdir="$INSTALL_PATH"/>
             <file src="lib" targetdir="$INSTALL_PATH"/>
             <file src="config-store" targetdir="$INSTALL_PATH"/>
