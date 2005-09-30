@@ -23,6 +23,7 @@ import java.security.PrivilegedAction;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.security.auth.callback.CallbackHandler;
 
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -127,7 +128,12 @@ public final class AppClientContainer {
                     callbackHandler = (CallbackHandler) callbackHandlerClass.newInstance();
                 }
                 loginContext = new LoginContext(realmName, callbackHandler);
-                loginContext.login();
+                try {
+                    loginContext.login();
+                } catch (LoginException e) {
+                    loginContext = null;
+                    throw e;
+                }
                 clientSubject = loginContext.getSubject();
             }
             ContextManager.setCurrentCaller(clientSubject);
