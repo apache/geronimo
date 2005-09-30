@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<attributes>
+<attributes xmlns="http://geronimo.apache.org/xml/ns/attributes">
     <configuration name="org/apache/geronimo/RMINaming">
         <gbean name="RMIRegistry">
             <attribute name="port">${PlanNamingPort}</attribute>
@@ -67,7 +67,18 @@
         <gbean name="JMXConnector">
             <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
         </gbean>
-        <!-- Add CORBA settings PlanIIOPPort, PlanORBPort, PlanCOSNamingPort -->
+    </configuration>
+    <configuration name="org/apache/geronimo/ServerCORBA">
+        <gbean name="NameServer">
+            <attribute name="dbDir">var/cosnaming.db</attribute>
+            <attribute name="port">${PlanCOSNamingPort}</attribute>
+        </gbean>
+        <gbean name="Server">
+            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
+        </gbean>
+        <gbean name="UnprotectedServer">
+            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
+        </gbean>
     </configuration>
     <configuration name="org/apache/geronimo/ActiveMQServer">
         <gbean name="ActiveMQ.tcp.default">
