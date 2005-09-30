@@ -269,7 +269,7 @@
         <!-- why aren't these used? -->
         <!--        <j:set var="PlanORBHost" value="0.0.0.0"/>-->
         <!--        <j:set var="PlanORBPort" value="2001"/>-->
-        <j:set var="PlanORBSSLHost" value="0.0.0.0"/>
+        <j:set var="PlanORBSSLHost" value="localhost"/>
         <j:set var="PlanORBSSLPort" value="2001"/>
         <j:set var="PlanActiveMQPort" value="61616"/>
         <j:set var="PlanDerbyPort" value="1527"/>
@@ -550,6 +550,12 @@
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/j2ee-client-corba-plan.xml"
+                />
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                plan="${basedir}/target/plan/j2ee-client-security-plan.xml"
                 />
 
 

@@ -24,7 +24,7 @@ CSSBean examples for app client
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
     parentId="org/apache/geronimo/Client"
-    configId="org/apache/geronimo/ClientCorba"
+    configId="org/apache/geronimo/ClientCORBA"
     >
 
     <gbean name="DyanmicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>
