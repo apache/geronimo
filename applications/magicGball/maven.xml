@@ -5,7 +5,8 @@
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
-    xmlns:ant="jelly:ant">
+    xmlns:ant="jelly:ant"
+    xmlns:deploy="geronimo:deploy">
 
     <goal name="default" prereqs="ear"/>
     <goal name="build" prereqs="default"/>
@@ -22,12 +23,13 @@
         </ant:jar>
     </goal>
 
-     <goal name="client" prereqs="java:compile">
+    <goal name="client" prereqs="java:compile">
         <ant:jar destfile="target/${pom.artifactId}-client.jar">
             <fileset dir="target/classes">
                 <include name="**/*Client.class"/>
                 <include name="**/MagicGBall.class"/>
                 <include name="**/MagicGBallHome.class"/>
+                <include name="**/MagicGBallCallbackHandler.class"/>
             </fileset>
             <fileset dir="src/resources/client"/>
             <manifest>
@@ -48,6 +50,37 @@
     </goal>
 
     <goal name="site">
-            <ant:mkdir dir="target/docs"/>
+        <ant:mkdir dir="target/docs"/>
     </goal>
+
+    <goal name="startServer" prereqs="ear">
+        <j:set var="geronimo.server.corba.options" value="-Djavax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl -Dorg.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate -Dorg.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton -Dorg.omg.CORBA.ORBClass=org.openejb.corba.sunorb.OpenEJBORB -Djavax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject"/>
+        <deploy:unpackServer geronimoVersion="${geronimo_version}"/>
+        <deploy:startRemoteServer
+            geronimoTarget="${maven.build.dir}/geronimo-${geronimo_version}"
+            vmArgs="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xmx512m -XX:MaxPermSize=128m ${geronimo.server.corba.options}"
+            />
+        <ant:echo message="Waiting for server at: ${maven.build.dir}/geronimo-${geronimo_version}"/>
+        <u:sleep millis="60000"/>
+        <deploy:waitForStarted
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            maxtries="125"
+            id="org/apache/geronimo/RuntimeDeployer"/>
+        <echo message="runtime deployer has started"/>
+        <u:sleep millis="7000"/>
+    </goal>
+    <goal name="deployApp">
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/magicGball.ear"
+            plan="${basedir}/src/plan/magicgball-corba-plan.xml"/>
+
+    </goal>
+
+    
+
 </project>

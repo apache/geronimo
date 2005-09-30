@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
+    configId="org/apache/geronimo/MagicGBallCorba"
+    parentId="org/apache/geronimo/ServerCORBA">
+
+    <import>
+        <uri>org/apache/geronimo/Security</uri>
+    </import>
+
+    <module>
+        <ejb>magicGball-ejb.jar</ejb>
+        <openejb-jar
+            xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+            configId="MagicGBallEJB"
+            parentId="org/apache/geronimo/ServerCORBA">
+
+            <enterprise-beans>
+                <session>
+                    <ejb-name>MagicGBall</ejb-name>
+                    <jndi-name>MagicGBall</jndi-name>
+                    <tss-link>SSLClientPassword</tss-link>
+                </session>
+            </enterprise-beans>
+        </openejb-jar>
+    </module>
+
+    <module>
+        <web>magicGball.war</web>
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0" configId="MagicGBallWAR">
+            <context-priority-classloader>false</context-priority-classloader>
+        </web-app>
+    </module>
+
+    <module>
+        <java>magicGball-client.jar</java>
+        <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
+            configId="client"
+            clientConfigId="org/apache/geronimo/MagicGBallClient"
+            clientParentId="org/apache/geronimo/ClientCORBA">
+            <import>
+                <uri>org/apache/geronimo/ClientSecurity</uri>
+            </import>
+            <ejb-ref>
+                <ref-name>mGball</ref-name>
+                <ns-corbaloc>corbaloc::localhost:1050/NameService</ns-corbaloc>
+                <name>MagicGBall</name>
+                <css-link>SSLClientPassword</css-link>
+            </ejb-ref>
+            <realm-name>client-properties-realm</realm-name>
+            <callback-handler>org.acme.MagicGBallCallbackHandler</callback-handler>
+        </application-client>
+    </module>
+
+    <security>
+        <default-principal realm-name="geronimo-properties-realm">
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="system"/>
+        </default-principal>
+        <role-mappings>
+            <role role-name="admin">
+                <realm realm-name="geronimo-properties-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" designated-run-as="true"/>
+                </realm>
+            </role>
+        </role-mappings>
+    </security>
+
+</application>

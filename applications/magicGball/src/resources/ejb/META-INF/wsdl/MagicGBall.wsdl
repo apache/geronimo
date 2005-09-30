@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <definitions name="MagicGBallDefinition" targetNamespace="http://acme.org/magicGball"
-    xmlns:test="http://acme.org/magicGball"
+    xmlns:mgb="http://acme.org/magicGball"
     xmlns="http://schemas.xmlsoap.org/wsdl/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
@@ -27,10 +27,10 @@
         <operation name="echo">
             <soap:operation soapAction=""/>
             <input>
-                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://openejb.org/test-ejb-jar"/>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://acme.org/magicGball"/>
             </input>
             <output>
-                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://openejb.org/test-ejb-jar"/>
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" use="encoded" namespace="http://acme.org/magicGball"/>
             </output>
         </operation>
     </binding>

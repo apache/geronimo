@@ -19,6 +19,7 @@ package org.acme;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.rmi.PortableRemoteObject;
 
 /**
  * Run this app client from the command line and pass in a question as an argument.
@@ -37,10 +38,11 @@ public class MagicGBallClient {
             magicGBallClient.ask(args[i]);
         }
     }
-    
+
 	public void ask(String question) throws Exception {
         Context ctx = new InitialContext();
-        MagicGBallHome ejbHome = (MagicGBallHome) ctx.lookup("java:comp/env/mGball");
+        Object o = ctx.lookup("java:comp/env/mGball");
+        MagicGBallHome ejbHome = (MagicGBallHome) PortableRemoteObject.narrow(o, MagicGBallHome.class);
         MagicGBall mGball = ejbHome.create();
         String answer = mGball.ask(question);
 
