@@ -398,64 +398,66 @@ public class ENCConfigBuilder {
 
                 String ejbLink = null;
                 GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
-                if (remoteRef != null && remoteRef.isSetEjbLink()) {
-                    ejbLink = remoteRef.getEjbLink();
-                } else if (ejbRef.isSetEjbLink()) {
-                    ejbLink = getStringValue(ejbRef.getEjbLink());
-                }
-
-                if (ejbLink != null) {
-                    ejbReference = refContext.getEJBRemoteRef(moduleURI, ejbLink, isSession, home, remote, ejbContext);
-                } else if (remoteRef != null) {
-                    if (remoteRef.isSetTargetName()) {
-                        ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
-                    } else if (remoteRef.isSetNsCorbaloc()) {
-                        try {
-                            ObjectName cssBean;
-                            if (remoteRef.isSetCssName()) {
-                                cssBean = ObjectName.getInstance(getStringValue(remoteRef.getCssName()));
-                            } else if (remoteRef.isSetCssLink()) {
-                                String cssLink = remoteRef.getCssLink().trim();
-                                //TODO is this correct?
-                                String moduleType = null;
-                                cssBean = refContext.locateComponentName(cssLink, moduleURI, moduleType, NameFactory.CORBA_CSS, earContext.getJ2eeContext(), earContext, "css gbean");
-                            } else {
-                                GerCssType css = remoteRef.getCss();
-                                cssBean = NameFactory.getComponentName(getStringValue(css.getDomain()),
-                                        getStringValue(css.getServer()),
-                                        getStringValue(css.getApplication()),
-                                        getStringValue(css.getModule()),
-                                        getStringValue(css.getName()),
-                                        getStringValue(NameFactory.CORBA_CSS),
-                                        earContext.getJ2eeContext());
-                            }
-                            ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
-                                    getStringValue(remoteRef.getName()),
-                                    ObjectName.getInstance(cssBean),
-                                    home);
-                        } catch (URISyntaxException e) {
-                            throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
-                        } catch (MalformedObjectNameException e) {
-                            throw new DeploymentException("Could not construct CSS container name: " + remoteRef.getCssName(), e);
+                if (remoteRef.isSetNsCorbaloc()) {
+                    try {
+                        ObjectName cssBean;
+                        if (remoteRef.isSetCssName()) {
+                            cssBean = ObjectName.getInstance(getStringValue(remoteRef.getCssName()));
+                        } else if (remoteRef.isSetCssLink()) {
+                            String cssLink = remoteRef.getCssLink().trim();
+                            //TODO is this correct?
+                            String moduleType = null;
+                            cssBean = refContext.locateComponentName(cssLink, moduleURI, moduleType, NameFactory.CORBA_CSS, earContext.getJ2eeContext(), earContext, "css gbean");
+                        } else {
+                            GerCssType css = remoteRef.getCss();
+                            cssBean = NameFactory.getComponentName(getStringValue(css.getDomain()),
+                                    getStringValue(css.getServer()),
+                                    getStringValue(css.getApplication()),
+                                    getStringValue(css.getModule()),
+                                    getStringValue(css.getName()),
+                                    getStringValue(NameFactory.CORBA_CSS),
+                                    earContext.getJ2eeContext());
                         }
-                    } else {
-                        String containerId = null;
-                        try {
-                            containerId = NameFactory.getEjbComponentNameString(getStringValue(remoteRef.getDomain()),
-                                    getStringValue(remoteRef.getServer()),
-                                    getStringValue(remoteRef.getApplication()),
-                                    getStringValue(remoteRef.getModule()),
-                                    getStringValue(remoteRef.getName()),
-                                    getStringValue(remoteRef.getType()),
-                                    j2eeContext);
-                        } catch (MalformedObjectNameException e) {
-                            throw new DeploymentException("Could not construct ejb object name: " + remoteRef.getName(), e);
-                        }
-                        ejbReference = refContext.getEJBRemoteRef(containerId, isSession, home, remote);
-
+                        ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
+                                getStringValue(remoteRef.getName()),
+                                ObjectName.getInstance(cssBean),
+                                home);
+                    } catch (URISyntaxException e) {
+                        throw new DeploymentException("Could not construct CORBA NameServer URI: " + remoteRef.getNsCorbaloc(), e);
+                    } catch (MalformedObjectNameException e) {
+                        throw new DeploymentException("Could not construct CSS container name: " + remoteRef.getCssName(), e);
                     }
                 } else {
-                    ejbReference = refContext.getImplicitEJBRemoteRef(moduleURI, ejbRefName, isSession, home, remote, ejbContext);
+                    if (remoteRef != null && remoteRef.isSetEjbLink()) {
+                        ejbLink = remoteRef.getEjbLink();
+                    } else if (ejbRef.isSetEjbLink()) {
+                        ejbLink = getStringValue(ejbRef.getEjbLink());
+                    }
+
+                    if (ejbLink != null) {
+                        ejbReference = refContext.getEJBRemoteRef(moduleURI, ejbLink, isSession, home, remote, ejbContext);
+                    } else if (remoteRef != null) {
+                        if (remoteRef.isSetTargetName()) {
+                            ejbReference = refContext.getEJBRemoteRef(getStringValue(remoteRef.getTargetName()), isSession, home, remote);
+                        } else {
+                            String containerId = null;
+                            try {
+                                containerId = NameFactory.getEjbComponentNameString(getStringValue(remoteRef.getDomain()),
+                                        getStringValue(remoteRef.getServer()),
+                                        getStringValue(remoteRef.getApplication()),
+                                        getStringValue(remoteRef.getModule()),
+                                        getStringValue(remoteRef.getName()),
+                                        getStringValue(remoteRef.getType()),
+                                        j2eeContext);
+                            } catch (MalformedObjectNameException e) {
+                                throw new DeploymentException("Could not construct ejb object name: " + remoteRef.getName(), e);
+                            }
+                            ejbReference = refContext.getEJBRemoteRef(containerId, isSession, home, remote);
+
+                        }
+                    } else {
+                        ejbReference = refContext.getImplicitEJBRemoteRef(moduleURI, ejbRefName, isSession, home, remote, ejbContext);
+                    }
                 }
             }
             builder.bind(ejbRefName, ejbReference);
@@ -514,7 +516,7 @@ public class ENCConfigBuilder {
         }
     }
 
-    //TODO current implementation does not deal with portComponentRef links.
+//TODO current implementation does not deal with portComponentRef links.
     static void addServiceRefs(EARContext earContext, Module module, ServiceRefType[] serviceRefs, Map serviceRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
 
         RefContext refContext = earContext.getRefContext();
@@ -572,7 +574,7 @@ public class ENCConfigBuilder {
             ServiceRefHandlerType[] handlers = serviceRef.getHandlerArray();
             List handlerInfos = buildHandlerInfoList(handlers, cl);
 
-            //we could get a Reference or the actual serializable Service back.
+//we could get a Reference or the actual serializable Service back.
             Object ref = refContext.getServiceReference(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, earContext, module, cl);
             builder.bind(name, ref);
         }
@@ -754,16 +756,16 @@ public class ENCConfigBuilder {
             ejbContext = earContext;
         }
 
-        // ejb-ref
+// ejb-ref
         addEJBRefs(earContext, ejbContext, refContext, moduleURI, ejbRefs, mapEjbRefs(gerEjbRefs), cl, builder);
 
-        // ejb-local-ref
+// ejb-local-ref
         addEJBLocalRefs(ejbContext, refContext, moduleURI, ejbLocalRefs, mapEjbLocalRefs(gerEjbLocalRef), cl, builder);
 
-        // resource-ref
+// resource-ref
         addResourceRefs(earContext, moduleURI, resourceRefs, mapResourceRefs(gerResourceRef), cl, builder);
 
-        // resource-env-ref
+// resource-env-ref
         addResourceEnvRefs(earContext, resourceEnvRefs, mapResourceEnvRefs(gerResourceEnvRef), cl, builder);
 
         addMessageDestinationRefs(earContext.getRefContext(), earContext, messageDestinationRefs, cl, builder);
