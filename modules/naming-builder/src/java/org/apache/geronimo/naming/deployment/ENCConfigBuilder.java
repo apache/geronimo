@@ -398,7 +398,7 @@ public class ENCConfigBuilder {
 
                 String ejbLink = null;
                 GerEjbRefType remoteRef = (GerEjbRefType) ejbRefMap.get(ejbRefName);
-                if (remoteRef.isSetNsCorbaloc()) {
+                if (remoteRef != null && remoteRef.isSetNsCorbaloc()) {
                     try {
                         ObjectName cssBean;
                         if (remoteRef.isSetCssName()) {
