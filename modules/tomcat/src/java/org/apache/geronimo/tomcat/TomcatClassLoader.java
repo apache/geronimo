@@ -57,6 +57,7 @@ public class TomcatClassLoader extends URLClassLoader {
                name.startsWith("org.apache.tomcat.") ||
                name.startsWith("org.apache.naming.") ||
                name.startsWith("org.apache.catalina.") ||
+               name.startsWith("org.apache.commons.logging.") ||
                name.startsWith("org.xml.") ||
                name.startsWith("org.w3c.")) {
            return super.loadClass(name);
@@ -100,6 +101,7 @@ public class TomcatClassLoader extends URLClassLoader {
                    name.startsWith("org/apache/tomcat/") ||
                    name.startsWith("org/apache/naming/") ||
                    name.startsWith("org/apache/catalina/") ||
+                   name.startsWith("org/apache/commons/logging/") ||
                    name.startsWith("org/xml/") ||
                    name.startsWith("org/w3c/")) {
                return super.getResource(name);

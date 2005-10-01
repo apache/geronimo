@@ -53,6 +53,7 @@ public class JettyClassLoader extends URLClassLoader {
                 name.startsWith("java.") ||
                 name.startsWith("javax.") ||
                 name.startsWith("org.apache.geronimo.") ||
+                name.startsWith("org.apache.commons.logging.") ||
                 name.startsWith("org.mortbay.") ||
                 name.startsWith("org.xml.") ||
                 name.startsWith("org.w3c.")) {
@@ -93,6 +94,7 @@ public class JettyClassLoader extends URLClassLoader {
                     name.startsWith("java/") ||
                     name.startsWith("javax/") ||
                     name.startsWith("org/apache/geronimo/") ||
+                    name.startsWith("org/apache/commons/logging/") ||
                     name.startsWith("org/mortbay/") ||
                     name.startsWith("org/xml/") ||
                     name.startsWith("org/w3c/")) {
