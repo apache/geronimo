@@ -291,7 +291,7 @@ public class JettyModuleBuilder implements ModuleBuilder {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    rawPlan = (XmlObject) plan;//SchemaConversionUtils.getNestedObject((XmlObject) plan, "web-app");
+                    rawPlan = (XmlObject) plan;
                 } else {
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL());
@@ -315,16 +315,10 @@ public class JettyModuleBuilder implements ModuleBuilder {
 
             JettyWebAppType jettyWebApp = null;
             if (rawPlan != null) {
-                XmlCursor cursor = rawPlan.newCursor();
-                try {
-                    new GenericToSpecificPlanConverter(GerJettyDocument.type.getDocumentElementName().getNamespaceURI(),
-                            JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI()).convertToSpecificPlan(cursor);
-                    SchemaConversionUtils.findNestedElement(cursor, "web-app");
-                    jettyWebApp = (JettyWebAppType) cursor.getObject().copy().changeType(JettyWebAppType.type);
-                    SchemaConversionUtils.validateDD(jettyWebApp);
-                } finally {
-                    cursor.dispose();
-                }
+                XmlObject webPlan = new GenericToSpecificPlanConverter(GerJettyDocument.type.getDocumentElementName().getNamespaceURI(),
+                        JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "jetty").convertToSpecificPlan(rawPlan);
+                jettyWebApp = (JettyWebAppType) webPlan.changeType(JettyWebAppType.type);
+                SchemaConversionUtils.validateDD(jettyWebApp);
             } else {
                 String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
                 jettyWebApp = createDefaultPlan(defaultContextRoot);

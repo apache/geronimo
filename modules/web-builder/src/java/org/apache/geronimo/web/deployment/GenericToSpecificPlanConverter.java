@@ -24,6 +24,7 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityDocument;
 import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -37,23 +38,29 @@ public class GenericToSpecificPlanConverter {
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
     private final String configNamespace;
     private final String namespace;
+    private final String element;
 
-    public GenericToSpecificPlanConverter(String configNamespace, String namespace) {
+    public GenericToSpecificPlanConverter(String configNamespace, String namespace, String element) {
         this.configNamespace = configNamespace;
         this.namespace = namespace;
+        this.element = element;
     }
 
-    public void convertToSpecificPlan(XmlCursor cursor) throws DeploymentException {
-        if (SchemaConversionUtils.findNestedElement(cursor, "web-app")) {
-            cursor.push();
-            if (cursor.getName().equals(GENERIC_QNAME)) {
+    public XmlObject convertToSpecificPlan(XmlObject plan) throws DeploymentException {
+        XmlCursor rawCursor = plan.newCursor();
+        try {
+            if (SchemaConversionUtils.findNestedElement(rawCursor, "web-app")) {
+                XmlObject webPlan = rawCursor.getObject().copy();
+
+                XmlCursor cursor = webPlan.newCursor();
+                cursor.push();
                 if (cursor.toChild(GENERIC_CONFIG_QNAME)) {
                     XmlCursor source = cursor.newCursor();
                     cursor.push();
                     cursor.toEndToken();
                     cursor.toNextToken();
                     try {
-                        if (source.toChild(configNamespace, "jetty")) {
+                        if (source.toChild(configNamespace, element)) {
                             source.copyXmlContents(cursor);
                         }
 
@@ -63,7 +70,8 @@ public class GenericToSpecificPlanConverter {
                     cursor.pop();
                     cursor.removeXml();
                 }
-                cursor.toStartDoc();
+                cursor.pop();
+                cursor.push();
                 while (cursor.hasNextToken()) {
                     if (cursor.isStart()) {
                         if (namespace.equals(cursor.getName().getNamespaceURI())) {
@@ -76,35 +84,38 @@ public class GenericToSpecificPlanConverter {
                         cursor.toNextToken();
                     }
                 }
-            }
-            //move security elements after refs
-            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+                SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+                //move security elements after refs
 
-            cursor.pop();
-            cursor.push();
-            if (cursor.toChild(namespace, "security-realm-name")) {
-                XmlCursor other = cursor.newCursor();
-                try {
-                    other.toParent();
-                    if (other.toChild(SYSTEM_NAMESPACE, "gbean")) {
-                        other.toPrevToken();
-                    } else {
-                        other.toEndToken();
-                        other.toPrevToken();
-                    }
-                    cursor.moveXml(other);
-                    cursor.pop();
-                    cursor.push();
-                    if (cursor.toChild(SECURITY_QNAME)) {
+                cursor.pop();
+                cursor.push();
+                if (cursor.toChild(namespace, "security-realm-name")) {
+                    XmlCursor other = cursor.newCursor();
+                    try {
+                        other.toParent();
+                        if (other.toChild(SYSTEM_NAMESPACE, "gbean")) {
+                            other.toPrevToken();
+                        } else {
+                            other.toEndToken();
+                            other.toPrevToken();
+                        }
                         cursor.moveXml(other);
+                        cursor.pop();
+                        cursor.push();
+                        if (cursor.toChild(SECURITY_QNAME)) {
+                            cursor.moveXml(other);
+                        }
+                    } finally {
+                        other.dispose();
                     }
-                } finally {
-                    other.dispose();
                 }
+                cursor.pop();
+                return webPlan;
+            } else {
+                throw new DeploymentException("No web-app element");
             }
-            cursor.pop();
-        } else {
-            throw new DeploymentException("No web-app element");
+        } finally {
+            rawCursor.dispose();
         }
     }
 

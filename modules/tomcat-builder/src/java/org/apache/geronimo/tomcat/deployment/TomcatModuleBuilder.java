@@ -129,7 +129,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                                ObjectName tomcatContainerObjectName,
                                WebServiceBuilder webServiceBuilder,
                                Repository repository) {
-        this.defaultParentId = defaultParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultParentId);
+        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
 
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.tomcatContainerObjectName = tomcatContainerObjectName;
@@ -243,7 +243,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             // load the geronimo-web.xml from either the supplied plan or from the earFile
             try {
                 if (plan instanceof XmlObject) {
-                    rawPlan = (XmlObject) plan;//SchemaConversionUtils.getNestedObject((XmlObject) plan, "web-app");
+                    rawPlan = (XmlObject) plan;
                 } else {
                     if (plan != null) {
                         rawPlan = XmlBeansUtil.parse(((File) plan).toURL());
@@ -267,16 +267,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
 
             TomcatWebAppType tomcatWebApp = null;
             if (rawPlan != null) {
-                XmlCursor cursor = rawPlan.newCursor();
-                try {
-                    new GenericToSpecificPlanConverter(GerTomcatDocument.type.getDocumentElementName().getNamespaceURI(),
-                            TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI()).convertToSpecificPlan(cursor);
-                    SchemaConversionUtils.findNestedElement(cursor, "web-app");
-                    tomcatWebApp = (TomcatWebAppType) cursor.getObject().copy().changeType(TomcatWebAppType.type);
-                    SchemaConversionUtils.validateDD(tomcatWebApp);
-                } finally {
-                    cursor.dispose();
-                }
+                XmlObject webPlan = new GenericToSpecificPlanConverter(GerTomcatDocument.type.getDocumentElementName().getNamespaceURI(),
+                        TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "tomcat").convertToSpecificPlan(rawPlan);
+                tomcatWebApp = (TomcatWebAppType) webPlan.changeType(TomcatWebAppType.type);
+                SchemaConversionUtils.validateDD(tomcatWebApp);
             } else {
                 String defaultContextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
                 tomcatWebApp = createDefaultPlan(defaultContextRoot);
@@ -430,23 +424,23 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             webModuleData.setReferencePattern("Container", tomcatContainerObjectName);
 
             // Process the Tomcat container-config elements
-                    if (tomcatWebApp.isSetHost()) {
-                        String virtualServer = tomcatWebApp.getHost().trim();
-                        webModuleData.setAttribute("virtualServer", virtualServer);
-                    }
-                    if (tomcatWebApp.isSetCrossContext()) {
-                        webModuleData.setAttribute("crossContext", Boolean.TRUE);
-                    }
-                    if (tomcatWebApp.isSetTomcatRealm()) {
-                        String tomcatRealm = tomcatWebApp.getTomcatRealm().trim();
-                        ObjectName realmName = NameFactory.getComponentName(null, null, null, null, tomcatRealm, RealmGBean.GBEAN_INFO.getJ2eeType(), moduleJ2eeContext);
-                        webModuleData.setReferencePattern("TomcatRealm", realmName);
-                    }
-                    if (tomcatWebApp.isSetValveChain()) {
-                        String valveChain = tomcatWebApp.getValveChain().trim();
-                        ObjectName valveName = NameFactory.getComponentName(null, null, null, null, valveChain, ValveGBean.J2EE_TYPE, moduleJ2eeContext);
-                        webModuleData.setReferencePattern("TomcatValveChain", valveName);
-                    }
+            if (tomcatWebApp.isSetHost()) {
+                String virtualServer = tomcatWebApp.getHost().trim();
+                webModuleData.setAttribute("virtualServer", virtualServer);
+            }
+            if (tomcatWebApp.isSetCrossContext()) {
+                webModuleData.setAttribute("crossContext", Boolean.TRUE);
+            }
+            if (tomcatWebApp.isSetTomcatRealm()) {
+                String tomcatRealm = tomcatWebApp.getTomcatRealm().trim();
+                ObjectName realmName = NameFactory.getComponentName(null, null, null, null, tomcatRealm, RealmGBean.GBEAN_INFO.getJ2eeType(), moduleJ2eeContext);
+                webModuleData.setReferencePattern("TomcatRealm", realmName);
+            }
+            if (tomcatWebApp.isSetValveChain()) {
+                String valveChain = tomcatWebApp.getValveChain().trim();
+                ObjectName valveName = NameFactory.getComponentName(null, null, null, null, valveChain, ValveGBean.J2EE_TYPE, moduleJ2eeContext);
+                webModuleData.setReferencePattern("TomcatValveChain", valveName);
+            }
 
 
             Map portMap = webModule.getPortMap();
@@ -513,7 +507,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
                 }
                 DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
                 securityHolder.setDefaultPrincipal(defaultPrincipal);
-                if (defaultPrincipal != null){
+                if (defaultPrincipal != null) {
                     securityHolder.setSecurity(true);
                 }
 

@@ -2,9 +2,9 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.jar.JarFile;
 import javax.management.ObjectName;
 
@@ -14,17 +14,15 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
-import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
-import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
+import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  */
@@ -128,6 +126,12 @@ public class PlanParsingTest extends TestCase {
 
     }
 
+    /** This test has 2 purposes: one the obvious one explicitly tested,
+     * the other that passing a JettyWebAppType XmlObject in works.  This latter
+     * models a web-app element inside an ear plan.
+     *
+     * @throws Exception
+     */
     public void testContextRootWithPlanAndContextSet() throws Exception {
 
         JettyWebAppDocument jettyWebAppDoc = JettyWebAppDocument.Factory.newInstance();
@@ -182,21 +186,17 @@ public class PlanParsingTest extends TestCase {
     public void testConvertToJettySchema() throws Exception {
         File resourcePlan = new File(basedir, "src/test-resources/plans/plan4.xml");
         assertTrue(resourcePlan.exists());
-        XmlObject plan = XmlBeansUtil.parse(resourcePlan.toURL());
-        XmlCursor cursor = plan.newCursor();
-        try {
-        new GenericToSpecificPlanConverter(GerJettyDocument.type.getDocumentElementName().getNamespaceURI(),
-                JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI()).convertToSpecificPlan(cursor);
-        } finally {
-            cursor.dispose();
-        }
+        XmlObject rawPlan = XmlBeansUtil.parse(resourcePlan.toURL());
+        XmlObject webPlan = new GenericToSpecificPlanConverter(GerJettyDocument.type.getDocumentElementName().getNamespaceURI(),
+                JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "jetty").convertToSpecificPlan(rawPlan);
         File ConvertedPlan = new File(basedir, "src/test-resources/plans/plan4-converted.xml");
         assertTrue(ConvertedPlan.exists());
         XmlObject converted = XmlBeansUtil.parse(ConvertedPlan.toURL());
         XmlCursor c = converted.newCursor();
         SchemaConversionUtils.findNestedElement(c, "web-app");
+        c.toFirstChild();
         ArrayList problems = new ArrayList();
-        compareXmlObjects(plan, c, problems);
+        compareXmlObjects(webPlan, c, problems);
         assertEquals("problems: " + problems, 0, problems.size());
     }
 
