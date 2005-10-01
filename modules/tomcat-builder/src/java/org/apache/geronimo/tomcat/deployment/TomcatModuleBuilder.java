@@ -194,7 +194,11 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         }
 
         if (contextRoot == null) {
-            contextRoot = tomcatWebApp.getContextRoot();
+            if (tomcatWebApp.isSetContextRoot()) {
+                contextRoot = tomcatWebApp.getContextRoot();
+            } else {
+                contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
+            }
         }
         //look for a webservices dd
         Map portMap = Collections.EMPTY_MAP;
