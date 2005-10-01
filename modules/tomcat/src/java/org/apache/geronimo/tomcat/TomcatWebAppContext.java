@@ -75,7 +75,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Realm realm;
 
     private final List valveChain;
-    
+
     private final boolean crossContext;
 
     private final Map componentContext;
@@ -108,7 +108,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             ClassLoader classLoader,
             String objectName,
             String originalSpecDD,
-            URI webAppRoot,
+            URI relativeWebAppRoot,
             URI[] webClassPath,
             boolean contextPriorityClassLoader,
             URL configurationBaseUrl,
@@ -132,7 +132,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             throws Exception {
 
         assert classLoader != null;
-        assert webAppRoot != null;
+        assert relativeWebAppRoot != null;
         assert webClassPath != null;
         assert configurationBaseUrl != null;
         assert transactionContextManager != null;
@@ -142,7 +142,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
 
         this.objectName = objectName;
-        this.webAppRoot = webAppRoot;
+        URI root = null;
+        //TODO is there a simpler way to do this?
+        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
+            root = new URI("file", configurationBaseUrl.getPath(), null);
+        } else {
+            root = URI.create(configurationBaseUrl.toString());
+        }
+        this.webAppRoot = root.resolve(relativeWebAppRoot);
         this.container = container;
         this.originalSpecDD = originalSpecDD;
 
@@ -181,17 +188,11 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             valveChain = null;
         }
-        
+
         this.crossContext = crossContext;
 
         this.webServices = webServices;
 
-        URI root = URI.create(configurationBaseUrl.toString());
-        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
-            root = new URI("file", configurationBaseUrl.getPath(), null);
-        } else {
-            root = URI.create(configurationBaseUrl.toString());
-        }
         URL webAppRootURL = webAppRoot.toURL();
 
         URL[] urls = new URL[webClassPath.length];
@@ -200,7 +201,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             classPathEntry = root.resolve(classPathEntry);
             urls[i] = classPathEntry.toURL();
         }
-        
+
         this.webClassLoader = new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
 
         this.kernel = kernel;
@@ -318,10 +319,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         String[] result = null;
         if ((context != null) && (context instanceof StandardContext))
             result = ((StandardContext)context).getServlets();
-        
+
         return result;
     }
-    
+
     /**
      * ObjectName must match this pattern: <p/>
      * domain:j2eeType=WebModule,name=MyName,J2EEServer=MyServer,J2EEApplication=MyApplication

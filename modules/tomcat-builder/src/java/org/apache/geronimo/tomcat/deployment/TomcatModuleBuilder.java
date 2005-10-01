@@ -405,7 +405,7 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
 
-            URI baseUri = earContext.getTargetFile(URI.create(webModule.getTargetPath() + "/")).toURI();
+            URI baseUri = URI.create(webModule.getTargetPath() + "/");       
             webModuleData.setAttribute("webAppRoot", baseUri);
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
 
