@@ -141,6 +141,15 @@ public class RefContext {
         if (pos > -1) {
             String targetModule = messageDestinationLink.substring(0, pos);
             Map destinations = (Map) messageDestinations.get(targetModule);
+            // Hmmm...if we don't find the module then something is wrong in the deployment.
+            if (destinations == null) {
+                StringBuffer sb = new StringBuffer();
+                for (Iterator mapIterator = messageDestinations.keySet().iterator(); mapIterator.hasNext();) {
+                    sb.append((String) mapIterator.next() + "\n");
+                }
+                throw new DeploymentException("Unknown module " + targetModule + " when processing message destination " + messageDestinationLink +
+                        "\nKnown modules in deployable unit are:\n" + sb.toString());
+            }
             messageDestinationLink = messageDestinationLink.substring(pos + 1);
             destination = destinations.get(messageDestinationLink);
         } else {
@@ -259,7 +268,7 @@ public class RefContext {
     private GBeanData locateComponentInModule(String resourceLink, URI moduleURI, String moduleType, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean requireMatchInExplicitModule) throws UnresolvedReferenceException {
         GBeanData match;
         String name = resourceLink.substring(resourceLink.lastIndexOf('#') + 1);
-        String module = moduleURI == null? "": moduleURI.getPath();
+        String module = moduleURI == null ? "" : moduleURI.getPath();
 
         if (resourceLink.indexOf('#') > -1) {
             //presence of # means they explicitly want only gbeans in specified module in this application.
