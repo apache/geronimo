@@ -62,8 +62,25 @@ http://issues.apache.org/jira/browse/GERONIMO?
 Significant Changes Since the M4 Release
 ----------------------------------------
  * Complete Tomcat integration
+ * Configuration of ports, hosts, and most other attributes without rebuilding the server
  * A web management console (developer preview)
- * Official J2EE Certification 
+ * Official J2EE Certification
+
+Choice of Web container
+-----------------------
+Geronimo M5 ships with both jetty and tomcat web containers running.
+Most likely you want only one of these. We have provided configuration files
+for jetty-only and tomcat-only configurations.  To change to one of these configurations,
+go to the var/config directory and copy the appropriate files to config.list and config.xml,
+e.g.
+cp config.jetty.list config.list
+cp config.jetty.xml config.xml
+
+
+Configuration
+-------------
+Most gbean attributes can be configured using the config.xml file.  The attributes most likely
+to be changed are already included in the supplied config.xml file.
 
 
 Significant Missing Features
@@ -71,9 +88,6 @@ Significant Missing Features
  * Fully featured web management console
  * Deployment from a machine other than the server
  * J2EE Application Client that works from a machine other than the server
- * A build that uses Tomcat by default (Tomcat can be activated as a
-   manual process, but as of M5 we will be distributing both Jetty and
-   Tomcat builds)
  * A hot deploy directory (though the deploy tool can hot deploy)
  * JSR-88 support for Geronimo deployment plan configuration
  * Full functionality on non-Sun JVMs (a portable CORBA implementation
@@ -97,8 +111,9 @@ http://issues.apache.org/jira/browse/GERONIMO
 
 Certification Status
 --------------------
-Geronimo is pursuing full J2EE certification (it's not enough to just
-pass the automated tests).  Stay tuned!
+Geronimo 1.0 M5 has passed the j2ee certification test suite.  We will
+be filing the appropriate certification paperwork with Sun for official
+J2ee certification.
 
 
 Specific Issues Addressed in M5 Release
