@@ -95,7 +95,7 @@ public class DeployUtils {
     }
 
     public static void main(String[] args) {
-        String msg = "/home/ammulder/cvs/geronimo/modules/security/target/geronimo-security-1.0-SNAPSHOT.jar does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.";
+        String msg = "/home/ammulder/cvs/geronimo/modules/security/target/geronimo-security-1.0-M5.jar does not specify a J2EE-DeploymentFactory-Implementation-Class; cannot load driver.";
         System.out.println(reformat("Error: "+msg, 4, 72));
     }
 }

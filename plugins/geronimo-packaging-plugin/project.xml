@@ -22,13 +22,13 @@
     <groupId>geronimo</groupId>
     <id>geronimo-packaging-plugin</id>
     <name>Geronimo Packaging Plugin</name>
-    <currentVersion>1.0-SNAPSHOT</currentVersion>
+    <currentVersion>1.0-M5</currentVersion>
 
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0-M5-SNAPSHOT</version>
+            <version>1.0-M5</version>
         </dependency>
 
         <dependency>

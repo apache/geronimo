@@ -49,7 +49,7 @@ public class DatabaseManagerHelper {
 
     private final static String MODULE_FILE;
 
-    private final static String TRANQL_RAR = "/tranql/rars/tranql-connector-1.0-SNAPSHOT.rar";
+    private final static String TRANQL_RAR = "/tranql/rars/tranql-connector-1.0.rar";
 
     private final static String PLAN_XML = "/tranql/rars/datasourcePlan.xml";
 
