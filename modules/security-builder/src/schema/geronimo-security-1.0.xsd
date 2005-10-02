@@ -25,8 +25,6 @@
     attributeFormDefault="unqualified"
     version="1.0">
 
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="schema/xml.xsd"/>
-
     <xsd:element name="security" type="geronimo:securityType"/>
     <xsd:element name="default-principal" type="geronimo:default-principalType"/>
 

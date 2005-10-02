@@ -133,6 +133,12 @@
             <ant:fileset dir="${project.root}/modules/web-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/jetty-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/tomcat-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
             <ant:fileset dir="${project.root}/modules/connector-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
@@ -172,23 +178,6 @@
             </ant:fileset>
         </ant:move>
         <ant:delete dir="${geronimo.assembly.dir}/META-INF"/>
-
-        <!-- update include paths in all schemas -->
-        <ant:fileScanner var="schemaScanner">
-            <ant:fileset dir="${geronimo.assembly.dir}/schema">
-                <ant:include name="geronimo-application*.xsd"/>
-                <ant:include name="geronimo-application-client*.xsd"/>
-                <ant:include name="geronimo-jetty*.xsd"/>
-                <ant:include name="geronimo-tomcat*.xsd"/>
-                <ant:include name="geronimo-connector*.xsd"/>
-            </ant:fileset>
-        </ant:fileScanner>
-        <j:forEach var="schema" items="${schemaScanner.iterator()}">
-            <ant:replace file="${schema}" token="../../../naming-builder/src/schema/" value=""/>
-            <ant:replace file="${schema}" token="../../../service-builder/src/schema/" value=""/>
-            <ant:replace file="${schema}" token="../../../security-builder/src/schema/" value=""/>
-            <ant:replace file="${schema}" token="../../../connector-builder/src/schema/" value=""/>
-        </j:forEach>
 
         <!-- copy in data files -->
         <ant:copy todir="${geronimo.assembly.dir}/var">
