@@ -47,9 +47,9 @@
     </unitTest>
     <resources>
       <resource>
-        <directory>src/conf</directory>
+        <directory>src</directory>
         <includes>
-          <include>*.properties</include>
+          <include>META-INF/ejb-jar.xml</include>
         </includes>
       </resource>
     </resources>
