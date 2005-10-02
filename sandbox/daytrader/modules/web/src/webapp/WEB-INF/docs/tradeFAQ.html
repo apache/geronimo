@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><!-- Sample HTML file -->
+
+<HTML>
+<HEAD>
+<META name="GENERATOR" content="IBM WebSphere Page Designer V3.5.1 for Windows">
+<META http-equiv="Content-Style-Type" content="text/css">
+<TITLE>Frequently Asked Questions</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<HR>
+<TABLE width="100%">
+  <TBODY>
+    <TR>
+      <TD>
+      <H3><FONT face="Times New Roman">Frequently Asked Questions</FONT></H3>
+      </TD>
+      <TD align="right"><IMG border="0" src="../images/WEBSPHERE_18P_UNIX.GIF"></TD>
+    </TR>
+  </TBODY>
+</TABLE>
+
+<P>The IBM<SUP>&reg;</SUP> Trade Performance Benchmark Sample for WebSphere<SUP>&reg;</SUP> Application Server (otherwise known as Trade 6) provides a suite of IBM-developed workloads
+for characterizing performance of  WebSphere Application Server. The
+workloads consist of an end-to-end Web application and a full set of Web
+primitives. The applications are a collection of Java<SUP>TM</SUP> classes, Java servlets,
+Java ServerPages<SUP>TM</SUP> (JSP<SUP>TM</SUP>) files and Enterprise JavaBeans<SUP>TM</SUP> (EJB<SUP>TM</SUP>) built to open Java 2 Platform, Enterprise Edition (J2EE<SUP>TM</SUP>) APIs. Together, the Trade application and Web primitives provide versatile and portable test cases that are designed to measure aspects
+of scalability and performance.</P><HR>
+
+<P><FONT size="+1" color="#000099"><B>Application Design</B></FONT></P>
+
+<P><B>What is Trade?</B></P>
+<P>Trade is an end-to-end Web application that is modeled after an on-line stock brokerage.
+Trade leverages J2EE components such as servlets, JSP files, enterprise beans, message-driven beans (MDBs) and Java database connectivity (JDBC<SUP>TM</SUP>) to
+provide a set of user services such as login/logout, stock quotes, buy,
+sell, account details, and so on through  standards-based HTTP and Web services protocols.</P>
+
+<P><B>What are Web Primitives?</B></P>
+<P>The Web primitives leverage the Trade infrastructure to test specific features
+of the WebSphere Application Server J2EE 1.4 programming model. A description of each of the Web 
+primitives is provided on the <A href="../web_prmtv.html">main web primitive 
+page</A>.</P>
+
+<P><B>Why is there a Version 6?</B></P>
+<P>The Trade version skipped from Trade 3 directly to Trade 6 in order to match 
+the WebSphere Application Server version.  Trade 6 builds on Trade 3 by extending the
+programming model from J2EE 1.3 to J2EE 1.4.</P>
+
+<P><B>What is new in Version 6?</B></P>
+<P>As previously mentioned, the largest change in Trade 6 has been the conversion
+from J2EE 1.3 to J2EE 1.4. This conversion involves updating the deployment descriptors and has
+little impact on the actual application code. Other changes in Version 6 include:</P>
+<UL>
+    <LI>Changes to the Java Messaging Service (JMS) APIs associated with J2EE 1.4</LI>
+	<LI>Support for <CODE>DistributedMap</CODE> data caching as well as the ability to configure data caching within Trade from the  <A
+		href="../config">Configuration page</A></LI>
+	<LI>Configurable iteration count for a number  the Web primitives</LI>
+    <LI>Two additional primitives to test JSP-based expression language (EL) support and servlet-based includes</LI>
+	<LI>Consolidated installation scripts for single server and cluster configurations</LI>
+	<LI>Updated cluster configuration to support changes associated with the embedded messaging provider</LI>
+</UL>
+
+<P><B>What changes are made to the cluster configuration?</B></P>
+<P>In previous versions of WebSphere Application Server, embedded messaging, based on WebSphere MQSeries<SUP>TM</SUP>, running on a separate node 
+defined outside of the Trade cluster handled the JMS portion of 
+the Trade workload. In this release, the embedded messaging provider is replaced 
+by an in-process, Java-based distributed messaging engine that provides 
+workload management, failover, and partitioning capabilities. These 
+capabilities provide a wide range of configuration options for messaging. To demonstrate the most common configuration  and to high-light several 
+of these capabilities, the following cluster configuration is used for 
+Trade 6.
+<UL>
+    <LI>A messaging engine (ME) is started and mapped to each cluster member.</LI>
+    <LI>The entire cluster is added to the Service Integration Bus (SIB), providing failover and workload 
+    management capabilities for the MEs.</LI>
+    <LI>The TradeBroker queue is localized to the entire cluster, effectively 
+    partitioning the queue across the MEs.</LI>
+    <LI>Tables are added to the existing Trade database by each ME for 
+    internally managing queue and topic messages.</LI>
+</UL>
+<P>For additional details concerning the configuration of JMS in an ND and cluster 
+environment in WebSphere Application Server V6.0, please consult the Information Center.</P>
+
+<HR>
+<P><FONT size="+1" color="#000099"><FONT color="#000099"><B>Installation</B></FONT></FONT></P>
+
+<P><B>What software is required to run Trade 6?</B></P>
+<UL>
+    <LI>WebSphere Application Server V6.0</LI>
+    <LI>DB2<SUP>&reg;</SUP> Universal Database V8.2, DB2 Universal Database for z/OS Version 8, or Oracle<SUP>&reg;</SUP>  10g database</LI>
+</UL>
+
+<P><B>What are the most common configuration scenarios?</B><UL>
+    <LI><B><B>Single server with a remote database</B></B> - The Trade application runs on a stand alone WebSphere Application Server instance. The required database software and the associated Trade database are located on a different system from the Application Server. The Application Server system must have the necessary database client software to connect to the remote database. <B></B></LI>
+	<LI><B>Single server with a local database</B> - Same as the previous scenario; however, the required database software and the associated Trade database are located on
+	the same system as the Application Server.</LI>
+	<LI><B>Horizontally clustered servers</B> - In this scenario, a cluster of application servers (one
+    server per system) run the Trade application in a  Network Deployment (ND) environment.
+    This scenario also requires a remote database.</LI>
+</UL>
+
+
+<HR>
+<P><FONT size="+1" color="#000099"><FONT color="#000099"><B>Run-time Configuration</B></FONT></FONT></P>
+
+<P><B>What does the ResetTrade link do?</B></P>
+<P>The ResetTrade link on the configuration page must be clicked between Trade
+runs. This link sets the database to a consistent size by  removing all the newly registered users created during a Trade run. The reset also sets all outstanding orders to a consistent state. Resetting the database to a consistent size ensures repeatable throughput on subsequent Trade runs. </P>
+
+<P><B>How are the Trade configuration parameters modified?</B></P>
+<P>The Trade <A HREF="../config">configuration page</A> provides a dynamic mechanism to set
+the run-time configuration for a Trade run. These settings control the application
+run-time characteristics such as the run-time mode, the
+order processing mode, and other run-time variations supported in Trade. All settings are reset to defaults when the Trade application server is restarted.</P>
+<P><B>Note:</B> To set configuration parameters when running in a <B></B>cluster<B></B>, access each application server in the cluster on its
+internal HTTP port (9080) and configure the  run-time parameters.
+Another solution is to use the method for making settings permanent as
+described in the following section.</P>
+
+<P><B>Can you make configuration changes permanent?</B></P>
+<P>Yes. Normally, Trade configuration parameters return to defaults whenever the Trade application 
+server is restarted. Settings can be made permanent by setting the configuration values in the 
+servlet init parameters of the TradeApp servlet and the TradeScenario servlet. Modify the 
+servlet init parameters in the web.xml file of the Trade Web application to change these parameters.</P>
+
+<P><B>What are the run-time modes?</B></P>
+<P>Trade provides two server implementations of the emulated Trade brokerage services.</P>
+<UL>
+    <LI><B>EJB</B> - Database access uses EJB 2.1 technology to drive transactional trading operations.</LI>
+    <LI><B>Direct</B> - This mode uses database and messaging access through direct JDBC and JMS code.</LI>
+</UL>
+
+<P><B>What are the order processing modes?</B></P>
+<P>Trade provides an asynchronous order processing mode through messaging with MDBs. The order 
+processing mode determines the mode for completing stock purchase and sell operations. Synchronous 
+mode completes the order immediately. Asynchronous mode uses MDB and JMS to queue the order to a TradeBroker agent to complete the order. Asychronous_2-Phase performs a two-phase commit over the EJB 
+ database and messaging transactions.</P>
+<UL>   
+	<LI><B>Synchronous</B> - Orders are completed immediately by the Trade session enterprise bean and entity enterprise beans.</LI>
+	<LI><B>Asynchronous 2-phase</B> - Orders are queued to the TradeBrokerMDB for asynchronous processing.</LI>
+</UL>
+
+<P><B>What are the access modes?</B></P>
+<P>Trade provides multiple access modes to the server-side brokerage services.</P>
+<UL>
+	
+	<LI><B>Standard</B> - Servlets access the Trade enterprise beans through the standard RMI protocol</LI>   
+	<LI><B>WebServices</B> - Servlets access Trade services through the Web services implementation in 
+    WebSphere Application Server. Each trading service is available as a standard Web service through the SOAP Remote Procedure Call (RPC) 
+    protocol. Because Trade is wrapped to provide SOAP services, each Trade operation (login, 
+    quote, buy, and son on) is available as a SOAP service.</LI>
+	
+</UL>
+
+<P><B>What are the caching Types?</B></P>
+<P>This setting determines which set of dynamic caching technology is used by Trade for data caching. By default, 
+data caching is disabled in Trade.</P>
+<UL>
+	<LI><B>DistributedMap  </B>- This feature is new in WebSphere Application Server V6.0, providing a general API for storing objects
+    in the dynamic cache service.</LI>
+	<LI><B>Command caching</B> - This caching feature was added to WebSphere Application Server V5.0 for storing command beans in the 
+    dynamic cache service. Support for this feature was added in Trade 3 and carried over to Trade 6.</LI>
+</UL><P><B>What is the Primitive Iteration setting?</B></P>
+<P>By default, the Trade primitives run one operation per Web request. Setting this value alters
+the number of operations performed per client request. This is useful for reducing the amount of work
+that is performed by the Web Container and for stressing other components within the application server.
+
+</P>
+<HR>
+<P><FONT size="+1" color="#000099"><FONT color="#000099"><B>Benchmarking</B></FONT></FONT></P>
+
+<P><B>What is the TradeScenario servlet?</B></P>
+<P>The TradeScenario servlet provides a simple mechanism to drive the Trade application.
+The Trade database is initially populated with a set of fictitious users
+with names ranging from <CODE>uid:0</CODE> to <CODE>uid:499</CODE> and a set of stocks ranging from <CODE>s:0</CODE> to <CODE>s:999</CODE>. The TradeScenario servlet emulates
+a population of Web users by generating a specific Trade operation for
+a randomly chosen user on each access to the URL. To run the TradeScenario servlet
+ use the single <A HREF="../scenario">TradeScenario URL</A> (http://<I>hostname</I>/trade/scenario) with a load generation tool.</P>
+<P>Although TradeScenario servlet provides a simple mechanism for driving the Trade application, 
+there is a drawback to using this method versus using a series of load generation scripts 
+that drive the operations directly. This servlet consumes processing resources on the server
+to manage incoming clients and dispatch these simple client requests to complex Trade actions. This
+action artificially decreases server throughput because the server is emulating tasks that are normally
+ performed by a standard client or a more complex load generation tool.</P>
+
+<P><B>Why does performance decrease over time?</B><P>If Trade runs for an extended time, performance  eventually starts
+to decline. This degradation in throughput is a direct result of new users, orders, and holdings
+accumulating within the Trade database. As the database grows,  queries take longer
+to complete, resulting in higher response times. When the workload is stopped, the 
+<A HREF="../config?action=resetTrade">Reset Trade link</A> can be followed to reset the Trade 
+run-time by logging off all users, removing new registrations, and other
+general cleanup.</P>
+
+<P><B>What is the typical procedure for collecting performance measurements with Trade?</B><P>When Trade is  successfully installed on the application server and the supporting
+database is  populated, you can us the Trade application to collect performance measurements.
+The following list provides the typical process for gathering performance measurements with Trade.</P>
+<OL>
+    <LI>Select the  Trade run-time configuration parameters from the <A HREF="../config">configuration page</A> 
+    (EJB, synchronous, and son on).</LI>
+    <LI>Reset the Trade run-time using the <A HREF="../config?action=resetTrade">Reset Trade link</A>.</LI>
+    <LI>Warm-up the application server JVM<SUP>TM</SUP> by applying load for a short period of time. The load generation tool  should access the TradeScenario servlet, 
+    web primitives, or use custom scripts to drive the various operations of TradeApp servlet. To warm-up the
+     JVM, each code path within Trade must be processed at least 3000 times. Remember that the same code path is not necessarily run on each request unless primitives are being 
+    run. Therefore, perform an adequate number of requests to stabilize the 
+    performance results.</LI>
+    <LI>Stop the load generation tool.</LI>
+    <LI>Reset the Trade run-time again</LI>
+    <LI>Restart the load generation tool and record measurements after the driver completes the
+    requests.</LI>
+    <LI>Repeat steps 5 and 6 to obtain additional measurements.</LI>    
+</OL>
+
+<HR>
+
+</BODY>
+</HTML>
