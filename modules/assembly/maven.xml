@@ -133,6 +133,12 @@
             <ant:fileset dir="${project.root}/modules/web-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
+           <ant:fileset dir="${project.root}/modules/jetty-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+           <ant:fileset dir="${project.root}/modules/tomcat-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
             <ant:fileset dir="${project.root}/modules/connector-builder">
                 <ant:include name="src/schema/*.xsd"/>
             </ant:fileset>
