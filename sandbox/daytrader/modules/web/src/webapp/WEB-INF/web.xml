@@ -81,7 +81,6 @@
             <param-name>webServicesEndpoint</param-name>
             <param-value>http://localhost:8080/daytrader/services/TradeWSServices</param-value>
          </init-param>        
-        -->
          <init-param id="InitParam_5">
             <description>Sets the default workloadMix used with
                 TradeScenario servlet. Legal values include Standard and High-Volume</description>
