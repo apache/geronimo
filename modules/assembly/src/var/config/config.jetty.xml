@@ -15,7 +15,7 @@
             <attribute name="defaultNamespace">${PlanJettyWebBuilderDefaultNamespace}</attribute>
         </gbean>
         <gbean name="EJBBuilder">
-            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Jetty,J2EEServer=geronimo,j2eeType=GBean,name=${PlanWebServerName}WebContainer</attribute>
+            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Jetty,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
         </gbean>
     </configuration>
     <configuration name="org/apache/geronimo/RuntimeDeployer">
@@ -23,7 +23,7 @@
             <attribute name="defaultNamespace">${PlanJettyWebBuilderDefaultNamespace}</attribute>
         </gbean>
         <gbean name="EJBBuilder">
-            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Jetty,J2EEServer=geronimo,j2eeType=GBean,name=${PlanWebServerName}WebContainer</attribute>
+            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Jetty,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
         </gbean>
     </configuration>
     <configuration name="org/apache/geronimo/Jetty">
