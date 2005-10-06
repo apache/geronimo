@@ -510,7 +510,7 @@
             configId="foo"
             clientConfigId="tradeStreamerAppclient">
             <resource>
-                <external-rar>activemq/rars/activemq-ra-3.2-SNAPSHOT.rar</external-rar>
+                <external-rar>activemq/rars/activemq-ra-3.2-M1.rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
            configId="org/apache/geronimo/SystemJMS"
            parentId="org/apache/geronimo/ActiveMQServer">
@@ -563,7 +563,7 @@
     </module>
     <ext-module>
         <connector>TradeDataSource</connector>
-        <external-path>tranql/rars/tranql-connector-derby-embed-xa-1.0-SNAPSHOT.rar</external-path>
+        <external-path>tranql/rars/tranql-connector-derby-embed-xa-1.0.rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             configId="TradeDataSource"
@@ -609,7 +609,7 @@
 
     <ext-module>
         <connector>TradeJMS</connector>
-        <external-path>activemq/rars/activemq-ra-3.2-SNAPSHOT.rar</external-path>
+        <external-path>activemq/rars/activemq-ra-3.2-M1.rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
