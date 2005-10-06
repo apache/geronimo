@@ -97,8 +97,6 @@
     />
   </goal>
   <goal name="multiproject:cactus">
-<!--    <attainGoal name="multiproject:build" />-->
-<!--    <maven:maven descriptor="components/ears/ear/project.xml" goals="cactus:test-ear" />-->
     <maven:reactor
       basedir="."
       banner="Testing EAR files"

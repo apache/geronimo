@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"><!-- Sample HTML file -->
+
+<HTML>
+<HEAD>
+<META name="GENERATOR" content="IBM WebSphere Page Designer V3.5.1 for Windows">
+<META http-equiv="Content-Style-Type" content="text/css">
+<TITLE>Configuration and utilities</TITLE>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<HR>
+<TABLE width="100%">
+  <TBODY>
+    <TR>
+      <TD>
+      <H3>Configuration utilities</H3>
+      </TD>
+      <TD align="right"></TD>
+    </TR>
+  </TBODY>
+</TABLE>
+<HR>
+<CENTER>
+<TABLE border="1" width="100%">
+  <TBODY>
+    <TR>
+      <TD align="center"><B><FONT face="Times New Roman" size="-1">Benchmark Configuration <BR>
+            Tools</FONT> </B></TD>
+      <TD align="center"><B><FONT face="Times New Roman" size="-1"> </FONT>Description </B></TD>
+    </TR>
+    <TR>
+      <TD><A href="config?action=resetTrade"><FONT face="Times New Roman" size="-1">Reset Trade<BR>
+      (to be done before each run)</FONT></A></TD>
+      <TD>Reset the Trade runtime to a clean starting
+      point by logging off all users, removing
+      new registrations and other general cleanup.
+      For consistent results this URL should be
+      run <B>before each </B>Trade run.</TD>
+    </TR>
+    <TR>
+      <TD><A href="config" target="_self"><FONT face="Times New Roman" size="-1">Configure Trade run-time parameters</FONT></A></TD>
+      <TD>This link provides an interface to set configuration
+      parameters that control Trade run-time characteristics
+      such as using EJBs or JDBC. This link also
+      provides utilities such as setting the UID
+      and Password for a remote or protected database
+      when using JDBC.</TD>
+    </TR>
+    <TR>
+      <TD><A href="config?action=buildDB" target="_blank"><FONT face="Times New Roman" size="-1">(Re)-populate &nbsp;Trade&nbsp;Database</FONT></A>
+      
+      </TD>
+      <TD>This link is used to initially populate or re-populate the Trade database with fictitious users (uid:0, uid:1, ...) and stocks (s:0, s:1, ...). First all existing users and stocks are deleted (if any). The database is then populated with a new set of Trade users and stocks.</TD>
+    </TR>
+    <TR>
+      <TD><A href="scenario" target="_blank"><FONT face="Times New Roman" size="-1">Test Trade Scenario</FONT></A></TD>
+      <TD>This links pops up a browser to manually
+      step through a Trade scenario by hitting
+      &quot;Reload&quot; on your browser</TD>
+    </TR>
+        <!--
+    <TR>
+      <TD><A href="/WebSphereSamples/TradeSample/trade2_stdout.txt" target="_blank">trade2_stdout.txt</A><BR>
+      <BR>
+      <A href="/WebSphereSamples/TradeSample/trade2_stderr.txt" target="_blank">
+      trade2_stderr.txt</A></TD>
+      <TD>View the Trade 2 runtime logs. These links capture stdout and stderr output
+      from the Trade 2 application and WebSphere and are useful for debugging
+      runtime errors. Be sure to hit &quot;shift-reload&quot; for the browser
+      to refresh the output.</TD>
+    </TR>
+	-->
+    <TR>
+      <TD><FONT size="-1"><A href="docs/tradeversion.html">Trade Version</A></TD>
+      <TD> Trade application version and change history
+      information</TD>
+    </TR>
+    <TR>
+      <TD></TD>
+      <TD></TD>
+    </TR>
+  </TBODY>
+</TABLE>
+</CENTER>
+<CENTER>
+</CENTER>
+<HR>
+</BODY>
+</HTML>

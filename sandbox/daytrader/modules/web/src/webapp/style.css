@@ -1,0 +1,8 @@
+A:HOVER {
+	text-decoration: underline; color: red;
+}
+
+A:ACTIVE {
+	color: red;
+	font-weight: bold
+}
