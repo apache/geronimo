@@ -21,6 +21,6 @@
 		<ejb-ref-type>Session</ejb-ref-type>
 		<local-home>org.acme.MagicGBallLocalHome</local-home>
 		<local>org.acme.MagicGBallLocal</local>
-		<ejb-link>magicGball-ejb.jar#MagicGBall</ejb-link>
+		<ejb-link>magicGball-ejb-1.0-SNAPSHOT.jar#MagicGBall</ejb-link>
 	</ejb-local-ref>
 </web-app>

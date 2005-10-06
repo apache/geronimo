@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="org/apache/geronimo/MagicGBallCorba"
+    configId="org/apache/geronimo/MagicGBallCorbaNoSec"
     parentId="org/apache/geronimo/ServerCORBA">
 
     <import>
@@ -19,7 +19,7 @@
                 <session>
                     <ejb-name>MagicGBall</ejb-name>
                     <jndi-name>MagicGBall</jndi-name>
-                    <tss-link>SSLClientPassword </tss-link>
+                    <tss-link>IdentityTokenNoSecurity </tss-link>
                 </session>
             </enterprise-beans>
         </openejb-jar>
@@ -45,7 +45,7 @@
                 <ref-name>mGball</ref-name>
                 <ns-corbaloc>corbaloc::localhost:1050/NameService</ns-corbaloc>
                 <name>MagicGBall</name>
-                <css-link>SSLClientPassword</css-link>
+                <css-link>NoSecurity</css-link>
             </ejb-ref>
             <realm-name>client-properties-realm</realm-name>
             <callback-handler>org.acme.MagicGBallCallbackHandler</callback-handler>
@@ -64,31 +64,5 @@
             </role>
         </role-mappings>
     </security>
-
-    <dep:gbean name="default"
-         class="org.apache.geronimo.security.realm.GenericSecurityRealm"
-        xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.0">
-         <dep:attribute name="realmName">default</dep:attribute>
-         <dep:xml-reference name="LoginModuleConfiguration">
-             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
-                 <lc:login-module control-flag="REQUIRED" server-side="true">
-                     <lc:login-domain-name>default</lc:login-domain-name>
-                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
-                     <lc:option name="usersURI">var/security/users.properties</lc:option>
-                     <lc:option name="groupsURI">var/security/groups.properties</lc:option>
-                 </lc:login-module>
-             </lc:login-config>
-         </dep:xml-reference>
-         <dep:reference name="ServerInfo">
-             <dep:application>null</dep:application>
-             <dep:module>org/apache/geronimo/System</dep:module>
-             <dep:name>ServerInfo</dep:name>
-         </dep:reference>
-         <dep:reference name="LoginService">
-             <dep:application>null</dep:application>
-             <dep:module>org/apache/geronimo/Security</dep:module>
-             <dep:name>JaasLoginService</dep:name>
-         </dep:reference>
-     </dep:gbean>
 
 </application>
