@@ -36,7 +36,7 @@
         <java>magicGball-client-${geronimo_version}.jar</java>
         <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
             configId="client"
-            clientConfigId="org/apache/geronimo/MagicGBallClient"
+            clientConfigId="org/apache/geronimo/MagicGBallClientNoSec"
             clientParentId="org/apache/geronimo/ClientCORBA">
             <import>
                 <uri>org/apache/geronimo/ClientSecurity</uri>

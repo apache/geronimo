@@ -104,7 +104,7 @@
         <echo message="runtime deployer has started"/>
         <u:sleep millis="7000"/>
     </goal>
-    <goal name="deployApp" prereqs="ear">
+    <goal name="deployAppSSL" prereqs="ear">
         <deploy:distribute
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -112,21 +112,21 @@
             module="${basedir}/target/magicGball-${geronimo_version}.ear"
             plan="${basedir}/target/plan/magicgball-corba-plan.xml"/>
     </goal>
-    <goal name="startApp">
+    <goal name="startAppSSL">
         <deploy:start
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorba"/>
     </goal>
-    <goal name="stopApp">
+    <goal name="stopAppSSL">
         <deploy:stop
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorba"/>
     </goal>
-    <goal name="undeployApp">
+    <goal name="undeployAppSSL">
         <deploy:undeploy
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
@@ -134,7 +134,7 @@
             id="org/apache/geronimo/MagicGBallCorba"/>
     </goal>
 
-    <goal name="runClient" prereqs="initVars">
+    <goal name="runClientSSL" prereqs="initVars">
         <j:if test="${context.getVariable('enable.debug') == 'true'}">
             <j:set var="geronimo.client.debug.options" value="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5003"/>
         </j:if>
@@ -145,6 +145,52 @@
             </classpath>
             <!--            <jvmarg value="${geronimo.server.corba.options}"/>-->
             <arg value="org/apache/geronimo/MagicGBallClient"/>
+            <arg value="foo"/>
+            <arg value="bar"/>
+        </java>
+    </goal>
+
+    <goal name="deployAppNoSec" prereqs="ear">
+        <deploy:distribute
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            module="${basedir}/target/magicGball-${geronimo_version}.ear"
+            plan="${basedir}/target/plan/magicgball-corba-nosec-plan.xml"/>
+    </goal>
+    <goal name="startAppNoSec">
+        <deploy:start
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/MagicGBallCorbaNoSec"/>
+    </goal>
+    <goal name="stopAppNoSec">
+        <deploy:stop
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/MagicGBallCorbaNoSec"/>
+    </goal>
+    <goal name="undeployAppNoSec">
+        <deploy:undeploy
+            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/MagicGBallCorbaNoSec"/>
+    </goal>
+
+    <goal name="runClientNoSec" prereqs="initVars">
+        <j:if test="${context.getVariable('enable.debug') == 'true'}">
+            <j:set var="geronimo.client.debug.options" value="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5003"/>
+        </j:if>
+        <java classname="org.apache.geronimo.system.main.ClientCommandLine" fork="yes"
+            jvmargs="${geronimo.client.debug.options} ${geronimo.corba.options} ${geronimo.ssl.options}">
+            <classpath>
+                <pathelement location="${maven.build.dir}/geronimo-${geronimo_version}/bin/client.jar"/>
+            </classpath>
+            <!--            <jvmarg value="${geronimo.server.corba.options}"/>-->
+            <arg value="org/apache/geronimo/MagicGBallClientNoSec"/>
             <arg value="foo"/>
             <arg value="bar"/>
         </java>
