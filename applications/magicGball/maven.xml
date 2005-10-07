@@ -6,12 +6,40 @@
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"
+    xmlns:velocity="jelly:velocity"
     xmlns:deploy="geronimo:deploy">
 
     <goal name="default" prereqs="ear"/>
     <goal name="build" prereqs="default"/>
 
     <goal name="rebuild" prereqs="clean,build"/>
+
+    <goal name="filter">
+        <fileScanner var="plans">
+            <fileset dir="${basedir}/src/plan">
+                <include name="*-plan.xml"/>
+            </fileset>
+        </fileScanner>
+
+        <!-- Prepare the web container -->
+        <ant:mkdir dir="${basedir}/target/tmp"/>
+
+        <ant:mkdir dir="${basedir}/target/plan"/>
+        <j:forEach var="plan" items="${plans.iterator()}">
+            <j:set var="planName" value="${plan.name}"/>
+            <echo>Preprocessing plan ${planName}</echo>
+            <velocity:merge
+                basedir="${basedir}/src/plan"
+                template="${planName}"
+                name="${basedir}/target/plan/${planName}"/>
+        </j:forEach>
+
+        <ant:mkdir dir="${basedir}/target/resources/ear/META-INF"/>
+        <velocity:merge
+            basedir="${basedir}/src/resources/ear/META-INF"
+            template="application.xml"
+            name="${basedir}/target/resources/ear/META-INF/application.xml"/>
+    </goal>
 
     <goal name="ejb" prereqs="java:compile">
         <ant:jar destfile="target/${pom.artifactId}-ejb-${geronimo_version}.jar">
@@ -38,14 +66,14 @@
         </ant:jar>
     </goal>
 
-    <goal name="ear" prereqs="ejb,war:war,client">
+    <goal name="ear" prereqs="ejb,war:war,client,filter">
         <ant:jar destfile="target/${pom.artifactId}-${geronimo_version}.ear">
             <fileset dir="target">
                 <include name="${pom.artifactId}-ejb-${geronimo_version}.jar"/>
                 <include name="${pom.artifactId}-client-${geronimo_version}.jar"/>
                 <include name="${pom.artifactId}-${geronimo_version}.war"/>
             </fileset>
-            <fileset dir="src/resources/ear"/>
+            <fileset dir="target/resources/ear"/>
         </ant:jar>
     </goal>
 
@@ -82,7 +110,7 @@
             username="system"
             password="manager"
             module="${basedir}/target/magicGball-${geronimo_version}.ear"
-            plan="${basedir}/src/plan/magicgball-corba-plan.xml"/>
+            plan="${basedir}/target/plan/magicgball-corba-plan.xml"/>
     </goal>
     <goal name="startApp">
         <deploy:start
@@ -108,20 +136,19 @@
 
     <goal name="runClient" prereqs="initVars">
         <j:if test="${context.getVariable('enable.debug') == 'true'}">
-             <j:set var="geronimo.client.debug.options" value="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5003"/>
-         </j:if>
-         <java classname="org.apache.geronimo.system.main.ClientCommandLine" fork="yes"
+            <j:set var="geronimo.client.debug.options" value="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5003"/>
+        </j:if>
+        <java classname="org.apache.geronimo.system.main.ClientCommandLine" fork="yes"
             jvmargs="${geronimo.client.debug.options} ${geronimo.corba.options} ${geronimo.ssl.options}">
             <classpath>
                 <pathelement location="${maven.build.dir}/geronimo-${geronimo_version}/bin/client.jar"/>
             </classpath>
-<!--            <jvmarg value="${geronimo.server.corba.options}"/>-->
+            <!--            <jvmarg value="${geronimo.server.corba.options}"/>-->
             <arg value="org/apache/geronimo/MagicGBallClient"/>
             <arg value="foo"/>
             <arg value="bar"/>
         </java>
     </goal>
-
 
 
 </project>

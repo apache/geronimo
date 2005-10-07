@@ -9,7 +9,7 @@
     </import>
 
     <module>
-        <ejb>magicGball-ejb-1.0-SNAPSHOT.jar</ejb>
+        <ejb>magicGball-ejb-${geronimo_version}.jar</ejb>
         <openejb-jar
             xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
             configId="MagicGBallEJB"
@@ -26,14 +26,14 @@
     </module>
 
     <module>
-        <web>magicGball-1.0-SNAPSHOT.war</web>
+        <web>magicGball-${geronimo_version}.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0" configId="MagicGBallWAR">
             <context-priority-classloader>false</context-priority-classloader>
         </web-app>
     </module>
 
     <module>
-        <java>magicGball-client-1.0-SNAPSHOT.jar</java>
+        <java>magicGball-client-${geronimo_version}.jar</java>
         <application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
             configId="client"
             clientConfigId="org/apache/geronimo/MagicGBallClient"

@@ -3,15 +3,15 @@
 <application>
 	<display-name>MagicGBall</display-name>
 	<module>
-		<ejb>magicGball-ejb-1.0-SNAPSHOT.jar</ejb>
+		<ejb>magicGball-ejb-${geronimo_version}.jar</ejb>
 	</module>
 	<module>
 		<web>
-			<web-uri>magicGball-1.0-SNAPSHOT.war</web-uri>
+			<web-uri>magicGball-${geronimo_version}.war</web-uri>
 			<context-root>magicGball</context-root>
 		</web>
 	</module>
 	<module>
-		<java>magicGball-client-1.0-SNAPSHOT.jar</java>
+		<java>magicGball-client-${geronimo_version}.jar</java>
 	</module>
 </application>
