@@ -2232,7 +2232,7 @@ public class TradeDirect implements TradeServices
 		if (initialized) return;
 		if (Log.doTrace())
 			Log.trace("TradeDirect:init -- *** initializing");		
-		try
+/*		try
 		{
 			if (Log.doTrace())
 				Log.trace("TradeDirect: init");			
@@ -2267,7 +2267,7 @@ public class TradeDirect implements TradeServices
 		catch (Exception e)
 		{
 			Log.error("TradeDirect:init -- error looking up TradeEJB -- Asynchronous 1-phase will not work", e);
-		}					
+		}		*/			
 		if (Log.doTrace())		
 			Log.trace("TradeDirect:init -- +++ initialized");			
 		
