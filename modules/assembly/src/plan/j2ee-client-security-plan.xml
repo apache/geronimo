@@ -89,6 +89,11 @@ by the app client.
                     <lc:option name="usersURI">var/security/users.properties</lc:option>
                     <lc:option name="groupsURI">var/security/groups.properties</lc:option>
                 </lc:login-module>
+                <lc:login-module control-flag="REQUIRED" server-side="true">
+                    <lc:login-domain-name>default</lc:login-domain-name>
+                    <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>
+                    <lc:option name="org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name">default</lc:option>
+                </lc:login-module>
             </lc:login-config>
         </xml-reference>
         <reference name="ServerInfo">

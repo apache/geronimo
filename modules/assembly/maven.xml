@@ -222,7 +222,12 @@
         <!-- Preprocess all mungible content using velocity -->
         <!-- ============================================== -->
 
-        <attainGoal name="assembly:izpack-prepare"/>
+        <!-- Write out a copy of config.xml with substitution variables intact -->
+        <ant:mkdir dir="${geronimo.assembly.dir}/var/config"/>
+        <velocity:merge basedir="${basedir}/src/var/config"
+            template="config.xml"
+            name="${geronimo.assembly.dir}/var/config/config.template.xml"/>
+<!--        <attainGoal name="assembly:izpack-prepare"/>-->
         <!-- Substitution variables for default hostname, ports, etc. -->
         <j:set var="PlanServerHostname" value="0.0.0.0"/>
         <j:set var="PlanNamingPort" value="1099"/>
@@ -458,15 +463,15 @@
         <attainGoal name="init-database"/>
 
         <!-- Prepare the Installer directory -->
-        <ant:copy todir="${basedir}/target/installer">
-            <ant:fileset dir="${geronimo.assembly.dir}"/>
-        </ant:copy>
-        <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>
-        <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>
+<!--        <ant:copy todir="${basedir}/target/installer">-->
+<!--            <ant:fileset dir="${geronimo.assembly.dir}"/>-->
+<!--        </ant:copy>-->
+<!--        <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>-->
+<!--        <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>-->
 <!--        <ant:echo file="${basedir}/target/installer/var/config/config.list" message="org/apache/geronimo/System"/>-->
 
-        <ant:move file="${basedir}/target/installer/config.xml"
-            tofile="${basedir}/target/installer/var/config/config.xml"/>
+<!--        <ant:move file="${basedir}/target/installer/config.xml"-->
+<!--            tofile="${basedir}/target/installer/var/config/config.xml"/>-->
     </goal>
 
     <goal name="assembly:izpack-prepare">
@@ -474,13 +479,21 @@
         <!-- TODO use the zip file instead of copying -->
         <!-- Copy over the IzPack Installer files -->
         <ant:mkdir dir="${basedir}/target/installer"/>
+        <ant:mkdir dir="${basedir}/target/tmp"/>
+
+        <!-- unpack the zip into the install dir -->
+        <ant:unzip src="${basedir}/target/distributions/geronimo-${geronimo_version}.zip"
+            dest="${basedir}/target/tmp"/>
+        <ant:copy todir="${basedir}/target/installer">
+            <ant:fileset dir="${basedir}/target/tmp/geronimo-${geronimo_version}"/>
+        </ant:copy>
         <fileScanner var="installFiles">
             <fileset dir="${basedir}/src/izpack">
                 <include name="*.xml"/>
             </fileset>
         </fileScanner>
         <j:set var="GeronimoVersion" value="${geronimo_version}"/>
-        <j:set var="ReleaseNotesVersion" value="1.0-M4"/>
+        <j:set var="ReleaseNotesVersion" value="1.0-M5"/>
         <j:forEach var="installer" items="${installFiles.iterator()}">
             <j:set var="installerName" value="${installer.name}"/>
             <echo>Processing installer file ${installerName}</echo>
@@ -493,8 +506,15 @@
         <!-- Write out a copy of config.xml with substitution variables intact -->
         <velocity:merge basedir="${basedir}/src/var/config"
             template="config.xml"
-            name="${basedir}/target/installer/config.xml"/>
+            name="${basedir}/target/installer/var/config/config.xml"/>
 
+        <!-- Prepare the Installer directory -->
+        <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>
+        <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>
+<!--        <ant:echo file="${basedir}/target/installer/var/config/config.list" message="org/apache/geronimo/System"/>-->
+        <ant:copy file="${basedir}/target/installer/var/config/config.izpack.list" tofile="${basedir}/target/installer/var/config/config.list" overwrite="true"/>
+        <!--        <ant:move file="${basedir}/target/installer/config.xml"-->
+        <!--            tofile="${basedir}/target/installer/var/config/config.xml"/>-->
     </goal>
 
     <goal name="online.deploy">

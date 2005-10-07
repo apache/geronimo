@@ -38,9 +38,10 @@ CSSBean examples for app client
             <module>*</module>
             <name>SecurityService</name>
         </reference>
-        <attribute name="args">-ORBPort, 9683, -ORBInitRef, NameService=corbaloc::localhost:2809/NameService</attribute>
+        <!-- PlanORBSSLPort was 9683-->
+        <attribute name="args">-ORBPort, ${PlanORBSSLPort}, -ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
         <attribute name="props">
-            com.sun.CORBA.ORBServerHost=localhost
+            com.sun.CORBA.ORBServerHost=${PlanORBSSLHost}
         </attribute>
     </gbean>
 
@@ -115,7 +116,7 @@ CSSBean examples for app client
                             <css:supports>Integrity Confidentiality EstablishTrustInClient</css:supports>
                             <css:requires>Integrity Confidentiality</css:requires>
                         </css:SSL>
-                        <css:GSSUPStatic username="j2ee" password="j2ee" domain="default" />
+                        <css:GSSUPDynamic domain="default" />
                         <css:sasMech>
                             <css:ITTAbsent/>
                         </css:sasMech>
