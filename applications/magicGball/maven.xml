@@ -83,8 +83,8 @@
 
     <goal name="initVars">
         <j:set var="geronimo.home" value="${maven.build.dir}/geronimo-${geronimo_version}"/>
-        <j:set var="geronimo.corba.options" value="-Djavax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl -Dorg.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate -Dorg.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton -Dorg.omg.CORBA.ORBClass=org.openejb.corba.sunorb.OpenEJBORB -Djavax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject "/>
-        <j:set var="geronimo.ssl.options" value="-Djavax.net.ssl.keyStore=${geronimo.home}/var/security/keystore -Djavax.net.ssl.keyStorePassword=secret  -Djavax.net.ssl.trustStore=${geronimo.home}/var/security/keystore -Djavax.net.ssl.trustStorePassword=secret  "/>
+<!--        <j:set var="geronimo.corba.options" value="-Djavax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl -Dorg.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate -Dorg.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton -Dorg.omg.CORBA.ORBClass=org.openejb.corba.sunorb.OpenEJBORB -Djavax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject "/>-->
+<!--        <j:set var="geronimo.ssl.options" value="-Djavax.net.ssl.keyStore=${geronimo.home}/var/security/keystore -Djavax.net.ssl.keyStorePassword=secret  -Djavax.net.ssl.trustStore=${geronimo.home}/var/security/keystore -Djavax.net.ssl.trustStorePassword=secret  "/>-->
     </goal>
 
     <goal name="startServer" prereqs="initVars">

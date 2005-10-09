@@ -62,6 +62,25 @@ specific services - those should be provided by children.
         <reference name="ServerInfo"><name>ServerInfo</name></reference>
     </gbean>
 
+    <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+            javax.rmi.CORBA.UtilClass=org.openejb.corba.util.UtilDelegateImpl
+            org.openejb.corba.UtilDelegateClass=com.sun.corba.se.internal.POA.ShutdownUtilDelegate
+            org.omg.CORBA.ORBSingletonClass=com.sun.corba.se.internal.corba.ORBSingleton
+            org.omg.CORBA.ORBClass=org.openejb.corba.sunorb.OpenEJBORB
+            javax.rmi.CORBA.PortableRemoteObjectClass=com.sun.corba.se.internal.javax.rmi.PortableRemoteObject
+            javax.net.ssl.keyStorePassword=secret
+            javax.net.ssl.trustStorePassword=secret
+        </attribute>
+        <attribute name="systemPathProperties">
+            javax.net.ssl.keyStore=var/security/keystore
+            javax.net.ssl.trustStore=var/security/keystore
+        </attribute>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
     <!-- Logging service -->
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
         <attribute name="configFileName">var/log/client-log4j.properties</attribute>
