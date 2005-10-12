@@ -128,11 +128,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     private final ConfigurationStore configurationStore;
 
-    /**
-     * Used to override stored attribute values with values set by the user.
-     */
-    private final ManageableAttributeStore manageableStore;
-
     private final List dependencies;
     private final List classPath;
     private final String domain;
@@ -184,7 +179,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         classPath = null;
         baseURL = null;
         repositories = null;
-        manageableStore = null;
     }
 
     /**
@@ -210,8 +204,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             byte[] gbeanState,
             Collection repositories,
             List dependencies,
-            ConfigurationStore configurationStore,
-            ManageableAttributeStore manageableStore) throws Exception {
+            ConfigurationStore configurationStore) throws Exception {
 
         this.kernel = kernel;
         this.objectNameString = objectName;
@@ -234,7 +227,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         this.configurationStore = configurationStore;
-        this.manageableStore = manageableStore;
 
         this.domain = domain;
         this.server = server;
@@ -267,6 +259,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             configurationClassLoader = new MultiParentClassLoader(id, urls, getClassLoaders(parentId));
         }
 
+//        loadGBeans();
+
+        log.info("Started configuration " + id);
+    }
+
+    public void loadGBeans(ManageableAttributeStore attributeStore) throws InvalidConfigException, GBeanAlreadyExistsException {
         // DSS: why exactally are we doing this?  I bet there is a reason, but
         // we should state why here.
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -274,7 +272,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             Thread.currentThread().setContextClassLoader(configurationClassLoader);
 
             // create and initialize GBeans
-            Collection gbeans = loadGBeans(gbeanState, configurationClassLoader);
+            Collection gbeans = loadGBeans();
+            if (attributeStore != null) {
+                gbeans = attributeStore.setAttributes(id, gbeans);
+            }
 
             // register all the GBeans
             Set objectNames = new HashSet();
@@ -287,8 +288,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
+    }
 
-        log.info("Started configuration " + id);
+    public void startRecursiveGBeans() throws GBeanNotFoundException {
+        for (Iterator iterator = objectNames.iterator(); iterator.hasNext();) {
+            ObjectName gbeanName = (ObjectName) iterator.next();
+            if (kernel.isGBeanEnabled(gbeanName)) {
+                kernel.startRecursiveGBean(gbeanName);
+            }
+        }
     }
 
     private void addParentDependencies(Kernel kernel, URI id, URI[] parentId) throws MalformedObjectNameException {
@@ -488,11 +496,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     private ObjectName loadGBean(GBeanData beanData, Set objectNames) throws GBeanAlreadyExistsException {
-        // todo jnb: initializing attibutes here seems questionable - perhaps these should be injected
-        // by the ConfigurationManager once the Configuration has been loaded
         ObjectName name = beanData.getName();
         setGBeanBaseUrl(beanData, baseURL);
-        setManageableAttributes(beanData);
 
         log.trace("Registering GBean " + name);
         kernel.loadGBean(beanData, configurationClassLoader);
@@ -502,6 +507,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return name;
     }
 
+/*
     private void setManageableAttributes(GBeanData data) {
         if(manageableStore == null) {
             log.debug("Configuration cannot load manageable attributes; no manageable store present");
@@ -516,19 +522,18 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             }
         }
     }
+*/
 
     /**
      * Load GBeans from the supplied byte array using the supplied ClassLoader
      *
-     * @param gbeanState the serialized form of the GBeans
-     * @param cl         the ClassLoader used to locate classes needed during deserialization
      * @return a Map<ObjectName, GBeanMBean> of GBeans loaded from the persisted state
      * @throws InvalidConfigException if there is a problem deserializing the state
      */
-    private static Collection loadGBeans(byte[] gbeanState, ClassLoader cl) throws InvalidConfigException {
+    public Collection loadGBeans() throws InvalidConfigException {
         Map gbeans = new HashMap();
         try {
-            ObjectInputStream ois = new ObjectInputStreamExt(new ByteArrayInputStream(gbeanState), cl);
+            ObjectInputStream ois = new ObjectInputStreamExt(new ByteArrayInputStream(gbeanState), configurationClassLoader);
             try {
                 while (true) {
                     GBeanData gbeanData = new GBeanData();
@@ -630,11 +635,13 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addReference("ConfigurationStore", ConfigurationStore.class);
-        infoFactory.addReference("AttributeStore", ManageableAttributeStore.class);
+//        infoFactory.addReference("AttributeStore", ManageableAttributeStore.class);
 
         infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
         infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
         infoFactory.addOperation("saveState");
+        infoFactory.addOperation("loadGBeans", new Class[] {ManageableAttributeStore.class});
+        infoFactory.addOperation("startRecursiveGBeans");
 
         infoFactory.setConstructor(new String[]{
             "kernel",
@@ -649,8 +656,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             "gBeanState",
             "Repositories",
             "dependencies",
-            "ConfigurationStore",
-            "AttributeStore"});
+            "ConfigurationStore"
+        });
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

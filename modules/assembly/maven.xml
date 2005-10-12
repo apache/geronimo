@@ -360,6 +360,12 @@
         <ant:mkdir dir="${geronimo.assembly.dir}/bin"/>
         <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
+<!--
+            <ant:jvmarg value="-Xdebug"/>
+            <ant:jvmarg value="-Xnoagent"/>
+            <ant:jvmarg value="-Djava.compiler=NONE"/>
+            <ant:jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
+-->
             <ant:arg value="package"/>
             <ant:arg value="--classPath"/>
             <ant:arg value="${server.classpath}"/>

@@ -91,13 +91,7 @@ public class MavenConfigStore implements ConfigurationStore {
             throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
         }
         config.setName(name);
-        ObjectName pattern;
-        try {
-            pattern = attributeStore == null ? null : new ObjectName(attributeStore.getObjectName());
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Invalid ObjectName for AttributeStore: " + attributeStore.getObjectName());
-        }
-        config.setReferencePattern("AttributeStore", pattern);
+        config.setAttribute("baseURL", baseURL);
 
         try {
             kernel.loadGBean(config, Configuration.class.getClassLoader());
@@ -105,19 +99,9 @@ public class MavenConfigStore implements ConfigurationStore {
             throw new InvalidConfigException("Unable to register configuration", e);
         }
 
-        try {
-            kernel.setAttribute(name, "baseURL", baseURL);
-        } catch (Exception e) {
-            try {
-                kernel.unloadGBean(name);
-            } catch (Exception ignored) {
-                // ignore
-            }
-            throw new InvalidConfigException("Cannot set baseURL", e);
-        }
-
         return name;
     }
+
 
     public boolean containsConfiguration(URI configID) {
         return repository.hasURI(configID);

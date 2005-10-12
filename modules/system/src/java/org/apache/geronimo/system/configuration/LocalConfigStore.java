@@ -255,13 +255,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
         }
         config.setName(name);
-        ObjectName pattern;
-        try {
-            pattern = attributeStore == null ? null : new ObjectName(attributeStore.getObjectName());
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Invalid ObjectName for AttributeStore: " + attributeStore.getObjectName());
-        }
-        config.setReferencePattern("AttributeStore", pattern);
+        config.setAttribute("baseURL", getRoot(configId).toURL());
 
         try {
             kernel.loadGBean(config, Configuration.class.getClassLoader());
@@ -269,16 +263,6 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             throw new InvalidConfigException("Unable to register configuration", e);
         }
 
-        try {
-            kernel.setAttribute(name, "baseURL", getRoot(configId).toURL());
-        } catch (Exception e) {
-            try {
-                kernel.unloadGBean(name);
-            } catch (Exception ignored) {
-                // ignore
-            }
-            throw new InvalidConfigException("Cannot set baseURL", e);
-        }
         log.info("Loaded Configuration " + name);
 
         return name;

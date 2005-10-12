@@ -234,7 +234,7 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
         }
 
         public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            kernel.startRecursiveGBean(objectName);
+            kernel.startGBean(objectName);
             return null;
         }
     }

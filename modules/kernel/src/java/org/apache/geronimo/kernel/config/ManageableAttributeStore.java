@@ -17,9 +17,12 @@
 package org.apache.geronimo.kernel.config;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
 
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Collection;
 
 /**
  * Able to retrieve the values of certain "manageable" attributes from a
@@ -29,6 +32,10 @@ import java.io.IOException;
  * @version $Rev: 169154 $ $Date: 2005-05-08 15:35:23 -0400 (Sun, 08 May 2005) $
  */
 public interface ManageableAttributeStore {
+
+    public static final String ATTRIBUTE_STORE = "AttributeStore";
+
+    public Collection setAttributes(URI configurationName, Collection datas) throws InvalidConfigException;
     /**
      * Return the object name of this store
      * @return the object name of this store

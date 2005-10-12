@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class DatabaseManagerHelper {
@@ -180,20 +181,15 @@ public class DatabaseManagerHelper {
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
             // start installed app/s
-            int size = list.size();
-            for (int i = 0; i < size; i++) {
-                String config = (String) list.get(i);
-                //URI configID = new URI(config);
-                //kernel.startConfiguration(configID);
+            for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                URI configId = URI.create((String)iterator.next());
                 ObjectName configName = null;
-                if (configurationManager.isLoaded(URI.create(config))) {
-                    configName = JMXUtil
-                            .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                                    + "\"" + config + "\"");
+                if (configurationManager.isLoaded(configId)) {
+                    configName = Configuration.getConfigurationObjectName(configId);
                 } else {
-                    configName = configurationManager.load(URI.create(config));
+                    configName = configurationManager.load(configId);
                 }
-                kernel.startRecursiveGBean(configName);
+                configurationManager.start(configName);
             }
         } catch (DeploymentException e) {
             StringBuffer buf = new StringBuffer(256);

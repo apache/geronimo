@@ -25,6 +25,8 @@ import java.util.List;
 
 import javax.management.ObjectName;
 
+import org.apache.geronimo.gbean.GBeanData;
+
 /**
  * Interface to a store for Configurations.
  *

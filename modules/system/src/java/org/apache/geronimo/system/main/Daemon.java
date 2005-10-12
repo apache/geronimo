@@ -39,6 +39,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.system.jmx.MBeanServerKernelBridge;
@@ -156,6 +157,7 @@ public class Daemon {
 
             // todo: JNB for now we clear out the dependency list but we really need a way to resolve them
             configuration.setAttribute("dependencies", Collections.EMPTY_LIST);
+            configuration.setAttribute("baseURL", classLoader.getResource("/"));
 
             // create a mbean server
             MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
@@ -175,7 +177,7 @@ public class Daemon {
 
             // load this configuration into the kernel
             kernel.loadGBean(configuration, classLoader);
-            kernel.setAttribute(configName, "baseURL", classLoader.getResource("/"));
+            kernel.startGBean(configName);
 
             // add our shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
@@ -196,7 +198,8 @@ public class Daemon {
             kernel.startGBean(mbeanServerKernelBridgeName);
 
             // start this configuration
-            kernel.startRecursiveGBean(configuration.getName());
+            kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+            kernel.invoke(configName, "startRecursiveGBeans");
             monitor.systemStarted(kernel);
 
             if (configs.isEmpty()) {
@@ -230,7 +233,7 @@ public class Daemon {
                         monitor.configurationStarting(configID);
                         for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                             ObjectName name = (ObjectName) iterator.next();
-                             kernel.startRecursiveGBean(name);
+                            configurationManager.start(name);
                         }
                         monitor.configurationStarted(configID);
                     }

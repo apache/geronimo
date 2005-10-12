@@ -70,12 +70,12 @@ public class StartCommand extends CommandSupport {
                         // That means that the configuration may have been distributed but has not yet been loaded.
                         // That's fine, we'll load it next.
                     }
-                    
+
                     // Load and start the module
                     List list = configurationManager.loadRecursive(moduleID);
                     for (int j = 0; j < list.size(); j++) {
                         ObjectName name = (ObjectName) list.get(j);
-                        kernel.startRecursiveGBean(name);
+                        configurationManager.start(name);
                         String configName = ObjectName.unquote(name.getKeyProperty("name"));
                         List kids = loadChildren(kernel, configName);
                         TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), configName,

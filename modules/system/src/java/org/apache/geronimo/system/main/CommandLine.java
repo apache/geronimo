@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 
@@ -105,6 +106,7 @@ public class CommandLine {
         URI configurationId = (URI) configuration.getAttribute("id");
         ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
         configuration.setName(configName);
+        configuration.setAttribute("baseURL", classLoader.getResource("/"));
 
         // boot the kernel
         kernel = KernelFactory.newInstance().createKernel("geronimo");
@@ -112,8 +114,9 @@ public class CommandLine {
 
         // load this configuration into the kernel
         kernel.loadGBean(configuration, classLoader);
-        kernel.setAttribute(configName, "baseURL", classLoader.getResource("/"));
-        kernel.startRecursiveGBean(configName);
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
 
         // load and start the configurations
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -123,7 +126,7 @@ public class CommandLine {
                 List list = configurationManager.loadRecursive(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                     ObjectName name = (ObjectName) iterator.next();
-                    kernel.startRecursiveGBean(name);
+                    configurationManager.start(name);
                 }
             }
         } finally {

@@ -39,6 +39,7 @@ specific services - those should be provided by children.
     <!-- Configuration Manager service -->
     <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
         <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
+        <reference name="AttributeStore"><name>AttributeManager</name></reference>
     </gbean>
 
     <!-- User-editable attribute service -->

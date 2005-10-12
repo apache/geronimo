@@ -68,6 +68,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
@@ -117,11 +118,14 @@ public class JettyModuleBuilderTest extends TestCase {
         builder.addGBeans(earContext, module, cl);
         earContext.close();
         module.close();
+
         GBeanData configData = earContext.getConfigurationGBeanData();
+        ObjectName configName = configData.getName();
         configData.setAttribute("baseURL", path.toURL());
         kernel.loadGBean(configData, cl);
-
-        kernel.startRecursiveGBean(configData.getName());
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
         if (kernel.getGBeanState(configData.getName()) != State.RUNNING_INDEX) {
             fail("gbean not started: " + configData.getName());
         }
@@ -135,13 +139,17 @@ public class JettyModuleBuilderTest extends TestCase {
         GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,Servlet=Servlet1,WebFilter=Filter2,WebModule=war4,j2eeType=WebFilterMapping"));
 //        assertEquals(Collections.singleton(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,Servlet=Servlet1,WebFilter=Filter1,WebModule=war4,j2eeType=WebFilterMapping")), filterMapping2Data.getReferencePatterns("Previous"));
 
-        kernel.stopGBean(configData.getName());
-        kernel.unloadGBean(configData.getName());
+        kernel.stopGBean(configName);
+        kernel.unloadGBean(configName);
 
+
+        //what is this testing?
         kernel.loadGBean(configData, cl);
-        kernel.startRecursiveGBean(configData.getName());
-        kernel.stopGBean(configData.getName());
-        kernel.unloadGBean(configData.getName());
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
+        kernel.stopGBean(configName);
+        kernel.unloadGBean(configName);
     }
 
     private EARContext createEARContext(File outputPath, URI id) throws MalformedObjectNameException, DeploymentException {

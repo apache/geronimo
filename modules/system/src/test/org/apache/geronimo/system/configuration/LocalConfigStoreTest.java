@@ -79,7 +79,7 @@ public class LocalConfigStoreTest extends TestCase {
 
         // load and start the config
         ObjectName configName = configurationManager.load(uri);
-        kernel.startRecursiveGBean(configName);
+        configurationManager.start(configName);
 
         // make sure the config and the enabled gbean are running
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
@@ -102,7 +102,7 @@ public class LocalConfigStoreTest extends TestCase {
 
         // now reload and restart the config
         configName = configurationManager.load(uri);
-        kernel.startRecursiveGBean(configName);
+        configurationManager.start(configName);
 
         // make sure the value was reloaded correctly
         assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));

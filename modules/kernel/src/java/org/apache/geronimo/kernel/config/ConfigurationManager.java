@@ -73,5 +73,8 @@ public interface ConfigurationManager {
      * @throws NoSuchConfigException if the configuration is now loaded into the kernel
      */
     void unload(URI configID) throws NoSuchConfigException;
-    
+
+    void start(ObjectName configName) throws InvalidConfigException;
+
+    void loadGBeans(ObjectName configName) throws InvalidConfigException;
 }

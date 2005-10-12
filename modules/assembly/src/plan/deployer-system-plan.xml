@@ -35,6 +35,7 @@ Configuration for the system layer of the Geronimo deployer
     <!-- Configuration Manager service -->
     <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
         <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
+        <reference name="AttributeStore"><name>AttributeManager</name></reference>
     </gbean>
 
     <!-- User-editable attribute service -->

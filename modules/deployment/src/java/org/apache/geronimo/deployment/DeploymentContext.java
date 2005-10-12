@@ -472,25 +472,29 @@ public class DeploymentContext {
         ClassLoader[] parentCL;
         List parentId = configurationData.getParentId();
         if (kernel != null && parentId != null && parentId.size() > 0) {
-            loadAncestors(kernel, parentId, loadedAncestors);
-            ParentSource parentSource = new ConfigurationParentSource(kernel);
-            parentId = getExtremalSet(parentId, parentSource);
-            configurationData.setParentId(parentId);
-
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
-                for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
-                    URI uri = (URI) iterator.next();
-                    ObjectName ancestorName = Configuration.getConfigurationObjectName(uri);
-                    List started = new ArrayList();
-                    startAncestors(ancestorName, kernel, started);
-                    startedAncestors.addAll(started);
-                }
-            } catch (DeploymentException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
+                loadAncestors(kernel, parentId, loadedAncestors, configurationManager);
+                ParentSource parentSource = new ConfigurationParentSource(kernel);
+                parentId = getExtremalSet(parentId, parentSource);
+                configurationData.setParentId(parentId);
 
+                try {
+                    for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
+                        URI uri = (URI) iterator.next();
+                        ObjectName ancestorName = Configuration.getConfigurationObjectName(uri);
+                        List started = new ArrayList();
+                        startAncestors(ancestorName, kernel, started, configurationManager);
+                        startedAncestors.addAll(started);
+                    }
+                } catch (DeploymentException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new DeploymentException(e);
+                }
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+            }
             try {
                 parentCL = new ClassLoader[parentId.size()];
                 for (int i = 0; i < parentId.size(); i++) {
@@ -513,10 +517,8 @@ public class DeploymentContext {
         return parentCL;
     }
 
-    private void loadAncestors(Kernel kernel, List parentId, List loadedAncestors) throws DeploymentException {
+    private void loadAncestors(Kernel kernel, List parentId, List loadedAncestors, ConfigurationManager configurationManager) throws DeploymentException {
         if (kernel != null && parentId != null) {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-
             try {
                 for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
                     URI uri = (URI) iterator.next();
@@ -524,23 +526,21 @@ public class DeploymentContext {
                 }
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
         }
     }
 
-    private void startAncestors(ObjectName name, Kernel kernel, List started) throws Exception {
+    private void startAncestors(ObjectName name, Kernel kernel, List started, ConfigurationManager configurationManager) throws Exception {
         if (name != null && !isRunning(kernel, name)) {
             URI[] patterns = (URI[]) kernel.getGBeanData(name).getAttribute("parentId");
             if (patterns != null) {
                 for (int i = 0; i < patterns.length; i++) {
                     URI pattern = patterns[i];
                     ObjectName ancestorName = Configuration.getConfigurationObjectName(pattern);
-                    startAncestors(ancestorName, kernel, started);
+                    startAncestors(ancestorName, kernel, started, configurationManager);
                 }
             }
-            kernel.startGBean(name);
+            configurationManager.loadGBeans(name);
             started.add(name);
         }
     }

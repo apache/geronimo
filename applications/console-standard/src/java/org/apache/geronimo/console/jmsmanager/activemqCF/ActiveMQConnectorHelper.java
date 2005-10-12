@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class ActiveMQConnectorHelper {
@@ -74,8 +75,6 @@ public class ActiveMQConnectorHelper {
     private static final String[] REPO_ARGS = { URI.class.getName() };
 
     private static final String GETURL_METHOD = "getURL";
-
-    private List dependencies;
 
     static {
         // Initialize static vars
@@ -187,19 +186,18 @@ public class ActiveMQConnectorHelper {
             Kernel kernel = KernelRegistry.getSingleKernel();
             List list = (List) kernel.invoke(DEPLOYER_NAME, DEPLOY_METHOD,
                     new Object[] {moduleFile, planFile}, DEPLOYER_ARGS);
-            System.out.println("Deployed: " + moduleFile + " : " + planFile);
-            // start installed app/s
-            int size = list.size();
-            for (int i = 0; i < size; i++) {
-                String config = (String) list.get(i);
-                //URI configID = new URI(config);
-                //kernel.startConfiguration(configID);
-                ConfigurationManager configurationManager = ConfigurationUtil
-                        .getConfigurationManager(kernel);
-                ObjectName configName = configurationManager.load(URI
-                        .create(config));
+            ConfigurationManager configurationManager = ConfigurationUtil
+                    .getConfigurationManager(kernel);
+            for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                URI configId = URI.create((String)iterator.next());
+                ObjectName configName = null;
+                if (configurationManager.isLoaded(configId)) {
+                    configName = Configuration.getConfigurationObjectName(configId);
+                } else {
+                    configName = configurationManager.load(configId);
+                }
 
-                kernel.startRecursiveGBean(configName);
+                configurationManager.start(configName);
             }
         } catch (DeploymentException e) {
             StringBuffer buf = new StringBuffer(256);

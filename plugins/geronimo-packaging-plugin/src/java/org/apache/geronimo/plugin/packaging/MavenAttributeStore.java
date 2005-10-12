@@ -17,11 +17,14 @@
 package org.apache.geronimo.plugin.packaging;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.Collection;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 
 /**
@@ -32,6 +35,10 @@ public class MavenAttributeStore implements ManageableAttributeStore {
 
     public MavenAttributeStore(String objectName) {
         this.objectName = objectName;
+    }
+
+    public Collection setAttributes(URI configurationName, Collection datas) {
+        return datas;
     }
 
     public String getObjectName() {

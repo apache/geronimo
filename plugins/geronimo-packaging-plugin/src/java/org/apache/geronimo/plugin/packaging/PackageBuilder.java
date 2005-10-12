@@ -228,7 +228,7 @@ public class PackageBuilder {
                 List configs = configurationManager.loadRecursive(deploymentConfig);
                 for (int i = 0; i < configs.size(); i++) {
                     ObjectName configName = (ObjectName) configs.get(i);
-                    kernel.startRecursiveGBean(configName);
+                    configurationManager.start(configName);
                 }
             }
         } finally {
@@ -283,6 +283,7 @@ public class PackageBuilder {
 
         GBeanData configManagerGBean = new GBeanData(CONFIGMANAGER_NAME, ConfigurationManagerImpl.GBEAN_INFO);
         configManagerGBean.setReferencePattern("Stores", CONFIGSTORE_NAME);
+        configManagerGBean.setReferencePattern("AttributeStore", ATTRIBUTESTORE_NAME);
         kernel.loadGBean(configManagerGBean, cl);
         kernel.startGBean(CONFIGMANAGER_NAME);
 

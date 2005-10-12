@@ -43,6 +43,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class DeploymentPortlet extends BasePortlet {
@@ -54,8 +55,8 @@ public class DeploymentPortlet extends BasePortlet {
 
     private Kernel kernel;
 
-    private static final String[] ARGS = { File.class.getName(),
-            File.class.getName() };
+    private static final String[] ARGS = {File.class.getName(),
+                                          File.class.getName()};
 
     private static final ObjectName deployer = JMXUtil
             .getObjectName(ObjectNameConstants.DEPLOYER_OBJECT_NAME);
@@ -63,15 +64,14 @@ public class DeploymentPortlet extends BasePortlet {
     private boolean messageNotRendered = true;
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         messageNotRendered = true;
         if (!PortletFileUpload.isMultipartContent(actionRequest)) {
             throw new PortletException("Expected file upload");
         }
 
         File rootDir = new File(System.getProperty("java.io.tmpdir"));
-        PortletFileUpload uploader = new PortletFileUpload(
-                new DiskFileItemFactory(10240, rootDir));
+        PortletFileUpload uploader = new PortletFileUpload(new DiskFileItemFactory(10240, rootDir));
         File moduleFile = null;
         File planFile = null;
         String startApp = null;
@@ -116,27 +116,23 @@ public class DeploymentPortlet extends BasePortlet {
             throw new PortletException(e);
         }
         try {
-            List list = (List) kernel.invoke(deployer, "deploy", new Object[] {
-                    moduleFile, planFile }, ARGS);
+            List list = (List) kernel.invoke(deployer, "deploy", new Object[]{
+                moduleFile, planFile}, ARGS);
             actionResponse.setRenderParameter("outcome",
                     "The application was successfully deployed.<br/>");
             // start installed app/s
             if ((startApp != null) && "YES".equalsIgnoreCase(startApp)) {
                 ConfigurationManager configurationManager = ConfigurationUtil
                         .getConfigurationManager(kernel);
-                int size = list.size();
-                // assumes installed app/s returned as a list
-                for (int i = 0; i < size; i++) {
-                    URI config = URI.create((String) list.get(i));
-                    // This is a hack that seems to work. Please fix this when
-                    // you understand what is happening or where you can get the
-                    // ObjectName from the configId without calling
-                    // ConfigurationManager.load(URI).
-                    if (configurationManager.isLoaded(config))
-                        configurationManager.unload(config);
-
-                    ObjectName configName = configurationManager.load(config);
-                    kernel.startRecursiveGBean(configName);
+                for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+                    URI config = URI.create((String)iterator.next());
+                    ObjectName configName;
+                    if (configurationManager.isLoaded(config)) {
+                        configName = Configuration.getConfigurationObjectName(config);
+                    } else {
+                        configName = configurationManager.load(config);
+                    }
+                    configurationManager.start(configName);
                 }
             }
         } catch (DeploymentException e) {
@@ -168,7 +164,7 @@ public class DeploymentPortlet extends BasePortlet {
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         if (messageNotRendered) {
             renderRequest.setAttribute("outcome", renderRequest
                     .getParameter("outcome"));
@@ -179,17 +175,15 @@ public class DeploymentPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         kernel = KernelRegistry.getSingleKernel();
-        deployView = portletConfig.getPortletContext().getRequestDispatcher(
-                "/WEB-INF/view/configmanager/deploy.jsp");
-        helpView = portletConfig.getPortletContext().getRequestDispatcher(
-                "/WEB-INF/view/configmanager/deployHelp.jsp");
+        deployView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/deploy.jsp");
+        helpView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/deployHelp.jsp");
     }
 
     public void destroy() {

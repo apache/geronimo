@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.management.State;
 
 /**
@@ -50,7 +51,9 @@ public class ConfigTest extends TestCase {
 
         // load and start the config
         kernel.loadGBean(config, this.getClass().getClassLoader());
-        kernel.startRecursiveGBean(configName);
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
         assertNotNull(kernel.getAttribute(configName, "configurationClassLoader"));
@@ -104,7 +107,9 @@ public class ConfigTest extends TestCase {
 
         // load and start the config
         kernel.loadGBean(config, this.getClass().getClassLoader());
-        kernel.startRecursiveGBean(configName);
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
         assertNotNull(kernel.getAttribute(configName, "configurationClassLoader"));

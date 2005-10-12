@@ -45,6 +45,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
     private final Kernel kernel;
     private final Collection stores;
+    private final ManageableAttributeStore attributeStore;
     private final ShutdownHook shutdownHook;
     private static final ObjectName CONFIGURATION_NAME_QUERY;
 
@@ -56,11 +57,11 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
     }
 
-    public ConfigurationManagerImpl(Kernel kernel, Collection stores) {
+    public ConfigurationManagerImpl(Kernel kernel, Collection stores, ManageableAttributeStore attributeStore) {
         this.kernel = kernel;
         this.stores = stores;
+        this.attributeStore = attributeStore;
         shutdownHook = new ShutdownHook(kernel);
-
     }
 
     public List listStores() {
@@ -99,10 +100,29 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configID)) {
-                return store.loadConfiguration(configID);
+                ObjectName configName =  store.loadConfiguration(configID);
+                return configName;
             }
         }
         throw new NoSuchConfigException("No configuration with id: " + configID);
+    }
+
+    public void loadGBeans(ObjectName configName) throws InvalidConfigException {
+        try {
+            kernel.startGBean(configName);
+            kernel.invoke(configName, "loadGBeans", new Object[] {attributeStore}, new String[] {ManageableAttributeStore.class.getName()});
+        } catch (Exception e) {
+            throw new InvalidConfigException("Could not extract gbean data from configuration", e);
+        }
+    }
+
+    public void start(ObjectName configName) throws InvalidConfigException {
+        loadGBeans(configName);
+        try {
+            kernel.invoke(configName, "startRecursiveGBeans");
+        } catch (Exception e) {
+            throw new InvalidConfigException("Could not extract gbean data from configuration", e);
+        }
     }
 
     public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -181,8 +201,9 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationManagerImpl.class, "ConfigurationManager");
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("Stores", ConfigurationStore.class, "ConfigurationStore");
+        infoFactory.addReference("AttributeStore", ManageableAttributeStore.class, ManageableAttributeStore.ATTRIBUTE_STORE);
         infoFactory.addInterface(ConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "Stores"});
+        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

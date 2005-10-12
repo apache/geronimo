@@ -69,6 +69,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -377,8 +378,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
         Kernel kernel = null;
         try {
             GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
-            ObjectName objectName = ObjectName.getInstance("test:configuration=test-ejb-jar");
-            config.setName(objectName);
+            ObjectName configName = ObjectName.getInstance("test:configuration=test-ejb-jar");
+            config.setName(configName);
 
             kernel = KernelFactory.newInstance().createKernel("bar");
             kernel.boot();
@@ -413,9 +414,9 @@ public class ConnectorModuleBuilderTest extends TestCase {
             // load the configuration
             config.setAttribute("baseURL", unpackedDir.toURL());
             kernel.loadGBean(config, cl);
-
-            // start the configuration
-            kernel.startRecursiveGBean(objectName);
+            kernel.startGBean(configName);
+            kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+            kernel.invoke(configName, "startRecursiveGBeans");
             Set gb = kernel.listGBeans(JMXUtil.getObjectName("test:*"));
             for (Iterator iterator = gb.iterator(); iterator.hasNext();) {
                 ObjectName name = (ObjectName) iterator.next();
@@ -423,7 +424,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                     System.out.println("Not running: " + name);
                 }
             }
-            assertRunning(kernel, objectName);
+            assertRunning(kernel, configName);
 
             ObjectName applicationObjectName = NameFactory.getApplicationName(null, null, null, j2eeContext);
             if (!j2eeContext.getJ2eeApplicationName().equals("null")) {
@@ -523,7 +524,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             }
 
 
-            kernel.stopGBean(objectName);
+            kernel.stopGBean(configName);
         } finally {
             if (ds != null) {
                 Connection connection = null;

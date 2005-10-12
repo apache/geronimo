@@ -45,6 +45,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 
@@ -60,14 +61,14 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String UNINSTALL_METHOD = "uninstall";
 
-    private static final String[] CONTAINSCONFIG_SIG = { URI.class.getName() };
+    private static final String[] CONTAINSCONFIG_SIG = {URI.class.getName()};
 
-    private static final String[] UNINSTALL_SIG = { URI.class.getName() };
+    private static final String[] UNINSTALL_SIG = {URI.class.getName()};
 
     private static final String QUEUETOPIC_URI = "runtimedestination/";
 
     private static final String CONFIG_INIT_PARAM = "config-type";
-    
+
     private static final ObjectName deployer = JMXUtil
             .getObjectName(ObjectNameConstants.DEPLOYER_OBJECT_NAME);
 
@@ -92,7 +93,7 @@ public class ConfigManagerPortlet extends BasePortlet {
     }
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         String action = actionRequest.getParameter("action");
         actionResponse.setRenderParameter("message", ""); // set to blank first
         try {
@@ -100,15 +101,15 @@ public class ConfigManagerPortlet extends BasePortlet {
                     .getConfigurationManager(kernel);
             ObjectName configName = null;
             String config = getConfigID(actionRequest);
-            if (configurationManager.isLoaded(URI.create(config)))
-                configName = JMXUtil
-                        .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                                + "\"" + getConfigID(actionRequest) + "\"");
-            else
-                configName = configurationManager.load(URI.create(config));
+            URI configID = URI.create(config);
+            if (configurationManager.isLoaded(configID)) {
+                configName = Configuration.getConfigurationObjectName(configID);
+            } else {
+                configName = configurationManager.load(configID);
+            }
 
             if (START_ACTION.equals(action)) {
-                kernel.startRecursiveGBean(configName);
+                configurationManager.start(configName);
                 //kernel.startConfiguration(getConfigID(actionRequest));
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {
@@ -136,7 +137,7 @@ public class ConfigManagerPortlet extends BasePortlet {
             throw new PortletException("Exception", e);
         }
     }
-	
+
     /**
      * Uninstall an application configuration
      *
@@ -155,36 +156,39 @@ public class ConfigManagerPortlet extends BasePortlet {
             ObjectName configStore = (ObjectName) configStores.get(i);
             Boolean result = (Boolean) kernel.invoke(configStore,
                     CONTAINSCONFIG_METHOD,
-                    new Object[] { URI.create(configID) }, CONTAINSCONFIG_SIG);
+                    new Object[]{URI.create(configID)}, CONTAINSCONFIG_SIG);
             if (result.booleanValue() == true) {
                 // stop config if running
                 if (configManager.isLoaded(URI.create(configID))) {
                     //int state = kernel.getConfigurationState(configID);
                     int state = kernel
                             .getGBeanState(JMXUtil
-                                    .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                                            + "\"" + configID + "\""));
+                            .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
+                            + "\"" + configID + "\""));
                     if (state == State.RUNNING.toInt()) {
                         //kernel.stopConfiguration(configID);
                         kernel
                                 .stopGBean(JMXUtil
-                                        .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                                                + "\"" + configID + "\""));
+                                .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
+                                + "\"" + configID + "\""));
                     }
                 }
-                kernel.invoke(configStore, UNINSTALL_METHOD, new Object[] { URI
-                        .create(configID) }, UNINSTALL_SIG);
+                kernel.invoke(configStore, UNINSTALL_METHOD, new Object[]{URI
+                        .create(configID)}, UNINSTALL_SIG);
             }
         }
     }
+
     /**
-     * Check if a configuration should be listed here. This method depends on the "config-type" portlet parameter 
+     * Check if a configuration should be listed here. This method depends on the "config-type" portlet parameter
      * which is set in portle.xml.
      */
-    private boolean shouldListConfig(ConfigurationInfo info){
-	    String configType = getInitParameter(CONFIG_INIT_PARAM);
-	    if(configType!=null && !info.getType().getName().equalsIgnoreCase(configType)) return false;
-	    else return true;
+    private boolean shouldListConfig(ConfigurationInfo info) {
+        String configType = getInitParameter(CONFIG_INIT_PARAM);
+        if (configType != null && !info.getType().getName().equalsIgnoreCase(configType))
+            return false;
+        else
+            return true;
     }
 
     /*
@@ -201,7 +205,7 @@ public class ConfigManagerPortlet extends BasePortlet {
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws IOException, PortletException {
+                          RenderResponse renderResponse) throws IOException, PortletException {
         if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
             return;
         }
@@ -219,13 +223,11 @@ public class ConfigManagerPortlet extends BasePortlet {
                     if (shouldListConfig(info)) {
                         // TODO: Check if this is the right solution
                         // Disregard JMS Queues and Topics &&
-                        if (!info.getConfigID().getPath().startsWith(
-                                QUEUETOPIC_URI)
+                        if (!info.getConfigID().getPath().startsWith(QUEUETOPIC_URI)
                                 && !info
-                                        .getConfigID()
-                                        .getPath()
-                                        .startsWith(
-                                                SecurityConstants.SECURITY_CONFIG_PREFIX)) {
+                                .getConfigID()
+                                .getPath()
+                                .startsWith(SecurityConstants.SECURITY_CONFIG_PREFIX)) {
                             configInfo.add(info);
                         }
                     }
@@ -249,19 +251,16 @@ public class ConfigManagerPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         kernel = KernelRegistry.getSingleKernel();
-        normalView = portletConfig.getPortletContext().getRequestDispatcher(
-                "/WEB-INF/view/configmanager/normal.jsp");
-        maximizedView = portletConfig.getPortletContext().getRequestDispatcher(
-                "/WEB-INF/view/configmanager/maximized.jsp");
-        helpView = portletConfig.getPortletContext().getRequestDispatcher(
-                "/WEB-INF/view/configmanager/help.jsp");
+        normalView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/normal.jsp");
+        maximizedView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/maximized.jsp");
+        helpView = portletConfig.getPortletContext().getRequestDispatcher("/WEB-INF/view/configmanager/help.jsp");
     }
 
     public void destroy() {

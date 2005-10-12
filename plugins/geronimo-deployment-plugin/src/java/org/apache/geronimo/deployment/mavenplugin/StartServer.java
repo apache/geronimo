@@ -26,15 +26,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 
 /**
@@ -106,14 +105,16 @@ public class StartServer {
         URI configurationId = (URI) configuration.getAttribute("id");
         ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
         configuration.setName(configName);
+        configuration.setAttribute("baseURL", systemURL);
 
         // build a basic kernel without a configuration-store, our configuration store is
         Kernel kernel = KernelFactory.newInstance().createKernel(getKernelName());
         kernel.boot();
 
         kernel.loadGBean(configuration, this.getClass().getClassLoader());
-        kernel.setAttribute(configName, "baseURL", systemURL);
-        kernel.startRecursiveGBean(configName);
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
 
         // load the rest of the configuration listed on the command line
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -123,7 +124,7 @@ public class StartServer {
                 List list = configurationManager.loadRecursive(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                     ObjectName name = (ObjectName) iterator.next();
-                    kernel.startRecursiveGBean(name);
+                    configurationManager.start(name);
                     System.out.println("started gbean: " + name);
                 }
             }

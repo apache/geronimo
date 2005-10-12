@@ -70,6 +70,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
@@ -187,10 +188,12 @@ public class TomcatModuleBuilderTest extends TestCase {
         GBeanData configData = earContext.getConfigurationGBeanData();
         configData.setAttribute("baseURL", path.toURL());
         kernel.loadGBean(configData, cl);
-
-        kernel.startRecursiveGBean(configData.getName());
-        if (kernel.getGBeanState(configData.getName()) != State.RUNNING_INDEX) {
-            fail("gbean not started: " + configData.getName());
+        ObjectName configName = configData.getName();
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
+        if (kernel.getGBeanState(configName) != State.RUNNING_INDEX) {
+            fail("gbean not started: " + configName);
         }
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=" + name)));
@@ -205,13 +208,15 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         //If we got here with no errors, then Tomcat deployed the war and loaded the classes
 
-        kernel.stopGBean(configData.getName());
-        kernel.unloadGBean(configData.getName());
+        kernel.stopGBean(configName);
+        kernel.unloadGBean(configName);
 
         kernel.loadGBean(configData, cl);
-        kernel.startRecursiveGBean(configData.getName());
-        kernel.stopGBean(configData.getName());
-        kernel.unloadGBean(configData.getName());
+        kernel.startGBean(configName);
+        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
+        kernel.invoke(configName, "startRecursiveGBeans");
+        kernel.stopGBean(configName);
+        kernel.unloadGBean(configName);
     }
 
     private EARContext createEARContext(File outputPath, URI id)
