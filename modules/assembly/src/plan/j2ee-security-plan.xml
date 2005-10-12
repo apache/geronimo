@@ -49,7 +49,7 @@ Configuration for the security of a Geronimo server.
         </references>
     </gbean>
 
-    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
+    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.server.JaasLoginService">
         <reference name="Realms"><application>*</application><module>*</module><name>*</name></reference>
         <!--        <attribute name="reclaimPeriod">100000</attribute>-->
         <attribute name="algorithm">HmacSHA1</attribute>

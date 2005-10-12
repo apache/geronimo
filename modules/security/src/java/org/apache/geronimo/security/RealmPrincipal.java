@@ -26,15 +26,15 @@ import java.security.Principal;
  * @version $Rev$ $Date$
  */
 public class RealmPrincipal implements Principal, Serializable {
-    private final String loginDomain;
+    private final String realm;
     private final Principal principal;
     private transient String name = null;
 
-    public RealmPrincipal(String loginDomain, Principal principal) {
-        if (loginDomain == null) throw new IllegalArgumentException("loginDomain is null");
+    public RealmPrincipal(String realm, Principal principal) {
+        if (realm == null) throw new IllegalArgumentException("realm is null");
         if (principal == null) throw new IllegalArgumentException("principal is null");
 
-        this.loginDomain = loginDomain;
+        this.realm = realm;
         this.principal = principal;
     }
 
@@ -52,7 +52,7 @@ public class RealmPrincipal implements Principal, Serializable {
 
         RealmPrincipal realmPrincipal = (RealmPrincipal) another;
 
-        return loginDomain.equals(realmPrincipal.loginDomain) && principal.equals(realmPrincipal.principal);
+        return realm.equals(realmPrincipal.realm) && principal.equals(realmPrincipal.principal);
     }
 
     /**
@@ -66,7 +66,7 @@ public class RealmPrincipal implements Principal, Serializable {
         if (name == null) {
 
             StringBuffer buffer = new StringBuffer("");
-            buffer.append(loginDomain);
+            buffer.append(realm);
             buffer.append(":[");
             buffer.append(principal.getClass().getName());
             buffer.append(':');
@@ -85,7 +85,7 @@ public class RealmPrincipal implements Principal, Serializable {
      */
     public int hashCode() {
         int result;
-        result = loginDomain.hashCode();
+        result = realm.hashCode();
         result = 29 * result + principal.hashCode();
         return result;
     }
@@ -97,20 +97,20 @@ public class RealmPrincipal implements Principal, Serializable {
      */
     public String getName() {
         //TODO hack to workaround bogus assumptions in some secret code.
-//        if (name == null) {
-//
-//            StringBuffer buffer = new StringBuffer("");
-//            buffer.append(loginDomain);
-//            buffer.append(":[");
-//            buffer.append(principal.getClass().getName());
-//            buffer.append(':');
-//            buffer.append(principal.getName());
-//            buffer.append("]");
-//
-//            name = buffer.toString();
-//        }
-//        return name;
-        return principal.getName();
+        if (name == null) {
+
+            StringBuffer buffer = new StringBuffer("");
+            buffer.append(realm);
+            buffer.append(":[");
+            buffer.append(principal.getClass().getName());
+            buffer.append(':');
+            buffer.append(principal.getName());
+            buffer.append("]");
+
+            name = buffer.toString();
+        }
+        return name;
+//        return principal.getName();
     }
 
     /**
@@ -127,7 +127,7 @@ public class RealmPrincipal implements Principal, Serializable {
      *
      * @return the realm that is associated with the principal.
      */
-    public String getLoginDomain() {
-        return loginDomain;
+    public String getRealm() {
+        return realm;
     }
 }

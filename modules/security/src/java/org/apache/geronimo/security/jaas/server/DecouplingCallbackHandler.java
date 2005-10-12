@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.jaas.server;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;

@@ -32,9 +32,10 @@ import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
@@ -70,7 +71,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
 
         clientLM = new ObjectName("geronimo.security:type=LoginModule,name=properties-client");
         gbean = new GBeanData(clientLM, LoginModuleGBean.getGBeanInfo());
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.JaasLoginCoordinator");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.client.JaasLoginCoordinator");
         gbean.setAttribute("serverSide", new Boolean(false));
         Properties props = new Properties();
         props.put("host", "localhost");
@@ -83,6 +84,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean = new GBeanData(clientCE, DirectConfigurationEntry.getGBeanInfo());
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         gbean.setReferencePatterns("Module", Collections.singleton(clientLM));
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
 
@@ -95,6 +97,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
         ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
@@ -149,8 +152,9 @@ public class LoginPropertiesFileTest extends AbstractTest {
         assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have three principals (" + subject.getPrincipals().size() + ")", 3, subject.getPrincipals().size());
-        assertEquals("subject should have no realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 0, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("subject should have seven principals (" + subject.getPrincipals().size() + ")", 7, subject.getPrincipals().size());
+        assertEquals("subject should have 2 realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 2, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("subject should have 2 domain principals (" + subject.getPrincipals(DomainPrincipal.class).size() + ")", 2, subject.getPrincipals(DomainPrincipal.class).size());
 
         subject = ContextManager.getServerSideSubject(subject);
 
@@ -158,8 +162,9 @@ public class LoginPropertiesFileTest extends AbstractTest {
         assertTrue("subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertEquals("subject should have five principals (" + subject.getPrincipals().size() + ")", 5, subject.getPrincipals().size());
-        assertEquals("subject should have two realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 2, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("subject should have seven principals (" + subject.getPrincipals().size() + ")", 7, subject.getPrincipals().size());
+        assertEquals("subject should have 2 realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", 2, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("subject should have 2 domain principals (" + subject.getPrincipals(DomainPrincipal.class).size() + ")", 2, subject.getPrincipals(DomainPrincipal.class).size());
 
         context.logout();
 
@@ -176,8 +181,28 @@ public class LoginPropertiesFileTest extends AbstractTest {
         }
     }
 
+    public void testBadUserLogin() throws Exception {
+        LoginContext context = new LoginContext("properties-client", new UsernamePasswordCallback("bad", "starcraft"));
+
+        try {
+            context.login();
+            fail("Should not allow this login with null username");
+        } catch (LoginException e) {
+        }
+    }
+
     public void testNullPasswordLogin() throws Exception {
         LoginContext context = new LoginContext("properties-client", new UsernamePasswordCallback("alan", null));
+
+        try {
+            context.login();
+            fail("Should not allow this login with null password");
+        } catch (LoginException e) {
+        }
+    }
+
+    public void testBadPasswordLogin() throws Exception {
+        LoginContext context = new LoginContext("properties-client", new UsernamePasswordCallback("alan", "bad"));
 
         try {
             context.login();

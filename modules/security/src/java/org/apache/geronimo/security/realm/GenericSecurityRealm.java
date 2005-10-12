@@ -30,11 +30,11 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
-import org.apache.geronimo.security.jaas.JaasLoginCoordinator;
-import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
+import org.apache.geronimo.security.jaas.client.JaasLoginCoordinator;
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
-import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
@@ -80,12 +80,14 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     private final Principal defaultPrincipal;
 
     private String[] domains;
-    private boolean restrictPrincipalsToServer;
+    private final boolean restrictPrincipalsToServer;
+    private final boolean wrapPrincipals;
 
 
     public GenericSecurityRealm(String realmName,
                                 JaasLoginModuleUse loginModuleUse,
                                 boolean restrictPrincipalsToServer,
+                                boolean wrapPrincipals,
                                 Principal defaultPrincipal,
                                 ServerInfo serverInfo,
                                 ClassLoader classLoader,
@@ -94,6 +96,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         this.realmName = realmName;
         this.kernel = kernel;
         this.restrictPrincipalsToServer = restrictPrincipalsToServer;
+        this.wrapPrincipals = wrapPrincipals;
         this.defaultPrincipal = defaultPrincipal;
         this.loginService = loginService;
 
@@ -148,6 +151,14 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         return restrictPrincipalsToServer;
     }
 
+    /**
+     * If this attribute is true, then the principals will be wrapped in
+     * realm principals.
+     */
+    public boolean isWrapPrincipals() {
+        return wrapPrincipals;
+    }
+
     public String getConfigurationName() {
         return realmName;
     }
@@ -160,7 +171,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
             options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
         }
 
-        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName);
+        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName, wrapPrincipals);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -176,6 +187,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.addAttribute("defaultPrincipal", Principal.class, true);
         infoFactory.addAttribute("deploymentSupport", Properties.class, true);
         infoFactory.addAttribute("restrictPrincipalsToServer", boolean.class, true);
+        infoFactory.addAttribute("wrapPrincipals", boolean.class, true);
 
         infoFactory.addReference("LoginModuleConfiguration", JaasLoginModuleUse.class, "LoginModuleUse");
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
@@ -186,6 +198,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.setConstructor(new String[]{"realmName",
                                                 "LoginModuleConfiguration",
                                                 "restrictPrincipalsToServer",
+                                                "wrapPrincipals",
                                                 "defaultPrincipal",
                                                 "ServerInfo",
                                                 "classLoader",

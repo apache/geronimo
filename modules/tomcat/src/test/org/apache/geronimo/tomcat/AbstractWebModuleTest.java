@@ -26,36 +26,32 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
-import org.apache.geronimo.security.jaas.JaasLoginService;
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 
@@ -103,6 +99,9 @@ public class AbstractWebModuleTest extends TestCase {
     private ObjectName serverInfoName;
     private GBeanData serverInfoGBean;
 
+    public void testDummy() {
+    }
+
     protected void setUpInsecureAppContext() throws Exception {
 
         GBeanData app = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
@@ -124,8 +123,8 @@ public class AbstractWebModuleTest extends TestCase {
         //Will use Context Level Security
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
-        PermissionCollection excludedPermissions= new Permissions();
-        PermissionCollection uncheckedPermissions= new Permissions();
+        PermissionCollection excludedPermissions = new Permissions();
+        PermissionCollection uncheckedPermissions = new Permissions();
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, new HashMap());
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
@@ -137,8 +136,8 @@ public class AbstractWebModuleTest extends TestCase {
         //Set a context level Realm and ignore the Engine level to test that
         //the override along with a Security Realm Name set overrides the Engine
         Map initParams = new HashMap();
-        initParams.put("userClassNames","org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        initParams.put("roleClassNames","org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        initParams.put("userClassNames", "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        initParams.put("roleClassNames", "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
         contextRealmName = NameFactory.getWebComponentName(null, null, null, null, "tomcatContextRealm", "WebResource", moduleContext);
         GBeanData contextRealm = new GBeanData(contextRealmName, RealmGBean.GBEAN_INFO);
         contextRealm.setAttribute("className", "org.apache.geronimo.tomcat.realm.TomcatJAASRealm");
@@ -155,7 +154,7 @@ public class AbstractWebModuleTest extends TestCase {
         app.setAttribute("securityHolder", securityHolder);
         app.setAttribute("configurationBaseUrl", new File("target/var/catalina/webapps/war3/WEB-INF/web.xml").toURL());
         app.setAttribute("contextPath", "/securetest");
-        app.setReferencePattern("TomcatRealm",contextRealmName);
+        app.setReferencePattern("TomcatRealm", contextRealmName);
         app.setReferencePattern("RoleDesignateSource", jaccBeanName);
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
@@ -175,7 +174,8 @@ public class AbstractWebModuleTest extends TestCase {
                                                ComponentPermissions componentPermissions,
                                                DefaultPrincipal defaultPrincipal,
                                                PermissionCollection checked)
-            throws Exception {
+            throws Exception
+    {
 
         //Will use the Engine level security
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
@@ -244,6 +244,7 @@ public class AbstractWebModuleTest extends TestCase {
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
         options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
+        propertiesLMGBean.setAttribute("wrapPrincipals", Boolean.TRUE);
         propertiesLMGBean.setAttribute("loginDomainName", "geronimo-properties-realm");
 
         ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
@@ -281,7 +282,7 @@ public class AbstractWebModuleTest extends TestCase {
 
     }
 
-    protected void tearDownJAASWebApp() throws Exception{
+    protected void tearDownJAASWebApp() throws Exception {
         stop(webModuleName);
         stop(contextRealmName);
     }
@@ -336,9 +337,9 @@ public class AbstractWebModuleTest extends TestCase {
         //Default Realm
         Map initParams = new HashMap();
 
-        if (realmClass != null){
-            initParams.put("userClassNames","org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-            initParams.put("roleClassNames","org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
+        if (realmClass != null) {
+            initParams.put("userClassNames", "org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+            initParams.put("roleClassNames", "org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
             realm = new GBeanData(realmName, RealmGBean.GBEAN_INFO);
             realm.setAttribute("className", realmClass);
             realm.setAttribute("initParams", initParams);
@@ -347,9 +348,9 @@ public class AbstractWebModuleTest extends TestCase {
 
         //Default Host
         initParams.clear();
-        initParams.put("workDir","work");
-        initParams.put("name","localhost");
-        initParams.put("appBase","");
+        initParams.put("workDir", "work");
+        initParams.put("name", "localhost");
+        initParams.put("appBase", "");
         host = new GBeanData(hostName, HostGBean.GBEAN_INFO);
         host.setAttribute("className", "org.apache.catalina.core.StandardHost");
         host.setAttribute("initParams", initParams);
@@ -357,8 +358,8 @@ public class AbstractWebModuleTest extends TestCase {
 
         //Default Engine
         initParams.clear();
-        initParams.put("name","Geronimo");
-        initParams.put("defaultHost","localhost");
+        initParams.put("name", "Geronimo");
+        initParams.put("defaultHost", "localhost");
         engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
         engine.setAttribute("initParams", initParams);

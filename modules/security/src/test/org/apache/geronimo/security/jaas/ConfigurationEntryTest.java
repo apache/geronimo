@@ -18,7 +18,6 @@
 package org.apache.geronimo.security.jaas;
 
 import java.io.File;
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
@@ -28,22 +27,23 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import junit.framework.TestCase;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.log4j.Logger;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.Level;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
@@ -64,11 +64,10 @@ public class ConfigurationEntryTest extends TestCase {
 
     public void test() throws Exception {
         File log = new File("target/login-audit.log");
-        if(log.exists()) {
+        if (log.exists()) {
             log.delete();
         }
         assertEquals("Audit file wasn't cleared", 0, log.length());
-
 
         // First try with explicit configuration entry
         LoginContext context = new LoginContext("properties-client", new AbstractTest.UsernamePasswordCallback("alan", "starcraft"));
@@ -79,7 +78,7 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("expected non-null client subject", subject != null);
         Set set = subject.getPrincipals(IdentificationPrincipal.class);
         assertEquals("client subject should have one ID principal", set.size(), 1);
-        IdentificationPrincipal idp = (IdentificationPrincipal)set.iterator().next();
+        IdentificationPrincipal idp = (IdentificationPrincipal) set.iterator().next();
         assertEquals(idp.getId(), idp.getId());
         subject = ContextManager.getRegisteredSubject(idp.getId());
 
@@ -87,9 +86,9 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
-        assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
-        assertTrue("server subject should have one private credential ("+subject.getPrivateCredentials().size()+")", subject.getPrivateCredentials().size() == 1);
+        assertTrue("server subject should have two realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+        assertTrue("server subject should have seven principals (" + subject.getPrincipals().size() + ")", subject.getPrincipals().size() == 7);
+        assertTrue("server subject should have one private credential (" + subject.getPrivateCredentials().size() + ")", subject.getPrivateCredentials().size() == 1);
 
         context.logout();
 
@@ -106,7 +105,7 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("expected non-null client subject", subject != null);
         set = subject.getPrincipals(IdentificationPrincipal.class);
         assertEquals("client subject should have one ID principal", set.size(), 1);
-        IdentificationPrincipal idp2 = (IdentificationPrincipal)set.iterator().next();
+        IdentificationPrincipal idp2 = (IdentificationPrincipal) set.iterator().next();
         assertNotSame(idp.getId(), idp2.getId());
         assertEquals(idp2.getId(), idp2.getId());
         subject = ContextManager.getServerSideSubject(subject);
@@ -115,9 +114,9 @@ public class ConfigurationEntryTest extends TestCase {
         assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertTrue("server subject should have two realm principals ("+subject.getPrincipals(RealmPrincipal.class).size()+")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
-        assertTrue("server subject should have five principals ("+subject.getPrincipals().size()+")", subject.getPrincipals().size() == 5);
-        assertTrue("server subject should have one private credential ("+subject.getPrivateCredentials().size()+")", subject.getPrivateCredentials().size() == 1);
+        assertTrue("server subject should have two realm principals (" + subject.getPrincipals(RealmPrincipal.class).size() + ")", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+        assertTrue("server subject should have seven principals (" + subject.getPrincipals().size() + ")", subject.getPrincipals().size() == 7);
+        assertTrue("server subject should have one private credential (" + subject.getPrivateCredentials().size() + ")", subject.getPrivateCredentials().size() == 1);
 
         context.logout();
 
@@ -158,6 +157,7 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(gbean, JaasLoginService.class.getClassLoader());
 
+        // TODO What is this?
         clientCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties-client");
         gbean = new GBeanData(clientCE, ServerRealmConfigurationEntry.getGBeanInfo());
         gbean.setAttribute("applicationConfigName", "properties-client");
@@ -174,6 +174,7 @@ public class ConfigurationEntryTest extends TestCase {
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "TestProperties");
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
         testUPCred = new ObjectName("geronimo.security:type=LoginModule,name=UPCred");

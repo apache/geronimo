@@ -14,14 +14,17 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.jaas.server;
 
 import java.security.Principal;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.login.LoginException;
 
 import org.apache.geronimo.common.GeronimoSecurityException;
+
 
 /**
  * Interface used to connect to the JaasLoginService via remoting, etc.  This
@@ -32,6 +35,7 @@ import org.apache.geronimo.common.GeronimoSecurityException;
 public interface JaasLoginServiceMBean {
     /**
      * Return the object name of this login service.
+     *
      * @return the object name of this service
      */
     public String getObjectName();
@@ -68,20 +72,20 @@ public interface JaasLoginServiceMBean {
 
     /**
      * Starts a new authentication process on behalf of an end user.  The
-     * returned ID will identify that user throughout the user's interaction
+     * returned session id will identify that user throughout the user's interaction
      * with the server.  On the server side, that means maintaining the
      * Subject and Principals for the user.
      *
-     * @return The UserIdentifier used as an argument for the rest of the
+     * @return The <code>JaasSessionId</code> used as an argument for the rest of the
      *         methods in this class.
      */
-    public JaasClientId connectToRealm(String realmName);
+    public JaasSessionId connectToRealm(String realmName);
 
     /**
      * Gets the login module configuration for the specified realm.  The
      * caller needs that in order to perform the authentication process.
      */
-    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasClientId clientHandle) throws LoginException ;
+    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasSessionId sessionHandle) throws LoginException;
 
     /**
      * Retrieves callbacks for a server side login module.  When the client
@@ -90,7 +94,7 @@ public interface JaasLoginServiceMBean {
      * server-side, the client gets the callbacks (using this method),
      * populates them, and sends them back to the server.
      */
-    public Callback[] getServerLoginCallbacks(JaasClientId clientHandle, int loginModuleIndex) throws LoginException;
+    public Callback[] getServerLoginCallbacks(JaasSessionId sessionHandle, int loginModuleIndex) throws LoginException;
 
     /**
      * Returns populated callbacks for a server side login module.  When the
@@ -99,7 +103,7 @@ public interface JaasLoginServiceMBean {
      * server-side, the client gets the callbacks, populates them, and sends
      * them back to the server (using this method).
      */
-    public boolean performServerLogin(JaasClientId clientHandle, int loginModuleIndex, Callback[] results) throws LoginException;
+    public boolean performLogin(JaasSessionId sessionHandle, int loginModuleIndex, Callback[] results) throws LoginException;
 
     /**
      * Indicates that the overall login succeeded, and some principals were
@@ -107,31 +111,47 @@ public interface JaasLoginServiceMBean {
      * once for each client-side login module, to specify Principals for each
      * module.
      */
-    public void clientLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex, Principal[] clientLoginModulePrincipals) throws LoginException;
-
-    /**
-     * Indicates that the overall login succeeded, and a particular server-side
-     * login module should be committed.  This method needs to be called
-     * once for each server-side login module that was processed before the
-     * overall authentication succeeded.
-     */
-    public boolean serverLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex) throws LoginException;
+    public boolean performCommit(JaasSessionId sessionHandle, int loginModuleIndex) throws LoginException;
 
     /**
      * Indicates that the overall login succeeded.  All login modules that were
      * touched should have been logged in and committed before calling this.
+     *
+     * @param sessionHandle the handle to the login session
+     * @return the identifier principal
+     * @throws LoginException if the handle is no longer valid.
      */
-    public Principal[] loginSucceeded(JaasClientId clientHandle) throws LoginException;
+    public Principal loginSucceeded(JaasSessionId sessionHandle) throws LoginException;
 
     /**
      * Indicates that the overall login failed, and the server should release
      * any resources associated with the user ID.
      */
-    public void loginFailed(JaasClientId clientHandle);
+    public void loginFailed(JaasSessionId sessionHandle);
 
     /**
      * Indicates that the client has logged out, and the server should release
      * any resources associated with the user ID.
      */
-    public void logout(JaasClientId clientHandle) throws LoginException;
+    public void logout(JaasSessionId sessionHandle) throws LoginException;
+
+    /**
+     * Syncs the shared state that's on the client with the shared state that
+     * is on the server.
+     *
+     * @param sessionHandle
+     * @param sharedState the shared state that is on the client
+     * @return the sync'd shared state that is on the server
+     */
+    public Map syncShareState(JaasSessionId sessionHandle, Map sharedState) throws LoginException;
+
+    /**
+     * Syncs the set of principals that are on the client with the set of principals that
+     * are on the server.
+     *
+     * @param sessionHandle
+     * @param principals the set of principals that are on the client side
+     * @return the sync'd set of principals that are on the server
+     */
+    public Set syncPrincipals(JaasSessionId sessionHandle, Set principals) throws LoginException;
 }

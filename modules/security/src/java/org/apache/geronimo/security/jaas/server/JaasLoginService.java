@@ -14,12 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.jaas.server;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -27,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -49,6 +49,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.jaas.LoginUtils;
 import org.apache.geronimo.security.realm.SecurityRealm;
 
 
@@ -159,7 +160,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * @return The client handle used as an argument for the rest of the
      *         methods in this class.
      */
-    public JaasClientId connectToRealm(String realmName) {
+    public JaasSessionId connectToRealm(String realmName) {
         SecurityRealm realm = null;
         realm = getRealm(realmName);
         if (realm == null) {
@@ -173,16 +174,16 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * Gets the login module configuration for the specified realm.  The
      * caller needs that in order to perform the authentication process.
      */
-    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasClientId clientHandle) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
-        if (context == null) {
+    public JaasLoginModuleConfiguration[] getLoginConfiguration(JaasSessionId sessionHandle) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        if (session == null) {
             throw new ExpiredLoginModuleException();
         }
-        JaasLoginModuleConfiguration[] config = context.getModules();
+        JaasLoginModuleConfiguration[] config = session.getModules();
         // strip out non-serializable configuration options
         JaasLoginModuleConfiguration[] result = new JaasLoginModuleConfiguration[config.length];
         for (int i = 0; i < config.length; i++) {
-            result[i] = config[i].getSerializableCopy();
+            result[i] = LoginUtils.getSerializableCopy(config[i]);
         }
         return result;
     }
@@ -194,14 +195,14 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * server-side, the client gets the callbacks (using this method),
      * populates them, and sends them back to the server.
      */
-    public Callback[] getServerLoginCallbacks(JaasClientId clientHandle, int loginModuleIndex) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
-        checkContext(context, loginModuleIndex, true);
-        LoginModule module = context.getLoginModule(loginModuleIndex);
+    public Callback[] getServerLoginCallbacks(JaasSessionId sessionHandle, int loginModuleIndex) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        checkContext(session, loginModuleIndex);
+        LoginModule module = session.getLoginModule(loginModuleIndex);
 
-        context.getHandler().setExploring();
+        session.getHandler().setExploring();
         try {
-            module.initialize(context.getSubject(), context.getHandler(), new HashMap(), context.getOptions(loginModuleIndex));
+            module.initialize(session.getSubject(), session.getHandler(), new HashMap(), session.getOptions(loginModuleIndex));
         } catch (Exception e) {
             System.err.println("Failed to initialize module");
             e.printStackTrace();
@@ -214,7 +215,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
             module.abort();
         } catch (LoginException e) {
         }
-        return context.getHandler().finalizeCallbackList();
+        return session.getHandler().finalizeCallbackList();
     }
 
     /**
@@ -224,15 +225,15 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * server-side, the client gets the callbacks, populates them, and sends
      * them back to the server (using this method).
      */
-    public boolean performServerLogin(JaasClientId clientHandle, int loginModuleIndex, Callback[] results) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
-        checkContext(context, loginModuleIndex, true);
+    public boolean performLogin(JaasSessionId sessionHandle, int loginModuleIndex, Callback[] results) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        checkContext(session, loginModuleIndex);
         try {
-            context.getHandler().setClientResponse(results);
+            session.getHandler().setClientResponse(results);
         } catch (IllegalArgumentException iae) {
             throw new LoginException(iae.toString());
         }
-        return context.getLoginModule(loginModuleIndex).login();
+        return session.getLoginModule(loginModuleIndex).login();
     }
 
     /**
@@ -241,83 +242,96 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      * once for each client-side login module, to specify Principals for each
      * module.
      */
-    public void clientLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex, Principal[] clientLoginModulePrincipals) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
-        checkContext(context, loginModuleIndex, false);
-        context.processPrincipals(clientLoginModulePrincipals, context.getLoginDomainName(loginModuleIndex));
-    }
-
-    /**
-     * Indicates that the overall login succeeded, and a particular server-side
-     * login module should be committed.  This method needs to be called
-     * once for each server-side login module that was processed before the
-     * overall authentication succeeded.
-     */
-    public boolean serverLoginModuleCommit(JaasClientId clientHandle, int loginModuleIndex) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
-        checkContext(context, loginModuleIndex, true);
-        boolean result = context.getLoginModule(loginModuleIndex).commit();
-        context.processPrincipals(context.getLoginDomainName(loginModuleIndex));
-        return result;
+    public boolean performCommit(JaasSessionId sessionHandle, int loginModuleIndex) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        checkContext(session, loginModuleIndex);
+        return session.getLoginModule(loginModuleIndex).commit();
     }
 
     /**
      * Indicates that the overall login succeeded.  All login modules that were
      * touched should have been logged in and committed before calling this.
      */
-    public Principal[] loginSucceeded(JaasClientId clientHandle) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
-        if (context == null) {
+    public Principal loginSucceeded(JaasSessionId sessionHandle) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        if (session == null) {
             throw new ExpiredLoginModuleException();
         }
 
-        Subject subject = context.getSubject();
+        Subject subject = session.getSubject();
         ContextManager.registerSubject(subject);
         SubjectId id = ContextManager.getSubjectId(subject);
         IdentificationPrincipal principal = new IdentificationPrincipal(id);
         subject.getPrincipals().add(principal);
-        SecurityRealm realm = getRealm(context.getRealmName());
-        if (realm.isRestrictPrincipalsToServer()) {
-            return new Principal[]{principal};
-        } else {
-            List list = new ArrayList();
-            list.addAll(context.getProcessedPrincipals());
-            list.add(principal);
-            return (Principal[]) list.toArray(new Principal[list.size()]);
-        }
+        return principal;
     }
 
     /**
      * Indicates that the overall login failed, and the server should release
      * any resources associated with the user ID.
      */
-    public void loginFailed(JaasClientId clientHandle) {
-        activeLogins.remove(clientHandle);
+    public void loginFailed(JaasSessionId sessionHandle) {
+        activeLogins.remove(sessionHandle);
     }
 
     /**
      * Indicates that the client has logged out, and the server should release
      * any resources associated with the user ID.
      */
-    public void logout(JaasClientId clientHandle) throws LoginException {
-        JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(clientHandle);
-        if (context == null) {
+    public void logout(JaasSessionId sessionHandle) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        if (session == null) {
             throw new ExpiredLoginModuleException();
         }
-        ContextManager.unregisterSubject(context.getSubject());
-        activeLogins.remove(clientHandle);
-        for (int i = 0; i < context.getModules().length; i++) {
-            if (context.isServerSide(i)) {
-                context.getLoginModule(i).logout();
+        ContextManager.unregisterSubject(session.getSubject());
+        activeLogins.remove(sessionHandle);
+        for (int i = 0; i < session.getModules().length; i++) {
+            if (session.isServerSide(i)) {
+                session.getLoginModule(i).logout();
             }
         }
     }
 
-    private void checkContext(JaasSecurityContext context, int loginModuleIndex, boolean expectServerSide) throws LoginException {
-        if (context == null) {
+    /**
+     * Syncs the shared state that's on thye client with the shared state that
+     * is on the server.
+     *
+     * @param sessionHandle
+     * @param sharedState   the shared state that is on the client
+     * @return the sync'd shared state that is on the server
+     */
+    public Map syncShareState(JaasSessionId sessionHandle, Map sharedState) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        if (session == null) {
             throw new ExpiredLoginModuleException();
         }
-        if (loginModuleIndex < 0 || loginModuleIndex >= context.getModules().length || (context.isServerSide(loginModuleIndex) != expectServerSide)) {
+        session.getSharedContext().putAll(sharedState);
+        return LoginUtils.getSerializableCopy(session.getSharedContext());
+    }
+
+    /**
+     * Syncs the set of principals that are on the client with the set of principals that
+     * are on the server.
+     *
+     * @param sessionHandle
+     * @param principals    the set of principals that are on the client side
+     * @return the sync'd set of principals that are on the server
+     */
+    public Set syncPrincipals(JaasSessionId sessionHandle, Set principals) throws LoginException {
+        JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(sessionHandle);
+        if (session == null) {
+            throw new ExpiredLoginModuleException();
+        }
+        session.getSubject().getPrincipals().addAll(principals);
+
+        return LoginUtils.getSerializableCopy(session.getSubject().getPrincipals());
+    }
+
+    private void checkContext(JaasSecuritySession session, int loginModuleIndex) throws LoginException {
+        if (session == null) {
+            throw new ExpiredLoginModuleException();
+        }
+        if (loginModuleIndex < 0 || loginModuleIndex >= session.getModules().length || !session.isServerSide(loginModuleIndex)) {
             throw new LoginException("Invalid login module specified");
         }
     }
@@ -329,17 +343,17 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
      *
      * @param realm The realm the client is authenticating to
      */
-    private JaasClientId initializeClient(SecurityRealm realm) {
+    private JaasSessionId initializeClient(SecurityRealm realm) {
         long id;
         synchronized (JaasLoginService.class) {
             id = ++nextLoginModuleId;
         }
-        JaasClientId clientId = new JaasClientId(id, hash(id));
+        JaasSessionId sessionHandle = new JaasSessionId(id, hash(id));
         JaasLoginModuleConfiguration[] modules = realm.getAppConfigurationEntries();
         //TODO use of this classloader severely limits extensibility!!!
-        JaasSecurityContext context = new JaasSecurityContext(realm.getRealmName(), modules, classLoader);
-        activeLogins.put(clientId, context);
-        return clientId;
+        JaasSecuritySession session = new JaasSecuritySession(realm.getRealmName(), modules, new HashMap(), classLoader);
+        activeLogins.put(sessionHandle, session);
+        return sessionHandle;
     }
 
     private SecurityRealm getRealm(String realmName) {
@@ -397,19 +411,19 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
             List list = new LinkedList();
             synchronized (activeLogins) {
                 for (Iterator it = activeLogins.keySet().iterator(); it.hasNext();) {
-                    JaasClientId id = (JaasClientId) it.next();
-                    JaasSecurityContext context = (JaasSecurityContext) activeLogins.get(id);
-                    int age = (int) (now - context.getCreated());
-                    if (context.isDone() || age > maxLoginDurationMillis) {
-                        list.add(context);
-                        context.setDone(true);
+                    JaasSessionId id = (JaasSessionId) it.next();
+                    JaasSecuritySession session = (JaasSecuritySession) activeLogins.get(id);
+                    int age = (int) (now - session.getCreated());
+                    if (session.isDone() || age > maxLoginDurationMillis) {
+                        list.add(session);
+                        session.setDone(true);
                         it.remove();
                     }
                 }
             }
             for (Iterator it = list.iterator(); it.hasNext();) {
-                JaasSecurityContext context = (JaasSecurityContext) it.next();
-                ContextManager.unregisterSubject(context.getSubject());
+                JaasSecuritySession session = (JaasSecuritySession) it.next();
+                ContextManager.unregisterSubject(session.getSubject());
             }
         }
     }
@@ -429,14 +443,15 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         infoFactory.addAttribute("objectName", String.class, false);
 
         infoFactory.addOperation("connectToRealm", new Class[]{String.class});
-        infoFactory.addOperation("getLoginConfiguration", new Class[]{JaasClientId.class});
-        infoFactory.addOperation("getServerLoginCallbacks", new Class[]{JaasClientId.class, int.class});
-        infoFactory.addOperation("performServerLogin", new Class[]{JaasClientId.class, int.class, Callback[].class});
-        infoFactory.addOperation("clientLoginModuleCommit", new Class[]{JaasClientId.class, int.class, Principal[].class});
-        infoFactory.addOperation("serverLoginModuleCommit", new Class[]{JaasClientId.class, int.class});
-        infoFactory.addOperation("loginSucceeded", new Class[]{JaasClientId.class});
-        infoFactory.addOperation("loginFailed", new Class[]{JaasClientId.class});
-        infoFactory.addOperation("logout", new Class[]{JaasClientId.class});
+        infoFactory.addOperation("getLoginConfiguration", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("getServerLoginCallbacks", new Class[]{JaasSessionId.class, int.class});
+        infoFactory.addOperation("performLogin", new Class[]{JaasSessionId.class, int.class, Callback[].class});
+        infoFactory.addOperation("performCommit", new Class[]{JaasSessionId.class, int.class});
+        infoFactory.addOperation("loginSucceeded", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("loginFailed", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("logout", new Class[]{JaasSessionId.class});
+        infoFactory.addOperation("syncShareState", new Class[]{JaasSessionId.class, Map.class});
+        infoFactory.addOperation("syncPrincipals", new Class[]{JaasSessionId.class, Set.class});
 
         infoFactory.addReference("Realms", SecurityRealm.class, NameFactory.SECURITY_REALM);
 

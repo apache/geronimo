@@ -22,6 +22,9 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
+import org.apache.geronimo.security.jaas.client.JaasLoginCoordinator;
 
 
 /**
@@ -37,6 +40,7 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
     private final String realmName;
     private final Kernel kernel;
     private final JaasLoginServiceMBean loginService;
+    private boolean wrapPrincipals;
 
     public ServerRealmConfigurationEntry() {
         this.applicationConfigName = null;
@@ -48,10 +52,10 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
     public ServerRealmConfigurationEntry(String applicationConfigName, String realmName, Kernel kernel, JaasLoginServiceMBean loginService) {
         this.applicationConfigName = applicationConfigName;
         this.realmName = realmName;
-        if(applicationConfigName == null || realmName == null) {
+        if (applicationConfigName == null || realmName == null) {
             throw new IllegalArgumentException("applicationConfigName and realmName are required");
         }
-        if(applicationConfigName.equals(realmName)) {
+        if (applicationConfigName.equals(realmName)) {
             throw new IllegalArgumentException("applicationConfigName must be different than realmName (there's an automatic entry using the same name as the realm name, so you don't need a ServerRealmConfigurationEntry if you're just going to use that!)");
         }
         this.kernel = kernel;
@@ -60,6 +64,14 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
 
     public String getConfigurationName() {
         return applicationConfigName;
+    }
+
+    public boolean isWrapPrincipals() {
+        return wrapPrincipals;
+    }
+
+    public void setWrapPrincipals(boolean wrapPrincipals) {
+        this.wrapPrincipals = wrapPrincipals;
     }
 
     public JaasLoginModuleConfiguration generateConfiguration() {
@@ -73,7 +85,7 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
         options.put("realm", realmName);
         options.put("kernel", kernel.getKernelName());
 
-        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, applicationConfigName);
+        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, applicationConfigName, wrapPrincipals);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -85,6 +97,7 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("LoginService", JaasLoginServiceMBean.class, "JaasLoginService");
+        infoFactory.addAttribute("wrapPrincipals", Boolean.TYPE, true);
 
         infoFactory.setConstructor(new String[]{"applicationConfigName", "realmName", "kernel", "LoginService"});
         GBEAN_INFO = infoFactory.getBeanInfo();

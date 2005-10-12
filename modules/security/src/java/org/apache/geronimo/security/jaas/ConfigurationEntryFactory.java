@@ -16,6 +16,9 @@
  */
 package org.apache.geronimo.security.jaas;
 
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
+
+
 /**
  * A factory interface used by <code>GeronimoLoginConfiguration</code> to obtain
  * <code>JaasLoginModuleConfiguration</code>s from GBean configuration entries.

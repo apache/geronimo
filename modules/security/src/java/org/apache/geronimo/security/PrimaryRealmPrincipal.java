@@ -43,6 +43,6 @@ public class PrimaryRealmPrincipal extends RealmPrincipal {
 
         PrimaryRealmPrincipal realmPrincipal = (PrimaryRealmPrincipal) another;
 
-        return getLoginDomain().equals(realmPrincipal.getLoginDomain()) && getPrincipal().equals(realmPrincipal.getPrincipal());
+        return getRealm().equals(realmPrincipal.getRealm()) && getPrincipal().equals(realmPrincipal.getPrincipal());
     }
 }

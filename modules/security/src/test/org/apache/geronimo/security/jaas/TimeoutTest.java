@@ -30,12 +30,14 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 
 /**
@@ -102,6 +104,7 @@ public class TimeoutTest extends AbstractTest {
         props.put("groupsURI", new File(new File("."), "src/test-data/data/groups.properties").toURI().toString());
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
         ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
@@ -123,7 +126,7 @@ public class TimeoutTest extends AbstractTest {
 
         clientLM = new ObjectName("geronimo.security:type=LoginModule,name=properties-client");
         gbean = new GBeanData(clientLM, LoginModuleGBean.getGBeanInfo());
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.JaasLoginCoordinator");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.client.JaasLoginCoordinator");
         gbean.setAttribute("serverSide", new Boolean(false));
         props = new Properties();
         props.put("host", "localhost");
@@ -190,8 +193,9 @@ public class TimeoutTest extends AbstractTest {
         assertTrue("server subject should have one remote principal", subject.getPrincipals(IdentificationPrincipal.class).size() == 1);
         IdentificationPrincipal remote = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("server subject should be associated with remote id", ContextManager.getRegisteredSubject(remote.getId()) != null);
-        assertTrue("server subject should have five principals", subject.getPrincipals().size() == 5);
+        assertEquals("server-side subject should have seven principal", 7, subject.getPrincipals().size());
         assertTrue("server subject should have two realm principal", subject.getPrincipals(RealmPrincipal.class).size() == 2);
+        assertTrue("server subject should have two domain principal", subject.getPrincipals(DomainPrincipal.class).size() == 2);
 
         assertTrue("id of server subject should be non-null", ContextManager.getSubjectId(subject) != null);
 

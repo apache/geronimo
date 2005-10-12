@@ -141,6 +141,11 @@
         </dependency>
         <dependency>
             <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-jsp</artifactId>
+            <version>${geronimo_spec_jsp_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-jacc</artifactId>
             <version>${geronimo_spec_j2ee_jacc_version}</version>
         </dependency>

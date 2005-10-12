@@ -16,16 +16,18 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import java.util.Set;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
+
 
 /**
  * Holds a reference to a login module and the control flag.  A linked list of these forms the list of login modules
@@ -65,35 +67,35 @@ public class JaasLoginModuleUse {
         return next;
     }
 
-//    public LoginModuleControlFlag getControlFlag() {
-//        return controlFlag;
-//    }
+    public String getControlFlag() {
+        return controlFlag.toString();
+    }
 
     public void configure(Set domainNames, List loginModuleConfigurations, Kernel kernel, ServerInfo serverInfo, ClassLoader classLoader) {
         Map options = loginModule.getOptions();
-                   if (options != null) {
-                       options = new HashMap(options);
-                   } else {
-                       options = new HashMap();
-                   }
-                   if (kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
-                       options.put(KERNEL_LM_OPTION, kernel.getKernelName());
-                   }
-                   if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
-                       options.put(SERVERINFO_LM_OPTION, serverInfo);
-                   }
-                   if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
-                       options.put(CLASSLOADER_LM_OPTION, classLoader);
-                   }
-                   if (loginModule.getLoginDomainName() != null) {
-                       if (domainNames.contains(loginModule.getLoginDomainName())) {
-                           throw new IllegalStateException("Error in realm: one security realm cannot contain multiple login modules for the same login domain");
-                       } else {
-                           domainNames.add(loginModule.getLoginDomainName());
-                       }
-                   }
-                   JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(loginModule.getLoginModuleClass(), controlFlag, options, loginModule.isServerSide(), loginModule.getLoginDomainName());
-                   loginModuleConfigurations.add(config);
+        if (options != null) {
+            options = new HashMap(options);
+        } else {
+            options = new HashMap();
+        }
+        if (kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
+            options.put(KERNEL_LM_OPTION, kernel.getKernelName());
+        }
+        if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
+            options.put(SERVERINFO_LM_OPTION, serverInfo);
+        }
+        if (classLoader != null && !options.containsKey(CLASSLOADER_LM_OPTION)) {
+            options.put(CLASSLOADER_LM_OPTION, classLoader);
+        }
+        if (loginModule.getLoginDomainName() != null) {
+            if (domainNames.contains(loginModule.getLoginDomainName())) {
+                throw new IllegalStateException("Error in realm: one security realm cannot contain multiple login modules for the same login domain");
+            } else {
+                domainNames.add(loginModule.getLoginDomainName());
+            }
+        }
+        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(loginModule.getLoginModuleClass(), controlFlag, options, loginModule.isServerSide(), loginModule.getLoginDomainName(), loginModule.isWrapPrincipals());
+        loginModuleConfigurations.add(config);
 
         if (next != null) {
             next.configure(domainNames, loginModuleConfigurations, kernel, serverInfo, classLoader);
@@ -108,9 +110,9 @@ public class JaasLoginModuleUse {
         infoBuilder.addReference("LoginModule", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
         infoBuilder.addReference("Next", JaasLoginModuleUse.class);
 
-        infoBuilder.addOperation("configure", new Class[] {Set.class, List.class, Kernel.class, ServerInfo.class, ClassLoader.class});
+        infoBuilder.addOperation("configure", new Class[]{Set.class, List.class, Kernel.class, ServerInfo.class, ClassLoader.class});
 
-        infoBuilder.setConstructor(new String[] {"LoginModule", "Next", "controlFlag"});
+        infoBuilder.setConstructor(new String[]{"LoginModule", "Next", "controlFlag"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

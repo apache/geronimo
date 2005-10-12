@@ -38,7 +38,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.jaas.JaasLoginService;
+import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
@@ -56,6 +56,7 @@ public class RemoteLoginTest extends TestCase {
     Kernel kernel;
     ObjectName serverInfo;
     ObjectName loginService;
+    ObjectName loginConfig;
     protected ObjectName testCE;
     protected ObjectName testRealm;
     ObjectName serverStub;
@@ -152,16 +153,16 @@ public class RemoteLoginTest extends TestCase {
         }
 
         //set up "Client side" in the same kernel
-        ObjectName glc = new ObjectName("geronimo.client:name=GeronimoLoginConfiguration");
-        gbean = new GBeanData(glc, GeronimoLoginConfiguration.getGBeanInfo());
+        loginConfig = new ObjectName("geronimo.client:name=GeronimoLoginConfiguration");
+        gbean = new GBeanData(loginConfig, GeronimoLoginConfiguration.getGBeanInfo());
         gbean.setReferencePattern("Configurations", new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
         kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
-        kernel.startGBean(glc);
+        kernel.startGBean(loginConfig);
 
         //JaasLoginCoordinator client lm
         ObjectName jlc = new ObjectName("geronimo.security:type=JaasLoginCoordinatorLM");
         gbean = new GBeanData(jlc, LoginModuleGBean.getGBeanInfo());
-        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.JaasLoginCoordinator");
+        gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.client.JaasLoginCoordinator");
         gbean.setAttribute("serverSide", new Boolean(false));
         props = new Properties();
         URI connectURI = (URI) kernel.getAttribute(serverStub, "clientConnectURI");
@@ -202,6 +203,7 @@ public class RemoteLoginTest extends TestCase {
         kernel.unloadGBean(testCE);
         kernel.unloadGBean(testRealm);
         kernel.unloadGBean(serverStub);
+        kernel.unloadGBean(loginConfig);
         kernel.unloadGBean(serverInfo);
 
         kernel.shutdown();

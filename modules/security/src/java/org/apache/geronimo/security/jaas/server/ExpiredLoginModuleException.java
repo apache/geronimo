@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.jaas.server;
 
 import javax.security.auth.login.LoginException;
 

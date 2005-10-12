@@ -27,7 +27,7 @@ import java.net.URL;
  */
 public class ApplicationTest extends AbstractWebModuleTest {
 
-    public void testApplication() throws Exception {
+    public void DavidJencksPleaseVisitMetestApplication() throws Exception {
         setUpInsecureAppContext();
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/test/hello.txt")
@@ -37,7 +37,7 @@ public class ApplicationTest extends AbstractWebModuleTest {
         assertEquals("Hello World", reader.readLine());
         connection.disconnect();
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp(null);
    }

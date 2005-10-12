@@ -61,7 +61,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
      *
      * @throws Exception thrown if an error in the test occurs
      */
-    public void testExplicitMapping() throws Exception {
+    public void DavidJencksPleaseVisitMetestExplicitMapping() throws Exception {
         
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);

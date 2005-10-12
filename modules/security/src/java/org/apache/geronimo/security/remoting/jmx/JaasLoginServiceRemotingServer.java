@@ -39,7 +39,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
-import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 
 import javax.management.ObjectName;
 import java.io.IOException;

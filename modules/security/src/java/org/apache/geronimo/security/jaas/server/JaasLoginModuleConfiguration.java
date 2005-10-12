@@ -14,17 +14,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.jaas.server;
 
-import java.io.Externalizable;
 import java.io.Serializable;
-import java.rmi.Remote;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
+
 
 /**
  * Describes the configuration of a LoginModule -- its name, class, control
@@ -34,22 +32,26 @@ import org.apache.geronimo.common.GeronimoSecurityException;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class JaasLoginModuleConfiguration implements Serializable {
-    private boolean serverSide;
-    private String loginDomainName;
-    private LoginModuleControlFlag flag;
-    private String loginModuleName;
-    private Map options;
+    private final boolean serverSide;
+    private final String loginDomainName;
+    private final LoginModuleControlFlag flag;
+    private final String loginModuleName;
+    private final Map options;
+    private final boolean wrapPrincipals;
 
-    public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide, String loginDomainName) {
+    public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options,
+                                        boolean serverSide, String loginDomainName, boolean wrapPrincipals)
+    {
         this.serverSide = serverSide;
         this.flag = flag;
         this.loginModuleName = loginModuleName;
         this.options = options;
         this.loginDomainName = loginDomainName;
+        this.wrapPrincipals = wrapPrincipals;
     }
 
     public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide) {
-        this(loginModuleName, flag, options, serverSide, null);
+        this(loginModuleName, flag, options, serverSide, null, false);
     }
 
     public String getLoginModuleClassName() {
@@ -80,20 +82,7 @@ public class JaasLoginModuleConfiguration implements Serializable {
         return loginDomainName;
     }
 
-    /**
-     * Strips out stuff that isn't serializable so this can be safely passed to
-     * a remote server.
-     */
-    public JaasLoginModuleConfiguration getSerializableCopy() {
-        Map other = new HashMap();
-        for (Iterator it = options.keySet().iterator(); it.hasNext();) {
-            String key = (String) it.next();
-            Object value = options.get(key);
-            if (value instanceof Serializable || value instanceof Externalizable || value instanceof Remote) {
-                other.put(key, value);
-            }
-        }
-
-        return new JaasLoginModuleConfiguration(loginModuleName, flag, other, serverSide, loginDomainName);
+    public boolean isWrapPrincipals() {
+        return wrapPrincipals;
     }
 }

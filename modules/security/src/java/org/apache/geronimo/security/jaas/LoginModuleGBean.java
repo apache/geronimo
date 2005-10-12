@@ -22,6 +22,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
+
 /**
  * A GBean that wraps a LoginModule, plus options to configure the LoginModule.
  * If you want to deploy the same LoginModule with different options, you need
@@ -37,14 +38,16 @@ public class LoginModuleGBean {
     private Properties options;
     private String objectName;
     private boolean serverSide;
+    private boolean wrapPrincipals;
 
     public LoginModuleGBean() {
     }
-    
-    public LoginModuleGBean(String loginModuleClass, String objectName, boolean serverSide) {
+
+    public LoginModuleGBean(String loginModuleClass, String objectName, boolean serverSide, boolean wrapPrincipals) {
         this.loginModuleClass = loginModuleClass;
         this.objectName = objectName;
         this.serverSide = serverSide;
+        this.wrapPrincipals = wrapPrincipals;
     }
 
     public String getLoginDomainName() {
@@ -67,12 +70,32 @@ public class LoginModuleGBean {
         return loginModuleClass;
     }
 
+    public void setLoginModuleClass(String loginModuleClass) {
+        this.loginModuleClass = loginModuleClass;
+    }
+
     public String getObjectName() {
         return objectName;
     }
 
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
+    }
+
     public boolean isServerSide() {
         return serverSide;
+    }
+
+    public void setServerSide(boolean serverSide) {
+        this.serverSide = serverSide;
+    }
+
+    public boolean isWrapPrincipals() {
+        return wrapPrincipals;
+    }
+
+    public void setWrapPrincipals(boolean wrapPrincipals) {
+        this.wrapPrincipals = wrapPrincipals;
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -84,7 +107,9 @@ public class LoginModuleGBean {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("serverSide", boolean.class, true);
         infoFactory.addAttribute("loginDomainName", String.class, true);
-        infoFactory.setConstructor(new String[]{"loginModuleClass","objectName","serverSide"});
+        infoFactory.addAttribute("wrapPrincipals", boolean.class, true);
+        infoFactory.setConstructor(new String[]{"loginModuleClass", "objectName", "serverSide", "wrapPrincipals"});
+
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

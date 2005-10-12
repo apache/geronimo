@@ -17,7 +17,7 @@
 
 package org.apache.geronimo.security.realm;
 
-import org.apache.geronimo.security.jaas.JaasLoginModuleConfiguration;
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
@@ -45,6 +45,12 @@ public interface SecurityRealm {
      * principals generated strictly for use within Geronimo).
      */
     public boolean isRestrictPrincipalsToServer();
+
+    /**
+     * If this attribute is true, then the principals will be wrapped in
+     * realm principals.
+     */
+    public boolean isWrapPrincipals();
 
     /**
      * Gets a list of the login domains that make up this security realm.  A

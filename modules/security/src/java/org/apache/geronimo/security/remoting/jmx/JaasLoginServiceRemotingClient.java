@@ -22,7 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.geronimo.proxy.ProxyContainer;
-import org.apache.geronimo.security.jaas.JaasLoginServiceMBean;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 
 
 /**
@@ -44,14 +44,14 @@ public class JaasLoginServiceRemotingClient {
     }
 
     static public JaasLoginServiceMBean create(URI target) throws IOException, URISyntaxException {
-        
+
         ClassLoader cl = JaasLoginServiceMBean.class.getClassLoader();
-        
+
         // Setup the client side container..
         RequestChannelInterceptor remoteInterceptor = new RequestChannelInterceptor(target, cl);
         ProxyContainer clientContainer = new ProxyContainer(remoteInterceptor);
         return (JaasLoginServiceMBean) clientContainer.createProxy(cl , new Class[]{JaasLoginServiceMBean.class});
-        
+
     }
-        
+
 }

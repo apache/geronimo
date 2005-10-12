@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.jaas.server;
 
 import java.io.Serializable;
 
@@ -23,19 +23,19 @@ import java.io.Serializable;
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class JaasClientId implements Serializable {
-    private final long clientId;
+public class JaasSessionId implements Serializable {
+    private final long sessionId;
     private final byte[] hash;
     private transient int hashCode;
     private transient String name;
 
-    public JaasClientId(long clientId, byte[] hash) {
-        this.clientId = clientId;
+    public JaasSessionId(long sessionId, byte[] hash) {
+        this.sessionId = sessionId;
         this.hash = hash;
     }
 
-    public long getClientId() {
-        return clientId;
+    public long getSessionId() {
+        return sessionId;
     }
 
     public byte[] getHash() {
@@ -43,10 +43,10 @@ public class JaasClientId implements Serializable {
     }
 
     public boolean equals(Object obj) {
-        if (!(obj instanceof JaasClientId)) return false;
+        if (!(obj instanceof JaasSessionId)) return false;
 
-        JaasClientId another = (JaasClientId) obj;
-        if (another.clientId != clientId) return false;
+        JaasSessionId another = (JaasSessionId) obj;
+        if (another.sessionId != sessionId) return false;
         for (int i = 0; i < hash.length; i++) {
             if (another.hash[i] != hash[i]) return false;
         }
@@ -57,7 +57,7 @@ public class JaasClientId implements Serializable {
         if (name == null) {
             StringBuffer buffer = new StringBuffer();
             buffer.append('[');
-            buffer.append(clientId);
+            buffer.append(sessionId);
             buffer.append(":0x");
             for (int i = 0; i < hash.length; i++) {
                 buffer.append(HEXCHAR[(hash[i]>>>4)&0x0F]);
@@ -79,7 +79,7 @@ public class JaasClientId implements Serializable {
             for (int i = 0; i < hash.length; i++) {
                 hashCode ^= hash[i];
             }
-            hashCode ^= (int)(clientId ^ (clientId >>> 32));
+            hashCode ^= (int)(sessionId ^ (sessionId >>> 32));
         }
         return hashCode;
     }

@@ -19,6 +19,7 @@ package org.apache.geronimo.security.jaas;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
@@ -33,17 +34,20 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     private final String applicationConfigName;
     private final LoginModuleControlFlag controlFlag;
     private final LoginModuleGBean module;
+    private final boolean wrapPrincipals;
 
     public DirectConfigurationEntry() {
         this.applicationConfigName = null;
         this.controlFlag = null;
         this.module = null;
+        this.wrapPrincipals = false;
     }
 
-    public DirectConfigurationEntry(String applicationConfigName, LoginModuleControlFlag controlFlag, LoginModuleGBean module) {
+    public DirectConfigurationEntry(String applicationConfigName, LoginModuleControlFlag controlFlag, LoginModuleGBean module, boolean wrapPrincipals) {
         this.applicationConfigName = applicationConfigName;
         this.controlFlag = controlFlag;
         this.module = module;
+        this.wrapPrincipals = wrapPrincipals;
     }
 
     public String getConfigurationName() {
@@ -51,7 +55,7 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     }
 
     public JaasLoginModuleConfiguration generateConfiguration() {
-        return new JaasLoginModuleConfiguration(module.getLoginModuleClass(), controlFlag, module.getOptions(), module.isServerSide(), applicationConfigName);
+        return new JaasLoginModuleConfiguration(module.getLoginModuleClass(), controlFlag, module.getOptions(), module.isServerSide(), applicationConfigName, wrapPrincipals);
     }
 
     public static final GBeanInfo GBEAN_INFO;
@@ -61,10 +65,11 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
         infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);
+        infoFactory.addAttribute("wrapPrincipals", boolean.class, true);
 
         infoFactory.addReference("Module", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
 
-        infoFactory.setConstructor(new String[]{"applicationConfigName", "controlFlag", "Module"});
+        infoFactory.setConstructor(new String[]{"applicationConfigName", "controlFlag", "Module", "wrapPrincipals"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

@@ -49,8 +49,6 @@ public class ContextManager {
     private static Map subjectIds = new Hashtable();
     private static long nextSubjectId = System.currentTimeMillis();
 
-    private static long nextPrincipalId = System.currentTimeMillis();
-
     private static SecretKey key;
     private static String algorithm;
     private static String password;

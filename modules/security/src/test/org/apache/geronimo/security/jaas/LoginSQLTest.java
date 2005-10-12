@@ -29,6 +29,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
@@ -93,6 +94,7 @@ public class LoginSQLTest extends AbstractTest {
         props.put("groupSelect", "SELECT GroupName, UserName FROM Groups");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "SQLDomain");
+        gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
         kernel.startGBean(sqlModule);
 
@@ -102,7 +104,7 @@ public class LoginSQLTest extends AbstractTest {
         gbean.setReferencePattern("LoginModule", sqlModule);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
         kernel.startGBean(testUseName);
-        
+
         sqlRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=sql-realm");
         gbean = new GBeanData(sqlRealm, GenericSecurityRealm.getGBeanInfo());
         gbean.setAttribute("realmName", "sql-realm");
@@ -146,8 +148,9 @@ public class LoginSQLTest extends AbstractTest {
         subject = ContextManager.getServerSideSubject(subject);
 
         assertTrue("expected non-null server-side subject", subject != null);
-        assertEquals("server-side subject should have five principal", 5, subject.getPrincipals().size());
+        assertEquals("server-side subject should have seven principal", 7, subject.getPrincipals().size());
         assertEquals("server-side subject should have two realm principals", 2, subject.getPrincipals(RealmPrincipal.class).size());
+        assertEquals("server-side subject should have two domain principals", 2, subject.getPrincipals(DomainPrincipal.class).size());
         assertEquals("server-side subject should have one remote principal", 1, subject.getPrincipals(IdentificationPrincipal.class).size());
         IdentificationPrincipal principal = (IdentificationPrincipal) subject.getPrincipals(IdentificationPrincipal.class).iterator().next();
         assertTrue("id of principal should be non-zero", principal.getId().getSubjectId().longValue() != 0);

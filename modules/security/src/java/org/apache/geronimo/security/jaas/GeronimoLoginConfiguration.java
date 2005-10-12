@@ -34,6 +34,7 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.security.SecurityServiceImpl;
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
@@ -134,7 +135,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
             log.info("Removed Application Configuration Entry " + iter.next());
         }
         entries.clear();
-        
+
         log.info("Uninstalled Geronimo login configuration");
     }
 

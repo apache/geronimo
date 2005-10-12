@@ -18,7 +18,6 @@
 package org.apache.geronimo.security;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collections;
 import java.util.Properties;
 import javax.management.ObjectName;
@@ -33,7 +32,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.jaas.JaasLoginService;
+import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;

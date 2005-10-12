@@ -14,21 +14,22 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.security.jaas;
+package org.apache.geronimo.security.jaas.server;
 
 import java.security.Principal;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+
 
 /**
  * Tracks security information about a single user.  This is used before,
@@ -36,30 +37,41 @@ import org.apache.geronimo.security.RealmPrincipal;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class JaasSecurityContext {
+public class JaasSecuritySession {
     private final String realmName;
     private final Subject subject;
+    private final Map sharedContext;
     private final long created;
     private boolean done;
     private final JaasLoginModuleConfiguration[] modules;
     private final LoginModule[] loginModules;
     private DecouplingCallbackHandler handler = new DecouplingCallbackHandler();
-    private final Set processedPrincipals = new HashSet();
 
-    public JaasSecurityContext(String realmName, JaasLoginModuleConfiguration[] modules, ClassLoader classLoader) {
+    public JaasSecuritySession(String realmName, JaasLoginModuleConfiguration[] modules, Map sharedContext, ClassLoader classLoader) {
         this.realmName = realmName;
         this.created = System.currentTimeMillis();
         this.done = false;
         this.modules = modules;
         subject = new Subject();
+        this.sharedContext = sharedContext;
         loginModules = new LoginModule[modules.length];
         for (int i = 0; i < modules.length; i++) {
-            loginModules[i] = modules[i].getLoginModule(classLoader);
+            if (modules[i].isWrapPrincipals()) {
+                loginModules[i] = new WrappingLoginModuleProxy(modules[i].getLoginModule(classLoader),
+                                                               modules[i].getLoginDomainName(),
+                                                               realmName);
+            } else {
+                loginModules[i] = modules[i].getLoginModule(classLoader);
+            }
         }
     }
 
     public Subject getSubject() {
         return subject;
+    }
+
+    public Map getSharedContext() {
+        return sharedContext;
     }
 
     public long getCreated() {
@@ -106,33 +118,6 @@ public class JaasSecurityContext {
 
     public DecouplingCallbackHandler getHandler() {
         return handler;
-    }
-
-    public void processPrincipals(String loginDomainName) {
-        List list = new LinkedList();
-        for (Iterator it = subject.getPrincipals().iterator(); it.hasNext();) {
-            Principal p = (Principal) it.next();
-            if(!(p instanceof RealmPrincipal) && !processedPrincipals.contains(p)) {
-                list.add(new RealmPrincipal(loginDomainName, p));
-                processedPrincipals.add(p);
-            }
-        }
-        subject.getPrincipals().addAll(list);
-    }
-
-    public void processPrincipals(Principal[] principals, String loginDomainName) {
-        List list = new LinkedList();
-        for (int i = 0; i < principals.length; i++) {
-            Principal p = principals[i];
-            list.add(p);
-            list.add(new RealmPrincipal(loginDomainName, p));
-            processedPrincipals.add(p);
-        }
-        subject.getPrincipals().addAll(list);
-    }
-
-    public Set getProcessedPrincipals() {
-        return processedPrincipals;
     }
 
     public String getRealmName() {

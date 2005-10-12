@@ -67,7 +67,7 @@ by the app client.
     </gbean>
 
     <gbean name="ServerLoginCoordinator" class="org.apache.geronimo.security.jaas.LoginModuleGBean">
-        <attribute name="loginModuleClass">org.apache.geronimo.security.jaas.JaasLoginCoordinator</attribute>
+        <attribute name="loginModuleClass">org.apache.geronimo.security.jaas.client.JaasLoginCoordinator</attribute>
         <attribute name="serverSide">false</attribute>
         <attribute name="options">
             host=localhost
@@ -105,7 +105,7 @@ by the app client.
         </reference>
     </gbean>
     <!-- this is really a server-side only gbean but its needed to make the client side GenericSecurityRealm work -->
-    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.JaasLoginService">
+    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.server.JaasLoginService">
         <reference name="Realms">
             <name>client-properties-realm</name>
         </reference>

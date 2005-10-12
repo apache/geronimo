@@ -16,51 +16,63 @@
  */
 package org.apache.geronimo.security.jaas;
 
-import javax.security.auth.login.LoginException;
+import java.io.Externalizable;
+import java.io.Serializable;
+import java.rmi.Remote;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import javax.security.auth.Subject;
+
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
+
 
 /**
  * Helper class the computes the login result across a number of separate
  * login modules.
- * 
+ *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class LoginUtils {
-    public static boolean computeLogin(LoginModuleConfiguration[] modules) throws LoginException {
-        Boolean success = null;
-        Boolean backup = null;
-        // see http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/Configuration.html
-        for(int i = 0; i < modules.length; i++) {
-            LoginModuleConfiguration module = modules[i];
-            boolean result = module.getModule().login();
-            if(module.getControlFlag() == LoginModuleControlFlag.REQUIRED) {
-                if(success == null || success.booleanValue()) {
-                    success = result ? Boolean.TRUE : Boolean.FALSE;
-                }
-            } else if(module.getControlFlag() == LoginModuleControlFlag.REQUISITE) {
-                if(!result) {
-                    return false;
-                } else if(success == null) {
-                   success = Boolean.TRUE;
-                }
-            } else if(module.getControlFlag() == LoginModuleControlFlag.SUFFICIENT) {
-                if(result && (success == null || success.booleanValue())) {
-                    return true;
-                }
-            } else if(module.getControlFlag() == LoginModuleControlFlag.OPTIONAL) {
-                if(backup == null || backup.booleanValue()) {
-                    backup = result ? Boolean.TRUE : Boolean.FALSE;
-                }
+    public static void copyPrincipals(Subject to, Subject from) {
+        to.getPrincipals().addAll(from.getPrincipals());
+    }
+
+    public static Map getSerializableCopy(Map from) {
+        Map to = new HashMap();
+        for (Iterator it = from.keySet().iterator(); it.hasNext();) {
+            String key = (String) it.next();
+            Object value = from.get(key);
+            if (value instanceof Serializable || value instanceof Externalizable || value instanceof Remote) {
+                to.put(key, value);
             }
         }
-        // all required and requisite modules succeeded, or at least one required module failed
-        if(success != null) {
-            return success.booleanValue();
+        return to;
+    }
+
+    public static Set getSerializableCopy(Set from) {
+        Set to = new HashSet();
+        for (Iterator it = from.iterator(); it.hasNext();) {
+            Object value = it.next();
+            if (value instanceof Serializable || value instanceof Externalizable || value instanceof Remote) {
+                to.add(value);
+            }
         }
-        // no required or requisite modules, no sufficient modules succeeded, fall back to optional modules
-        if(backup != null) {
-            return backup.booleanValue();
-        }
-        // perhaps only a sufficient module, and it failed
-        return false;
+        return to;
+    }
+
+    /**
+     * Strips out stuff that isn't serializable so this can be safely passed to
+     * a remote server.
+     */
+    public static JaasLoginModuleConfiguration getSerializableCopy(JaasLoginModuleConfiguration config) {
+        return new JaasLoginModuleConfiguration(config.getLoginModuleClassName(),
+                                                config.getFlag(),
+                                                LoginUtils.getSerializableCopy(config.getOptions()),
+                                                config.isServerSide(),
+                                                config.getLoginDomainName(),
+                                                config.isWrapPrincipals());
     }
 }

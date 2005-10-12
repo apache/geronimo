@@ -28,33 +28,31 @@ import java.util.Set;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinator;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
-import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
-import org.apache.geronimo.security.jaas.JaasLoginService;
-import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.LoginModuleGBean;
+import org.apache.geronimo.security.jaas.server.JaasLoginService;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
-import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
-import org.mortbay.jetty.servlet.FormAuthenticator;
 
 
 /**
@@ -207,6 +205,7 @@ public class AbstractWebModuleTest extends TestCase {
         options.setProperty("usersURI", "src/test-resources/data/users.properties");
         options.setProperty("groupsURI", "src/test-resources/data/groups.properties");
         propertiesLMGBean.setAttribute("options", options);
+        propertiesLMGBean.setAttribute("wrapPrincipals", Boolean.TRUE);
         //TODO should this be called securityRealmName?
         propertiesLMGBean.setAttribute("loginDomainName", "demo-properties-realm");
 
@@ -276,8 +275,8 @@ public class AbstractWebModuleTest extends TestCase {
 
         connector = new GBeanData(connectorName, HTTPConnector.GBEAN_INFO);
         connector.setAttribute("port", new Integer(5678));
-        connector.setAttribute("maxThreads",  new Integer(50));
-        connector.setAttribute("minThreads",  new Integer(10));
+        connector.setAttribute("maxThreads", new Integer(50));
+        connector.setAttribute("minThreads", new Integer(10));
         connector.setReferencePattern("JettyContainer", containerName);
 
         start(container);

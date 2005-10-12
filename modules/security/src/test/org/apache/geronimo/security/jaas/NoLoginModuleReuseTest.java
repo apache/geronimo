@@ -26,6 +26,9 @@ import javax.security.auth.spi.LoginModule;
 import junit.framework.TestCase;
 
 import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
+import org.apache.geronimo.security.jaas.server.JaasSecuritySession;
+import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
+
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -33,18 +36,17 @@ import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 public class NoLoginModuleReuseTest extends TestCase {
 
     public void testNoLoginModuleReuse() throws Exception {
-        JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1");
+        JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1", true);
         doSecurityContextLogin(m1);
         doSecurityContextLogin(m1);
     }
 
     private void doSecurityContextLogin(JaasLoginModuleConfiguration m1) throws LoginException {
-        JaasSecurityContext c = new JaasSecurityContext("realm", new JaasLoginModuleConfiguration[] {m1}, this.getClass().getClassLoader());
+        JaasSecuritySession c = new JaasSecuritySession("realm", new JaasLoginModuleConfiguration[] {m1}, new HashMap(), this.getClass().getClassLoader());
         Subject s = c.getSubject();
         c.getLoginModule(0).initialize(s, null, null, null);
         c.getLoginModule(0).login();
         c.getLoginModule(0).commit();
-        c.processPrincipals("D1");
     }
 
     public static class MockLoginModule implements LoginModule {
