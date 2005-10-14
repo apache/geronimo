@@ -30,6 +30,7 @@ import javax.security.auth.Subject;
 
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
+import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.deploy.Principal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.common.GeronimoSecurityException;
@@ -57,22 +58,28 @@ public class ConfigurationUtil {
     /**
      * Create a RealmPrincipal from a deployment description.
      * @param principal the deployment description of the principal to be created.
+     * @param loginDomain
      * @return a RealmPrincipal from a deployment description
      */
-    public static RealmPrincipal generateRealmPrincipal(final Principal principal, final String loginDomain) {
-        return generateRealmPrincipal(principal.getClassName(), principal.getPrincipalName(), loginDomain);
+    public static java.security.Principal generateRealmPrincipal(final Principal principal, final String loginDomain, final String realmName) {
+        return generateRealmPrincipal(principal.getClassName(), principal.getPrincipalName(), loginDomain, realmName);
     }
 
-    public static RealmPrincipal generateRealmPrincipal(final String className, final String principalName, final String loginDomain) {
+    public static java.security.Principal generateRealmPrincipal(final String className, final String principalName, final String loginDomain, final String realmName) {
         try {
-            return (RealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
+            return (java.security.Principal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
                     java.security.Principal p = null;
                     Class clazz = Class.forName(className);
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
                     p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
-
-                    return new RealmPrincipal(loginDomain, p);
+                    if (loginDomain != null) {
+                        p = new DomainPrincipal(loginDomain, p);
+                        if (realmName != null) {
+                            p = new RealmPrincipal(realmName, p);
+                        }
+                    }
+                    return p;
                 }
             });
         } catch (PrivilegedActionException e) {
@@ -126,7 +133,7 @@ public class ConfigurationUtil {
         }
         Subject defaultSubject = new Subject();
 
-        RealmPrincipal realmPrincipal = generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
+        java.security.Principal realmPrincipal = generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getLoginDomain(), defaultPrincipal.getRealmName());
         if (realmPrincipal == null) {
             throw new GeronimoSecurityException("Unable to create realm principal");
         }

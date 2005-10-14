@@ -104,7 +104,9 @@ public class SecurityBuilder {
                 while (principals.hasNext()) {
                     Principal principal = (Principal) principals.next();
 
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+                    //TODO this is completely wrong
+                    String loginDomain = null;
+                    java.security.Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, loginDomain, realm.getRealmName());
 
                     if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
 

@@ -25,6 +25,7 @@ import java.util.Set;
  */
 public class DefaultPrincipal implements Serializable {
     private String realmName;
+    private String loginDomain;
     private Principal principal;
 
     private Set namedUserPasswordCredentials;
@@ -35,6 +36,14 @@ public class DefaultPrincipal implements Serializable {
 
     public void setRealmName(String realmName) {
         this.realmName = realmName;
+    }
+
+    public String getLoginDomain() {
+        return loginDomain;
+    }
+
+    public void setLoginDomain(String loginDomain) {
+        this.loginDomain = loginDomain;
     }
 
     public Principal getPrincipal() {

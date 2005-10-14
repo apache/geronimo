@@ -62,7 +62,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
      * @throws Exception thrown if an error in the test occurs
      */
     public void DavidJencksPleaseVisitMetestExplicitMapping() throws Exception {
-        
+
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
@@ -74,7 +74,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         defaultPrincipal.setPrincipal(principal);
 
         securityConfig.setDefaultPrincipal(defaultPrincipal);
-        
+
         Role role = new Role();
         role.setRoleName("content-administrator");
         principal = new Principal();
@@ -86,11 +86,11 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         role.getRealms().put(realm.getRealmName(), realm);
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
-        
+
         Map roleDesignates = new HashMap();
         Map principalRoleMap = new HashMap();
         buildPrincipalRoleMap(securityConfig, roleDesignates, principalRoleMap);
-       
+
         PermissionCollection uncheckedPermissions = new Permissions();
 
         PermissionCollection excludedPermissions = new Permissions();
@@ -103,11 +103,11 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         permissions.add(new WebResourcePermission("/protected/*", ""));
         rolePermissions.put("content-administrator", permissions);
         rolePermissions.put("auto-administrator", permissions);
-        
+
         PermissionCollection checked = permissions;
 
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
-       
+
         startWebApp(roleDesignates, principalRoleMap,  componentPermissions,
                 defaultPrincipal, checked);
 
@@ -179,10 +179,10 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
     }
 
     protected void startWebApp(
-            Map roleDesignates, 
+            Map roleDesignates,
             Map principalRoleMap,
-            ComponentPermissions componentPermissions, 
-            DefaultPrincipal defaultPrincipal, 
+            ComponentPermissions componentPermissions,
+            DefaultPrincipal defaultPrincipal,
             PermissionCollection checked) throws Exception {
 
         appName = setUpSecureAppContext(roleDesignates, principalRoleMap,
@@ -238,7 +238,10 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
                 while (principals.hasNext()) {
                     Principal principal = (Principal) principals.next();
 
-                    RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+                    //TODO check this
+                    String loginDomain = null;
+
+                    java.security.Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, loginDomain, realm.getRealmName());
 
                     if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
 
@@ -270,7 +273,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
             }
         }
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp("org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm");
         setUpSecurity();

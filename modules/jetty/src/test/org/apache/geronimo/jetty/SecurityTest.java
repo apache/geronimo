@@ -238,8 +238,10 @@ public class SecurityTest extends AbstractWebModuleTest {
                  Iterator principals = realm.getPrincipals().iterator();
                  while (principals.hasNext()) {
                      Principal principal = (Principal) principals.next();
+                     //TODO check this
+                     String loginDomain = null;
 
-                     RealmPrincipal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, realm.getRealmName());
+                     java.security.Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, loginDomain, realm.getRealmName());
 
                      if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
 
