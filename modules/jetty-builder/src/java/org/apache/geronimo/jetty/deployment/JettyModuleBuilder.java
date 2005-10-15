@@ -57,6 +57,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -371,6 +372,8 @@ public class JettyModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+        JettyWebAppType jettyWebApp = (JettyWebAppType) module.getVendorDD();
+
         earContext.addParentId(defaultParentId);
         try {
             URI baseDir = URI.create(module.getTargetPath() + "/");
@@ -394,7 +397,6 @@ public class JettyModuleBuilder implements ModuleBuilder {
             earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
 
             // add the dependencies declared in the geronimo-web.xml file
-            JettyWebAppType jettyWebApp = (JettyWebAppType) module.getVendorDD();
             DependencyType[] dependencies = jettyWebApp.getDependencyArray();
             ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
@@ -402,6 +404,16 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } catch (URISyntaxException e) {
             throw new DeploymentException("Could not construct URI for location of war entry", e);
         }
+        
+        if (jettyWebApp.isSetInverseClassloading()) {
+            earContext.setInverseClassloading(jettyWebApp.getInverseClassloading());
+        }
+        
+        ClassFilterType[] filters = jettyWebApp.getHiddenClassesArray();
+        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
+        
+        filters = jettyWebApp.getNonOverridableClassesArray();
+        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {

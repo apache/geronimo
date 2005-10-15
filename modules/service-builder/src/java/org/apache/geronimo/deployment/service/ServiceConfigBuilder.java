@@ -30,9 +30,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.namespace.QName;
@@ -40,9 +43,8 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
+import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
@@ -51,6 +53,7 @@ import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -201,8 +204,31 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ClassLoader cl = context.getClassLoader(repository);
         GbeanType[] gbeans = configType.getGbeanArray();
         addGBeans(gbeans, cl, j2eeContext, context);
+        if (configType.isSetInverseClassloading()) {
+            context.setInverseClassloading(configType.getInverseClassloading());
+        }
+        ClassFilterType[] filters = configType.getHiddenClassesArray();
+        addHiddenClasses(context, filters);
+        filters = configType.getNonOverridableClassesArray();
+        addNonOverridableClasses(context, filters);
         context.close();
         return context.getConfigurationData();
+    }
+
+    public static void addHiddenClasses(DeploymentContext context, ClassFilterType[] filters) throws DeploymentException {
+        Set tmpFilters = new HashSet();
+        for (int i = 0; i < filters.length; i++) {
+            tmpFilters.add(filters[i].getFilter());
+        }
+        context.addHiddenClasses(tmpFilters);
+    }
+
+    public static void addNonOverridableClasses(DeploymentContext context, ClassFilterType[] filters) throws DeploymentException {
+        Set tmpFilters = new HashSet();
+        for (int i = 0; i < filters.length; i++) {
+            tmpFilters.add(filters[i].getFilter());
+        }
+        context.addNonOverridableClasses(tmpFilters);
     }
 
     public static List getParentID(String parentIDString, DependencyType[] imports) throws DeploymentException {

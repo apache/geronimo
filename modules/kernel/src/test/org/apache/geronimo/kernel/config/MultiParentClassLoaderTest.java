@@ -132,6 +132,45 @@ public class MultiParentClassLoaderTest extends TestCase {
         assertEquals(parents[0], clazz.getClassLoader());
     }
 
+    public void testInverseClassLoading() throws Exception {
+        File parentJar = createJarFile(0);
+        ClassLoader parentCl = new URLClassLoader(new URL[]{parentJar.toURL()});
+        File myJar = createJarFile(1);
+        ClassLoader cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl);
+        Class clazz = cl.loadClass(CLASS_NAME);
+        assertSame(parentCl, clazz.getClassLoader());
+        
+        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, true, new String[0], new String[0]);
+        clazz = cl.loadClass(CLASS_NAME);
+        assertSame(cl, clazz.getClassLoader());
+    }
+
+    public void testHiddenClasses() throws Exception {
+        File parentJar = createJarFile(0);
+        ClassLoader parentCl = new URLClassLoader(new URL[]{parentJar.toURL()});
+        File myJar = createJarFile(1);
+        ClassLoader cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl);
+        Class clazz = cl.loadClass(CLASS_NAME);
+        assertSame(parentCl, clazz.getClassLoader());
+        
+        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, false, new String[] {CLASS_NAME}, new String[0]);
+        clazz = cl.loadClass(CLASS_NAME);
+        assertSame(cl, clazz.getClassLoader());
+    }
+
+    public void testNonOverridableClasses() throws Exception {
+        File parentJar = createJarFile(0);
+        ClassLoader parentCl = new URLClassLoader(new URL[]{parentJar.toURL()});
+        File myJar = createJarFile(1);
+        ClassLoader cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl);
+        Class clazz = cl.loadClass(CLASS_NAME);
+        assertSame(parentCl, clazz.getClassLoader());
+        
+        cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, true, new String[0], new String[] {CLASS_NAME});
+        clazz = cl.loadClass(CLASS_NAME);
+        assertSame(parentCl, clazz.getClassLoader());
+    }
+
     /**
      * Test that an attempt to load a non-existant class causes a ClassNotFoundException.
      */

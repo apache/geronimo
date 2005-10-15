@@ -34,18 +34,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -65,7 +66,6 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -312,13 +312,23 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 }
             }
 
-            // add dependencies declared in the geronimo-application.xml
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
             if (geronimoApplication != null) {
+                // add dependencies declared in the geronimo-application.xml
                 DependencyType[] dependencies = geronimoApplication.getDependencyArray();
                 ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
-            }
 
+                if (geronimoApplication.isSetInverseClassloading()) {
+                    earContext.setInverseClassloading(geronimoApplication.getInverseClassloading());
+                }
+                
+                ClassFilterType[] filters = geronimoApplication.getHiddenClassesArray();
+                ServiceConfigBuilder.addHiddenClasses(earContext, filters);
+                
+                filters = geronimoApplication.getNonOverridableClassesArray();
+                ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
+            }
+            
             // each module installs it's files into the output context.. this is different for each module type
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {

@@ -121,7 +121,7 @@ public class GBeanInstanceState {
         assert !Thread.holdsLock(this): "This method cannot be called while holding a synchronized lock on this";
 
         State state = getStateInstance();
-        if (state != State.STOPPED && state != State.FAILED) {
+        if (state != State.STOPPED && state != State.FAILED && state != State.RUNNING) {
             // Cannot startRecursive while in the stopping state
             // Dain: I don't think we can throw an exception here because there is no way for the caller
             // to lock the instance and check the state before calling

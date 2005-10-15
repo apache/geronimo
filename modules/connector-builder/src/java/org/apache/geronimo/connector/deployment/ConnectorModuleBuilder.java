@@ -65,6 +65,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransact
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -243,7 +244,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
-
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
         //suppressing the default parentid is mostly useful for deploying standalone connectors on the app client.
@@ -276,6 +276,16 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying connector", e);
         }
+
+        if (vendorConnector.isSetInverseClassloading()) {
+            earContext.setInverseClassloading(vendorConnector.getInverseClassloading());
+        }
+        
+        ClassFilterType[] filters = vendorConnector.getHiddenClassesArray();
+        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
+        
+        filters = vendorConnector.getNonOverridableClassesArray();
+        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {

@@ -105,6 +105,7 @@ public class DeploymentContext {
         configurationData.setDomain(domain);
         configurationData.setServer(server);
         determineNaming();
+        determineInherited();
     }
 
     private void determineNaming() throws DeploymentException {
@@ -150,11 +151,62 @@ public class DeploymentContext {
         }
     }
 
-
+    private void determineInherited() throws DeploymentException {
+        if (null == kernel) {
+            return;
+        }
+        
+        List parentId = configurationData.getParentId();
+        if (parentId != null && parentId.size() > 0) {
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+            List inherited = new ArrayList();
+            try {
+                for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
+                    URI uri = (URI) iterator.next();
+                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
+                    boolean loaded = false;
+                    try {
+                        if (!configurationManager.isLoaded(uri)) {
+                            parentName = configurationManager.load(uri);
+                            loaded = true;
+                        }
+                        String[] nonOverridableClasses = (String[]) kernel.getAttribute(parentName, "nonOverridableClasses");
+                        if (null != nonOverridableClasses) {
+                            for (int i = 0; i < nonOverridableClasses.length; i++) {
+                                inherited.add(nonOverridableClasses[i]);
+                            }
+                        }
+                    } finally {
+                        if (loaded) {
+                            configurationManager.unload(uri);
+                        }
+                    }
+                }
+            } catch (DeploymentException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new DeploymentException(e);
+            }
+            configurationData.getNonOverridableClasses().addAll(inherited);
+        }
+    }
+    
     public URI getConfigID() {
         return configurationData.getId();
     }
 
+    public void setInverseClassloading(boolean inverseClassloading) {
+        configurationData.setInverseClassloading(inverseClassloading);
+    }
+    
+    public void addHiddenClasses(Set hiddenClasses) {
+        configurationData.getHiddenClasses().addAll(hiddenClasses);
+    }
+
+    public void addNonOverridableClasses(Set nonOverridableClasses) {
+        configurationData.getNonOverridableClasses().addAll(nonOverridableClasses);
+    }
+    
     public void addParentId(List parentId) {
         configurationData.getParentId().addAll(parentId);
     }
@@ -570,7 +622,13 @@ public class DeploymentContext {
             throw new DeploymentException(e);
         }
 
-        return new MultiParentClassLoader(configurationData.getId(), urls, parentCL);
+        boolean inverseClassloading = configurationData.isInverseClassloading();
+        Set filter = configurationData.getHiddenClasses();
+        String[] hiddenFilter = (String[]) filter.toArray(new String[0]); 
+        filter = configurationData.getNonOverridableClasses();
+        String[] nonOverridableFilter = (String[]) filter.toArray(new String[0]); 
+        
+        return new MultiParentClassLoader(configurationData.getId(), urls, parentCL, inverseClassloading, hiddenFilter, nonOverridableFilter);
     }
 
     public void close() throws IOException, DeploymentException {

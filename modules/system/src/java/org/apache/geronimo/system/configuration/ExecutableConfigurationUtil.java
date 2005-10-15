@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -166,7 +167,12 @@ public final class ExecutableConfigurationUtil {
             config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
             config.setAttribute("dependencies", configurationData.getDependencies());
             config.setAttribute("classPath", configurationData.getClassPath());
-
+            config.setAttribute("inverseClassLoading", Boolean.valueOf(configurationData.isInverseClassloading()));
+            Set set = configurationData.getHiddenClasses();
+            config.setAttribute("hiddenClasses", set.toArray(new String[set.size()]));
+            set = configurationData.getNonOverridableClasses();
+            config.setAttribute("nonOverridableClasses", set.toArray(new String[set.size()]));
+            
             return config;
         } catch (MalformedObjectNameException e) {
             throw new InvalidConfigException(e);

@@ -20,9 +20,11 @@ package org.apache.geronimo.kernel.config;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.geronimo.gbean.GBeanData;
 
@@ -75,6 +77,22 @@ public class ConfigurationData {
      */
     private final List childConfigurations = new ArrayList();
 
+    /**
+     * If true, then inverse the standard class loading delegation model.
+     */
+    private boolean inverseClassLoading;
+    
+    /**
+     * Class filters defining the classes hidden from the configuration.
+     */
+    private final Set hiddenClasses = new HashSet();
+
+    /**
+     * Class filters defining the classes that the configuration cannot
+     * override.  
+     */
+    private final Set nonOverridableClasses = new HashSet();
+    
     public ConfigurationData() {
     }
 
@@ -88,6 +106,9 @@ public class ConfigurationData {
         setClassPath(new ArrayList(configurationData.classPath));
         setGBeans(configurationData.gbeans);
         setChildConfigurations(configurationData.childConfigurations);
+        inverseClassLoading = configurationData.inverseClassLoading;
+        hiddenClasses.addAll(configurationData.hiddenClasses);
+        nonOverridableClasses.addAll(configurationData.nonOverridableClasses);
     }
 
     public URI getId() {
@@ -195,5 +216,21 @@ public class ConfigurationData {
     public void addChildConfiguration(ConfigurationData configurationData) {
         assert configurationData != null;
         childConfigurations.add(configurationData);
+    }
+
+    public boolean isInverseClassloading() {
+        return inverseClassLoading;
+    }
+    
+    public void setInverseClassloading(boolean inverseClassLoading) {
+        this.inverseClassLoading = inverseClassLoading;
+    }
+    
+    public Set getHiddenClasses() {
+        return hiddenClasses;
+    }
+    
+    public Set getNonOverridableClasses() {
+        return nonOverridableClasses;
     }
 }

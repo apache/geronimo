@@ -36,6 +36,8 @@
 
     <xs:complexType name="configurationType">
         <xs:sequence>
+            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
@@ -52,11 +54,20 @@
         </xs:attribute>
         <xs:attribute name="domain" type="xs:string" use="optional"/>
         <xs:attribute name="server" type="xs:string" use="optional"/>
+        <xs:attribute name="inverseClassloading" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
+    <xs:element name="hidden-classes" type="sys:classFilterType"/>
+    <xs:element name="non-overridable-classes" type="sys:classFilterType"/>
     <xs:element name="import" type="sys:dependencyType"/>
     <xs:element name="dependency" type="sys:dependencyType"/>
     <xs:element name="gbean" type="sys:gbeanType"/>
+
+    <xs:complexType name="classFilterType">
+        <xs:sequence>
+            <xs:element name="filter" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="dependencyType">
         <xs:choice>

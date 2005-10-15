@@ -291,6 +291,8 @@
 
         <xs:sequence>
             <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
 
             <xs:element name="resourceadapter" type="ger:resourceadapterType" maxOccurs="unbounded"/>
@@ -303,6 +305,7 @@
         <xs:attribute name="configId" type="xs:string" use="required"/>
         <xs:attribute name="parentId" type="xs:string" use="optional"/>
         <xs:attribute name="suppressDefaultParentId" type="xs:boolean" use="optional"/>
+        <xs:attribute name="inverseClassloading" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <!-- **************************************************** -->

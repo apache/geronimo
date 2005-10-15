@@ -26,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -130,6 +131,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     private final List dependencies;
     private final List classPath;
+    private final boolean inverseClassLoading;
+    private final String[] hiddenClasses;
+    private final String[] nonOverridableClasses;
     private final String domain;
     private final String server;
 
@@ -177,6 +181,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         configurationClassLoader = null;
         dependencies = null;
         classPath = null;
+        inverseClassLoading = false;
+        hiddenClasses = null;
+        nonOverridableClasses = null;
         baseURL = null;
         repositories = null;
     }
@@ -201,6 +208,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             String domain,
             String server,
             List classPath,
+            boolean inverseClassLoading,
+            String[] hiddenClasses,
+            String[] nonOverridableClasses,
             byte[] gbeanState,
             Collection repositories,
             List dependencies,
@@ -219,6 +229,17 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             this.classPath = classPath;
         } else {
             this.classPath = Collections.EMPTY_LIST;
+        }
+        this.inverseClassLoading = inverseClassLoading;
+        if (null != hiddenClasses) {
+            this.hiddenClasses = hiddenClasses;
+        } else {
+            this.hiddenClasses = new String[0];
+        }
+        if (null != nonOverridableClasses) {
+            this.nonOverridableClasses = nonOverridableClasses;
+        } else {
+            this.nonOverridableClasses = new String[0];
         }
         if (dependencies != null) {
             this.dependencies = dependencies;
@@ -254,9 +275,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // no explicit parent set, so use the class loader of this class as
             // the parent... this class should be in the root geronimo classloader,
             // which is normally the system class loader but not always, so be safe
-            configurationClassLoader = new MultiParentClassLoader(id, urls, getClass().getClassLoader());
+            configurationClassLoader = new MultiParentClassLoader(id, urls, getClass().getClassLoader(), inverseClassLoading, hiddenClasses, nonOverridableClasses);
         } else {
-            configurationClassLoader = new MultiParentClassLoader(id, urls, getClassLoaders(parentId));
+            configurationClassLoader = new MultiParentClassLoader(id, urls, getClassLoaders(parentId), inverseClassLoading, hiddenClasses, nonOverridableClasses);
         }
 
 //        loadGBeans();
@@ -461,6 +482,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return configurationClassLoader;
     }
 
+    public String[] getHiddenClasses() {
+        return hiddenClasses;
+    }
+
+    public String[] getNonOverridableClasses() {
+        return nonOverridableClasses;
+    }
+
     public synchronized void addGBean(GBeanData beanData, boolean start) throws InvalidConfigException, GBeanAlreadyExistsException {
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
@@ -628,6 +657,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addAttribute("domain", String.class, true, false);
         infoFactory.addAttribute("server", String.class, true, false);
         infoFactory.addAttribute("classPath", List.class, true, false);
+        infoFactory.addAttribute("inverseClassLoading", boolean.class, true, false);
+        infoFactory.addAttribute("hiddenClasses", String[].class, true, false);
+        infoFactory.addAttribute("nonOverridableClasses", String[].class, true, false);
         infoFactory.addAttribute("dependencies", List.class, true, false);
         infoFactory.addAttribute("gBeanState", byte[].class, true, false);
         infoFactory.addAttribute("baseURL", URL.class, true, false);
@@ -653,6 +685,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             "domain",
             "server",
             "classPath",
+            "inverseClassLoading",
+            "hiddenClasses",
+            "nonOverridableClasses",
             "gBeanState",
             "Repositories",
             "dependencies",

@@ -31,6 +31,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
 
+import javax.print.attribute.SupportedValuesAttribute;
+
 import org.apache.commons.logging.LogFactory;
 
 /**
@@ -44,6 +46,9 @@ import org.apache.commons.logging.LogFactory;
 public class MultiParentClassLoader extends URLClassLoader {
     private final URI id;
     private final ClassLoader[] parents;
+    private final boolean inverseClassLoading;
+    private final String[] hiddenClasses;
+    private final String[] nonOverridableClasses;
 
     /**
      * Creates a named class loader with no parents.
@@ -54,6 +59,9 @@ public class MultiParentClassLoader extends URLClassLoader {
         super(urls);
         this.id = id;
         parents = new ClassLoader[0];
+        inverseClassLoading = false;
+        hiddenClasses = new String[0];
+        nonOverridableClasses = new String[0];
     }
 
     /**
@@ -64,6 +72,10 @@ public class MultiParentClassLoader extends URLClassLoader {
      */
     public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent) {
         this(id, urls, new ClassLoader[] {parent});
+    }
+
+    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
+        this(id, urls, new ClassLoader[] {parent}, inverseClassLoading, hiddenClasses, nonOverridableClasses);
     }
 
     /**
@@ -88,6 +100,18 @@ public class MultiParentClassLoader extends URLClassLoader {
         super(urls);
         this.id = id;
         this.parents = copyParents(parents);
+        inverseClassLoading = false;
+        hiddenClasses = new String[0];
+        nonOverridableClasses = new String[0];
+    }
+
+    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
+        super(urls, new FilteringParentCL(hiddenClasses));
+        this.id = id;
+        this.parents = copyParents(parents);
+        this.inverseClassLoading = inverseClassLoading;
+        this.hiddenClasses = hiddenClasses;
+        this.nonOverridableClasses = nonOverridableClasses;
     }
 
     /**
@@ -102,6 +126,9 @@ public class MultiParentClassLoader extends URLClassLoader {
         super(urls, null, factory);
         this.id = id;
         this.parents = copyParents(parents);
+        inverseClassLoading = false;
+        hiddenClasses = new String[0];
+        nonOverridableClasses = new String[0];
     }
 
     private static ClassLoader[] copyParents(ClassLoader[] parents) {
@@ -134,35 +161,77 @@ public class MultiParentClassLoader extends URLClassLoader {
 
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class clazz = findLoadedClass(name);
-        for (int i = 0; i < parents.length && clazz == null; i++) {
-            ClassLoader parent = parents[i];
-            try {
-                clazz = parent.loadClass(name);
-            } catch (ClassNotFoundException ignored) {
-                // this parent didn't have the class; try the next one
-            }
-        }
 
-        if (clazz == null) {
-            // parents didn't have the class; attempt to load from my urls
-            return super.loadClass(name, resolve);
-        } else {
-            // we found the class; resolve it if requested
+        if (null != clazz) {
             if (resolve) {
                 resolveClass(clazz);
             }
             return clazz;
         }
+
+        if (inverseClassLoading) {
+            boolean checkMe = true;
+            for (int i = 0; i < nonOverridableClasses.length && checkMe; i++) {
+                if (name.startsWith(nonOverridableClasses[i])) {
+                    checkMe = false;
+                }
+            }
+
+            if (checkMe) {
+                try {
+                    clazz = findClass(name);
+                    if (resolve) {
+                        resolveClass(clazz);
+                    }
+                    return clazz;
+                } catch (ClassNotFoundException ignored) {
+                }
+            }
+        }
+
+        boolean checkParents = true;
+        for (int i = 0; i < hiddenClasses.length && checkParents; i++) {
+            if (name.startsWith(hiddenClasses[i])) {
+                checkParents = false;
+            }
+        }
+        if (checkParents) {
+            for (int i = 0; i < parents.length && clazz == null; i++) {
+                ClassLoader parent = parents[i];
+                try {
+                    clazz = parent.loadClass(name);
+                } catch (ClassNotFoundException ignored) {
+                    // this parent didn't have the class; try the next one
+                }
+            }
+        }
+        
+        if (null == clazz) {
+            return super.loadClass(name, resolve);
+        }
+        
+        if (resolve) {
+            resolveClass(clazz);
+        }
+        return clazz;
     }
 
     public URL getResource(String name) {
         URL url = null;
+        
+        if (inverseClassLoading) {
+            url = super.getResource(name);
+            if (null != url) {
+                return url;
+            }
+        }
+        
         for (int i = 0; i < parents.length && url == null; i++) {
             ClassLoader parent = parents[i];
             url = parent.getResource(name);
         }
 
-        if (url == null) {
+        if (url == null && false == inverseClassLoading) {
             // parents didn't have the resource; attempt to load it from my urls
             return super.getResource(name);
         } else {
@@ -200,6 +269,29 @@ public class MultiParentClassLoader extends URLClassLoader {
         clearSoftCache(ObjectStreamClass.class, "reflectors");
     }
 
+    private static class FilteringParentCL extends ClassLoader {
+        private final String[] hiddenClasses;
+
+        public FilteringParentCL(String[] hiddenClasses) {
+            this.hiddenClasses = hiddenClasses;
+        }
+        
+        protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            boolean checkParents = true;
+            for (int i = 0; i < hiddenClasses.length && checkParents; i++) {
+                if (name.startsWith(hiddenClasses[i])) {
+                    checkParents = false;
+                }
+            }
+            
+            if (checkParents) {
+                return super.loadClass(name, resolve);
+            }
+
+            throw new ClassNotFoundException(name);
+        }
+    }
+    
     private static Object lock = new Object();
     private static boolean clearSoftCacheFailed = false;
     private static void clearSoftCache(Class clazz, String fieldName) {
