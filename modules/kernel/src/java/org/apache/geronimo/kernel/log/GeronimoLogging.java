@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.kernel.log;
 
+import java.lang.reflect.Method;
+
 import org.apache.commons.logging.LogFactory;
 
 /**
@@ -45,15 +47,23 @@ public class GeronimoLogging {
             defaultLevel = level;
             consoleLogLevel = level;
 
-            // force commons-logging to use our log factory
-            System.setProperty(LogFactory.FACTORY_PROPERTY, GeronimoLogFactory.class.getName());
-
             // force the log factory to initialize
             LogFactory.getLog(GeronimoLogging.class);
 
             // force mx4j to use commons logging
-            // todo do this with reflection so mx4j is not required (this is important in JDK 1.5)
-            mx4j.log.Log.redirectTo(new mx4j.log.CommonsLogger());
+            // Use reflection so mx4j is not required (this is important in JDK 1.5)
+            // mx4j.log.Log.redirectTo(new mx4j.log.CommonsLogger());
+            try {
+                Class clazz = Class.forName("mx4j.log.Log");
+                Class paramClazz = Class.forName("mx4j.log.Logger");
+                Method method = clazz.getDeclaredMethod("redirectTo", new Class[] {paramClazz});
+                paramClazz = Class.forName("mx4j.log.CommonsLogger");
+                method.invoke(null, new Object[] {paramClazz.newInstance()});
+            } catch (ClassNotFoundException e) {
+                // MX4J is not present.
+            } catch (Exception e) {
+                throw (AssertionError) new AssertionError("Cannot force MX4J to use commons logging.").initCause(e);
+            }
 
             initialized = true;
         }
