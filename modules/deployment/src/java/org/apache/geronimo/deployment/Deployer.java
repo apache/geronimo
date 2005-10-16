@@ -19,6 +19,7 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-import java.net.URI;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,16 +35,14 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-
-import javax.management.MalformedObjectNameException;
+import org.apache.geronimo.system.main.CommandLineManifest;
 
 /**
  * GBean that knows how to deploy modules (by consulting available module builders)
@@ -87,21 +85,11 @@ public class Deployer {
             return deploy(planFile, moduleFile, null, true, null, null, null, null);
         } catch (DeploymentException e) {
             log.debug("Deployment failed: plan=" + planFile +", module=" + originalModuleFile, e);
-            throw cleanseDeploymentException(e);
+            throw e.cleanse();
         } finally {
             if (tmpDir != null) {
                 DeploymentUtil.recursiveDelete(tmpDir);
             }
-        }
-    }
-
-    private DeploymentException cleanseDeploymentException(DeploymentException source) {
-        if(source.getCause() != null) {
-            Throwable e = source.getCause();
-            DeploymentException newx = new DeploymentException(source.getMessage()+" caused by "+e.getMessage(), null);
-            return newx;
-        } else {
-            return source;
         }
     }
 

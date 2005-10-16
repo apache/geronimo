@@ -23,7 +23,6 @@ package org.apache.geronimo.common;
  */
 public class DeploymentException extends Exception {
 
-
     public DeploymentException() {
     }
 
@@ -38,5 +37,41 @@ public class DeploymentException extends Exception {
     public DeploymentException(String message, Throwable cause) {
         super(message, cause);
     }
+    
+    public DeploymentException cleanse() {
+        if(null != getCause()) {
+            Throwable root = this;
+            CleanseException previousEx = null;
+            CleanseException rootEx = null;
+            while (null != root) {
+                Throwable e = root.getCause();
+                CleanseException exception = new CleanseException(root.getMessage(), root.toString());
+                if (null == rootEx) {
+                    rootEx = exception;
+                }
+                exception.setStackTrace(root.getStackTrace());
+                if (null != previousEx) {
+                    previousEx.initCause(exception);
+                }
+                previousEx = exception;
+                root = e;
+            }
+            return rootEx;
+        }
 
+        return this;
+    }
+    
+    private static class CleanseException extends DeploymentException {
+        private final String toString;
+        
+        public CleanseException(String message, String toString) {
+            super(message);
+            this.toString = toString;
+        }
+        
+        public String toString() {
+            return toString;
+        }
+    }
 }
