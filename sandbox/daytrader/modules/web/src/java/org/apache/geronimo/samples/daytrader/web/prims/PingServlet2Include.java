@@ -66,7 +66,8 @@ public class PingServlet2Include extends HttpServlet {
 				getServletConfig().getServletContext().getRequestDispatcher("/servlet/PingServlet2IncludeRcv").include(req, res);
 			}
 			
-			ServletOutputStream out = res.getOutputStream();
+//			ServletOutputStream out = res.getOutputStream();
+			java.io.PrintWriter out = res.getWriter();
 			out.println(
 				"<html><head><title>Ping Servlet 2 Include</title></head>"
 					+ "<body><HR><BR><FONT size=\"+2\" color=\"#000066\">Ping Servlet 2 Include<BR></FONT><FONT size=\"+1\" color=\"#000066\">Init time : "

@@ -360,18 +360,6 @@
          <error-code>500</error-code>
          <location>/error.jsp</location>
       </error-page>
-      <message-destination-ref id="MessageDestinationRef_1">
-         <message-destination-ref-name>jms/TradeBrokerQueue</message-destination-ref-name>
-         <message-destination-type>javax.jms.Queue</message-destination-type>
-         <message-destination-usage>Produces</message-destination-usage>
-         <message-destination-link>daytrader-ejb-1.0-SNAPSHOT.jar#TradeBrokerQueue</message-destination-link>
-      </message-destination-ref>
-      <message-destination-ref id="MessageDestinationRef_2">
-         <message-destination-ref-name>jms/TradeStreamerTopic</message-destination-ref-name>
-         <message-destination-type>javax.jms.Topic</message-destination-type>
-         <message-destination-usage>Produces</message-destination-usage>
-         <message-destination-link>daytrader-ejb-1.0-SNAPSHOT.jar#TradeStreamerTopic</message-destination-link>
-      </message-destination-ref>
       <resource-ref>
          <res-ref-name>jdbc/TradeDataSource</res-ref-name>
          <res-type>javax.sql.DataSource</res-type>
@@ -390,6 +378,18 @@
          <res-auth>Application</res-auth>
          <res-sharing-scope>Shareable</res-sharing-scope>
       </resource-ref>
+      <message-destination-ref id="MessageDestinationRef_1">
+         <message-destination-ref-name>jms/TradeBrokerQueue</message-destination-ref-name>
+         <message-destination-type>javax.jms.Queue</message-destination-type>
+         <message-destination-usage>Produces</message-destination-usage>
+         <message-destination-link>daytrader-ejb-1.0-SNAPSHOT.jar#TradeBrokerQueue</message-destination-link>
+      </message-destination-ref>
+      <message-destination-ref id="MessageDestinationRef_2">
+         <message-destination-ref-name>jms/TradeStreamerTopic</message-destination-ref-name>
+         <message-destination-type>javax.jms.Topic</message-destination-type>
+         <message-destination-usage>Produces</message-destination-usage>
+         <message-destination-link>daytrader-ejb-1.0-SNAPSHOT.jar#TradeStreamerTopic</message-destination-link>
+      </message-destination-ref>
       <ejb-ref>
          <ejb-ref-name>ejb/Trade</ejb-ref-name>
          <ejb-ref-type>Session</ejb-ref-type>
