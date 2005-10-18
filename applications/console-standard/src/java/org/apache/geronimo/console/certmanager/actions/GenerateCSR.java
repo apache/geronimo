@@ -48,7 +48,7 @@ public class GenerateCSR {
                             new Object[] { alias },
                             new String[] { "java.lang.String" });
 
-            request.setAttribute("com.gluecode.se.cert.csr", csr);
+            request.setAttribute("org.apache.geronimo.console.cert.csr", csr);
             request.setAttribute("alias", alias);
         } catch (Exception e) {
             throw new PortletException(e);

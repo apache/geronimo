@@ -55,7 +55,7 @@ public class ViewKeyStoreEntryDetail {
                             new Object[] { alias },
                             new String[] { "java.lang.String" });
 
-            request.setAttribute("com.gluecode.se.keystore.entry.info", kinfo);
+            request.setAttribute("org.apache.geronimo.console.keystore.entry.info", kinfo);
 
             // get keystore certificate chain by the alias
             Certificate[] chain = (Certificate[]) KernelRegistry
@@ -64,7 +64,7 @@ public class ViewKeyStoreEntryDetail {
                             new String[] { "java.lang.String" });
 
             // set attributes
-            request.setAttribute("com.gluecode.se.certs", chain);
+            request.setAttribute("org.apache.geronimo.console.certs", chain);
         } catch (Exception e) {
             throw new PortletException(e);
         }

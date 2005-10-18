@@ -55,10 +55,10 @@ public class ViewKeyStore {
             String keyStoreLocation = (String) KernelRegistry.getSingleKernel()
                     .getAttribute(objname, "keyStoreLocation");
 
-            request.setAttribute("com.gluecode.se.keystore.type", keyStoreType);
-            request.setAttribute("com.gluecode.se.keystore.provider",
+            request.setAttribute("org.apache.geronimo.console.keystore.type", keyStoreType);
+            request.setAttribute("org.apache.geronimo.console.keystore.provider",
                     keyStoreProvider);
-            request.setAttribute("com.gluecode.se.keystore.location",
+            request.setAttribute("org.apache.geronimo.console.keystore.location",
                     keyStoreLocation);
 
             List storelist = (List) KernelRegistry.getSingleKernel().invoke(
@@ -69,8 +69,8 @@ public class ViewKeyStore {
                 portlet.getPortletContext().log("store-item = " + iter.next());
             }
 
-            request.setAttribute("com.gluecode.se.keystore.list", storelist);
-            request.setAttribute("com.gluecode.se.keystore.size", String
+            request.setAttribute("org.apache.geronimo.console.keystore.list", storelist);
+            request.setAttribute("org.apache.geronimo.console.keystore.size", String
                     .valueOf(storelist.size()));
         } catch (Exception e) {
             throw new PortletException(e);

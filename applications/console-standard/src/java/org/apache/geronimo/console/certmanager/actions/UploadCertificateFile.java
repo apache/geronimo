@@ -93,7 +93,7 @@ public class UploadCertificateFile {
         portlet.getPortletContext().log("cert-file-name: " + certFileName);
         portlet.getPortletContext().log("enc: " + enc);
 
-        response.setRenderParameter("com.gluecode.se.cert.file.enc", enc);
+        response.setRenderParameter("org.apache.geronimo.console.cert.file.enc", enc);
         response.setRenderParameter("action", request.getParameter("action"));
     }
 
@@ -102,7 +102,7 @@ public class UploadCertificateFile {
             throws PortletException, IOException {
 
         String encodedCertFileName = request
-                .getParameter("com.gluecode.se.cert.file.enc");
+                .getParameter("org.apache.geronimo.console.cert.file.enc");
         String certFileName = URLDecoder.decode(encodedCertFileName, "UTF-8");
         portlet.getPortletContext().log("cert file: " + certFileName);
 
@@ -127,8 +127,8 @@ public class UploadCertificateFile {
                 }
             }
 
-            request.setAttribute("com.gluecode.se.certs", certs);
-            request.setAttribute("com.gluecode.se.cert.file.enc",
+            request.setAttribute("org.apache.geronimo.console.certs", certs);
+            request.setAttribute("org.apache.geronimo.console.cert.file.enc",
                     encodedCertFileName);
         }
 

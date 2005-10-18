@@ -53,7 +53,7 @@ public class ImportTrustedCertificate {
         }
 
         String certfileEnc = request
-                .getParameter("com.gluecode.se.cert.file.enc");
+                .getParameter("org.apache.geronimo.console.cert.file.enc");
         String alias = request.getParameter("alias");
 
         // decode certificate file name

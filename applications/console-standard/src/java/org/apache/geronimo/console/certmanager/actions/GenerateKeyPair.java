@@ -109,11 +109,11 @@ public class GenerateKeyPair {
                         .getSingleKernel().getAttribute(objname,
                                 "keyStoreLocation");
 
-                request.setAttribute("com.gluecode.se.keystore.type",
+                request.setAttribute("org.apache.geronimo.console.keystore.type",
                         keyStoreType);
-                request.setAttribute("com.gluecode.se.keystore.provider",
+                request.setAttribute("org.apache.geronimo.console.keystore.provider",
                         keyStoreProvider);
-                request.setAttribute("com.gluecode.se.keystore.location",
+                request.setAttribute("org.apache.geronimo.console.keystore.location",
                         keyStoreLocation);
 
                 List storelist = (List) KernelRegistry.getSingleKernel()
@@ -126,9 +126,9 @@ public class GenerateKeyPair {
                 }
 
                 request
-                        .setAttribute("com.gluecode.se.keystore.list",
+                        .setAttribute("org.apache.geronimo.console.keystore.list",
                                 storelist);
-                request.setAttribute("com.gluecode.se.keystore.size", String
+                request.setAttribute("org.apache.geronimo.console.keystore.size", String
                         .valueOf(storelist.size()));
             } catch (Exception e) {
                 throw new PortletException(e);
