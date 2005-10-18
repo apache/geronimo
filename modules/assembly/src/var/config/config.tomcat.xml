@@ -10,31 +10,12 @@
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="org/apache/geronimo/OfflineDeployer">
-        <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">${PlanTomcatWebBuilderDefaultNamespace}</attribute>
-        </gbean>
-        <gbean name="EJBBuilder">
-            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Tomcat,J2EEServer=geronimo,j2eeType=GBean,name=TomcatWebContainer</attribute>
-        </gbean>
-    </configuration>
     <configuration name="org/apache/geronimo/RuntimeDeployer">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">${PlanTomcatWebBuilderDefaultNamespace}</attribute>
+            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</attribute>
         </gbean>
         <gbean name="EJBBuilder">
             <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Tomcat,J2EEServer=geronimo,j2eeType=GBean,name=TomcatWebContainer</attribute>
-        </gbean>
-    </configuration>
-    <configuration name="org/apache/geronimo/Jetty">
-        <gbean name="JettyWebConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPPortSecondary}</attribute>
-            <attribute name="redirectPort">${PlanHTTPSPortSecondary}</attribute>
-        </gbean>
-        <gbean name="JettySSLConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPSPortSecondary}</attribute>
         </gbean>
     </configuration>
     <configuration name="org/apache/geronimo/Tomcat">
@@ -67,7 +48,18 @@
         <gbean name="JMXConnector">
             <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
         </gbean>
-        <!-- Add CORBA settings PlanIIOPPort, PlanORBPort, PlanCOSNamingPort -->
+    </configuration>
+    <configuration name="org/apache/geronimo/ServerCORBA" load="false">
+        <gbean name="NameServer">
+            <attribute name="dbDir">var/cosnaming.db</attribute>
+            <attribute name="port">${PlanCOSNamingPort}</attribute>
+        </gbean>
+        <gbean name="Server">
+            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
+        </gbean>
+        <gbean name="UnprotectedServer">
+            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
+        </gbean>
     </configuration>
     <configuration name="org/apache/geronimo/ActiveMQServer">
         <gbean name="ActiveMQ.tcp.default">
@@ -75,6 +67,7 @@
             <attribute name="port">${PlanActiveMQPort}</attribute>
         </gbean>
     </configuration>
+    <configuration name="org/apache/geronimo/SystemJMS"/>
     <configuration name="org/apache/geronimo/SystemDatabase">
         <gbean name="DerbyNetwork">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -87,4 +80,7 @@
             <attribute name="port">${PlanLdapPort}</attribute>
         </gbean>
     </configuration>
+    <configuration name="org/apache/geronimo/TomcatRuntimeDeployer"/>
+    <configuration name="org/apache/geronimo/applications/Welcome/Tomcat"/>
+    <configuration name="org/apache/geronimo/Console/Tomcat"/>
 </attributes>
