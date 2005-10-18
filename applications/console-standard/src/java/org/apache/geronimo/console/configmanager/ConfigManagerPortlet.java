@@ -99,22 +99,18 @@ public class ConfigManagerPortlet extends BasePortlet {
         try {
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
-            ObjectName configName = null;
             String config = getConfigID(actionRequest);
             URI configID = URI.create(config);
-            if (configurationManager.isLoaded(configID)) {
-                configName = Configuration.getConfigurationObjectName(configID);
-            } else {
-                configName = configurationManager.load(configID);
-            }
 
             if (START_ACTION.equals(action)) {
-                configurationManager.start(configName);
-                //kernel.startConfiguration(getConfigID(actionRequest));
+                if (!configurationManager.isLoaded(configID)) {
+                    configurationManager.load(configID);
+                }
+                configurationManager.start(configID);
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {
-                kernel.stopGBean(configName);
-                //kernel.stopConfiguration(getConfigID(actionRequest));
+                configurationManager.stop(configID);
+                configurationManager.unload(configID);
                 messageStatus = "Stopped application<br /><br />";
             } else if (UNINSTALL_ACTION.equals(action)) {
                 uninstallConfig(actionRequest);

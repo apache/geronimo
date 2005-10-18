@@ -59,6 +59,7 @@
             <xsd:element name="gbean" type="atts:gbeanType" minOccurs="0" maxOccurs="unlimited" />
         </xsd:sequence>
         <xsd:attribute name="name" type="xs:string" use="required"/>
+        <xsd:attribute name="load" type="xs:boolean" use="optional" default="true"/>
     </xsd:complexType>
 
     <xsd:complexType name="gbeanType">
@@ -78,6 +79,7 @@
             <xsd:element name="attribute" type="atts:attributeType" minOccurs="0" maxOccurs="unlimited" />
         </xsd:sequence>
         <xsd:attribute name="name" type="xs:string" use="required"/>
+        <xsd:attribute name="load" type="xs:boolean" use="optional" default="true"/>
     </xsd:complexType>
 
     <xsd:complexType name="attributeType">

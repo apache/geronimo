@@ -189,15 +189,12 @@ public class ActiveMQConnectorHelper {
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
             for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                URI configId = URI.create((String)iterator.next());
-                ObjectName configName = null;
-                if (configurationManager.isLoaded(configId)) {
-                    configName = Configuration.getConfigurationObjectName(configId);
-                } else {
-                    configName = configurationManager.load(configId);
+                URI configID = URI.create((String)iterator.next());
+                if (!configurationManager.isLoaded(configID)) {
+                    configurationManager.load(configID);
                 }
 
-                configurationManager.start(configName);
+                configurationManager.start(configID);
             }
         } catch (DeploymentException e) {
             StringBuffer buf = new StringBuffer(256);

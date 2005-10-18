@@ -211,6 +211,22 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         }
     }
 
+    public void addConfiguration(String configName) {
+        try {
+            save();
+        } catch (IOException e) {
+            log.info("Couldn't save while adding " + configName, e);
+        }
+    }
+
+    public void removeConfiguration(String configName) {
+        try {
+            save();
+        } catch (IOException e) {
+            log.info("Couldnt save while removing " + configName, e);
+        }
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {

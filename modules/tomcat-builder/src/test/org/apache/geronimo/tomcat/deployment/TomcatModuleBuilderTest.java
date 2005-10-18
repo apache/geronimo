@@ -368,8 +368,8 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        ObjectName baseConfigName = configurationManager.load((URI) parentId.get(0));
-        kernel.startGBean(baseConfigName);
+        configurationManager.load((URI) parentId.get(0));
+        configurationManager.start((URI) parentId.get(0));
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);

@@ -155,8 +155,8 @@ public class CreateDestinationHandler extends AbstractJMSManager implements
                     installDir}, new String[] {
                     ConfigurationData.class.getName(), File.class.getName() });
 
-            ObjectName configName = configurationManager.load(configId);
-            configurationManager.start(configName);
+            configurationManager.load(configId);
+            configurationManager.start(configId);
 
         } catch (Exception e) {
             log.info("problem", e);

@@ -109,9 +109,9 @@ public class RedeployCommand extends AbstractDeployCommand {
 
                     List list = configurationManager.loadRecursive(configID);
                     for (int j = 0; j < list.size(); j++) {
-                        ObjectName name = (ObjectName) list.get(j);
+                        URI name = (URI) list.get(j);
                         configurationManager.start(name);
-                        updateStatus("Started "+clean(name.getKeyProperty("name")));
+                        updateStatus("Started " + name);
                     }
                 }
             } finally {

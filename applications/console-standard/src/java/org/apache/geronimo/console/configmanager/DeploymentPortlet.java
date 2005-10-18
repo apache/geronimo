@@ -125,14 +125,11 @@ public class DeploymentPortlet extends BasePortlet {
                 ConfigurationManager configurationManager = ConfigurationUtil
                         .getConfigurationManager(kernel);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    URI config = URI.create((String)iterator.next());
-                    ObjectName configName;
-                    if (configurationManager.isLoaded(config)) {
-                        configName = Configuration.getConfigurationObjectName(config);
-                    } else {
-                        configName = configurationManager.load(config);
+                    URI configID = URI.create((String)iterator.next());
+                    if (!configurationManager.isLoaded(configID)) {
+                        configurationManager.load(configID);
                     }
-                    configurationManager.start(configName);
+                    configurationManager.start(configID);
                 }
             }
         } catch (DeploymentException e) {

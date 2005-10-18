@@ -74,9 +74,9 @@ public class StartCommand extends CommandSupport {
                     // Load and start the module
                     List list = configurationManager.loadRecursive(moduleID);
                     for (int j = 0; j < list.size(); j++) {
-                        ObjectName name = (ObjectName) list.get(j);
+                        URI name = (URI) list.get(j);
                         configurationManager.start(name);
-                        String configName = ObjectName.unquote(name.getKeyProperty("name"));
+                        String configName = name.toString();
                         List kids = loadChildren(kernel, configName);
                         TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), configName,
                                 (String[]) kids.toArray(new String[kids.size()]));

@@ -394,8 +394,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.startGBean(configurationManagerName);
             ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-            ObjectName baseConfigName = configurationManager.load(defaultParentId[0]);
-            kernel.startGBean(baseConfigName);
+            configurationManager.load(defaultParentId[0]);
+            configurationManager.start(defaultParentId[0]);
 
             ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":name=ServerInfo");
             GBeanData serverInfoGBean = new GBeanData(serverInfoObjectName, BasicServerInfo.GBEAN_INFO);

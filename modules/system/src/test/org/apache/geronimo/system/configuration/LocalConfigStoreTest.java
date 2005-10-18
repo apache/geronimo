@@ -79,7 +79,7 @@ public class LocalConfigStoreTest extends TestCase {
 
         // load and start the config
         ObjectName configName = configurationManager.load(uri);
-        configurationManager.start(configName);
+        configurationManager.start(uri);
 
         // make sure the config and the enabled gbean are running
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
@@ -94,15 +94,15 @@ public class LocalConfigStoreTest extends TestCase {
 
         kernel.invoke(configName, "saveState");
         // stop and unload the config
-        kernel.stopGBean(configName);
-        kernel.unloadGBean(configName);
+        configurationManager.stop(uri);
+        configurationManager.unload(uri);
 
         // assure it was unloaded
         assertFalse(kernel.isLoaded(configName));
 
         // now reload and restart the config
         configName = configurationManager.load(uri);
-        configurationManager.start(configName);
+        configurationManager.start(uri);
 
         // make sure the value was reloaded correctly
         assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));

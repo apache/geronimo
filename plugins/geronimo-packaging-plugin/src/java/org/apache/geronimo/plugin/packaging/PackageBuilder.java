@@ -227,7 +227,7 @@ public class PackageBuilder {
             if (!configurationManager.isLoaded(deploymentConfig)) {
                 List configs = configurationManager.loadRecursive(deploymentConfig);
                 for (int i = 0; i < configs.size(); i++) {
-                    ObjectName configName = (ObjectName) configs.get(i);
+                    URI configName = (URI) configs.get(i);
                     configurationManager.start(configName);
                 }
             }

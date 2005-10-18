@@ -26,6 +26,9 @@ import java.util.List;
  * @version $Rev$ $Date$
  */
 public interface PersistentConfigurationList {
+
+    static final String PERSISTENT_CONFIGURATION_LIST = "PersistentConfigurationList";
+    
     boolean isKernelFullyStarted();
 
     void setKernelFullyStarted(boolean kernelFullyStarted);
@@ -33,4 +36,8 @@ public interface PersistentConfigurationList {
     void save() throws IOException;
 
     List restore() throws IOException;
+
+    void addConfiguration(String configName);
+
+    void removeConfiguration(String configName);
 }

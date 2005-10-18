@@ -38,40 +38,59 @@ specific services - those should be provided by children.
 
     <!-- Configuration Manager service -->
     <gbean name="ConfigurationManager" class="org.apache.geronimo.kernel.config.ConfigurationManagerImpl">
-        <reference name="Stores"><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></reference>
-        <reference name="AttributeStore"><name>AttributeManager</name></reference>
+        <reference name="Stores">
+            <gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name>
+        </reference>
+        <reference name="AttributeStore">
+            <name>AttributeManager</name>
+        </reference>
+        <reference name="PersistentConfigurationList">
+            <type>AttributeStore</type>
+            <name>AttributeManager</name>
+        </reference>
     </gbean>
 
     <!-- User-editable attribute service -->
     <gbean name="AttributeManager" class="org.apache.geronimo.system.configuration.LocalAttributeManager">
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
         <attribute name="configFile">var/config/config.xml</attribute>
     </gbean>
 
     <!-- Configuration Store service -->
     <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
         <attribute name="root">config-store</attribute>
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
-        <reference name="AttributeStore"><name>AttributeManager</name></reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="AttributeStore">
+            <name>AttributeManager</name>
+        </reference>
     </gbean>
 
     <!-- Persistent List of running Configurations service -->
-    <gbean name="Default" class="org.apache.geronimo.system.configuration.FileConfigurationList">
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
-        <reference name="ConfigurationManager"><name>ConfigurationManager</name></reference>
-        <attribute name="configFile">var/config/config.list</attribute>
-    </gbean>
+<!--    <gbean name="Default" class="org.apache.geronimo.system.configuration.KernelMonitoringConfigurationList">-->
+<!--        <reference name="Delegate">-->
+<!--            <type>AttributeStore</type>-->
+<!--            <name>AttributeManager</name>-->
+<!--        </reference>-->
+<!--    </gbean>-->
 
     <!-- Repository -->
     <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
         <attribute name="root">repository/</attribute>
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
     <!-- Logging service -->
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
         <attribute name="configFileName">var/log/server-log4j.properties</attribute>
         <attribute name="refreshPeriodSeconds">60</attribute>
-        <reference name="ServerInfo"><name>ServerInfo</name></reference>
+        <reference name="ServerInfo">
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 </configuration>

@@ -125,7 +125,7 @@ public class CommandLine {
                 URI configID = (URI) i.next();
                 List list = configurationManager.loadRecursive(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    ObjectName name = (ObjectName) iterator.next();
+                    URI name = (URI) iterator.next();
                     configurationManager.start(name);
                 }
             }

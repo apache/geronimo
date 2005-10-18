@@ -59,8 +59,11 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -104,6 +107,7 @@ public class DeploymentContext {
         configurationData.setParentId(parentId);
         configurationData.setDomain(domain);
         configurationData.setServer(server);
+
         determineNaming();
         determineInherited();
     }
@@ -133,7 +137,7 @@ public class DeploymentContext {
                 throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
             } finally {
                 if (loaded) {
-                    //we need to unload again so the loadedAncestors list will be in the correct order to start configs.
+//                    we need to unload again so the loadedAncestors list will be in the correct order to start configs.
                     configurationManager.unload(parent);
                 }
             }
@@ -520,6 +524,7 @@ public class DeploymentContext {
 
     }
 
+    private static final Log log = LogFactory.getLog(DeploymentContext.class);
     private ClassLoader[] determineParents() throws DeploymentException {
         ClassLoader[] parentCL;
         List parentId = configurationData.getParentId();
@@ -534,9 +539,8 @@ public class DeploymentContext {
                 try {
                     for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
                         URI uri = (URI) iterator.next();
-                        ObjectName ancestorName = Configuration.getConfigurationObjectName(uri);
                         List started = new ArrayList();
-                        startAncestors(ancestorName, kernel, started, configurationManager);
+                        startAncestors(uri, kernel, started, configurationManager);
                         startedAncestors.addAll(started);
                     }
                 } catch (DeploymentException e) {
@@ -574,7 +578,8 @@ public class DeploymentContext {
             try {
                 for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
                     URI uri = (URI) iterator.next();
-                    loadedAncestors.addAll(configurationManager.loadRecursive(uri));
+                    List newAncestors = configurationManager.loadRecursive(uri);
+                    loadedAncestors.addAll(newAncestors);
                 }
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
@@ -582,18 +587,20 @@ public class DeploymentContext {
         }
     }
 
-    private void startAncestors(ObjectName name, Kernel kernel, List started, ConfigurationManager configurationManager) throws Exception {
-        if (name != null && !isRunning(kernel, name)) {
-            URI[] patterns = (URI[]) kernel.getGBeanData(name).getAttribute("parentId");
-            if (patterns != null) {
-                for (int i = 0; i < patterns.length; i++) {
-                    URI pattern = patterns[i];
-                    ObjectName ancestorName = Configuration.getConfigurationObjectName(pattern);
-                    startAncestors(ancestorName, kernel, started, configurationManager);
+    private void startAncestors(URI configID, Kernel kernel, List started, ConfigurationManager configurationManager) throws Exception {
+        if (configID != null) {
+            ObjectName configName = Configuration.getConfigurationObjectName(configID);
+            if (!isRunning(kernel, configName)) {
+                URI[] patterns = (URI[]) kernel.getGBeanData(configName).getAttribute("parentId");
+                if (patterns != null) {
+                    for (int i = 0; i < patterns.length; i++) {
+                        URI pattern = patterns[i];
+                        startAncestors(pattern, kernel, started, configurationManager);
+                    }
                 }
+                configurationManager.loadGBeans(configID);
+                started.add(configID);
             }
-            configurationManager.loadGBeans(name);
-            started.add(name);
         }
     }
 
@@ -602,7 +609,6 @@ public class DeploymentContext {
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
-        ClassLoader[] parentCL = determineParents();
         // shouldn't user classpath come before dependencies?
         List dependencies = configurationData.getDependencies();
         List classPath = configurationData.getClassPath();
@@ -621,6 +627,7 @@ public class DeploymentContext {
         } catch (MalformedURLException e) {
             throw new DeploymentException(e);
         }
+        ClassLoader[] parentCL = determineParents();
 
         boolean inverseClassloading = configurationData.isInverseClassloading();
         Set filter = configurationData.getHiddenClasses();
@@ -633,32 +640,21 @@ public class DeploymentContext {
 
     public void close() throws IOException, DeploymentException {
         if (kernel != null) {
-            if (startedAncestors != null) {
-                //stopping one stops all it's children.
-                //doesn't work though.
-                Collections.reverse(startedAncestors);
-                for (Iterator iterator = startedAncestors.iterator(); iterator.hasNext();) {
-                    ObjectName objectName = (ObjectName) iterator.next();
-
-                    try {
-                        kernel.stopGBean(objectName);
-                    } catch (GBeanNotFoundException e) {
-                        throw new DeploymentException("Could not find a configuration we previously started! " + objectName, e);
-                    }
-                }
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+            try {
                 startedAncestors.clear();
-            }
-            if (loadedAncestors != null) {
                 Collections.reverse(loadedAncestors);
                 for (Iterator iterator = loadedAncestors.iterator(); iterator.hasNext();) {
-                    ObjectName objectName = (ObjectName) iterator.next();
+                    URI configID = (URI) iterator.next();
                     try {
-                        kernel.unloadGBean(objectName);
-                    } catch (GBeanNotFoundException e) {
-                        throw new DeploymentException("Could not find a configuration we previously loaded! " + objectName, e);
+                        configurationManager.unload(configID);
+                    } catch (NoSuchConfigException e) {
+                        throw new DeploymentException("Could not find a configuration we previously loaded! " + configID, e);
                     }
                 }
                 loadedAncestors.clear();
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
         }
     }

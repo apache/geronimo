@@ -754,6 +754,7 @@
             <ant:zip zipfile="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip">
                 <ant:zipfileset dir="${geronimo.assembly.dir}/..">
                     <ant:include name="${geronimo.assembly.dir.name}/**"/>
+                    <ant:exclude name="${geronimo.assembly.dir.name}/**/var/log/*.log"/>
                 </ant:zipfileset>
             </ant:zip>
             <checksum file="${geronimo.assembly.distributions.dir}/${maven.final.name}.zip" algorithm="MD5" fileext=".md5"/>

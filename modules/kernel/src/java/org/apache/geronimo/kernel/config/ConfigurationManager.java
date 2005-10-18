@@ -74,7 +74,9 @@ public interface ConfigurationManager {
      */
     void unload(URI configID) throws NoSuchConfigException;
 
-    void start(ObjectName configName) throws InvalidConfigException;
+    void start(URI configID) throws InvalidConfigException;
 
-    void loadGBeans(ObjectName configName) throws InvalidConfigException;
+    void loadGBeans(URI configID) throws InvalidConfigException;
+
+    void stop(URI configID) throws InvalidConfigException;
 }

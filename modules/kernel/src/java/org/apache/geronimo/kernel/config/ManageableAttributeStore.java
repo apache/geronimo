@@ -40,7 +40,7 @@ public interface ManageableAttributeStore {
      * Return the object name of this store
      * @return the object name of this store
      */
-    public String getObjectName();
+//    public String getObjectName();
 
     /**
      * Gets a stored value (if any) for a particular attribute.  The attribute
@@ -57,7 +57,7 @@ public interface ManageableAttributeStore {
      *         question, or null if this store has no value saved for the
      *         specified attribute.
      */
-    public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute);
+//    public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute);
 
     /**
      * Sets the stored value for a particular attribute.  The attribute is

@@ -31,6 +31,7 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 
 /**
  * @version $Rev$ $Date$
@@ -53,17 +54,19 @@ public class StopCommand extends CommandSupport {
                     TargetModuleID module = modules[i];
 
                     URI moduleID = URI.create(module.getModuleID());
-                    ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
+//                    ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
                     try {
-                        kernel.stopGBean(configName);
-                    } catch (GBeanNotFoundException e) {
-                        if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
+//                        kernel.stopGBean(configName);
+                        configurationManager.stop(moduleID);
+//                    } catch (GBeanNotFoundException e) {
+                    } catch (InvalidConfigException e) {
+//                        if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
                             updateStatus("Module "+moduleID+" is not running.");
                             continue;
-                        } else {
-                            System.out.println("Unmatched name '"+clean(e.getGBeanName().getKeyProperty("name"))+"'");
-                            throw e;
-                        }
+//                        } else {
+//                            System.out.println("Unmatched name '"+clean(e.getGBeanName().getKeyProperty("name"))+"'");
+//                            throw e;
+//                        }
                     }
                     configurationManager.unload(moduleID);
                     addModule(module);

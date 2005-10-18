@@ -23,11 +23,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -41,8 +47,9 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -56,7 +63,7 @@ import org.xml.sax.SAXException;
  *
  * @version $Rev: 106387 $ $Date: 2004-11-23 22:16:54 -0800 (Tue, 23 Nov 2004) $
  */
-public class LocalAttributeManager implements ManageableAttributeStore, GBeanLifecycle {
+public class LocalAttributeManager implements ManageableAttributeStore, PersistentConfigurationList, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(LocalAttributeManager.class);
     private final static String BACKUP_EXTENSION = ".bak";
     private final static String TEMP_EXTENSION = ".working";
@@ -64,50 +71,67 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
 
     private final ServerInfo serverInfo;
     private final String configFile;
-    private boolean readOnly = false;
-    private String objectName;
+    private final boolean readOnly;
 
     private File attributeFile;
     private File backupFile;
     private File tempFile;
     private final Map configurations = new LinkedHashMap();
-    private UpdateThread updater;
 
-    public LocalAttributeManager(ServerInfo serverInfo, String configFile, String objectName) {
-        this.serverInfo = serverInfo;
+    private Timer timer;
+    private TimerTask currentTask;
+
+    private boolean kernelFullyStarted;
+
+    public LocalAttributeManager(String configFile, boolean readOnly, ServerInfo serverInfo) {
         this.configFile = configFile;
-        this.objectName = objectName;
+        this.readOnly = readOnly;
+        this.serverInfo = serverInfo;
     }
 
     public boolean isReadOnly() {
         return readOnly;
     }
 
-    public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
-    }
-
     public Collection setAttributes(URI configurationName, Collection datas) throws InvalidConfigException {
         String configName = configurationName.toString();
-        Map configInfo = (Map) configurations.get(configName);
+        ConfigInfo configInfo = (ConfigInfo) configurations.get(configName);
         if (configInfo != null) {
-            for (Iterator iterator = datas.iterator(); iterator.hasNext();) {
-                GBeanData data = (GBeanData) iterator.next();
-                setAttributes(data, configInfo, configName);
+            if (configInfo.isLoad()) {
+                for (Iterator iterator = datas.iterator(); iterator.hasNext();) {
+                    GBeanData data = (GBeanData) iterator.next();
+                    boolean load = setAttributes(data, configInfo, configName);
+                    if (!load) {
+                        iterator.remove();
+                    }
+                }
+            } else {
+                return Collections.EMPTY_LIST;
             }
         }
         return datas;
     }
 
-    private void setAttributes(GBeanData data, Map configInfo, String configName) throws InvalidConfigException {
+    /**
+     * Set the attributes from the attribute store on a single gbean, and return whether or not to load the gbean.
+     *
+     * @param data
+     * @param configInfo
+     * @param configName
+     * @return true if the gbean should be loaded, false otherwise.
+     * @throws InvalidConfigException
+     */
+    private boolean setAttributes(GBeanData data, ConfigInfo configInfo, String configName) throws InvalidConfigException {
         ObjectName gbeanName = data.getName();
         GBeanInfo gBeanInfo = data.getGBeanInfo();
-        Map attributeMap = (Map) configInfo.get(gbeanName);
+        GBeanAttrsInfo attributeMap = configInfo.getGBean(gbeanName);
         if (attributeMap == null) {
-            attributeMap = (Map) configInfo.get(gbeanName.getKeyProperty("name"));
-            if (attributeMap != null) {
-                for (Iterator iterator = attributeMap.entrySet().iterator(); iterator.hasNext();) {
-                    Map.Entry entry =  (Map.Entry) iterator.next();
+            attributeMap = configInfo.getGBean(gbeanName.getKeyProperty("name"));
+        }
+        if (attributeMap != null) {
+            if (attributeMap.isLoad()) {
+                for (Iterator iterator = attributeMap.getAttributes().entrySet().iterator(); iterator.hasNext();) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
                     String attributeName = (String) entry.getKey();
                     GAttributeInfo attributeInfo = gBeanInfo.getAttribute(attributeName);
                     if (attributeInfo == null) {
@@ -117,34 +141,20 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
                     Object value = getValue(attributeInfo, valueString, configName, gbeanName);
                     data.setAttribute(attributeName, value);
                 }
+                return true;
+            } else {
+                return false;
             }
         }
+        //no attr info, load by default
+        return true;
     }
 
-    public String getObjectName() {
-        return objectName;
-    }
-
-    public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute) {
-        Map config = (Map) configurations.get(configurationName);
-        if (config == null) {
-            return null; // nothing specified for this configuration
-        }
-        Map atts = (Map) config.get(gbean);
-        if (atts == null) {
-            atts = (Map) config.get(gbean.getKeyProperty("name"));
-        }
-        if (atts == null) {
-            return null; // nothing specified for this GBean
-        }
-        String value = (String) atts.get(attribute.getName());
-        if (value == null) {
-            return null; // nothing specified for this attribute
-        }
-        return getValue(attribute, value, configurationName, gbean);
-    }
 
     private Object getValue(GAttributeInfo attribute, String value, String configurationName, ObjectName gbeanName) {
+        if (value == null) {
+            return null;
+        }
         try {
             PropertyEditor editor = PropertyEditors.findEditor(attribute.getType(), getClass().getClassLoader());
             if (editor == null) {
@@ -165,17 +175,17 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         if (readOnly) {
             return;
         }
-        Map config = (Map) configurations.get(configurationName);
+        ConfigInfo config = (ConfigInfo) configurations.get(configurationName);
         if (config == null) {
-            config = new HashMap();
+            config = new ConfigInfo(true);
             configurations.put(configurationName, config);
         }
-        Map atts = (Map) config.get(gbean);
+        GBeanAttrsInfo atts = config.getGBean(gbean);
         if (atts == null) {
-            atts = (Map) config.get(gbean.getKeyProperty("name"));
+            atts = config.getGBean(gbean.getKeyProperty("name"));
             if (atts == null) {
-                atts = new HashMap();
-                config.put(gbean, atts);
+                atts = new GBeanAttrsInfo(true);
+                config.addGBean(gbean, atts);
             }
         }
         try {
@@ -189,12 +199,9 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
                 editor.setValue(value);
                 string = editor.getAsText();
             }
-            if (string == null) {
-                atts.remove(attribute.getName());
-            } else {
-                atts.put(attribute.getName(), string);
-            }
-            updater.attributeChanged();
+            Map attrMap = atts.getAttributes();
+            attrMap.put(attribute.getName(), string);
+            attributeChanged();
         } catch (ClassNotFoundException e) {
             //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue
             log.error("Unable to store attribute type " + attribute.getType());
@@ -217,18 +224,22 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
             for (int c = 0; c < configs.getLength(); c++) {
                 Element config = (Element) configs.item(c);
                 String configName = config.getAttribute("name");
-                Map configMap = new LinkedHashMap();
-                results.put(configName, configMap);
+                String loadConfigString = config.getAttribute("load");
+                boolean loadConfig = !"false".equals(loadConfigString);
+                ConfigInfo configInfo = new ConfigInfo(loadConfig);
+                results.put(configName, configInfo);
                 NodeList gbeans = config.getElementsByTagName("gbean");
                 for (int g = 0; g < gbeans.getLength(); g++) {
                     Element gbean = (Element) gbeans.item(g);
                     String gbeanName = gbean.getAttribute("name");
-                    Map gbeanMap = new LinkedHashMap();
+                    String loadGBeanString = gbean.getAttribute("load");
+                    boolean loadGBean = !"false".equals(loadGBeanString);
+                    GBeanAttrsInfo gbeanAttrs = new GBeanAttrsInfo(loadGBean);
                     if (gbeanName.indexOf(':') > -1) {
                         ObjectName name = ObjectName.getInstance(gbeanName);
-                        configMap.put(name, gbeanMap);
+                        configInfo.addGBean(name, gbeanAttrs);
                     } else {
-                        configMap.put(gbeanName, gbeanMap);
+                        configInfo.addGBean(gbeanName, gbeanAttrs);
                     }
                     NodeList attributes = gbean.getElementsByTagName("attribute");
                     for (int a = 0; a < attributes.getLength(); a++) {
@@ -242,7 +253,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
                                 value += n.getNodeValue();
                             }
                         }
-                        gbeanMap.put(attName, value.trim());
+                        gbeanAttrs.setAttribute(attName, value.trim());
                     }
                 }
             }
@@ -256,7 +267,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         }
     }
 
-    public synchronized void save() throws IOException {
+     public synchronized void save() throws IOException {
         if (readOnly) {
             return;
         }
@@ -273,14 +284,16 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         out.println("<attributes xmlns=\"http://geronimo.apache.org/xml/ns/attributes\">");
         for (Iterator it = configurations.entrySet().iterator(); it.hasNext();) {
             Map.Entry entry = (Map.Entry) it.next();
-            out.println("  <configuration name=\"" + entry.getKey() + "\">");
-            Map map = (Map) entry.getValue();
-            for (Iterator gb = map.entrySet().iterator(); gb.hasNext();) {
+            ConfigInfo configInfo = (ConfigInfo) entry.getValue();
+            boolean configLoaded = configInfo.isLoad();
+            out.println("  <configuration name=\"" + entry.getKey() + (configLoaded ? "\">" : "\" load=\"false\">"));
+            for (Iterator gb = configInfo.getGBeans().entrySet().iterator(); gb.hasNext();) {
                 Map.Entry gbean = (Map.Entry) gb.next();
                 String gbeanName = gbean.getKey() instanceof String ? (String) gbean.getKey() : ((ObjectName) gbean.getKey()).getCanonicalName();
-                out.println("    <gbean name=\"" + gbeanName + "\">");
-                Map atts = (Map) gbean.getValue();
-                for (Iterator att = atts.entrySet().iterator(); att.hasNext();) {
+                GBeanAttrsInfo atts = (GBeanAttrsInfo) gbean.getValue();
+                boolean gbeanLoaded = atts.isLoad();
+                out.println("    <gbean name=\"" + gbeanName + (gbeanLoaded ? "\">" : "\" load=\"false\">"));
+                for (Iterator att = atts.getAttributes().entrySet().iterator(); att.hasNext();) {
                     Map.Entry attribute = (Map.Entry) att.next();
                     out.print("      <attribute name=\"" + attribute.getKey() + "\">");
                     out.print((String) attribute.getValue());
@@ -307,31 +320,92 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
         }
     }
 
+    //PersistentConfigurationList
+    public boolean isKernelFullyStarted() {
+         return kernelFullyStarted;
+     }
+
+     public void setKernelFullyStarted(boolean kernelFullyStarted) {
+         this.kernelFullyStarted = kernelFullyStarted;
+     }
+
+    public List restore() throws IOException {
+        List configs = new ArrayList();
+        for (Iterator iterator = configurations.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            ConfigInfo configInfo = (ConfigInfo) entry.getValue();
+            if (configInfo.isLoad()) {
+                String configName = (String) entry.getKey();
+                try {
+                    URI configID = new URI(configName);
+                    configs.add(configID);
+                } catch (URISyntaxException e) {
+                    throw new IOException("Could not construct URI configID for " + configName);
+                }
+            }
+        }
+        return configs;
+    }
+
+    public synchronized void addConfiguration(String configName) {
+        ConfigInfo configInfo = (ConfigInfo) configurations.get(configName);
+        if (configInfo == null) {
+            configInfo = new ConfigInfo(true);
+            configurations.put(configName, configInfo);
+        } else {
+            configInfo.setLoad(true);
+        }
+    }
+
+    public synchronized void removeConfiguration(String configName) {
+        ConfigInfo configInfo = (ConfigInfo) configurations.get(configName);
+        if (configInfo == null) {
+            log.error("Trying to stop unknown configuration: " + configName);
+        } else {
+            Map gbeans = configInfo.getGBeans();
+            if (gbeans.isEmpty()) {
+                configurations.remove(configName);
+            } else {
+                configInfo.setLoad(false);
+            }
+        }
+    }
+
+    //GBeanLifeCycle
     public void doStart() throws Exception {
         load();
         if (!readOnly) {
-            updater = new UpdateThread();
-            updater.start();
+            timer = new Timer();
         }
         log.info("Started LocalAttributeManager with data on " + configurations.size() + " configurations");
     }
 
     public void doStop() throws Exception {
-        if (updater != null) {
-            updater.shutdown();
-            if (updater.isPending()) {
-                save();
+        boolean doSave = false;
+        synchronized (this) {
+            if (timer != null) {
+                timer.cancel();
+                if (currentTask != null) {
+                    currentTask.cancel();
+                    doSave = true;
+                }
             }
-            updater = null;
+        }
+        if (doSave) {
+            save();
         }
         log.info("Stopped LocalAttributeManager with data on " + configurations.size() + " configurations");
         configurations.clear();
     }
 
     public void doFail() {
-        if (updater != null) {
-            updater.shutdown();
-            updater = null;
+        synchronized (this) {
+            if (timer != null) {
+                timer.cancel();
+                if (currentTask != null) {
+                    currentTask.cancel();
+                }
+            }
         }
         configurations.clear();
     }
@@ -354,10 +428,29 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
     }
 
 
+    private synchronized void attributeChanged() {
+        if (currentTask != null) {
+            currentTask.cancel();
+        }
+        currentTask = new TimerTask() {
+
+            public void run() {
+                try {
+                    LocalAttributeManager.this.save();
+                } catch (IOException e) {
+                    log.error("Error saving attributes", e);
+                }
+            }
+        };
+        timer.schedule(currentTask, SAVE_BUFFER_MS);
+    }
+
+
     /**
      * A thread that's notified on every attribute update.  5 seconds after
      * being notified, it will save the changes to a file.
      */
+/*
     // todo: This code is not pleasing -- it uses lots of synchronization and still doesn't guarantee a timely shutdown.
     private class UpdateThread extends Thread {
         private boolean done = false;
@@ -433,18 +526,85 @@ public class LocalAttributeManager implements ManageableAttributeStore, GBeanLif
             }
         }
     }
+*/
+
+    private static class ConfigInfo {
+        private boolean load;
+        private final Map gbeans = new HashMap();
+
+        public ConfigInfo(boolean load) {
+            this.load = load;
+        }
+
+        public boolean isLoad() {
+            return load;
+        }
+
+        public void setLoad(boolean load) {
+            this.load = load;
+        }
+
+        public GBeanAttrsInfo getGBean(String gbeanName) {
+            return (GBeanAttrsInfo) gbeans.get(gbeanName);
+        }
+
+        public void addGBean(String gbeanName, GBeanAttrsInfo gbean) {
+            gbeans.put(gbeanName, gbean);
+        }
+
+        public Map getGBeans() {
+            return gbeans;
+        }
+
+        public GBeanAttrsInfo getGBean(ObjectName gbeanName) {
+            return (GBeanAttrsInfo) gbeans.get(gbeanName);
+        }
+
+        public void addGBean(ObjectName gbeanName, GBeanAttrsInfo gbean) {
+            gbeans.put(gbeanName, gbean);
+        }
+    }
+
+    private static class GBeanAttrsInfo {
+        private boolean load;
+        private final Map attributes = new HashMap();
+
+        public GBeanAttrsInfo(boolean load) {
+            this.load = load;
+        }
+
+        public boolean isLoad() {
+            return load;
+        }
+
+        public void setLoad(boolean load) {
+            this.load = load;
+        }
+
+        public Map getAttributes() {
+            return attributes;
+        }
+
+        public String getAttribute(String attributeName) {
+            return (String) attributes.get(attributeName);
+        }
+
+        public void setAttribute(String attributeName, String attributeValue) {
+            attributes.put(attributeName, attributeValue);
+        }
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LocalAttributeManager.class, "AttributeStore");//does not use jsr-77 naming
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LocalAttributeManager.class, "AttributeStore");
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addAttribute("configFile", String.class, true);
         infoFactory.addAttribute("readOnly", boolean.class, true);
-        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addInterface(ManageableAttributeStore.class);
+        infoFactory.addInterface(PersistentConfigurationList.class);
 
-        infoFactory.setConstructor(new String[]{"ServerInfo", "configFile", "objectName"});
+        infoFactory.setConstructor(new String[]{"configFile", "readOnly", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

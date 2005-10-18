@@ -202,7 +202,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             saveIndex();
         }
 
-        log.info("Installed configuration " + configId + " in location " + configurationDir.getName());
+        log.info("Installed configuration (URL) " + configId + " in location " + configurationDir.getName());
         return configId;
     }
 
@@ -222,7 +222,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             saveIndex();
         }
 
-        log.info("Installed configuration " + configurationData.getId() + " in location " + source.getName());
+        log.info("Installed configuration (file) " + configurationData.getId() + " in location " + source.getName());
     }
 
     public void uninstall(URI configID) throws NoSuchConfigException, IOException {

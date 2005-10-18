@@ -25,8 +25,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -46,11 +46,11 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
-import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -94,6 +94,16 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public static boolean isConfigurationObjectName(ObjectName name) {
         return name.getDomain().equals("geronimo.config") && name.getKeyPropertyList().size() == 1 && name.getKeyProperty("name") != null;
+    }
+
+    public static URI getConfigurationID(ObjectName objectName) throws URISyntaxException {
+        if (isConfigurationObjectName(objectName)) {
+            String name = ObjectName.unquote(objectName.getKeyProperty("name"));
+            URI uri = new URI(name);
+            return uri;
+        } else {
+            throw new IllegalArgumentException("ObjectName " + objectName + " is not a Configuration name");
+        }
     }
 
     /**
@@ -280,8 +290,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             configurationClassLoader = new MultiParentClassLoader(id, urls, getClassLoaders(parentId), inverseClassLoading, hiddenClasses, nonOverridableClasses);
         }
 
-//        loadGBeans();
-
         log.info("Started configuration " + id);
     }
 
@@ -317,6 +325,21 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             if (kernel.isGBeanEnabled(gbeanName)) {
                 kernel.startRecursiveGBean(gbeanName);
             }
+        }
+    }
+
+    public void stopGBeans() throws GBeanNotFoundException {
+        for (Iterator iterator = objectNames.iterator(); iterator.hasNext();) {
+            ObjectName gbeanName = (ObjectName) iterator.next();
+            kernel.stopGBean(gbeanName);
+        }
+    }
+
+    public void unloadGBeans() throws GBeanNotFoundException {
+        for (Iterator iterator = objectNames.iterator(); iterator.hasNext();) {
+            ObjectName gbeanName = (ObjectName) iterator.next();
+            kernel.getDependencyManager().removeDependency(gbeanName, objectName);
+            kernel.unloadGBean(gbeanName);
         }
     }
 
@@ -391,8 +414,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public synchronized void doStop() throws Exception {
         log.info("Stopping configuration " + id);
-
-
         // shutdown the configuration and unload all beans
         shutdown();
 
@@ -406,7 +427,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 kernel.getDependencyManager().removeDependency(name, objectName);
                 try {
                     log.trace("Unregistering GBean " + name);
-                    kernel.unloadGBean(name);
+                    if (kernel.isLoaded(name)) {
+                        kernel.unloadGBean(name);
+                    }
                 } catch (Exception e) {
                     // ignore
                     log.warn("Could not unregister child " + name, e);
@@ -495,11 +518,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         try {
             Thread.currentThread().setContextClassLoader(configurationClassLoader);
             ObjectName name = loadGBean(beanData, objectNames);
-            if(start) {
+            if (start) {
                 try {
                     kernel.startRecursiveGBean(name);
                 } catch (GBeanNotFoundException e) {
-                    throw new IllegalStateException("How could we not find a GBean that we just loaded ('"+name+"')?");
+                    throw new IllegalStateException("How could we not find a GBean that we just loaded ('" + name + "')?");
                 }
             }
         } finally {
@@ -509,12 +532,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public synchronized void removeGBean(ObjectName name) throws GBeanNotFoundException {
-        if(!objectNames.contains(name)) {
+        if (!objectNames.contains(name)) {
             throw new GBeanNotFoundException(name);
         }
         kernel.getDependencyManager().removeDependency(name, this.objectName);
         try {
-            if(kernel.getGBeanState(name) == State.RUNNING_INDEX) {
+            if (kernel.getGBeanState(name) == State.RUNNING_INDEX) {
                 kernel.stopGBean(name);
             }
             kernel.unloadGBean(name);
@@ -536,22 +559,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return name;
     }
 
-/*
-    private void setManageableAttributes(GBeanData data) {
-        if(manageableStore == null) {
-            log.debug("Configuration cannot load manageable attributes; no manageable store present");
-            return;
-        }
-        List list = data.getGBeanInfo().getManageableAttributes();
-        for (int i = 0; i < list.size(); i++) {
-            GAttributeInfo info = (GAttributeInfo) list.get(i);
-            Object value = manageableStore.getValue(id.toString(), data.getName(), info);
-            if(value != null) {
-                data.setAttribute(info.getName(), value);
-            }
-        }
-    }
-*/
 
     /**
      * Load GBeans from the supplied byte array using the supplied ClassLoader
@@ -586,7 +593,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Return a byte array containing the persisted form of the supplied GBeans
      *
      * @return the persisted GBeans
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException
+     *          if there is a problem serializing the state
      */
     public synchronized GBeanData[] storeCurrentGBeans() throws InvalidConfigException {
         // get the gbean data for all gbeans
@@ -615,7 +623,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      *
      * @param gbeans the gbean data to persist
      * @return the persisted GBeans
-     * @throws org.apache.geronimo.kernel.config.InvalidConfigException if there is a problem serializing the state
+     * @throws org.apache.geronimo.kernel.config.InvalidConfigException
+     *          if there is a problem serializing the state
      */
     public static byte[] storeGBeans(GBeanData[] gbeans) throws InvalidConfigException {
         return storeGBeans(Arrays.asList(gbeans));
@@ -672,8 +681,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
         infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
         infoFactory.addOperation("saveState");
-        infoFactory.addOperation("loadGBeans", new Class[] {ManageableAttributeStore.class});
+        infoFactory.addOperation("loadGBeans", new Class[]{ManageableAttributeStore.class});
         infoFactory.addOperation("startRecursiveGBeans");
+        infoFactory.addOperation("stopGBeans");
+        infoFactory.addOperation("unloadGBeans");
 
         infoFactory.setConstructor(new String[]{
             "kernel",
