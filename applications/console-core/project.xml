@@ -69,6 +69,13 @@
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+        <!-- Keystore dependency -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -104,12 +111,6 @@
             <version>${mx4j_version}</version>
         </dependency>
 
-        <!-- Keystore dependency -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-util</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
     </dependencies>
 
     <build>

@@ -78,19 +78,18 @@
     </gbean>
 
     <!-- Keystore configuration -->
-    <!-- I think this requires a modified GERONIMO-887 to be applied first -->
-<!--    <gbean gbeanName="geronimo.security:type=KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">-->
-<!--        <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>-->
-<!--        <attribute name="keyStoreType">jks</attribute>-->
-<!--        <attribute name="keyStoreProvider">SUN</attribute>-->
-<!--        <attribute name="keyStorePassword">password</attribute>-->
-<!--        <reference name="serverInfo">-->
-<!--            <application>null</application>-->
-<!--            <moduleType>J2EEModule</moduleType>-->
-<!--            <module>org/apache/geronimo/System</module>-->
-<!--            <type>GBean</type>-->
-<!--            <name>ServerInfo</name>-->
-<!--        </reference>-->
-<!--    </gbean>-->
+    <gbean gbeanName="geronimo.security:type=KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">
+        <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>
+        <attribute name="keyStoreType">jks</attribute>
+        <attribute name="keyStoreProvider">SUN</attribute>
+        <attribute name="keyStorePassword">password</attribute>
+        <reference name="serverInfo">
+            <application>null</application>
+            <moduleType>J2EEModule</moduleType>
+            <module>org/apache/geronimo/System</module>
+            <type>GBean</type>
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
 
 </application>

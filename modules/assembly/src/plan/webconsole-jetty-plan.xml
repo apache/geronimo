@@ -62,25 +62,24 @@
             <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
         </reference>
         <reference name="LoginModule">
-<!--            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>-->
+            <!--            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>-->
             <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Security,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
         </reference>
     </gbean>
 
     <!-- Keystore configuration -->
-    <!-- I think this requires a modified GERONIMO-887 to be applied first -->
-<!--    <gbean gbeanName="geronimo.security:type=KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">-->
-<!--        <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>-->
-<!--        <attribute name="keyStoreType">jks</attribute>-->
-<!--        <attribute name="keyStoreProvider">SUN</attribute>-->
-<!--        <attribute name="keyStorePassword">password</attribute>-->
-<!--        <reference name="serverInfo">-->
-<!--            <application>null</application>-->
-<!--            <moduleType>J2EEModule</moduleType>-->
-<!--            <module>org/apache/geronimo/System</module>-->
-<!--            <type>GBean</type>-->
-<!--            <name>ServerInfo</name>-->
-<!--        </reference>-->
-<!--    </gbean>-->
+    <gbean gbeanName="geronimo.security:type=KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">
+        <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>
+        <attribute name="keyStoreType">jks</attribute>
+        <attribute name="keyStoreProvider">SUN</attribute>
+        <attribute name="keyStorePassword">password</attribute>
+        <reference name="serverInfo">
+            <application>null</application>
+            <moduleType>J2EEModule</moduleType>
+            <module>org/apache/geronimo/System</module>
+            <type>GBean</type>
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
 
 </application>
