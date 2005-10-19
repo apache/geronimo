@@ -298,7 +298,6 @@
         <fileScanner var="configs">
             <fileset dir="${basedir}/src/var/config">
                 <include name="config*.xml"/>
-                <include name="config*.list"/>
             </fileset>
         </fileScanner>
 
@@ -312,7 +311,6 @@
         </j:forEach>
 
         <ant:copy tofile="${geronimo.assembly.dir}/var/config/config.both.xml" file="${geronimo.assembly.dir}/var/config/config.xml"/>
-        <ant:copy tofile="${geronimo.assembly.dir}/var/config/config.both.list" file="${geronimo.assembly.dir}/var/config/config.list"/>
 
         <!-- copy the final plans -->
         <ant:mkdir dir="${geronimo.assembly.dir}/doc"/>
@@ -468,16 +466,6 @@
         <attainGoal name="online.deploy"/>
         <attainGoal name="init-database"/>
 
-        <!-- Prepare the Installer directory -->
-<!--        <ant:copy todir="${basedir}/target/installer">-->
-<!--            <ant:fileset dir="${geronimo.assembly.dir}"/>-->
-<!--        </ant:copy>-->
-<!--        <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>-->
-<!--        <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>-->
-<!--        <ant:echo file="${basedir}/target/installer/var/config/config.list" message="org/apache/geronimo/System"/>-->
-
-<!--        <ant:move file="${basedir}/target/installer/config.xml"-->
-<!--            tofile="${basedir}/target/installer/var/config/config.xml"/>-->
     </goal>
 
     <goal name="assembly:izpack-prepare">
@@ -517,10 +505,6 @@
         <!-- Prepare the Installer directory -->
         <ant:echo file="${basedir}/target/installer/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>
         <ant:echo file="${basedir}/target/installer/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>
-<!--        <ant:echo file="${basedir}/target/installer/var/config/config.list" message="org/apache/geronimo/System"/>-->
-        <ant:copy file="${basedir}/target/installer/var/config/config.izpack.list" tofile="${basedir}/target/installer/var/config/config.list" overwrite="true"/>
-        <!--        <ant:move file="${basedir}/target/installer/config.xml"-->
-        <!--            tofile="${basedir}/target/installer/var/config/config.xml"/>-->
     </goal>
 
     <goal name="online.deploy">
@@ -720,8 +704,8 @@
 
             <!-- re-copy in persistent config list -->
             <echo message="refreshing persistent configuration list"/>
-            <ant:copy tofile="${geronimo.assembly.dir}/var/config/config.list"
-                file="${geronimo.assembly.dir}/var/config/config.both.list"
+            <ant:copy tofile="${geronimo.assembly.dir}/var/config/config.xml"
+                file="${geronimo.assembly.dir}/var/config/config.both.xml"
                 overwrite="true"/>
         </j:if>
 
