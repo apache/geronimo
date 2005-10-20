@@ -21,7 +21,9 @@
 <project default="default"
     xmlns:j="jelly:core"
     xmlns:define="jelly:define"
-    xmlns:velocity="jelly:velocity">
+    xmlns:velocity="jelly:velocity"
+    xmlns:xmlbeans="xmlbeans2:maven"
+    >
 
     <!-- ==================== -->
     <!-- Default Global Goals -->
@@ -43,6 +45,17 @@
     <preGoal name="test:test">
         <mkdir dir="${maven.build.dir}/var"/>
         <mkdir dir="${maven.build.dir}/var/ldap"/>
+        <copy todir="${maven.build.dir}/var" file="${basedir}/src/test-resources/directory.xml" />
+    </preGoal>
+
+    <preGoal name="java:compile">
+        <xmlbeans:schema2java
+            maven.xmlbeans2.sourceschema="schema/directory.xsd"/>
+        <mkdir dir="${basedir}/target/xmlbeans-classes"/>
+        <mkdir dir="${basedir}/target/xmlbeans-classes/schemaorg_apache_xmlbeans"/>
+        <copy todir="${basedir}/target/xmlbeans-classes/schemaorg_apache_xmlbeans">
+            <fileset dir="${basedir}/target/classes/schemaorg_apache_xmlbeans"/>
+        </copy>
     </preGoal>
 
 </project>

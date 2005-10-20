@@ -17,10 +17,17 @@
 
 package org.apache.geronimo.directory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.Context;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InitialDirContext;
 
 import org.apache.commons.logging.Log;
@@ -29,6 +36,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.jndi.CoreContextFactory;
 
@@ -51,6 +59,7 @@ public class DirectoryGBean implements GBeanLifecycle {
     private int port = 389;
     private InetAddress host = null;
     private boolean enableNetworking;
+    private final String configFile;
     
     /**
      * Geronimo class loader
@@ -58,7 +67,7 @@ public class DirectoryGBean implements GBeanLifecycle {
     private ClassLoader classLoader;
 
     public DirectoryGBean(ClassLoader classLoader, String workingDir, 
-            boolean anonymousAccess, 
+            boolean anonymousAccess, String configFile,
             ServerInfo serverInfo) {
         
         if (serverInfo == null)
@@ -71,6 +80,7 @@ public class DirectoryGBean implements GBeanLifecycle {
         
         this.classLoader = classLoader;
         this.anonymousAccess = anonymousAccess;
+        this.configFile = configFile;
         this.serverInfo = serverInfo;
         setHost("0.0.0.0");
     }
@@ -184,15 +194,21 @@ public class DirectoryGBean implements GBeanLifecycle {
         startup.setEnableNetworking(enableNetworking);
         startup.setHost(host);
         
+        if (configFile != null){
+            File f = serverInfo.resolve(configFile);
+            DirectoryConfigurator dc = new DirectoryConfigurator();
+            dc.configure(classLoader, startup, f);
+        }
+        
         Properties env = new Properties();
         env.putAll(startup.toJndiEnvironment());
         env.put( Context.INITIAL_CONTEXT_FACTORY, ServerContextFactory.class.getName());
         setEnvironment(env);
         
-        //Load the proper class for th Context Loader
+        //Load the proper class for the Context Loader
         ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(classLoader);
-        
+
         //Fire it up
         new InitialDirContext( env );
         
@@ -239,9 +255,10 @@ public class DirectoryGBean implements GBeanLifecycle {
         
         infoFactory.addAttribute("workingDir", String.class, true);
         infoFactory.addAttribute("anonymousAccess", boolean.class, true);
+        infoFactory.addAttribute("configFile", String.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
 
-        infoFactory.setConstructor(new String[] { "classLoader", "workingDir", "anonymousAccess", "ServerInfo" });
+        infoFactory.setConstructor(new String[] { "classLoader", "workingDir", "anonymousAccess", "configFile", "ServerInfo" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

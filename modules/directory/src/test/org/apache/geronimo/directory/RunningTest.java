@@ -116,6 +116,7 @@ public class RunningTest extends TestCase {
         directoryGBean.setAttribute("anonymousAccess", new Boolean(true));
         directoryGBean.setAttribute("enableNetworking", new Boolean(true));
         directoryGBean.setAttribute("port", new Integer(9389));
+        directoryGBean.setAttribute("configFile", "var/directory.xml");
 
         start(directoryGBean);
 
