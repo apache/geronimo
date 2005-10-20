@@ -97,6 +97,12 @@ by the server.
     <dependency>
         <uri>jdbm/jars/jdbm-${jdbm_version}.jar</uri>
     </dependency>
+    <dependency>
+        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
+    </dependency>
 
     <gbean gbeanName="geronimo.server:name=DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
         <attribute name="providerURL">ou=system</attribute>
@@ -107,6 +113,7 @@ by the server.
         <attribute name="enableNetworking">true</attribute>
         <attribute name="host">0.0.0.0</attribute>
         <attribute name="port">${PlanLdapPort}</attribute>
+        <attribute name="configFile">var/ldap/conf/directory.xml</attribute>
         <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
     </gbean>
 

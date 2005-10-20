@@ -186,6 +186,9 @@
 
         <!-- For LDAP -->
         <ant:mkdir dir="${geronimo.assembly.dir}/var/ldap"/>
+        <ant:mkdir dir="${geronimo.assembly.dir}/var/ldap/conf"/>
+        <ant:copy todir="${geronimo.assembly.dir}/var/ldap/conf"
+            file="${project.root}/modules/directory/src/var/directory.xml"/>
 
         <!-- Add tomcat files -->
         <ant:copy todir="${geronimo.assembly.dir}/var/catalina/conf"
