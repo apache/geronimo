@@ -88,11 +88,12 @@ public class TomcatManagerImpl implements WebManager {
         connector.setAttribute("host", host);
         connector.setAttribute("port", new Integer(port));
         connector.setAttribute("maxThreads", new Integer(50));
-        connector.setAttribute("acceptCount", new Integer(100));
+        connector.setAttribute("acceptQueueSize", new Integer(100));
         connector.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, container);
         ObjectName config = Util.getConfiguration(kernel, container);
         try {
             kernel.invoke(config, "addGBean", new Object[]{connector, Boolean.FALSE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
+            kernel.invoke(config, "saveState");
         } catch (Exception e) {
             log.error("Unable to add GBean ", e);
             return null;
@@ -148,6 +149,7 @@ public class TomcatManagerImpl implements WebManager {
             }
             ObjectName config = Util.getConfiguration(kernel, name);
             kernel.invoke(config, "removeGBean", new Object[]{name}, new String[]{ObjectName.class.getName()});
+            kernel.invoke(config, "saveState");
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '"+objectName+"'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {
