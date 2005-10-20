@@ -1,0 +1,60 @@
+<connector
+xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
+configId="TradeDataSource"
+parentId="org/apache/geronimo/Server">
+
+<dependency>
+  <uri>db2/jars/db2jcc.jar</uri>
+</dependency>
+<dependency>
+  <uri>db2/jars/db2jcc_license_cu.jar</uri>
+</dependency>
+
+
+<resourceadapter>
+  <outbound-resourceadapter>
+    <connection-definition>
+    <connectionfactory-interface>
+      javax.sql.DataSource
+    </connectionfactory-interface>
+  <connectiondefinition-instance>
+    <name>jdbc/TradeDataSource</name>
+    <config-property-setting name="UserName">
+       db2inst1
+    </config-property-setting>
+    <config-property-setting name="Password">
+       yourCoolPasswordHere
+     </config-property-setting>
+     <config-property-setting name="Driver">
+          com.ibm.db2.jcc.DB2Driver 
+   </config-property-setting>
+    <config-property-setting name="ConnectionURL">
+           jdbc:db2://localhost:50000/tradedb
+     </config-property-setting>
+      <config-property-setting name="CommitBeforeAutocommit">
+              true
+     </config-property-setting>
+    <config-property-setting name="ExceptionSorterClass">
+                  org.tranql.connector.NoExceptionsAreFatalSorter
+   </config-property-setting>
+   <connectionmanager>
+  <local-transaction/>
+  <single-pool>
+     <max-size>10</max-size>
+     <min-size>0</min-size>
+   <blocking-timeout-milliseconds>
+    5000
+   </blocking-timeout-milliseconds>
+    <idle-timeout-minutes>30</idle-timeout-minutes>
+   <match-one/>
+    </single-pool>
+   </connectionmanager>
+   <global-jndi-name>
+   </global-jndi-name>
+</connectiondefinition-instance>
+</connection-definition>
+</outbound-resourceadapter>
+</resourceadapter>
+</connector>
+
+	
