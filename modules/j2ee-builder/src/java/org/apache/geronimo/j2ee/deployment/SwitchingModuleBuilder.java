@@ -18,30 +18,25 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.jar.JarFile;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.Iterator;
-import java.net.URL;
 import java.net.URI;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.jar.JarFile;
 
-import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.schema.SchemaConversionUtils;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -92,7 +87,11 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
             namespace = getNamespaceFromPlan(plan);
         }
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        return builder.createModule(plan, moduleFile);
+        if (builder != null) {
+            return builder.createModule(plan, moduleFile);
+        } else {
+            return null;
+        }
     }
 
     private String getNamespaceFromPlan(Object plan) throws DeploymentException {
@@ -125,13 +124,10 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         throw new DeploymentException("Cannot find namespace in xmlObject: " + xmlObject.xmlText());
     }
 
-    private ModuleBuilder getBuilderFromNamespace(String namespace) throws DeploymentException {
+    private ModuleBuilder getBuilderFromNamespace(String namespace) {
         ModuleBuilder builder = (ModuleBuilder) namespaceToBuilderMap.get(namespace);
         if (builder == null) {
             builder = (ModuleBuilder) namespaceToBuilderMap.get(defaultNamespace);
-        }
-        if (builder == null) {
-            throw new DeploymentException("No builder found for namespace: " + namespace + " or default namespace: " + defaultNamespace);
         }
         return builder;
     }
