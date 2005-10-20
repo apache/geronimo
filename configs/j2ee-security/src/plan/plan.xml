@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004-2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 263024 $ $Date: 2005-08-27 19:24:05 -0700 (Sat, 27 Aug 2005) $ -->
+
+<!--
+Configuration for the security of a Geronimo server.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
+               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
+    >
+
+
+    <!--runtime dependencies-->
+    <dependency>
+        <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
+    </dependency>
+
+
+    <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
+        <reference name="ServerInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
+        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
+    </gbean>
+
+
+    <!-- Register GeronimoLoginConfiguration as the LoginConfiguration handler -->
+    <gbean name="LoginConfiguration" class="org.apache.geronimo.security.jaas.GeronimoLoginConfiguration">
+        <references name="Configurations">
+            <pattern><gbean-name>geronimo.server:j2eeType=SecurityRealm,*</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationEntry,*</gbean-name></pattern>
+        </references>
+    </gbean>
+
+    <gbean name="JaasLoginService" class="org.apache.geronimo.security.jaas.server.JaasLoginService">
+        <reference name="Realms"><application>*</application><module>*</module><name>*</name></reference>
+        <!--        <attribute name="reclaimPeriod">100000</attribute>-->
+        <attribute name="algorithm">HmacSHA1</attribute>
+        <attribute name="password">secret</attribute>
+    </gbean>
+
+    <gbean gbeanName="geronimo.remoting:target=JaasLoginServiceRemotingServer" class="org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer">
+        <attribute name="protocol">tcp</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanRemoteLoginPort}</attribute>
+        <reference name="LoginService"><name>JaasLoginService</name></reference>
+    </gbean>
+
+    <!-- JMX Remoting -->
+    <gbean name="JMXService" class="org.apache.geronimo.jmxremoting.JMXConnector">
+        <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
+        <attribute name="applicationConfigName">JMX</attribute>
+    </gbean>
+
+
+    <!-- Default security realm using properties files -->
+    <gbean name="properties-login"
+        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
+            usersURI=var/security/users.properties
+            groupsURI=var/security/groups.properties
+        </attribute>
+        <attribute name="loginDomainName">geronimo-properties-realm</attribute>
+    </gbean>
+
+    <gbean name="geronimo-properties-realm"
+        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">geronimo-properties-realm</attribute>
+        <reference name="LoginModuleConfiguration">
+            <name>properties-login</name>
+        </reference>
+        <reference name="ServerInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
+        <reference name="LoginService"><name>JaasLoginService</name></reference>
+    </gbean>
+    <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+         <attribute name="controlFlag">REQUIRED</attribute>
+         <reference name="LoginModule">
+             <name>properties-login</name>
+         </reference>
+     </gbean>
+
+    <gbean name="JMX" class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
+        <attribute name="applicationConfigName">JMX</attribute>
+        <attribute name="realmName">geronimo-properties-realm</attribute>
+        <reference name="LoginService"><name>JaasLoginService</name></reference>
+    </gbean>
+
+</configuration>

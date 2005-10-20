@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004-2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 263024 $ $Date: 2005-08-27 19:24:05 -0700 (Sat, 27 Aug 2005) $ -->
+
+<!--
+Configuration for Tomcat server.
+-->
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
+               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
+    >
+
+    <dependency>
+        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-optional-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-http-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/servlets-default-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/servlets-invoker-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-beanutils/jars/commons-beanutils-${commons_beanutils_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-digester/jars/commons-digester-${commons_digester_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-modeler/jars/commons-modeler-${commons_modeler_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>mx4j/jars/mx4j-${mx4j_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-compiler-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-compiler-jdt-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/jasper-runtime-${jasper_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/tomcat-ajp-${tomcat_ajp_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
+    </dependency>
+
+    <!-- david jencks is not convinced that this gbean should be in this plan and thinks it might
+    belong in the console plan -->
+    <gbean name="TomcatWebManager" class="org.apache.geronimo.tomcat.TomcatManagerImpl">
+    </gbean>
+
+    <!-- The following is the equivalent of the server.xml file, but done with GBeans -->
+
+    <!-- The TomcatContainer/Service -->
+    <gbean name="TomcatWebContainer" class="org.apache.geronimo.tomcat.TomcatContainer">
+        <attribute name="catalinaHome">var/catalina</attribute>
+        <reference name="EngineGBean">
+            <name>TomcatEngine</name>
+        </reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <gbean name="TomcatWebConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
+        <attribute name="name">HTTP</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanHTTPPort2}</attribute>
+        <attribute name="maxHttpHeaderSizeBytes">8192</attribute>
+        <attribute name="maxThreads">150</attribute>
+        <attribute name="minSpareThreads">25</attribute>
+        <attribute name="maxSpareThreads">75</attribute>
+        <attribute name="hostLookupEnabled">false</attribute>
+        <attribute name="redirectPort">${PlanHTTPSPort2}</attribute>
+        <attribute name="acceptQueueSize">100</attribute>
+        <attribute name="connectionTimeoutMillis">20000</attribute>
+        <attribute name="uploadTimeoutEnabled">false</attribute>
+        <reference name="TomcatContainer">
+            <name>TomcatWebContainer</name>
+        </reference>
+    </gbean>
+
+    <gbean name="TomcatAJPConnector" class="org.apache.geronimo.tomcat.ConnectorGBean">
+        <attribute name="protocol">AJP</attribute>
+        <attribute name="name">AJP</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanAJPPort2}</attribute>
+        <attribute name="hostLookupEnabled">false</attribute>
+        <attribute name="redirectPort">${PlanHTTPSPort2}</attribute>
+        <reference name="TomcatContainer">
+            <name>TomcatWebContainer</name>
+        </reference>
+    </gbean>
+
+    <!-- SSL support
+    NOTE: If keystoreFile is a relative path, it is relative to GERONIMO_HOME
+    -->
+    <gbean name="TomcatWebSSLConnector" class="org.apache.geronimo.tomcat.HttpsConnectorGBean">
+        <attribute name="name">HTTPS</attribute>
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanHTTPSPort2}</attribute>
+        <attribute name="maxHttpHeaderSizeBytes">8192</attribute>
+        <attribute name="maxThreads">150</attribute>
+        <attribute name="minSpareThreads">25</attribute>
+        <attribute name="maxSpareThreads">75</attribute>
+        <attribute name="hostLookupEnabled">false</attribute>
+        <attribute name="acceptQueueSize">100</attribute>
+        <attribute name="uploadTimeoutEnabled">false</attribute>
+        <attribute name="clientAuthRequired">false</attribute>
+        <attribute name="algorithm">Default</attribute>
+        <attribute name="secureProtocol">TLS</attribute>
+        <attribute name="keystoreFileName">var/security/keystore</attribute>
+        <attribute name="keystorePassword">secret</attribute>
+        <reference name="TomcatContainer">
+            <name>TomcatWebContainer</name>
+        </reference>
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
+    </gbean>
+
+    <!-- Engine -->
+    <gbean name="TomcatEngine" class="org.apache.geronimo.tomcat.EngineGBean">
+        <attribute name="className">org.apache.geronimo.tomcat.TomcatEngine</attribute>
+        <attribute name="initParams">
+            name=Geronimo
+            defaultHost=${PlanServerHostname}
+        </attribute>
+        <references name="Hosts">
+            <pattern>
+                <gbean-name>geronimo.server:j2eeType=Host,*</gbean-name>
+            </pattern>
+        </references>
+        <reference name="RealmGBean">
+            <name>TomcatJAASRealm</name>
+        </reference>
+        <reference name="TomcatValveChain">
+            <name>FirstValve</name>
+        </reference>
+    </gbean>
+
+    <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
+        <references name="LogGBeans">
+            <pattern>
+                <!-- This is lame and should be replaced by an interface reference -->
+                <gbean-name>geronimo.server:name=FirstValve,*</gbean-name>
+            </pattern>
+        </references>
+    </gbean>
+
+    <!-- Valve -->
+    <gbean name="FirstValve" class="org.apache.geronimo.tomcat.ValveGBean">
+        <attribute name="className">org.apache.catalina.valves.AccessLogValve</attribute>
+        <attribute name="initParams">
+            prefix=${PlanServerHostname}_access_log.
+            suffix=.txt
+            pattern=common
+        </attribute>
+        <!-- Uncomment this section to add second valve for a chain.  This example consists of the Tomcat
+              AccessLogValve and SingleSignOn. Notice the dependency that chains the FirstValve with the
+              SecondValve.  The valves will be added in the order that they are chained.
+            <reference name="NextValve"><moduleType>J2EEModule</moduleType><name>SecondValve</name></reference>
+        -->
+    </gbean>
+    <!-- Uncomment this section to add this valve  to the chain.  This example consists of the Tomcat
+          SingleSignOn.
+    <gbean name="SecondValve" class="org.apache.geronimo.tomcat.ValveGBean">
+        <attribute name="className">org.apache.catalina.authenticator.SingleSignOn</attribute>
+    </gbean>
+    -->
+
+    <!-- Realm -->
+    <!-- This is an example TomcatJAASRealm -->
+    <gbean name="TomcatJAASRealm" class="org.apache.geronimo.tomcat.RealmGBean">
+        <attribute name="className">org.apache.geronimo.tomcat.realm.TomcatJAASRealm</attribute>
+        <attribute name="initParams">
+            userClassNames=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal
+            roleClassNames=org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal
+        </attribute>
+    </gbean>
+
+    <!-- Host -->
+    <gbean name="TomcatHost" class="org.apache.geronimo.tomcat.HostGBean">
+        <attribute name="className">org.apache.catalina.core.StandardHost</attribute>
+        <attribute name="initParams">
+            name=${PlanServerHostname}
+            appBase=
+            workDir=work
+        </attribute>
+        <!-- You may attach a Realm to a Host as well.  Only attach to the Engine *or* the Host.
+             Attempting to add the same Realm GBeans to the Engine *and* Host at the same time
+             will result in an error.
+
+             Uncomment this to add the Realm to the Host
+        <reference name="RealmGBean">
+            <name>TomcatJAASRealm</name>
+        </reference>
+        -->
+        <!-- You may attach a Valve chain to a Host as well.  Only attach to the Engine *or* the Host.
+             Attempting to add the same valve GBeans to the Engine *and* Host at the same time
+             will result in an error.
+
+             Uncomment this to add the valve chain to the Host
+        <reference name="TomcatValveChain">
+            <name>FirstValve</name>
+        </reference>
+        -->
+    </gbean>
+
+    <!-- TOMCAT CONFIGURATION ENDS HERE -->
+
+</configuration>

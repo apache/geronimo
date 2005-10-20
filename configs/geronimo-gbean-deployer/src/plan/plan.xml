@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment"
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
                domain="geronimo.maven"
                server="geronimo"
@@ -75,9 +75,11 @@
             <gbean-name>geronimo.maven:name=Repository</gbean-name>
         </reference>
         <reference name="XmlAttributeBuilders">
+            <module>*</module>
             <name>*</name>
         </reference>
         <reference name="XmlReferenceBuilders">
+            <module>*</module>
             <name>*</name>
         </reference>
     </gbean>

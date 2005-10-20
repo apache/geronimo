@@ -558,7 +558,7 @@
             </properties>
         </dependency>
 
-        <dependency>
+<!--        <dependency>
             <groupId>xfire</groupId>
             <artifactId>xfire-java</artifactId>
             <version>${xfire_version}</version>
@@ -566,7 +566,7 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-
+-->
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
@@ -576,7 +576,7 @@
             </properties>
         </dependency>
 
-        <dependency>
+<!--        <dependency>
             <groupId>stax</groupId>
             <artifactId>stax</artifactId>
             <version>${stax_version}</version>
@@ -584,7 +584,7 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-
+-->
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
@@ -595,8 +595,157 @@
         </dependency>
 
         <!-- end corba support-->
+        <!-- directory -->
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>apacheds-core</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
 
-        <!-- spring support-->
+        <dependency>
+            <groupId>directory</groupId>
+            <artifactId>apacheds-shared</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-asn1</groupId>
+            <artifactId>asn1-codec</artifactId>
+            <version>${asn1_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-shared</groupId>
+            <artifactId>apache-ldapber-provider</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-asn1</groupId>
+            <artifactId>asn1-ber</artifactId>
+            <version>${asn1_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-asn1</groupId>
+            <artifactId>asn1-der</artifactId>
+            <version>${asn1_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-shared</groupId>
+            <artifactId>ldap-common</artifactId>
+            <version>${apacheds_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-shared</groupId>
+            <artifactId>kerberos-common</artifactId>
+            <version>${kerberos_common_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-network</groupId>
+            <artifactId>mina</artifactId>
+            <version>${mina_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-protocols</groupId>
+            <artifactId>kerberos-protocol</artifactId>
+            <version>${kerberos_protocols_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>directory-protocols</groupId>
+            <artifactId>ldap-protocol</artifactId>
+            <version>${ldap_protocols_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>jdbm</groupId>
+            <artifactId>jdbm</artifactId>
+            <version>${jdbm_version}</version>
+            <url>http://jdbm.sourceforge.net</url>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons_lang_version}</version>
+            <url>http://jakarta.apache.org/commons/lang/api</url>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons_io_version}</version>
+            <url>http://jakarta.apache.org/commons/io</url>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+ 
+        <!-- unknown purpose -->
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>${jdom_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+         <!-- spring support-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-spring</artifactId>
@@ -847,6 +996,14 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-directory</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -999,6 +1156,22 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-web-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -1037,6 +1210,60 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>j2ee-security</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>jetty</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>directory</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>system-database</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>activemq</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+<!--        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-welcome</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
@@ -1053,7 +1280,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-assembly-plugin</artifactId>

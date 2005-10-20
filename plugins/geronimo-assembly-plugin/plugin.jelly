@@ -23,6 +23,8 @@
     xmlns:artifact="artifact"
     xmlns:ant="jelly:ant"
     xmlns:define="jelly:define"
+    xmlns:m="jelly:maven"
+    xmlns:velocity="jelly:velocity"
     xmlns:assemble="geronimo:assembly"
     >
 
@@ -35,6 +37,8 @@
         <ant:copy todir="${geronimo.assembly.dest}">
             <ant:fileset dir="${geronimo.assembly.src}"/>
         </ant:copy>
+        <ant:mkdir dir="${geronimo.assembly.dest}/var/config"/>
+        <velocity:merge basedir="${geronimo.assembly.src}/var/config" template="config.xml" name="${geronimo.assembly.dest}/var/config/config.xml"/>
     </goal>
 
     <goal name="geronimo:assemble-lib">
@@ -98,9 +102,80 @@
         <ant:jar jarfile="${maven.build.dir}/${maven.final.name}.jar" basedir="${geronimo.assembly.dest}"/>
     </goal>
 
-    <goal name="geronimo:install-assembly" prereqs="geronimo:jar-assembly" description="Install an assembled Geronimo installation into the local repository">
-        <artifact:install artifact="${maven.build.dir}/${maven.final.name}.jar" project="${pom}"/>
+    <goal name="geronimo:package-assembly" prereqs="geronimo:assemble" description="Build the binary distribution.">
+        <!-- Create a tar.gz file -->
+        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
+            <ant:tar longfile="gnu" compression="gzip" tarfile="${maven.build.dir}/${maven.final.name}.tar.gz">
+                <ant:tarfileset dir="${geronimo.assembly.dest}/..">
+                    <ant:include name="${geronimo.assembly.name}/**"/>
+                    <ant:exclude name="${geronimo.assembly.name}/var/log/*.log"/>
+                </ant:tarfileset>
+            </ant:tar>
+            <checksum file="${maven.build.dir}/${maven.final.name}.tar.gz" algorithm="MD5" fileext=".md5"/>
+            <checksum file="${maven.build.dir}/${maven.final.name}.tar.gz" algorithm="SHA" fileext=".sha"/>
+        </j:if>
+
+        <!-- Create a zip file -->
+        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">
+            <ant:zip zipfile="${maven.build.dir}/${maven.final.name}.zip">
+                <ant:zipfileset dir="${geronimo.assembly.dest}/..">
+                    <ant:include name="${geronimo.assembly.name}/**"/>
+                    <ant:exclude name="${geronimo.assembly.name}/var/log/*.log"/>
+                </ant:zipfileset>
+            </ant:zip>
+            <checksum file="${maven.build.dir}/${maven.final.name}.zip" algorithm="MD5" fileext=".md5"/>
+            <checksum file="${maven.build.dir}/${maven.final.name}.zip" algorithm="SHA" fileext=".sha"/>
+        </j:if>
     </goal>
+
+    <!-- Maven artifict tags are broken so we must copy by hand -->
+    <goal name="geronimo:install-assembly" description="Deploy a binary distribution" prereqs="geronimo:package-assembly">
+        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
+            <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
+            <ant:copy file="${maven.build.dir}/${maven.final.name}.tar.gz"
+                todir="${maven.repo.local}/${pom.groupId}/distributions"/>
+<!--            <artifact:install-->
+<!--                artifact="${maven.build.dir}/${maven.final.name}.tar.gz"-->
+<!--                type="distribution-targz"-->
+<!--                project="${pom}"-->
+        </j:if>
+
+        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">
+            <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
+            <ant:copy file="${maven.build.dir}/${maven.final.name}.zip"
+                todir="${maven.repo.local}/${pom.groupId}/distributions"/>
+<!--            <artifact:install-->
+<!--                artifact="${maven.build.dir}/${maven.final.name}.zip"-->
+<!--                type="distribution-zip"-->
+<!--                project="${pom}"-->
+        </j:if>
+    </goal>
+
+    <!-- ================================================================== -->
+    <!-- D E P L O Y   D I S T R I B U T I O N                              -->
+    <!-- ================================================================== -->
+
+<!--    <goal name="geronimo:deploy-assembly" description="Deploy a binary distribution" prereqs="geronimo:package-assembly">-->
+<!--        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">-->
+<!--            <artifact:deploy-->
+<!--                artifact="${maven.build.dir}/${maven.final.name}.tar.gz"-->
+<!--                type="distribution-targz"-->
+<!--                project="${pom}"-->
+<!--                typeHandler="${distTypeHandler}"/>-->
+<!--        </j:if>-->
+<!---->
+<!--        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">-->
+<!--            <artifact:deploy-->
+<!--                artifact="${maven.build.dir}/${maven.final.name}.zip"-->
+<!--                type="distribution-zip"-->
+<!--                project="${pom}"-->
+<!--                typeHandler="${distTypeHandler}"/>-->
+<!--        </j:if>-->
+<!--    </goal>-->
+
+<!--    <goal name="geronimo:install-assembly" prereqs="geronimo:jar-assembly" description="Install an assembled Geronimo installation into the local repository">-->
+<!--        <artifact:install artifact="${maven.build.dir}/${maven.final.name}.jar" project="${pom}"/>-->
+<!--    </goal>-->
 
     <!--
         <goal name="geronimo:deploy-assembly" prereqs="geronimo:assemble" description="Deploy an assembled Geronimo installation into the remote repository">
