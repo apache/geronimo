@@ -46,7 +46,8 @@ public class ClientScenario extends Thread {
 	private boolean stop = false;
 
 	//Properties pertaining to the entire scenario
-	private static String servicePort = "http://localhost:9080/trade/services/TradeWSServices?wsdl";
+    // remove ?wsdl
+    private static String servicePort = "http://localhost:8080/daytrader/services/TradeWSServices";
 	private static long numThreads = 0; // # threads in scenario
 	private static long reqPerThread; // # requests for each thread to process
 	private static long startTime = 0; // Time (millis) when the scen. started

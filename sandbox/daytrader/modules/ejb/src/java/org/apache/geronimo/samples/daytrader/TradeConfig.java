@@ -83,7 +83,7 @@ public class TradeConfig {
 
 	/*Trade SOAP specific parameters */
 	private static String SoapURL =
-		"http://localhost/trade/services/TradeWSServices?wsdl";
+		"http://localhost:8080/daytrader/services/TradeWSServices";
 
 	/*Trade XA Datasource specific parameters */
 	public static boolean JDBCDriverNeedsGlobalTransation = false;

@@ -1268,7 +1268,7 @@
 
       <wsdl:port binding="impl:TradeWSServicesSoapBinding" name="TradeWSServices">
 
-         <wsdlsoap:address location="http://localhost:9080/trade/services/TradeWSServices"/>
+         <wsdlsoap:address location="http://localhost:8080/daytrader/services/TradeWSServices"/>
 
       </wsdl:port>
 
