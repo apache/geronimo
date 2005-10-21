@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,6 +37,7 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
@@ -416,7 +418,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                     throw new DeploymentException("Could not locate external rar in repository", e);
                                 }
                                 try {
-                                    connectorFile = new JarFile(pathURL.getFile());
+                                    connectorFile = new JarFile(URLDecoder.decode(pathURL.getFile(), "UTF-8"));
                                 } catch (IOException e) {
                                     throw new DeploymentException("Could not access rar contents", e);
                                 }

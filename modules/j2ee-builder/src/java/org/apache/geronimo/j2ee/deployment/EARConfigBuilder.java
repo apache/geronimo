@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -616,7 +617,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         throw new DeploymentException("Could not locate " + moduleTypeName + " in repository", e);
                     }
                     try {
-                        moduleFile = new JarFile(pathURL.getFile());
+                        moduleFile = new JarFile(URLDecoder.decode(pathURL.getFile(), "UTF-8"));
                     } catch (IOException e) {
                         throw new DeploymentException("Could not access contents of " + moduleTypeName, e);
                     }
