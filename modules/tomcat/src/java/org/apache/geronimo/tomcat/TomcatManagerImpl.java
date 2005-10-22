@@ -90,6 +90,7 @@ public class TomcatManagerImpl implements WebManager {
         connector.setAttribute("maxThreads", new Integer(50));
         connector.setAttribute("acceptQueueSize", new Integer(100));
         connector.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, container);
+        connector.setAttribute("name", uniqueName);
         ObjectName config = Util.getConfiguration(kernel, container);
         try {
             kernel.invoke(config, "addGBean", new Object[]{connector, Boolean.FALSE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
