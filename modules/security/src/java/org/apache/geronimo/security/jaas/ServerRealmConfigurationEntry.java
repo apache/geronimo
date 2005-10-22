@@ -85,7 +85,7 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
         options.put("realm", realmName);
         options.put("kernel", kernel.getKernelName());
 
-        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, applicationConfigName, wrapPrincipals);
+        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, applicationConfigName, wrapPrincipals, JaasLoginCoordinator.class.getClassLoader());
     }
 
     public static final GBeanInfo GBEAN_INFO;

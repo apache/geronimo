@@ -69,10 +69,11 @@ public class LoginUtils {
      */
     public static JaasLoginModuleConfiguration getSerializableCopy(JaasLoginModuleConfiguration config) {
         return new JaasLoginModuleConfiguration(config.getLoginModuleClassName(),
-                                                config.getFlag(),
-                                                LoginUtils.getSerializableCopy(config.getOptions()),
-                                                config.isServerSide(),
-                                                config.getLoginDomainName(),
-                                                config.isWrapPrincipals());
+                config.getFlag(),
+                LoginUtils.getSerializableCopy(config.getOptions()),
+                config.isServerSide(),
+                config.getLoginDomainName(),
+                config.isWrapPrincipals(),
+                null);
     }
 }

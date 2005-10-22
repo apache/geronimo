@@ -36,7 +36,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 public class NoLoginModuleReuseTest extends TestCase {
 
     public void testNoLoginModuleReuse() throws Exception {
-        JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1", true);
+        JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1", true, MockLoginModule.class.getClassLoader());
         doSecurityContextLogin(m1);
         doSecurityContextLogin(m1);
     }

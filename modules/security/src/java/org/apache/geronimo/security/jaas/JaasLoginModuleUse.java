@@ -94,7 +94,7 @@ public class JaasLoginModuleUse {
                 domainNames.add(loginModule.getLoginDomainName());
             }
         }
-        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(loginModule.getLoginModuleClass(), controlFlag, options, loginModule.isServerSide(), loginModule.getLoginDomainName(), loginModule.isWrapPrincipals());
+        JaasLoginModuleConfiguration config = new JaasLoginModuleConfiguration(loginModule.getLoginModuleClass(), controlFlag, options, loginModule.isServerSide(), loginModule.getLoginDomainName(), loginModule.isWrapPrincipals(), loginModule.getClassLoader());
         loginModuleConfigurations.add(config);
 
         if (next != null) {

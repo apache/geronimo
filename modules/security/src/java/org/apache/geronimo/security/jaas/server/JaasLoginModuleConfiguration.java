@@ -38,9 +38,10 @@ public class JaasLoginModuleConfiguration implements Serializable {
     private final String loginModuleName;
     private final Map options;
     private final boolean wrapPrincipals;
+    private final transient ClassLoader classLoader;
 
     public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options,
-                                        boolean serverSide, String loginDomainName, boolean wrapPrincipals)
+                                        boolean serverSide, String loginDomainName, boolean wrapPrincipals, ClassLoader classLoader)
     {
         this.serverSide = serverSide;
         this.flag = flag;
@@ -48,10 +49,11 @@ public class JaasLoginModuleConfiguration implements Serializable {
         this.options = options;
         this.loginDomainName = loginDomainName;
         this.wrapPrincipals = wrapPrincipals;
+        this.classLoader = classLoader;
     }
 
-    public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide) {
-        this(loginModuleName, flag, options, serverSide, null, false);
+    public JaasLoginModuleConfiguration(String loginModuleName, LoginModuleControlFlag flag, Map options, boolean serverSide, ClassLoader classLoader) {
+        this(loginModuleName, flag, options, serverSide, null, false, classLoader);
     }
 
     public String getLoginModuleClassName() {
@@ -59,6 +61,10 @@ public class JaasLoginModuleConfiguration implements Serializable {
     }
 
     public LoginModule getLoginModule(ClassLoader loader) throws GeronimoSecurityException {
+        //TODO determine if this is ever called after serialization: if not the classloader passed in is unnecessary.
+        if (classLoader != null) {
+            loader = classLoader;
+        }
         try {
             return (LoginModule) loader.loadClass(loginModuleName).newInstance();
         } catch (Exception e) {

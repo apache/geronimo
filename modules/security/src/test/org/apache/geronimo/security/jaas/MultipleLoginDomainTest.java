@@ -47,10 +47,10 @@ public class MultipleLoginDomainTest extends TestCase {
      * @throws Exception
      */
     public void testMultipleLoginDomains() throws Exception {
-        JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1", true);
-        JaasLoginModuleConfiguration m2 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D2", true);
-        JaasLoginModuleConfiguration m3 = new JaasLoginModuleConfiguration(AnotherMockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), false, "D3", false);
-        JaasLoginModuleConfiguration m4 = new JaasLoginModuleConfiguration(AnotherMockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), false, "D4", true);
+        JaasLoginModuleConfiguration m1 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D1", true, MockLoginModule.class.getClassLoader());
+        JaasLoginModuleConfiguration m2 = new JaasLoginModuleConfiguration(MockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), true, "D2", true, MockLoginModule.class.getClassLoader());
+        JaasLoginModuleConfiguration m3 = new JaasLoginModuleConfiguration(AnotherMockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), false, "D3", false, AnotherMockLoginModule.class.getClassLoader());
+        JaasLoginModuleConfiguration m4 = new JaasLoginModuleConfiguration(AnotherMockLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, new HashMap(), false, "D4", true, AnotherMockLoginModule.class.getClassLoader());
         JaasSecuritySession c = new JaasSecuritySession("realm", new JaasLoginModuleConfiguration[]{m1, m2, m3, m4}, new HashMap(), this.getClass().getClassLoader());
         Subject s = c.getSubject();
 

@@ -171,7 +171,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
             options.put(JaasLoginCoordinator.OPTION_SERVICENAME, loginService.getObjectName());
         }
 
-        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName, wrapPrincipals);
+        return new JaasLoginModuleConfiguration(JaasLoginCoordinator.class.getName(), LoginModuleControlFlag.REQUIRED, options, true, realmName, wrapPrincipals, JaasLoginCoordinator.class.getClassLoader());
     }
 
     public static final GBeanInfo GBEAN_INFO;

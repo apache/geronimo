@@ -350,7 +350,6 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         }
         JaasSessionId sessionHandle = new JaasSessionId(id, hash(id));
         JaasLoginModuleConfiguration[] modules = realm.getAppConfigurationEntries();
-        //TODO use of this classloader severely limits extensibility!!!
         JaasSecuritySession session = new JaasSecuritySession(realm.getRealmName(), modules, new HashMap(), classLoader);
         activeLogins.put(sessionHandle, session);
         return sessionHandle;
