@@ -45,8 +45,7 @@ public class BasicProxyManager implements ProxyManager {
     private final static Log log = LogFactory.getLog(BasicProxyManager.class);
     private final Kernel kernel;
 
-    // todo use weak keys for this
-    private final IdentityHashMap interceptors = new IdentityHashMap();
+    private final BasicProxyMap interceptors = new BasicProxyMap();
 
     public BasicProxyManager(Kernel kernel) {
         this.kernel = kernel;
