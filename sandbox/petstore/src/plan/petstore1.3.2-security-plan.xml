@@ -20,7 +20,7 @@
 
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    parentId="org/apache/geronimo/Secure"
+    parentId="org/apache/geronimo/Security"
     configId="org/apache/geronimo/PetStoreSecurity1.3.2"
     >
 

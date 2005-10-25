@@ -23,7 +23,7 @@
     xmlns:velocity="jelly:velocity"
     >
 
-    <j:set var="instDir" value="${maven.build.dir}/geronimo_${geronimo_version}"/>
+    <j:set var="instDir" value="${maven.build.dir}/geronimo-${geronimo_version}"/>
 
     <goal name="default">
         <attainGoal name="petstore:deploy"/>
@@ -158,6 +158,7 @@
     <goal name="petstore:start" description="Start PetStore">
         <deploy:startRemoteServer
             geronimoTarget="${instDir}"
+            debugPort="8000"
 	    configs="org/apache/geronimo/PetStore1.3.2 org/apache/geronimo/Supplier1.3.2 org/apache/geronimo/PetStoreSecurity1.3.2 org/apache/geronimo/OPC1.3.2 org/apache/geronimo/PetStoreAdmin1.3.2 org/apache/geronimo/RuntimeDeployer"/>
         <ant:echo message="Waiting for server at: ${instDir}"/>
         <deploy:waitForStarted
