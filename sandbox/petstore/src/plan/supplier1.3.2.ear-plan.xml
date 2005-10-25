@@ -19,7 +19,9 @@
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     parentId="org/apache/geronimo/PetStoreDataSource1.3.2" 
     configId="org/apache/geronimo/Supplier1.3.2">
-
+    <import>
+       <uri>org/apache/geronimo/PetStoreSecurity1.3.2</uri>
+    </import>
     <module>
         <ejb>supplierpo-ejb.jar</ejb>
         <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
