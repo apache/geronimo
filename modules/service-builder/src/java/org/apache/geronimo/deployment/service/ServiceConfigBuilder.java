@@ -53,6 +53,7 @@ import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -383,6 +384,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                     throw new DeploymentException("Unexpected count of xs:any elements in xml-attribute " + anys.length + " qnameset: " + XmlAttributeType.type.qnameSetForWildcardElements());
                 }
                 builder.setXmlReference(name, anys[0]);
+            }
+        }
+
+        PatternType[] dependencyArray = gbean.getDependencyArray();
+        if (dependencyArray != null) {
+            for (int i = 0; i < dependencyArray.length; i++) {
+                PatternType patternType = dependencyArray[i];
+                builder.addDependency(patternType, j2eeContext);
             }
         }
 

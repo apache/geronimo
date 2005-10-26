@@ -36,23 +36,23 @@ public class GBeanData implements Externalizable {
     private GBeanInfo gbeanInfo;
     private final Map attributes;
     private final Map references;
+    private final Set dependencies;
 
     public GBeanData() {
         attributes = new HashMap();
         references = new HashMap();
+        dependencies = new HashSet();
     }
 
     public GBeanData(GBeanInfo gbeanInfo) {
+        this();
         this.gbeanInfo = gbeanInfo;
-        attributes = new HashMap();
-        references = new HashMap();
     }
 
     public GBeanData(ObjectName name, GBeanInfo gbeanInfo) {
+        this();
         this.name = name;
         this.gbeanInfo = gbeanInfo;
-        attributes = new HashMap();
-        references = new HashMap();
     }
 
     public GBeanData(GBeanData gbeanData) {
@@ -60,6 +60,7 @@ public class GBeanData implements Externalizable {
         gbeanInfo = gbeanData.gbeanInfo;
         attributes = new HashMap(gbeanData.attributes);
         references = new HashMap(gbeanData.references);
+        dependencies = new HashSet(gbeanData.dependencies);
     }
 
     public ObjectName getName() {
@@ -114,6 +115,10 @@ public class GBeanData implements Externalizable {
         references.put(name, patterns);
     }
 
+    public Set getDependencies() {
+        return dependencies;
+    }
+
     public void writeExternal(ObjectOutput out) throws IOException {
         // write the gbean info
         out.writeObject(gbeanInfo);
@@ -148,6 +153,13 @@ public class GBeanData implements Externalizable {
                 throw (IOException) new IOException("Unable to write reference pattern: " + name).initCause(e);
             }
         }
+        //write the dependencies
+        out.writeInt(dependencies.size());
+        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            out.writeObject(objectName);
+        }
+
     }
 
 
@@ -173,6 +185,13 @@ public class GBeanData implements Externalizable {
             int endpointCount = in.readInt();
             for (int i = 0; i < endpointCount; i++) {
                 setReferencePatterns((String) in.readObject(), (Set) in.readObject());
+            }
+
+            //read the dependencies
+            int dependencyCount = in.readInt();
+            for (int i = 0; i < dependencyCount; i++) {
+                ObjectName objectName = (ObjectName) in.readObject();
+                dependencies.add(objectName);
             }
         } catch (IOException e) {
             throw (IOException) new IOException("Unable to deserialize GBeanData " + name).initCause(e);

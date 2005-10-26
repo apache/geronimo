@@ -120,6 +120,11 @@ public final class GBeanInstance implements StateManageable {
     private final Map referenceIndex = new HashMap();
 
     /**
+     * Dependencies supported by this GBean.
+     */
+    private final GBeanDependency[] dependencies;
+
+    /**
      * Operations lookup table
      */
     private final GBeanOperation[] operations;
@@ -179,7 +184,7 @@ public final class GBeanInstance implements StateManageable {
      * fail when it returns from usercode.  This is set when a
      * reference has gone offline during construction.
      */
-    private boolean shouldFail = false; 
+    private boolean shouldFail = false;
 
     /**
      * Construct a GBeanMBean using the supplied GBeanData and class loader
@@ -237,6 +242,14 @@ public final class GBeanInstance implements StateManageable {
         references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[gbeanInfo.getReferences().size()]);
         for (int i = 0; i < references.length; i++) {
             referenceIndex.put(references[i].getName(), new Integer(i));
+        }
+
+        dependencies = new GBeanDependency[gbeanData.getDependencies().size()];
+        int j = 0;
+        for (Iterator iterator = gbeanData.getDependencies().iterator(); iterator.hasNext();) {
+            ObjectName dependencyName = (ObjectName) iterator.next();
+            GBeanDependency dependency = new GBeanDependency(this, dependencyName, kernel, dependencyManager);
+            dependencies[j++] = dependency;
         }
 
         // framework operations -- all framework operations have currently been removed
@@ -321,6 +334,9 @@ public final class GBeanInstance implements StateManageable {
         for (int i = 0; i < references.length; i++) {
             references[i].online();
         }
+        for (int i = 0; i < dependencies.length; i++) {
+            dependencies[i].online();
+        }
         lifecycleBroadcaster.fireLoadedEvent();
     }
 
@@ -343,6 +359,9 @@ public final class GBeanInstance implements StateManageable {
 
         for (int i = 0; i < references.length; i++) {
             references[i].offline();
+        }
+        for (int i = 0; i < dependencies.length; i++) {
+            dependencies[i].offline();
         }
 
         // tell everyone we are done
@@ -822,6 +841,9 @@ public final class GBeanInstance implements StateManageable {
             for (int i = 0; i < references.length; i++) {
                 allStarted = references[i].start() && allStarted;
             }
+            for (int i = 0; i < dependencies.length; i++) {
+                allStarted = dependencies[i].start() && allStarted;
+            }
             if (!allStarted) {
                 return false;
             }
@@ -918,6 +940,9 @@ public final class GBeanInstance implements StateManageable {
                 // stop all of the references
                 for (int i = 0; i < references.length; i++) {
                     references[i].stop();
+                }
+                for (int i = 0; i < dependencies.length; i++) {
+                    dependencies[i].stop();
                 }
 
                 target = null;
@@ -1041,6 +1066,9 @@ public final class GBeanInstance implements StateManageable {
             // stop all of the references
             for (int i = 0; i < references.length; i++) {
                 references[i].stop();
+            }
+            for (int i = 0; i < dependencies.length; i++) {
+                dependencies[i].stop();
             }
 
             target = null;

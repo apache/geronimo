@@ -135,6 +135,15 @@ public class GBeanBuilder {
         gbean.setReferencePatterns(name, patternNames);
     }
 
+    public void addDependency(PatternType patternType, J2eeContext j2eeContext) throws DeploymentException {
+        try {
+            ObjectName objectName = buildObjectName(null, patternType, j2eeContext);
+            gbean.getDependencies().add(objectName);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Invalid pattern for dependency: " + patternType, e);
+        }
+    }
+
     private ObjectName buildObjectName(String refName, PatternType pattern, J2eeContext j2eeContext) throws MalformedObjectNameException, DeploymentException {
         if (pattern.isSetGbeanName()) {
             String gbeanName = pattern.getGbeanName();
@@ -150,6 +159,9 @@ public class GBeanBuilder {
 
         //get the type from the gbean info if not supplied explicitly
         if (type == null) {
+            if (refName == null) {
+                throw new DeploymentException("No type specified in dependency pattern " + pattern + " for gbean " + gbean.getName());
+            }
             boolean found = false;
             Set referenceInfos = gbean.getGBeanInfo().getReferences();
             for (Iterator iterator = referenceInfos.iterator(); iterator.hasNext();) {
@@ -170,4 +182,5 @@ public class GBeanBuilder {
     public GBeanData getGBeanData() {
         return gbean;
     }
+
 }

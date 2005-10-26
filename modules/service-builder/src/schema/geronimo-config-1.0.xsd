@@ -88,6 +88,7 @@
             <xs:element name="reference" type="sys:referenceType"/>
             <xs:element name="references" type="sys:referencesType"/>
             <xs:element name="xml-reference" type="sys:xml-attributeType"/>
+            <xs:element name="dependency" type="sys:patternType"/>
         </xs:choice>
         <xs:attribute name="gbeanName" type="xs:string"/>
         <xs:attribute name="name" type="xs:string"/>
