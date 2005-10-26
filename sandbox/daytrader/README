@@ -1,16 +1,32 @@
 The code in this directory contains the code for the benchmark sample called Day Trader.  This sample was contributed by IBM to the Apache Geronimo project under the ASF license to further functional and performance testing of Geronimo.  
 
-STATUS
-The work in this directory is a work in progress and the maven scripts do not currently build a functional ear.  To allow users to evaluate and work with the benchmark sample the files necessary to get the benchmark working are included.  They are:
+BUILD
 
-dayTrader.ear
-dayTrader-plan.xml
+To build the dayTrader EAR, install maven and then type 'maven' from the dayTrader root directory (the directory containing this README).
+
+This should build the daytrader-ear-1.0-SNAPSHOT.ear in the modules/ear/target directory.
 
 INSTALL
-In addition to these files the ./bin directory contains some shell scripts to facilitate the installation of the application.  These files might need to be modified to conform to the working layout of your filesystem.  
 
-One last item, the derby directory contains scripts, DDL and command files to create the database for the application.  To create and populate the database follow these instructions.  The scripts may need to be modified for your local file system.
+Before installing the EAR, you will need to create the tradedb database.  First, make sure Geronimo is started.  Then cd into the derby directory. Make sure the GERONIMO_HOME environment variable is defined.  Run either createDB.bat (Windows) or createDB.sh (Unix). This will create the tradedb database and its tables.
 
-./createDB.sh will connect to a running instance of Geronimo and create the tradedb database as well as create the tables for the sample.
+To install the EAR, run the following from the dayTrader root directory:
+${GERONIMO_HOME}\deploy.[bat|sh] deploy modules\ear\target\daytrader-ear-1.0-SNAPSHOT.ear dayTrader-plan.xml
+
+When the application starts, you may see exceptions such as "Error: TradeDirect:init -- error on JNDI lookups of DataSource -- TradeDirect will not work". You should be able to ignore these messages.
+
+RUN
+
+Access the dayTrader application at http://<hostname>:<port>/daytrader.  To begin trading, go to 'Configuration -> (Re)-populate Trade Database'. This creates the fictional users, stocks, prices, etc. in the database and may take a while.  After this you can go to 'Go Trade!' to begin trading.
+
+There are two application clients you can run, the streamer client and web services client.  To run these (from the geronimo bin directory):
+
+TradeStreamerAppClient:
+java -jar client.jar tradeStreamerAppclient
+
+wsappclient:
+java -jar client.jar Trade/daytrader-wsappclient-1.0-SNAPSHOT
+
+ACKNOWLEDGEMENTS
 
 Many thanks to Gianny Damour and David Jencks for helping to get the sample to its working state at this point.

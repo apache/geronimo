@@ -46,8 +46,16 @@
             <cmp-connection-factory>
                 <resource-link>jdbc/TradeDataSource</resource-link>
             </cmp-connection-factory>
-<!--            <ejb-ql-compiler-factory>com.tranql.sql.ejbcompiler.DB2EJBQLCompilerFactory</ejb-ql-compiler-factory>  -->
-<!--            <db-syntax-factory>com.tranql.sql.db2.DB2DBSyntaxFactory</db-syntax-factory>  -->
+
+<!--  For DB2 database users uncomment the following line.
+            <ejb-ql-compiler-factory>org.tranql.ejbcompiler.DB2EJBQLCompilerFactory</ejb-ql-compiler-factory>
+            <db-syntax-factory>org.tranql.sql.db2.DB2DBSyntaxFactory</db-syntax-factory>
+-->
+
+<!--  For Oracle database users uncomment the following line.
+            <ejb-ql-compiler-factory>org.tranql.ejbcompiler.OracleQLCompilerFactory</ejb-ql-compiler-factory>
+            <db-syntax-factory>org.tranql.sql.oracle.OracleDBSyntaxFactory</db-syntax-factory>
+-->
 
             <enterprise-beans>
                 <session>
