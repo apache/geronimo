@@ -135,7 +135,11 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
         String namespace = getNamespaceFromPlan(plan);
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        return builder.createModule(plan, moduleFile, targetPath, specDDUrl, earConfigId, moduleContextInfo);
+        if (builder != null) {
+            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, earConfigId, moduleContextInfo);
+        } else {
+            return null;
+        }
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
