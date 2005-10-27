@@ -74,6 +74,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>

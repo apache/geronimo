@@ -28,23 +28,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
@@ -67,23 +60,15 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         securityConfig.setUseContextHandler(false);
 
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        defaultPrincipal.setRealmName("geronimo-properties-realm");
-        Principal principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        principal.setPrincipalName("izumi");
+        Principal principal = new Principal("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal", "izumi", false);
         defaultPrincipal.setPrincipal(principal);
 
         securityConfig.setDefaultPrincipal(defaultPrincipal);
 
         Role role = new Role();
         role.setRoleName("content-administrator");
-        principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        principal.setPrincipalName("it");
-        Realm realm = new Realm();
-        realm.setRealmName("geronimo-properties-realm");
-        realm.getPrincipals().add(principal);
-        role.getRealms().put(realm.getRealmName(), realm);
+        principal = new Principal("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal", "it", false);
+        role.getPrincipals().add(principal);
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
 
@@ -104,15 +89,13 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         rolePermissions.put("content-administrator", permissions);
         rolePermissions.put("auto-administrator", permissions);
 
-        PermissionCollection checked = permissions;
-
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
 
-        startWebApp(roleDesignates, principalRoleMap,  componentPermissions,
-                defaultPrincipal, checked);
+        startWebApp(roleDesignates, principalRoleMap, componentPermissions,
+                    defaultPrincipal, permissions);
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -123,7 +106,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8080/securetest/protected/j_security_check?j_username=alan&j_password=starcraft";
+        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=alan&j_password=starcraft";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
@@ -131,7 +114,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -141,7 +124,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         connection.disconnect();
 
         //Now lets try it with izumi
-        connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -153,7 +136,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         assertEquals("<!-- Login Page -->", reader.readLine());
         reader.close();
 
-        location = "http://localhost:8080/securetest/protected/j_security_check?j_username=izumi&j_password=violin";
+        location = "http://localhost:8181/securetest/protected/j_security_check?j_username=izumi&j_password=violin";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
@@ -162,7 +145,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
         try {
-            connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+            connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
             connection.setRequestProperty("Cookie", cookie);
             connection.setInstanceFollowRedirects(false);
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -183,10 +166,11 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
             Map principalRoleMap,
             ComponentPermissions componentPermissions,
             DefaultPrincipal defaultPrincipal,
-            PermissionCollection checked) throws Exception {
+            PermissionCollection checked) throws Exception
+    {
 
         appName = setUpSecureAppContext(roleDesignates, principalRoleMap,
-                componentPermissions, defaultPrincipal, checked);
+                                        componentPermissions, defaultPrincipal, checked);
 
 
     }
@@ -195,9 +179,9 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
         stop(appName);
     }
 
-    public static void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) throws DeploymentException {
+    public static void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {
         Map roleToPrincipalMap = new HashMap();
-        buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
+        SecurityBuilder.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
         invertMap(roleToPrincipalMap, principalRoleMap);
     }
 
@@ -218,60 +202,6 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
             }
         }
         return principalRoleMapping;
-    }
-
-    private static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap) throws DeploymentException {
-
-        Iterator rollMappings = security.getRoleMappings().values().iterator();
-        while (rollMappings.hasNext()) {
-            Role role = (Role) rollMappings.next();
-
-            String roleName = role.getRoleName();
-            Subject roleDesignate = new Subject();
-            Set principalSet = new HashSet();
-
-            Iterator realms = role.getRealms().values().iterator();
-            while (realms.hasNext()) {
-                Realm realm = (Realm) realms.next();
-
-                Iterator principals = realm.getPrincipals().iterator();
-                while (principals.hasNext()) {
-                    Principal principal = (Principal) principals.next();
-
-                    //TODO check this
-                    String loginDomain = null;
-
-                    java.security.Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, loginDomain, realm.getRealmName());
-
-                    if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
-
-                    principalSet.add(realmPrincipal);
-                    if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
-                }
-            }
-
-            for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
-                DistinguishedName dn = (DistinguishedName) names.next();
-
-                X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
-
-                principalSet.add(x500Principal);
-                if (dn.isDesignatedRunAs()) {
-                    roleDesignate.getPrincipals().add(x500Principal);
-                }
-            }
-
-            Set roleMapping = (Set) roleToPrincipalMap.get(roleName);
-            if (roleMapping == null) {
-                roleMapping = new HashSet();
-                roleToPrincipalMap.put(roleName, roleMapping);
-            }
-            roleMapping.addAll(principalSet);
-
-            if (roleDesignate.getPrincipals().size() > 0) {
-                roleDesignates.put(roleName, roleDesignate);
-            }
-        }
     }
 
     protected void setUp() throws Exception {

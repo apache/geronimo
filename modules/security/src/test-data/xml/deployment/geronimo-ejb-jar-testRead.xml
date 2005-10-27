@@ -23,15 +23,13 @@
          version="2.1">
     <class-space name="geronimo.system:role=ClassSpace,name=Test" parent="geronimo.system:role=ClassSpace,name=System"/>
     <security>
-        <default-principal realm-name="System">
+        <default-principal>
             <principal class="org.apache.geronimo.security.DefaultPrincipal" name="default"/>
         </default-principal>
         <role-mappings>
             <role role-name="ONE">
-                <realm realm-name="Foo">
-                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="alan"/>
-                    <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="alan"/>
+                <principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
             </role>
         </role-mappings>
     </security>

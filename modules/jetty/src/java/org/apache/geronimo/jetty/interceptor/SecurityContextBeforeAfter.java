@@ -22,21 +22,12 @@ import java.security.AccessControlException;
 import java.security.PermissionCollection;
 import java.security.Principal;
 import java.util.Map;
-import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.jetty.JAASJettyPrincipal;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpException;
 import org.mortbay.http.HttpRequest;
@@ -45,6 +36,15 @@ import org.mortbay.http.SecurityConstraint;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.servlet.FormAuthenticator;
 import org.mortbay.jetty.servlet.ServletHttpRequest;
+
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.jetty.JAASJettyPrincipal;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
@@ -77,7 +77,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
                                       Map roleDesignates,
-                                      UserRealm realm) {
+                                      UserRealm realm)
+    {
         this.next = next;
         this.policyContextIDIndex = policyContextIDIndex;
         this.webAppContextIndex = webAppContextIndex;
@@ -126,9 +127,9 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         PolicyContext.setContextID(policyContextID);
         setCurrentSecurityInterceptor(this);
 
-        if (httpRequest != null){
-            ServletHttpRequest request = (ServletHttpRequest)httpRequest.getWrapper();
-            PolicyContext.setHandlerData((HttpServletRequest)request);
+        if (httpRequest != null) {
+            ServletHttpRequest request = (ServletHttpRequest) httpRequest.getWrapper();
+            PolicyContext.setHandlerData((HttpServletRequest) request);
         }
 
         if (next != null) {
@@ -259,7 +260,6 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                 throw new HttpException(HttpResponse.__500_Internal_Server_Error, "Realm Not Configured");
             }
 
-
             // Handle pre-authenticated request
             if (authenticator != null) {
                 // User authenticator.
@@ -302,12 +302,16 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
             throw new GeronimoSecurityException("Unable to generate default principal");
         }
 
-        JAASJettyPrincipal result = new JAASJettyPrincipal("default");
-        Subject defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+        try {
+            JAASJettyPrincipal result = new JAASJettyPrincipal("default");
+            Subject defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
 
-        result.setSubject(defaultSubject);
+            result.setSubject(defaultSubject);
 
-        return result;
+            return result;
+        } catch (DeploymentException de) {
+            throw new GeronimoSecurityException("Unable to generate default principal", de);
+        }
     }
 
 }

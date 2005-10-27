@@ -32,45 +32,37 @@ public class Principal implements Serializable {
         PropertyEditorManager.registerEditor(Principal.class, PrincipalEditor.class);
     }
 
-    private String className;
-    private String principalName;
-    private boolean designatedRunAs;
+    private final String className;
+    private final String principalName;
+    private final boolean designatedRunAs;
+
+    public Principal(String className, String principalName, boolean designatedRunAs) {
+        this.className = className;
+        this.principalName = principalName;
+        this.designatedRunAs = designatedRunAs;
+    }
 
     public String getClassName() {
         return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 
     public String getPrincipalName() {
         return principalName;
     }
 
-    public void setPrincipalName(String principalName) {
-        this.principalName = principalName;
-    }
-
     public boolean isDesignatedRunAs() {
         return designatedRunAs;
-    }
-
-    public void setDesignatedRunAs(boolean designatedRunAs) {
-        this.designatedRunAs = designatedRunAs;
     }
 
     public static class PrincipalEditor extends TextPropertyEditorSupport {
 
         public void setAsText(String text) {
             if (text != null) {
-                String[] parts = text.split("=");
-                if (parts.length != 2) {
-                    throw new PropertyEditorException("Principal should have the form 'name=class'");
+                String[] parts = text.split(",");
+                if (parts.length != 3) {
+                    throw new PropertyEditorException("Principal should have the form 'name,class,run-as'");
                 }
-                Principal principal = new Principal();
-                principal.setPrincipalName(parts[0]);
-                principal.setClassName(parts[1]);
+                Principal principal = new Principal(parts[0], parts[1], Boolean.valueOf(parts[2]).booleanValue());
                 setValue(principal);
             } else {
                 setValue(null);
@@ -82,7 +74,7 @@ public class Principal implements Serializable {
             if (principal == null) {
                 return null;
             }
-            return new StringBuffer(principal.getPrincipalName()).append("=").append(principal.getClassName()).toString();
+            return principal.getPrincipalName() + "," + principal.getClassName() + "," + principal.isDesignatedRunAs();
         }
     }
 }

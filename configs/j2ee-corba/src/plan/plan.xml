@@ -56,7 +56,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal realm-name="public-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -84,7 +84,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal realm-name="public-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -111,7 +111,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal realm-name="public-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -139,7 +139,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal realm-name="public-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -179,7 +179,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal realm-name="public-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -203,7 +203,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <name>UnprotectedServer</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal realm-name="cts-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
@@ -229,7 +229,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
             <name>Server</name>
         </reference>
         <xml-attribute name="tssConfig">
-            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0">
+            <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
                 <tss:default-principal realm-name="public-properties-realm">
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>

@@ -17,8 +17,9 @@
 
 package org.apache.geronimo.security;
 
-import java.io.Serializable;
 import java.security.Principal;
+import java.io.Serializable;
+
 
 /**
  * Represents a principal in an realm.
@@ -27,32 +28,40 @@ import java.security.Principal;
  */
 public class RealmPrincipal implements Principal, Serializable {
     private final String realm;
+    private final String domain;
     private final Principal principal;
     private transient String name = null;
 
-    public RealmPrincipal(String realm, Principal principal) {
+    public RealmPrincipal(String realm, String domain, Principal principal) {
+
         if (realm == null) throw new IllegalArgumentException("realm is null");
+        if (domain == null) throw new IllegalArgumentException("domain is null");
         if (principal == null) throw new IllegalArgumentException("principal is null");
 
         this.realm = realm;
+        this.domain = domain;
         this.principal = principal;
     }
 
-    /**
-     * Compares this principal to the specified object.  Returns true
-     * if the object passed in matches the principal represented by
-     * the implementation of this interface.
-     *
-     * @param another principal to compare with.
-     * @return true if the principal passed in is the same as that
-     *         encapsulated by this principal, and false otherwise.
-     */
-    public boolean equals(Object another) {
-        if (!(another instanceof RealmPrincipal)) return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        RealmPrincipal realmPrincipal = (RealmPrincipal) another;
+        final RealmPrincipal that = (RealmPrincipal) o;
 
-        return realm.equals(realmPrincipal.realm) && principal.equals(realmPrincipal.principal);
+        if (!domain.equals(that.domain)) return false;
+        if (!principal.equals(that.principal)) return false;
+        if (!realm.equals(that.realm)) return false;
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = realm.hashCode();
+        result = 29 * result + domain.hashCode();
+        result = 29 * result + principal.hashCode();
+        return result;
     }
 
     /**
@@ -61,33 +70,7 @@ public class RealmPrincipal implements Principal, Serializable {
      * @return a string representation of this principal.
      */
     public String toString() {
-        //TODO hack to workaround bogus assumptions in some secret code.
-//        return getName();
-        if (name == null) {
-
-            StringBuffer buffer = new StringBuffer("");
-            buffer.append(realm);
-            buffer.append(":[");
-            buffer.append(principal.getClass().getName());
-            buffer.append(':');
-            buffer.append(principal.getName());
-            buffer.append("]");
-
-            name = buffer.toString();
-        }
-        return name;
-    }
-
-    /**
-     * Returns a hashcode for this principal.
-     *
-     * @return a hashcode for this principal.
-     */
-    public int hashCode() {
-        int result;
-        result = realm.hashCode();
-        result = 29 * result + principal.hashCode();
-        return result;
+        return getName();
     }
 
     /**
@@ -96,21 +79,28 @@ public class RealmPrincipal implements Principal, Serializable {
      * @return the name of this principal.
      */
     public String getName() {
-        //TODO hack to workaround bogus assumptions in some secret code.
         if (name == null) {
-
             StringBuffer buffer = new StringBuffer("");
             buffer.append(realm);
-            buffer.append(":[");
+            buffer.append("::");
+            buffer.append(domain);
+            buffer.append("::");
             buffer.append(principal.getClass().getName());
             buffer.append(':');
             buffer.append(principal.getName());
-            buffer.append("]");
 
             name = buffer.toString();
         }
         return name;
-//        return principal.getName();
+    }
+
+    /**
+     * Returns the realm that is associated with the principal.
+     *
+     * @return the realm that is associated with the principal.
+     */
+    public String getRealm() {
+        return realm;
     }
 
     /**
@@ -127,7 +117,7 @@ public class RealmPrincipal implements Principal, Serializable {
      *
      * @return the realm that is associated with the principal.
      */
-    public String getRealm() {
-        return realm;
+    public String getLoginDomain() {
+        return domain;
     }
 }

@@ -20,7 +20,7 @@
     <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
     <!--
         <jetty:security>
-            <sec:default-principal realm-name="foo">
+            <sec:default-principal>
                 <sec:principal class="org.apache.geronimo.security.DefaultPrincipal"
                     name="bar"/>
             </sec:default-principal>

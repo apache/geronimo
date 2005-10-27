@@ -55,7 +55,7 @@ Built on #today#-->
 
       <wsdl:port name="HelloWorld" binding="impl:HelloWorldSoapBinding">
 
-         <wsdlsoap:address location="http://localhost:8080/hello/ws?WSDL"/>
+         <wsdlsoap:address location="http://localhost:8181/hello/ws?WSDL"/>
 
       </wsdl:port>
 

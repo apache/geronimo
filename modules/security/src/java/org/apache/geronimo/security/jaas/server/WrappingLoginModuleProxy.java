@@ -64,10 +64,10 @@ public class WrappingLoginModuleProxy implements LoginModule {
 
         Set wrapped = new HashSet();
         for (Iterator iter = localSubject.getPrincipals().iterator(); iter.hasNext();) {
-            DomainPrincipal dPrincipal = new DomainPrincipal(loginDomainName, (Principal) iter.next());
+            Principal principal = (Principal) iter.next();
 
-            wrapped.add(dPrincipal);
-            wrapped.add(new RealmPrincipal(realmName, dPrincipal));
+            wrapped.add(new DomainPrincipal(loginDomainName, principal));
+            wrapped.add(new RealmPrincipal(realmName, loginDomainName, principal));
         }
         localSubject.getPrincipals().addAll(wrapped);
         subject.getPrincipals().addAll(localSubject.getPrincipals());

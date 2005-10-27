@@ -259,7 +259,7 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
         propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
         Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
-        principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
         propertiesRealmName2 = new ObjectName("geronimo.server:j2eeType=SecurityRealm,name=geronimo-properties-realm-2");
@@ -269,7 +269,7 @@ public class AbstractWebModuleTest extends TestCase {
         propertiesRealmGBean2.setReferencePattern("LoginModuleConfiguration", testUseName);
         propertiesRealmGBean2.setReferencePattern("LoginService", loginServiceName);
         Principal.PrincipalEditor principalEditor2 = new Principal.PrincipalEditor();
-        principalEditor2.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        principalEditor2.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
         propertiesRealmGBean2.setAttribute("defaultPrincipal", principalEditor2.getValue());
 
         start(loginConfigurationGBean);
@@ -376,7 +376,7 @@ public class AbstractWebModuleTest extends TestCase {
         container.setReferencePattern("ServerInfo", serverInfoName);
 
         connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
-        connector.setAttribute("port", new Integer(8080));
+        connector.setAttribute("port", new Integer(8181));
         connector.setAttribute("host", "localhost");
         connector.setAttribute("name", "HTTP");
         connector.setReferencePattern("TomcatContainer", containerName);

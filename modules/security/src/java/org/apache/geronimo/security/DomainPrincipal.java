@@ -26,33 +26,28 @@ import java.security.Principal;
  * @version $Rev: 279959 $ $Date: 2005-09-09 23:00:51 -0700 (Fri, 09 Sep 2005) $
  */
 public class DomainPrincipal implements Principal, Serializable {
-    private final String loginDomain;
+    private final String domain;
     private final Principal principal;
     private transient String name = null;
 
-    public DomainPrincipal(String loginDomain, Principal principal) {
-        if (loginDomain == null) throw new IllegalArgumentException("loginDomain is null");
+    public DomainPrincipal(String domain, Principal principal) {
+        if (domain == null) throw new IllegalArgumentException("domain is null");
         if (principal == null) throw new IllegalArgumentException("principal is null");
 
-        this.loginDomain = loginDomain;
+        this.domain = domain;
         this.principal = principal;
     }
 
-    /**
-     * Compares this principal to the specified object.  Returns true
-     * if the object passed in matches the principal represented by
-     * the implementation of this interface.
-     *
-     * @param another principal to compare with.
-     * @return true if the principal passed in is the same as that
-     *         encapsulated by this principal, and false otherwise.
-     */
-    public boolean equals(Object another) {
-        if (!(another instanceof DomainPrincipal)) return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        DomainPrincipal realmPrincipal = (DomainPrincipal) another;
+        final DomainPrincipal that = (DomainPrincipal) o;
 
-        return loginDomain.equals(realmPrincipal.loginDomain) && principal.equals(realmPrincipal.principal);
+        if (!domain.equals(that.domain)) return false;
+        if (!principal.equals(that.principal)) return false;
+
+        return true;
     }
 
     /**
@@ -61,21 +56,7 @@ public class DomainPrincipal implements Principal, Serializable {
      * @return a string representation of this principal.
      */
     public String toString() {
-        //TODO hack to workaround bogus assumptions in some secret code.
-//        return getName();
-        if (name == null) {
-
-            StringBuffer buffer = new StringBuffer("");
-            buffer.append(loginDomain);
-            buffer.append(":[");
-            buffer.append(principal.getClass().getName());
-            buffer.append(':');
-            buffer.append(principal.getName());
-            buffer.append("]");
-
-            name = buffer.toString();
-        }
-        return name;
+        return getName();
     }
 
     /**
@@ -85,7 +66,7 @@ public class DomainPrincipal implements Principal, Serializable {
      */
     public int hashCode() {
         int result;
-        result = loginDomain.hashCode();
+        result = domain.hashCode();
         result = 29 * result + principal.hashCode();
         return result;
     }
@@ -96,12 +77,11 @@ public class DomainPrincipal implements Principal, Serializable {
      * @return the name of this principal.
      */
     public String getName() {
-        //TODO hack to workaround bogus assumptions in some secret code.
         if (name == null) {
 
             StringBuffer buffer = new StringBuffer("");
-            buffer.append(loginDomain);
-            buffer.append(":[");
+            buffer.append(domain);
+            buffer.append("::");
             buffer.append(principal.getClass().getName());
             buffer.append(':');
             buffer.append(principal.getName());
@@ -127,7 +107,7 @@ public class DomainPrincipal implements Principal, Serializable {
      *
      * @return the realm that is associated with the principal.
      */
-    public String getLoginDomain() {
-        return loginDomain;
+    public String getDomain() {
+        return domain;
     }
 }

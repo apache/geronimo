@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.Set;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -146,6 +147,8 @@ public class LoginSQLTest extends AbstractTest {
         Subject subject = context.getSubject();
         assertTrue("expected non-null client-side subject", subject != null);
         subject = ContextManager.getServerSideSubject(subject);
+
+        Set test = subject.getPrincipals(DomainPrincipal.class);
 
         assertTrue("expected non-null server-side subject", subject != null);
         assertEquals("server-side subject should have seven principal", 7, subject.getPrincipals().size());

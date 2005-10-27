@@ -32,8 +32,8 @@ public class ContextManagerTest extends TestCase {
     public void testGetCallerPrincipal() throws Exception {
         Subject subject = new Subject();
         GeronimoUserPrincipal userPrincipal = new GeronimoUserPrincipal("foo");
-        RealmPrincipal realmPrincipal = new RealmPrincipal("domain", userPrincipal);
-        PrimaryRealmPrincipal primaryRealmPrincipal = new PrimaryRealmPrincipal("domain", userPrincipal);
+        RealmPrincipal realmPrincipal = new RealmPrincipal("realm", "domain", userPrincipal);
+        PrimaryRealmPrincipal primaryRealmPrincipal = new PrimaryRealmPrincipal("realm", "domain", userPrincipal);
         GeronimoGroupPrincipal groupPrincipal = new GeronimoGroupPrincipal("bar");
         Set principals = subject.getPrincipals();
         principals.add(userPrincipal);

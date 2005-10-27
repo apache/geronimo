@@ -18,7 +18,7 @@
 
 <security xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://geronimo.apache.org/xml/ns/security-1.0"
+         xmlns="http://geronimo.apache.org/xml/ns/security-1.1"
          version="1.0">
     <default-principal>
         <principal>

@@ -25,19 +25,12 @@ import java.io.Serializable;
 public class DistinguishedName implements Serializable {
 
     private final String name;
-    private boolean designatedRunAs;
+    private final boolean designatedRunAs;
 
-    public DistinguishedName(String name) {
-        assert name != null;
+    public DistinguishedName(String name, boolean designatedRunAs) {
+        if (name == null) throw new IllegalArgumentException("name is null");
 
         this.name = name;
-    }
-
-    public boolean isDesignatedRunAs() {
-        return designatedRunAs;
-    }
-
-    public void setDesignatedRunAs(boolean designatedRunAs) {
         this.designatedRunAs = designatedRunAs;
     }
 
@@ -45,18 +38,26 @@ public class DistinguishedName implements Serializable {
         return name;
     }
 
+    public boolean isDesignatedRunAs() {
+        return designatedRunAs;
+    }
+
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof DistinguishedName)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        final DistinguishedName dn = (DistinguishedName) o;
+        final DistinguishedName that = (DistinguishedName) o;
 
-        if (!name.equals(dn.name)) return false;
+        if (designatedRunAs != that.designatedRunAs) return false;
+        if (!name.equals(that.name)) return false;
 
         return true;
     }
 
     public int hashCode() {
-        return name.hashCode();
+        int result;
+        result = name.hashCode();
+        result = 29 * result + (designatedRunAs ? 1 : 0);
+        return result;
     }
 }

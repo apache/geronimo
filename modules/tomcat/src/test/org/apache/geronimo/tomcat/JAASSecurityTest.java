@@ -36,7 +36,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         startWebApp();
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
         //Be sure we have been given the login page
@@ -46,7 +46,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8080/securetest/protected/j_security_check?j_username=alan&j_password=starcraft";
+        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=alan&j_password=starcraft";
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Cookie", cookie);
@@ -68,7 +68,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         startWebApp();
 
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -79,7 +79,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8080/securetest/protected/j_security_check?j_username=alan&j_password=basspassword";
+        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=alan&j_password=basspassword";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
@@ -107,7 +107,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         Thread.sleep(5000);       
  
         //Begin the test
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
 
@@ -118,7 +118,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         String cookie = connection.getHeaderField("Set-Cookie");
         cookie = cookie.substring(0, cookie.lastIndexOf(';'));
-        String location = "http://localhost:8080/securetest/protected/j_security_check?j_username=izumi&j_password=violin";
+        String location = "http://localhost:8181/securetest/protected/j_security_check?j_username=izumi&j_password=violin";
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
@@ -126,7 +126,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
 
-        connection = (HttpURLConnection) new URL("http://localhost:8080/securetest/protected/hello.txt").openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));

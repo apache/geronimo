@@ -18,7 +18,7 @@
 
 <web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
     configId="org/apache/geronimo/test">
 
     <context-root>/test</context-root>
@@ -26,7 +26,7 @@
     <login-domain-name>demo-properties-realm</login-domain-name>
     <sec:security>
         <sec:auto-map-roles security-realm="demo-properties-realm"/>
-        <sec:default-principal realm-name="demo-properties-realm">
+        <sec:default-principal>
             <sec:principal class="org.apache.geronimo.security.realm.providers.PropertiesFileUserPrincipal" name="izumi"/>
         </sec:default-principal>
     </sec:security>

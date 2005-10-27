@@ -17,8 +17,9 @@
 package org.apache.geronimo.security.deploy;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -27,7 +28,7 @@ import java.util.Set;
 public class Realm implements Serializable {
 
     private String realmName;
-    private Set principals = new HashSet();
+    private Map domains = new HashMap();
 
     public String getRealmName() {
         return realmName;
@@ -37,7 +38,16 @@ public class Realm implements Serializable {
         this.realmName = realmName;
     }
 
-    public Set getPrincipals() {
-        return principals;
+    public Map getLoginDomains() {
+        return domains;
+    }
+
+    public void merge(Realm other) {
+        for (Iterator iter = other.domains.keySet().iterator(); iter.hasNext();) {
+            LoginDomain domain = (LoginDomain) domains.get(iter.next());
+            if (domain != null) {
+                domain.merge((LoginDomain) other.domains.get(domain.getDomainName()));
+            }
+        }
     }
 }

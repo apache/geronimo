@@ -29,21 +29,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.security.auth.Subject;
-import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.Realm;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
+import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
@@ -58,28 +52,20 @@ public class SecurityTest extends AbstractWebModuleTest {
      *
      * @throws Exception thrown if an error in the test occurs
      */
-    public void DavidJencksPleaseVisitMetestExplicitMapping() throws Exception {
+    public void testExplicitMapping() throws Exception {
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
 
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        defaultPrincipal.setRealmName("demo-properties-realm");
-        Principal principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
-        principal.setPrincipalName("izumi");
+        Principal principal = new Principal("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal", "izumi", false);
         defaultPrincipal.setPrincipal(principal);
 
         securityConfig.setDefaultPrincipal(defaultPrincipal);
 
         Role role = new Role();
         role.setRoleName("content-administrator");
-        principal = new Principal();
-        principal.setClassName("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal");
-        principal.setPrincipalName("it");
-        Realm realm = new Realm();
-        realm.setRealmName("demo-properties-realm");
-        realm.getPrincipals().add(principal);
-        role.getRealms().put(realm.getRealmName(), realm);
+        principal = new Principal("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal", "it", false);
+        role.getPrincipals().add(principal);
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
 
@@ -100,15 +86,13 @@ public class SecurityTest extends AbstractWebModuleTest {
         rolePermissions.put("content-administrator", permissions);
         rolePermissions.put("auto-administrator", permissions);
 
-        PermissionCollection checked = permissions;
-
         Set securityRoles = new HashSet();
         securityRoles.add("content-administrator");
         securityRoles.add("auto-administrator");
 
         ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
 
-        startWebApp(roleDesignates, principalRoleMap, componentPermissions, defaultPrincipal, checked, securityRoles);
+        startWebApp(roleDesignates, principalRoleMap, componentPermissions, defaultPrincipal, permissions, securityRoles);
 
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:5678/test/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -196,81 +180,28 @@ public class SecurityTest extends AbstractWebModuleTest {
     }
 
     //copied from SecurityBuilder
-    public static void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) throws DeploymentException {
-         Map roleToPrincipalMap = new HashMap();
-         buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
-         invertMap(roleToPrincipalMap, principalRoleMap);
-     }
+    public static void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {
+        Map roleToPrincipalMap = new HashMap();
+        SecurityBuilder.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
+        invertMap(roleToPrincipalMap, principalRoleMap);
+    }
 
-     private static Map invertMap(Map roleToPrincipalMap, Map principalRoleMapping) {
-         for (Iterator roles = roleToPrincipalMap.entrySet().iterator(); roles.hasNext();) {
-             Map.Entry entry = (Map.Entry) roles.next();
-             String role = (String) entry.getKey();
-             Set principals = (Set) entry.getValue();
-             for (Iterator iter = principals.iterator(); iter.hasNext();) {
-                 java.security.Principal principal = (java.security.Principal) iter.next();
+    private static Map invertMap(Map roleToPrincipalMap, Map principalRoleMapping) {
+        for (Iterator roles = roleToPrincipalMap.entrySet().iterator(); roles.hasNext();) {
+            Map.Entry entry = (Map.Entry) roles.next();
+            String role = (String) entry.getKey();
+            Set principals = (Set) entry.getValue();
+            for (Iterator iter = principals.iterator(); iter.hasNext();) {
+                java.security.Principal principal = (java.security.Principal) iter.next();
 
-                 HashSet roleSet = (HashSet) principalRoleMapping.get(principal);
-                 if (roleSet == null) {
-                     roleSet = new HashSet();
-                     principalRoleMapping.put(principal, roleSet);
-                 }
-                 roleSet.add(role);
-             }
-         }
-         return principalRoleMapping;
-     }
-
-     private static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap) throws DeploymentException {
-
-         Iterator rollMappings = security.getRoleMappings().values().iterator();
-         while (rollMappings.hasNext()) {
-             Role role = (Role) rollMappings.next();
-
-             String roleName = role.getRoleName();
-             Subject roleDesignate = new Subject();
-             Set principalSet = new HashSet();
-
-             Iterator realms = role.getRealms().values().iterator();
-             while (realms.hasNext()) {
-                 Realm realm = (Realm) realms.next();
-
-                 Iterator principals = realm.getPrincipals().iterator();
-                 while (principals.hasNext()) {
-                     Principal principal = (Principal) principals.next();
-                     //TODO check this
-                     String loginDomain = null;
-
-                     java.security.Principal realmPrincipal = ConfigurationUtil.generateRealmPrincipal(principal, loginDomain, realm.getRealmName());
-
-                     if (realmPrincipal == null) throw new DeploymentException("Unable to create realm principal");
-
-                     principalSet.add(realmPrincipal);
-                     if (principal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(realmPrincipal);
-                 }
-             }
-
-             for (Iterator names = role.getDNames().iterator(); names.hasNext();) {
-                 DistinguishedName dn = (DistinguishedName) names.next();
-
-                 X500Principal x500Principal = ConfigurationUtil.generateX500Principal(dn.getName());
-
-                 principalSet.add(x500Principal);
-                 if (dn.isDesignatedRunAs()) {
-                     roleDesignate.getPrincipals().add(x500Principal);
-                 }
-             }
-
-             Set roleMapping = (Set) roleToPrincipalMap.get(roleName);
-             if (roleMapping == null) {
-                 roleMapping = new HashSet();
-                 roleToPrincipalMap.put(roleName, roleMapping);
-             }
-             roleMapping.addAll(principalSet);
-
-             if (roleDesignate.getPrincipals().size() > 0) {
-                 roleDesignates.put(roleName, roleDesignate);
-             }
-         }
-     }
+                HashSet roleSet = (HashSet) principalRoleMapping.get(principal);
+                if (roleSet == null) {
+                    roleSet = new HashSet();
+                    principalRoleMapping.put(principal, roleSet);
+                }
+                roleSet.add(role);
+            }
+        }
+        return principalRoleMapping;
+    }
 }

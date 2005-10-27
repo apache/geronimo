@@ -73,15 +73,4 @@ public class Security implements Serializable {
     public Map getRoleMappings() {
         return roleMappings;
     }
-
-    public void append(Role role) {
-        if (roleMappings.containsKey(role.getRoleName())) {
-            Role existing = (Role) roleMappings.get(role.getRoleName());
-            for (Iterator iter = role.getRealms().keySet().iterator(); iter.hasNext();) {
-                existing.append((Realm) role.getRealms().get(iter.next()));
-            }
-        } else {
-            roleMappings.put(role.getRoleName(), role);
-        }
-    }
 }

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -30,10 +29,11 @@ import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
-import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
@@ -45,16 +45,17 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.tomcat.valve.ComponentContextValve;
+import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
 import org.apache.geronimo.tomcat.valve.InstanceContextValve;
 import org.apache.geronimo.tomcat.valve.PolicyContextValve;
 import org.apache.geronimo.tomcat.valve.TransactionContextValve;
-import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
-public class GeronimoStandardContext extends StandardContext{
+
+public class GeronimoStandardContext extends StandardContext {
 
     private static final Log log = LogFactory.getLog(GeronimoStandardContext.class);
 
@@ -64,7 +65,7 @@ public class GeronimoStandardContext extends StandardContext{
 
     private Map webServiceMap = null;
 
-    public void setContextProperties(TomcatContext ctx){
+    public void setContextProperties(TomcatContext ctx) throws DeploymentException {
 
         // Create ReadOnlyContext
         javax.naming.Context enc = null;
@@ -88,9 +89,9 @@ public class GeronimoStandardContext extends StandardContext{
 
         //Set the InstanceContextValve
         InstanceContextValve instanceContextValve =
-            new InstanceContextValve(ctx.getUnshareableResources(),
-                    ctx.getApplicationManagedSecurityResources(),
-                    ctx.getTrackedConnectionAssociator());
+                new InstanceContextValve(ctx.getUnshareableResources(),
+                                         ctx.getApplicationManagedSecurityResources(),
+                                         ctx.getTrackedConnectionAssociator());
         addValve(instanceContextValve);
 
         // Set ComponentContext valve
@@ -109,7 +110,7 @@ public class GeronimoStandardContext extends StandardContext{
 
         //Set a PolicyContext Valve
         SecurityHolder securityHolder = ctx.getSecurityHolder();
-        if (securityHolder != null){
+        if (securityHolder != null) {
             if (securityHolder.getPolicyContextID() != null) {
 
                 PolicyContext.setContextID(securityHolder.getPolicyContextID());
@@ -118,7 +119,7 @@ public class GeronimoStandardContext extends StandardContext{
                  * Register our default subject with the ContextManager
                  */
                 DefaultPrincipal defaultPrincipal = securityHolder.getDefaultPrincipal();
-                if (defaultPrincipal != null){
+                if (defaultPrincipal != null) {
                     defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
                     ContextManager.registerSubject(defaultSubject);
                     SubjectId id = ContextManager.getSubjectId(defaultSubject);
@@ -126,14 +127,14 @@ public class GeronimoStandardContext extends StandardContext{
                 }
 
                 PolicyContextValve policyValve = new PolicyContextValve(
-                    securityHolder.getPolicyContextID());
+                        securityHolder.getPolicyContextID());
                 addValve(policyValve);
 
                 //This is definitely a hack, but I don't see a reasonable way to install the defaultSubject.
                 //Obviously this won't work if there are permissions.  Setting the default subject if there are
                 //permissions breaks authentication.
                 boolean hasPermissions = securityHolder.getChecked().elements().hasMoreElements() ||
-                        securityHolder.getExcluded().elements().hasMoreElements();
+                                         securityHolder.getExcluded().elements().hasMoreElements();
                 if (!hasPermissions && defaultSubject != null) {
                     Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
                     addValve(defaultSubjectValve);
@@ -146,10 +147,10 @@ public class GeronimoStandardContext extends StandardContext{
 
         // Add User Defined Valves
         List valveChain = ctx.getValveChain();
-        if (valveChain != null){
+        if (valveChain != null) {
             Iterator iterator = valveChain.iterator();
-            while(iterator.hasNext()){
-                Valve valve = (Valve)iterator.next();
+            while (iterator.hasNext()) {
+                Valve valve = (Valve) iterator.next();
                 addValve(valve);
             }
         }
@@ -165,18 +166,18 @@ public class GeronimoStandardContext extends StandardContext{
 
     public synchronized void stop() throws LifecycleException {
         // Remove the defaultSubject
-        if (defaultSubject != null){
+        if (defaultSubject != null) {
             ContextManager.unregisterSubject(defaultSubject);
         }
 
-       super.stop();
+        super.stop();
     }
 
-    public void addChild(Container child){
+    public void addChild(Container child) {
         Wrapper wrapper = (Wrapper) child;
 
         String servletClassName = wrapper.getServletClass();
-        if (servletClassName == null){
+        if (servletClassName == null) {
             super.addChild(child);
             return;
         }
@@ -185,20 +186,20 @@ public class GeronimoStandardContext extends StandardContext{
 
         Class baseServletClass = null;
         Class servletClass = null;
-        try{
+        try {
             baseServletClass = cl.loadClass(Servlet.class.getName());
             servletClass = cl.loadClass(servletClassName);
             //Check if the servlet is of type Servlet class
-            if (!baseServletClass.isAssignableFrom(servletClass)){
+            if (!baseServletClass.isAssignableFrom(servletClass)) {
                 //Nope - its probably a webservice, so lets see...
-                if (webServiceMap != null){
-                    StoredObject storedObject = (StoredObject)webServiceMap.get(wrapper.getName());
+                if (webServiceMap != null) {
+                    StoredObject storedObject = (StoredObject) webServiceMap.get(wrapper.getName());
 
-                    if (storedObject != null){
+                    if (storedObject != null) {
                         WebServiceContainer webServiceContainer = null;
-                        try{
-                            webServiceContainer = (WebServiceContainer)storedObject.getObject(cl);
-                        } catch(IOException io){
+                        try {
+                            webServiceContainer = (WebServiceContainer) storedObject.getObject(cl);
+                        } catch (IOException io) {
                             throw new RuntimeException(io);
                         }
                         //Yep its a web service
@@ -217,7 +218,7 @@ public class GeronimoStandardContext extends StandardContext{
                     }
                 }
             }
-        } catch (ClassNotFoundException e){
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
 

@@ -53,14 +53,12 @@
     </module>
 
     <security>
-        <default-principal realm-name="geronimo-properties-realm">
+        <default-principal>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="system"/>
         </default-principal>
         <role-mappings>
             <role role-name="admin">
-                <realm realm-name="geronimo-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" designated-run-as="true"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" designated-run-as="true"/>
             </role>
         </role-mappings>
     </security>

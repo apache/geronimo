@@ -1,6 +1,6 @@
 <xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
 
-    <xb:namespace uri="http://geronimo.apache.org/xml/ns/security-1.0">
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/security-1.1">
         <xb:package>org.apache.geronimo.xbeans.geronimo.security</xb:package>
         <xb:prefix>Ger</xb:prefix>
     </xb:namespace>

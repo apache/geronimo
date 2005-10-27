@@ -30,14 +30,12 @@
 
           <security-realm-name>petstore-realm</security-realm-name>
           <security>
-              <default-principal realm-name="petstore-realm">
+              <default-principal>
                   <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="jps_admin"/>
               </default-principal>
               <role-mappings>
                   <role role-name="administrator">
-                      <realm realm-name="petstore-realm">
-                          <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="jps_admin"/>
-                      </realm>
+                      <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="jps_admin"/>
                   </role>
               </role-mappings>
           </security>

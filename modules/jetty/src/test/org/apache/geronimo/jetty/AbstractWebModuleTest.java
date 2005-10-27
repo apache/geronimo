@@ -224,7 +224,7 @@ public class AbstractWebModuleTest extends TestCase {
 //        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
         Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
-        principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
         start(loginConfigurationGBean);

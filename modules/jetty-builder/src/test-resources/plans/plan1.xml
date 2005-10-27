@@ -9,39 +9,29 @@
     </resource-ref>
     <security-realm-name>public-properties-realm</security-realm-name>
     <security default-role="UNASSIGNED" doas-current-caller="true">
-        <default-principal realm-name="public-properties-realm">
+        <default-principal>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
         </default-principal>
 
         <role-mappings>
             <role role-name="UNASSIGNED">
-                <realm realm-name="public-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest" designated-run-as="true"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest" designated-run-as="true"/>
             </role>
 
             <role role-name="LOW">
-                <realm realm-name="public-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="acct" designated-run-as="true"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="acct" designated-run-as="true"/>
                 <distinguished-name name="CN=Duke, OU=Java Software, O=Sun Microsystems\, Inc., L=Palo Alto, ST=CA, C=US"/>
             </role>
 
             <role role-name="MEDIUM">
-                <realm realm-name="public-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it"/>
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george" designated-run-as="true"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george" designated-run-as="true"/>
             </role>
 
             <role role-name="HIGH">
-                <realm realm-name="public-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="mgmt" designated-run-as="true"/>
-                </realm>
-                <realm realm-name="black-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="dain"/>
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="david"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="mgmt" designated-run-as="true"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="dain"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="david"/>
             </role>
         </role-mappings>
     </security>

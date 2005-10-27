@@ -30,7 +30,7 @@ public class ApplicationTest extends AbstractWebModuleTest {
     public void DavidJencksPleaseVisitMetestApplication() throws Exception {
         setUpInsecureAppContext();
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/test/hello.txt")
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/test/hello.txt")
                 .openConnection();
         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());

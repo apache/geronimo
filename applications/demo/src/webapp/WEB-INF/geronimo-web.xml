@@ -18,7 +18,7 @@
 
 <web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
     configId="org/apache/geronimo/Demo"
     parentId="org/apache/geronimo/SampleSecurityRealm">
 
@@ -26,16 +26,14 @@
     <context-priority-classloader>false</context-priority-classloader>
     <security-realm-name>demo-properties-realm</security-realm-name>
     <security>
-        <default-principal realm-name="demo-properties-realm">
+        <default-principal>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="izumi"/>
         </default-principal>
         <role-mappings>
             <role role-name="content-administrator">
-                <realm realm-name="demo-properties-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it" designated-run-as="true"/>
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="metro"/>
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="it" designated-run-as="true"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="metro"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="george"/>
             </role>
         </role-mappings>
     </security>

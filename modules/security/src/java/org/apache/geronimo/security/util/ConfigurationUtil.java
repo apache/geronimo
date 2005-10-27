@@ -22,18 +22,23 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Set;
+import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.PolicyContextHandler;
-import javax.security.auth.x500.X500Principal;
-import javax.security.auth.Subject;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.DomainPrincipal;
+import org.apache.geronimo.security.PrimaryDomainPrincipal;
+import org.apache.geronimo.security.PrimaryPrincipal;
 import org.apache.geronimo.security.PrimaryRealmPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
-import org.apache.geronimo.security.DomainPrincipal;
-import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.DefaultDomainPrincipal;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.security.deploy.DefaultRealmPrincipal;
+import org.apache.geronimo.security.deploy.Principal;
 
 
 /**
@@ -48,6 +53,7 @@ public class ConfigurationUtil {
 
     /**
      * Create an X500Principal from a deployment description.
+     *
      * @param name the distinguished name of the principal
      * @return an X500Principal from a deployment description
      */
@@ -56,35 +62,27 @@ public class ConfigurationUtil {
     }
 
     /**
-     * Create a RealmPrincipal from a deployment description.
+     * Create a Principal from a deployment description.
+     *
      * @param principal the deployment description of the principal to be created.
-     * @param loginDomain
      * @return a RealmPrincipal from a deployment description
      */
-    public static java.security.Principal generateRealmPrincipal(final Principal principal, final String loginDomain, final String realmName) {
-        return generateRealmPrincipal(principal.getClassName(), principal.getPrincipalName(), loginDomain, realmName);
+    public static java.security.Principal generatePrincipal(final Principal principal) {
+        return generatePrincipal(principal.getClassName(), principal.getPrincipalName());
     }
 
-    public static java.security.Principal generateRealmPrincipal(final String className, final String principalName, final String loginDomain, final String realmName) {
+    public static java.security.Principal generatePrincipal(final String className, final String principalName) {
         try {
             return (java.security.Principal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
-                    java.security.Principal p = null;
                     Class clazz = Class.forName(className);
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
-                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
-                    if (loginDomain != null) {
-                        p = new DomainPrincipal(loginDomain, p);
-                        if (realmName != null) {
-                            p = new RealmPrincipal(realmName, p);
-                        }
-                    }
-                    return p;
+                    return (java.security.Principal) constructor.newInstance(new Object[]{principalName});
                 }
             });
         } catch (PrivilegedActionException e) {
             e.printStackTrace();
-            if(e.getException() != null) {
+            if (e.getException() != null) {
                 e.getException().printStackTrace();
             }
             return null;
@@ -93,14 +91,47 @@ public class ConfigurationUtil {
 
     /**
      * Create a RealmPrincipal from a deployment description.
+     *
      * @param principal the deployment description of the principal to be created.
      * @return a RealmPrincipal from a deployment description
      */
-    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final Principal principal, final String loginDomain) {
-        return generatePrimaryRealmPrincipal(principal.getClassName(), principal.getPrincipalName(), loginDomain);
+    public static RealmPrincipal generateRealmPrincipal(final String realm, final String loginDomain, final Principal principal) {
+        return generateRealmPrincipal(realm, loginDomain, principal.getClassName(), principal.getPrincipalName());
     }
 
-    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final String className, final String principalName, final String loginDomain) {
+    public static RealmPrincipal generateRealmPrincipal(final String realm, final String loginDomain, final String className, final String principalName
+    )
+    {
+        return new RealmPrincipal(realm, loginDomain, generatePrincipal(className, principalName));
+    }
+
+    /**
+     * Create a DomainPrincipal from a deployment description.
+     *
+     * @param principal the deployment description of the principal to be created.
+     * @return a RealmPrincipal from a deployment description
+     */
+    public static DomainPrincipal generateDomainPrincipal(final String loginDomain, final Principal principal) {
+        return generateDomainPrincipal(loginDomain, principal.getClassName(), principal.getPrincipalName());
+    }
+
+    public static DomainPrincipal generateDomainPrincipal(final String loginDomain, final String className, final String principalName) {
+        return new DomainPrincipal(loginDomain, generatePrincipal(className, principalName));
+    }
+
+    /**
+     * Create a RealmPrincipal from a deployment description.
+     *
+     * @param principal the deployment description of the principal to be created.
+     * @return a PrimaryRealmPrincipal from a deployment description
+     */
+    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final String realm, final String domain, final Principal principal) throws DeploymentException {
+        return generatePrimaryRealmPrincipal(realm, domain, principal.getClassName(), principal.getPrincipalName());
+    }
+
+    public static PrimaryRealmPrincipal generatePrimaryRealmPrincipal(final String realm, final String domain, final String className, final String principalName
+    ) throws DeploymentException
+    {
         try {
             return (PrimaryRealmPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
                 public Object run() throws Exception {
@@ -109,15 +140,67 @@ public class ConfigurationUtil {
                     Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
                     p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
 
-                    return new PrimaryRealmPrincipal(loginDomain, p);
+                    return new PrimaryRealmPrincipal(realm, domain, p);
                 }
             });
-        } catch (PrivilegedActionException e) {
-            e.printStackTrace();
-            if(e.getException() != null) {
-                e.getException().printStackTrace();
-            }
-            return null;
+        } catch (PrivilegedActionException pae) {
+            throw new DeploymentException("Unable to create realm principal", pae.getException());
+        }
+    }
+
+    /**
+     * Create a DomainPrincipal from a deployment description.
+     *
+     * @param principal the deployment description of the principal to be created.
+     * @return a PrimaryDomainPrincipal from a deployment description
+     */
+    public static PrimaryDomainPrincipal generatePrimaryDomainPrincipal(final String domain, final Principal principal) throws DeploymentException {
+        return generatePrimaryDomainPrincipal(domain, principal.getClassName(), principal.getPrincipalName());
+    }
+
+    public static PrimaryDomainPrincipal generatePrimaryDomainPrincipal(final String domain, final String className, final String principalName
+    ) throws DeploymentException
+    {
+        try {
+            return (PrimaryDomainPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
+                public Object run() throws Exception {
+                    java.security.Principal p = null;
+                    Class clazz = Class.forName(className);
+                    Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
+
+                    return new PrimaryDomainPrincipal(domain, p);
+                }
+            });
+        } catch (PrivilegedActionException pae) {
+            throw new DeploymentException("Unable to create domain principal", pae.getException());
+        }
+    }
+
+    /**
+     * Create a Principal from a deployment description.
+     *
+     * @param principal the deployment description of the principal to be created.
+     * @return a Principal from a deployment description
+     */
+    public static PrimaryPrincipal generatePrimaryPrincipal(final Principal principal) throws DeploymentException {
+        return generatePrimaryPrincipal(principal.getClassName(), principal.getPrincipalName());
+    }
+
+    public static PrimaryPrincipal generatePrimaryPrincipal(final String className, final String principalName) throws DeploymentException {
+        try {
+            return (PrimaryPrincipal) AccessController.doPrivileged(new PrivilegedExceptionAction() {
+                public Object run() throws Exception {
+                    java.security.Principal p = null;
+                    Class clazz = Class.forName(className);
+                    Constructor constructor = clazz.getDeclaredConstructor(new Class[]{String.class});
+                    p = (java.security.Principal) constructor.newInstance(new Object[]{principalName});
+
+                    return new PrimaryPrincipal(p);
+                }
+            });
+        } catch (PrivilegedActionException pae) {
+            throw new DeploymentException("Unable to create principal", pae.getException());
         }
     }
 
@@ -127,23 +210,29 @@ public class ConfigurationUtil {
      * @param defaultPrincipal
      * @return the default principal
      */
-    public static Subject generateDefaultSubject(DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
+    public static Subject generateDefaultSubject(DefaultPrincipal defaultPrincipal) throws DeploymentException {
         if (defaultPrincipal == null) {
             throw new GeronimoSecurityException("No DefaultPrincipal configuration supplied");
         }
         Subject defaultSubject = new Subject();
+        java.security.Principal principal;
+        java.security.Principal primaryPrincipal;
 
-        java.security.Principal realmPrincipal = generateRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getLoginDomain(), defaultPrincipal.getRealmName());
-        if (realmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create realm principal");
-        }
-        PrimaryRealmPrincipal primaryRealmPrincipal = generatePrimaryRealmPrincipal(defaultPrincipal.getPrincipal(), defaultPrincipal.getRealmName());
-        if (primaryRealmPrincipal == null) {
-            throw new GeronimoSecurityException("Unable to create primary realm principal");
-        }
+        if (defaultPrincipal instanceof DefaultRealmPrincipal) {
+            DefaultRealmPrincipal defaultRealmPrincipal = (DefaultRealmPrincipal) defaultPrincipal;
+            principal = generateRealmPrincipal(defaultRealmPrincipal.getRealm(), defaultRealmPrincipal.getDomain(), defaultRealmPrincipal.getPrincipal());
+            primaryPrincipal = generatePrimaryRealmPrincipal(defaultRealmPrincipal.getRealm(), defaultRealmPrincipal.getDomain(), defaultRealmPrincipal.getPrincipal());
+        } else if (defaultPrincipal instanceof DefaultDomainPrincipal) {
+            DefaultDomainPrincipal defaultDomainPrincipal = (DefaultDomainPrincipal) defaultPrincipal;
+            principal = generateDomainPrincipal(defaultDomainPrincipal.getDomain(), defaultDomainPrincipal.getPrincipal());
+            primaryPrincipal = generatePrimaryDomainPrincipal(defaultDomainPrincipal.getDomain(), defaultDomainPrincipal.getPrincipal());
+        } else {
+            principal = generatePrincipal(defaultPrincipal.getPrincipal());
+            primaryPrincipal = generatePrimaryPrincipal(defaultPrincipal.getPrincipal());
 
-        defaultSubject.getPrincipals().add(realmPrincipal);
-        defaultSubject.getPrincipals().add(primaryRealmPrincipal);
+        }
+        defaultSubject.getPrincipals().add(principal);
+        defaultSubject.getPrincipals().add(primaryPrincipal);
 
         Set namedUserPasswordCredentials = defaultPrincipal.getNamedUserPasswordCredentials();
         if (namedUserPasswordCredentials != null) {
@@ -152,7 +241,6 @@ public class ConfigurationUtil {
 
         return defaultSubject;
     }
-
 
 
     /**

@@ -91,7 +91,7 @@ public class ContainerTest extends TestCase {
         MockWebServiceContainer webServiceInvoker = new MockWebServiceContainer();
         kernel.invoke(containerName, "addWebService", new Object[]{contextPath, null, webServiceInvoker, null, null, null, null, cl}, new String[]{String.class.getName(), String[].class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
 
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             assertEquals(HttpURLConnection.HTTP_OK, connection.getResponseCode());
@@ -100,7 +100,7 @@ public class ContainerTest extends TestCase {
             connection.disconnect();
         }
         kernel.invoke(containerName, "removeWebService", new Object[]{contextPath}, new String[]{String.class.getName()});
-        connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();
@@ -127,7 +127,7 @@ public class ContainerTest extends TestCase {
         kernel.invoke(containerName, "addWebService", new Object[]{contextPath, null, webServiceInvoker, "Geronimo", "Geronimo", "NONE", "BASIC", cl}, new String[]{String.class.getName(), String[].class.getName(), WebServiceContainer.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName(), ClassLoader.class.getName()});
 
         //Veryify its secured
-        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();
@@ -138,7 +138,7 @@ public class ContainerTest extends TestCase {
         }
 
         //Authenticate
-        connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
         String authentication = (new BASE64Encoder()).encode(("alan:starcraft").getBytes());
         connection.setRequestProperty("Authorization", "Basic " + authentication);
         try {
@@ -149,7 +149,7 @@ public class ContainerTest extends TestCase {
             connection.disconnect();
         }
         kernel.invoke(containerName, "removeWebService", new Object[]{contextPath}, new String[]{String.class.getName()});
-        connection = (HttpURLConnection) new URL("http://localhost:8080" + contextPath).openConnection();
+        connection = (HttpURLConnection) new URL("http://localhost:8181" + contextPath).openConnection();
         try {
             connection.getInputStream();
             fail();
@@ -288,7 +288,7 @@ public class ContainerTest extends TestCase {
 
         connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
         connector.setAttribute("name", "HTTP");
-        connector.setAttribute("port", new Integer(8080));
+        connector.setAttribute("port", new Integer(8181));
         connector.setReferencePattern("TomcatContainer", containerName);
         start(connector);
     }

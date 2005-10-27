@@ -19,8 +19,8 @@
 <xsd:schema
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:j2ee="http://java.sun.com/xml/ns/j2ee"
-    xmlns:geronimo="http://geronimo.apache.org/xml/ns/security-1.0"
-    targetNamespace="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/security-1.1"
+    targetNamespace="http://geronimo.apache.org/xml/ns/security-1.1"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
     version="1.0">
@@ -83,10 +83,13 @@
     <xsd:complexType name="default-principalType">
         <xsd:sequence>
             <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="principal" type="geronimo:principalType"/>
+            <xsd:choice>
+                <xsd:element name="principal" type="geronimo:principalType"/>
+                <xsd:element name="login-domain-principal" type="geronimo:loginDomainPrincipalType"/>
+                <xsd:element name="realm-principal" type="geronimo:realmPrincipalType"/>
+            </xsd:choice>
             <xsd:element name="named-username-password-credential" type="geronimo:named-username-password-credentialType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
-        <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
     </xsd:complexType>
 
     <xsd:complexType name="named-username-password-credentialType">
@@ -106,18 +109,30 @@
     <xsd:complexType name="roleType">
         <xsd:sequence>
             <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="realm" type="geronimo:realmType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="realm-principal" type="geronimo:realmPrincipalType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="login-domain-principal" type="geronimo:loginDomainPrincipalType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="principal" type="geronimo:principalType" minOccurs="0" maxOccurs="unbounded"/>
             <xsd:element name="distinguished-name" type="geronimo:distinguishedNameType" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
         <xsd:attribute name="role-name" type="xsd:string" use="required"/>
     </xsd:complexType>
-    <xsd:complexType name="realmType">
-        <xsd:sequence>
-            <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
-            <xsd:element name="principal" type="geronimo:principalType" minOccurs="1" maxOccurs="unbounded"/>
-        </xsd:sequence>
-        <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
+
+    <xsd:complexType name="realmPrincipalType">
+        <xsd:complexContent>
+            <xsd:extension base="geronimo:loginDomainPrincipalType">
+                <xsd:attribute name="realm-name" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
+
+    <xsd:complexType name="loginDomainPrincipalType">
+        <xsd:complexContent>
+            <xsd:extension base="geronimo:principalType">
+                <xsd:attribute name="domain-name" type="xsd:string" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
     <xsd:complexType name="principalType">
         <xsd:sequence>
             <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>
@@ -133,6 +148,7 @@
             </xsd:annotation>
         </xsd:attribute>
     </xsd:complexType>
+
     <xsd:complexType name="distinguishedNameType">
         <xsd:sequence>
             <xsd:element name="description" type="geronimo:descriptionType" minOccurs="0" maxOccurs="unbounded"/>

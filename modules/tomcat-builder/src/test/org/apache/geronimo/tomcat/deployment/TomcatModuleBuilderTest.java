@@ -434,7 +434,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         connector = new GBeanData(connectorName, ConnectorGBean.GBEAN_INFO);
         connector.setAttribute("name", "HTTP");
-        connector.setAttribute("port", new Integer(8080));
+        connector.setAttribute("port", new Integer(8181));
         connector.setReferencePattern("TomcatContainer", containerName);
 
         start(container);

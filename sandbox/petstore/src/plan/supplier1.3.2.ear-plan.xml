@@ -300,14 +300,12 @@
     </module>
 
     <security>
-        <default-principal realm-name="petstore-realm">
+        <default-principal>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
         </default-principal>
         <role-mappings>
             <role role-name="administrator">
-                <realm realm-name="petstore-realm">
-                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
-                </realm>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
             </role>
         </role-mappings>
     </security>

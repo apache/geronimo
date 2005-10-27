@@ -18,13 +18,13 @@
 
 <web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
     configId="org/apache/geronimo/test">
 
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>
     <sec:security>
-        <sec:default-principal realm-name="demo-properties-realm">
+        <sec:default-principal>
             <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="metro"/>
         </sec:default-principal>
     </sec:security>
