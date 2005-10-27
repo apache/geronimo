@@ -5,19 +5,18 @@
   <pomVersion>3</pomVersion>
   <id>daytrader-ejb</id>
   <name>DayTrader EJBs</name>
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
   <package>org.apache.geronimo.samples.daytrader.ejb</package>
   <description>Day Trader EJBs</description>
   <dependencies>
     <dependency>
       <groupId>daytrader</groupId>
       <artifactId>daytrader-core</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
       <groupId>daytrader</groupId>
       <artifactId>daytrader-wsappclient</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
       <groupId>geronimo-spec</groupId>

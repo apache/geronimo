@@ -5,7 +5,6 @@
   <pomVersion>3</pomVersion>
   <id>daytrader-wsappclient</id>
   <name>daytrader-wsappclient</name>
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
   <package>org.apache.geronimo.samples.daytrader</package>
   <description>Common files for day Trader</description>
   <dependencies>

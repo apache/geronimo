@@ -28,13 +28,13 @@
                 <env-entry-type>java.lang.Boolean</env-entry-type>
                 <env-entry-value>true</env-entry-value>
             </env-entry>
-            <ejb-ref>
+            <!--ejb-ref>
                 <ejb-ref-name>ejb/Trade</ejb-ref-name>
                 <ejb-ref-type>Session</ejb-ref-type>
                 <home>org.apache.geronimo.samples.daytrader.ejb.TradeHome</home>
                 <remote>org.apache.geronimo.samples.daytrader.ejb.Trade</remote>
                 <ejb-link>TradeEJB</ejb-link>
-            </ejb-ref>
+            </ejb-ref-->
             <ejb-local-ref>
                 <ejb-ref-name>ejb/Quote</ejb-ref-name>
                 <ejb-ref-type>Entity</ejb-ref-type>

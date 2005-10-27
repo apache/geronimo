@@ -5,14 +5,13 @@
   <pomVersion>3</pomVersion>
   <id>daytrader-web</id>
   <name>Web Application</name>
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
   <package>org.apache.geronimo.samples.daytrader.web</package>
   <description>This is the web application.</description>
   <dependencies>
     <dependency>
       <groupId>daytrader</groupId>
       <artifactId>daytrader-ejb</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${pom.currentVersion}</version>
       <type>ejb</type>
       <properties>
         <war.bundle>true</war.bundle>
