@@ -26,7 +26,7 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>The Magic G Ball</name>
+    <name>Geronimo :: The Magic G Ball Sample Application</name>
     <id>magicGball</id>
 <!--    <currentVersion>0.01234-alpha0</currentVersion>-->
 
@@ -39,6 +39,12 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
             <version>1.4-rc4</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment-plugin</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
         </dependency>
     </dependencies>
 

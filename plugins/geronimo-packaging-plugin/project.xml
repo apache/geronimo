@@ -21,7 +21,7 @@
     <pomVersion>3</pomVersion>
     <groupId>geronimo</groupId>
     <id>geronimo-packaging-plugin</id>
-    <name>Geronimo Packaging Plugin</name>
+    <name>Geronimo :: Maven Packaging Plugin</name>
     <currentVersion>1.0-SNAPSHOT</currentVersion>
 
     <dependencies>

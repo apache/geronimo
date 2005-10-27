@@ -22,7 +22,7 @@
 
     <groupId>geronimo</groupId>
     <id>geronimo-deployment-plugin</id>
-    <name>Geronimo maven deployment plugin</name>
+    <name>Geronimo :: Maven Deployment Plugin</name>
     <organization>
         <name>Apache Software Foundation</name>
         <url>http://www.apache.org/</url>

@@ -21,7 +21,7 @@
     <pomVersion>3</pomVersion>
     <groupId>geronimo</groupId>
     <id>geronimo-assembly-plugin</id>
-    <name>Geronimo Assembly Plugin</name>
+    <name>Geronimo :: Maven Assembly Plugin</name>
     <description>A plugin used to assemble a distribution of Geronimo</description>
     <currentVersion>1.0-SNAPSHOT</currentVersion>
 

@@ -21,6 +21,7 @@
 
 <project default="default"
     xmlns:ant="jelly:ant"
+    xmlns:artifact="jelly:artifact"
     xmlns:j="jelly:core">
 
     <!-- ================= -->
@@ -39,7 +40,7 @@
     <!-- ==================== -->
 
     <goal name="default">
-        <attainGoal name="plugin:install"/>
+        <attainGoal name="plugin:install-now"/>
         <attainGoal name="doinstall"/>
     </goal>
 
@@ -52,7 +53,7 @@
         <attainGoal name="build"/>
     </goal>
 
-    <postGoal name="plugin:install">
+    <postGoal name="plugin:install-now">
         <attainGoal name="doinstall"/>
     </postGoal>
 
