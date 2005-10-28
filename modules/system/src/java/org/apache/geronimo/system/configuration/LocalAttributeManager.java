@@ -65,6 +65,9 @@ import org.xml.sax.SAXException;
  */
 public class LocalAttributeManager implements ManageableAttributeStore, PersistentConfigurationList, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(LocalAttributeManager.class);
+
+    private final static String CONFIG_FILE_PROPERTY = "org.apache.geronimo.config.file";
+    
     private final static String BACKUP_EXTENSION = ".bak";
     private final static String TEMP_EXTENSION = ".working";
     private final static int SAVE_BUFFER_MS = 5000;
@@ -84,7 +87,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
     private boolean kernelFullyStarted;
 
     public LocalAttributeManager(String configFile, boolean readOnly, ServerInfo serverInfo) {
-        this.configFile = configFile;
+        this.configFile = System.getProperty(CONFIG_FILE_PROPERTY, configFile);
         this.readOnly = readOnly;
         this.serverInfo = serverInfo;
     }
