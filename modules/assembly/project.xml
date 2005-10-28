@@ -597,16 +597,6 @@
             </properties>
         </dependency>
 
-
-        <dependency>
-            <groupId>axion</groupId>
-            <artifactId>axion</artifactId>
-            <version>${axion_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
         <!-- dependencies due to activemq -->
         <dependency>
             <groupId>activemq</groupId>
@@ -722,8 +712,8 @@
             </properties>
         </dependency>
 
+        <!--axion only ????? -->
         <dependency>
-            <!--axion only-->
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>${commons_collections_version}</version>
@@ -767,7 +757,6 @@
         </dependency>
 
         <dependency>
-            <!--axion-->
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
             <version>${commons_primitives_version}</version>

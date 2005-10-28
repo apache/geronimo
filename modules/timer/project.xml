@@ -115,11 +115,13 @@
             <version>${derby_version}</version>
         </dependency>
 
+<!--
         <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
             <version>${commons_primitives_version}</version>
         </dependency>
+-->
 
 
         <dependency>
@@ -136,12 +138,14 @@
         </dependency>
 
         <!-- needed for axion tests-->
+<!--
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
             <version>${regexp_version}</version>
             <url>http://jakarta.apache.org/regexp</url>
         </dependency>
+-->
 
         <dependency>
             <groupId>mx4j</groupId>

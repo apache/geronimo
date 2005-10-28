@@ -20,7 +20,6 @@ package org.apache.geronimo.timer.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.Date;
 import javax.sql.DataSource;
@@ -28,7 +27,6 @@ import javax.sql.DataSource;
 import junit.framework.TestCase;
 import org.apache.geronimo.timer.Playback;
 import org.apache.geronimo.timer.WorkInfo;
-import org.axiondb.jdbc.AxionDataSource;
 
 /**
  *
