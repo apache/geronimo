@@ -234,7 +234,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         for (int j = 0; j < servletMappings.length; j++) {
             ServletMappingType servletMapping = servletMappings[j];
             String servletName = servletMapping.getServletName().getStringValue().trim();
-            map.put(servletName, contextRoot + servletMapping.getUrlPattern().getStringValue());
+            map.put(servletName, contextRoot + servletMapping.getUrlPattern().getStringValue().trim());
         }
         return map;
     }
@@ -638,7 +638,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 for (int k = 0; k < urlPatternTypeArray.length; k++) {
                     UrlPatternType urlPatternType = urlPatternTypeArray[k];
                     //presumably, don't trim
-                    String url = urlPatternType.getStringValue();
+                    String url = urlPatternType.getStringValue().trim();
                     URLPattern pattern = (URLPattern) currentPatterns.get(url);
                     if (pattern == null) {
                         pattern = new URLPattern(url);
@@ -874,13 +874,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
         for (int i = 0; i < filterMappings.length; i++) {
             if (filterMappings[i].isSetUrlPattern()) {
-                checkString(filterMappings[i].getUrlPattern().getStringValue());
+                checkString(filterMappings[i].getUrlPattern().getStringValue().trim());
             }
         }
 
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
         for (int i = 0; i < servletMappings.length; i++) {
-            checkString(servletMappings[i].getUrlPattern().getStringValue());
+            checkString(servletMappings[i].getUrlPattern().getStringValue().trim());
         }
 
         SecurityConstraintType[] constraints = webApp.getSecurityConstraintArray();
@@ -889,7 +889,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             for (int j = 0; j < collections.length; j++) {
                 UrlPatternType[] patterns = collections[j].getUrlPatternArray();
                 for (int k = 0; k < patterns.length; k++) {
-                    checkString(patterns[k].getStringValue());
+                    checkString(patterns[k].getStringValue().trim());
                 }
             }
         }

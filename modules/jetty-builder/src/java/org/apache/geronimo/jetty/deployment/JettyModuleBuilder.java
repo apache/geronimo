@@ -280,7 +280,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         for (int j = 0; j < servletMappings.length; j++) {
             ServletMappingType servletMapping = servletMappings[j];
             String servletName = servletMapping.getServletName().getStringValue().trim();
-            map.put(servletName, contextRoot + servletMapping.getUrlPattern().getStringValue());
+            map.put(servletName, contextRoot + servletMapping.getUrlPattern().getStringValue().trim());
         }
         return map;
     }
@@ -621,7 +621,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             for (int i = 0; i < servletMappingArray.length; i++) {
                 ServletMappingType servletMappingType = servletMappingArray[i];
                 String servletName = servletMappingType.getServletName().getStringValue().trim();
-                String urlPattern = servletMappingType.getUrlPattern().getStringValue();
+                String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
                 if (!knownServletMappings.contains(urlPattern)) {
                     knownServletMappings.add(urlPattern);
                     checkString(urlPattern);
@@ -704,7 +704,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 ObjectName filterMappingName = null;
                 if (filterMappingType.isSetUrlPattern()) {
                     //do not trim!
-                    String urlPattern = filterMappingType.getUrlPattern().getStringValue();
+                    String urlPattern = filterMappingType.getUrlPattern().getStringValue().trim();
                     filterMappingData.setAttribute("urlPattern", urlPattern);
                     filterMappingName = NameFactory.getWebFilterMappingName(null, null, null, null, filterName, null, urlPattern, moduleJ2eeContext);
                 }
@@ -1057,8 +1057,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 UrlPatternType[] urlPatternTypeArray = webResourceCollectionType.getUrlPatternArray();
                 for (int k = 0; k < urlPatternTypeArray.length; k++) {
                     UrlPatternType urlPatternType = urlPatternTypeArray[k];
-                    //presumably, don't trim
-                    String url = urlPatternType.getStringValue();
+                    String url = urlPatternType.getStringValue().trim();
                     URLPattern pattern = (URLPattern) currentPatterns.get(url);
                     if (pattern == null) {
                         pattern = new URLPattern(url);
@@ -1294,13 +1293,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         FilterMappingType[] filterMappings = webApp.getFilterMappingArray();
         for (int i = 0; i < filterMappings.length; i++) {
             if (filterMappings[i].isSetUrlPattern()) {
-                checkString(filterMappings[i].getUrlPattern().getStringValue());
+                checkString(filterMappings[i].getUrlPattern().getStringValue().trim());
             }
         }
 
         ServletMappingType[] servletMappings = webApp.getServletMappingArray();
         for (int i = 0; i < servletMappings.length; i++) {
-            checkString(servletMappings[i].getUrlPattern().getStringValue());
+            checkString(servletMappings[i].getUrlPattern().getStringValue().trim());
         }
 
         SecurityConstraintType[] constraints = webApp.getSecurityConstraintArray();
@@ -1309,7 +1308,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             for (int j = 0; j < collections.length; j++) {
                 UrlPatternType[] patterns = collections[j].getUrlPatternArray();
                 for (int k = 0; k < patterns.length; k++) {
-                    checkString(patterns[k].getStringValue());
+                    checkString(patterns[k].getStringValue().trim());
                 }
             }
         }
