@@ -116,21 +116,9 @@
         </dependency>
 
         <dependency>
-            <groupId>axion</groupId>
-            <artifactId>axion</artifactId>
-            <version>${axion_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
-        </dependency>
-
-        <dependency>
             <groupId>commons-primitives</groupId>
             <artifactId>commons-primitives</artifactId>
             <version>${commons_primitives_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
         </dependency>
 
 
