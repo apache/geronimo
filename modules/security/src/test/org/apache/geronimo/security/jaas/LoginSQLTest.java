@@ -21,7 +21,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.Set;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -91,8 +90,8 @@ public class LoginSQLTest extends AbstractTest {
         props.put("jdbcDriver", "org.hsqldb.jdbcDriver");
         props.put("jdbcUser", "loginmodule");
         props.put("jdbcPassword", "password");
-        props.put("userSelect", "SELECT UserName, Password FROM Users");
-        props.put("groupSelect", "SELECT GroupName, UserName FROM Groups");
+        props.put("userSelect", "SELECT UserName, Password FROM Users where UserName = ?");
+        props.put("groupSelect", "SELECT GroupName, UserName FROM Groups where UserName = ?");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "SQLDomain");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
@@ -147,8 +146,6 @@ public class LoginSQLTest extends AbstractTest {
         Subject subject = context.getSubject();
         assertTrue("expected non-null client-side subject", subject != null);
         subject = ContextManager.getServerSideSubject(subject);
-
-        Set test = subject.getPrincipals(DomainPrincipal.class);
 
         assertTrue("expected non-null server-side subject", subject != null);
         assertEquals("server-side subject should have seven principal", 7, subject.getPrincipals().size());

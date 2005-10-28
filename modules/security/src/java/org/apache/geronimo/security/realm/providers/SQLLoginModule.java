@@ -80,9 +80,9 @@ public class SQLLoginModule implements LoginModule {
         try {
             this.driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Driver class "+driver+" is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
-        } catch(Exception e) {
-            throw new IllegalArgumentException("Unable to load, instantiate, register driver "+driver+": "+e.getMessage());
+            throw new IllegalArgumentException("Driver class " + driver + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Unable to load, instantiate, register driver " + driver + ": " + e.getMessage());
         }
     }
 
@@ -100,7 +100,7 @@ public class SQLLoginModule implements LoginModule {
         }
         assert callbacks.length == 2;
         cbUsername = ((NameCallback) callbacks[0]).getName();
-        if(cbUsername == null || cbUsername.equals("")) {
+        if (cbUsername == null || cbUsername.equals("")) {
             return false;
         }
         char[] provided = ((PasswordCallback) callbacks[1]).getPassword();
@@ -113,6 +113,10 @@ public class SQLLoginModule implements LoginModule {
             try {
                 PreparedStatement statement = conn.prepareStatement(userSelect);
                 try {
+                    int count = statement.getParameterMetaData().getParameterCount();
+                    for (int i = 1; i <= count; ++i) {
+                        statement.setObject(i, cbUsername);
+                    }
                     ResultSet result = statement.executeQuery();
 
                     try {
@@ -121,7 +125,7 @@ public class SQLLoginModule implements LoginModule {
                             String userPassword = result.getString(2);
 
                             if (cbUsername.equals(userName) && ((cbPassword == null && userPassword == null) ||
-                                     (cbPassword != null && userPassword != null && cbPassword.equals(userPassword)))) {
+                                    (cbPassword != null && userPassword != null && cbPassword.equals(userPassword)))) {
                                 found = true;
                                 break;
                             }
@@ -137,6 +141,10 @@ public class SQLLoginModule implements LoginModule {
 
                 statement = conn.prepareStatement(groupSelect);
                 try {
+                    int count = statement.getParameterMetaData().getParameterCount();
+                    for (int i = 1; i <= count; ++i) {
+                        statement.setObject(i, cbUsername);
+                    }
                     ResultSet result = statement.executeQuery();
 
                     try {
