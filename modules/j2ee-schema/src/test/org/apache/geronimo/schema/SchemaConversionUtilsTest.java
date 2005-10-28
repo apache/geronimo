@@ -390,6 +390,54 @@ public class SchemaConversionUtilsTest extends TestCase {
 //	        System.out.println(xmlObject.toString());
     }
 
+    public void testSecurityElementConverter() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/geronimo/security-pre.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/security-post.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        ElementConverter elementConverter = new SecurityElementConverter();
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor end = cursor.newCursor();
+        try {
+            elementConverter.convertElement(cursor, end);
+            //        System.out.println(xmlObject.toString());
+            XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+            List problems = new ArrayList();
+            boolean ok = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok);
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok2);
+        } finally {
+            cursor.dispose();
+            end.dispose();
+        }
+
+    }
+
+    public void testGBeanElementConverter() throws Exception {
+        File srcXml = new File(basedir, "src/test-data/geronimo/gbean-pre.xml");
+        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/gbean-post.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        ElementConverter elementConverter = new GBeanElementConverter();
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor end = cursor.newCursor();
+        try {
+            elementConverter.convertElement(cursor, end);
+            //        System.out.println(xmlObject.toString());
+            XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+            List problems = new ArrayList();
+            boolean ok = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok);
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok2);
+        } finally {
+            cursor.dispose();
+            end.dispose();
+        }
+
+    }
+
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
         XmlCursor test = xmlObject.newCursor();
         XmlCursor expected = expectedObject.newCursor();

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<gbean name="client-properties-realm"
+    class="org.apache.geronimo.security.realm.GenericSecurityRealm" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
+    <attribute name="realmName">client-properties-realm</attribute>
+    <xml-reference name="LoginModuleConfiguration">
+        <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
+            <lc:login-module control-flag="REQUIRED" server-side="true">
+                <lc:login-domain-name>client-properties-realm</lc:login-domain-name>
+                <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
+                <lc:option name="usersURI">var/security/users.properties</lc:option>
+                <lc:option name="groupsURI">var/security/groups.properties</lc:option>
+            </lc:login-module>
+            <lc:login-module control-flag="REQUIRED" server-side="true">
+                <lc:login-domain-name>default</lc:login-domain-name>
+                <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>
+                <lc:option name="org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name">default</lc:option>
+            </lc:login-module>
+        </lc:login-config>
+    </xml-reference>
+    <xml-attribute name="nssConfig">
+        <css:css xmlns:css="http://www.openejb.org/xml/ns/corba-css-config-2.0">
+            <css:compoundSecMechTypeList>
+                <css:compoundSecMech>
+                    <css:SSL>
+                        <css:supports>Integrity Confidentiality EstablishTrustInTarget EstablishTrustInClient</css:supports>
+                        <css:requires></css:requires>
+                    </css:SSL>
+                </css:compoundSecMech>
+            </css:compoundSecMechTypeList>
+        </css:css>
+    </xml-attribute>
+    <reference name="ServerInfo">
+        <module>org/apache/geronimo/ClientSystem</module>
+        <name>ServerInfo</name>
+    </reference>
+    <reference name="LoginService">
+        <name>JaasLoginService</name>
+    </reference>
+</gbean>

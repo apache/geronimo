@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<security xmlns="http://geronimo.apache.org/xml/ns/security-1.1">
+    <default-principal>
+        <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
+    </default-principal>
+    <role-mappings>
+        <role role-name="administrator">
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="buyer"/>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="x"/>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="y"/>
+        </role>
+    </role-mappings>
+</security>

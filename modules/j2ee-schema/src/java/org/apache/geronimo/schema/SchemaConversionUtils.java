@@ -17,28 +17,23 @@
 
 package org.apache.geronimo.schema;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 import java.util.HashMap;
-import java.net.URL;
+import java.util.Map;
 import javax.xml.namespace.QName;
 
+import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
 import org.apache.geronimo.xbeans.j2ee.ApplicationDocument;
+import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.EjbJarDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
-import org.apache.geronimo.xbeans.j2ee.ApplicationClientDocument;
-import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlDocumentProperties;
-import org.w3c.dom.Element;
 
 /**
  * @version $Rev$ $Date$
@@ -58,24 +53,24 @@ public class SchemaConversionUtils {
 
     static {
 
-        GERONIMO_SCHEMA_CONVERSIONS.put("ejb-ref", GERONIMO_NAMING_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("ejb-local-ref", GERONIMO_NAMING_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("service-ref", GERONIMO_NAMING_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("resource-ref", GERONIMO_NAMING_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("resource-env-ref", GERONIMO_NAMING_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("cmp-connection-factory", GERONIMO_NAMING_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", GERONIMO_NAMING_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", GERONIMO_NAMING_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("ejb-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("ejb-local-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("service-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("resource-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("resource-env-ref", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("cmp-connection-factory", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("workmanager", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("resource-adapter", new NamespaceElementConverter(GERONIMO_NAMING_NAMESPACE));
 
-        GERONIMO_SCHEMA_CONVERSIONS.put("security", GERONIMO_SECURITY_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("default-principal", GERONIMO_SECURITY_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("security", new SecurityElementConverter());
+        GERONIMO_SCHEMA_CONVERSIONS.put("default-principal", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
 
-        GERONIMO_SCHEMA_CONVERSIONS.put("gbean", GERONIMO_SERVICE_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("import", GERONIMO_SERVICE_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("hidden-classes", GERONIMO_SERVICE_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("non-overridable-classes", GERONIMO_SERVICE_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("dependency", GERONIMO_SERVICE_NAMESPACE);
-        GERONIMO_SCHEMA_CONVERSIONS.put("include", GERONIMO_SERVICE_NAMESPACE);
+        GERONIMO_SCHEMA_CONVERSIONS.put("gbean", new GBeanElementConverter());
+        GERONIMO_SCHEMA_CONVERSIONS.put("import", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("hidden-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("non-overridable-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("dependency", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("include", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
     }
 
     private SchemaConversionUtils() {
@@ -334,9 +329,9 @@ public class SchemaConversionUtils {
             while (cursor.hasNextToken()) {
                 if (cursor.isStart()) {
                     String localName = cursor.getName().getLocalPart();
-                    String namespace = (String) GERONIMO_SCHEMA_CONVERSIONS.get(localName);
-                    if (namespace != null) {
-                        convertElementToSchema(cursor, end, namespace);
+                    ElementConverter converter = (ElementConverter) GERONIMO_SCHEMA_CONVERSIONS.get(localName);
+                    if (converter != null) {
+                        converter.convertElement(cursor, end);
                     }
                 }
                 cursor.toNextToken();
@@ -435,24 +430,6 @@ public class SchemaConversionUtils {
                     cursor.insertAttributeWithValue(new QName("version"), version);
                     isFirstStart = false;
                 }
-            } else {
-                cursor.toNextToken();
-            }
-        }
-        return true;
-    }
-
-    public static boolean convertElementToSchema(XmlCursor cursor, XmlCursor end, String namespace) {
-        end.toCursor(cursor);
-        end.toEndToken();
-        while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
-            if (cursor.isStart()) {
-                if (namespace.equals(cursor.getName().getNamespaceURI())) {
-                    //already has correct schema, exit
-                    return false;
-                }
-                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
-                cursor.toNextToken();
             } else {
                 cursor.toNextToken();
             }

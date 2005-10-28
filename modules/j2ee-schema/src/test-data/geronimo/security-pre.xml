@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<security>
+    <default-principal realm-name="petstore-realm">
+        <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
+    </default-principal>
+    <role-mappings>
+        <role role-name="administrator">
+            <realm realm-name="petstore-realm">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="buyer"/>
+            </realm>
+            <realm realm-name="foo-realm">
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="x"/>
+                <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="y"/>
+            </realm>
+        </role>
+    </role-mappings>
+</security>
