@@ -87,6 +87,7 @@ import org.apache.geronimo.tomcat.ValveGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
+import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.tomcat.TomcatWebAppType;
@@ -112,7 +113,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  * @version $Rev: 161588 $ $Date: 2005-04-16 12:06:59 -0600 (Sat, 16 Apr 2005) $
  */
-public class TomcatModuleBuilder implements ModuleBuilder {
+public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private static final Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
@@ -358,10 +359,10 @@ public class TomcatModuleBuilder implements ModuleBuilder {
         if (tomcatWebApp.isSetInverseClassloading()) {
             earContext.setInverseClassloading(tomcatWebApp.getInverseClassloading());
         }
-        
+
         ClassFilterType[] filters = tomcatWebApp.getHiddenClassesArray();
         ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-        
+
         filters = tomcatWebApp.getNonOverridableClassesArray();
         ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
@@ -417,9 +418,15 @@ public class TomcatModuleBuilder implements ModuleBuilder {
             Set securityRoles = collectRoleNames(webApp);
             Map rolePermissions = new HashMap();
 
-            URI baseUri = URI.create(webModule.getTargetPath() + "/");       
+            URI baseUri = URI.create(webModule.getTargetPath() + "/");
             webModuleData.setAttribute("webAppRoot", baseUri);
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
+
+            //Add dependencies on managed connection factories and ejbs in this app
+            //This is overkill, but allows for people not using java:comp context (even though we don't support it)
+            //and sidesteps the problem of circular references between ejbs.
+            Set dependencies = findGBeanDependencies(earContext);
+            webModuleData.getDependencies().addAll(dependencies);
 
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);

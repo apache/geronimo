@@ -56,7 +56,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
@@ -90,6 +89,7 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
+import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
@@ -120,7 +120,6 @@ import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.mortbay.http.BasicAuthenticator;
@@ -132,7 +131,7 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
 /**
  * @version $Rev$ $Date$
  */
-public class JettyModuleBuilder implements ModuleBuilder {
+public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
     private final List defaultParentId;
     private final ObjectName jettyContainerObjectName;
@@ -404,14 +403,14 @@ public class JettyModuleBuilder implements ModuleBuilder {
         } catch (URISyntaxException e) {
             throw new DeploymentException("Could not construct URI for location of war entry", e);
         }
-        
+
         if (jettyWebApp.isSetInverseClassloading()) {
             earContext.setInverseClassloading(jettyWebApp.getInverseClassloading());
         }
-        
+
         ClassFilterType[] filters = jettyWebApp.getHiddenClassesArray();
         ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-        
+
         filters = jettyWebApp.getNonOverridableClassesArray();
         ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
@@ -472,6 +471,12 @@ public class JettyModuleBuilder implements ModuleBuilder {
                 hosts[i] = hosts[i].trim();
             }
             webModuleData.setAttribute("virtualHosts", hosts);
+
+            //Add dependencies on managed connection factories and ejbs in this app
+            //This is overkill, but allows for people not using java:comp context (even though we don't support it)
+            //and sidesteps the problem of circular references between ejbs.
+            Set dependencies = findGBeanDependencies(earContext);
+            webModuleData.getDependencies().addAll(dependencies);
 
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
