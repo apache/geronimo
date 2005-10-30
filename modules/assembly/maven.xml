@@ -122,7 +122,8 @@
         <ant:copy todir="${geronimo.assembly.dir}/schema" flatten="true">
             <ant:fileset dir="${project.root}/modules/j2ee-schema">
                 <ant:include name="src/j2ee_1_4schema/*.xsd"/>
-                <ant:include name="src/j2ee_1_3dtd/*.dtd"/>
+		<ant:include name="src/j2ee_1_3dtd/*.dtd"/>
+		<ant:include name="src/j2ee_1_2dtd/*.dtd"/>
             </ant:fileset>
             <ant:fileset dir="${project.root}/modules/deployment">
                 <ant:include name="src/schema/*.xsd"/>
