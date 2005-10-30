@@ -33,10 +33,11 @@ public class StatisticImpl implements Statistic, Serializable {
     public final static String UNIT_TIME_MICROSECOND = "MICROSECOND";
     public final static String UNIT_TIME_NANOSECOND = "NANOSECOND";
     // Units that are not defined in JSR-77
-    public final static String UNIT_MEMORY_BYTES = "BYTES";
-    public final static String UNIT_MEMORY_KILOBYTES = "KILOBYTES";
-    public final static String UNIT_MEMORY_MEGABYTES = "MEGABYTES";
-    public final static String UNIT_MEMORY_GIGABYTES = "GIGABYTES";
+    public final static String UNIT_MEMORY_BYTES = "BYTE";
+    public final static String UNIT_MEMORY_KILOBYTES = "KILOBYTE";
+    public final static String UNIT_MEMORY_MEGABYTES = "MEGABYTE";
+    public final static String UNIT_MEMORY_GIGABYTES = "GIGABYTE";
+    public final static String UNIT_COUNT = "COUNT";
 
     private String name;
     private String unit;
