@@ -81,18 +81,18 @@ public class DeployTool {
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
-        String[] commonArgs = new String[0];
+        String[] generalArgs = new String[0];
         String[] commandArgs = new String[0];
         if(args.length == 0) {
             command = "help";
         } else {
             String[] temp = getCommonArgsAndCommand(args);
-            if(temp == null) {
+            if(temp == null || temp.length == 0) {
                 command = "help";
             } else {
                 command = temp[temp.length-1];
-                commonArgs = new String[temp.length-1];
-                System.arraycopy(temp, 0, commonArgs, 0, temp.length-1);
+                generalArgs = new String[temp.length-1];
+                System.arraycopy(temp, 0, generalArgs, 0, temp.length-1);
                 commandArgs = new String[args.length - temp.length];
                 System.arraycopy(args, temp.length, commandArgs, 0, commandArgs.length);
             }
@@ -108,7 +108,7 @@ public class DeployTool {
             } else {
                 ServerConnection con = null;
                 try {
-                    con = new ServerConnection(commonArgs, dc.isLocalOnly(), out, in);
+                    con = new ServerConnection(generalArgs, dc.isLocalOnly(), out, in);
                     try {
                         dc.execute(out, con, commandArgs);
                     } catch (DeploymentSyntaxException e) {
@@ -230,22 +230,12 @@ public class DeployTool {
 
     private String[] getCommonArgsAndCommand(String[] all) {
         List list = new ArrayList();
-        boolean prefix = false;
         for (int i = 0; i < all.length; i++) {
             String s = all[i];
+            boolean option = ServerConnection.isGeneralOption(list, s);
             list.add(s);
-            if(s.startsWith("-")) {
-                if(prefix) {
-                    return null;
-                } else {
-                    prefix = true;
-                }
-            } else {
-                if(prefix) {
-                    prefix = false;
-                } else {
-                    break;
-                }
+            if(!option) {
+                break;
             }
         }
         return (String[]) list.toArray(new String[list.size()]);

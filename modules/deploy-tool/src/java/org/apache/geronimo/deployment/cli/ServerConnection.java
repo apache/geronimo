@@ -47,12 +47,17 @@ public class ServerConnection {
     private final static Map OPTION_HELP = new LinkedHashMap(4);
     static {
         OPTION_HELP.put("--uri", "A URI to contact the server.  The server must be running for this " +
-                "to work.  If not specified, the deployer default to operating on a " +
-                "Geronimo server running on the standard port on localhost, or if nothing " +
-                "is available there, then the Geronimo server installation that the " +
-                "deployer JAR is part of.\n" +
+                "to work.  If not specified, the deployer defaults to operating on a " +
+                "Geronimo server running on the standard port on localhost.\n" +
                 "A URI to connect to Geronimo (including optional host and port parameters) has the form: " +
                 "deployer:geronimo:jmx:rmi:///jndi/rmi:[//host[:port]]/JMXConnector");
+        OPTION_HELP.put("--offline", "Indicates that you don't want the deployer to try to connect to " +
+                "a Geronimo server over the network.  If you're running on the same machine as the " +
+                "Geronimo installation, using this option means that you're asserting that the" +
+                "Geronimo server is not running.  WARNING: do not use this option if there's a Geronimo " +
+                "server running out of the same Geronimo installation as the deploy tool is from --" +
+                "the results may be unexpected.  Further, only a small number of commands may be" +
+                "run in offline mode.");
         OPTION_HELP.put("--driver", "If you want to use this tool with a server other than Geronimo, " +
                 "then you must provide the path to its driver JAR.  Currently, manifest " +
                 "Class-Path entries in that JAR are ignored.");
@@ -61,13 +66,38 @@ public class ServerConnection {
                 "deployer will attempt to connect to the server with no password, and if " +
                 "that fails, will prompt you for a password.");
         OPTION_HELP.put("--password", "Specifies a password to use to authenticate to the server.");
-        OPTION_HELP.put("--syserr", "Log errors to syserr. Can be either true or false." +
-                " The default value is false.");
-        OPTION_HELP.put("--verbose", "Verbose execution mode. Can be either true or false." +
-                " The default value is false.");
+        OPTION_HELP.put("--syserr", "Enables error logging to syserr.  Disabled by default.");
+        OPTION_HELP.put("--verbose", "Enables verbose execution mode.  Disabled by default.");
     }
     public static Map getOptionHelp() {
         return OPTION_HELP;
+    }
+
+    /**
+     * Checks whether the stated command-line argument is a general argument (which
+     * may be the general argument itself, or a required parameter after the general
+     * argument).  For example, if the arguments were "--user bob --offline foo" then
+     * this should return true for "--user" "bob" and "--offline" and false for "foo"
+     * (since --offline does not expect a parameter).
+     *
+     * @param args The previous arguments on the command line
+     * @param option The argument we're checking at the moment
+     *
+     * @return True if the argument we're checking is part of a general argument
+     */
+    public static boolean isGeneralOption(List args, String option) {
+        if(OPTION_HELP.containsKey(option) || option.equals("--url")) {
+            return true;
+        }
+        if(args.size() == 0) {
+            return false;
+        }
+        String last = (String) args.get(args.size()-1);
+        if(last.equals("--uri") || last.equals("--url") || last.equals("--driver") || last.equals("--user") ||
+                last.equals("--password")) {
+            return true;
+        }
+        return false;
     }
 
     private final static String DEFAULT_URI = "deployer:geronimo:jmx:rmi:///jndi/rmi://localhost:1099/JMXConnector";
@@ -79,6 +109,7 @@ public class ServerConnection {
 
     public ServerConnection(String[] args, boolean forceLocal, PrintWriter out, BufferedReader in) throws DeploymentException {
         String uri = null, driver = null, user = null, password = null;
+        boolean offline = false;
         JMXDeploymentManager.CommandContext commandContext = new JMXDeploymentManager.CommandContext();
         this.out = out;
         this.in = in;
@@ -90,6 +121,9 @@ public class ServerConnection {
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a URI (--uri deployer:...)");
                 }
+                if(offline) {
+                    throw new DeploymentSyntaxException("Cannot specify a URI in offline mode");
+                }
                 uri = args[++i];
             } else if(arg.equals("--driver")) {
                 if(driver != null) {
@@ -97,12 +131,32 @@ public class ServerConnection {
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a driver JAR (--driver jarfile)");
                 }
+                if(offline) {
+                    throw new DeploymentSyntaxException("Cannot specify a driver in offline mode");
+                }
                 driver = args[++i];
+            } else if(arg.equals("--offline")) {
+                if(uri != null) {
+                    throw new DeploymentSyntaxException("Cannot specify a URI in offline mode");
+                }
+                if(driver != null) {
+                    throw new DeploymentSyntaxException("Cannot specify a driver in offline mode");
+                }
+                if(user != null) {
+                    throw new DeploymentSyntaxException("Cannot specify a username in offline mode");
+                }
+                if(password != null) {
+                    throw new DeploymentSyntaxException("Cannot specify a password in offline mode");
+                }
+                offline = true;
             } else if(arg.equals("--user")) {
                 if(user != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one user name");
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a username (--user username)");
+                }
+                if(offline) {
+                    throw new DeploymentSyntaxException("Cannot specify a username in offline mode");
                 }
                 user = args[++i];
             } else if(arg.equals("--password")) {
@@ -111,25 +165,14 @@ public class ServerConnection {
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a password (--password password)");
                 }
+                if(offline) {
+                    throw new DeploymentSyntaxException("Cannot specify a password in offline mode");
+                }
                 password = args[++i];
             } else if (arg.equals("--verbose")) {
-                String value = args[++i];
-                if (value.equals("true")) {
-                    commandContext.setVerbose(true);
-                } else if (value.equals("false")) {
-                    commandContext.setVerbose(false);
-                } else {
-                    throw new DeploymentSyntaxException("--quiet must be either true or false.");
-                }
+                commandContext.setVerbose(true);
             } else if (arg.equals("--syserr")) {
-                String value = args[++i];
-                if (value.equals("true")) {
-                    commandContext.setLogErrors(true);
-                } else if (value.equals("false")) {
-                    commandContext.setLogErrors(false);
-                } else {
-                    throw new DeploymentSyntaxException("--syserr must be either true or false.");
-                }
+                commandContext.setLogErrors(true);
             } else {
                 throw new DeploymentException("Invalid option "+arg);
             }
@@ -137,16 +180,19 @@ public class ServerConnection {
         if((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
+        if(forceLocal && !offline) {
+            throw new DeploymentSyntaxException("This command may only be run offline.  Make sure the server is not running and use the --offline option.");
+        }
         if(forceLocal && (uri != null || driver != null || user != null || password != null)) {
             throw new DeploymentSyntaxException("This command does not use normal server connectivity.  No standard options are allowed.");
         }
-        if(!forceLocal) {
-            tryToConnect(uri, commandContext, driver, user, password, true);
-            if(manager == null) { // uri must be null too or we'd have thrown an exception
-                initializeKernel();
-            }
-        } else {
+        if(forceLocal || offline) {
             initializeKernel();
+        } else {
+            tryToConnect(uri, commandContext, driver, user, password, true);
+            if(manager == null) {
+                throw new DeploymentException("Unexpected error; connection failed.");
+            }
         }
     }
 
@@ -184,9 +230,7 @@ public class ServerConnection {
                 throw new DeploymentException("Login Failed");
             }
         } catch(DeploymentManagerCreationException e) {
-            if(uri != null) {
-                throw new DeploymentException("Unable to connect to server at "+uri+" -- "+e.getMessage());
-            } //else, fall through and try local access
+            throw new DeploymentException("Unable to connect to server at "+(uri == null ? DEFAULT_URI : uri)+" -- "+e.getMessage());
         }
         
         if (manager instanceof JMXDeploymentManager) {
