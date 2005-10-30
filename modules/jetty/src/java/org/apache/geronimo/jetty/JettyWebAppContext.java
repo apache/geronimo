@@ -291,6 +291,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         return true;
     }
 
+    public String getContainerName() {
+        return jettyContainer.getObjectName();
+    }
+
     public Object enterContextScope(HttpRequest httpRequest, HttpResponse httpResponse) {
         Object[] context = new Object[contextLength];
         chain.before(context, httpRequest, httpResponse);

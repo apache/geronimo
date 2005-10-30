@@ -234,6 +234,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return true;
     }
 
+    public String getContainerName() {
+        return container.getObjectName();
+    }
+
     public String getServer() {
         return server.getObjectName();
     }

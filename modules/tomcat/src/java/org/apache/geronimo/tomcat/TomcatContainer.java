@@ -77,16 +77,18 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     private ClassLoader classLoader;
 
     private final Map webServices = new HashMap();
+    private final String objectName;
 
     // Required as it's referenced by deployed webapps
     public TomcatContainer() {
+        this.objectName = null; // is this OK??
         setCatalinaHome(DEFAULT_CATALINA_HOME);
     }
 
     /**
      * GBean constructor (invoked dynamically when the gbean is declared in a plan)
      */
-    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo) {
+    public TomcatContainer(ClassLoader classLoader, String catalinaHome, ObjectRetriever engineGBean, ServerInfo serverInfo, String objectName) {
         if (catalinaHome == null)
             catalinaHome = DEFAULT_CATALINA_HOME;
 
@@ -103,6 +105,24 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         this.classLoader = classLoader;
 
         this.engine = (Engine)engineGBean.getInternalObject();
+
+        this.objectName = objectName;
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false; // todo: return true once stats are integrated
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     public void doFail() {
@@ -365,11 +385,13 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Container", TomcatContainer.class);
 
-        infoFactory.setConstructor(new String[] { "classLoader", "catalinaHome", "EngineGBean", "ServerInfo"});
+        infoFactory.setConstructor(new String[] { "classLoader", "catalinaHome", "EngineGBean", "ServerInfo", "objectName"});
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
 
         infoFactory.addAttribute("catalinaHome", String.class, true);
+
+        infoFactory.addAttribute("objectName", String.class, false);
 
         infoFactory.addReference("EngineGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
 

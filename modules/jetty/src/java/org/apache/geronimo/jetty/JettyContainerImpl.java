@@ -36,9 +36,27 @@ import org.mortbay.jetty.Server;
 public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLifecycle {
     private final Server server;
     private final Map webServices = new HashMap();
+    private final String objectName;
 
-    public JettyContainerImpl() {
+    public JettyContainerImpl(String objectName) {
+        this.objectName = objectName;
         server = new JettyServer();
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return true;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false; // todo: return true once stats are integrated
+    }
+
+    public boolean isEventProvider() {
+        return true;
     }
 
     public void resetStatistics() {
@@ -205,9 +223,11 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         infoBuilder.addOperation("addRealm", new Class[]{UserRealm.class});
         infoBuilder.addOperation("removeRealm", new Class[]{UserRealm.class});
 
+        infoBuilder.addAttribute("objectName", String.class, false);
+
         infoBuilder.addInterface(SoapHandler.class);
         infoBuilder.addInterface(JettyContainer.class);
-        infoBuilder.setConstructor(new String[]{});
+        infoBuilder.setConstructor(new String[]{"objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

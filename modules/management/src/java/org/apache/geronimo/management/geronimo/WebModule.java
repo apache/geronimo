@@ -26,4 +26,10 @@ public interface WebModule extends org.apache.geronimo.management.WebModule {
      * Gets the web context for this web app.
      */
     public String getContextPath();
+
+    /**
+     * Gets the ObjectName of the WebContainer that's hosting this
+     * WebModule.
+     */
+    public String getContainerName();
 }

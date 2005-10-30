@@ -1,13 +1,7 @@
 package org.apache.geronimo.system.main;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
+import java.util.*;
 import java.net.URI;
 import java.net.InetSocketAddress;
 import javax.management.ObjectName;
@@ -147,9 +141,9 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         out.println();
 
         List apps = new ArrayList();  // type = String (message)
-        List webs = new ArrayList();  // type = String (context path)
+        List webs = new ArrayList();  // type = WebAppInfo
         List ports = new ArrayList(); // type = AddressHolder
-        Map connectors = new HashMap();
+        Map containers = new HashMap();
         Map failed = new HashMap();   // key = ObjectName, value = String (message)
         String serverInfo = null;
         try {
@@ -161,7 +155,10 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     apps.add("    "+decodeModule(name.getKeyProperty("j2eeType"))+": "+name.getKeyProperty("name"));
                 }
                 if(isWebModule(name)) {
-                    webs.add(kernel.getAttribute(name, "contextPath"));
+                    String webAppName = name.getCanonicalName();
+                    String context = (String) kernel.getAttribute(name, "contextPath");
+                    String containerName = (String) kernel.getAttribute(name, "containerName");
+                    webs.add(new WebAppInfo(containerName, webAppName, context));
                 }
 
                 int stateValue = kernel.getGBeanState(name);
@@ -228,12 +225,29 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     }
                 }
             }
-            Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebConnector"));
+            // Look up a URL for each WebContainer in the server (Manager -< Container -< Connector)
+            Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
             for (Iterator it = set.iterator(); it.hasNext();) {
-                ObjectName name = (ObjectName) it.next();
-                String protocol = (String) kernel.getAttribute(name, "protocol");
-                String url = (String) kernel.getAttribute(name, "connectUrl");
-                connectors.put(protocol, url);
+                ObjectName mgrName = (ObjectName) it.next();
+                String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
+                for (int i = 0; i < cntNames.length; i++) {
+                    String cntName = cntNames[i];
+                    String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
+                    Map map = new HashMap();
+                    for (int j = 0; j < cncNames.length; j++) {
+                        ObjectName cncName = ObjectName.getInstance(cncNames[j]);
+                        String protocol = (String) kernel.getAttribute(cncName, "protocol");
+                        String url = (String) kernel.getAttribute(cncName, "connectUrl");
+                        map.put(protocol, url);
+                    }
+                    String urlPrefix = "";
+                    if((urlPrefix = (String) map.get("HTTP")) == null) {
+                        if((urlPrefix = (String) map.get("HTTPS")) == null) {
+                            urlPrefix = (String) map.get("AJP");
+                        }
+                    }
+                    containers.put(cntName, urlPrefix);
+                }
             }
         } catch (MalformedObjectNameException e) {
             e.printStackTrace();
@@ -243,12 +257,6 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
             e.printStackTrace();
         } catch (Exception e) { // required by Kernel.getAttribute
             e.printStackTrace();
-        }
-        String urlPrefix = "";
-        if((urlPrefix = (String) connectors.get("HTTP")) == null) {
-            if((urlPrefix = (String) connectors.get("HTTPS")) == null) {
-                urlPrefix = (String) connectors.get("AJP");
-            }
         }
 
         // Helpful output: list of ports we listen on
@@ -288,6 +296,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                 buf.append(holder.getName());
                 out.println(buf.toString());
             }
+            out.println();
         }
         // Helpful output: list of applications started
         if(apps.size() > 0) {
@@ -295,15 +304,17 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
             for (int i = 0; i < apps.size(); i++) {
                 out.println((String)apps.get(i));
             }
+            out.println();
         }
         // Helpful output: Web URLs
         if(webs.size() > 0) {
             Collections.sort(webs);
             out.println("  Web Applications:");
             for (int i = 0; i < webs.size(); i++) {
-                String context = (String) webs.get(i);
-                out.println("    "+urlPrefix+context);
+                WebAppInfo app = (WebAppInfo) webs.get(i);
+                out.println("    "+containers.get(app.getContainerObjectName())+app.getContext());
             }
+            out.println();
         }
 
         // Helpful output: list of GBeans that did not start
@@ -319,6 +330,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                     out.println("    "+name+" "+state);
                 }
             }
+            out.println();
         }
 
         StringBuffer msg = new StringBuffer();
@@ -488,6 +500,58 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                 repaint();
             }
             wrapUp();
+        }
+    }
+
+    private static class WebAppInfo implements Comparable {
+        private String containerObjectName;
+        private String webAppObjectName;
+        private String context;
+
+        public WebAppInfo(String containerObjectName, String webAppObjectName, String context) {
+            this.containerObjectName = containerObjectName;
+            this.webAppObjectName = webAppObjectName;
+            this.context = context;
+        }
+
+        public String getContainerObjectName() {
+            return containerObjectName;
+        }
+
+        public String getWebAppObjectName() {
+            return webAppObjectName;
+        }
+
+        public String getContext() {
+            return context;
+        }
+
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof WebAppInfo)) return false;
+
+            final WebAppInfo webAppInfo = (WebAppInfo) o;
+
+            if (!containerObjectName.equals(webAppInfo.containerObjectName)) return false;
+            if (!context.equals(webAppInfo.context)) return false;
+            if (!webAppObjectName.equals(webAppInfo.webAppObjectName)) return false;
+
+            return true;
+        }
+
+        public int hashCode() {
+            int result;
+            result = containerObjectName.hashCode();
+            result = 29 * result + webAppObjectName.hashCode();
+            result = 29 * result + context.hashCode();
+            return result;
+        }
+
+        public int compareTo(Object o) {
+            WebAppInfo other = (WebAppInfo) o;
+            int test = containerObjectName.compareTo(other.containerObjectName);
+            if(test != 0) return test;
+            return context.compareTo(other.context);
         }
     }
 }
