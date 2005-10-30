@@ -156,9 +156,11 @@
         <!--delete dir="${maven.repo.local}/howl"/-->
         <delete dir="${maven.repo.local}/openejb"/>
         <!--<delete dir="${maven.repo.local}/tranql"/>-->
+        <!-- AMM: specs are no longer in main tree
         <j:if test="${context.getVariable('geronimo.all') == 'true'}">
             <delete dir="${maven.repo.local}/geronimo-spec"/>
         </j:if>
+        -->
     </goal>
 
     <goal name="m:test" prereqs="m:init">
