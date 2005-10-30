@@ -30,6 +30,15 @@ public class ClientCommandLine extends CommandLine {
      */
     public static void main(String[] args) {
         log.info("Client startup begun");
+        if(args.length == 0) {
+            System.out.println();
+            System.out.println("ERROR: No arguments");
+            showHelp();
+            System.exit(1);
+        } else if(args[0].equals("--help") || args[0].equals("-h") || args[0].equals("/?")) {
+            showHelp();
+            System.exit(0);
+        }
         try {
             URI configuration = new URI(args[0]);
             String[] clientArgs = new String[args.length -1];
@@ -43,6 +52,18 @@ public class ClientCommandLine extends CommandLine {
             System.exit(2);
             throw new AssertionError();
         }
+    }
+
+    private static void showHelp() {
+        System.out.println();
+        System.out.println("syntax:   java -jar bin/client.jar config-name [app arg] [app arg] ...");
+        System.out.println();
+        System.out.println("The first argument should identify the Geronimo configuration that");
+        System.out.println("contains the application client you want to run.");
+        System.out.println();
+        System.out.println("The rest of the arguments will be passed as arguments to the");
+        System.out.println("application client when it is started.");
+        System.out.println();
     }
 
 
