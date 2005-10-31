@@ -230,11 +230,6 @@
         <version>${log4jVersion}</version>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junitVersion}</version>
-      </dependency>
-      <dependency>
         <groupId>mx4j</groupId>
         <artifactId>mx4j</artifactId>
         <version>${mx4jVersion}</version>
@@ -257,6 +252,14 @@
    </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junitVersion}</version>
+    </dependency>
+  </dependencies>
+
   <distributionManagement>
     <repository>
       <id>repo1</id>
@@ -276,6 +279,7 @@
 
   <build>
     <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
   </build>
 
 </project>
