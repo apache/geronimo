@@ -20,10 +20,7 @@ package org.apache.geronimo.deployment.cli;
 import org.apache.geronimo.common.DeploymentException;
 
 import java.util.*;
-import java.io.PrintWriter;
-import java.io.OutputStreamWriter;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
+import java.io.*;
 
 /**
  * The main class for the CLI deployer.  Handles chunking the input arguments
@@ -76,12 +73,14 @@ public class DeployTool {
     }
 
     private boolean failed = false;
+    String[] generalArgs = new String[0];
+    ServerConnection con = null;
+    private boolean multipleCommands = false;
 
     public boolean execute(String args[]) {
         PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out), true);
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         String command;
-        String[] generalArgs = new String[0];
         String[] commandArgs = new String[0];
         if(args.length == 0) {
             command = "help";
@@ -91,14 +90,53 @@ public class DeployTool {
                 command = "help";
             } else {
                 command = temp[temp.length-1];
-                generalArgs = new String[temp.length-1];
-                System.arraycopy(temp, 0, generalArgs, 0, temp.length-1);
+                if(generalArgs.length == 0 && temp.length > 1) {
+                    generalArgs = new String[temp.length-1];
+                    System.arraycopy(temp, 0, generalArgs, 0, temp.length-1);
+                }
                 commandArgs = new String[args.length - temp.length];
                 System.arraycopy(args, temp.length, commandArgs, 0, commandArgs.length);
             }
         }
         if(command.equals("help")) {
             showHelp(out, commandArgs);
+        } else if(command.equals("command-file")) {
+            multipleCommands = true;
+            if(commandArgs.length != 1) {
+                processException(out, new DeploymentSyntaxException("Must provide a command file to read from and no other arguments"));
+            } else {
+                String arg = commandArgs[0];
+                File source = new File(arg);
+                if(!source.exists() || !source.canRead() || source.isDirectory()) {
+                    processException(out, new DeploymentSyntaxException("Cannot read command file "+source.getAbsolutePath()));
+                } else {
+                    try {
+                        BufferedReader commands = new BufferedReader(new FileReader(source));
+                        String line;
+                        boolean oneFailed = false;
+                        while((line = commands.readLine()) != null) {
+                            line = line.trim();
+                            if(!line.equals("")) {
+                                String[] lineArgs = splitCommand(line);
+                                if(failed) {
+                                    oneFailed = true;
+                                }
+                                failed = false;
+                                execute(lineArgs);
+                            }
+                        }
+                        failed = oneFailed;
+                    } catch (IOException e) {
+                        processException(out, new DeploymentException("Unable to read command file", e));
+                    } finally {
+                        try {
+                            con.close();
+                        } catch (DeploymentException e) {
+                            processException(out, e);
+                        }
+                    }
+                }
+            }
         } else {
             DeployCommand dc = getCommand(command);
             if(dc == null) {
@@ -106,9 +144,10 @@ public class DeployTool {
                 processException(out, new DeploymentSyntaxException("No such command: '"+command+"'"));
                 showHelp(out, new String[0]);
             } else {
-                ServerConnection con = null;
                 try {
-                    con = new ServerConnection(generalArgs, dc.isLocalOnly(), out, in);
+                    if(con == null) {
+                        con = new ServerConnection(generalArgs, dc.isLocalOnly(), out, in);
+                    }
                     try {
                         dc.execute(out, con, commandArgs);
                     } catch (DeploymentSyntaxException e) {
@@ -116,10 +155,12 @@ public class DeployTool {
                     } catch (DeploymentException e) {
                         processException(out, e);
                     } finally {
-                        try {
-                            con.close();
-                        } catch(DeploymentException e) {
-                            processException(out, e);
+                        if(!multipleCommands) {
+                            try {
+                                con.close();
+                            } catch(DeploymentException e) {
+                                processException(out, e);
+                            }
                         }
                     }
                 } catch(DeploymentException e) {
@@ -130,6 +171,26 @@ public class DeployTool {
         out.flush();
         System.out.flush();
         return !failed;
+    }
+
+    public static String[] splitCommand(String line) {
+        String[] chunks = line.split("\"");
+        List list = new LinkedList();
+        for (int i = 0; i < chunks.length; i++) {
+            String chunk = chunks[i];
+            if(i % 2 == 1) { // it's in quotes
+                list.add(chunk);
+            } else { // it's not in quotes
+                list.addAll(Arrays.asList(chunk.split("\\s")));
+            }
+        }
+        for (Iterator it = list.iterator(); it.hasNext();) {
+            String test = (String) it.next();
+            if(test.trim().equals("")) {
+                it.remove();
+            }
+        }
+        return (String[]) list.toArray(new String[list.size()]);
     }
 
     private void processException(PrintWriter out, Exception e) {

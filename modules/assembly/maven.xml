@@ -358,122 +358,55 @@
             />
 
         <!-- build the system configuration and server.jar -->
-        <ant:echo>Building server.jar</ant:echo>
-        <ant:mkdir dir="${geronimo.assembly.dir}/bin"/>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-<!--
-            <ant:jvmarg value="-Xdebug"/>
-            <ant:jvmarg value="-Xnoagent"/>
-            <ant:jvmarg value="-Djava.compiler=NONE"/>
-            <ant:jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
--->
-            <ant:arg value="--offline"/>
-            <ant:arg value="package"/>
-            <ant:arg value="--classPath"/>
-            <ant:arg value="${server.classpath}"/>
-            <ant:arg value="--mainClass"/>
-            <ant:arg value="org.apache.geronimo.system.main.Daemon"/>
-            <ant:arg value="--endorsedDirs"/>
-            <ant:arg value="lib/endorsed"/>
-            <ant:arg value="--extensionDirs"/>
-            <ant:arg value="lib/ext"/>
-            <ant:arg value="--install"/>
-            <ant:arg value="target/plan/system-plan.xml"/>
-            <ant:arg value="${geronimo.assembly.dir}/bin/server.jar"/>
-        </ant:java>
+        <ant:echo file="${basedir}/target/deploy-commands">package --classPath "${server.classpath}" --mainClass org.apache.geronimo.system.main.Daemon --endorsedDirs lib/endorsed --extensionDirs lib/ext --install target/plan/system-plan.xml ${geronimo.assembly.dir}/bin/server.jar${line.separator}</ant:echo>
+        
+        <!-- build the RMINaming configuration -->
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute target/plan/naming-server-plan.xml${line.separator}" />
 
-        <!-- to debug one of these deployer calls, include these jvmargs right after the -ea arg
+        <!-- build the J2EEServer configuration -->
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute target/plan/j2ee-server-plan.xml${line.separator}" />
+
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute target/plan/j2ee-security-plan.xml${line.separator}" />
+
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute target/plan/j2ee-jetty-plan.xml${line.separator}" />
+
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute target/plan/j2ee-tomcat-plan.xml${line.separator}" />
+       
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute target/plan/j2ee-runtime-deployer-plan.xml${line.separator}" />
+
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute ${basedir}/target/plan/j2ee-jetty-runtime-deployer-plan.xml${line.separator}" />
+        
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute ${basedir}/target/plan/j2ee-tomcat-runtime-deployer-plan.xml${line.separator}" />
+
+        <!-- build the system configuration and client.jar -->
+        <ant:echo file="${basedir}/target/deploy-commands" append="true">package --mainClass org.apache.geronimo.system.main.ClientCommandLine --classPath "${client.classpath}" --endorsedDirs ${libDir}/endorsed --install target/plan/client-system-plan.xml ${geronimo.assembly.dir}/bin/client.jar${line.separator}</ant:echo>
+
+        <ant:echo file="${basedir}/target/deploy-commands" append="true"
+             message="distribute target/plan/j2ee-client-plan.xml${line.separator}" />
+        
+        <!-- to debug this deployer call, include these jvmargs right after the -ea arg
         <ant:jvmarg value="-Xdebug"/>
         <ant:jvmarg value="-Xnoagent"/>
         <ant:jvmarg value="-Djava.compiler=NONE"/>
         <ant:jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"/>
         -->
 
-        <!-- build the RMINaming configuration -->
-        <ant:echo>Building RMI Naming configuration</ant:echo>
+        <!-- Run all the commands we just queued up -->
         <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
             <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/naming-server-plan.xml"/>
+            <ant:arg value="command-file"/>
+            <ant:arg value="${basedir}/target/deploy-commands"/>
         </ant:java>
 
-        <!-- build the J2EEServer configuration -->
-        <ant:echo>Building server configuration</ant:echo>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/j2ee-server-plan.xml"/>
-        </ant:java>
-
-        <ant:echo>Building security configuration</ant:echo>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/j2ee-security-plan.xml"/>
-        </ant:java>
-
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/j2ee-jetty-plan.xml"/>
-        </ant:java>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/j2ee-tomcat-plan.xml"/>
-        </ant:java>
-        <!-- build the runtime deployer configuration -->
-        <ant:echo>Building runtime deployer configuration</ant:echo>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/j2ee-runtime-deployer-plan.xml"/>
-        </ant:java>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${basedir}/target/plan/j2ee-jetty-runtime-deployer-plan.xml"/>
-        </ant:java>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${basedir}/target/plan/j2ee-tomcat-runtime-deployer-plan.xml"/>
-        </ant:java>
-
-
-        <!-- build the system configuration and client.jar -->
-        <ant:echo>Building client.jar</ant:echo>
-        <ant:mkdir dir="${geronimo.assembly.dir}/bin"/>
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="package"/>
-            <ant:arg value="--mainClass"/>
-            <ant:arg value="org.apache.geronimo.system.main.ClientCommandLine"/>
-            <ant:arg value="--classPath"/>
-            <ant:arg value="${client.classpath}"/>
-            <ant:arg value="--endorsedDirs"/>
-            <ant:arg value="${libDir}/endorsed"/>
-            <ant:arg value="--install"/>
-            <ant:arg value="target/plan/client-system-plan.xml"/>
-            <ant:arg value="${geronimo.assembly.dir}/bin/client.jar"/>
-        </ant:java>
-
-        <ant:java fork="true" jar="${geronimo.assembly.dir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="target/plan/j2ee-client-plan.xml"/>
-        </ant:java>
         <!-- ============================================== -->
         <!-- Deploy all configurations to live server       -->
         <!-- ============================================== -->
