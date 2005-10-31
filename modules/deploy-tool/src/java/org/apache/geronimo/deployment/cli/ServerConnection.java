@@ -220,19 +220,26 @@ public class ServerConnection {
         } else {
             mgr.registerDeploymentFactory(new DeploymentFactoryImpl());
         }
-        
-        try {
-            manager = mgr.getDeploymentManager(uri == null ? DEFAULT_URI : uri, user, password);
-        } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
-            if(authPrompt && (user == null || password == null)) {
-                doAuthPromptAndRetry(uri, commandContext, user, password);
-            } else {
-                throw new DeploymentException("Login Failed");
+
+        if(authPrompt && uri != null && !uri.equals(DEFAULT_URI) && user == null && password == null) {
+            // Non-standard URI, but no authentication information
+            doAuthPromptAndRetry(uri, commandContext, user, password);
+            return;
+        } else { // Standard URI with no auth, Non-standard URI with auth, or else this is the 2nd try already
+            try {
+                manager = mgr.getDeploymentManager(uri == null ? DEFAULT_URI : uri, user, password);
+            } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
+                if(authPrompt && (user == null || password == null)) {
+                    doAuthPromptAndRetry(uri, commandContext, user, password);
+                    return;
+                } else {
+                    throw new DeploymentException("Login Failed");
+                }
+            } catch(DeploymentManagerCreationException e) {
+                throw new DeploymentException("Unable to connect to server at "+(uri == null ? DEFAULT_URI : uri)+" -- "+e.getMessage());
             }
-        } catch(DeploymentManagerCreationException e) {
-            throw new DeploymentException("Unable to connect to server at "+(uri == null ? DEFAULT_URI : uri)+" -- "+e.getMessage());
         }
-        
+
         if (manager instanceof JMXDeploymentManager) {
             JMXDeploymentManager deploymentManager = (JMXDeploymentManager) manager;
             deploymentManager.setCommandContext(commandContext);
