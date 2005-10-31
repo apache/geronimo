@@ -226,29 +226,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
                 }
             }
             // Look up a URL for each WebContainer in the server (Manager -< Container -< Connector)
-            Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
-            for (Iterator it = set.iterator(); it.hasNext();) {
-                ObjectName mgrName = (ObjectName) it.next();
-                String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
-                for (int i = 0; i < cntNames.length; i++) {
-                    String cntName = cntNames[i];
-                    String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
-                    Map map = new HashMap();
-                    for (int j = 0; j < cncNames.length; j++) {
-                        ObjectName cncName = ObjectName.getInstance(cncNames[j]);
-                        String protocol = (String) kernel.getAttribute(cncName, "protocol");
-                        String url = (String) kernel.getAttribute(cncName, "connectUrl");
-                        map.put(protocol, url);
-                    }
-                    String urlPrefix = "";
-                    if((urlPrefix = (String) map.get("HTTP")) == null) {
-                        if((urlPrefix = (String) map.get("HTTPS")) == null) {
-                            urlPrefix = (String) map.get("AJP");
-                        }
-                    }
-                    containers.put(cntName, urlPrefix);
-                }
-            }
+            containers = WebAppUtil.mapContainersToURLs(kernel);
         } catch (MalformedObjectNameException e) {
             e.printStackTrace();
         } catch (GBeanNotFoundException e) {

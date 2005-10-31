@@ -280,41 +280,26 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
      */
     public static void addWebURLs(Kernel kernel, List moduleIDs) {
         Set webApps = null;
-        String url = null;
+        Map containers = null;
+        try {
+            containers = mapContainersToURLs(kernel);
+        } catch (Exception e) {
+            e.printStackTrace();
+            containers = Collections.EMPTY_MAP;
+        }
         for (int i = 0; i < moduleIDs.size(); i++) {
             TargetModuleIDImpl id = (TargetModuleIDImpl) moduleIDs.get(i);
             if(id.getType() != null && id.getType().getValue() == ModuleType.WAR.getValue()) {
                 if(webApps == null) {
                     webApps = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebModule"));
-                    Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebConnector"));
-                    Map map = new HashMap();
-                    ObjectName connector = null;
-                    for (Iterator it = set.iterator(); it.hasNext();) {
-                        ObjectName name = (ObjectName) it.next();
-                        try {
-                            String protocol = (String) kernel.getAttribute(name, "protocol");
-                            map.put(protocol, name);
-                        } catch (Exception e) {}
-                        if((connector = (ObjectName) map.get("HTTP")) == null) {
-                            if((connector = (ObjectName) map.get("HTTPS")) == null) {
-                                connector = (ObjectName) map.get("AJP");
-                            }
-                        }
-                        if(connector != null) {
-                            try {
-                                url = (String) kernel.getAttribute(connector, "connectUrl");
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                url = null;
-                            }
-                        }
-                    }
                 }
                 for (Iterator it = webApps.iterator(); it.hasNext();) {
                     ObjectName name = (ObjectName) it.next();
                     if(name.getKeyProperty("name").equals(id.getModuleID())) {
                         try {
-                            id.setWebURL(url == null ? (String)kernel.getAttribute(name, "contextPath") : url + kernel.getAttribute(name, "contextPath"));
+                            String container = (String) kernel.getAttribute(name, "containerName");
+                            String context = (String) kernel.getAttribute(name, "contextPath");
+                            id.setWebURL(containers.get(container)+context);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -354,5 +339,43 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
             kids.add(childName);
         }
         return kids;
+    }
+
+    /**
+     * Generates a Map where the keys are web container object names (as Strings)
+     * and the values are URLs (as Strings) to connect to a web app running in
+     * the matching container (though the web app context needs to be added to
+     * the end to be complete).
+     *
+     * NOTE: same as a method in geronimo-system WebAppUtil, but neither
+     *       module should obviously be dependent on the other and it's not
+     *       clear that this belongs in geronimo-common
+     */
+    public static Map mapContainersToURLs(Kernel kernel) throws Exception {
+        Map containers = new HashMap();
+        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName mgrName = (ObjectName) it.next();
+            String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
+            for (int i = 0; i < cntNames.length; i++) {
+                String cntName = cntNames[i];
+                String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
+                Map map = new HashMap();
+                for (int j = 0; j < cncNames.length; j++) {
+                    ObjectName cncName = ObjectName.getInstance(cncNames[j]);
+                    String protocol = (String) kernel.getAttribute(cncName, "protocol");
+                    String url = (String) kernel.getAttribute(cncName, "connectUrl");
+                    map.put(protocol, url);
+                }
+                String urlPrefix = "";
+                if((urlPrefix = (String) map.get("HTTP")) == null) {
+                    if((urlPrefix = (String) map.get("HTTPS")) == null) {
+                        urlPrefix = (String) map.get("AJP");
+                    }
+                }
+                containers.put(cntName, urlPrefix);
+            }
+        }
+        return containers;
     }
 }
