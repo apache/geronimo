@@ -78,47 +78,57 @@
     <url>http://geronimo.apache.org/</url>
   </organization>
 
+  <properties>
+    <commonsLoggingVersion>1.0.3</commonsLoggingVersion>
+    <concurrentVersion>1.3.4</concurrentVersion>
+    <geronimoSpecActivationVersion>1.0-SNAPSHOT</geronimoSpecActivationVersion>
+    <geronimoSpecCorbaVersion>1.0-SNAPSHOT</geronimoSpecCorbaVersion>
+    <geronimoSpecEjbVersion>1.0-SNAPSHOT</geronimoSpecEjbVersion>
+    <geronimoSpecJ2eeVersion>1.0-SNAPSHOT</geronimoSpecJ2eeVersion>
+    <geronimoSpecJ2eeConnectorVersion>1.0-SNAPSHOT</geronimoSpecJ2eeConnectorVersion>
+    <geronimoSpecJ2eeDeploymentVersion>1.0-SNAPSHOT</geronimoSpecJ2eeDeploymentVersion>
+    <geronimoSpecJ2eeJaccVersion>1.0-SNAPSHOT</geronimoSpecJ2eeJaccVersion>
+    <geronimoSpecJ2eeManagementVersion>1.0-SNAPSHOT</geronimoSpecJ2eeManagementVersion>
+    <geronimoSpecJavamailVersion>1.0-SNAPSHOT</geronimoSpecJavamailVersion>
+    <geronimoSpecJaxrVersion>1.0-SNAPSHOT</geronimoSpecJaxrVersion>
+    <geronimoSpecJaxrpcVersion>1.0-SNAPSHOT</geronimoSpecJaxrpcVersion>
+    <geronimoSpecJmsVersion>1.0-SNAPSHOT</geronimoSpecJmsVersion>
+    <geronimoSpecJspVersion>1.0-SNAPSHOT</geronimoSpecJspVersion>
+    <geronimoSpecJtaVersion>1.0-SNAPSHOT</geronimoSpecJtaVersion>
+    <geronimoSpecQnameVersion>1.0-SNAPSHOT</geronimoSpecQnameVersion>
+    <geronimoSpecSaajVersion>1.0-SNAPSHOT</geronimoSpecSaajVersion>    
+    <geronimoSpecServletVersion>1.0-SNAPSHOT</geronimoSpecServletVersion>
+    <junitVersion>3.8.1</junitVersion>
+    <log4jVersion>1.2.8</log4jVersion>
+    <mockobjectsVersion>0.09</mockobjectsVersion>
+    <mx4jVersion>3.0.1</mx4jVersion>
+    <scoutVersion>0.5</scoutVersion>
+  </properties> 
+
   <dependencyManagement>
     <dependencies>
-      
-      <!-- =============================== -->
-      <!-- Required dependencies -->
-      <!-- =============================== -->
-
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
-        <version>1.0.3</version>
+        <version>${commonsLoggingVersion}</version>
       </dependency>
-
       <dependency>
         <groupId>concurrent</groupId>
         <artifactId>concurrent</artifactId>
-        <version>1.3.4</version>
+        <version>${concurrentVersion}</version>
       </dependency>
-      
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
-        <version>1.2.8</version>
+        <version>${log4jVersion}</version>
       </dependency>
-
-    </dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junitVersion}</version>
+      </dependency>
+   </dependencies>
   </dependencyManagement>
-
-  <dependencies>
-
-    <!-- =============================== -->
-    <!-- Testing dependencies -->
-    <!-- =============================== -->
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-    </dependency>
- 
-  </dependencies>
 
   <distributionManagement>
     <repository>
