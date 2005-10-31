@@ -79,8 +79,18 @@
   </organization>
 
   <properties>
-    <commonsLoggingVersion>1.0.3</commonsLoggingVersion>
-    <concurrentVersion>1.3.4</concurrentVersion>
+    <!--
+     |
+     | Geronimo module versions
+     |
+     -->
+    <geronimoVersion>1.0-SNAPSHOT</geronimoVersion>
+    
+    <!--
+     |
+     | Geronimo specification versions
+     |
+     -->
     <geronimoSpecActivationVersion>1.0-SNAPSHOT</geronimoSpecActivationVersion>
     <geronimoSpecCorbaVersion>1.0-SNAPSHOT</geronimoSpecCorbaVersion>
     <geronimoSpecEjbVersion>1.0-SNAPSHOT</geronimoSpecEjbVersion>
@@ -98,6 +108,13 @@
     <geronimoSpecQnameVersion>1.0-SNAPSHOT</geronimoSpecQnameVersion>
     <geronimoSpecSaajVersion>1.0-SNAPSHOT</geronimoSpecSaajVersion>    
     <geronimoSpecServletVersion>1.0-SNAPSHOT</geronimoSpecServletVersion>
+    <!--
+     |
+     | External dependency versions
+     |
+     -->
+    <commonsLoggingVersion>1.0.3</commonsLoggingVersion>
+    <concurrentVersion>1.3.4</concurrentVersion>    
     <junitVersion>3.8.1</junitVersion>
     <log4jVersion>1.2.8</log4jVersion>
     <mockobjectsVersion>0.09</mockobjectsVersion>
@@ -107,6 +124,96 @@
 
   <dependencyManagement>
     <dependencies>
+      <!--
+       |
+       | Geronimo specification versions
+       |
+       -->          
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-activation</artifactId>
+        <version>${geronimoSpecActivationVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-ejb</artifactId>
+        <version>${geronimoSpecEjbVersion}</version>
+      </dependency>                        
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-j2ee</artifactId>
+        <version>${geronimoSpecJ2eeVersion}</version>
+      </dependency>                        
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-j2ee-connector</artifactId>
+        <version>${geronimoSpecJ2eeConnectorVersion}</version>
+      </dependency>                        
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+        <version>${geronimoSpecJ2eeDeploymentVersion}</version>
+      </dependency>                        
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-j2ee-jacc</artifactId>
+        <version>${geronimoSpecJ2eeJaccVersion}</version>
+      </dependency>                              
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-j2ee-management</artifactId>
+        <version>${geronimoSpecJ2eeManagementVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-javamail</artifactId>
+        <version>${geronimoSpecJavamailVersion}</version>
+      </dependency>                                                
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-jaxr</artifactId>
+        <version>${geronimoSpecJaxrVersion}</version>
+      </dependency>                                                
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-jaxrpc</artifactId>
+        <version>${geronimoSpecJaxrpcVersion}</version>
+      </dependency>                                                
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-jsp</artifactId>
+        <version>${geronimoSpecJspVersiona}</version>
+      </dependency>                                          
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-jms</artifactId>
+        <version>${geronimoSpecJmsVersion}</version>
+      </dependency>                                    
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-jta</artifactId>
+        <version>${geronimoSpecJtaVersion}</version>
+      </dependency>                                          
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-qname</artifactId>
+        <version>${geronimoSpecQnameVersion}</version>
+      </dependency>            
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-saaj</artifactId>
+        <version>${geronimoSpecSaajVersion}</version>
+      </dependency>                  
+      <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-spec-servlet</artifactId>
+        <version>${geronimoSpecServletVersion}</version>
+      </dependency>            
+      <!--
+       |
+       | External dependency versions
+       |
+       -->    
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
@@ -127,6 +234,26 @@
         <artifactId>junit</artifactId>
         <version>${junitVersion}</version>
       </dependency>
+      <dependency>
+        <groupId>mx4j</groupId>
+        <artifactId>mx4j</artifactId>
+        <version>${mx4jVersion}</version>
+      </dependency>                        
+      <dependency>
+        <groupId>mockobjects</groupId>
+        <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
+        <version>${mockobjectsVersion}</version>
+      </dependency>                              
+      <dependency>
+        <groupId>mockobjects</groupId>
+        <artifactId>mockobjects-core</artifactId>
+        <version>${mockobjectsVersion}</version>
+      </dependency>                                    
+      <dependency>
+        <groupId>scout</groupId>
+        <artifactId>scout</artifactId>
+        <version>${scoutVersion}</version>
+      </dependency>                        
    </dependencies>
   </dependencyManagement>
 
@@ -146,5 +273,9 @@
       <url>scp://minotaur.apache.org/www/maven.apache.org/geronimo/</url>
     </site>
   </distributionManagement>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+  </build>
 
 </project>
