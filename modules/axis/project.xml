@@ -39,6 +39,13 @@
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>

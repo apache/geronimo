@@ -41,6 +41,12 @@
     <!-- ============ -->
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -124,12 +130,6 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-connector</artifactId>
             <version>${geronimo_spec_j2ee_connector_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-management</artifactId>
-            <version>${geronimo_spec_j2ee_management_version}</version>
         </dependency>
 
         <dependency>
