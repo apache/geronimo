@@ -853,6 +853,8 @@ public final class GBeanInstance implements StateManageable {
             startTime = System.currentTimeMillis();
         }
 
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
         Object instance = null;
         try {
             GConstructorInfo constructorInfo = gbeanInfo.getConstructor();
@@ -958,6 +960,8 @@ public final class GBeanInstance implements StateManageable {
             } else {
                 throw new Error(t);
             }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
         }
     }
 
@@ -1045,20 +1049,26 @@ public final class GBeanInstance implements StateManageable {
         }
 
         // we notify the bean before removing our reference so the bean can be called back while stopping
-        if (instance instanceof GBeanLifecycle) {
-            if (stop) {
-                try {
-                    ((GBeanLifecycle) instance).doStop();
-                } catch (Throwable ignored) {
-                    log.error("Problem in doStop of " + objectName, ignored);
-                }
-            } else {
-                try {
-                    ((GBeanLifecycle) instance).doFail();
-                } catch (Throwable ignored) {
-                    log.error("Problem in doFail of " + objectName, ignored);
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(classLoader);
+        try {
+            if (instance instanceof GBeanLifecycle) {
+                if (stop) {
+                    try {
+                        ((GBeanLifecycle) instance).doStop();
+                    } catch (Throwable ignored) {
+                        log.error("Problem in doStop of " + objectName, ignored);
+                    }
+                } else {
+                    try {
+                        ((GBeanLifecycle) instance).doFail();
+                    } catch (Throwable ignored) {
+                        log.error("Problem in doFail of " + objectName, ignored);
+                    }
                 }
             }
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
         }
 
         // bean has been notified... drop our reference
