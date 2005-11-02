@@ -16,24 +16,23 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.net.URLClassLoader;
-import java.net.URL;
-import java.net.URLStreamHandlerFactory;
-import java.net.URI;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
+import org.apache.commons.logging.LogFactory;
+
+import java.beans.Introspector;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
-
-import javax.print.attribute.SupportedValuesAttribute;
-
-import org.apache.commons.logging.LogFactory;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLStreamHandlerFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A MultiParentClassLoader is a simple extension of the URLClassLoader that simply changes the single parent class
@@ -267,6 +266,11 @@ public class MultiParentClassLoader extends URLClassLoader {
         clearSoftCache(ObjectOutputStream.class, "subclassAudits");
         clearSoftCache(ObjectStreamClass.class, "localDescs");
         clearSoftCache(ObjectStreamClass.class, "reflectors");
+
+        // The beanInfoCache in java.beans.Introspector will hold on to Classes which
+        // it has introspected. If we don't flush the cache, we may run out of
+        // Permanent Generation space.
+        Introspector.flushCaches();
     }
 
     private static class FilteringParentCL extends ClassLoader {
