@@ -86,10 +86,11 @@
     </preGoal>
 
     <!-- Construct dependency lists for inclusion in generated jar. -->
-    <postGoal name="java:compile">
+    <!-- putting this goal here produces a circular dependency -->
+ <!--   <postGoal name="java:compile">
         <attainGoal name="geronimo:dependency"/>
     </postGoal>
-
+-->
     <!-- Remove the log files -->
     <goal name="clobber"
         description="Removes all (non-repository installed) build generated files">

@@ -6,9 +6,9 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,40 +20,10 @@
     xmlns:maven="jelly:maven"
     xmlns:deploy="deploy"
     xmlns:ant="jelly:ant">
-    <goal name="setclasspath">
-        <path id="test.classpath">
-            <path refid="maven.dependency.classpath"/>
-            <pathelement location="${tools.jar}"/>
-        </path>
-    </goal>
 
-    <!--
-    <preGoal name="test:compile">
-        <ant:javac
-            destdir="${basedir}/target/test-classes"
-            debug="on"
-            fork="true">
-            <src path="${basedir}/src/test"/>
-            <ant:classpath>
-                <ant:path refid="maven.dependency.classpath"/>
-                <ant:pathelement path="${maven.build.dest}"/>
-            </ant:classpath>
-        </ant:javac>
-    </preGoal>
-
-    <preGoal name="test:test">
-        <j:if test="${context.getVariable('maven.test.skip') != 'true'}">
-            <j:jelly xmlns="jelly:ant">
-                <ant:ant antfile="build.xml"
-                    inheritall="true"
-                    inheritrefs="true"
-                    dir="src/samples/echo"/>
-                <ant:ant antfile="build.xml"
-                    inheritall="true"
-                    inheritrefs="true"
-                    dir="src/samples/echo-pojo"/>
-            </j:jelly>
-        </j:if>
-    </preGoal>
--->
+    <!-- Construct dependency lists for inclusion in generated jar. -->
+    <postGoal name="java:compile">
+        <attainGoal name="geronimo:dependency"/>
+    </postGoal>
+    
 </project>
