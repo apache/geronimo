@@ -183,8 +183,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <!--
            - Required until any realm is provided to Tomcat
@@ -196,8 +196,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -205,8 +205,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -214,8 +214,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -223,8 +223,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -232,8 +232,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -241,8 +241,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -250,8 +250,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -259,8 +259,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
@@ -268,8 +268,8 @@
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>
@@ -293,8 +293,8 @@
             <version>${commons_beanutils_version}</version>
             <url>http://jakarta.apache.org/commons/beanutils</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -302,8 +302,8 @@
             <version>${commons_collections_version}</version>
             <url>http://jakarta.apache.org/commons/collections</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>commons-digester</groupId>
@@ -311,8 +311,8 @@
             <version>${commons_digester_version}</version>
             <url>http://jakarta.apache.org/commons/digester</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>commons-el</groupId>
@@ -320,8 +320,8 @@
             <version>${commons_el_version}</version>
             <url>http://jakarta.apache.org/commons/el</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -335,8 +335,8 @@
             <version>${commons_modeler_version}</version>
             <url>http://jakarta.apache.org/commons/modeler</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>regexp</groupId>
@@ -344,16 +344,13 @@
             <version>${regexp_version}</version>
             <url>http://jakarta.apache.org/regexp/</url>
             <properties>
-                <repository>true</repository>
-            </properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>mx4j</groupId>
             <artifactId>mx4j</artifactId>
             <version>${mx4j_version}</version>
-            <properties>
-                <repository>true</repository>
-            </properties>
         </dependency>
     </dependencies>
 </project>

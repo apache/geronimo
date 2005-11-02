@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 
 <!-- $Rev$ $Date$ -->
 
@@ -85,29 +85,9 @@
         </j:if>
     </preGoal>
 
-    <!-- Copy and filter dependency lists for inclusion in generated jar. -->
+    <!-- Construct dependency lists for inclusion in generated jar. -->
     <postGoal name="java:compile">
-        <u:available file="${basedir}/src/etc/META-INF/geronimo-service.xml">
-            <j:set var="geronimo.service.file.exists" value="true"/>
-        </u:available>
-        <j:if test="${context.getVariable('geronimo.service.file.exists')}">
-            <!-- Preprocess all plans using velocity  -->
-            <ant:mkdir dir="${basedir}/target/etc/META-INF"/>
-            <fileScanner var="plans">
-                <fileset dir="${basedir}/src/etc/META-INF">
-                    <include name="geronimo-service.xml"/>
-                </fileset>
-            </fileScanner>
-
-            <j:forEach var="plan" items="${plans.iterator()}">
-                <j:set var="planName" value="${plan.name}"/>
-                <echo>Preprocessing ${planName}</echo>
-                <velocity:merge
-                    basedir="${basedir}/src/etc/META-INF"
-                    template="${planName}"
-                    name="${basedir}/target/etc/META-INF/${planName}"/>
-            </j:forEach>
-        </j:if>
+        <attainGoal name="geronimo:dependency"/>
     </postGoal>
 
     <!-- Remove the log files -->

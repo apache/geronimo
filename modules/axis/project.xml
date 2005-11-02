@@ -95,12 +95,18 @@
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
             <version>${axis_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>commons-discovery</groupId>
             <artifactId>commons-discovery</artifactId>
             <version>${commons_discovery_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <dependency>
@@ -128,6 +134,9 @@
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
             <version>${wsdl4j_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
      </dependencies>

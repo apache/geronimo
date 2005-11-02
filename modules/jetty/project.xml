@@ -6,16 +6,16 @@
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-  
+
        http://www.apache.org/licenses/LICENSE-2.0
-  
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-  
+
 <!-- $Rev$ $Date$ -->
 
 <project>
@@ -142,6 +142,9 @@
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -196,6 +199,42 @@
             <version>${tranql_version}</version>
             <url>http://tranql.codehaus.org</url>
         </dependency>
+
+        <!-- these are needed only for the generated geronimo-service.xml file -->
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-compiler</artifactId>
+            <version>${jasper_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-compiler-jdt</artifactId>
+            <version>${jasper_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
+            <artifactId>jasper-runtime</artifactId>
+            <version>${jasper_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>commons-el</groupId>
+            <artifactId>commons-el</artifactId>
+            <version>${commons_el_version}</version>
+            <url>http://jakarta.apache.org/commons/el/</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+
     </dependencies>
 
 

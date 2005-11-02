@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004 The Apache Software Foundation
+    Copyright 2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,18 +17,11 @@
 -->
 
 
-<!--dependencies for axis-->
-<service xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
+<!-- $Rev: 158417 $ $Date: 2005-03-20 23:25:45 -0800 (Sun, 20 Mar 2005) $ -->
 
-    <dependency>
-        <uri>axis/jars/axis-${axis_version}.jar</uri>
-    </dependency>
-    <!--jaxrpc and saaj are included in geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar-->
-    <dependency>
-        <uri>wsdl4j/jars/wsdl4j-${wsdl4j_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-discovery/jars/commons-discovery-${commons_discovery_version}.jar</uri>
-    </dependency>
-
-</service>
+<project default="plugin:install">
+    <goal name="default">
+        <attainGoal name="plugin:install-now"/>
+        <attainGoal name="plugin:repository-install"/>
+    </goal>
+</project>
