@@ -28,13 +28,26 @@
     <define:taglib uri="geronimo:packaging">
         <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilder" method="execute"/>
         <define:jellybean name="jmxDistribute" className="org.apache.geronimo.plugin.packaging.JMXDistributor" method="execute"/>
+        <define:jellybean name="dependencies" className="org.apache.geronimo.plugin.packaging.PlanProcessor" method="execute"/>
     </define:taglib>
 
     <goal name="car" description="Package a Geronimo Configuration" prereqs="car:package"/>
 
+<!--
     <goal name="car:prepare-plan" description="Prepare a plan by processing with velocity">
         <ant:mkdir dir="${geronimo.packaging.buildDir}"/>
         <velocity:merge basedir="${geronimo.packaging.srcDir}" template="${geronimo.packaging.planFile}" name="${geronimo.packaging.buildFile}"/>
+    </goal>
+-->
+
+    <goal name="car:prepare-plan" description="Add dependencies to a plan and process with velocity">
+        <car:dependencies
+            artifacts="${pom.artifacts}"
+            targetDir="${geronimo.packaging.buildDir}"
+            sourceDir="${geronimo.packaging.srcDir}"
+            planFile="${geronimo.packaging.planFile}"
+            targetFile="${geronimo.packaging.buildFile}"
+            context="${context}"/>
     </goal>
 
     <goal name="car:package" prereqs="car:prepare-plan" description="Package a Geronimo Configuration">

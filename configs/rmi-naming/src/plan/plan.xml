@@ -21,13 +21,14 @@
 <!--
 Holds the RMI naming server configuration.  This needs to be started
 after the system GBeans but before the server GBeans.
+    parentId="${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car"
+
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-    parentId="${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car"
     >
-
+<!--
     <dependency>
         <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
     </dependency>
@@ -37,7 +38,6 @@ after the system GBeans but before the server GBeans.
     <dependency>
         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
     </dependency>
-    <!-- activation must come before spec-j2ee to override stock mailcap file in its javamail api -->
     <dependency>
         <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
     </dependency>
@@ -50,11 +50,9 @@ after the system GBeans but before the server GBeans.
     <dependency>
         <uri>howl/jars/howl-logger-${howl_version}.jar</uri>
     </dependency>
-    <!--transaction module requires tranql for cache class -->
     <dependency>
         <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
-    <!-- tranql requires antlr -->
     <dependency>
         <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
     </dependency>
@@ -67,14 +65,13 @@ after the system GBeans but before the server GBeans.
     <dependency>
         <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
     </dependency>
-    <!-- remote login -->
     <dependency>
         <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
     </dependency>
-
+-->
     <!-- RMI Registry -->
     <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
         <attribute name="port">${PlanNamingPort}</attribute>

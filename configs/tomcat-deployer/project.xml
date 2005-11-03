@@ -20,7 +20,8 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../etc/project.xml</extend>
+    <extend>../j2ee-deployer/project.xml</extend>
+<!--    <extend>../../etc/project.xml</extend>-->
     <id>tomcat-deployer</id>
     <name>Tomcat Deployer Configuration for the J2EE Server</name>
 

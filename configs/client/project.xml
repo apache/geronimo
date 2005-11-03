@@ -31,6 +31,9 @@
             <artifactId>client-system</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -49,42 +52,70 @@
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee</artifactId>
             <version>${geronimo_spec_j2ee_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-activation</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
+    <!--connector deploys some jsr 77 beans... maybe this shoult be turned off-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-management</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
+    <!--connector deploys some jsr 77 beans... maybe this shoult be turned off-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
+    <!-- client side connector support -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
+    <!-- for property editor support for some login modules/principals -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -95,16 +126,25 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-transaction</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-security</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -115,11 +155,17 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-client</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -136,6 +182,9 @@
             <groupId>concurrent</groupId>
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>tranql</groupId>
@@ -146,6 +195,9 @@
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${openejb_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>howl</groupId>
@@ -157,6 +209,7 @@
             <artifactId>antlr</artifactId>
             <version>${antlr_version}</version>
         </dependency>
+    <!-- required for rar 1.5 to load realms -->
         <dependency>
             <groupId>regexp</groupId>
             <artifactId>regexp</artifactId>
@@ -176,6 +229,9 @@
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <version>${asm_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>activemq</groupId>
@@ -186,6 +242,9 @@
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -193,6 +252,42 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
         </dependency>
+       <dependency>
+            <groupId>scout</groupId>
+            <artifactId>jaxr-api</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>juddi</groupId>
+            <artifactId>juddi</artifactId>
+            <version>${juddi_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>${jdom_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
     </dependencies>
 </project>
 

@@ -31,6 +31,9 @@
             <artifactId>rmi-naming</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -110,6 +113,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jmxremoting</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

@@ -17,14 +17,14 @@
 -->
 
 <!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
-
+<!--               parentId="${pom.groupId}/cars/system-database-${pom.currentVersion}.car"
+-->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/system-database-${pom.currentVersion}.car"
     >
 
-    <dependency>
+<!--    <dependency>
         <uri>activemq/jars/activemq-core-${activemq_version}.jar</uri>
     </dependency>
     <dependency>
@@ -33,7 +33,7 @@
     <dependency>
         <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
     </dependency>
-
+-->
     <!-- management -->
     <gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
 

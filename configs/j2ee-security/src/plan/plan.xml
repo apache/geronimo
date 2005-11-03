@@ -20,19 +20,19 @@
 
 <!--
 Configuration for the security of a Geronimo server.
+               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
     >
 
 
     <!--runtime dependencies-->
-    <dependency>
+ <!--   <dependency>
         <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
     </dependency>
-
+-->
 
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <reference name="ServerInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>

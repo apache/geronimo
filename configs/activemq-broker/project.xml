@@ -31,6 +31,9 @@
             <artifactId>system-database</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -179,13 +182,27 @@
         </dependency>
         <dependency>
             <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
+            <artifactId>activemq-core</artifactId>
             <version>${activemq_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>

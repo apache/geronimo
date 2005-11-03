@@ -23,20 +23,19 @@ Configuration for the main ring of a Geronimo app client.
 
 This configuration should contain those services normally provided
 by the app client.
+               parentId="${pom.groupId}/cars/client-system-${pom.currentVersion}.car"
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/client-system-${pom.currentVersion}.car"
     >
-
+<!--
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo/jars/geronimo-client-${geronimo_version}.jar</uri>
     </dependency>
-    <!-- for property editor support for some login modules/principals -->
     <dependency>
         <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
     </dependency>
@@ -53,7 +52,6 @@ by the app client.
         <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
     </dependency>
 
-    <!-- client side connector support -->
     <dependency>
         <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
     </dependency>
@@ -69,11 +67,9 @@ by the app client.
     <dependency>
         <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
     </dependency>
-    <!-- required for rar 1.5 to load realms -->
     <dependency>
         <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
     </dependency>
-    <!--connector deploys some jsr 77 beans... maybe this shoult be turned off-->
     <dependency>
         <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
     </dependency>
@@ -81,11 +77,9 @@ by the app client.
         <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
     </dependency>
 
-    <!-- remote login -->
     <dependency>
         <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
     </dependency>
-    <!--client side web services-->
     <dependency>
         <uri>asm/jars/asm-${asm_version}.jar</uri>
     </dependency>
@@ -98,7 +92,6 @@ by the app client.
         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
     </dependency>
 
-    <!--scout -->
     <dependency>
         <uri>scout/jars/jaxr-api-${scout_version}.jar</uri>
     </dependency>
@@ -114,7 +107,7 @@ by the app client.
     <dependency>
         <uri>jdom/jars/jdom-1.0.jar</uri>
     </dependency>
-
+-->
     <!-- Naming properties -->
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
         <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>

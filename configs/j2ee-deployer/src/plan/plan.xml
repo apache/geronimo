@@ -16,12 +16,20 @@
     limitations under the License.
 -->
 
+<!--
+               parentId="${pom.groupId}/cars/geronimo-gbean-deployer-${pom.currentVersion}.car"
+-->
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/geronimo-gbean-deployer-${pom.currentVersion}.car"
         >
-
-    <!-- common libraries used by all builders -->
+<!--
+    <import>
+        <groupId>geronimo</groupId>
+        <type>car</type>
+        <artifactId>j2ee-server</artifactId>
+        <version>${pom.currentVersion}</version>
+    </import>
+ 
     <dependency>
         <groupId>geronimo-spec</groupId>
         <artifactId>geronimo-spec-j2ee</artifactId>
@@ -54,8 +62,6 @@
     </dependency>
 
 
-    <!-- todo builder implementations - can we move these to sub-plans? -->
-    <!-- EAR, application-clients and other J2EE artifacts -->
     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-j2ee-builder</artifactId>
@@ -108,7 +114,6 @@
         <version>${geronimo_version}</version>
     </dependency>
 
-    <!-- EJBs using OpenEJB -->
     <dependency>
         <groupId>openejb</groupId>
         <artifactId>openejb-builder</artifactId>
@@ -130,7 +135,6 @@
         <version>${tranql_version}</version>
     </dependency>
 
-    <!-- RARs using Geronimo Connector implementation -->
     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-connector-builder</artifactId>
@@ -142,13 +146,12 @@
         <version>${geronimo_version}</version>
     </dependency>
 
-    <!-- JBI using ServiceMix -->
-    <dependency>
+     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-servicemix-builder</artifactId>
         <version>${geronimo_version}</version>
     </dependency>
-
+-->
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
         <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car</attribute>
         <!--domain set to wildcard so datasources may be deployed independently on client. -->

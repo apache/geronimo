@@ -30,6 +30,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -228,7 +229,11 @@ public class PackageBuilder {
                 List configs = configurationManager.loadRecursive(deploymentConfig);
                 for (int i = 0; i < configs.size(); i++) {
                     URI configName = (URI) configs.get(i);
-                    configurationManager.start(configName);
+                    try {
+                        configurationManager.start(configName);
+                    } catch (Throwable e) {
+                        throw new RuntimeException("Could not start configuration: " + configName, e);
+                    }
                 }
             }
         } finally {
