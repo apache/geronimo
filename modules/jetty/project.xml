@@ -139,6 +139,12 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-management</artifactId>
+            <version>${geronimo_spec_j2ee_management_version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>jetty</groupId>
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
