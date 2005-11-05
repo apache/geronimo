@@ -136,7 +136,8 @@ public class StartRemoteServer {
         cmd.add(systemFile.getCanonicalPath());
         cmd.add("-quiet");
 
-        if (getConfigs() != null) {
+        if (getConfigs() != null  && getConfigs().trim().length() > 0) {
+            cmd.add("-override");
             for (StringTokenizer st = new StringTokenizer(getConfigs()); st.hasMoreTokens();) {
                 cmd.add(st.nextToken());
             }

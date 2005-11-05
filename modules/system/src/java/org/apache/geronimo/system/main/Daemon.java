@@ -20,6 +20,7 @@ package org.apache.geronimo.system.main;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class Daemon {
     private final static String ARGUMENT_NO_PROGRESS = "-quiet";
     private final static String ARGUMENT_VERBOSE = "-v";
     private final static String ARGUMENT_MORE_VERBOSE = "-vv";
+    private final static String ARGUMENT_CONFIG_OVERRIDE = "-override";
     private static boolean started = false;
     private static Log log;
     private StartupMonitor monitor;
@@ -63,24 +65,67 @@ public class Daemon {
     private Daemon(String[] args) {
         // Very first startup tasks
         long start = System.currentTimeMillis();
-        System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
-        System.out.flush();
-
         // Command line arguments affect logging configuration, etc.
-        processArguments(args);
+        if(processArguments(args)) {
+            System.out.println("Booting Geronimo Kernel (in Java " + System.getProperty("java.version") + ")...");
+            System.out.flush();
 
-        // Initialization tasks that must run before anything else
-        initializeSystem();
+            // Initialization tasks that must run before anything else
+            initializeSystem();
 
-        // Now logging is available and
-        log.info("Server startup begun");
-        monitor.systemStarting(start);
-        doStartup();
+            // Now logging is available and
+            log.info("Server startup begun");
+            monitor.systemStarting(start);
+            doStartup();
+        } else {
+            System.exit(1);
+        }
     }
 
-    private void processArguments(String[] args) {
+    private void printHelp(PrintStream out) {
+        out.println();
+        out.println("Syntax: java -jar bin/server.jar [options]");
+        out.println();
+        out.println("Available options are: ");
+        out.println("  "+ARGUMENT_NO_PROGRESS);
+        out.println("             Suppress the normal startup progress bar.  This is typically\n" +
+                    "             used when redirecting console output to a file, or starting\n" +
+                    "             the server from an IDE or other tool.");
+        out.println("  "+ARGUMENT_VERBOSE);
+        out.println("             Reduces the console log level to INFO, resulting in more\n" +
+                    "             console output than is normally present.");
+        out.println("  "+ARGUMENT_MORE_VERBOSE);
+        out.println("             Reduces the console log level to DEBUG, resulting in still\n" +
+                    "             more console output.");
+        out.println();
+        out.println("  "+ARGUMENT_CONFIG_OVERRIDE+" [configId] [configId] ...");
+        out.println("             USE WITH CAUTION!  Overrides the configurations in\n" +
+                    "             var/config.list such that only the configurations listed on\n" +
+                    "             the command line will be started.  Note that many J2EE\n" +
+                    "             features depend on certain configs being started, so you\n" +
+                    "             should be very careful what you omit.  Any arguments after\n" +
+                    "             this are assumed to be configuration names.");
+        out.println();
+    }
+
+    /**
+     * @return true if the server startup should proceed (all arguments
+     *              make sense and the user didn't ask for help)
+     */
+    private boolean processArguments(String[] args) {
+        boolean override = false;
+        boolean help = false;
         for (int i = 0; i < args.length; i++) {
-            if (args[i].equals(ARGUMENT_NO_PROGRESS)) {
+            if(override) {
+                try {
+                    configs.add(new URI(args[i]));
+                } catch (URISyntaxException e) {
+                    System.err.println("Invalid configuration-id: " + args[i]);
+                    e.printStackTrace();
+                    System.exit(2);
+                    throw new AssertionError();
+                }
+            } else if (args[i].equals(ARGUMENT_NO_PROGRESS)) {
                 progressArg = ARGUMENT_NO_PROGRESS;
             } else if (args[i].equals(ARGUMENT_VERBOSE)) {
                 if (verboseArg == null) {
@@ -90,17 +135,20 @@ public class Daemon {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_MORE_VERBOSE;
                 }
+            } else if (args[i].equals(ARGUMENT_CONFIG_OVERRIDE)) {
+                override = true;
+            } else if(args[i].equalsIgnoreCase("-help") || args[i].equalsIgnoreCase("--help") ||
+                    args[i].equalsIgnoreCase("-h") || args[i].equalsIgnoreCase("/?")) {
+                help = true;
             } else {
-                try {
-                    configs.add(new URI(args[i]));
-                } catch (URISyntaxException e) {
-                    System.err.println("Invalid configuration-id: " + args[i]);
-                    e.printStackTrace();
-                    System.exit(1);
-                    throw new AssertionError();
-                }
+                System.out.println("Unrecognized argument: "+args[i]);
+                help = true;
             }
         }
+        if(help) {
+            printHelp(System.out);
+        }
+        return !help;
     }
 
     private void initializeSystem() {
@@ -125,7 +173,7 @@ public class Daemon {
             File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
             if (geronimoInstallDirectory == null) {
                 System.err.println("Could not determine geronimo installation directory");
-                System.exit(1);
+                System.exit(3);
                 throw new AssertionError();
             }
 
@@ -170,7 +218,7 @@ public class Daemon {
                 kernel.boot();
             } catch (Exception e) {
                 e.printStackTrace();
-                System.exit(2);
+                System.exit(4);
                 throw new AssertionError();
             }
 
@@ -214,7 +262,7 @@ public class Daemon {
                         System.err.println("Unable to restore last known configurations");
                         e.printStackTrace();
                         kernel.shutdown();
-                        System.exit(3);
+                        System.exit(5);
                         throw new AssertionError();
                     }
                 }
@@ -250,7 +298,7 @@ public class Daemon {
                     System.err.println("Exception caught during kernel shutdown");
                     e1.printStackTrace();
                 }
-                System.exit(3);
+                System.exit(6);
                 throw new AssertionError();
             }
 
@@ -281,7 +329,7 @@ public class Daemon {
                 monitor.serverStartFailed(e);
             }
             e.printStackTrace();
-            System.exit(3);
+            System.exit(7);
             throw new AssertionError();
         }
     }
@@ -308,8 +356,7 @@ public class Daemon {
 
     /**
      * Static entry point allowing a Kernel to be run from the command line.
-     * Arguments are:
-     * <li>the id of a configuation to load</li>
+     *
      * Once the Kernel is booted and the configuration is loaded, the process
      * will remain running until the shutdown() method on the kernel is
      * invoked or until the JVM exits.
