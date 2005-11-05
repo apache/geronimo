@@ -18,7 +18,7 @@
     <td class="LightBackground">java.class.path</td>
     <td class="LightBackground">
         <table>
-        <c:forEach var="el" items="${javaClassPath}">
+        <c:forEach var="el" items="${javaSysProps['java.class.path']}">
             <tr><td class="LightBackground">${el}</td></tr>
         </c:forEach>
         </table>
@@ -30,11 +30,23 @@
   </tr>
   <tr>
     <td class="LightBackground">java.endorsed.dirs</td>
-    <td class="LightBackground">${javaSysProps['java.endorsed.dirs']}</td>
+    <td class="LightBackground">
+        <table>
+        <c:forEach var="el" items="${javaSysProps['java.endorsed.dirs']}">
+            <tr><td class="LightBackground">${el}</td></tr>
+        </c:forEach>
+        </table>
+    </td>
   </tr>
   <tr>
     <td class="MediumBackground">java.ext.dirs</td>
-    <td class="MediumBackground">${javaSysProps['java.ext.dirs']}</td>
+    <td class="MediumBackground">
+        <table>
+        <c:forEach var="el" items="${javaSysProps['java.ext.dirs']}">
+            <tr><td class="MediumBackground">${el}</td></tr>
+        </c:forEach>
+        </table>
+    </td>
   </tr>
   <tr>
     <td class="LightBackground">java.home</td>
@@ -48,7 +60,7 @@
     <td class="LightBackground">java.library.path</td>
     <td class="LightBackground">
         <table>
-        <c:forEach var="el" items="${javaLibraryPath}">
+        <c:forEach var="el" items="${javaSysProps['java.library.path']}">
             <tr><td class="LightBackground">${el}</td></tr>
         </c:forEach>
         </table>
@@ -159,10 +171,10 @@
   <tr>
     <td class="MediumBackground">sun.boot.class.path</td>
 
-    <td class="MediumBackground"><!-- ${javaSysProps['sun.boot.class.path']} -->
+    <td class="MediumBackground">
 
         <table>
-        <c:forEach var="el" items="${bootClassPathList}">
+        <c:forEach var="el" items="${javaSysProps['sun.boot.class.path']}">
             <tr><td class="MediumBackground">${el}</td></tr>
         </c:forEach>
         </table>
@@ -171,7 +183,14 @@
   </tr>
   <tr>
     <td class="LightBackground">sun.boot.library.path</td>
-    <td class="LightBackground">${javaSysProps['sun.boot.library.path']}</td>
+    <td class="LightBackground">
+        <table>
+        <c:forEach var="el" items="${javaSysProps['sun.boot.library.path']}">
+            <tr><td class="LightBackground">${el}</td></tr>
+        </c:forEach>
+        </table>
+
+    </td>
   </tr>
   <tr>
     <td class="MediumBackground">sun.cpu.endian</td>
@@ -233,28 +252,16 @@
   <tr>
     <td class="DarkBackground" width="100%" colspan="2" align="center">Etc</td>
   </tr>
+<% String background = "LightBackground"; %>
+<%  // Crappy workaround because apparently Jetty's JSTL can't call getters on a Map subclass?!?
+    // Why doesn't ${javaSysProps.remainingItems} return the results of getRemainingItems()?
+    java.util.Map map = ((org.apache.geronimo.console.infomanager.ShrinkingMap)request.getAttribute("javaSysProps")).getRemainingItems();
+    request.setAttribute("results", map); %>
+<c:forEach var="entry" items="${results}">
   <tr>
-    <td class="LightBackground" width="20%" nowrap>path.separator</td>
-    <td class="LightBackground" width="80%">${javaSysProps['path.separator']}</td>
+    <td class="<%=background%>">${entry.key}</td>
+    <td class="<%=background%>">${entry.value}</td>
+    <% background = background.equals("MediumBackground") ? "LightBackground" : "MediumBackground"; %>
   </tr>
-  <tr>
-    <td class="MediumBackground">line.separator</td>
-    <td class="MediumBackground">${javaSysProps['line.separator']}</td>
-  </tr>
-  <tr>
-    <td class="LightBackground">awt.toolkit</td>
-    <td class="LightBackground">${javaSysProps['awt.toolkit']}</td>
-  </tr>
-  <tr>
-    <td class="MediumBackground">file.encoding</td>
-    <td class="MediumBackground">${javaSysProps['file.encoding']}</td>
-  </tr>
-  <tr>
-    <td class="LightBackground">file.encoding.pkg</td>
-    <td class="LightBackground">${javaSysProps['file.encoding.pkg']}</td>
-  </tr>
-  <tr>
-    <td class="MediumBackground">file.separator</td>
-    <td class="MediumBackground">${javaSysProps['file.separator']}</td>
-  </tr>
+</c:forEach>
 </table>

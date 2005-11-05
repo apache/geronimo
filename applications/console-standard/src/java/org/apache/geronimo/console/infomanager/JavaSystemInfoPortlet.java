@@ -21,7 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Properties;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -59,24 +60,48 @@ public class JavaSystemInfoPortlet extends BasePortlet {
             return;
         }
 
-        Properties javaSysProps = PortletManager.getCurrentJVM(renderRequest).getSystemProperties();
+        ShrinkingMap javaSysProps = new ShrinkingMap(PortletManager.getCurrentJVM(renderRequest).getSystemProperties());
 
         renderRequest.setAttribute("javaSysProps", javaSysProps);
 
         String sep = (String) javaSysProps.get("path.separator");
 
-        String cp = (String) javaSysProps.get("sun.boot.class.path");
-        if (cp != null) {
-            renderRequest.setAttribute("bootClassPathList", split(cp, sep));
+        String test = (String) javaSysProps.get("sun.boot.class.path");
+        if (test != null) {
+            javaSysProps.put("sun.boot.class.path", split(test, sep));
         }
-        cp = (String) javaSysProps.get("java.library.path");
-        if (cp != null) {
-            renderRequest.setAttribute("javaLibraryPath", split(cp, sep));
+        test = (String) javaSysProps.get("sun.boot.library.path");
+        if (test != null) {
+            javaSysProps.put("sun.boot.library.path", split(test, sep));
         }
-        cp = (String) javaSysProps.get("java.class.path");
-        if (cp != null) {
-            renderRequest.setAttribute("javaClassPath", split(cp, sep));
+        test = (String) javaSysProps.get("java.library.path");
+        if (test != null) {
+            javaSysProps.put("java.library.path", split(test, sep));
         }
+        test = (String) javaSysProps.get("java.class.path");
+        if (test != null) {
+            javaSysProps.put("java.class.path", split(test, sep));
+        }
+        test = (String) javaSysProps.get("java.endorsed.dirs");
+        if (test != null) {
+            javaSysProps.put("java.endorsed.dirs", split(test, sep));
+        }
+        test = (String) javaSysProps.get("java.ext.dirs");
+        if (test != null) {
+            javaSysProps.put("java.ext.dirs", split(test, sep));
+        }
+        test = (String) javaSysProps.get("common.loader");
+        if (test != null) {
+            javaSysProps.put("common.loader", test.replace(',',' '));
+        }
+
+        // Remove a few properties for security reasons
+        javaSysProps.remove("javax.net.ssl.keyStore");
+        javaSysProps.remove("javax.net.ssl.keyStorePassword");
+        javaSysProps.remove("javax.net.ssl.trustStore");
+        javaSysProps.remove("javax.net.ssl.trustStorePassword");
+
+        javaSysProps.setShrinking(true);
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
