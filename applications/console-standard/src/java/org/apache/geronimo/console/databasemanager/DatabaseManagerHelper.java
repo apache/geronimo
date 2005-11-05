@@ -136,7 +136,6 @@ public class DatabaseManagerHelper {
         sb.append("              <match-one/>\n");
         sb.append("            </single-pool>\n");
         sb.append("          </connectionmanager>\n");
-        sb.append("          <global-jndi-name>{10}</global-jndi-name>\n");
         sb.append("        </connectiondefinition-instance>\n");
         sb.append("      </connection-definition>\n");
         sb.append("    </outbound-resourceadapter>\n");

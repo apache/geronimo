@@ -32,16 +32,6 @@
     <td> <p>Name of this JDBC data source.</td>
   </tr>
   <tr>
-    <td><div align="right"> JNDI Name: </div></td>
-    <td> <p>
-      <input name="jndiName" type="text" size="50">
-    </td>
-  </tr>
-  <tr>
-    <td><div align="right"></div></td>
-    <td> <p> JNDI path to bind this JDBC data source.</td>
-  </tr>
-  <tr>
     <td> <div align="right">Dependency: </div></td>
     <td>
 	<select name="dependency">

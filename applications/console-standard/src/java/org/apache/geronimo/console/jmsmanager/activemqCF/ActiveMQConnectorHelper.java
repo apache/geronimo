@@ -143,7 +143,6 @@ public class ActiveMQConnectorHelper {
         sb.append("              <match-one/>\n");
         sb.append("            </single-pool>\n");
         sb.append("          </connectionmanager>\n");
-        sb.append("          <global-jndi-name>{9}</global-jndi-name>\n");
         sb
                 .append("          <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>\n");
         sb.append("        </connectiondefinition-instance>\n");

@@ -22,8 +22,6 @@ public class TranQLInfo {
 
     private String name;
 
-    private String jndiName;
-
     private String userName;
 
     private String driver;
@@ -46,14 +44,6 @@ public class TranQLInfo {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getjndiName() {
-        return jndiName;
-    }
-
-    public void setjndiName(String jndiName) {
-        this.jndiName = jndiName;
     }
 
     public String getDriver() {

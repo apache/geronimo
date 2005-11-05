@@ -32,16 +32,6 @@
     <td> <p>Name of this ActiveMQ Connection Factory.</td>
   </tr>
   <tr>
-    <td><div align="right"> JNDI Name: </div></td>
-    <td> <p>
-      <input name="jndiName" type="text" size="50">
-    </td>
-  </tr>
-  <tr>
-    <td><div align="right"></div></td>
-    <td> <p> JNDI path to bind this ActiveMQ Connection Factory.</td>
-  </tr>
-  <tr>
     <td> <div align="right">Server URL: </div></td>
     <td><input name="serverURL" type="text" size="50"></td>
   </tr>

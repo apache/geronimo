@@ -12,10 +12,6 @@ the Geronimo server and allows the user to add datasources as well.</p>
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Name of the Connection Factory.</td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 5px 10px" width="150" align="right" valign="top"><strong>Global JNDI Name</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Physical name of the connection factory.</td>
-  </tr>
-  <tr>
     <td class="MediumBackground" style="padding: 10px 10px 5px 10px" width="150" align="right" valign="top"><strong>State</strong></td>
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The state of the connection, either &quot;Running&quot; or 
 &quot;Stopped.&quot;</td>

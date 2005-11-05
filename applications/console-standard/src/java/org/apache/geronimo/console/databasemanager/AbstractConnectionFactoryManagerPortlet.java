@@ -101,7 +101,6 @@ public abstract class AbstractConnectionFactoryManagerPortlet extends
             actionResponse.setRenderParameter("mode", mode);
             if (SUBMIT_CREATE.equals(submit)) {
                 String dsName = actionRequest.getParameter("dsName");
-                String jndiName = actionRequest.getParameter("jndiName");
                 String dependency = actionRequest.getParameter("dependency");
                 String driverClass = actionRequest.getParameter("driverClass");
                 String jdbcUrl = actionRequest.getParameter("jdbcUrl");
@@ -117,7 +116,7 @@ public abstract class AbstractConnectionFactoryManagerPortlet extends
                         trimStr(dependency), trimStr(dsName), trimStr(dbUser),
                         dbPassword, trimStr(driverClass), trimStr(jdbcUrl),
                         trimStr(poolMaxSize), trimStr(poolInitSize),
-                        trimStr(jndiName), trimStr(dbProperties) };
+                        trimStr(dbProperties) };
                 helper.deployPlan(args);
                 // Set mode to list after creating the new datasource
                 actionResponse.setRenderParameter("mode", "list");
@@ -210,8 +209,6 @@ public abstract class AbstractConnectionFactoryManagerPortlet extends
             info.setObjectName(gbeanName);
             info.setName(gbeanName.getKeyProperty("name"));
             try {
-                info.setJndiName((String) kernel.getAttribute(gbeanName,
-                        "globalJNDIName"));
                 info.setState(new Integer(kernel.getGBeanState(gbeanName)));
                 //check if user asked this connection to be tested
                 if ((gbeanName.toString().equals(name)) && (check)) {

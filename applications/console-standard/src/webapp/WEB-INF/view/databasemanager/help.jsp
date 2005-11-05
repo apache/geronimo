@@ -12,10 +12,6 @@ click on the &quot;change&quot; link to update the fields. For information on th
     <td class="LightBackground" style="padding: 10px 5px 10px 10px">The name of the database.</td>
   </tr>
   <tr>
-    <td class="MediumBackground" style="padding: 10px 10px 5px 10px" width="150" align="right" valign="top"><strong> Global JNDI Name</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px"><p>The global JNDI name is assigned by the site administrator. It is used when trying to connect to the resource (database or queue/topic) from an application client. It should not be used from other server-side components. It should be  unique for every resource deployed in Geronimo. Currently users of Geronimo are not provided a mechanism for entering a value in this field.</p>    </td>
-  </tr>
-  <tr>
     <td class="MediumBackground" style="padding: 10px 10px 5px 10px" width="150" align="right" valign="top"><strong>State</strong></td>
     <td class="LightBackground" style="padding: 10px 5px 10px 10px">State of the database, either &quot;running&quot; or &quot;stopped.&quot;</td>
   </tr>

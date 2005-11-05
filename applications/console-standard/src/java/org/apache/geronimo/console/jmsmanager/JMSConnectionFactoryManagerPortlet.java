@@ -116,7 +116,6 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
             actionResponse.setRenderParameter("mode", mode);
             if (SUBMIT_CREATE.equals(submit)) {
                 String acfName = actionRequest.getParameter("acfName");
-                String jndiName = actionRequest.getParameter("jndiName");
                 String serverURL = actionRequest.getParameter("serverURL");
                 String userName = actionRequest.getParameter("userName");
                 String pword = actionRequest.getParameter("pword");
@@ -126,8 +125,7 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
                 String[] args = { trimStr(acfName), trimStr(PARENT_ID),
                         trimStr(acfName), trimStr(serverURL),
                         trimStr(userName), pword, trimStr(acfName),
-                        trimStr(poolMaxSize), trimStr(blocking),
-                        trimStr(jndiName) };
+                        trimStr(poolMaxSize), trimStr(blocking) };
                 helper.deployPlan(args);
                 // Set mode to list after creating the new ConnectionFactories
                 actionResponse.setRenderParameter("mode", "list");
@@ -200,8 +198,6 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
             info.setObjectName(gbeanName);
             info.setName(gbeanName.getKeyProperty("name"));
             try {
-                info.setJndiName((String) kernel.getAttribute(gbeanName,
-                        "globalJNDIName"));
                 info.setState(new Integer(kernel.getGBeanState(gbeanName)));
                 //check if user asked this connection to be tested
                 if ((gbeanName.toString().equals(name)) && (check)) {

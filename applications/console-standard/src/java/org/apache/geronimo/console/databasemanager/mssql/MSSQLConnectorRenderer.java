@@ -92,8 +92,6 @@ public class MSSQLConnectorRenderer implements DetailViewRenderer {
                     .toString());
             info.setDatabaseName((String) kernel.getAttribute(gbeanName,
                     "DatabaseName"));
-            info.setGlobalJNDIName((String) kernel.getAttribute(gbeanName,
-                    "globalJNDIName"));
         } catch (Exception e) {
             throw new PortletException(e);
         }

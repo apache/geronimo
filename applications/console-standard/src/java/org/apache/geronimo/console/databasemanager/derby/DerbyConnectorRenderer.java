@@ -96,8 +96,6 @@ public class DerbyConnectorRenderer implements DetailViewRenderer {
                     "CreateDatabase")).toString());
             info.setLoginTimeout((Integer) kernel.getAttribute(gbeanName,
                     "LoginTimeout"));
-            info.setJndiName((String) kernel.getAttribute(gbeanName,
-                    "globalJNDIName"));
         } catch (Exception e) {
             throw new PortletException(e);
         }

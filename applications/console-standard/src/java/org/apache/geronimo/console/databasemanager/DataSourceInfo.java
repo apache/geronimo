@@ -24,8 +24,6 @@ public class DataSourceInfo implements Comparable {
 
     private String name;
 
-    private String jndiName;
-
     private Integer state;
 
     private boolean working;
@@ -46,26 +44,6 @@ public class DataSourceInfo implements Comparable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        if (jndiName != null && !jndiName.startsWith("ger:")) {
-            StringBuffer buf = new StringBuffer(jndiName.length() + 4);
-            buf.append("ger:");
-            if (jndiName.charAt(0) != '/') {
-                ;
-            }
-            {
-                buf.append('/');
-            }
-            buf.append(jndiName);
-            jndiName = buf.toString();
-        }
-        this.jndiName = jndiName;
     }
 
     public Integer getState() {

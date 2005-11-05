@@ -5,14 +5,12 @@
     <tr>
         <th>&nbsp;</th>
         <th align="left">Name</th>
-        <th align="left">Global JNDI Name</th>
         <th align="left">State</th>
         <th align="left">Test Result</th>
     </tr>
     <c:forEach var="info" items="${dataSources}"><tr>
         <td><a href='<portlet:renderURL><portlet:param name="name" value="${info.objectName}"/><portlet:param name="mode" value="detail"/></portlet:renderURL>'>detail</a></td>
         <td>${info.name}</td>
-        <td>${info.jndiName}</td>
         <td><c:choose>
             <c:when test='${info.state == 0}'>Starting</c:when>
             <c:when test='${info.state == 1}'>Running</c:when>

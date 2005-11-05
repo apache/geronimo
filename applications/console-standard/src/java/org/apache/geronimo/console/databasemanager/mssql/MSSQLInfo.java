@@ -29,8 +29,6 @@ public class MSSQLInfo {
 
     private String databaseName;
 
-    private String globalJNDIName;
-
     // Not used
     private String objectName;
 
@@ -85,21 +83,6 @@ public class MSSQLInfo {
      */
     public void setDatabaseName(String databaseName) {
         this.databaseName = databaseName;
-    }
-
-    /**
-     * @return Returns the globalJNDIName.
-     */
-    public String getGlobalJNDIName() {
-        return globalJNDIName;
-    }
-
-    /**
-     * @param globalJNDIName
-     *            The globalJNDIName to set.
-     */
-    public void setGlobalJNDIName(String globalJNDIName) {
-        this.globalJNDIName = globalJNDIName;
     }
 
     /**

@@ -12,10 +12,6 @@
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Name of the connection factory.</td>
   </tr>
   <tr>
-    <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>Global JNDI Name</strong></td>
-    <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">Physical name of the connection factory.</td>
-  </tr>
-  <tr>
     <td width="150" align="right" valign="top" class="MediumBackground" style="padding: 10px 10px 5px 10px"><strong>State</strong></td>
     <td class="LightBackground" style="padding: 10px 5px 10px 10px" valign="top">The state of the connection, either &quot;Running&quot; or &quot;Stopped.&quot;</td>
   </tr>

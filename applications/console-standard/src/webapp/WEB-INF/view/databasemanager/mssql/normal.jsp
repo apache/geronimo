@@ -11,7 +11,6 @@
     <tr><td><strong>Server Name</strong></td><td>${ds.serverName}</td></tr>
     <tr><td><strong>Port no.</strong></td><td>${ds.portNumber}</td></tr>
     <tr><td><strong>DB Name</strong></td><td>${ds.databaseName}</td></tr>
-    <tr><td><strong>Global JNDI Name</strong></td><td>${ds.globalJNDIName}</td></tr>
     <tr><td colspan="2" align="center">
         <a href='<portlet:renderURL><portlet:param name="name" value="${ds.objectName}"/><portlet:param name="mode" value="config"/></portlet:renderURL>'>change</a>
         &nbsp;

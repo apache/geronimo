@@ -90,8 +90,6 @@ public class TranQLConnectorRenderer implements DetailViewRenderer {
                     .getAttribute(gbeanName, "UserName"));
             info.setExceptionSorterClass((String) kernel.getAttribute(
                     gbeanName, "ExceptionSorterClass"));
-            info.setjndiName((String) kernel.getAttribute(gbeanName,
-                    "globalJNDIName"));
         } catch (Exception e) {
             throw new PortletException(e);
         }

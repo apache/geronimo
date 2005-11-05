@@ -21,13 +21,13 @@
 <input type="hidden" name="mode" value="detail" />
 
 <br>
-<strong>Connection Name:</strong>&nbsp;${ds.jndiName}
+<strong>Connection Name:</strong>&nbsp;${ds.name}
 <br><br>
 <table width="100%">
     <tr><td><strong>UserName</strong></td><td><input type="text" name="UserName" value="${ds.userName}" size="75" /></td></tr>
     <tr><td><strong>Password</strong></td><td><input type="password" name="password1" size="75" /></td></tr>
     <tr><td><strong>Repeat&nbsp;Password</strong></td><td><input type="password" name="password2" size="75" /></td></tr>
-<c:if test="${badPassword}"><tr><td colspan=2">Passwords did not match</td></tr></c:if>
+<c:if test="${badPassword}"><tr><td colspan="2">Passwords did not match</td></tr></c:if>
     <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
     <tr><td><strong>Database Name</strong></td><td><input type="text" name="DatabaseName" value="${ds.databaseName}" size="75" /></td></tr>
     <tr><td><strong>Create Database</strong></td><td><input type="text" name="CreateDatabase" value="${ds.createDatabase}" size="75" /></td></tr>

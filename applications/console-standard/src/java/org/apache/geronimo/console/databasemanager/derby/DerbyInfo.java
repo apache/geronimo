@@ -22,8 +22,6 @@ public class DerbyInfo {
 
     private String name;
 
-    private String jndiName;
-
     private String databaseName;
 
     private String userName;
@@ -46,14 +44,6 @@ public class DerbyInfo {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getJndiName() {
-        return jndiName;
-    }
-
-    public void setJndiName(String jndiName) {
-        this.jndiName = jndiName;
     }
 
     public String getUserName() {
