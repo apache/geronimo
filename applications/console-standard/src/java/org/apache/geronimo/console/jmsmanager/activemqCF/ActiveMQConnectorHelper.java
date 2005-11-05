@@ -51,7 +51,7 @@ public class ActiveMQConnectorHelper {
 
     private final static String MODULE_FILE;
 
-    private final static String ACTIVEMQ_RA = "/activemq/rars/activemq-ra-3.1-SNAPSHOT.rar";
+    private final static String ACTIVEMQ_RA = "/activemq/rars/activemq-ra-3.2.rar";
 
     private final static String PLAN_XML = "/activemq/rars/amqconnectorPlan.xml";
 
