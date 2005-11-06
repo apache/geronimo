@@ -39,13 +39,13 @@ public class DeployableFactory {
             return new ClientDeployable(moduleURL);
         } else if (cl.getResource("WEB-INF/web.xml") != null) {
             // WAR
-            throw new UnsupportedOperationException();
+            return new WebDeployable(moduleURL);
         } else if (cl.getResource("META-INF/ejb-jar.xml") != null) {
             // EJB Jar
             throw new UnsupportedOperationException();
         } else if (cl.getResource("META-INF/ra.xml") != null) {
             // Connector
-            throw new UnsupportedOperationException();
+            return new ConnectorDeployable(moduleURL);
         } else {
             throw new DDBeanCreateException("Unrecognized archive: " + moduleURL);
         }

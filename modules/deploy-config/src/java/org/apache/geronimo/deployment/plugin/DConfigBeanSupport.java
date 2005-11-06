@@ -100,6 +100,11 @@ public abstract class DConfigBeanSupport extends XmlBeanSupport implements DConf
         return getXPathsWithPrefix(null , xpathSegments);
     }
 
+    /**
+     * Each entry in the first array is an XPath.
+     * Each entry in the enclosed array is a component of that XPath (slashes omitted).
+     * so {{"foo","bar"},{"baz","foo"}} would represent "foo/bar" and "baz/foo"
+     */ 
     protected String[] getXPathsForJ2ee_1_4(String[][] xpathSegments) {
         return getXPathsFromNamespace("http://java.sun.com/xml/ns/j2ee", xpathSegments);
     }
