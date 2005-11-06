@@ -107,7 +107,6 @@ public class JettyLogManagerImpl implements JettyLogManager {
             long end = endDate == null ? 0 : endDate.getTime();
             SimpleDateFormat format = (start == 0 && end == 0) ? null : new SimpleDateFormat(ACCESS_LOG_DATE_FORMAT);
             int max = maxResults == null ? MAX_SEARCH_RESULTS : Math.min(maxResults.intValue(), MAX_SEARCH_RESULTS);
-log.warn("CRITERIA: "+file.getAbsolutePath()+" "+host+" "+user+" "+method+" "+uri+" "+start+" "+end+" "+skipResults+" "+max);
             while(lines.find()) {
                 ++lineCount;
                 if(capped) {
