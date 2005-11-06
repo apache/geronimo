@@ -262,7 +262,6 @@ public class KernelManagementHelper implements ManagementHelper {
     public WebAccessLog getWebAccessLog(WebManager manager, String container) {
         WebAccessLog result = null;
         try {
-log.warn("Checking access log for "+kernel.getObjectNameFor(manager)+" / "+container);            
             String name = manager.getAccessLog(container);
             Object temp = pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
             result = (WebAccessLog) temp;
