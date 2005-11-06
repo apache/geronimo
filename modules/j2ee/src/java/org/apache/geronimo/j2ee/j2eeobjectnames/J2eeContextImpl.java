@@ -46,7 +46,24 @@ public class J2eeContextImpl implements J2eeContext {
                 source.getKeyProperty(NameFactory.J2EE_SERVER),
                 source.getKeyProperty(NameFactory.J2EE_APPLICATION),
                 moduleType,
-                source.getKeyProperty(moduleType),
+                source.getKeyProperty(moduleType), // <-- This might be wrong!!! GERONIMO-1140
+                source.getKeyProperty(NameFactory.J2EE_NAME),
+                source.getKeyProperty(NameFactory.J2EE_TYPE));
+    }
+
+    /**
+     * This method is a workaround for GERONIMO-1140 -- it's the same as the
+     * previous one except for the offending line.  If this is determined to
+     * be a valid change in general, this can replace newContext(ObjectName, String)
+     * However, I'm not 100% sure that it's OK to have the J2EE_NAME in two
+     * consecutive parameters in the general case.
+     */
+    public static J2eeContextImpl newModuleContext(ObjectName source, String moduleType) {
+        return new J2eeContextImpl(source.getDomain(),
+                source.getKeyProperty(NameFactory.J2EE_SERVER),
+                source.getKeyProperty(NameFactory.J2EE_APPLICATION),
+                moduleType,
+                source.getKeyProperty(NameFactory.J2EE_NAME),
                 source.getKeyProperty(NameFactory.J2EE_NAME),
                 source.getKeyProperty(NameFactory.J2EE_TYPE));
     }
