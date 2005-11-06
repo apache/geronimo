@@ -148,29 +148,27 @@ public class ConfigManagerPortlet extends BasePortlet {
         List configStores = configManager.listStores();
         int size = configStores.size();
         String configID = getConfigID(actionRequest);
+        URI configURI = URI.create(configID);
         for (int i = 0; i < size; i++) {
             ObjectName configStore = (ObjectName) configStores.get(i);
             Boolean result = (Boolean) kernel.invoke(configStore,
                     CONTAINSCONFIG_METHOD,
-                    new Object[]{URI.create(configID)}, CONTAINSCONFIG_SIG);
+                    new Object[]{configURI}, CONTAINSCONFIG_SIG);
             if (result.booleanValue() == true) {
                 // stop config if running
-                if (configManager.isLoaded(URI.create(configID))) {
+                if (configManager.isLoaded(configURI)) {
                     //int state = kernel.getConfigurationState(configID);
                     int state = kernel
                             .getGBeanState(JMXUtil
                             .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
                             + "\"" + configID + "\""));
                     if (state == State.RUNNING.toInt()) {
-                        //kernel.stopConfiguration(configID);
-                        kernel
-                                .stopGBean(JMXUtil
-                                .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                                + "\"" + configID + "\""));
+
+                        configManager.stop(configURI);
+                        configManager.unload(configURI);
                     }
                 }
-                kernel.invoke(configStore, UNINSTALL_METHOD, new Object[]{URI
-                        .create(configID)}, UNINSTALL_SIG);
+                kernel.invoke(configStore, UNINSTALL_METHOD, new Object[]{configURI}, UNINSTALL_SIG);
             }
         }
     }
