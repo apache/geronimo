@@ -53,8 +53,11 @@ public class ConfigPropertySetting extends XmlBeanSupport {
         this.configProperty = configProperty;
         setXmlObject(property);
         final String name = configProperty.getText("config-property-name")[0];
-System.out.println("Initializing ConfigPropertySetting to "+name);
         getPropertySetting().setName(name);
+        String[] test = configProperty.getText("config-property-value");
+        if(test != null && test.length == 1) {
+            getPropertySetting().setStringValue(test[0]);
+        }
     }
 
     // ----------------------- JavaBean Properties for config-property-setting ----------------------

@@ -63,27 +63,42 @@ public class Connector15DCBTest extends TestCase {
         assertNull(connector.getSuppressDefaultParentID());
         connector.setConfigID("MyDatabase");
         connector.setParentID("org/apache/geronimo/Server");
-        //todo: Try the dependency element
+        // Try the dependency element
+        assertNotNull(connector.getDependency());
+        assertEquals(0, connector.getDependency().length);
+        Dependency dep = new Dependency();
+        connector.setDependency(new Dependency[]{dep});
+        assertEquals(1, connector.getDependency().length);
+        dep.setURI("postgresql/jars/postgresql-8.0-313.jdbc3.jar");
+        assertNull(dep.getArtifactId());
+        assertNull(dep.getGroupId());
+        assertNull(dep.getType());
+        assertNull(dep.getVersion());
+        dep.setGroupId("postgresql");
+        dep.setArtifactId("postgresql-8.0");
+        dep.setVersion("313.jdbc3");
+        assertNull(dep.getURI());
+        assertNull(dep.getType());
         // Try the /connector/resourceadapter element
         assertNotNull(connector.getResourceAdapter());
         assertEquals(1, connector.getResourceAdapter().length);
         ResourceAdapter adapter = connector.getResourceAdapter()[0];
         assertNotNull(adapter);
-        //todo: Try the /connector/resourceadapter/outbound-resourceadapter/connection-definition element
+        // Try the /connector/resourceadapter/outbound-resourceadapter/connection-definition element
         assertNotNull(adapter.getConnectionDefinition());
         assertEquals(0, adapter.getConnectionDefinition().length);
         ConnectionDefinition definition = new ConnectionDefinition();
         adapter.setConnectionDefinition(new ConnectionDefinition[]{definition});
         assertEquals(1, adapter.getConnectionDefinition().length);
         definition.setConnectionFactoryInterface("javax.sql.DataSource");
-        //todo: Try the .../connection-definition/connectiondefinition-instance elements
+        // Try the .../connection-definition/connectiondefinition-instance elements
         assertNotNull(definition.getConnectionInstances());
         assertEquals(0, definition.getConnectionInstances().length);
         ConnectionDefinitionInstance instance = new ConnectionDefinitionInstance();
         definition.setConnectionInstance(new ConnectionDefinitionInstance[]{instance});
         assertEquals(1, definition.getConnectionInstances().length);
         assertNotNull(instance.getDDBean());
-        //todo: Try the .../connection-definition/connectiondefinition-instance/config-property-setting elements
+        // Try the .../connection-definition/connectiondefinition-instance/config-property-setting elements
         assertNotNull(instance.getConfigPropertySetting());
         assertEquals(6, instance.getConfigPropertySetting().length);
         int found = 0;
@@ -105,11 +120,37 @@ public class Connector15DCBTest extends TestCase {
                 assertEquals("", setting.getValue());
                 setting.setValue("dbpass");
                 ++found;
+            } else {
+                assertNotNull(setting.getValue());
             }
         }
         assertEquals(4, found);
-        //todo: Try the .../connection-definition/connectionmanager elements
+        // Try the .../connection-definition/connectionmanager elements
+        ConnectionManager manager = instance.getConnectionManager();
+        assertNotNull(manager);
+        assertFalse(manager.isContainerManagedSecurity());
+        assertFalse(manager.isPoolNone());
+        assertNotNull(manager.getPoolSingle());
+        assertNull(manager.getPoolPartitioned());
+        assertFalse(manager.isTransactionLog());
+        assertFalse(manager.isTransactionNone());
+        assertFalse(manager.isTransactionXA());
+        assertFalse(manager.isTransactionXACachingThread());
+        assertFalse(manager.isTransactionXACachingTransaction());
+        assertTrue(manager.isTransactionLocal());
+        SinglePool pool = manager.getPoolSingle();
+        assertNull(pool.getMinSize());
+        assertNull(pool.getMaxSize());
+        assertNull(pool.getIdleTimeoutMinutes());
+        assertNull(pool.getBlockingTimeoutMillis());
+        assertTrue(pool.isMatchOne());
+        assertFalse(pool.isMatchAll());
+        assertFalse(pool.isSelectOneAssumeMatch());
+        pool.setMinSize(new Integer(2));
+        pool.setMaxSize(new Integer(30));
+        pool.setBlockingTimeoutMillis(new Integer(5000));
         //todo: Look at the XmlBeans tree and make sure the right stuff is in there
+        System.out.println(dcbRoot.getConnectorDocument());
     }
 
     protected void setUp() throws Exception {

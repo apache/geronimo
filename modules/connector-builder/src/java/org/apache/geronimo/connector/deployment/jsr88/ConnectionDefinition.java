@@ -23,6 +23,7 @@ import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
@@ -49,6 +50,8 @@ public class ConnectionDefinition extends XmlBeanSupport {
         setXmlObject(definition);
         //todo: initialize connectiondefinition-instance from definition
     }
+
+    // ----------------------- JavaBean Properties for connection-definition ----------------------
 
     public String getConnectionFactoryInterface() {
         return getConnectionDefinition().getConnectionfactoryInterface();
@@ -102,6 +105,9 @@ public class ConnectionDefinition extends XmlBeanSupport {
 
     }
 
+
+    // ----------------------- End of JavaBean Properties ----------------------
+
     /**
      * Look up the J2EE connection definition corresponding to this one (based on connectionfactory-interface)
      */
@@ -122,5 +128,9 @@ public class ConnectionDefinition extends XmlBeanSupport {
             }
         }
         return null;
+    }
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return Connector15DCBRoot.SCHEMA_TYPE_LOADER;
     }
 }

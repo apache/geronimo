@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.XpathListener;
-import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlCursor;
 
@@ -41,9 +40,11 @@ public class DDBeanImpl implements DDBean {
     protected final Map children;
     protected final String content;
     protected final Map attributeMap;
+    protected final DDBean parent;
 
-    public DDBeanImpl(DDBeanRoot root, String xpath, XmlCursor c) {
+    public DDBeanImpl(DDBeanRoot root, DDBean parent, String xpath, XmlCursor c) {
         this.root = root;
+        this.parent = parent;
         this.xpath = xpath;
         this.children = new HashMap();
         this.attributeMap = new HashMap();
@@ -64,7 +65,7 @@ public class DDBeanImpl implements DDBean {
                     nodes = new ArrayList();
                     children.put(name, nodes);
                 }
-                nodes.add(new DDBeanImpl(root, xpath + "/" + name, c));
+                nodes.add(new DDBeanImpl(root, this, xpath + "/" + name, c));
             } while (c.toNextSibling());
         }
         c.pop();
@@ -73,6 +74,7 @@ public class DDBeanImpl implements DDBean {
     DDBeanImpl(DDBeanImpl source, String xpath) {
         this.xpath = xpath;
         this.root = source.root;
+        this.parent = source.parent;
         this.children = source.children;
         this.content = source.content;
         this.attributeMap = source.attributeMap;
@@ -118,6 +120,16 @@ public class DDBeanImpl implements DDBean {
     public DDBean[] getChildBean(String xpath) {
         if (xpath.startsWith("/")) {
             return getRoot().getChildBean(xpath.substring(1));
+        } else if(xpath.equals(".")) {
+            return new DDBean[]{this};
+        } else if(xpath.startsWith("./")) {
+            return getChildBean(xpath.substring(2));
+        } else if(xpath.startsWith("..")) {
+            if(xpath.length() == 2) {
+                return new DDBean[]{parent};
+            } else {
+                return parent.getChildBean(xpath.substring(3));
+            }
         }
         int index = xpath.indexOf('/');
         if (index == -1) {

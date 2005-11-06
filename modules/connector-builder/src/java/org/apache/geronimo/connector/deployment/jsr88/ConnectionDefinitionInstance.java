@@ -16,8 +16,6 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +25,14 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.XpathEvent;
 import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
-import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
+ * Represents connection-definition/connectiondefinition-instance in the
+ * Geronimo Connector deployment plan.
+ *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
@@ -57,6 +58,7 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
                 };
     private DDBean connectionDefinition;
     private ConfigPropertySetting[] settings = new ConfigPropertySetting[0];
+    private ConnectionManager manager;
 
     public ConnectionDefinitionInstance() {
         super(null);
@@ -100,23 +102,37 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         for (Iterator it = byName.keySet().iterator(); it.hasNext();) {
             String name = (String) it.next();
             DDBean bean = (DDBean) byName.get(name);
-System.out.println("Creating DDBean "+name+" "+bean.getText("config-property-name")[0]);
             list.add(new ConfigPropertySetting(bean, getConnectionInstance().addNewConfigPropertySetting()));
         }
         settings = (ConfigPropertySetting[]) list.toArray(new ConfigPropertySetting[list.size()]);
         if(connectionDefinition != null) {
             connectionDefinition.addXpathListener("config-property", xpathListener);
         }
-        // todo: Prepare the ConnectionManager
-
+        if(connectionDefinition != null) {
+            DDBean parent = connectionDefinition.getChildBean("..")[0];
+            ConnectionManager old = manager;
+            if(old == null) {
+                if(definition.getConnectionmanager() != null) {
+                    manager = new ConnectionManager(parent, definition.getConnectionmanager());
+                } else {
+                    manager = new ConnectionManager(parent, definition.addNewConnectionmanager());
+                }
+            } else {
+                if(definition.getConnectionmanager() != null) {
+                    manager.configure(parent, definition.getConnectionmanager());
+                } else {
+                    manager.configure(parent, definition.addNewConnectionmanager());
+                }
+            }
+            pcs.firePropertyChange("connectionManager", old, manager);
+        }
     }
 
     DDBean getDDBean() {
         return connectionDefinition;
     }
 
-    //todo: the following properties
-    // connection-manager
+    // ----------------------- JavaBean Properties for /connectiondefinition-instance ----------------------
 
     public String getName() {
         return getConnectionInstance().getName();
@@ -154,5 +170,16 @@ System.out.println("Creating DDBean "+name+" "+bean.getText("config-property-nam
 
     public ConfigPropertySetting getConfigPropertySetting(int index) {
         return settings[index];
+    }
+
+    public ConnectionManager getConnectionManager() {
+        return manager;
+    }
+
+
+    // ----------------------- End of JavaBean Properties ----------------------
+
+    protected SchemaTypeLoader getSchemaTypeLoader() {
+        return Connector15DCBRoot.SCHEMA_TYPE_LOADER;
     }
 }

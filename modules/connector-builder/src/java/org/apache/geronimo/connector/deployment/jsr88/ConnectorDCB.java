@@ -23,6 +23,7 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.XpathEvent;
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
+import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -36,6 +37,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 public class ConnectorDCB extends DConfigBeanSupport {
     private DDBean resourceAdapterDDBean;
     private ResourceAdapter[] resourceAdapter = new ResourceAdapter[0];
+    private Dependency[] dependency = new Dependency[0];
 
     public ConnectorDCB(DDBean connectorDDBean, final GerConnectorType connector) {
         super(connectorDDBean, connector);
@@ -65,7 +67,14 @@ public class ConnectorDCB extends DConfigBeanSupport {
         //todo: Handle the import children
         //todo: Handle the hidden-classes children
         //todo: Handle the non-overridable-classes children
-        //todo: Handle the dependency children
+        // Handle the dependency children
+        DependencyType[] deps = connector.getDependencyArray();
+        if(deps != null && deps.length > 0) {
+            dependency = new Dependency[deps.length];
+            for (int i = 0; i < deps.length; i++) {
+                dependency[i] = new Dependency(deps[i]);
+            }
+        }
         // Handle the resource adapter children
         GerResourceadapterType[] adapters = connector.getResourceadapterArray();
         if(adapters == null || adapters.length == 0) {
@@ -96,7 +105,6 @@ public class ConnectorDCB extends DConfigBeanSupport {
     // import*
     // hidden-classes*
     // non-overridable-classes*
-    // dependency*
     // adminobject*
     // gbean*
 
@@ -197,6 +205,53 @@ public class ConnectorDCB extends DConfigBeanSupport {
             ra.configure(resourceAdapterDDBean, getConnector().addNewResourceadapter());
         }
         pcs.firePropertyChange("resourceAdapter", old, resourceAdapter);
+    }
+
+    public Dependency[] getDependency() {
+        return dependency;
+    }
+
+    public void setDependency(Dependency[] dependency) {
+        Dependency[] old = this.dependency;
+        Set before = new HashSet();
+        for (int i = 0; i < old.length; i++) {
+            before.add(old[i]);
+        }
+        this.dependency = dependency;
+        // Handle current or new resource adapters
+        for (int i = 0; i < dependency.length; i++) {
+            Dependency dep = dependency[i];
+            if(dep.getDependency() == null) {
+                dep.configure(getConnector().addNewDependency());
+            } else {
+                before.remove(dep);
+            }
+        }
+        // Handle removed resource adapters
+        for (Iterator it = before.iterator(); it.hasNext();) {
+            Dependency dep = (Dependency) it.next();
+            DependencyType all[] = getConnector().getDependencyArray();
+            for (int i = 0; i < all.length; i++) {
+                if(all[i] == dep) {
+                    getConnector().removeDependency(i);
+                    break;
+                }
+            }
+        }
+        pcs.firePropertyChange("dependency", old, dependency);
+    }
+
+    public Dependency getDependency(int index) {
+        return dependency[index];
+    }
+
+    public void setDependency(int index, Dependency dep) {
+        Dependency[] old = this.dependency;
+        dependency[index] = dep;
+        if(dep.getDependency() == null) {
+            dep.configure(getConnector().addNewDependency());
+        }
+        pcs.firePropertyChange("dependency", old, dependency);
     }
 
 

@@ -51,7 +51,7 @@ public class DDBeanRootImpl implements DDBeanRoot {
             try {
                 c.toStartDoc();
                 c.toFirstChild();
-                docBean = new DDBeanImpl(this, "/" + c.getName().getLocalPart(), c);
+                docBean = new DDBeanImpl(this, this, "/" + c.getName().getLocalPart(), c);
             } finally {
                 c.dispose();
             }

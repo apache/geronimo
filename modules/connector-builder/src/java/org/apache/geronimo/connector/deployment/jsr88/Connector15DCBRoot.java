@@ -77,6 +77,10 @@ public class Connector15DCBRoot extends DConfigBeanRootSupport {
         }
     }
 
+    GerConnectorDocument getConnectorDocument() {
+        return (GerConnectorDocument) getXmlObject();
+    }
+
     public String[] getXpaths() {
         return getXPathsForJ2ee_1_4(new String[][]{{"connector",},});
     }

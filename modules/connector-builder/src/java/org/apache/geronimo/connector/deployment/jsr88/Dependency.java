@@ -63,6 +63,9 @@ public class Dependency extends XmlBeanSupport {
             getDependency().setGroupId(groupId);
         }
         pcs.firePropertyChange("groupId", old, groupId);
+        if(groupId != null && getURI() != null) {
+            setURI(null);
+        }
     }
 
     public String getArtifactId() {
@@ -77,6 +80,9 @@ public class Dependency extends XmlBeanSupport {
             getDependency().setArtifactId(artifact);
         }
         pcs.firePropertyChange("artifactId", old, artifact);
+        if(artifact != null && getURI() != null) {
+            setURI(null);
+        }
     }
 
     public String getType() {
@@ -91,6 +97,9 @@ public class Dependency extends XmlBeanSupport {
             getDependency().setType(type);
         }
         pcs.firePropertyChange("type", old, type);
+        if(type != null && getURI() != null) {
+            setURI(null);
+        }
     }
 
     public String getVersion() {
@@ -105,6 +114,9 @@ public class Dependency extends XmlBeanSupport {
             getDependency().setVersion(version);
         }
         pcs.firePropertyChange("version", old, version);
+        if(version != null && getURI() != null) {
+            setURI(null);
+        }
     }
 
     public String getURI() {
@@ -119,6 +131,12 @@ public class Dependency extends XmlBeanSupport {
             getDependency().setUri(uri);
         }
         pcs.firePropertyChange("URI", old, uri);
+        if(uri != null) {
+            if(getArtifactId() != null) setArtifactId(null);
+            if(getGroupId() != null) setGroupId(null);
+            if(getType() != null) setType(null);
+            if(getVersion() != null) setVersion(null);
+        }
     }
 
     // ----------------------- End of JavaBean Properties ----------------------
