@@ -291,8 +291,9 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         Context context = ctx.getContext();
 
         if (context != null){
-            if (context instanceof StandardContext){
-                StandardContext stdctx = (StandardContext)context;
+            if (context instanceof GeronimoStandardContext){
+                GeronimoStandardContext stdctx = (GeronimoStandardContext)context;
+                
                 try{
                     stdctx.stop();
                     stdctx.destroy();

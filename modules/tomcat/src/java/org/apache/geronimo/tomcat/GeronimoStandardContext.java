@@ -24,12 +24,18 @@ import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.Servlet;
+import javax.servlet.ServletException;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
+import org.apache.catalina.Pipeline;
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
+import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.core.StandardPipeline;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -65,8 +71,9 @@ public class GeronimoStandardContext extends StandardContext {
 
     private Map webServiceMap = null;
 
-    public void setContextProperties(TomcatContext ctx) throws DeploymentException {
+    private boolean pipelineInitialized;
 
+    public void setContextProperties(TomcatContext ctx) throws DeploymentException {
         // Create ReadOnlyContext
         javax.naming.Context enc = null;
         Map componentContext = ctx.getComponentContext();
@@ -90,8 +97,8 @@ public class GeronimoStandardContext extends StandardContext {
         //Set the InstanceContextValve
         InstanceContextValve instanceContextValve =
                 new InstanceContextValve(ctx.getUnshareableResources(),
-                                         ctx.getApplicationManagedSecurityResources(),
-                                         ctx.getTrackedConnectionAssociator());
+                        ctx.getApplicationManagedSecurityResources(),
+                        ctx.getTrackedConnectionAssociator());
         addValve(instanceContextValve);
 
         // Set ComponentContext valve
@@ -103,8 +110,7 @@ public class GeronimoStandardContext extends StandardContext {
         // Set TransactionContextValve
         TransactionContextManager transactionContextManager = ctx.getTransactionContextManager();
         if (transactionContextManager != null) {
-            TransactionContextValve transactionValve = new TransactionContextValve(
-                    transactionContextManager);
+            TransactionContextValve transactionValve = new TransactionContextValve(transactionContextManager);
             addValve(transactionValve);
         }
 
@@ -126,24 +132,29 @@ public class GeronimoStandardContext extends StandardContext {
                     defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
                 }
 
-                PolicyContextValve policyValve = new PolicyContextValve(
-                        securityHolder.getPolicyContextID());
+                PolicyContextValve policyValve = new PolicyContextValve(securityHolder.getPolicyContextID());
                 addValve(policyValve);
 
                 //This is definitely a hack, but I don't see a reasonable way to install the defaultSubject.
                 //Obviously this won't work if there are permissions.  Setting the default subject if there are
                 //permissions breaks authentication.
                 boolean hasPermissions = securityHolder.getChecked().elements().hasMoreElements() ||
-                                         securityHolder.getExcluded().elements().hasMoreElements();
+                        securityHolder.getExcluded().elements().hasMoreElements();
+                Valve defaultSubjectValve;
                 if (!hasPermissions && defaultSubject != null) {
-                    Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
-                    addValve(defaultSubjectValve);
+                    defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
                 } else {
                     //this will clear the thread of any read subject added by some other web app
-                    addValve(new DefaultSubjectValve(null));
+                    defaultSubjectValve = new DefaultSubjectValve(null);
                 }
+                addValve(defaultSubjectValve);
             }
         }
+
+        //Not clear if user defined valves should be involved in init processing.  Probably not since
+        //request and response are null.
+
+        addValve(new SystemMethodValve());
 
         // Add User Defined Valves
         List valveChain = ctx.getValveChain();
@@ -154,14 +165,27 @@ public class GeronimoStandardContext extends StandardContext {
                 addValve(valve);
             }
         }
-
+        pipelineInitialized = true;
         this.webServiceMap = ctx.getWebServices();
 
         this.setCrossContext(ctx.isCrossContext());
     }
 
     public synchronized void start() throws LifecycleException {
-        super.start();
+        if (pipelineInitialized) {
+            try {
+                Valve valve = getFirst();
+                    valve.invoke(null, null);
+            } catch (IOException e) {
+                if (e.getCause() instanceof LifecycleException) {
+                    throw (LifecycleException) e.getCause();
+                }
+                throw new LifecycleException(e);
+            } catch (ServletException e) {
+                throw new LifecycleException(e);
+            }
+        } else
+            super.start();
     }
 
     public synchronized void stop() throws LifecycleException {
@@ -172,7 +196,7 @@ public class GeronimoStandardContext extends StandardContext {
 
         super.stop();
     }
-
+    
     public void addChild(Container child) {
         Wrapper wrapper = (Wrapper) child;
 
@@ -223,5 +247,22 @@ public class GeronimoStandardContext extends StandardContext {
         }
 
         super.addChild(child);
+    }
+
+
+    private class SystemMethodValve extends ValveBase {
+
+        public void invoke(Request request, Response response) throws IOException, ServletException {
+            if (request == null && response == null) {
+                try {
+                    GeronimoStandardContext.super.start();
+                } catch (LifecycleException e) {
+                    throw (IOException) new IOException("wrapping lifecycle exception").initCause(e);
+                }
+            } else {
+                getNext().invoke(request, response);
+            }
+
+        }
     }
 }
