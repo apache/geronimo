@@ -57,4 +57,14 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      * @return The ObjectNames of the thread pools, in String form.
      */
     public String[] getThreadPools();
+
+    /**
+     * Gets the ObjectNames of the Repositories associated with this
+     * J2EEServer.
+     *
+     * @see org.apache.geronimo.kernel.repository.Repository
+     *
+     * @return The ObjectNames of the repositories, in String form.
+     */
+    public String[] getRepositories();
 }

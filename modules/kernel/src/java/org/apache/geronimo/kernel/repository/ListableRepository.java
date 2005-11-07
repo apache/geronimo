@@ -14,24 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.kernel.repository;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 
 /**
- * Provides access to things like JARs via a standard API.  Generally
- * these may be local (file: URLs) or remote (http: URLs).  This is
- * a fairly limited read-only type repository.  There are additional
- * interfaces that a Repository may implement to indicate additional
- * capabilities.
+ * For repositories that can provide a list of their contents.
+ * Normally local ones can handle it, but remote ones may or may
+ * not implement this.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface Repository {
-    boolean hasURI(URI uri);
-
-    URL getURL(URI uri) throws MalformedURLException;
+public interface ListableRepository extends Repository {
+    /**
+     * Gets a list of all the items available in the repository.
+     */ 
+    public URI[] listURIs() throws URISyntaxException;
 }

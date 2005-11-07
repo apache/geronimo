@@ -130,5 +130,8 @@ limitations under the License.
         <portlet id="64">
             <definition-id>console-standard.JMSConnectorManager</definition-id>
         </portlet>
+        <portlet id="65">
+            <definition-id>console-standard.DBWizard</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

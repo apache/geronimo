@@ -30,13 +30,13 @@ import org.apache.geronimo.management.JMSResource;
 import org.apache.geronimo.management.JDBCDataSource;
 import org.apache.geronimo.management.JDBCDriver;
 import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.management.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.Servlet;
 import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -59,11 +59,14 @@ public interface ManagementHelper {
     WebModule[] getWebModules(J2EEServer server);
     EJBModule[] getEJBModules(J2EEServer server);
     ResourceAdapterModule[] getRAModules(J2EEServer server);
+    ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String connectionFactoryInterface);
+    JCAManagedConnectionFactory[] getOutboundFactories(J2EEServer server, String connectionFactoryInterface);
     J2EEResource[] getResources(J2EEServer server);
     JCAResource[] getJCAResources(J2EEServer server);
     JDBCResource[] getJDBCResources(J2EEServer server);
     JMSResource[] getJMSResources(J2EEServer server);
     JVM[] getJavaVMs(J2EEServer server);
+    Repository[] getRepositories(J2EEServer server);
     WebManager[] getWebManagers(J2EEServer server);
     WebAccessLog getWebAccessLog(WebManager manager, WebContainer container);
     WebAccessLog getWebAccessLog(WebManager manager, String containerObjectName);
@@ -108,7 +111,7 @@ public interface ManagementHelper {
     // module properties
     EJB[] getEJBs(EJBModule module);
     Servlet[] getServlets(WebModule module);
-    ResourceAdapter getResourceAdapters(ResourceAdapterModule module);
+    ResourceAdapter[] getResourceAdapters(ResourceAdapterModule module);
 
     // resource adapter properties
     JCAResource[] getRAResources(ResourceAdapter adapter);

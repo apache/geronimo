@@ -206,6 +206,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-directory</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -507,6 +516,15 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-test-ddbean</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
                 <repository>true</repository>

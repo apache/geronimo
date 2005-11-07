@@ -483,6 +483,29 @@ limitations under the License.
     </portlet>
 
     <portlet>
+        <description>Wizard for managing database pools</description>
+        <portlet-name>DBWizard</portlet-name>
+        <display-name>Database Pool Wizard</display-name>
+
+        <portlet-class>org.apache.geronimo.console.databasemanager.wizard.DatabasePoolPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Database Pools</title>
+            <short-title>Database Pools</short-title>
+            <keywords>Database Pool Wizard</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <description>Portlet for managing JMS connections</description>
         <portlet-name>JMSConnections</portlet-name>
         <display-name>JMS Connection Factory Portlet</display-name>

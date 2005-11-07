@@ -35,7 +35,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
-import org.apache.geronimo.management.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 
 /**
  * @version $Rev$ $Date$

@@ -29,7 +29,10 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.deployment.plugin.jmx.RemoteDeploymentManager;
+import org.apache.geronimo.deployment.plugin.jmx.LocalDeploymentManager;
 import org.apache.geronimo.deployment.plugin.DisconnectedDeploymentManager;
+import org.apache.geronimo.kernel.KernelRegistry;
 
 /**
  * Implementation of JSR88 DeploymentFactory.
@@ -79,13 +82,16 @@ public class DeploymentFactoryImpl implements DeploymentFactory {
                 try {
                     JMXServiceURL address = new JMXServiceURL("service:" + uri);
                     JMXConnector jmxConnector = JMXConnectorFactory.connect(address, environment);
-                    JMXDeploymentManager manager = new JMXDeploymentManager(jmxConnector);
+                    JMXDeploymentManager manager = new RemoteDeploymentManager(jmxConnector);
                     return manager;
                 } catch (IOException e) {
                     throw (DeploymentManagerCreationException)new DeploymentManagerCreationException(e.getMessage()).initCause(e);
                 } catch (SecurityException e) {
                     throw (AuthenticationFailedException) new AuthenticationFailedException("Invalid login.").initCause(e);
                 }
+            } else if(uri.equals("inVM")) { //todo: allow specifying a kernel by name
+                JMXDeploymentManager manager = new LocalDeploymentManager(KernelRegistry.getSingleKernel());
+                return manager;
             } else {
                 throw new DeploymentManagerCreationException("Invalid URI: " + uri);
             }

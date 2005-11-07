@@ -22,7 +22,6 @@ import java.util.List;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
-import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.AppClientModule;
@@ -40,11 +39,24 @@ import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.JDBCDataSource;
 import org.apache.geronimo.management.JDBCDriver;
 import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.management.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
+import org.apache.geronimo.management.geronimo.EJBManager;
+import org.apache.geronimo.management.geronimo.EJBConnector;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
@@ -192,6 +204,89 @@ public class KernelManagementHelper implements ManagementHelper {
         return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
     }
 
+    public JCAManagedConnectionFactory[] getOutboundFactories(J2EEServer server, String connectionFactoryInterface) {
+        List list = new ArrayList();
+        try {
+            String[] names = server.getDeployedObjects();
+            for (int i = 0; i < names.length; i++) {
+                ObjectName name = ObjectName.getInstance(names[i]);
+                String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
+                if(type.equals(NameFactory.RESOURCE_ADAPTER_MODULE)) {
+                    ResourceAdapterModule module = (ResourceAdapterModule) pm.createProxy(name, KernelManagementHelper.class.getClassLoader());
+                    ResourceAdapter[] adapters = getResourceAdapters(module);
+                    for (int j = 0; j < adapters.length; j++) {
+                        ResourceAdapter adapter = adapters[j];
+                        JCAResource[] resources = getRAResources(adapter);
+                        for (int k = 0; k < resources.length; k++) {
+                            JCAResource resource = resources[k];
+                            JCAConnectionFactory[] factories = getConnectionFactories(resource);
+                            for (int l = 0; l < factories.length; l++) {
+                                JCAConnectionFactory factory = factories[l];
+                                JCAManagedConnectionFactory mcf = getManagedConnectionFactory(factory);
+                                if(mcf.getConnectionFactoryInterface().equals(connectionFactoryInterface)) {
+                                    list.add(mcf);
+                                    continue;
+                                }
+                                for (int m = 0; m < mcf.getImplementedInterfaces().length; m++) {
+                                    String iface = mcf.getImplementedInterfaces()[m];
+                                    if(iface.equals(connectionFactoryInterface)) {
+                                        list.add(mcf);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return (JCAManagedConnectionFactory[]) list.toArray(new JCAManagedConnectionFactory[list.size()]);
+    }
+
+    public ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String connectionFactoryInterface) {
+        List list = new ArrayList();
+        try {
+            String[] names = server.getDeployedObjects();
+            for (int i = 0; i < names.length; i++) {
+                ObjectName name = ObjectName.getInstance(names[i]);
+                String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
+                if(type.equals(NameFactory.RESOURCE_ADAPTER_MODULE)) {
+                    ResourceAdapterModule module = (ResourceAdapterModule) pm.createProxy(name, KernelManagementHelper.class.getClassLoader());
+                    ResourceAdapter[] adapters = getResourceAdapters(module);
+                    outer:
+                    for (int j = 0; j < adapters.length; j++) {
+                        ResourceAdapter adapter = adapters[j];
+                        JCAResource[] resources = getRAResources(adapter);
+                        for (int k = 0; k < resources.length; k++) {
+                            JCAResource resource = resources[k];
+                            JCAConnectionFactory[] factories = getConnectionFactories(resource);
+                            for (int l = 0; l < factories.length; l++) {
+                                JCAConnectionFactory factory = factories[l];
+                                JCAManagedConnectionFactory mcf = getManagedConnectionFactory(factory);
+                                if(mcf.getConnectionFactoryInterface().equals(connectionFactoryInterface)) {
+                                    list.add(module);
+                                    break outer;
+                                }
+                                for (int m = 0; m < mcf.getImplementedInterfaces().length; m++) {
+                                    String iface = mcf.getImplementedInterfaces()[m];
+                                    if(iface.equals(connectionFactoryInterface)) {
+                                        list.add(module);
+                                        break outer;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
+    }
+
     public J2EEResource[] getResources(J2EEServer server) {
         J2EEResource[] result = new J2EEResource[0];
         try {
@@ -237,7 +332,20 @@ public class KernelManagementHelper implements ManagementHelper {
             result = new JVM[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
+            log.error("Unable to look up JVMs for J2EEServer", e);
+        }
+        return result;
+    }
+
+    public Repository[] getRepositories(J2EEServer server) {
+        Repository[] result = new Repository[0];
+        try {
+            String[] names = server.getRepositories();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new Repository[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up repositories for J2EEServer", e);
         }
         return result;
     }
@@ -250,7 +358,7 @@ public class KernelManagementHelper implements ManagementHelper {
             result = new WebManager[temp.length];
             System.arraycopy(temp, 0, result, 0, temp.length);
         } catch (Exception e) {
-            log.error("Unable to look up related GBean", e);
+            log.error("Unable to look up WebManagers for J2EEServer", e);
         }
         return result;
     }
@@ -623,13 +731,31 @@ public class KernelManagementHelper implements ManagementHelper {
         return new Servlet[0];  //todo
     }
 
-    public ResourceAdapter getResourceAdapters(ResourceAdapterModule module) {
-        return null;  //todo
+    public ResourceAdapter[] getResourceAdapters(ResourceAdapterModule module) {
+        ResourceAdapter[] result = new ResourceAdapter[0];
+        try {
+            String[] names = module.getResourceAdapters();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new ResourceAdapter[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up resource adapters for module", e);
+        }
+        return result;
     }
 
     // resource adapter properties
     public JCAResource[] getRAResources(ResourceAdapter adapter) {
-        return new JCAResource[0];  //todo
+        JCAResource[] result = new JCAResource[0];
+        try {
+            String[] names = adapter.getJCAResources();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JCAResource[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up JCA resources for resource adapter", e);
+        }
+        return result;
     }
 
     // resource properties
@@ -642,11 +768,26 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public JCAConnectionFactory[] getConnectionFactories(JCAResource resource) {
-        return new JCAConnectionFactory[0];  //todo
+        JCAConnectionFactory[] result = new JCAConnectionFactory[0];
+        try {
+            String[] names = resource.getConnectionFactories();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JCAConnectionFactory[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up connection factories for JCA resource", e);
+        }
+        return result;
     }
 
     public JCAManagedConnectionFactory getManagedConnectionFactory(JCAConnectionFactory factory) {
-        return null;  //todo
+        try {
+            String name = factory.getManagedConnectionFactory();
+            return (JCAManagedConnectionFactory) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+        } catch (Exception e) {
+            log.error("Unable to look up managed connection factory for connection factory", e);
+            return null;
+        }
     }
 
     public Object getObject(String objectName) {

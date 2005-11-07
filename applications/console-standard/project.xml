@@ -80,6 +80,21 @@
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-test-ddbean</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 <!--        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-</artifactId>

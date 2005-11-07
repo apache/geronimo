@@ -14,24 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.geronimo.kernel.repository;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
+package org.apache.geronimo.management.geronimo;
 
 /**
- * Provides access to things like JARs via a standard API.  Generally
- * these may be local (file: URLs) or remote (http: URLs).  This is
- * a fairly limited read-only type repository.  There are additional
- * interfaces that a Repository may implement to indicate additional
- * capabilities.
- *
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface Repository {
-    boolean hasURI(URI uri);
+public interface JCAManagedConnectionFactory extends org.apache.geronimo.management.JCAManagedConnectionFactory {
+    public String getManagedConnectionFactoryClass();
 
-    URL getURL(URI uri) throws MalformedURLException;
+    public String getConnectionFactoryInterface() ;
+
+    public String[] getImplementedInterfaces();
+
+    public String getConnectionFactoryImplClass();
+
+    public String getConnectionInterface();
+
+    public String getConnectionImplClass();
 }

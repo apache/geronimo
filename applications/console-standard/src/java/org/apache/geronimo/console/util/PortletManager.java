@@ -16,18 +16,27 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.util.List;
+import java.util.ArrayList;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpSession;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.management.J2EEDomain;
+import org.apache.geronimo.management.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -58,6 +67,16 @@ public class PortletManager {
             kernel = KernelRegistry.getSingleKernel();
         }
         return new KernelManagementHelper(kernel);
+    }
+
+    public static DeploymentManager getDeploymentManager(PortletRequest request) {
+        DeploymentFactoryImpl factory = new DeploymentFactoryImpl();
+        try {
+            return factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
+        } catch (DeploymentManagerCreationException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static ManagementHelper getManagementHelper(PortletRequest request) {
@@ -109,6 +128,47 @@ public class PortletManager {
             request.getPortletSession().setAttribute(JVM_KEY, jvm, PortletSession.APPLICATION_SCOPE);
         }
         return jvm;
+    }
+
+    public static Repository[] getRepositories(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getRepositories(getCurrentServer(request));
+    }
+
+    public static ListableRepository[] getListableRepositories(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        Repository[] list = helper.getRepositories(getCurrentServer(request));
+        List result = new ArrayList();
+        for (int i = 0; i < list.length; i++) {
+            Repository repository = list[i];
+            if(repository instanceof ListableRepository) {
+                result.add(repository);
+            }
+        }
+        return (ListableRepository[]) result.toArray(new ListableRepository[result.size()]);
+    }
+
+    public static WriteableRepository[] getWritableRepositories(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        Repository[] list = helper.getRepositories(getCurrentServer(request));
+        List result = new ArrayList();
+        for (int i = 0; i < list.length; i++) {
+            Repository repository = list[i];
+            if(repository instanceof WriteableRepository) {
+                result.add(repository);
+            }
+        }
+        return (WriteableRepository[]) result.toArray(new WriteableRepository[result.size()]);
+    }
+
+    public static ResourceAdapterModule[] getOutboundRAModules(PortletRequest request, String iface) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getOutboundRAModules(getCurrentServer(request), iface);
+    }
+
+    public static JCAManagedConnectionFactory[] getOutboundFactories(PortletRequest request, String iface) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getOutboundFactories(getCurrentServer(request), iface);
     }
 
     public static String[] getWebManagerNames(PortletRequest request) {

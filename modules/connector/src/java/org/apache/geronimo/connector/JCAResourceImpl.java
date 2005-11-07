@@ -43,7 +43,7 @@ public class JCAResourceImpl implements JCAResource  {
         this.kernel = kernel;
 
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
-        moduleContext = J2eeContextImpl.newContext(myObjectName, NameFactory.JCA_RESOURCE);
+        moduleContext = J2eeContextImpl.newModuleContext(myObjectName, NameFactory.JCA_RESOURCE);
     }
 
     public String[] getConnectionFactories() {

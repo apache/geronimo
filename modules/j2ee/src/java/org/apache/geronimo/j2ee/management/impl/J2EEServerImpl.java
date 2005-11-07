@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -161,6 +162,18 @@ public class J2EEServerImpl implements J2EEServer {
 
     public String[] getThreadPools() {
         GBeanQuery query = new GBeanQuery(null, GeronimoExecutor.class.getName());
+        Set set = kernel.listGBeans(query);
+        String[] names = new String[set.size()];
+        int i=0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            names[i++] = name.getCanonicalName();
+        }
+        return names;
+    }
+
+    public String[] getRepositories() {
+        GBeanQuery query = new GBeanQuery(null, Repository.class.getName());
         Set set = kernel.listGBeans(query);
         String[] names = new String[set.size()];
         int i=0;

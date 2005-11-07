@@ -23,6 +23,7 @@ import javax.enterprise.deploy.spi.DeploymentConfiguration;
 
 import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapterDConfigRoot;
 import org.apache.geronimo.connector.deployment.dconfigbean.ResourceAdapter_1_0DConfigRoot;
+import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -38,7 +39,7 @@ public class RARConfigurer implements ModuleConfigurer {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {
         if (ModuleType.RAR.equals(deployable.getType())) {
             if (deployable.getDDBeanRoot().getDDBeanRootVersion().equals("1.5")) {
-                return new RARConfiguration(deployable, new ResourceAdapterDConfigRoot(deployable.getDDBeanRoot()));
+                return new RARConfiguration(deployable, new Connector15DCBRoot(deployable.getDDBeanRoot()));
             }
             String[] specVersion = deployable.getDDBeanRoot().getText("connector/spec-version");
             if (specVersion.length > 0 && "1.0".equals(specVersion[0])) {

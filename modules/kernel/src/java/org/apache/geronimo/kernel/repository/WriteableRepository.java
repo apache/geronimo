@@ -14,24 +14,24 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.geronimo.kernel.repository;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
+import java.io.File;
+import java.io.IOException;
 
 /**
- * Provides access to things like JARs via a standard API.  Generally
- * these may be local (file: URLs) or remote (http: URLs).  This is
- * a fairly limited read-only type repository.  There are additional
- * interfaces that a Repository may implement to indicate additional
- * capabilities.
+ * A repository that accepts new entries.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface Repository {
-    boolean hasURI(URI uri);
-
-    URL getURL(URI uri) throws MalformedURLException;
+public interface WriteableRepository {
+    /**
+     * Copies a file from the server's filesystem into the repository.
+     * Obviously to use this remotely, you must have some other way
+     * to upload the file to the server's filesystem, even if the
+     * the server is just going to turn around and upload it to some
+     * other remote location.
+     */
+    public void copyToRepository(File source, URI destination) throws IOException;
 }

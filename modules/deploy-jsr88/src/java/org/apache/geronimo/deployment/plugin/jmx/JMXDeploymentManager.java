@@ -17,7 +17,6 @@
 package org.apache.geronimo.deployment.plugin.jmx;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import javax.enterprise.deploy.model.DeployableObject;
@@ -31,11 +30,8 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-import javax.management.remote.JMXConnector;
-
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.plugin.local.*;
@@ -44,28 +40,22 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.connector.deployment.RARConfigurer;
 import org.apache.geronimo.web.deployment.WARConfigurer;
-import org.apache.geronimo.gbean.GBeanQuery;
 
 
 /**
  * @version $Rev$ $Date$
  */
-public class JMXDeploymentManager implements DeploymentManager {
-    private JMXConnector jmxConnector;
-    private MBeanServerConnection mbServerConnection;
+public abstract class JMXDeploymentManager implements DeploymentManager {
     private Kernel kernel;
     private ConfigurationManager configurationManager;
     private CommandContext commandContext;
 
-    public JMXDeploymentManager(JMXConnector jmxConnector) throws IOException {
-        this.jmxConnector = jmxConnector;
-        mbServerConnection = jmxConnector.getMBeanServerConnection();
-        kernel = new KernelDelegate(mbServerConnection);
+    protected void initialize(Kernel kernel) {
+        this.kernel = kernel;
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         commandContext = new CommandContext();
         commandContext.setLogErrors(true);
@@ -75,11 +65,7 @@ public class JMXDeploymentManager implements DeploymentManager {
     public void release() {
         try {
             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-            jmxConnector.close();
-        } catch (IOException e) {
-            throw (IllegalStateException) new IllegalStateException("Unable to close connection").initCause(e);
         } finally {
-            mbServerConnection = null;
             configurationManager = null;
             kernel = null;
         }
