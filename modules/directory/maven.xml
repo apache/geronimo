@@ -58,4 +58,10 @@
         </copy>
     </preGoal>
 
+    <!-- Construct dependency lists for inclusion in generated jar. -->
+    <postGoal name="java:compile">
+        <attainGoal name="geronimo:dependency"/>
+    </postGoal>
+
+    
 </project>

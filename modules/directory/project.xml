@@ -41,6 +41,12 @@ limitations under the License.
     <!-- ============ -->
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>plugin</type>
+        </dependency>
         <!-- temporary solution until appropriate xmlbeans code is ready -->
         <dependency>
             <groupId>cglib</groupId>
@@ -88,36 +94,54 @@ limitations under the License.
             <groupId>directory</groupId>
             <artifactId>apacheds-core</artifactId>
             <version>${apacheds_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory</groupId>
             <artifactId>apacheds-shared</artifactId>
             <version>${apacheds_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-asn1</groupId>
             <artifactId>asn1-codec</artifactId>
             <version>${asn1_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-shared</groupId>
             <artifactId>apache-ldapber-provider</artifactId>
             <version>${apacheds_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-asn1</groupId>
             <artifactId>asn1-ber</artifactId>
             <version>${asn1_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-asn1</groupId>
             <artifactId>asn1-der</artifactId>
             <version>${asn1_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -125,6 +149,9 @@ limitations under the License.
             <artifactId>jdbm</artifactId>
             <version>${jdbm_version}</version>
             <url>http://jdbm.sourceforge.net</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -132,6 +159,9 @@ limitations under the License.
             <artifactId>regexp</artifactId>
             <version>${regexp_version}</version>
             <url>http://jakarta.apache.org/regexp/index.html</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -139,6 +169,9 @@ limitations under the License.
             <artifactId>oro</artifactId>
             <version>${oro_version}</version>
             <url>http://jakarta.apache.org/oro</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -146,6 +179,9 @@ limitations under the License.
             <artifactId>commons-lang</artifactId>
             <version>${commons_lang_version}</version>
             <url>http://jakarta.apache.org/commons/lang/api</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -153,6 +189,9 @@ limitations under the License.
             <artifactId>commons-collections</artifactId>
             <version>${commons_collections_version}</version>
             <url>http://jakarta.apache.org/commons/collections</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -160,6 +199,9 @@ limitations under the License.
             <artifactId>commons-io</artifactId>
             <version>${commons_io_version}</version>
             <url>http://jakarta.apache.org/commons/io</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -167,48 +209,72 @@ limitations under the License.
             <artifactId>commons-primitives</artifactId>
             <version>${commons_primitives_version}</version>
             <url>http://jakarta.apache.org/commons/primitives</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-shared</groupId>
             <artifactId>ldap-common</artifactId>
             <version>${apacheds_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-shared</groupId>
             <artifactId>kerberos-common</artifactId>
             <version>${kerberos_common_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-network</groupId>
             <artifactId>mina</artifactId>
             <version>${mina_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-protocols</groupId>
             <artifactId>kerberos-protocol</artifactId>
             <version>${kerberos_protocols_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>directory-protocols</groupId>
             <artifactId>ldap-protocol</artifactId>
             <version>${ldap_protocols_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
             <version>${antlr_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
