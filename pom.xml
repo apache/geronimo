@@ -132,13 +132,84 @@
      | External dependency versions
      |
      -->
-    <commonsLoggingVersion>1.0.3</commonsLoggingVersion>
-    <concurrentVersion>1.3.4</concurrentVersion>    
+    <activeIoVersion>2.0-r118</activeIoVersion>
+    <activeMqVersion>3.2</activeMqVersion>
+    <antlrVersion>2.7.2</antlrVersion>
+    <apachedsVersion>0.9.2</apachedsVersion>
+    <asmVersion>1.4.3</asmVersion>
+    <asn1Version>0.3.2</asn1Version>
+    <axisVersion>1.3</axisVersion>
+    <castorVersion>0.9.5.3</castorVersion>
+    <cglibVersion>2.1_3</cglibVersion>
+    <commonsBeanutilsVersion>1.6.1</commonsBeanutilsVersion>
+    <commonsCliVersion>1.0</commonsCliVersion>
+    <commonsCollectionsVersion>3.1</commonsCollectionsVersion>
+    <commonsDigesterVersion>1.6</commonsDigesterVersion>
+    <commonsDiscoveryVersion>0.2</commonsDiscoveryVersion>
+    <commonsElVersion>1.0</commonsElVersion>
+    <commonsFileuploadVersion>1.1-dev</commonsFileuploadVersion>
+    <commonsHttpclientVersion>2.0.1</commonsHttpclientVersion>
+    <commonsIoVersion>1.0</commonsIoVersion>
+    <commonsJxpathVersion>1.1</commonsJxpathVersion>
+    <commonsLangVersion>2.0</commonsLangVersion>
+    <commonsLoggingVersion>1.0.4</commonsLoggingVersion>
+    <commonsModelerVersion>1.1</commonsModelerVersion>
+    <commonsPoolVersion>1.2</commonsPoolVersion>
+    <commonsPrimitivesVersion>20041207.202534</commonsPrimitivesVersion>
+    <concurrentVersion>1.3.4</concurrentVersion>
+    <derbyVersion>10.1.1.0</derbyVersion>
+    <dom4jVersion>1.4</dom4jVersion>
+    <dwrVersion>1.0</dwrVersion>
+    <eclipseCompilerVersion>3.0.1</eclipseCompilerVersion>
+    <geronimoVersion>1.0-SNAPSHOT</geronimoVersion>
+    <howlVersion>0.1.11</howlVersion>
+    <hsqldbVersion>1.7.2.2</hsqldbVersion>
+    <jasperVersion>5.5.9</jasperVersion>
+    <javaccVersion>2.1</javaccVersion>
+    <jdbmVersion>0.20-dev</jdbmVersion>
+    <jdomVersion>1.0</jdomVersion>
+    <jettyVersion>5.1.5rc2</jettyVersion>
+    <jstlVersion>1.1.1</jstlVersion>
+    <juddiVersion>0.9rc4</juddiVersion>
     <junitVersion>3.8.1</junitVersion>
+    <kerberosCommonVersion>0.5</kerberosCommonVersion>
+    <kerberosProtocolsVersion>0.5</kerberosProtocolsVersion>
+    <ldapProtocolsVersion>0.9.2</ldapProtocolsVersion>
     <log4jVersion>1.2.8</log4jVersion>
+    <mavenVersion>1.0.2</mavenVersion>
+    <minaVersion>0.7.3</minaVersion>
     <mockobjectsVersion>0.09</mockobjectsVersion>
     <mx4jVersion>3.0.1</mx4jVersion>
+    <openejbVersion>2.0-SNAPSHOT</openejbVersion>
+    <oroVersion>2.0.8</oroVersion>
+    <p2psocketsVersion>1.1.2</p2psocketsVersion>
+    <plutoVersion>1.0.1</plutoVersion>
+    <portletApiVersion>1.0</portletApiVersion>
+    <regexpVersion>1.3</regexpVersion>
     <scoutVersion>0.5</scoutVersion>
+    <servicemixSpringVersion>1.2.2-dev-2</servicemixSpringVersion>
+    <servicemixVersion>1.0.1</servicemixVersion>
+    <slf4jVersion>1.0-beta7</slf4jVersion>
+    <springVersion>1.1.3</springVersion>
+    <standardTaglibsVersion>1.1.1</standardTaglibsVersion>
+    <staxApiVersion>1.0</staxApiVersion>
+    <staxVersion>1.1.1-dev</staxVersion>
+    <tomcatAjpVersion>5.5.9</tomcatAjpVersion>
+    <tomcatVersion>5.5.9</tomcatVersion>
+    <tranqlConnectorVersion>1.0</tranqlConnectorVersion>
+    <tranqlVendorsVersion>1.0</tranqlVendorsVersion>
+    <tranqlVersion>1.2-SNAPSHOT</tranqlVersion>
+    <velocityVersion>1.4</velocityVersion>
+    <wsdl4jVersion>PATCH-1193602</wsdl4jVersion>
+    <xercesVersion>2.6.2</xercesVersion>
+    <xfireVersion>20050202</xfireVersion>
+    <xmlApisVersion>1.0.b2</xmlApisVersion>
+    <xmlbeansVersion>2.0.0</xmlbeansVersion>
+    <xmlParserApisVersion>2.2.1</xmlParserApisVersion>
+    <xmlpullVersion>1.1.3.4d_b4_min</xmlpullVersion>
+    <xmlResolverVersion>1.1</xmlResolverVersion>
+    <xpp3Version>1.1.3.3</xpp3Version>
+    <xstreamVersion>1.0.2</xstreamVersion>
   </properties> 
 
   <dependencyManagement>
