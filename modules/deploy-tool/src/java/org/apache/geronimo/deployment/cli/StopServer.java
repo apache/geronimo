@@ -140,9 +140,6 @@ public class StopServer {
 	public Kernel getRunningKernel() {
 		Map map = new HashMap();
 		map.put("jmx.remote.credentials", new String[] { user, password });
-		map.put(Context.INITIAL_CONTEXT_FACTORY,
-				"com.sun.jndi.rmi.registry.RegistryContextFactory");
-		map.put(Context.PROVIDER_URL, "rmi://localhost:" + port);
 		Kernel kernel = null;
 		try {
 			JMXServiceURL address = new JMXServiceURL(
