@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -109,6 +109,10 @@ public class TransactionCachingInterceptor implements ConnectionInterceptor, Con
         next.returnConnection(connectionInfo, connectionReturnAction);
     }
 
+    public void destroy() {
+        next.destroy();
+    }
+    
     public void afterCompletion(Object stuff) {
         ManagedConnectionInfos managedConnectionInfos = (ManagedConnectionInfos) stuff;
         ManagedConnectionInfo sharedMCI = managedConnectionInfos.getShared();

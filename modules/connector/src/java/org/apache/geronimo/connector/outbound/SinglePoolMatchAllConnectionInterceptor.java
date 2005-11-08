@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,31 +35,10 @@ import javax.resource.spi.ManagedConnectionFactory;
  * @version $Rev$ $Date$
  */
 public class SinglePoolMatchAllConnectionInterceptor extends AbstractSinglePoolConnectionInterceptor {
-//        implements ConnectionInterceptor, PoolingAttributes {
-
-//    private static Log log = LogFactory.getLog(SinglePoolMatchAllConnectionInterceptor.class.getName());
-
-
-//    private final ConnectionInterceptor next;
-
-//    private Timer timer = PoolIdleReleaserTimer.getTimer();
-
-//    private FIFOSemaphore permits;
 
     private HashMap pool;
 
     private int maxSize;
-
-//    private int blockingTimeoutMilliseconds;
-
-//    private long idleTimeoutMilliseconds;
-
-//    private int connectionCount = 0;
-
-//    private int minSize = 0;
-
-//    private IdleReleaser idleReleaser;
-//    private int shrinkLater = 0;
 
     public SinglePoolMatchAllConnectionInterceptor(final ConnectionInterceptor next,
                                                    int maxSize,
@@ -68,36 +47,15 @@ public class SinglePoolMatchAllConnectionInterceptor extends AbstractSinglePoolC
                                                    int idleTimeoutMinutes) {
 
         super(next, maxSize, minSize, blockingTimeoutMilliseconds, idleTimeoutMinutes);
-//        this.next = next;
         this.maxSize = maxSize;
-//        this.blockingTimeoutMilliseconds = blockingTimeoutMilliseconds;
-//        permits = new FIFOSemaphore(maxSize);
         pool = new HashMap(maxSize);
-//        setIdleTimeoutMinutes(idleTimeoutMinutes);
     }
-
-//    public void getConnection(ConnectionInfo connectionInfo) throws ResourceException {
-//        if (connectionInfo.getManagedConnectionInfo().getManagedConnection() != null) {
-//            return;
-//        }
-//        try {
-//            if (permits.attempt(blockingTimeoutMilliseconds)) {
-//                internalGetConnection(connectionInfo);
-//            } else {
-//                throw new ResourceException("No ManagedConnections available "
-//                        + "within configured blocking timeout ( "
-//                        + blockingTimeoutMilliseconds
-//                        + " [ms] )");
-//
-//            } // end of else
-//
-//        } catch (InterruptedException ie) {
-//            throw new ResourceException("Interrupted while requesting permit!");
-//        } // end of try-catch
-//    }
 
     protected void internalGetConnection(ConnectionInfo connectionInfo) throws ResourceException {
         synchronized (pool) {
+            if (destroyed) {
+                throw new ResourceException("ManagedConnection pool has been destroyed");
+            }
             try {
                 if (!pool.isEmpty()) {
                     ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
@@ -145,23 +103,6 @@ public class SinglePoolMatchAllConnectionInterceptor extends AbstractSinglePoolC
         }
     }
 
-//    public void returnConnection(ConnectionInfo connectionInfo,
-//                                 ConnectionReturnAction connectionReturnAction) {
-//        if (log.isTraceEnabled()) {
-//            log.trace("returning connection" + connectionInfo.getConnectionHandle());
-//        }
-//        ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
-//        if (connectionReturnAction == ConnectionReturnAction.RETURN_HANDLE && mci.hasConnectionHandles()) {
-//            return;
-//        }
-//
-//        boolean wasInPool = internalReturn(connectionInfo, connectionReturnAction);
-//
-//        if (!wasInPool) {
-//            permits.release();
-//        }
-//    }
-
     protected boolean internalReturn(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ManagedConnection mc = mci.getManagedConnection();
@@ -173,6 +114,14 @@ public class SinglePoolMatchAllConnectionInterceptor extends AbstractSinglePoolC
 
         boolean wasInPool = false;
         synchronized (pool) {
+            // a bit redundant, but this closes a small timing hole...
+            if (destroyed) {
+                try {
+                    mc.destroy();
+                }
+                catch (ResourceException re) { } // ignore
+                return pool.remove(mci.getManagedConnection()) != null;
+            }
             if (shrinkLater > 0) {
                 //nothing can get in the pool while shrinkLater > 0, so wasInPool is false here.
                 connectionReturnAction = ConnectionReturnAction.DESTROY;
@@ -191,10 +140,18 @@ public class SinglePoolMatchAllConnectionInterceptor extends AbstractSinglePoolC
         return wasInPool;
     }
 
-    //PoolingAttributes implementation
-//    public int getPartitionCount() {
-//        return 1;
-//    }
+    protected void internalDestroy() {
+        synchronized (pool) {
+            Iterator it = pool.keySet().iterator();
+            for (; it.hasNext(); ) {
+                try {
+                    ((ManagedConnection)it.next()).destroy();
+                }
+                catch (ResourceException re) { } // ignore
+                it.remove();
+            }
+        }
+    }
 
     public int getPartitionMaxSize() {
         return maxSize;
@@ -247,93 +204,5 @@ public class SinglePoolMatchAllConnectionInterceptor extends AbstractSinglePoolC
         }
         return added;
     }
-
-//    public int getConnectionCount() {
-//        return connectionCount;
-//    }
-
-//    public int getBlockingTimeoutMilliseconds() {
-//        return blockingTimeoutMilliseconds;
-//    }
-//
-//    public void setBlockingTimeoutMilliseconds(int timeoutMilliseconds) {
-//        this.blockingTimeoutMilliseconds = timeoutMilliseconds;
-//    }
-
-//    public int getIdleTimeoutMinutes() {
-//        return (int) idleTimeoutMilliseconds / (1000 * 60);
-//    }
-
-//    public void setIdleTimeoutMinutes(int idleTimeoutMinutes) {
-//        this.idleTimeoutMilliseconds = idleTimeoutMinutes * 60 * 1000;
-//        if (idleReleaser != null) {
-//            idleReleaser.cancel();
-//        }
-//        idleReleaser = new IdleReleaser();
-//        timer.schedule(idleReleaser, this.idleTimeoutMilliseconds, this.idleTimeoutMilliseconds);
-//    }
-
-
-//    private class IdleReleaser extends TimerTask {
-//
-//        public void run() {
-//            long threshold = System.currentTimeMillis() - idleTimeoutMilliseconds;
-//            ManagedConnectionInfo[] killList = new ManagedConnectionInfo[pool.size()];
-//            int j = 0;
-//            synchronized (pool) {
-//                for (Iterator iterator = pool.entrySet().iterator(); iterator.hasNext();) {
-//                    Map.Entry entry = (Map.Entry) iterator.next();
-//                    ManagedConnectionInfo mci = (ManagedConnectionInfo) entry.getValue();
-//                    if (mci.getLastUsed() < threshold) {
-//                        killList[j] = mci;
-//                        j++;
-//                    }
-//                }
-//            }
-//            for (int i = 0; i < j; i++) {
-//                ManagedConnectionInfo managedConnectionInfo = killList[i];
-//                ConnectionInfo killInfo = new ConnectionInfo(managedConnectionInfo);
-//                internalReturn(killInfo, ConnectionReturnAction.DESTROY);
-//            }
-//            permits.release(j);
-//        }
-//    }
-//
-//    private class FillTask extends TimerTask {
-//        private final ManagedConnectionFactory managedConnectionFactory;
-//        private final Subject subject;
-//        private final ConnectionRequestInfo cri;
-//
-//        public FillTask(ConnectionInfo connectionInfo) {
-//            managedConnectionFactory = connectionInfo.getManagedConnectionInfo().getManagedConnectionFactory();
-//            subject = connectionInfo.getManagedConnectionInfo().getSubject();
-//            cri = connectionInfo.getManagedConnectionInfo().getConnectionRequestInfo();
-//        }
-//
-//        public void run() {
-//            while (connectionCount < minSize) {
-//                ManagedConnectionInfo mci = new ManagedConnectionInfo(managedConnectionFactory, cri);
-//                mci.setSubject(subject);
-//                ConnectionInfo ci = new ConnectionInfo(mci);
-//                try {
-//                    next.getConnection(ci);
-//                } catch (ResourceException e) {
-//                    return;
-//                }
-//                boolean added = false;
-//                synchronized (pool) {
-//                    connectionCount++;
-//                    added = maxSize > pool.size();
-//                    if (added) {
-//                        pool.put(mci.getManagedConnection(), mci);
-//                    }
-//                }
-//                if (!added) {
-//                    internalReturn(ci, ConnectionReturnAction.DESTROY);
-//                    return;
-//                }
-//            }
-//        }
-//    }
 
 }

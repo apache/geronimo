@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
 
     private PoolDeque pool;
 
-
     public SinglePoolConnectionInterceptor(final ConnectionInterceptor next,
                                            int maxSize,
                                            int minSize,
@@ -55,6 +54,10 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
 
     protected void internalGetConnection(ConnectionInfo connectionInfo) throws ResourceException {
         synchronized (pool) {
+            if (destroyed) {
+                throw new ResourceException("ManagedConnection pool has been destroyed");
+            }
+                
             ManagedConnectionInfo newMCI = null;
             if (pool.isEmpty()) {
                 next.getConnection(connectionInfo);
@@ -109,6 +112,20 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
         }
     }
 
+    protected void internalDestroy() {
+        synchronized (pool) {
+            while (!pool.isEmpty()) {
+                ManagedConnection mc = pool.removeLast().getManagedConnection();
+                if (mc != null) {
+                    try {
+                        mc.destroy();
+                    }
+                    catch (ResourceException re) { } // ignore
+                }
+            }
+        }
+    }
+
     protected boolean internalReturn(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction) {
         ManagedConnectionInfo mci = connectionInfo.getManagedConnectionInfo();
         ManagedConnection mc = mci.getManagedConnection();
@@ -119,6 +136,16 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
         }
         boolean wasInPool = false;
         synchronized (pool) {
+            // a bit redundant with returnConnection check in AbstractSinglePoolConnectionInterceptor, 
+            // but checking here closes a small timing hole...
+            if (destroyed) {
+                try {
+                    mc.destroy();
+                }
+                catch (ResourceException re) { } // ignore
+                return pool.remove(mci);
+            }
+                
             if (shrinkLater > 0) {
                 //nothing can get in the pool while shrinkLater > 0, so wasInPool is false here.
                 connectionReturnAction = ConnectionReturnAction.DESTROY;
@@ -183,7 +210,6 @@ public class SinglePoolConnectionInterceptor extends AbstractSinglePoolConnectio
         }
         return added;
     }
-
 
     static class PoolDeque {
 

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,6 +49,9 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor, Po
 
     private final Map pools = new HashMap();
 
+    // volatile is not necessary, here, because of synchronization. but maintained for consistency with other Interceptors...
+    private volatile boolean destroyed = false;
+
     public MultiPoolConnectionInterceptor(
             final ConnectionInterceptor next,
             PoolingSupport singlePoolFactory,
@@ -68,6 +71,9 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor, Po
                         useCRI ? mci.getConnectionRequestInfo() : null);
         ConnectionInterceptor poolInterceptor = null;
         synchronized (pools) {
+            if (destroyed) {
+                throw new ResourceException("ConnectionManaged has been destroyed");
+            }
             poolInterceptor = (ConnectionInterceptor) pools.get(key);
             if (poolInterceptor == null) {
                 poolInterceptor = singlePoolFactory.addPoolingInterceptors(next);
@@ -78,6 +84,7 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor, Po
         poolInterceptor.getConnection(connectionInfo);
     }
 
+    // let underlying pools handle destroyed processing...
     public void returnConnection(
             ConnectionInfo connectionInfo,
             ConnectionReturnAction connectionReturnAction) {
@@ -86,6 +93,17 @@ public class MultiPoolConnectionInterceptor implements ConnectionInterceptor, Po
         poolInterceptor.returnConnection(connectionInfo, connectionReturnAction);
     }
 
+    public void destroy() {
+        synchronized (pools) {
+            destroyed = true;
+            for (Iterator it = pools.entrySet().iterator(); it.hasNext(); ) {
+                ((ConnectionInterceptor)((Map.Entry)it.next()).getValue()).destroy();
+                it.remove();
+            }
+        }
+        next.destroy();
+    }
+    
     public int getPartitionCount() {
         return pools.size();
     }

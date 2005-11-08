@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2004-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,11 +25,12 @@ import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractConnectionManager implements ConnectionManagerContainer, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes {
+public abstract class AbstractConnectionManager implements ConnectionManagerContainer, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes, GBeanLifecycle {
     protected final Interceptors interceptors;
 
     //default constructor for use as endpoint
@@ -157,4 +158,15 @@ public abstract class AbstractConnectionManager implements ConnectionManagerCont
         PoolingSupport getPoolingAttributes();
     }
 
+    public void doStart() throws Exception {
+
+    }
+
+    public void doStop() throws Exception {
+        interceptors.getStack().destroy();
+    }
+
+    public void doFail() {
+        interceptors.getStack().destroy();
+    }
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
     protected Timer timer = PoolIdleReleaserTimer.getTimer();
     protected int minSize = 0;
     protected int shrinkLater = 0;
+    protected volatile boolean destroyed = false;
 
     public AbstractSinglePoolConnectionInterceptor(final ConnectionInterceptor next,
                                                    int maxSize,
@@ -91,6 +92,17 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         if (log.isTraceEnabled()) {
             log.trace("returning connection" + connectionInfo.getConnectionHandle());
         }
+
+        // not strictly synchronized with destroy(), but pooled operations in internalReturn() are...
+        if (destroyed) {
+            try {
+                connectionInfo.getManagedConnectionInfo().getManagedConnection().destroy();
+            }
+            catch (ResourceException re) {
+            }
+            return;
+        }
+
         try {
             resizeLock.readLock().acquire();
         } catch (InterruptedException e) {
@@ -115,6 +127,17 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
 
     protected abstract boolean internalReturn(ConnectionInfo connectionInfo, ConnectionReturnAction connectionReturnAction);
 
+    protected abstract void internalDestroy();
+
+    // Cancel the IdleReleaser TimerTask (fixes memory leak) and clean up the pool
+    public void destroy() {
+        destroyed = true; 
+        if (idleReleaser != null)
+            idleReleaser.cancel();
+        internalDestroy();
+        next.destroy();
+    }
+    
     public int getPartitionCount() {
         return 1;
     }
@@ -199,12 +222,12 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         if (idleTimeoutMinutes < 0) {
             throw new IllegalArgumentException("idleTimeoutMinutes must be positive or 0, not " + idleTimeoutMinutes);
         }
-        if (idleReleaser != null) {
+        if (idleReleaser!= null) {
             idleReleaser.cancel();
         }
         if (idleTimeoutMinutes > 0) {
             this.idleTimeoutMilliseconds = idleTimeoutMinutes * 60 * 1000;
-            idleReleaser = new IdleReleaser();
+            idleReleaser = new IdleReleaser(this);
             timer.schedule(idleReleaser, this.idleTimeoutMilliseconds, this.idleTimeoutMilliseconds);
         }
     }
@@ -213,31 +236,49 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
 
     protected abstract boolean addToPool(ManagedConnectionInfo mci);
 
-    private class IdleReleaser extends TimerTask {
+    // static class to permit chain of strong references from preventing ClassLoaders
+    // from being GC'ed.
+    private static class IdleReleaser extends TimerTask {
+        private AbstractSinglePoolConnectionInterceptor parent;
 
+        private IdleReleaser(AbstractSinglePoolConnectionInterceptor parent) {
+            this.parent = parent;
+        }
+     
+        public boolean cancel() {
+            this.parent = null;
+            return super.cancel();
+        }
+        
         public void run() {
+            // protect against interceptor being set to null mid-execution
+            AbstractSinglePoolConnectionInterceptor interceptor = parent;
+            if (interceptor == null) 
+                return;
             try {
-                resizeLock.readLock().acquire();
+                interceptor.resizeLock.readLock().acquire();
             } catch (InterruptedException e) {
                 return;
             }
             try {
-                long threshold = System.currentTimeMillis() - idleTimeoutMilliseconds;
-                ArrayList killList = new ArrayList(getPartitionMaxSize());
-                getExpiredManagedConnectionInfos(threshold, killList);
+                long threshold = System.currentTimeMillis() - interceptor.idleTimeoutMilliseconds;
+                ArrayList killList = new ArrayList(interceptor.getPartitionMaxSize());
+                interceptor.getExpiredManagedConnectionInfos(threshold, killList);
                 for (Iterator i = killList.iterator(); i.hasNext();) {
                     ManagedConnectionInfo managedConnectionInfo = (ManagedConnectionInfo) i.next();
                     ConnectionInfo killInfo = new ConnectionInfo(managedConnectionInfo);
-                    internalReturn(killInfo, ConnectionReturnAction.DESTROY);
+                    interceptor.internalReturn(killInfo, ConnectionReturnAction.DESTROY);
                 }
-                permits.release(killList.size());
+                interceptor.permits.release(killList.size());
             } finally {
-                resizeLock.readLock().release();
+                interceptor.resizeLock.readLock().release();
             }
         }
 
     }
 
+    // Currently only a short-lived (10 millisecond) task. 
+    // So, FillTask, unlike IdleReleaser, shouldn't cause GC problems.     
     protected class FillTask extends TimerTask {
         private final ManagedConnectionFactory managedConnectionFactory;
         private final Subject subject;
