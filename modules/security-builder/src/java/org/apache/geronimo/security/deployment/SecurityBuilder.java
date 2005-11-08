@@ -48,7 +48,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class SecurityBuilder {
 

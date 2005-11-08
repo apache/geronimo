@@ -44,7 +44,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class LoginConfigBuilder implements XmlReferenceBuilder {
     public static final String LOGIN_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/loginconfig-1.0";

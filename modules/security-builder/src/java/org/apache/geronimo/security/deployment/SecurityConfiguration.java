@@ -21,7 +21,7 @@ import java.util.Map;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class SecurityConfiguration {
 
