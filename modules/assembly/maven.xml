@@ -344,6 +344,10 @@
                 name="bootstrap"
                 className="org.apache.geronimo.deployment.Bootstrap"
                 method="bootstrap"/>
+        	    <define:jellybean
+        	    	   name="shutdown"
+        	    	   className="org.apache.geronimo.deployment.ShutdownBootstrap"
+        	    	   method="bootstrap"/>
         </define:taglib>
 
         <bootstrap:bootstrap
@@ -356,7 +360,12 @@
             deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/OfflineDeployer,j2eeType=Deployer,J2EEServer=deployer"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
-
+    	
+    	    <bootstrap:shutdown
+    	            shutdownJar="${geronimo.assembly.dir}/bin/shutdown.jar"
+    	            shutdownClassPath="${deploy.classpath}"
+    	            />
+    	
         <!-- build the system configuration and server.jar -->
         <ant:echo file="${basedir}/target/deploy-commands">package --classPath "${server.classpath}" --mainClass org.apache.geronimo.system.main.Daemon --endorsedDirs lib/endorsed --extensionDirs lib/ext --install target/plan/system-plan.xml ${geronimo.assembly.dir}/bin/server.jar${line.separator}</ant:echo>
         
