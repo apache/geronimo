@@ -195,6 +195,10 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 </tss:compoundSecMechTypeList>
             </tss:tss>
         </xml-attribute>
+        <dependency>
+            <type>CORBABean</type>
+            <name>Server</name>
+        </dependency>
     </gbean>
 
     <gbean name="IdentityTokenNoSecurity" class="org.openejb.corba.TSSBean">
