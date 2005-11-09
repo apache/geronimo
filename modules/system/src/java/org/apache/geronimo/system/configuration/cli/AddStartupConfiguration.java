@@ -27,7 +27,7 @@ import java.io.*;
  * be used and what file it persists to.  This is NOT a general-purpose
  * feature for users.
  *
- * @version $Rev: 240228 $ $Date: 2005-08-26 08:55:00 -0400 (Fri, 26 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public class AddStartupConfiguration {
     public static void main(String[] args) {

@@ -24,7 +24,7 @@ import java.net.URI;
  * Contains information about the server and functions for resolving
  * pathnames.
  *
- * @version $Rev: 233335 $ $Date: 2005-08-18 12:59:09 -0400 (Thu, 18 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public interface ServerInfo {
     public String resolvePath(final String filename);

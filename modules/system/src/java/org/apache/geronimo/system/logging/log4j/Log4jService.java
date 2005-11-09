@@ -333,7 +333,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
                 try {
                     out.close();
                 } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    e.printStackTrace();
                 }
             }
         }

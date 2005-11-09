@@ -61,7 +61,7 @@ import org.xml.sax.SAXException;
 /**
  * Stores managed attributes in an XML file on the local filesystem.
  *
- * @version $Rev: 106387 $ $Date: 2004-11-23 22:16:54 -0800 (Tue, 23 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public class LocalAttributeManager implements ManageableAttributeStore, PersistentConfigurationList, GBeanLifecycle {
     private final static Log log = LogFactory.getLog(LocalAttributeManager.class);

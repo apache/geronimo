@@ -28,7 +28,7 @@ import java.util.Iterator;
 /**
  * Utility functions for dealing with web applications
  *
- * @version $Rev: 263979 $ $Date: 2005-08-28 21:02:11 -0400 (Sun, 28 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public class WebAppUtil {
     /**

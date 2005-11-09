@@ -14,7 +14,7 @@ import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
 /**
- * @version $Revision: 1.0$
+ * @version $Rev$ $Date$
  */
 public class SilentStartupMonitor implements StartupMonitor {
     private final static Log log = LogFactory.getLog(SilentStartupMonitor.class.getName());

@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
- * @version $Rev: 156292 $ $Date: 2005-03-05 21:48:02 -0500 (Sat, 05 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class FileSystemRepository implements Repository, ListableRepository, WriteableRepository, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(FileSystemRepository.class);
