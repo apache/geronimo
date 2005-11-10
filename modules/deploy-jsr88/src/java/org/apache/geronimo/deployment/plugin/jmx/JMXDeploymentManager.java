@@ -63,11 +63,13 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
     }
 
     public void release() {
-        try {
-            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-        } finally {
-            configurationManager = null;
-            kernel = null;
+        if(kernel != null && configurationManager != null) {
+            try {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+            } finally {
+                configurationManager = null;
+                kernel = null;
+            }
         }
     }
 
