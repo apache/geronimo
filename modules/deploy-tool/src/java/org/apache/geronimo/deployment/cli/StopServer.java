@@ -29,7 +29,6 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.naming.Context;
 
 import org.apache.geronimo.deployment.cli.ServerConnection.PasswordPrompt;
 import org.apache.geronimo.kernel.Kernel;
@@ -67,9 +66,9 @@ public class StopServer {
 				i++;
 			}
 		}
-		
-		if(i < args.length) {
-			//There was an argument error somewhere.
+
+		if (i < args.length) {
+			// There was an argument error somewhere.
 			printUsage();
 		}
 
@@ -104,11 +103,19 @@ public class StopServer {
 			if (port == null) {
 				port = DEFAULT_PORT;
 			}
-			System.out.println("Shutting down Geronimo server on port " + port);
-			Kernel kernel = getRunningKernel();
+			System.out.print("Locating server on port " + port + "... ");
+			Kernel kernel = null;
+			try {
+				kernel = getRunningKernel();
+			} catch (IOException e) {
+				System.out
+						.println("\rCould not communicate with the server.  The server may not be running or the port number may be incorrect.");
+			}
 			if (kernel != null) {
+				System.out.println("Server found.");
+				System.out.println("Server shutdown begun");
 				kernel.shutdown();
-				System.out.println("Geronimo server shutdown completed.");
+				System.out.println("Server shutdown completed");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -137,7 +144,7 @@ public class StopServer {
 		return false;
 	}
 
-	public Kernel getRunningKernel() {
+	public Kernel getRunningKernel() throws IOException {
 		Map map = new HashMap();
 		map.put("jmx.remote.credentials", new String[] { user, password });
 		Kernel kernel = null;
@@ -153,9 +160,6 @@ public class StopServer {
 
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			System.out
-					.println("Could not communicate with the server.  The server may already be shutdown or the port number may be specified incorrectly.");
 		}
 		return kernel;
 	}
