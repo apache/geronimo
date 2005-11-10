@@ -422,6 +422,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
         ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+        if (gerWebApp.isSetSecurity()) {
+            if (!gerWebApp.isSetSecurityRealmName()) {
+                throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
+            }
+            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity());
+            earContext.setSecurityConfiguration(securityConfiguration);
+        }
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -783,9 +790,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             addServlets(webModuleName, webModule.getModuleFile(), servletTypes, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
+                if (earContext.getSecurityConfiguration() == null) {
+                     throw new DeploymentException("You have specified a login security realm for the webapp " + webModuleName + " but no security configuration is supplied in the application plan");
+                }
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
-//                webModuleData.setAttribute("securityConfig", security);
 
                 /**
                  * TODO - go back to commented version when possible.
@@ -793,7 +802,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 String policyContextID = webModuleName.getCanonicalName().replaceAll("[, :]", "_");
                 //String policyContextID = webModuleName.getCanonicalName();
                 webModuleData.setAttribute("policyContextID", policyContextID);
-//                webModuleData.setAttribute("securityRoles", securityRoles);
 
                 ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
                 webModuleData.setAttribute("excludedPermissions", componentPermissions.getExcludedPermissions());
@@ -808,10 +816,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setAttribute("checkedPermissions", checkedPermissions);
 
                 earContext.addSecurityContext(policyContextID, componentPermissions);
-                if (jettyWebApp.isSetSecurity()) {
-                    SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(jettyWebApp.getSecurity());
-                    earContext.setSecurityConfiguration(securityConfiguration);
-                }
                 DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
                 webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
 

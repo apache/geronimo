@@ -374,6 +374,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
         ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+        if (gerWebApp.isSetSecurity()) {
+            if (!gerWebApp.isSetSecurityRealmName()) {
+                throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
+            }
+            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity());
+            earContext.setSecurityConfiguration(securityConfiguration);
+        }
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -498,6 +505,9 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             webModuleData.setAttribute("webServices", webServices);
 
             if (tomcatWebApp.isSetSecurityRealmName()) {
+                if (earContext.getSecurityConfiguration() == null) {
+                     throw new DeploymentException("You have specified a login security realm for the webapp " + webModuleName + " but no security configuration is supplied in the application plan");
+                }
 
                 SecurityHolder securityHolder = new SecurityHolder();
                 securityHolder.setSecurityRealm(tomcatWebApp.getSecurityRealmName().trim());
@@ -520,10 +530,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 }
                 securityHolder.setChecked(checkedPermissions);
                 earContext.addSecurityContext(policyContextID, componentPermissions);
-                if (tomcatWebApp.isSetSecurity()) {
-                    SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(tomcatWebApp.getSecurity());
-                    earContext.setSecurityConfiguration(securityConfiguration);
-                }
                 DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
                 securityHolder.setDefaultPrincipal(defaultPrincipal);
                 if (defaultPrincipal != null) {
