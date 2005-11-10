@@ -144,35 +144,8 @@ public abstract class AbstractCommand implements DeployCommand {
         return tlist;
     }
 
+    //todo: remove this method
     protected static Collection identifyTargetModuleIDs(TargetModuleID[] allModules, String name) throws DeploymentException {
-        List list = new LinkedList();
-        int pos;
-        if((pos = name.indexOf('|')) > -1) {
-            String target = name.substring(0, pos);
-            String module = name.substring(pos+1);
-            // First pass: exact match
-            for(int i=0; i<allModules.length; i++) {
-                if(allModules[i].getTarget().getName().equals(target) && allModules[i].getModuleID().equals(module)) {
-                    list.add(allModules[i]);
-                }
-            }
-        }
-        if(!list.isEmpty()) {
-            return list;
-        }
-        // second pass: module matches
-        for(int i = 0; i < allModules.length; i++) {
-            if(allModules[i].getModuleID().equals(name)) {
-                list.add(allModules[i]);
-            }
-        }
-        if(list.isEmpty()) {
-            throw new DeploymentException(name+" does not appear to be a the name of a module " +
-                    "available on the selected server. Perhaps it has already been " +
-                    "stopped or undeployed?  If you're trying to specify a " +
-                    "TargetModuleID, use the syntax TargetName|ModuleName instead. " +
-                    "If you're not sure what's running, try the list-modules command.");
-        }
-        return list;
+        return DeployUtils.identifyTargetModuleIDs(allModules, name);
     }
 }

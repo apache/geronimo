@@ -240,5 +240,4 @@ Child of the org/apache/geronimo/Server configuration that includes deployment s
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
     </gbean>
-
 </configuration>

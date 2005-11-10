@@ -83,4 +83,10 @@
     <configuration name="org/apache/geronimo/TomcatRuntimeDeployer"/>
     <configuration name="org/apache/geronimo/applications/Welcome/Tomcat"/>
     <configuration name="org/apache/geronimo/Console/Tomcat"/>
+    <configuration name="org/apache/geronimo/HotDeployer">
+        <gbean name="HotDeployer">
+            <attribute name="path">deploy</attribute>
+            <attribute name="pollIntervalMillis">2000</attribute>
+        </gbean>
+    </configuration>
 </attributes>

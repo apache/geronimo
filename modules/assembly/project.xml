@@ -195,6 +195,15 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-hot-deploy</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>

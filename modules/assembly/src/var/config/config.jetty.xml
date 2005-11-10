@@ -78,4 +78,10 @@
     <configuration name="org/apache/geronimo/JettyRuntimeDeployer"/>
     <configuration name="org/apache/geronimo/applications/Welcome/Jetty"/>
     <configuration name="org/apache/geronimo/Console/Jetty"/>
+    <configuration name="org/apache/geronimo/HotDeployer">
+        <gbean name="HotDeployer">
+            <attribute name="path">deploy</attribute>
+            <attribute name="pollIntervalMillis">2000</attribute>
+        </gbean>
+    </configuration>
 </attributes>

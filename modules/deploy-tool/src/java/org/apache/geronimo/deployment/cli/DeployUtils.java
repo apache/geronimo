@@ -20,6 +20,9 @@ package org.apache.geronimo.deployment.cli;
 import java.io.*;
 import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
+import java.util.Collection;
+import java.util.List;
+import java.util.LinkedList;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.xml.sax.InputSource;
@@ -30,6 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.enterprise.deploy.spi.TargetModuleID;
 
 /**
  * Various helpers for deployment.
@@ -96,6 +100,45 @@ public class DeployUtils {
         }
         return buf.toString();
     }
+
+
+    /**
+     * Given a list of all available TargetModuleIDs and the name of a module,
+     * find the TargetModuleIDs that represent that module.
+     * @throws DeploymentException If no TargetModuleIDs have that module.
+     */
+    public static Collection identifyTargetModuleIDs(TargetModuleID[] allModules, String name) throws DeploymentException {
+        List list = new LinkedList();
+        int pos;
+        if((pos = name.indexOf('|')) > -1) {
+            String target = name.substring(0, pos);
+            String module = name.substring(pos+1);
+            // First pass: exact match
+            for(int i=0; i<allModules.length; i++) {
+                if(allModules[i].getTarget().getName().equals(target) && allModules[i].getModuleID().equals(module)) {
+                    list.add(allModules[i]);
+                }
+            }
+        }
+        if(!list.isEmpty()) {
+            return list;
+        }
+        // second pass: module matches
+        for(int i = 0; i < allModules.length; i++) {
+            if(allModules[i].getModuleID().equals(name)) {
+                list.add(allModules[i]);
+            }
+        }
+        if(list.isEmpty()) {
+            throw new DeploymentException(name+" does not appear to be a the name of a module " +
+                    "available on the selected server. Perhaps it has already been " +
+                    "stopped or undeployed?  If you're trying to specify a " +
+                    "TargetModuleID, use the syntax TargetName|ModuleName instead. " +
+                    "If you're not sure what's running, try the list-modules command.");
+        }
+        return list;
+    }
+
 
     /**
      * Try to determine whether a file is a JAR File (or, at least, a ZIP file).
