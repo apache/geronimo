@@ -292,6 +292,10 @@ public class ServerConnection {
         return manager != null;
     }
 
+    public boolean isGeronimo() {
+        return isOnline() && manager.getClass().getName().startsWith("org.apache.geronimo.");
+    }
+
     public Object invokeOfflineDeployer(Object[] args, String[] argTypes) throws DeploymentException {
         if(kernel == null) {
             throw new IllegalStateException("Cannot attempt to package when no local kernel is available");

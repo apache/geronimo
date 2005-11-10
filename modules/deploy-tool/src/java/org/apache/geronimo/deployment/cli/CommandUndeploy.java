@@ -21,7 +21,6 @@ import java.io.PrintWriter;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.apache.geronimo.common.DeploymentException;
 
 /**
  * the CLI deployer logic to undeploy.

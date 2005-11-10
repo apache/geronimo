@@ -26,6 +26,7 @@ import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ public abstract class AbstractCommand implements DeployCommand {
     private String group;
     private String helpArgumentList;
     private String helpText;
+    private PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
 
     public AbstractCommand(String command, String group, String helpArgumentList, String helpText) {
         this.command = command;
@@ -71,6 +73,15 @@ public abstract class AbstractCommand implements DeployCommand {
         return false;
     }
 
+    public void setOut(PrintWriter out) {
+        this.out = out;
+    }
+
+    protected void emit(String message) {
+        out.println(DeployUtils.reformat(message,4,72));
+        out.flush();
+    }
+
     /**
      * Busy-waits until the provided <code>ProgressObject</code>
      * indicates that it's no longer running.
@@ -80,13 +91,13 @@ public abstract class AbstractCommand implements DeployCommand {
      * trace.
      * @param po a <code>ProgressObject</code> value
      */
-    protected static void waitForProgress(PrintWriter out, ProgressObject po) {
+    protected void waitForProgress(PrintWriter out, ProgressObject po) {
         po.addProgressListener(new ProgressListener() {
             String last = null;
             public void handleProgressEvent(ProgressEvent event) {
                 String msg = event.getDeploymentStatus().getMessage();
                 if(last != null && !last.equals(msg)) {
-                    System.out.println(DeployUtils.reformat(last,8,72)); //todo: use the same writer as DeployTool
+                    emit(last);
                 }
                 last = msg;
             }

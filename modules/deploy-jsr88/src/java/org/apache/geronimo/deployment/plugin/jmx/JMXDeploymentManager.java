@@ -282,8 +282,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         } else if(dObj.getType().equals(ModuleType.RAR)) {
             return new RARConfigurer().createConfiguration(dObj);
         } else if(dObj.getType().equals(ModuleType.WAR)) {
-            return new WARConfigurer().createConfiguration(dObj); // this is jetty
-            // todo: Tomcat WARConfigurer
+            return new WARConfigurer().createConfiguration(dObj);
         }
         throw new InvalidModuleException("Not supported");
     }

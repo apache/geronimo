@@ -18,9 +18,7 @@
 package org.apache.geronimo.deployment.cli;
 
 import org.apache.geronimo.common.DeploymentException;
-
-import java.io.PrintWriter;
-import java.io.File;
+import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -48,17 +46,20 @@ public class CommandRedeploy extends AbstractCommand {
                 "If more than one TargetModuleID is provided, all TargetModuleIDs " +
                 "must refer to the same module (just running on different targets).\n" +
                 "Regardless of whether the old module was running or not, the new " +
-                "module will be started (if the server is running) or marked to start (if " +
-                "the server is not running).\n" +
+                "module will be started.\n" +
+                "If no ModuleID or TargetModuleID is specified, and you're deploying to "+
+                "Geronimo, the deployer will attempt to guess the correct ModuleID for "+
+                "you based on the module and/or plan you provided.\n"+
                 "Note: To specify a TargetModuleID, use the form TargetName|ModuleName");
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
+        setOut(out);
         if(!connection.isOnline()) {
             throw new DeploymentException("This command cannot be run unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
         }
-        if(args.length < 2) {
-            throw new DeploymentSyntaxException("Must specify a module or plan (or both) and one or more module IDs to replace");
+        if(args.length == 0) {
+            throw new DeploymentSyntaxException("Must specify a module or plan (or both) and optionally module IDs to replace");
         }
         DeploymentManager mgr = connection.getDeploymentManager();
         Target[] allTargets = mgr.getTargets();
@@ -71,9 +72,9 @@ public class CommandRedeploy extends AbstractCommand {
         List modules = new ArrayList();
         File module = null;
         File plan = null;
-        File test = new File(args[0]);
+        File test = new File(args[0]); // Guess whether the first argument is a module or a plan
         if(!test.exists()) {
-            throw new DeploymentSyntaxException("Must specify a module or plan (or both) and one or more module IDs to replace");
+            throw new DeploymentSyntaxException("Must specify a module or plan (or both) and optionally module IDs to replace");
         }
         if(!test.canRead()) {
             throw new DeploymentException("Cannot read file "+test.getAbsolutePath());
@@ -89,24 +90,54 @@ public class CommandRedeploy extends AbstractCommand {
             }
             plan = test;
         }
-        test = new File(args[1]);
-        if(test.exists() && test.canRead()) {
-            if(DeployUtils.isJarFile(test) || test.isDirectory()) {
-                if(module != null) {
-                    throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
+        if(args.length > 1) { // Guess whether the second argument is a module, plan, ModuleID, or TargetModuleID
+            test = new File(args[1]);
+            if(test.exists() && test.canRead() && !args[1].equals(args[0])) {
+                if(DeployUtils.isJarFile(test) || test.isDirectory()) {
+                    if(module != null) {
+                        throw new DeploymentSyntaxException("Module and plan cannot both be JAR files or directories!");
+                    }
+                    module = test;
+                } else {
+                    if(plan != null) {
+                        throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
+                    }
+                    plan = test;
                 }
-                module = test;
             } else {
-                if(plan != null) {
-                    throw new DeploymentSyntaxException("Module or plan must be a JAR file or directory!");
-                }
-                plan = test;
+                modules.addAll(identifyTargetModuleIDs(allModules, args[1]));
             }
-        } else {
-            modules.addAll(identifyTargetModuleIDs(allModules, args[1]));
         }
-        for(int i=2; i<args.length; i++) {
+        for(int i=2; i<args.length; i++) { // Any arguments beyond 2 must be a ModuleID or TargetModuleID
             modules.addAll(identifyTargetModuleIDs(allModules, args[i]));
+        }
+        // If we don't have any moduleIDs, try to guess one.
+        if(modules.size() == 0 && connection.isGeronimo()) {
+            emit("No ModuleID or TargetModuleID provided.  Attempting to guess based on the content of the "+(plan == null ? "archive" : "plan")+".");
+            String moduleId = null;
+            try {
+                if(plan != null) {
+                    moduleId = DeployUtils.extractModuleIdFromPlan(plan);
+                } else if(module != null) {
+                    moduleId = DeployUtils.extractModuleIdFromArchive(module);
+                    if(moduleId == null) {
+                        int pos = module.getName().lastIndexOf('.');
+                        moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+                        emit("Unable to locate Geronimo deployment plan in archive.  Calculating default ModuleID from archive name.");
+                    }
+                }
+            } catch (IOException e) {
+                throw new DeploymentException("Unable to read input files: "+e.getMessage());
+            }
+            if(moduleId != null) {
+                emit("Attempting to use ModuleID '"+moduleId+"'");
+                modules.addAll(identifyTargetModuleIDs(allModules, moduleId));
+            } else {
+                emit("Unable to calculate a ModuleID from supplied module and/or plan.");
+            }
+        }
+        if(modules.size() == 0) { // Either not deploying to Geronimo or unable to identify modules
+            throw new DeploymentSyntaxException("No ModuleID or TargetModuleID available.  Nothing to do.  Maybe you should add a ModuleID or TargetModuleID to the command line?");
         }
         if(module != null) {
             module = module.getAbsoluteFile();
@@ -114,6 +145,7 @@ public class CommandRedeploy extends AbstractCommand {
         if(plan != null) {
             plan = plan.getAbsoluteFile();
         }
+        // Now that we've sorted out all the arguments, do the work
         TargetModuleID[] ids = (TargetModuleID[]) modules.toArray(new TargetModuleID[modules.size()]);
         boolean multiple = isMultipleTargets(ids);
         ProgressObject po = mgr.redeploy(ids, module, plan);
@@ -121,11 +153,11 @@ public class CommandRedeploy extends AbstractCommand {
         TargetModuleID[] done = po.getResultTargetModuleIDs();
         for(int i = 0; i < done.length; i++) {
             TargetModuleID id = done[i];
-            out.println(DeployUtils.reformat("Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : "")+(id.getWebURL() == null ? "" : " @ "+id.getWebURL()), 4, 72));
+            emit("Redeployed "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : "")+(id.getWebURL() == null ? "" : " @ "+id.getWebURL()));
             if(id.getChildTargetModuleID() != null) {
                 for (int j = 0; j < id.getChildTargetModuleID().length; j++) {
                     TargetModuleID child = id.getChildTargetModuleID()[j];
-                    out.println(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()),4, 72));
+                    emit("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()));
                 }
             }
         }
@@ -133,4 +165,5 @@ public class CommandRedeploy extends AbstractCommand {
             throw new DeploymentException("Operation failed: "+po.getDeploymentStatus().getMessage());
         }
     }
+
 }
