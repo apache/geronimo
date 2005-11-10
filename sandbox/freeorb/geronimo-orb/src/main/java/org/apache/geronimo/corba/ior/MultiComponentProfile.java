@@ -19,7 +19,6 @@ package org.apache.geronimo.corba.ior;
 import org.omg.CORBA.portable.OutputStream;
 import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import org.omg.IOP.TaggedComponent;
-import org.omg.IOP.TaggedComponentSeqHelper;
 
 import org.apache.geronimo.corba.AbstractORB;
 import org.apache.geronimo.corba.io.EncapsulationInputStream;

@@ -470,6 +470,11 @@ public class CSIServerRequestInterceptor extends CSIInterceptorBase
         ri.add_reply_service_context(encodeSASContextBody(sasBody), true);
     }
 
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
     // void login(Subject subject, String realm, String name,
     // String password) throws LoginException {
 

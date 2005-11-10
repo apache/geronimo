@@ -281,4 +281,7 @@ public class CSIClientRequestInterceptor extends CSIInterceptorBase
         return "CSI Client Interceptor";
     }
 
+	public void destroy() {
+	}
+
 }

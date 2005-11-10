@@ -593,7 +593,8 @@ public class TypeCodeUtil {
             out.write_long(-1);
             out.write_long(pos.intValue() - out.__stream_position());
         } else {
-            org.omg.CORBA.TCKindHelper.write(out, tc.kind());
+        	    out.write_long(tc.kind().value());
+            // org.omg.CORBA.TCKindHelper.write(out, tc.kind());
             pos = new Integer(out.__stream_position() - 4);
 
             switch (tc.kind().value()) {

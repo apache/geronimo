@@ -139,7 +139,7 @@ public class SingletonORB extends AbstractORB {
     }
 
     public org.omg.CORBA.Any create_any() {
-        return new org.freeorb.AnyImpl(this);
+        return new AnyImpl(this);
     }
 
     public org.omg.CORBA.portable.OutputStream create_output_stream() {

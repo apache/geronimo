@@ -187,4 +187,9 @@ public class GSSUPIORInterceptor extends CSIInterceptorBase implements
         return new TaggedComponent(TAG_CSI_SEC_MECH_LIST.value, mech_data);
     }
 
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

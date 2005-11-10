@@ -28,6 +28,8 @@ import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.portable.StreamableValue;
 import org.omg.CORBA.portable.ValueBase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.corba.channel.MarkHandler;
 import org.apache.geronimo.corba.channel.OutputChannelMarker;
 
@@ -37,6 +39,9 @@ import org.apache.geronimo.corba.channel.OutputChannelMarker;
  */
 public class ValueWriter {
 
+	
+	static final Log log = LogFactory.getLog(ValueWriter.class);
+	
     static final int TAG_VALUE = 0x7fffff00;
 
     static final int TAG_CODEBASE_PRESENT = 1;
@@ -353,7 +358,7 @@ public class ValueWriter {
 
             //
             // TODO: figure a way to rewrite the last end-tag
-            buf.pos = lastEndTagPos;
+            // TODO: revisit buf.pos = lastEndTagPos;
 
             if (log.isDebugEnabled()) {
                 log.debug("rewriting endTag" + valueOfLastEndTag
@@ -421,7 +426,7 @@ public class ValueWriter {
             out.__fatal("not chunked");
 
         out.align(4);
-        chunkMark = out.mark(chunkHandler);
+        // TODO: revisit chunkMark = out.mark(chunkHandler);
         startPosOfCurrentChunk = out.__stream_position();
         out.write_long(0);
     }
@@ -436,7 +441,7 @@ public class ValueWriter {
         // TODO: align chunk size? That which follows a chunk must
         // be a 4-byte integer (chunk end marker) so we will do the
         // alignment...
-        size += out.computeAlignment(size, 4);
+        // TODO: revisit size += out.computeAlignment(size, 4);
 
         try {
             chunkMark.putInt(0, size);
@@ -465,6 +470,7 @@ public class ValueWriter {
     private BoxedValueHelper getHelper(Serializable value,
                                        String id)
     {
+        /*
         Class helper = null;
 
         // TODO: Cache this info somewhere (contextclassloader)?
@@ -503,7 +509,7 @@ public class ValueWriter {
                 // ignore //
             }
         }
-
+        */
         return null;
     }
 

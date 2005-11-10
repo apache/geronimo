@@ -17,6 +17,9 @@
 
 package org.apache.geronimo.corba.csi;
 
+import org.apache.geronimo.corba.csi.gssup.GSSUPPolicyValue;
+import org.apache.geronimo.corba.csi.gssup.GSSUPPolicyValueHelper;
+import org.apache.geronimo.corba.csi.gssup.SecGSSUPPolicy;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.Policy;

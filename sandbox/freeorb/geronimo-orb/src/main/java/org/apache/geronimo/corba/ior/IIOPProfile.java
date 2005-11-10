@@ -25,7 +25,6 @@ import org.omg.IIOP.ProfileBody_1_0Helper;
 import org.omg.IIOP.Version;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TaggedComponent;
-import org.omg.IOP.TaggedComponentSeqHelper;
 
 import org.apache.geronimo.corba.AbstractORB;
 import org.apache.geronimo.corba.io.EncapsulationInputStream;

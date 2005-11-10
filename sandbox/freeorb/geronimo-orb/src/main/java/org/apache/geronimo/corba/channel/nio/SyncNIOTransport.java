@@ -17,57 +17,75 @@
 package org.apache.geronimo.corba.channel.nio;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
 import org.apache.geronimo.corba.channel.InputChannel;
 import org.apache.geronimo.corba.channel.InputHandler;
 import org.apache.geronimo.corba.channel.OutputChannel;
 import org.apache.geronimo.corba.channel.RingByteBuffer;
+import org.apache.geronimo.corba.channel.SocketTransportBase;
 import org.apache.geronimo.corba.channel.Transport;
+import org.apache.geronimo.corba.channel.TransportManager;
 
 
-public class SyncNIOTransport extends Transport {
+public class SyncNIOTransport extends SocketTransportBase {
 
-    private final SyncNIOTransportManager manager;
+	protected SyncNIOTransport(TransportManager manager, InputHandler handler, Socket sock) {
+		super(manager, handler, sock);
+	}
 
-    private final SocketChannel chan;
+	protected RingByteBuffer allocateSendBuffer(int bufferSize) {
 
-    private final InputHandler handler;
+        return new RingByteBuffer(bufferSize, false) {
 
-    private ParticipationExecutor executor;
+            protected void bufferFullHook(String how) throws IOException {
+            	
+                if (!sock.isOutputShutdown()) {
+                    flushSendBuffer();
+                }
+            }
 
-    private RingByteBuffer receiveBuffer;
+            protected void bufferEmptyHook(String how) {
+                // what do we care? //
+            }
 
-    private RingByteBuffer sendBuffer;
+            /**
+             * the send buffer was closed(), and we have send everything
+             */
+            protected void readEOFHook() {
+                // do nothing //
+                try {
+                    sock.shutdownOutput();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 
-    static final int RCV_BUFFER_SIZE = getIntProperty(
-            "org.freeorb.rcv_buffer_size", 64 * 1024);
+            protected void relinquishInput() {
+                throw new InternalError();
+            }
 
-    static final int SND_BUFFER_SIZE = getIntProperty(
-            "org.freeorb.snd_buffer_size", 64 * 1024);
+            protected void relinquishOutput() {
+                releaseOutputChannel();
+            }
 
-    private static int getIntProperty(String string, int defaultValue) {
-        try {
-            return Integer.parseInt(System.getProperty(string, ""));
-        }
-        catch (NumberFormatException ex) {
-            return defaultValue;
-        }
-    }
 
-    public SyncNIOTransport(SyncNIOTransportManager manager,
-                            final SocketChannel chan, InputHandler handler)
-    {
-        this.manager = manager;
-        this.chan = chan;
-        this.handler = handler;
+        };
 
-        this.executor = new ParticipationExecutor(manager.getExecutor());
+	}
 
-        receiveBuffer = new RingByteBuffer(RCV_BUFFER_SIZE, true) {
+	protected void flushSendBuffer() throws IOException {
+		sendBuffer.writeTo(sock);
+	}
+
+	protected RingByteBuffer allocateReceiveBuffer(int bufferSize) {
+
+        return new RingByteBuffer(bufferSize, true) {
 
             public String getName() {
-                return "receive buffer for " + chan.toString();
+                return "receive buffer for " + sock;
             }
 
             protected void bufferFullHook(String how) {
@@ -95,87 +113,12 @@ public class SyncNIOTransport extends Transport {
 
         };
 
-        sendBuffer = new RingByteBuffer("send" + chan.socket(), SND_BUFFER_SIZE) {
-
-            protected void bufferFullHook(String how) throws IOException {
-                if (!chan.socket().isOutputShutdown()) {
-                    flushSendBuffer();
-                }
-            }
-
-            protected void bufferEmptyHook(String how) {
-                // what do we care? //
-            }
-
-            /**
-             * the send buffer was closed(), and we have send everything
-             */
-            protected void readEOFHook() {
-                // do nothing //
-                try {
-                    chan.socket().shutdownOutput();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        };
 
 
-        try {
-            executor.execute(inputListener);
-        }
-        catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+	}
 
-    private Runnable inputListener = new Runnable() {
-
-        public void run() {
-
-            while (true) {
-
-                while (receiveBuffer.isEmpty()) {
-                    try {
-                        fillReceiveBuffer();
-                    }
-                    catch (IOException e) {
-                        System.out.println("loop reached EOF");
-                        return;
-                    }
-
-                    if (receiveBuffer.isClosedForPut()) {
-                        System.out.println("END OF INPUT");
-                        return;
-                    }
-                }
-
-                handler.inputAvailable(SyncNIOTransport.this);
-            }
-
-        }
-
-    };
-
-
-    public OutputChannel getOutputChannel() {
-        return sendBuffer.getOutputChannel();
-    }
-
-    public InputChannel getInputChannel() {
-        return receiveBuffer.getInputChannel();
-    }
-
-    public void close() throws IOException {
-        chan.close();
-    }
-
-    public void releaseInputChannel() {
-        // TODO Auto-generated method stub
-
-    }
+	protected void fillReceiveBuffer() throws IOException {
+		receiveBuffer.readFrom(sock);
+	}
 
 }

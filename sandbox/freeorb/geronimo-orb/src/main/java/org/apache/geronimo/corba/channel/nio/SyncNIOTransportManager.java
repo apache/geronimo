@@ -17,6 +17,7 @@
 package org.apache.geronimo.corba.channel.nio;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
@@ -46,10 +47,10 @@ public class SyncNIOTransportManager implements TransportManager {
     }
 
     public Transport createTransport(SocketAddress addr, InputHandler handler) throws IOException {
-        SocketChannel ch = provider.openSocketChannel();
-        ch.configureBlocking(true);
-        ch.connect(addr);
-        SyncNIOTransport t = new SyncNIOTransport(this, ch, handler);
+    		Socket sock = new Socket();
+    		sock.connect(addr);
+
+        SyncNIOTransport t = new SyncNIOTransport(this, handler, sock);
 
         // executor.execute(inputListener);
 

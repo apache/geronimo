@@ -26,8 +26,10 @@ import org.omg.CORBA.TypeCode;
 import org.omg.CORBA_2_3.portable.ObjectImpl;
 
 import org.apache.geronimo.corba.AbstractORB;
+import org.apache.geronimo.corba.AnyImpl;
 import org.apache.geronimo.corba.ClientDelegate;
 import org.apache.geronimo.corba.PlainObject;
+import org.apache.geronimo.corba.TypeCodeUtil;
 import org.apache.geronimo.corba.ior.InternalIOR;
 import org.apache.geronimo.corba.util.IntegerToObjectHashMap;
 import org.apache.geronimo.corba.util.IntegerToObjectMap;
@@ -229,13 +231,13 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
     }
 
     public final Any read_any() {
-        org.omg.CORBA.Any any = new org.freeorb.AnyImpl(__orb());
+        org.omg.CORBA.Any any = new AnyImpl(__orb());
         any.read_value(this, read_TypeCode());
         return any;
     }
 
     public final TypeCode read_TypeCode() {
-        return org.freeorb.TypeCodeUtil.read(this, this, new java.util.HashMap());
+        return TypeCodeUtil.read(this, this, new java.util.HashMap());
     }
 
     public void read_octet_array(byte[] data, int off, int len) {

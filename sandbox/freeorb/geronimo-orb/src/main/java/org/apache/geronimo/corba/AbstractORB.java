@@ -163,7 +163,7 @@ public abstract class AbstractORB extends ORB {
 
 
     public org.omg.CORBA.Any create_any() {
-        return new org.freeorb.AnyImpl(this);
+        return new AnyImpl(this);
     }
 
     public GIOPVersion getGIOPVersion() {
