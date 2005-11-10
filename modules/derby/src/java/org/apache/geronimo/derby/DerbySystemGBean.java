@@ -69,7 +69,8 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         } catch (SQLException e) {
             // SQLException gets thrown on successful shutdown so ignore
         }
-        log.info("Stopped");
+        System.gc();  // Added per recommendation Derby documentation
+	log.info("Stopped");
     }
 
     public void doFail() {
@@ -78,6 +79,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
         } catch (SQLException e) {
             // SQLException gets thrown on successful shutdown so ignore
         }
+        System.gc();  // Added per recommendation Derby documentation
         log.info("Failed");
     }
 
