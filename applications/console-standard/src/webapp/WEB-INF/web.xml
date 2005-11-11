@@ -171,7 +171,7 @@ limitations under the License.
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
         <init-param>
             <param-name>portlet-class</param-name>
-            <param-value>org.apache.geronimo.console.certmanager.CertManagerPortlet</param-value>
+            <param-value>org.apache.geronimo.console.EmptyPortlet</param-value>
         </init-param>
         <init-param>
             <param-name>portlet-guid</param-name>
