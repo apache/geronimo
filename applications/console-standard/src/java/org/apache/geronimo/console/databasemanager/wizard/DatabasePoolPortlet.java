@@ -300,6 +300,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void renderEdit(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+        loadDriverJARList(renderRequest);
         editView.include(renderRequest, renderResponse);
     }
 
@@ -314,6 +315,26 @@ public class DatabasePoolPortlet extends BasePortlet {
     }
 
     private void renderBasicParams(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
+        loadDriverJARList(renderRequest);
+        // Make sure all properties available for the DB are listed
+        DatabaseInfo info = getDatabaseInfo(data);
+        if(info != null) {
+            String[] params = info.getUrlParameters();
+            for (int i = 0; i < params.length; i++) {
+                String param = params[i];
+                final String key = "property-"+param;
+                if(!data.getProperties().containsKey(key)) {
+                    data.getProperties().put(key, param.equals("port") && info.getDefaultPort() > 0 ? new Integer(info.getDefaultPort()) : null);
+                }
+            }
+        }
+        // Pass on errors
+        renderRequest.setAttribute("driverError", renderRequest.getParameter("driverError"));
+
+        basicParamsView.include(renderRequest, renderResponse);
+    }
+
+    private void loadDriverJARList(RenderRequest renderRequest) {
         // List the available JARs
         List list = new ArrayList();
         ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
@@ -338,22 +359,6 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
         Collections.sort(list);
         renderRequest.setAttribute("jars", list);
-        // Make sure all properties available for the DB are listed
-        DatabaseInfo info = getDatabaseInfo(data);
-        if(info != null) {
-            String[] params = info.getUrlParameters();
-            for (int i = 0; i < params.length; i++) {
-                String param = params[i];
-                final String key = "property-"+param;
-                if(!data.getProperties().containsKey(key)) {
-                    data.getProperties().put(key, param.equals("port") && info.getDefaultPort() > 0 ? new Integer(info.getDefaultPort()) : null);
-                }
-            }
-        }
-        // Pass on errors
-        renderRequest.setAttribute("driverError", renderRequest.getParameter("driverError"));
-
-        basicParamsView.include(renderRequest, renderResponse);
     }
 
     private void renderConfirmURL(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
