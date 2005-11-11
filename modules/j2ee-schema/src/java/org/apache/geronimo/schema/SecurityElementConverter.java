@@ -44,24 +44,26 @@ public class SecurityElementConverter implements ElementConverter {
             cursor.toNextToken();
         }
         cursor.pop();
+        XmlCursor source = null;
+        try {
         while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
             if (cursor.isStart()) {
                 String localPart = cursor.getName().getLocalPart();
                 if (localPart.equals("realm")) {
-                    XmlCursor source = cursor.newCursor();
+                    if (source == null) {
+                        source = cursor.newCursor();
+                    } else {
+                        source.toCursor(cursor);
+                    }
                     cursor.push();
                     cursor.toEndToken();
                     cursor.toNextToken();
-                    try {
                         if (source.toChild(PRINCIPAL_QNAME)) {
                             do {
-                                source.copyXmlContents(cursor);
+                                source.copyXml(cursor);
                             } while (source.toNextSibling(PRINCIPAL_QNAME));
                         }
 
-                    } finally {
-                        source.dispose();
-                    }
                     cursor.pop();
                     cursor.removeXml();
                 } else if (localPart.equals("default-principal")) {
@@ -70,6 +72,10 @@ public class SecurityElementConverter implements ElementConverter {
             }
             cursor.toNextToken();
         }
-
+        } finally {
+            if (source != null) {
+                source.dispose();
+            }
+        }
     }
 }

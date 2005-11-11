@@ -10,5 +10,11 @@
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="x"/>
             <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="y"/>
         </role>
+        <role role-name="user">
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="supplier"/>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="buyer"/>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="x"/>
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="y"/>
+        </role>
     </role-mappings>
 </security>

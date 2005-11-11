@@ -20,6 +20,7 @@ package org.apache.geronimo.schema;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URL;
 
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
@@ -34,7 +35,7 @@ import org.apache.geronimo.xbeans.j2ee.EjbJarType;
  * @version $Rev$ $Date$
  */
 public class SchemaConversionUtilsTest extends TestCase {
-    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
+    private ClassLoader classLoader = this.getClass().getClassLoader();
 
 //comment on validity of j2ee 1.4 schemas: validation doesn't work...
 //        From: "Radu Preotiuc-Pietro" <radup@bea.com>
@@ -58,8 +59,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     //The schemas have been fixed by sun, we can use the official schemas.
 
     public void testApplicationClient13ToApplicationClient14Transform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-client-13.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-client-14.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/application-client-13.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-client-14.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -87,8 +88,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testApplication13ToApplication14Transform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-13.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/application-14.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/application-13.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/application-14.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -116,8 +117,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testConnector10ToConnector15Transform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ra-10.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ra-15.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/ra-10.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ra-15.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -145,8 +146,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testEJB11ToEJB21Transform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_2dtd/ejb-1-11.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_2dtd/ejb-1-21.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_2dtd/ejb-1-11.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/ejb-1-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -174,8 +175,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testEJB20ToEJB21Transform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ejb-jar.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/ejb-jar-21.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/ejb-jar.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -203,8 +204,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testMDB20To21Transform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/mdb-ejb-jar-20.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/mdb-ejb-jar-21.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/mdb-ejb-jar-20.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/mdb-ejb-jar-21.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         SchemaConversionUtils.validateDD(expected);
@@ -232,8 +233,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testOrderDescriptionGroup() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/DescriptionGroupTestSource.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/DescriptionGroupTestExpected.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/DescriptionGroupTestSource.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/DescriptionGroupTestExpected.xml");
         XmlObject srcObject = XmlObject.Factory.parse(srcXml);
         XmlCursor srcCursor = srcObject.newCursor();
         XmlCursor moveable = srcObject.newCursor();
@@ -258,8 +259,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testOrderJNDIEnvironmentRefsGroup() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestSource.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestExpected.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestSource.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/JNDIEnvironmentRefsGroupTestExpected.xml");
         XmlObject srcObject = XmlObject.Factory.parse(srcXml);
         XmlCursor srcCursor = srcObject.newCursor();
         XmlCursor moveable = srcObject.newCursor();
@@ -287,8 +288,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testWeb23To24Transform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-23.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-24.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/web-23.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -303,8 +304,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testWeb23To24OtherTransform() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-1-23.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_3dtd/web-1-24.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_3dtd/web-1-23.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_3dtd/web-1-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
 //        System.out.println(xmlObject.toString());
@@ -318,8 +319,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testWeb22To24Transform1() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_2dtd/web-1-22.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_2dtd/web-1-24.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_2dtd/web-1-22.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_2dtd/web-1-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -334,7 +335,7 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testWebRejectBad24() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/web-1-24.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_4schema/web-1-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         try {
             xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
@@ -345,14 +346,14 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testParseWeb24() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/web-2-24.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_4schema/web-2-24.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToServletSchema(xmlObject);
     }
 
     public void testEJB21To21DoesNothing() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/j2ee_1_4schema/ejb-jar.xml");
+        URL srcXml = classLoader.getResource("j2ee_1_4schema/ejb-jar.xml");
+        URL expectedOutputXml = classLoader.getResource("j2ee_1_4schema/ejb-jar.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         xmlObject = SchemaConversionUtils.convertToEJBSchema(xmlObject);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -362,8 +363,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testGeronimoNamingNamespaceChange() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/geronimo/ejb-naming-pre.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/ejb-naming-post.xml");
+        URL srcXml = classLoader.getResource("geronimo/ejb-naming-pre.xml");
+        URL expectedOutputXml = classLoader.getResource("geronimo/ejb-naming-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         XmlCursor cursor = xmlObject.newCursor();
         try {
@@ -382,8 +383,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 //
     public void testGetNestedObjectAsType() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/geronimo/ejb-naming-pre.xml");
-//        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/ejb-naming-post.xml");
+        URL srcXml = classLoader.getResource("geronimo/ejb-naming-pre.xml");
+//        URL expectedOutputXml = classLoader.getResource("geronimo/ejb-naming-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         //this is not a usable type, we'll see what happens though
         xmlObject = SchemaConversionUtils.getNestedObjectAsType(xmlObject, "openejb-jar", EjbJarType.type);
@@ -391,8 +392,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testSecurityElementConverter() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/geronimo/security-pre.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/security-post.xml");
+        URL srcXml = classLoader.getResource("geronimo/security-pre.xml");
+        URL expectedOutputXml = classLoader.getResource("geronimo/security-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         ElementConverter elementConverter = new SecurityElementConverter();
         XmlCursor cursor = xmlObject.newCursor();
@@ -415,8 +416,8 @@ public class SchemaConversionUtilsTest extends TestCase {
     }
 
     public void testGBeanElementConverter() throws Exception {
-        File srcXml = new File(basedir, "src/test-data/geronimo/gbean-pre.xml");
-        File expectedOutputXml = new File(basedir, "src/test-data/geronimo/gbean-post.xml");
+        URL srcXml = classLoader.getResource("geronimo/gbean-pre.xml");
+        URL expectedOutputXml = classLoader.getResource("geronimo/gbean-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         ElementConverter elementConverter = new GBeanElementConverter();
         XmlCursor cursor = xmlObject.newCursor();
@@ -457,6 +458,10 @@ public class SchemaConversionUtilsTest extends TestCase {
             }
             test.toNextToken();
             expected.toNextToken();
+        }
+        if (toNextStartToken(expected)) {
+            problems.add("test shorter that expected at element: " + elementCount);
+            similar = false;
         }
         return similar;
     }
