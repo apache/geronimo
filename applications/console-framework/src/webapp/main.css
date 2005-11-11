@@ -31,33 +31,34 @@ a:hover
 {
 	/*background-image:url("images/joe_logo.gif");*/
 	background-image:url("images/head_left_754x86.gif");
-	width: 754px;
+	background-repeat: no-repeat;
+	width: 570px;
 	height: 86px;
         /*color: #FFFFFF;*/
-        color: #FBF9F9;
+        /*color: #FBF9F9;*/
 	font-size: 35px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-align: right;
 	vertical-align: bottom; 
 	line-height: 30px;
 	/*background-color: #909DB8;*/
-	background-color: #FBF9F9;
+	/*background-color: #FBF9F9;*/
 	font-weight: bold;
 }
 
 .Top
 {
 	background-image:url("images/head_bgstretch_1x86.gif");
-	background-repeat: repeat;
+	background-repeat: repeat-x;
 	height: 86px;
-	color: #FFFFFF;
+	/*color: #FFFFFF;*/
 	font-size: 11px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-align: right;
 	vertical-align: bottom;
-	line-height: 30px;
+	/*line-height: 30px;*/
 	/*background-color: #909DB8;*/
-	background-color: #FBF9F9;
+	/*background-color: #FBF9F9;*/
 	font-weight: bold;
 }
 
