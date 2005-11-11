@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.repository;
 import java.net.URI;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A repository that accepts new entries.
@@ -33,5 +34,14 @@ public interface WriteableRepository {
      * the server is just going to turn around and upload it to some
      * other remote location.
      */
-    public void copyToRepository(File source, URI destination) throws IOException;
+    public void copyToRepository(File source, URI destination, FileWriteMonitor monitor) throws IOException;
+
+    /**
+     * Copies the contents of an arbitrary stream into the repository.
+     * Obviously to use this remotely, you must have some other way
+     * to upload the content to the server's JVM, even if the the server
+     * is just going to turn around and upload it to some other remote
+     * location.  The source will be closed when the write completes.
+     */
+    public void copyToRepository(InputStream source, URI destination, FileWriteMonitor monitor) throws IOException;
 }

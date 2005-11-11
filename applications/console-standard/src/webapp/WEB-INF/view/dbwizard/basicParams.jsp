@@ -6,7 +6,7 @@
 <p><b>Create Database Pool</b> -- Step 2: Select Driver, JAR, Parameters</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="process-params" />
     <input type="hidden" name="name" value="${pool.name}" />
     <input type="hidden" name="dbtype" value="${pool.dbtype}" />
@@ -40,13 +40,14 @@
         <c:forEach var="jar" items="${jars}">
             <option <c:if test="${jar == pool.jar1}">selected</c:if>>${jar}</option>
         </c:forEach>
-            <option>Other</option>
           </select>
         </td>
       </tr>
       <tr>
         <td></td>
-        <td>The JAR holding the selected JDBC driver.  Should be installed under GERONIMO/repository/</td>
+        <td>The JAR holding the selected JDBC driver.  Should be installed under GERONIMO/repository/ (or
+          <input type="button" value="Download a Driver" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='download';document.<portlet:namespace/>DatabaseForm.submit();return false;" />)
+        </td>
       </tr>
     <!-- ENTRY FIELD: Username -->
       <tr>

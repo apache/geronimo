@@ -23,7 +23,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileFilter;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -40,19 +40,32 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
+ * A listable, writeable repository that stores its entries in a directory on
+ * the local filesystem.
+ *
  * @version $Rev$ $Date$
  */
 public class FileSystemRepository implements Repository, ListableRepository, WriteableRepository, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(FileSystemRepository.class);
+    private final static int TRANSFER_NOTIFICATION_SIZE = 10240;  // announce every this many bytes
+    private final static int TRANSFER_BUF_SIZE = 10240;  // try this many bytes at a time
     private final URI root;
     private final ServerInfo serverInfo;
     private URI rootURI;
     private File rootFile;
 
     public FileSystemRepository(URI root, ServerInfo serverInfo) {
+        if(!root.toString().endsWith("/")) {
+            try {
+                root = new URI(root.toString()+"/");
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("Invalid repository root (does not end with / ) and can't add myself", e);
+            }
+        }
         this.root = root;
         this.serverInfo = serverInfo;
     }
@@ -103,10 +116,14 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
         return (String[]) list.toArray(new String[list.size()]);
     }
 
-    public void copyToRepository(File source, URI destination) throws IOException {
+    public void copyToRepository(File source, URI destination, FileWriteMonitor monitor) throws IOException {
         if(!source.exists() || !source.canRead() || source.isDirectory()) {
             throw new IllegalArgumentException("Cannot read source file at "+source.getAbsolutePath());
         }
+        copyToRepository(new FileInputStream(source), destination, monitor);
+    }
+
+    public void copyToRepository(InputStream source, URI destination, FileWriteMonitor monitor) throws IOException {
         File dest = new File(rootURI.resolve(destination));
         if(dest.exists()) {
             throw new IllegalArgumentException("Destination "+dest.getAbsolutePath()+" already exists!");
@@ -115,17 +132,34 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
         if(!parent.exists() && !parent.mkdirs()) {
             throw new RuntimeException("Unable to create directories from "+rootFile.getAbsolutePath()+" to "+parent.getAbsolutePath());
         }
-        log.debug("Copying "+source.getAbsolutePath()+" to "+dest.getAbsolutePath());
-        BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(dest));
-        BufferedInputStream in = new BufferedInputStream(new FileInputStream(source));
-        byte[] buf = new byte[1024];
-        int count;
-        while((count = in.read(buf)) > -1) {
-            out.write(buf, 0, count);
+        if(monitor != null) {
+            monitor.writeStarted(destination.toString());
         }
-        out.flush();
-        out.close();
-        in.close();
+        int total = 0;
+        try {
+            int threshold = TRANSFER_NOTIFICATION_SIZE;
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(dest));
+            BufferedInputStream in = new BufferedInputStream(source);
+            byte[] buf = new byte[TRANSFER_BUF_SIZE];
+            int count;
+            while((count = in.read(buf)) > -1) {
+                out.write(buf, 0, count);
+                if(monitor != null) {
+                    total += count;
+                    if(total > threshold) {
+                        threshold += TRANSFER_NOTIFICATION_SIZE;
+                        monitor.writeProgress(total);
+                    }
+                }
+            }
+            out.flush();
+            out.close();
+            in.close();
+        } finally {
+            if(monitor != null) {
+                monitor.writeComplete(total);
+            }
+        }
     }
 
     public void doStart() throws Exception {
@@ -139,7 +173,7 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
                 throw new IllegalStateException("FileSystemRepository must have a root that's a valid writable directory (not "+rootFile.getAbsolutePath()+")");
             }
         }
-        log.info("Repository root is " + rootFile.getAbsolutePath());
+        log.debug("Repository root is " + rootFile.getAbsolutePath());
     }
 
     public void doStop() throws Exception {

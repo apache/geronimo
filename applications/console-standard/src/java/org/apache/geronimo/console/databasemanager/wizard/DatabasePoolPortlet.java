@@ -49,6 +49,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -56,8 +57,6 @@ import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
-import javax.enterprise.deploy.model.exceptions.DDBeanCreateException;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
@@ -65,6 +64,8 @@ import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
@@ -79,6 +80,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * A portlet that lets you configure and deploy JDBC connection pools.
+ *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class DatabasePoolPortlet extends BasePortlet {
@@ -88,18 +91,23 @@ public class DatabasePoolPortlet extends BasePortlet {
     private final static String TRANQL_RAR_NAME = "tranql/rars/tranql-connector-1.0.rar";
 
     private final static Log log = LogFactory.getLog(DatabasePoolPortlet.class);
+    private final static String[] SKIP_ENTRIES_WITH = new String[]{"geronimo", "tomcat", "tranql", "commons", "directory", "activemq"};
+    private final static String DRIVER_SESSION_KEY = "org.apache.geronimo.console.dbpool.Drivers";
+    private final static String DRIVER_INFO_URL    = "http://people.apache.org/~ammulder/driver-downloads.properties";
     private static final String LIST_VIEW            = "/WEB-INF/view/dbwizard/list.jsp";
     private static final String EDIT_VIEW            = "/WEB-INF/view/dbwizard/edit.jsp";
     private static final String SELECT_RDBMS_VIEW    = "/WEB-INF/view/dbwizard/selectDatabase.jsp";
     private static final String BASIC_PARAMS_VIEW    = "/WEB-INF/view/dbwizard/basicParams.jsp";
     private static final String CONFIRM_URL_VIEW     = "/WEB-INF/view/dbwizard/confirmURL.jsp";
     private static final String TEST_CONNECTION_VIEW = "/WEB-INF/view/dbwizard/testConnection.jsp";
+    private static final String DOWNLOAD_VIEW        = "/WEB-INF/view/dbwizard/selectDownload.jsp";
     private static final String LIST_MODE            = "list";
     private static final String EDIT_MODE            = "edit";
     private static final String SELECT_RDBMS_MODE    = "rdbms";
     private static final String BASIC_PARAMS_MODE    = "params";
     private static final String CONFIRM_URL_MODE     = "url";
     private static final String TEST_CONNECTION_MODE = "test";
+    private static final String DOWNLOAD_MODE        = "download";
     private static final String SAVE_MODE            = "save";
     private static final String MODE_KEY = "mode";
 
@@ -109,6 +117,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private PortletRequestDispatcher basicParamsView;
     private PortletRequestDispatcher confirmURLView;
     private PortletRequestDispatcher testConnectionView;
+    private PortletRequestDispatcher downloadView;
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -118,6 +127,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         basicParamsView = portletConfig.getPortletContext().getRequestDispatcher(BASIC_PARAMS_VIEW);
         confirmURLView = portletConfig.getPortletContext().getRequestDispatcher(CONFIRM_URL_VIEW);
         testConnectionView = portletConfig.getPortletContext().getRequestDispatcher(TEST_CONNECTION_VIEW);
+        downloadView = portletConfig.getPortletContext().getRequestDispatcher(DOWNLOAD_VIEW);
     }
 
     public void destroy() {
@@ -127,7 +137,24 @@ public class DatabasePoolPortlet extends BasePortlet {
         basicParamsView = null;
         confirmURLView = null;
         testConnectionView = null;
+        downloadView = null;
         super.destroy();
+    }
+
+    public DriverDownloader.DriverInfo[] getDriverInfo(PortletRequest request) {
+        PortletSession session = request.getPortletSession(true);
+        DriverDownloader.DriverInfo[] results = (DriverDownloader.DriverInfo[]) session.getAttribute(DRIVER_SESSION_KEY, PortletSession.APPLICATION_SCOPE);
+        if(results == null) {
+            DriverDownloader downloader = new DriverDownloader();
+            try {
+                results = downloader.loadDriverInfo(new URL(DRIVER_INFO_URL));
+                session.setAttribute(DRIVER_SESSION_KEY, results, PortletSession.APPLICATION_SCOPE);
+            } catch (MalformedURLException e) {
+                log.error("Unable to download driver data", e);
+                results = new DriverDownloader.DriverInfo[0];
+            }
+        }
+        return results;
     }
 
     public void processAction(ActionRequest actionRequest,
@@ -147,6 +174,42 @@ public class DatabasePoolPortlet extends BasePortlet {
                 }
                 actionResponse.setRenderParameter(MODE_KEY, BASIC_PARAMS_MODE);
             }
+        } else if(mode.equals("process-"+DOWNLOAD_MODE)) {
+            String name = actionRequest.getParameter("driverName");
+            DriverDownloader.DriverInfo[] drivers = getDriverInfo(actionRequest);
+            DriverDownloader.DriverInfo found = null;
+            for (int i = 0; i < drivers.length; i++) {
+                DriverDownloader.DriverInfo driver = drivers[i];
+                if(driver.getName().equals(name)) {
+                    found = driver;
+                    break;
+                }
+            }
+            if(found != null) {
+                DriverDownloader downloader = new DriverDownloader();
+                WriteableRepository repo = PortletManager.getWritableRepositories(actionRequest)[0];
+                try {
+                    downloader.loadDriver(repo, found, new FileWriteMonitor() {
+                        public void writeStarted(String fileDescription) {
+                            System.out.println("Downloading "+fileDescription);
+                        }
+
+                        public void writeProgress(int bytes) {
+                            System.out.print("\rDownload progress: "+(bytes/1024)+"kB");
+                            System.out.flush();
+                        }
+
+                        public void writeComplete(int bytes) {
+                            System.out.println();
+                            System.out.println("Finished downloading "+bytes+"b");
+                        }
+                    });
+                    data.jar1 = found.getRepositoryPath();
+                } catch (IOException e) {
+                    log.error("Unable to download JDBC driver", e);
+                }
+            }
+            actionResponse.setRenderParameter(MODE_KEY, BASIC_PARAMS_MODE);
         } else if(mode.equals("process-"+BASIC_PARAMS_MODE)) {
             DatabaseInfo info = null;
             info = getDatabaseInfo(data);
@@ -206,6 +269,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 renderEdit(renderRequest, renderResponse);
             } else if(mode.equals(SELECT_RDBMS_MODE)) {
                 renderSelectRDBMS(renderRequest, renderResponse);
+            } else if(mode.equals(DOWNLOAD_MODE)) {
+                renderDownload(renderRequest, renderResponse);
             } else if(mode.equals(BASIC_PARAMS_MODE)) {
                 renderBasicParams(renderRequest, renderResponse, data);
             } else if(mode.equals(CONFIRM_URL_MODE)) {
@@ -243,6 +308,11 @@ public class DatabasePoolPortlet extends BasePortlet {
         selectRDBMSView.include(renderRequest, renderResponse);
     }
 
+    private void renderDownload(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+        renderRequest.setAttribute("drivers", getDriverInfo(renderRequest));
+        downloadView.include(renderRequest, renderResponse);
+    }
+
     private void renderBasicParams(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
         // List the available JARs
         List list = new ArrayList();
@@ -251,11 +321,17 @@ public class DatabasePoolPortlet extends BasePortlet {
             ListableRepository repo = repos[i];
             try {
                 final URI[] uris = repo.listURIs();
-                final String[] strings = new String[uris.length];
-                for (int j = 0; j < strings.length; j++) {
-                    strings[j] = uris[j].toString();
+                outer:
+                for (int j = 0; j < uris.length; j++) {
+                    String test = uris[j].toString();
+                    for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
+                        String skip = SKIP_ENTRIES_WITH[k];
+                        if(test.indexOf(skip) > -1) {
+                            continue outer;
+                        }
+                    }
+                    list.add(test);
                 }
-                list.addAll(Arrays.asList(strings));
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
