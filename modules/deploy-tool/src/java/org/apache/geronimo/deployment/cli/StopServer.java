@@ -109,7 +109,7 @@ public class StopServer {
 				kernel = getRunningKernel();
 			} catch (IOException e) {
 				System.out
-						.println("\rCould not communicate with the server.  The server may not be running or the port number may be incorrect.");
+						.println("\nCould not communicate with the server.  The server may not be running or the port number may be incorrect.");
 			}
 			if (kernel != null) {
 				System.out.println("Server found.");
