@@ -20,7 +20,13 @@ limitations under the License.
 <%@ page import="org.apache.pluto.portalImpl.aggregation.navigation.Navigation" %>
 <%@ page import="org.apache.pluto.portalImpl.aggregation.navigation.NavigationTreeBean" %>
 <jsp:useBean id="fragment" type="org.apache.pluto.portalImpl.aggregation.navigation.TabNavigation" scope="request" />
-<table width="200px"  border="0" cellpadding="0" cellspacing="0"> 
+
+<TABLE WIDTH="200px" border>
+<TR>
+<TD>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0"> 
+  				 <tr><td CLASS="ReallyDarkBackground"><STRONG>&nbsp;Console Navigation</TD></TR>
   				 <tr><td><div class="Selection"><table width="100%" border="0" cellpadding="0" cellspacing="0">
               <tr>
 							  <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
@@ -137,5 +143,10 @@ limitations under the License.
               </tr>
 						</table></div></td></tr>
   </table>
+
+
+<TD>
+</TR>
+</TABLE>
 
 

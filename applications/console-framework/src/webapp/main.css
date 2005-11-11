@@ -1,11 +1,20 @@
-body {
+body 
+{
 	/*background-color: #9999CC;*/
+}
+
+.BrightTitle
+{
+	color: #FFFFFF;
+	background-color: #5FA3D6;
+	font-size: 11px;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 td
 {
 	font-size: 11px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 a:link, a:visited
@@ -21,42 +30,47 @@ a:hover
 .Logo
 {
 	/*background-image:url("images/joe_logo.gif");*/
-	width: 200px;
-	height: 100px;
-    color: #FFFFFF;
+	background-image:url("images/head_left_754x86.gif");
+	width: 754px;
+	height: 86px;
+        /*color: #FFFFFF;*/
+        color: #FBF9F9;
 	font-size: 35px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-align: right;
-	/*vertical-align: bottom;*/
+	vertical-align: bottom; 
 	line-height: 30px;
-	background-color: #909DB8;
+	/*background-color: #909DB8;*/
+	background-color: #FBF9F9;
 	font-weight: bold;
 }
 
 .Top
 {
-	/*background-image: url("images/mgmtconsole.jpg");*/
-	background-repeat: no-repeat;
+	background-image:url("images/head_bgstretch_1x86.gif");
+	background-repeat: repeat;
+	height: 86px;
 	color: #FFFFFF;
 	font-size: 11px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-align: right;
 	vertical-align: bottom;
 	line-height: 30px;
-	background-color: #909DB8;
+	/*background-color: #909DB8;*/
+	background-color: #FBF9F9;
 	font-weight: bold;
 }
 
 .Top a:link, .Top a:visited, .Top a:hover
 {
-	color: #FFFFFF;
-	font-size: 11px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
-	text-decoration: underline;
-	text-align: left;
-	vertical-align: bottom;
-	line-height: 30px;
-	font-weight: bold;
+        color: #FFFFFF;
+        font-size: 11px;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+        text-decoration: underline;
+        text-align: left;
+        vertical-align: bottom;
+        line-height: 30px;
+        font-weight: bold;
 }
 
 .TopSpacer
@@ -74,58 +88,69 @@ a:hover
 
 .Menu .Selection
 {
+        background-color: #FBF9F9;
 	font-size: 12px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 .Menu .Selection .CollapsedLeft
 {
 	width: 12px;
 	height: 12px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Selection .Indent
 {
 	width: 2px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Selection .CollapsedRight
 {
 	width: 8px;
 	height: 12px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Selection .TopLeft
 {
 	width: 8px;
 	height: 16px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Selection .TopMiddle
 {
-	color: #333333;
+	/*color: #333333;*/
+	color: #000000;
 	text-decoration: none;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Selection .TopMiddle a:link, 
 .Menu .Selection .TopMiddle a:visited, 
 .Menu .Selection .TopMiddle a:hover
 {
-	color: #FFFFFF;
+	color: #000000;
 	line-height: 20px;
-  background-color: #919FBC;
+	font-size: 12px;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Selection .TopRight
 {
 	width: 8px;
 	height: 16px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Selection .Spacer
@@ -143,21 +168,25 @@ a:hover
 .Menu .Subselection .Left
 {
 	width: 12px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Subselection .Indent
 {
 	width: 2px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/ 
+  background-color: #FFFFFF;
 }
 
 .Menu .Subselection .Middle
 {
 	font-size: 12px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
-  background-color: #919FBC;
-	color:#333333;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
+	/*color:#333333;*/
+	color:#000000;
 }
 
 .Menu .Subselection .Middle a:link, 
@@ -165,33 +194,38 @@ a:hover
 .Menu .Subselection .Middle a:hover
 {
 	line-height: 20px;
-	color: #FFFFFF;
+	/*color: #FFFFFF;*/
+	color: #000000;
 }
 
 .Menu .Subselection .Right
 {
 	width: 8px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Subselection .BottomLeft
 {
 	width: 8px;
 	height: 8px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Subselection .BottomMiddle
 {
 	height: 8px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Menu .Subselection .BottomRight
 {
 	width: 8px;
 	height: 8px;
-  background-color: #919FBC;
+  /*background-color: #919FBC;*/
+  background-color: #FFFFFF;
 }
 
 .Gutter
@@ -204,15 +238,18 @@ a:hover
 	width: 18px;
 	height: 18px;
 	line-height: 18px;
-  background-color:#333366;
+        /*background-color:#333366;*/
+        background-color: #000000;
 }
 
 .Content .Title
 {
 	font-size: 12px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
-	background-color: #333366;
-	color: #FCFCFC;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	/*background-color: #333366;*/
+	background-color: #000000;
+	/*color: #FCFCFC;*/
+	color: #FFFFFF;
 	height: 18px;
 	line-height: 18px;
 }
@@ -220,9 +257,11 @@ a:hover
 .Content .Title a:link, .Content .Title a:hover, .Content .Title a:visited
 {
 	font-size: 12px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
-	background-color: #333366;
-	color:#CCCCFF;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	/*background-color: #333366;*/
+	background-color: #000000;
+	/*color:#CCCCFF;*/
+	color: #FFFFFF;
 	height: 18px;
 	line-height: 18px;
 }
@@ -236,7 +275,8 @@ a:hover
 {
 	width: 18px;
 	height: 18px;
-  background-color:#333366;
+        /*background-color:#333366;*/
+        background-color:#000000;
 }
 
 .Content .CollapsedLeft
@@ -257,14 +297,16 @@ a:hover
 {
 	width: 18px;
 	/*background-color: #333366;*/
-	background-color: #DADEE9;
+	/*background-color: #DADEE9;*/
+	background-color: #FFFFFF;
 }
 
 .Content .Body, .Content .Body td
 {
 	font-size: 12px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
-	background-color: #DADEE9;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	/*background-color: #DADEE9;*/
+	background-color: #FFFFFF;
 	color: #1E1E52;
 }
 
@@ -282,7 +324,8 @@ a:hover
 
 .Content .Body .LightBackground
 {
-	background-color: #E8E8F7;
+	/*background-color: #E8E8F7;*/
+        background-color: #E7E7E7;
 	color:#333333;
 }
 
@@ -301,8 +344,23 @@ a:hover
 .Content .Body .DarkBackground a:visited,
 .Content .Body .DarkBackground a:hover
 {
-	background-color: #5C6B8D;
-	color:#FCFCFC;
+	/*background-color: #5C6B8D;*/
+	/*background-color: #000000;*/
+	background-color: #2581C7;
+	/*color:#FCFCFC;*/
+	color:#FFFFFF;
+	font-size: 15px;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+}
+
+.Content .Body .reallyDarkBackground,
+.Content .ReallyDarkBackground,
+.ReallyDarkBackground
+{
+	color: #FFFFFF;
+	background-color: #000000;
+	font-size: 15px;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 .Content .Body .IndentedTitle
@@ -329,7 +387,7 @@ a:hover
 .Content .Body a:hover
 {
 	font-size: 10px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-decoration: underline;
 	color: #546BC7;
 	font-weight: bold;
@@ -349,7 +407,7 @@ a:hover
 	border-bottom-color: #141336;
 	border-left-color: #141336;
 	background-color: #23224C;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	font-size: 12px;
   text-decoration: underline;
 	color: #CCCCCC;
@@ -358,7 +416,8 @@ a:hover
 .Content .Right
 {
 	width: 18px;
-	background-color: #DADEE9;
+	/*background-color: #DADEE9;*/
+	background-color: #FFFFFF;
 }
 
 .Content .BottomLeft
@@ -374,9 +433,9 @@ a:hover
 	line-height: 12px;
 	height: 12px;
 	font-size: 9px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	background-color:#333366;
-	color:#FFFFFF;
+	color:#000000;
 }
 
 .Content .Footer a:link,
@@ -406,7 +465,7 @@ a:hover
 .Footer
 {
 	font-size: 9px;
-	font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	height: 20px;
 	background-color: #CCCCCC;
 }

@@ -31,7 +31,7 @@
 		  <td>
 			  <table width="100%" border="0" cellspacing="0" cellpadding="0">
 				  <tr>
-          <td class="Logo" width="200">GERONIMO CONSOLE</td>
+          <td class="Logo" width="100%"></td>
 						<td class="Top">&nbsp;</td>
 					</tr>
 				</table>
@@ -177,6 +177,9 @@
 					  </div>
 					</td>
           <td width="10">&nbsp;</td>
+
+          <TD><TABLE width="100%" BORDER>
+
           <td valign="top"><table width="100%"  border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td class="TopLeft">&nbsp;</td>
@@ -206,6 +209,9 @@
               <td width="10" class="BottomRight">&nbsp;</td>
             </tr>
           </table></td>
+
+          </TABLE></TD>
+
           <td width="10">&nbsp;</td>
         </tr>
       </table></td>

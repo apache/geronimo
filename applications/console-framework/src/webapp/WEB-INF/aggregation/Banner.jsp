@@ -16,21 +16,17 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --%>
-  <tr> 
+  <tr>
     <td>
-		  <table width="100%" height="100"  border="0" cellpadding="0" cellspacing="0"> 
-        <tr> 
-          <td class="Logo" width="200">GERONIMO CONSOLE</td>
-          <td class="Top">
-<a href="mailto:user@geronimo.apache.org">Mailing List</a>
-&nbsp;&nbsp;|&nbsp;&nbsp;
-<a href="<%=request.getContextPath()%>/about.jsp">About</a>
-&nbsp;&nbsp;|&nbsp;&nbsp;
-<a href="<%=request.getContextPath()%>/logout.jsp">Log Out</a>
-&nbsp;&nbsp;
-</td>
+	  <table width="100%" height="86"  border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td class="Logo" border="0" width="100%"></td>
+          <td class="Top" border="0">
+<a href="<%=request.getContextPath()%>/about.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_about_51x86.gif"></a>
+<a href="<%=request.getContextPath()%>/logout.jsp"><img border="0" src="<%=request.getContextPath()%>/images/head_logout_63x86.gif"></a>
+          </td>
         </tr>
       </table>
-	  </td>
+	</td>
   </tr>
 
