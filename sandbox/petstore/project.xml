@@ -42,13 +42,23 @@
     <dependency>
       <groupId>activemq</groupId>
       <artifactId>activemq-ra</artifactId>
-	  <version>${activemq_version}</version>
-	  <type>rar</type>
-	</dependency>
+      <version>${activemq_version}</version>
+      <type>rar</type>
+    </dependency>
     <dependency>
         <groupId>geronimo-spec</groupId>
         <artifactId>geronimo-spec-javamail</artifactId>
         <version>${geronimo_spec_javamail_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>jstl</groupId>
+        <artifactId>jstl</artifactId>
+        <version>${jstl_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>taglibs</groupId>
+        <artifactId>standard</artifactId>
+        <version>${standard_taglibs_version}</version>
     </dependency>
   </dependencies>
   <build>
