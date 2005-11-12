@@ -470,6 +470,8 @@
             <artifactId>geronimo-util</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
+                <lib>true</lib>
+                <deploy>true</deploy>
                 <repository>true</repository>
             </properties>
         </dependency>

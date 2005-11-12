@@ -81,6 +81,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>

@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.jar.JarFile;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
@@ -34,6 +35,7 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.system.main.CommandLine;
 import org.apache.geronimo.system.main.CommandLineManifest;
+import org.apache.geronimo.util.SimpleEncryption;
 
 /**
  * Supports two types of connections to the server.  One, via JSR-88, is valid
@@ -106,6 +108,7 @@ public class ServerConnection {
     private KernelWrapper kernel;
     private PrintWriter out;
     private BufferedReader in;
+    private SavedAuthentication auth;
 
     public ServerConnection(String[] args, boolean forceLocal, PrintWriter out, BufferedReader in) throws DeploymentException {
         String uri = null, driver = null, user = null, password = null;
@@ -213,30 +216,70 @@ public class ServerConnection {
         }
     }
 
-    private void tryToConnect(String uri, JMXDeploymentManager.CommandContext commandContext, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
+    Serializable getAuthentication() {
+        return auth;
+    }
+
+    String getServerURI() {
+        return auth.uri;
+    }
+
+    private void tryToConnect(String argURI, JMXDeploymentManager.CommandContext commandContext, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if(driver != null) {
             loadDriver(driver, mgr);
         } else {
             mgr.registerDeploymentFactory(new DeploymentFactoryImpl());
         }
+        String useURI = argURI == null ? DEFAULT_URI : argURI;
 
-        if(authPrompt && uri != null && !uri.equals(DEFAULT_URI) && user == null && password == null) {
+        if(authPrompt && user == null && password == null) {
+            File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
+            if(authFile.exists() && authFile.canRead()) {
+                try {
+                    Properties props = new Properties();
+                    InputStream in = new BufferedInputStream(new FileInputStream(authFile));
+                    props.load(in);
+                    in.close();
+                    String encryped = props.getProperty("login."+useURI);
+                    if(encryped != null) {
+                        if(encryped.startsWith("{Standard}")) {
+                            SavedAuthentication auth = (SavedAuthentication) SimpleEncryption.decrypt(encryped.substring(10));
+                            if(auth.uri.equals(useURI)) {
+                                user = auth.user;
+                                password = new String(auth.password);
+                            }
+                        } else if(encryped.startsWith("{Plain}")) {
+                            int pos = encryped.indexOf("/");
+                            user = encryped.substring(7, pos);
+                            password = encryped.substring(pos+1);
+                        } else {
+                            System.out.println(DeployUtils.reformat("Unknown encryption used in saved login file", 4, 72));
+                        }
+                    }
+                } catch (IOException e) {
+                    System.out.println(DeployUtils.reformat("Unable to read authentication from saved login file: "+e.getMessage(), 4, 72));
+                }
+            }
+        }
+
+        if(authPrompt && !useURI.equals(DEFAULT_URI) && user == null && password == null) {
             // Non-standard URI, but no authentication information
-            doAuthPromptAndRetry(uri, commandContext, user, password);
+            doAuthPromptAndRetry(useURI, commandContext, user, password);
             return;
         } else { // Standard URI with no auth, Non-standard URI with auth, or else this is the 2nd try already
             try {
-                manager = mgr.getDeploymentManager(uri == null ? DEFAULT_URI : uri, user, password);
+                manager = mgr.getDeploymentManager(useURI, user, password);
+                auth = new SavedAuthentication(useURI, user, password.toCharArray());
             } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
-                if(authPrompt && (user == null || password == null)) {
-                    doAuthPromptAndRetry(uri, commandContext, user, password);
+                if(authPrompt) {
+                    doAuthPromptAndRetry(useURI, commandContext, user, password);
                     return;
                 } else {
                     throw new DeploymentException("Login Failed");
                 }
             } catch(DeploymentManagerCreationException e) {
-                throw new DeploymentException("Unable to connect to server at "+(uri == null ? DEFAULT_URI : uri)+" -- "+e.getMessage());
+                throw new DeploymentException("Unable to connect to server at "+useURI+" -- "+e.getMessage());
             }
         }
 
@@ -405,6 +448,18 @@ public class ServerConnection {
             } catch (InterruptedException e) {
             }
             return password;
+        }
+    }
+
+    private final static class SavedAuthentication implements Serializable {
+        private String uri;
+        private String user;
+        private char[] password;
+
+        public SavedAuthentication(String uri, String user, char[] password) {
+            this.uri = uri;
+            this.user = user;
+            this.password = password;
         }
     }
 }

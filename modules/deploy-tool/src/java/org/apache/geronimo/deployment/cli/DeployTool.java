@@ -61,6 +61,7 @@ public class DeployTool {
     }
 
     static {
+        registerCommand(new CommandLogin());
         registerCommand(new CommandDeploy());
         registerCommand(new CommandDistribute());
         registerCommand(new CommandListModules());
