@@ -223,20 +223,6 @@ limitations under the License.
     </servlet>
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
-        <display-name>Pluto Wrapper for Database Portlet</display-name>
-        <servlet-name>Databases</servlet-name>
-        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
-        <init-param>
-            <param-name>portlet-class</param-name>
-            <param-value>org.apache.geronimo.console.databasemanager.DatabaseManagerPortlet</param-value>
-        </init-param>
-        <init-param>
-            <param-name>portlet-guid</param-name>
-            <param-value>console-standard.Databases</param-value>
-        </init-param>
-    </servlet>
-    <servlet>
-        <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for Database Wizard Portlet</display-name>
         <servlet-name>DBWizard</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -741,10 +727,6 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>Deployment</servlet-name>
         <url-pattern>/Deployment/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Databases</servlet-name>
-        <url-pattern>/Databases/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>DBWizard</servlet-name>

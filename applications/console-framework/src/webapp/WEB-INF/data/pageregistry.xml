@@ -230,21 +230,6 @@ limitations under the License.
             </fragment>
         </fragment>
 
-        <fragment name="oldjdbc" type="page">
-            <navigation>
-                <title>Old DB Pools</title>
-                <description>Manage database connections</description>
-            </navigation>
-
-            <fragment name="row1" type="row">
-                <fragment name="col1" type="column">
-                    <fragment name="p1" type="portlet">
-                        <property name="portlet" value="5.2"/>
-                    </fragment>
-                </fragment>
-            </fragment>
-        </fragment>
-
         <fragment name="jdbc" type="page">
             <navigation>
                 <title>Database Pools</title>

@@ -21,9 +21,6 @@ limitations under the License.
         <portlet id="1">
             <definition-id>console-standard.Applications</definition-id>
         </portlet>
-        <portlet id="2">
-            <definition-id>console-standard.Databases</definition-id>
-        </portlet>
         <portlet id="3">
             <definition-id>console-standard.SEUsers</definition-id>
         </portlet>

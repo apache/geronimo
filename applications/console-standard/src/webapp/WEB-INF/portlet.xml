@@ -459,31 +459,7 @@ limitations under the License.
     </portlet>
 
     <portlet>
-        <description>Portlet for managing database connections</description>
-        <portlet-name>Databases</portlet-name>
-        <display-name>Database Portlet</display-name>
-
-        <portlet-class>org.apache.geronimo.console.databasemanager.DatabaseManagerPortlet</portlet-class>
-
-        <expiration-cache>-1</expiration-cache>
-
-        <supports>
-            <mime-type>text/html</mime-type>
-            <portlet-mode>VIEW</portlet-mode>
-            <portlet-mode>HELP</portlet-mode>
-        </supports>
-
-        <supported-locale>en</supported-locale>
-
-        <portlet-info>
-            <title>Database Connections</title>
-            <short-title>Databases</short-title>
-            <keywords>Databases</keywords>
-        </portlet-info>
-    </portlet>
-
-    <portlet>
-        <description>Wizard for managing database pools</description>
+        <description>Portlet for managing database pools</description>
         <portlet-name>DBWizard</portlet-name>
         <display-name>Database Pool Wizard</display-name>
 
