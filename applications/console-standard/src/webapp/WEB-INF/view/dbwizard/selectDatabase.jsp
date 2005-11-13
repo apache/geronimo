@@ -19,7 +19,13 @@
     <input type="hidden" name="maxSize" value="${pool.maxSize}" />
     <input type="hidden" name="idleTimeout" value="${pool.idleTimeout}" />
     <input type="hidden" name="blockingTimeout" value="${pool.blockingTimeout}" />
+    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
+    <input type="hidden" name="rarPath" value="${pool.rarPath}" />
   <c:forEach var="prop" items="${pool.properties}">
+    <input type="hidden" name="${prop.key}" value="${prop.value}" />
+  </c:forEach>
+  <c:forEach var="prop" items="${pool.urlProperties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
     <table border="0">
@@ -30,7 +36,7 @@
       </tr>
       <tr>
         <td></td>
-        <td>A name that is different than the name for any other database pools in the server</td>
+        <td>A name that is different than the name for any other database pools in the server (no spaces in the name please).</td>
       </tr>
     <!-- ENTRY FIELD: DB TYPE -->
       <tr>
@@ -40,7 +46,6 @@
         <c:forEach var="db" items="${databases}">
             <option <c:if test="${db.name == pool.dbtype}">selected</c:if>>${db.name}</option>
         </c:forEach>
-            <option>Other</option>
           </select>
         </td>
       </tr>

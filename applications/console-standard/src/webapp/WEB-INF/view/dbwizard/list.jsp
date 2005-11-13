@@ -5,7 +5,11 @@
 <p>This page lists all the available database pools.</p>
 <ul>
 <c:forEach var="pool" items="${pools}">
-  <li>${pool.name}</li>
+  <li>${pool.name} (<a href="<portlet:actionURL portletMode="view">
+              <portlet:param name="mode" value="editExisting" />
+              <portlet:param name="adapterObjectName" value="${pool.adapterObjectName}" />
+              <portlet:param name="objectName" value="${pool.factoryObjectName}" />
+            </portlet:actionURL>">edit</a>)</li>
 </c:forEach>
 </ul>
 

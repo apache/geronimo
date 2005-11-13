@@ -22,6 +22,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import net.sf.cglib.reflect.FastClass;
 import net.sf.cglib.reflect.FastMethod;
@@ -137,6 +141,28 @@ public class DynamicGBeanDelegate implements DynamicGBean {
             throw new IllegalArgumentException(targetClass.getName() + ": no operation " + signature);
         }
         return operation.invoke(arguments);
+    }
+
+    /**
+     * Gets all properties (with both a getter and setter), in the form of
+     * propertyName
+     */ 
+    public String[] getProperties() {
+        Set one = getters.keySet();
+        Set two = setters.keySet();
+        List out = new ArrayList();
+        for (Iterator it = one.iterator(); it.hasNext();) {
+            String name = (String) it.next();
+            if(Character.isLowerCase(name.charAt(0)) && two.contains(name)) {
+                out.add(name);
+            }
+        }
+        return (String[]) out.toArray(new String[out.size()]);
+    }
+
+    public Class getPropertyType(String name) {
+        Operation oper = (Operation) getters.get(name);
+        return oper.method.getReturnType();
     }
 
     protected static class Operation {

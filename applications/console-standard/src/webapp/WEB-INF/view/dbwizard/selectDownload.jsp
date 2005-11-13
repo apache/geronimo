@@ -7,6 +7,11 @@
 <p>This page lets you automatically download a driver for a database where the
 driver JARs are available online without login or registration.</p>
 
+<p><i>If this page took a very long time to load and there are no drivers listed in the box below,
+it probably means your Geronimo installation can't connect to apache.org to retrieve the driver
+download configuration file.  Sorry for the inconvenience, you'll have to try again later or
+install the driver by hand (copy it to a directory under geronimo/repository/)</i></p>
+
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="process-download" />
@@ -24,7 +29,13 @@ driver JARs are available online without login or registration.</p>
     <input type="hidden" name="maxSize" value="${pool.maxSize}" />
     <input type="hidden" name="idleTimeout" value="${pool.idleTimeout}" />
     <input type="hidden" name="blockingTimeout" value="${pool.blockingTimeout}" />
+    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
+    <input type="hidden" name="rarPath" value="${pool.rarPath}" />
   <c:forEach var="prop" items="${pool.properties}">
+    <input type="hidden" name="${prop.key}" value="${prop.value}" />
+  </c:forEach>
+  <c:forEach var="prop" items="${pool.urlProperties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
     <table border="0">

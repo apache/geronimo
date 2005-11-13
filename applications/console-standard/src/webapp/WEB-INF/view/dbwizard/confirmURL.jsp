@@ -17,7 +17,13 @@
     <input type="hidden" name="jar1" value="${pool.jar1}" />
     <input type="hidden" name="jar2" value="${pool.jar2}" />
     <input type="hidden" name="jar3" value="${pool.jar3}" />
+    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
+    <input type="hidden" name="rarPath" value="${pool.rarPath}" />
   <c:forEach var="prop" items="${pool.properties}">
+    <input type="hidden" name="${prop.key}" value="${prop.value}" />
+  </c:forEach>
+  <c:forEach var="prop" items="${pool.urlProperties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
     <table border="0">
@@ -85,14 +91,6 @@
     </table>
 </form>
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
-
-<p><a href="<portlet:actionURL portletMode="view">
-              <portlet:param name="mode" value="test" />
-            </portlet:actionURL>">Test Connection</a></p>
-<p><a href="<portlet:actionURL portletMode="view">
-              <portlet:param name="mode" value="save" />
-            </portlet:actionURL>">Skip Test & Save</a></p>
-
 
 <p><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="list" />

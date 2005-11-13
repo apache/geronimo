@@ -24,7 +24,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
@@ -42,6 +42,11 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final Map adminObjectInfoMap;
     private final Map managedConnectionFactoryInfoMap;
     private final String objectName;
+    private final String displayName;
+    private final String description;
+    private final String vendorName;
+    private final String resourceAdapterVersion;
+    private final String eisType;
 
     public ResourceAdapterModuleImpl(String resourceAdapter,
                                      String objectName, 
@@ -51,7 +56,12 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
                                      GBeanData resourceAdapterGBeanData,
                                      Map activationSpecInfoMap,
                                      Map adminObjectInfoMap,
-                                     Map managedConnectionFactoryInfoMap) {
+                                     Map managedConnectionFactoryInfoMap,
+                                     String displayName,
+                                     String description,
+                                     String vendorName,
+                                     String resourceAdapterVersion,
+                                     String eisType) {
         this.objectName = objectName;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
@@ -66,6 +76,11 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
         this.activationSpecInfoMap = activationSpecInfoMap;
         this.adminObjectInfoMap = adminObjectInfoMap;
         this.managedConnectionFactoryInfoMap = managedConnectionFactoryInfoMap;
+        this.description = description;
+        this.displayName = displayName;
+        this.vendorName = vendorName;
+        this.resourceAdapterVersion = resourceAdapterVersion;
+        this.eisType = eisType;
     }
 
     public String getObjectName() {
@@ -121,6 +136,26 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
 
     public Map getManagedConnectionFactoryInfoMap() {
         return managedConnectionFactoryInfoMap;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getVendorName() {
+        return vendorName;
+    }
+
+    public String getResourceAdapterVersion() {
+        return resourceAdapterVersion;
+    }
+
+    public String getEISType() {
+        return eisType;
     }
 
     /**

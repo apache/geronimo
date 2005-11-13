@@ -16,27 +16,39 @@
  */
 package org.apache.geronimo.console.util;
 
-import org.apache.geronimo.management.J2EEDomain;
-import org.apache.geronimo.management.J2EEDeployedObject;
-import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.AppClientModule;
-import org.apache.geronimo.management.WebModule;
+import org.apache.geronimo.management.EJB;
 import org.apache.geronimo.management.EJBModule;
-import org.apache.geronimo.management.ResourceAdapterModule;
+import org.apache.geronimo.management.J2EEDeployedObject;
+import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEModule;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.geronimo.management.JCAResource;
-import org.apache.geronimo.management.JDBCResource;
-import org.apache.geronimo.management.JMSResource;
 import org.apache.geronimo.management.JDBCDataSource;
 import org.apache.geronimo.management.JDBCDriver;
-import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.management.EJB;
-import org.apache.geronimo.management.Servlet;
+import org.apache.geronimo.management.JDBCResource;
+import org.apache.geronimo.management.JMSResource;
 import org.apache.geronimo.management.ResourceAdapter;
-import org.apache.geronimo.management.geronimo.*;
-import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.management.Servlet;
+import org.apache.geronimo.management.WebModule;
+import org.apache.geronimo.management.geronimo.EJBConnector;
+import org.apache.geronimo.management.geronimo.EJBManager;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.system.logging.SystemLog;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -112,6 +124,8 @@ public interface ManagementHelper {
     EJB[] getEJBs(EJBModule module);
     Servlet[] getServlets(WebModule module);
     ResourceAdapter[] getResourceAdapters(ResourceAdapterModule module);
+    JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module);
+    JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String connectionFactoryInterface);
 
     // resource adapter properties
     JCAResource[] getRAResources(ResourceAdapter adapter);

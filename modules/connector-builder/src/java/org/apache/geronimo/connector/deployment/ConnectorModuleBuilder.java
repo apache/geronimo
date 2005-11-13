@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
@@ -292,7 +293,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
         J2eeContext resourceJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.JCA_RESOURCE, module.getName());
-        XmlObject specDD = module.getSpecDD();
+        final ConnectorType connector = (ConnectorType) module.getSpecDD();
 
         //set up the metadata for the ResourceAdapterModule
         ObjectName resourceAdapterModuleName = null;
@@ -310,8 +311,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         resourceAdapterModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
+        resourceAdapterModuleData.setAttribute("displayName", connector.getDisplayNameArray().length == 0 ? null : connector.getDisplayNameArray(0).getStringValue());
+        resourceAdapterModuleData.setAttribute("description", connector.getDescriptionArray().length == 0 ? null : connector.getDescriptionArray(0).getStringValue());
+        resourceAdapterModuleData.setAttribute("vendorName", connector.getVendorName().getStringValue());
+        resourceAdapterModuleData.setAttribute("EISType", connector.getEisType().getStringValue());
+        resourceAdapterModuleData.setAttribute("resourceAdapterVersion", connector.getResourceadapterVersion().getStringValue());
 
-        ResourceadapterType resourceadapter = ((ConnectorType) specDD).getResourceadapter();
+        ResourceadapterType resourceadapter = connector.getResourceadapter();
         // Create the resource adapter gbean
         if (resourceadapter.isSetResourceadapterClass()) {
             GBeanInfoBuilder resourceAdapterInfoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, ResourceAdapterWrapperGBean.GBEAN_INFO);
@@ -674,6 +680,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             clazz = cl.loadClass(type);
         } catch (ClassNotFoundException e) {
             throw new DeploymentException("Could not load attribute class:  type: " + type, e);
+        }
+
+        // Handle numeric fields with no value set
+        if(value.equals("")) {
+            if(Number.class.isAssignableFrom(clazz) || Date.class.isAssignableFrom(clazz)) {
+                return null;
+            }
         }
 
         PropertyEditor editor = PropertyEditors.getEditor(clazz);

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import java.util.Map;
+
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
@@ -31,4 +33,23 @@ public interface JCAManagedConnectionFactory extends org.apache.geronimo.managem
     public String getConnectionInterface();
 
     public String getConnectionImplClass();
+
+    /**
+     * Gets the config properties in the form of a map where the key is the
+     * property name and the value is property type (as a String not a Class).
+     */
+    public Map getConfigProperties();
+
+    public void setConfigProperty(String property, Object value) throws Exception;
+
+    public Object getConfigProperty(String property) throws Exception;
+
+    /**
+     * Gets the ObjectName of the ConnectionManager associated with this managed
+     * connection factory.  That object should implement
+     * javax.resource.spi.ConnectionManager and
+     * org.apache.geronimo.connector.outbound.PoolingAttributes
+     * @return
+     */
+    public String getConnectionManager();
 }

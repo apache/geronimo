@@ -17,7 +17,12 @@
 
 package org.apache.geronimo.connector.outbound;
 
+import java.lang.reflect.Constructor;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Properties;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.resource.ResourceException;
 import javax.resource.spi.ManagedConnectionFactory;
 import javax.resource.spi.ResourceAdapterAssociation;
@@ -36,6 +41,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.ResourceManager;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
  * @version $Rev$ $Date$
@@ -168,6 +174,22 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
         return connectionManagerContainer;
     }
 
+    public String getConnectionManager() {
+        try {
+            ObjectName mine = ObjectName.getInstance(objectName);
+            Properties other = new Properties();
+            other.setProperty(NameFactory.J2EE_APPLICATION, mine.getKeyProperty(NameFactory.J2EE_APPLICATION));
+            other.setProperty(NameFactory.J2EE_SERVER, mine.getKeyProperty(NameFactory.J2EE_SERVER));
+            other.setProperty(NameFactory.JCA_RESOURCE, mine.getKeyProperty(NameFactory.JCA_RESOURCE));
+            other.setProperty(NameFactory.J2EE_TYPE, NameFactory.JCA_CONNECTION_MANAGER);
+            other.setProperty(NameFactory.J2EE_NAME, mine.getKeyProperty(NameFactory.J2EE_NAME));
+            return new ObjectName(mine.getDomain(), other).getCanonicalName();
+        } catch (MalformedObjectNameException e) {
+            log.error("Unable to construct ObjectName", e);
+            return null;
+        }
+    }
+
     public void doStart() throws Exception {
         //register with resource adapter if not yet done
         if (!registered && (managedConnectionFactory instanceof ResourceAdapterAssociation)) {
@@ -250,6 +272,56 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
 
     public ManagedConnectionFactory $getManagedConnectionFactory() {
         return managedConnectionFactory;
+    }
+
+    /**
+     * Gets the config properties in the form of a map where the key is the
+     * property name and the value is property type (as a String not a Class).
+     */
+    public Map getConfigProperties() {
+        String[] props = delegate.getProperties();
+        Map map = new HashMap();
+        for (int i = 0; i < props.length; i++) {
+            String prop = props[i];
+            if(prop.equals("logWriter")) {
+                continue;
+            }
+            map.put(prop, delegate.getPropertyType(prop));
+        }
+        return map;
+    }
+
+    public void setConfigProperty(String property, Object value) throws Exception {
+        Class cls = delegate.getPropertyType(property);
+        if(value != null && value instanceof String && !cls.getName().equals("java.lang.String")) {
+            if(cls.isPrimitive()) {
+                if(cls.equals(int.class)) {
+                    cls = Integer.class;
+                } else if(cls.equals(boolean.class)) {
+                    cls = Boolean.class;
+                } else if(cls.equals(float.class)) {
+                    cls = Float.class;
+                } else if(cls.equals(double.class)) {
+                    cls = Double.class;
+                } else if(cls.equals(long.class)) {
+                    cls = Long.class;
+                } else if(cls.equals(short.class)) {
+                    cls = Short.class;
+                } else if(cls.equals(byte.class)) {
+                    cls = Byte.class;
+                } else if(cls.equals(char.class)) {
+                    cls = Character.class;
+                }
+            }
+            //todo: what about value is null but type is primitive?
+            Constructor con = cls.getConstructor(new Class[]{String.class});
+            value = con.newInstance(new Object[]{value});
+        }
+        delegate.setAttribute(property, value);
+    }
+
+    public Object getConfigProperty(String property) throws Exception {
+        return delegate.getAttribute(property);
     }
 
     //ResourceManager implementation

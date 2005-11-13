@@ -25,7 +25,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.J2EEApplication;
 import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
  * 
@@ -53,6 +53,14 @@ public class ResourceAdapterModuleImplGBean {
         infoBuilder.addAttribute("activationSpecInfoMap", Map.class, true);
         infoBuilder.addAttribute("adminObjectInfoMap", Map.class, true);
         infoBuilder.addAttribute("managedConnectionFactoryInfoMap", Map.class, true);
+
+        infoBuilder.addAttribute("displayName", String.class, true, false);
+        infoBuilder.addAttribute("description", String.class, true, false);
+        infoBuilder.addAttribute("vendorName", String.class, true, false);
+        infoBuilder.addAttribute("EISType", String.class, true, false);
+        infoBuilder.addAttribute("resourceAdapterVersion", String.class, true, false);
+
+
         infoBuilder.addInterface(ResourceAdapterModule.class);
 
         infoBuilder.setConstructor(new String[]{
@@ -64,7 +72,12 @@ public class ResourceAdapterModuleImplGBean {
             "resourceAdapterGBeanData",
             "activationSpecInfoMap",
             "adminObjectInfoMap",
-            "managedConnectionFactoryInfoMap"
+            "managedConnectionFactoryInfoMap",
+            "displayName",
+            "description",
+            "vendorName",
+            "resourceAdapterVersion",
+            "EISType"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

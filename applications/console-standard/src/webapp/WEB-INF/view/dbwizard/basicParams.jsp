@@ -18,6 +18,12 @@
     <input type="hidden" name="maxSize" value="${pool.maxSize}" />
     <input type="hidden" name="idleTimeout" value="${pool.idleTimeout}" />
     <input type="hidden" name="blockingTimeout" value="${pool.blockingTimeout}" />
+    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
+    <input type="hidden" name="rarPath" value="${pool.rarPath}" />
+  <c:forEach var="prop" items="${pool.properties}">
+    <input type="hidden" name="${prop.key}" value="${prop.value}" />
+  </c:forEach>
     <table border="0">
     <!-- ENTRY FIELD: Driver Class -->
       <tr>
@@ -75,9 +81,9 @@
         <th><div align="right">Typical JDBC URL:</div></th>
         <td><c:out value="${pool.urlPrototype}" /></td>
       </tr>
-  <c:forEach var="prop" items="${pool.properties}">
+  <c:forEach var="prop" items="${pool.urlProperties}">
       <tr>
-        <th><div align="right">${fn:substringAfter(prop.key,"property-")}:</div></th>
+        <th><div align="right">${fn:substringAfter(prop.key,"urlproperty-")}:</div></th>
         <td><input name="${prop.key}" type="text" size="20" value="${prop.value}"></td>
       </tr>
       <tr>

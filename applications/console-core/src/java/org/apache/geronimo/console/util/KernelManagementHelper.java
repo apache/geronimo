@@ -27,7 +27,6 @@ import org.apache.geronimo.management.J2EEDeployedObject;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.WebModule;
 import org.apache.geronimo.management.EJBModule;
-import org.apache.geronimo.management.ResourceAdapterModule;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.JCAResource;
 import org.apache.geronimo.management.JDBCResource;
@@ -42,6 +41,7 @@ import org.apache.geronimo.management.JCAConnectionFactory;
 import org.apache.geronimo.management.geronimo.J2EEServer;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -285,6 +285,62 @@ public class KernelManagementHelper implements ManagementHelper {
             log.error("Unable to look up related GBean", e);
         }
         return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
+    }
+
+    public JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module) {
+        List list = new ArrayList();
+        try {
+            ResourceAdapter[] adapters = getResourceAdapters(module);
+            for (int j = 0; j < adapters.length; j++) {
+                ResourceAdapter adapter = adapters[j];
+                JCAResource[] resources = getRAResources(adapter);
+                for (int k = 0; k < resources.length; k++) {
+                    JCAResource resource = resources[k];
+                    JCAConnectionFactory[] factories = getConnectionFactories(resource);
+                    for (int l = 0; l < factories.length; l++) {
+                        JCAConnectionFactory factory = factories[l];
+                        JCAManagedConnectionFactory mcf = getManagedConnectionFactory(factory);
+                        list.add(mcf);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return (JCAManagedConnectionFactory[]) list.toArray(new JCAManagedConnectionFactory[list.size()]);
+    }
+
+    public JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String connectionFactoryInterface) {
+        List list = new ArrayList();
+        try {
+            ResourceAdapter[] adapters = getResourceAdapters(module);
+            for (int j = 0; j < adapters.length; j++) {
+                ResourceAdapter adapter = adapters[j];
+                JCAResource[] resources = getRAResources(adapter);
+                for (int k = 0; k < resources.length; k++) {
+                    JCAResource resource = resources[k];
+                    JCAConnectionFactory[] factories = getConnectionFactories(resource);
+                    for (int l = 0; l < factories.length; l++) {
+                        JCAConnectionFactory factory = factories[l];
+                        JCAManagedConnectionFactory mcf = getManagedConnectionFactory(factory);
+                        if(mcf.getConnectionFactoryInterface().equals(connectionFactoryInterface)) {
+                            list.add(mcf);
+                            continue;
+                        }
+                        for (int m = 0; m < mcf.getImplementedInterfaces().length; m++) {
+                            String iface = mcf.getImplementedInterfaces()[m];
+                            if(iface.equals(connectionFactoryInterface)) {
+                                list.add(mcf);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return (JCAManagedConnectionFactory[]) list.toArray(new JCAManagedConnectionFactory[list.size()]);
     }
 
     public J2EEResource[] getResources(J2EEServer server) {

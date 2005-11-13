@@ -16,29 +16,39 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.util.List;
 import java.util.ArrayList;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletSession;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.servlet.http.HttpSession;
+import java.util.List;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.management.J2EEDomain;
-import org.apache.geronimo.management.ResourceAdapterModule;
-import org.apache.geronimo.management.geronimo.*;
-import org.apache.geronimo.system.logging.SystemLog;
-import org.apache.geronimo.pool.GeronimoExecutor;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.management.J2EEDomain;
+import org.apache.geronimo.management.geronimo.EJBManager;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.system.logging.SystemLog;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
@@ -166,9 +176,29 @@ public class PortletManager {
         return helper.getOutboundRAModules(getCurrentServer(request), iface);
     }
 
-    public static JCAManagedConnectionFactory[] getOutboundFactories(PortletRequest request, String iface) {
+    public static JCAManagedConnectionFactory[] getOutboundFactoriesOfType(PortletRequest request, String iface) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundFactories(getCurrentServer(request), iface);
+    }
+
+    public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, String resourceAdapterModuleName) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getOutboundFactories((ResourceAdapterModule)helper.getObject(resourceAdapterModuleName));
+    }
+
+    public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, String resourceAdapterModuleName, String iface) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getOutboundFactories((ResourceAdapterModule)helper.getObject(resourceAdapterModuleName), iface);
+    }
+
+    public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, ResourceAdapterModule module) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getOutboundFactories(module);
+    }
+
+    public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, ResourceAdapterModule module, String iface) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getOutboundFactories(module, iface);
     }
 
     public static String[] getWebManagerNames(PortletRequest request) {

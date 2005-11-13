@@ -21,7 +21,13 @@
     <input type="hidden" name="maxSize" value="${pool.maxSize}" />
     <input type="hidden" name="idleTimeout" value="${pool.idleTimeout}" />
     <input type="hidden" name="blockingTimeout" value="${pool.blockingTimeout}" />
+    <input type="hidden" name="adapterDisplayName" value="${pool.adapterDisplayName}" />
+    <input type="hidden" name="adapterDescription" value="${pool.adapterDescription}" />
+    <input type="hidden" name="rarPath" value="${pool.rarPath}" />
   <c:forEach var="prop" items="${pool.properties}">
+    <input type="hidden" name="${prop.key}" value="${prop.value}" />
+  </c:forEach>
+  <c:forEach var="prop" items="${pool.urlProperties}">
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
     <table border="0">
