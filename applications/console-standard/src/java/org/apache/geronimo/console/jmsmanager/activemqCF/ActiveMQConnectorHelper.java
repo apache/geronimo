@@ -193,6 +193,7 @@ public class ActiveMQConnectorHelper {
                     configurationManager.load(configID);
                 }
 
+                configurationManager.loadGBeans(configID);
                 configurationManager.start(configID);
             }
         } catch (DeploymentException e) {

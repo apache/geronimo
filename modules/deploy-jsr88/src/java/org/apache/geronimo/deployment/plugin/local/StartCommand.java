@@ -75,6 +75,7 @@ public class StartCommand extends CommandSupport {
                     List list = configurationManager.loadRecursive(moduleID);
                     for (int j = 0; j < list.size(); j++) {
                         URI name = (URI) list.get(j);
+                        configurationManager.loadGBeans(name);
                         configurationManager.start(name);
                         String configName = name.toString();
                         List kids = loadChildren(kernel, configName);

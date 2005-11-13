@@ -110,6 +110,7 @@ public class RedeployCommand extends AbstractDeployCommand {
                     List list = configurationManager.loadRecursive(configID);
                     for (int j = 0; j < list.size(); j++) {
                         URI name = (URI) list.get(j);
+                        configurationManager.loadGBeans(name);
                         configurationManager.start(name);
                         updateStatus("Started " + name);
                     }

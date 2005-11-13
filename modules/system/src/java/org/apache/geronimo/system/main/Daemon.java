@@ -282,6 +282,7 @@ public class Daemon {
                         monitor.configurationStarting(configID);
                         for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                             URI name = (URI) iterator.next();
+                            configurationManager.loadGBeans(name);
                             configurationManager.start(name);
                         }
                         monitor.configurationStarted(configID);

@@ -79,6 +79,7 @@ public class LocalConfigStoreTest extends TestCase {
 
         // load and start the config
         ObjectName configName = configurationManager.load(uri);
+        configurationManager.loadGBeans(uri);
         configurationManager.start(uri);
 
         // make sure the config and the enabled gbean are running
@@ -102,6 +103,7 @@ public class LocalConfigStoreTest extends TestCase {
 
         // now reload and restart the config
         configName = configurationManager.load(uri);
+        configurationManager.loadGBeans(uri);
         configurationManager.start(uri);
 
         // make sure the value was reloaded correctly

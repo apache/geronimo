@@ -124,6 +124,7 @@ public class StartServer {
                 List list = configurationManager.loadRecursive(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                     URI name = (URI) iterator.next();
+                    configurationManager.loadGBeans(name);
                     configurationManager.start(name);
                     System.out.println("started gbean: " + name);
                 }

@@ -156,6 +156,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements
                     ConfigurationData.class.getName(), File.class.getName() });
 
             configurationManager.load(configId);
+            configurationManager.loadGBeans(configId);
             configurationManager.start(configId);
 
         } catch (Exception e) {

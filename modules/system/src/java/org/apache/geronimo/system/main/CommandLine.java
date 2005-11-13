@@ -126,6 +126,7 @@ public class CommandLine {
                 List list = configurationManager.loadRecursive(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                     URI name = (URI) iterator.next();
+                    configurationManager.loadGBeans(name);
                     configurationManager.start(name);
                 }
             }

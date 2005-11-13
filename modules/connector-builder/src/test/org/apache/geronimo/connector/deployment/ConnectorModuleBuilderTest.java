@@ -395,6 +395,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
             configurationManager.load(defaultParentId[0]);
+            configurationManager.loadGBeans(defaultParentId[0]);
             configurationManager.start(defaultParentId[0]);
 
             ObjectName serverInfoObjectName = ObjectName.getInstance(j2eeContext.getJ2eeDomainName() + ":name=ServerInfo");

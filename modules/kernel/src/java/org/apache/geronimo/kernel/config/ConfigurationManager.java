@@ -48,7 +48,9 @@ public interface ConfigurationManager {
     List listConfigurations(ObjectName store) throws NoSuchStoreException;
 
     /**
-     * Load the specified configuration into the kernel.
+     * Load the specified configuration into the kernel. This does not start the configuration gbean
+     * and thus does not load or start any gbeans in the configuration.
+     *
      * @param configID the id of the configuration
      * @return the name of the new configuration object mounted into the kernel
      * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
@@ -58,7 +60,9 @@ public interface ConfigurationManager {
     ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
-     * Load the specified configuration and all parent configurations into the kernel.
+     * Load the specified configuration and all parent configurations into the kernel. This does not
+     * start any configuration gbeans or load any gbeans from the configurations loaded.
+     *
      * @param configID the id of the configuration
      * @return a list of names of configurations loaded into the kernel
      * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
@@ -68,15 +72,37 @@ public interface ConfigurationManager {
     List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
-     * Unloads the specified configuration from the kernel
+     * Unloads the gbeans of the specified configuration, stops the configuration gbean, and unloads the
+     * configuration gbean from the kernel.
+     *
      * @param configID the name fo the configuration to remove
      * @throws NoSuchConfigException if the configuration is now loaded into the kernel
      */
     void unload(URI configID) throws NoSuchConfigException;
 
-    void start(URI configID) throws InvalidConfigException;
-
+    /**
+     * Load the gbeans of the named configuration into the kernel, but do not start them.
+     * This starts the configuration gbean.  You must have loaded the configuration using load(uri) or loadRecursive(uri)
+     * before calling this method.
+     *
+     * @param configID
+     * @throws InvalidConfigException
+     */
     void loadGBeans(URI configID) throws InvalidConfigException;
 
+    /**
+     * Start the gbeans in this configuration.  You must have called loadGBeans before calling this method.
+     *
+     * @param configID
+     * @throws InvalidConfigException
+     */
+    void start(URI configID) throws InvalidConfigException;
+
+    /**
+     * Stop the gbeans in this configuration, but do not stop the configuration gbean.
+     *
+     * @param configID
+     * @throws InvalidConfigException
+     */
     void stop(URI configID) throws InvalidConfigException;
 }

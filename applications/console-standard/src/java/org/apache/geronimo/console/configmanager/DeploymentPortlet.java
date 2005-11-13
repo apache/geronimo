@@ -129,6 +129,7 @@ public class DeploymentPortlet extends BasePortlet {
                     if (!configurationManager.isLoaded(configID)) {
                         configurationManager.load(configID);
                     }
+                    configurationManager.loadGBeans(configID);
                     configurationManager.start(configID);
                 }
             }

@@ -1389,10 +1389,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
         infoBuilder.addAttribute("jettyContainerObjectName", ObjectName.class, true, true);
-        infoBuilder.addReference("DefaultServlets", Object.class);
+        infoBuilder.addReference("DefaultServlets", Object.class, NameFactory.DEFAULT_SERVLET);
         infoBuilder.addReference("DefaultFilters", Object.class);
         infoBuilder.addReference("DefaultFilterMappings", Object.class);
-        infoBuilder.addReference("PojoWebServiceTemplate", Object.class);
+        infoBuilder.addReference("PojoWebServiceTemplate", Object.class, "ServletWebServiceTemplate");
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);

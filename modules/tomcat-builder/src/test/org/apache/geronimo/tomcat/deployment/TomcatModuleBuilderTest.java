@@ -369,6 +369,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
         configurationManager.load((URI) parentId.get(0));
+        configurationManager.loadGBeans((URI) parentId.get(0));
         configurationManager.start((URI) parentId.get(0));
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");

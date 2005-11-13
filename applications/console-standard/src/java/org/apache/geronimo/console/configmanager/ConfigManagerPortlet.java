@@ -106,6 +106,7 @@ public class ConfigManagerPortlet extends BasePortlet {
                 if (!configurationManager.isLoaded(configID)) {
                     configurationManager.load(configID);
                 }
+                configurationManager.loadGBeans(configID);
                 configurationManager.start(configID);
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {

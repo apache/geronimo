@@ -322,14 +322,14 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 if (geronimoApplication.isSetInverseClassloading()) {
                     earContext.setInverseClassloading(geronimoApplication.getInverseClassloading());
                 }
-                
+
                 ClassFilterType[] filters = geronimoApplication.getHiddenClassesArray();
                 ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-                
+
                 filters = geronimoApplication.getNonOverridableClassesArray();
                 ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
             }
-            
+
             // each module installs it's files into the output context.. this is different for each module type
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {

@@ -127,7 +127,6 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     }
 
     public void start(URI configID) throws InvalidConfigException {
-        loadGBeans(configID);
         ObjectName configName;
         try {
             configName = Configuration.getConfigurationObjectName(configID);
