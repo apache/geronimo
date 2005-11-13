@@ -29,18 +29,18 @@ by the server.
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
                parentId="${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car"
     >
-
+<!--
     <dependency>
         <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
     </dependency>
-
+-->
     <!-- required for rar 1.5 to load realms -->
-    <dependency>
+<!--    <dependency>
         <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
     </dependency>
-
+-->
     <!-- Directory -->
-    <dependency>
+<!--    <dependency>
         <uri>geronimo/jars/geronimo-directory-${geronimo_version}.jar</uri>
     </dependency>
     <dependency>
@@ -97,7 +97,7 @@ by the server.
     <dependency>
         <uri>jdbm/jars/jdbm-${jdbm_version}.jar</uri>
     </dependency>
-
+-->
     <gbean gbeanName="geronimo.server:name=DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
         <attribute name="providerURL">ou=system</attribute>
         <attribute name="securityAuthentication">simple</attribute>

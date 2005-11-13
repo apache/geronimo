@@ -20,17 +20,17 @@
 
 <!--
 Configuration for Jetty server.
+               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
     >
 
-    <dependency>
+<!--    <dependency>
         <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
     </dependency>
-
+-->
     <!-- david jencks is not convinced that these 2 gbeans should be in this
          plan and thinks they might belong in the console plan.  Aaron thinks
          they definitely don't belong in the console plan, but could go into

@@ -30,36 +30,65 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
             <version>${xmlbeans_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>stax</groupId>
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <!-- for bootstrap -->

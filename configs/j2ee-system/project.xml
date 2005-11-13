@@ -30,21 +30,33 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
+           <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>${cglib_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>commons-cli</groupId>
@@ -93,6 +105,9 @@
             <artifactId>geronimo-packaging-plugin</artifactId>
             <version>${geronimo_version}</version>
             <type>plugin</type>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

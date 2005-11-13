@@ -57,7 +57,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal realm-name="public-properties-realm">
+                <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
                 <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
@@ -85,7 +85,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal realm-name="public-properties-realm">
+                <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
                 <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
@@ -112,7 +112,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal realm-name="public-properties-realm">
+                <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
                 <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
@@ -140,7 +140,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal realm-name="public-properties-realm">
+                <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
                 <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">
@@ -180,7 +180,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal realm-name="public-properties-realm">
+                <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
                 <tss:compoundSecMechTypeList>
@@ -204,7 +204,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal realm-name="cts-properties-realm">
+                <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
                 <tss:compoundSecMechTypeList>
@@ -230,7 +230,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </reference>
         <xml-attribute name="tssConfig">
             <tss:tss xmlns:tss="http://www.openejb.org/xml/ns/corba-tss-config-2.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
-                <tss:default-principal realm-name="public-properties-realm">
+                <tss:default-principal>
                     <sec:principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="guest"/>
                 </tss:default-principal>
                 <tss:SSL port="${PlanORBSSLPort}" hostname="${PlanORBSSLHost}">

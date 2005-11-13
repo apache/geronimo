@@ -20,9 +20,10 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../../etc/project.xml</extend>
-    <id>directory</id>
-    <name>Directory Configuration</name>
+    <extend>../jetty-deployer/project.xml</extend>
+<!--    <extend>../../etc/project.xml</extend>-->
+    <id>webconsole-jetty</id>
+    <name>Web console deployed on jetty</name>
 
     <dependencies>
         <!-- parent config -->
@@ -31,20 +32,13 @@
             <artifactId>j2ee-server</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-            <properties>
-                 <geronimo.import>true</geronimo.import>
-             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-directory</artifactId>
+            <artifactId>geronimo-console</artifactId>
             <version>${geronimo_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+            <type>ear</type>
         </dependency>
-
-
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -53,7 +47,7 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
+            <artifactId>jetty-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
