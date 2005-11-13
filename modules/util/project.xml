@@ -53,6 +53,14 @@
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+            <url>http://jakarta.apache.org/commons/logging/</url>
+        </dependency>
+        
     </dependencies>
 
     <build>
