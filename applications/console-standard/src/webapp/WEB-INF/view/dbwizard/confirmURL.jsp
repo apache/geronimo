@@ -85,7 +85,8 @@
       <tr>
         <td></td>
         <td><input type="submit" value="Test Connection" />
-          <input type="button" value="Skip Test" onclick="document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Skip Test and Deploy" onclick="document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Skip Test and Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
         </td>
       </tr>
     </table>

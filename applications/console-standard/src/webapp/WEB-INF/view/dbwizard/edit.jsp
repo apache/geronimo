@@ -205,18 +205,27 @@
         <td>
 <c:choose> <%-- Don't know how to test a non-generic pool, so you can only save it --%>
   <c:when test="${pool.generic}">
-    <c:choose> <%-- Can't test after deployment because we don't know what JAR to put on the ClassPath --%>
+    <c:choose> <%-- Can't test after deployment because we don't know what JAR to put on the ClassPath, can't show plan becasue we can't update a plan --%>
       <c:when test="${empty pool.objectName}">
           <input type="submit" value="Test Connection" />
-          <input type="button" value="Skip Test" onclick="document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Skip Test and Deploy" onclick="document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Skip Test and Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
       </c:when>
       <c:otherwise>
           <input type="button" value="Save" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
       </c:otherwise>
     </c:choose>
   </c:when>
-  <c:otherwise>
+  <c:otherwise> <%-- Not a generic JDBC pool --%>
+    <c:choose>
+      <c:when test="${empty pool.objectName}"> <%-- If it's new we can preview the plan or save/deploy --%>
+          <input type="button" value="Deploy" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+      </c:when>
+      <c:otherwise> <%-- If it's existing we can only save --%>
           <input type="button" value="Save" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+      </c:otherwise>
+    </c:choose>
   </c:otherwise>
 </c:choose>
         </td>

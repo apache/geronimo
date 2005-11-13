@@ -31,41 +31,56 @@
     <input type="hidden" name="${prop.key}" value="${prop.value}" />
   </c:forEach>
     <table border="0">
-    <!-- STATUS FIELD: Conection Result -->
+    <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th><div align="right">Test Result:</div></th>
-        <td>
-          <c:choose>
-            <c:when test="${empty connectResult}">
-              <font color="red"><i>Connection Error (see below)</i></font>
-            </c:when><c:otherwise>
-              Connected to ${connectResult}
-            </c:otherwise>
-          </c:choose>
-        </td>
+        <th valign="top"><div align="right">Deployment Plan:</div></th>
+        <td><textarea rows="30" cols="60" readonly>${deploymentPlan}</textarea></td>
       </tr>
-    <!-- STATUS FIELD: Connection Errors -->
-    <c:if test="${!(empty connectError)}">
-      <tr>
-        <th><div align="right">Test Error:</div></th>
-        <td><textarea rows="30" cols="60" readonly>${connectError}</textarea></td>
-      </tr>
-    </c:if>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
         <td>
-          <c:choose>
-            <c:when test="${empty connectResult}">
-<input type="submit" value="Deploy Anyway" />
+<input type="submit" value="Deploy Pool" />
 <input type="button" value="Edit Settings" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='edit';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-<input type="button" value="Test Again" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='process-url';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-            </c:when><c:otherwise>
-<input type="submit" value="Deploy" />
-<input type="button" value="Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-            </c:otherwise>
-          </c:choose>
         </td>
+      </tr>
+    <!-- STATUS FIELD: Command-line guidance -->
+      <tr>
+        <th valign="top"><div align="right">Deploy Command:</div></th>
+        <td>To deploy a database pool from the command line using this plan,
+          copy and paste it to a file (say, <tt>plan-file.xml</tt>) and save
+          it.  Then run a command like:<br />
+<pre>
+cd GERONIMO_HOME
+java -jar bin/deployer.jar deploy plan-file.xml \
+        ${pool.rarPath}
+</pre></td>
+      </tr>
+    <!-- STATUS FIELD: Embed in EAR guidance -->
+      <tr>
+        <th valign="top"><div align="right">Add to EAR:</div></th>
+        <td>Instead of deploying as a top-level database pool, you
+          can deploy this pool as part of an EAR.  To add a database
+          pool to an EAR using this plan:
+<ol>
+  <li>Copy and paste the plan to a file</li>
+  <li>Save the plan file to the top level of your EAR</li>
+  <li>Copy the RAR file from <tt>GERONIMO_HOME/repository/${pool.rarPath}</tt>
+    to the top level of your EAR</li>
+  <li>Create a <tt>META-INF/geronimo-application.xml</tt> file in your EAR
+    that has a <tt>module</tt> entry like this (substituting the correct
+    RAR file name and plan file name):</li>
+</ol>
+<pre>
+&lt;application
+   xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
+   configId="MyApplication"&gt;
+  &lt;module&gt;
+    &lt;connector&gt;rar-file-name&lt;/connector&gt;
+    &lt;alt-dd&gt;plan-file-name.xml&lt;/alt-dd&gt;
+  &lt;/module&gt;
+&lt;/application&gt;
+</pre></td>
       </tr>
     </table>
 </form>

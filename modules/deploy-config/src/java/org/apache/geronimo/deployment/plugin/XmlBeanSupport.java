@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
@@ -57,7 +58,11 @@ public abstract class XmlBeanSupport { // should implement Serializable or Exter
     }
 
     public void toXML(OutputStream outputStream) throws IOException {
-        xmlObject.save(outputStream);
+        XmlOptions options = new XmlOptions();
+        options.setSavePrettyPrint();
+        options.setSavePrettyPrintIndent(4);
+        options.setUseDefaultNamespace();
+        xmlObject.save(outputStream, options);
     }
 
     public void fromXML(InputStream inputStream) throws XmlException, IOException {

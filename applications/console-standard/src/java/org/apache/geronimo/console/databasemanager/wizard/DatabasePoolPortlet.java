@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.StringReader;
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -107,12 +108,14 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String CONFIRM_URL_VIEW     = "/WEB-INF/view/dbwizard/confirmURL.jsp";
     private static final String TEST_CONNECTION_VIEW = "/WEB-INF/view/dbwizard/testConnection.jsp";
     private static final String DOWNLOAD_VIEW        = "/WEB-INF/view/dbwizard/selectDownload.jsp";
+    private static final String SHOW_PLAN_VIEW       = "/WEB-INF/view/dbwizard/showPlan.jsp";
     private static final String LIST_MODE            = "list";
     private static final String EDIT_MODE            = "edit";
     private static final String SELECT_RDBMS_MODE    = "rdbms";
     private static final String BASIC_PARAMS_MODE    = "params";
     private static final String CONFIRM_URL_MODE     = "url";
     private static final String TEST_CONNECTION_MODE = "test";
+    private static final String SHOW_PLAN_MODE       = "plan";
     private static final String DOWNLOAD_MODE        = "download";
     private static final String EDIT_EXISTING_MODE   = "editExisting";
     private static final String SAVE_MODE            = "save";
@@ -125,6 +128,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private PortletRequestDispatcher confirmURLView;
     private PortletRequestDispatcher testConnectionView;
     private PortletRequestDispatcher downloadView;
+    private PortletRequestDispatcher planView;
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -135,6 +139,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         confirmURLView = portletConfig.getPortletContext().getRequestDispatcher(CONFIRM_URL_VIEW);
         testConnectionView = portletConfig.getPortletContext().getRequestDispatcher(TEST_CONNECTION_VIEW);
         downloadView = portletConfig.getPortletContext().getRequestDispatcher(DOWNLOAD_VIEW);
+        planView = portletConfig.getPortletContext().getRequestDispatcher(SHOW_PLAN_VIEW);
     }
 
     public void destroy() {
@@ -145,6 +150,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         confirmURLView = null;
         testConnectionView = null;
         downloadView = null;
+        planView = null;
         super.destroy();
     }
 
@@ -292,10 +298,14 @@ public class DatabasePoolPortlet extends BasePortlet {
                 actionRequest.getPortletSession(true).setAttribute("connectError", stack);
                 actionResponse.setRenderParameter(MODE_KEY, TEST_CONNECTION_MODE);
             } else {
-                save(actionRequest, data);
+                save(actionRequest, data, false);
             }
         } else if(mode.equals(SAVE_MODE)) {
-            save(actionRequest, data);
+            save(actionRequest, data, false);
+        } else if(mode.equals(SHOW_PLAN_MODE)) {
+            String plan = save(actionRequest, data, true);
+            actionRequest.getPortletSession(true).setAttribute("deploymentPlan", plan);
+            actionResponse.setRenderParameter(MODE_KEY, SHOW_PLAN_MODE);
         } else if(mode.equals(EDIT_EXISTING_MODE)) {
             final String name = actionRequest.getParameter("adapterObjectName");
             loadConnectionFactory(actionRequest, name, data.getObjectName(), data);
@@ -474,6 +484,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 renderConfirmURL(renderRequest, renderResponse);
             } else if(mode.equals(TEST_CONNECTION_MODE)) {
                 renderTestConnection(renderRequest, renderResponse);
+            } else if(mode.equals(SHOW_PLAN_MODE)) {
+                renderPlan(renderRequest, renderResponse);
             }
         } catch (Throwable e) {
             log.error("Unable to render portlet", e);
@@ -595,6 +607,12 @@ public class DatabasePoolPortlet extends BasePortlet {
         testConnectionView.include(renderRequest, renderResponse);
     }
 
+    private void renderPlan(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+        // Pass on results
+        renderRequest.setAttribute("deploymentPlan", renderRequest.getPortletSession().getAttribute("deploymentPlan"));
+        planView.include(renderRequest, renderResponse);
+    }
+
     private static String attemptConnect(PortletRequest request, PoolData data) throws SQLException, IllegalAccessException, InstantiationException {
         Class driverClass = attemptDriverLoad(request, data);
         Driver driver = (Driver) driverClass.newInstance();
@@ -613,7 +631,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         } else throw new SQLException("Driver "+data.getDriverClass()+" does not accept URL "+data.url);
     }
 
-    private static void save(PortletRequest request, PoolData data) {
+    private static String save(PortletRequest request, PoolData data, boolean planOnly) {
         if(data.objectName == null || data.objectName.equals("")) { // we're creating a new pool
             data.name = data.name.replaceAll("\\s", "");
             DeploymentManager mgr = PortletManager.getDeploymentManager(request);
@@ -694,22 +712,29 @@ public class DatabasePoolPortlet extends BasePortlet {
                 if(data.idleTimeout != null && !data.idleTimeout.equals("")) {
                     pool.setIdleTimeoutMinutes(new Integer(data.idleTimeout));
                 }
-                File tempFile = File.createTempFile("console-deployment",".xml");
-                tempFile.deleteOnExit();
-                log.debug("Writing database pool deployment plan to "+tempFile.getAbsolutePath());
-                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile));
-                config.save(out);
-                out.flush();
-                out.close();
-                Target[] targets = mgr.getTargets();
-                ProgressObject po = mgr.distribute(targets, new File(url.getPath()), tempFile);
-                waitForProgress(po);
-                if(po.getDeploymentStatus().isCompleted()) {
-                    TargetModuleID[] ids = po.getResultTargetModuleIDs();
-                    po = mgr.start(ids);
+                if(planOnly) {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    config.save(out);
+                    out.close();
+                    return new String(out.toByteArray(), "US-ASCII");
+                } else {
+                    File tempFile = File.createTempFile("console-deployment",".xml");
+                    tempFile.deleteOnExit();
+                    log.debug("Writing database pool deployment plan to "+tempFile.getAbsolutePath());
+                    BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile));
+                    config.save(out);
+                    out.flush();
+                    out.close();
+                    Target[] targets = mgr.getTargets();
+                    ProgressObject po = mgr.distribute(targets, new File(url.getPath()), tempFile);
                     waitForProgress(po);
                     if(po.getDeploymentStatus().isCompleted()) {
-                        System.out.println("Deployment completed successfully!");
+                        TargetModuleID[] ids = po.getResultTargetModuleIDs();
+                        po = mgr.start(ids);
+                        waitForProgress(po);
+                        if(po.getDeploymentStatus().isCompleted()) {
+                            System.out.println("Deployment completed successfully!");
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -718,6 +743,9 @@ public class DatabasePoolPortlet extends BasePortlet {
                 if(mgr != null) mgr.release();
             }
         } else { // We're saving updates to an existing pool
+            if(planOnly) {
+                throw new UnsupportedOperationException("Can't update a plan for an existing deployment");
+            }
             try {
                 JCAManagedConnectionFactory factory = (JCAManagedConnectionFactory) PortletManager.getManagedBean(request, data.getObjectName());
                 if(data.isGeneric()) {
@@ -740,6 +768,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 log.error("Unable to save connection pool", e);
             }
         }
+        return null;
     }
 
     private static void waitForProgress(ProgressObject po) {
