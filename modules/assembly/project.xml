@@ -975,7 +975,7 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
-            <artifactId>catalina</artifactId>
+            <artifactId>catalina-cluster</artifactId>
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>
             <properties>

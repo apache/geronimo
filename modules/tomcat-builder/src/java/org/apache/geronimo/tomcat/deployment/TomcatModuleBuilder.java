@@ -84,6 +84,7 @@ import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatClassLoader;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
 import org.apache.geronimo.tomcat.ValveGBean;
+import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
@@ -467,7 +468,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 ObjectName valveName = NameFactory.getComponentName(null, null, null, null, valveChain, ValveGBean.J2EE_TYPE, moduleJ2eeContext);
                 webModuleData.setReferencePattern("TomcatValveChain", valveName);
             }
-
+            
+            if (tomcatWebApp.isSetCluster()) {
+                String cluster = tomcatWebApp.getCluster().trim();
+                ObjectName clusterName = NameFactory.getComponentName(null, null, null, null, cluster, CatalinaClusterGBean.J2EE_TYPE, moduleJ2eeContext);
+                webModuleData.setReferencePattern("Cluster", clusterName);
+            }
 
             Map portMap = webModule.getPortMap();
 

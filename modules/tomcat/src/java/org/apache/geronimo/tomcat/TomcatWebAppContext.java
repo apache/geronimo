@@ -30,6 +30,7 @@ import javax.management.ObjectName;
 import org.apache.catalina.Context;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
+import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.core.StandardContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,13 +38,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.J2EEApplication;
-import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.management.J2EEApplication;
+import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
+import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
@@ -75,6 +77,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final Realm realm;
 
     private final List valveChain;
+    
+    private final CatalinaCluster catalinaCluster;
 
     private final boolean crossContext;
 
@@ -124,6 +128,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             RoleDesignateSource roleDesignateSource,
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
+            CatalinaClusterGBean cluster,
             boolean crossContext,
             Map webServices,
             J2EEServer server,
@@ -188,6 +193,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         } else {
             valveChain = null;
         }
+        
+        //Add the cluster
+        if (cluster != null)
+           catalinaCluster = (CatalinaCluster)cluster.getInternalObject(); 
+        else
+            catalinaCluster = null;
 
         this.crossContext = crossContext;
 
@@ -311,6 +322,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return valveChain;
     }
 
+    public CatalinaCluster getCluster() {
+        return catalinaCluster;
+    }
+    
     public boolean isCrossContext() {
         return crossContext;
     }
@@ -429,6 +444,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
+        infoBuilder.addReference("Cluster", CatalinaClusterGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
@@ -457,6 +473,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "RoleDesignateSource",
                 "TomcatRealm",
                 "TomcatValveChain",
+                "Cluster",
                 "crossContext",
                 "webServices",
                 "J2EEServer",

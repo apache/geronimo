@@ -20,10 +20,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.catalina.Cluster;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
+import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +36,7 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 
 /**
  * @version $Rev$ $Date$
@@ -51,7 +54,8 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             Map initParams,
             Collection hosts,
             ObjectRetriever realmGBean,
-            ValveGBean tomcatValveChain) throws Exception {
+            ValveGBean tomcatValveChain,
+            CatalinaClusterGBean clusterGBean) throws Exception {
         super(); // TODO: make it an attribute
 
         if (className == null){
@@ -114,6 +118,11 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             addHost(objRetriever);
 
         }
+        
+        //Add clustering
+        if (clusterGBean != null){
+            engine.setCluster((Cluster)clusterGBean.getInternalObject());
+        }
     }
 
     private void removeHost(ObjectRetriever objRetriever) {
@@ -156,8 +165,15 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addReference("Hosts", ObjectRetriever.class, HostGBean.J2EE_TYPE);
         infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
+        infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { "className", "initParams", "Hosts", "RealmGBean", "TomcatValveChain" });
+        infoFactory.setConstructor(new String[] { 
+                "className", 
+                "initParams", 
+                "Hosts", 
+                "RealmGBean", 
+                "TomcatValveChain",
+                "CatalinaCluster" });
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

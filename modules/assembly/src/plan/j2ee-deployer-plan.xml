@@ -165,6 +165,9 @@ Configuration for the Geronimo deployer
         <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
+        <uri>tomcat/jars/catalina-cluster-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
         <uri>tomcat/jars/catalina-optional-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>

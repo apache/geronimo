@@ -48,7 +48,8 @@
             <xs:element name="cross-context" type="tomcat:emptyType" minOccurs="0"/>
             <xs:element name="valve-chain" type="xs:string" minOccurs="0"/>
             <xs:element name="tomcat-realm" type="xs:string" minOccurs="0"/>
-
+            <xs:element name="cluster" type="xs:string" minOccurs="0"/>
+            
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
             <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>
 

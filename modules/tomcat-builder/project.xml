@@ -363,6 +363,16 @@
 
        <dependency>
             <groupId>tomcat</groupId>
+            <artifactId>catalina-cluster</artifactId>
+            <version>${tomcat_version}</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
+       <dependency>
+            <groupId>tomcat</groupId>
             <artifactId>catalina-optional</artifactId>
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>

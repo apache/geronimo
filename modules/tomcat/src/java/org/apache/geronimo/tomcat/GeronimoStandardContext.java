@@ -31,6 +31,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.Pipeline;
+import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
@@ -165,6 +166,11 @@ public class GeronimoStandardContext extends StandardContext {
                 addValve(valve);
             }
         }
+        
+        CatalinaCluster cluster = ctx.getCluster();
+        if (cluster != null)
+            this.setCluster(cluster);
+        
         pipelineInitialized = true;
         this.webServiceMap = ctx.getWebServices();
 
