@@ -77,16 +77,6 @@
             </properties>
         </dependency>
 
-
-        <dependency>
-            <groupId>axion</groupId>
-            <artifactId>axion</artifactId>
-            <version>${axion_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
