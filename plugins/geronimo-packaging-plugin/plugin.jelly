@@ -26,7 +26,7 @@
     xmlns:car="geronimo:packaging"
     >
     <define:taglib uri="geronimo:packaging">
-        <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilder" method="execute"/>
+        <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilderShell" method="execute"/>
         <define:jellybean name="jmxDistribute" className="org.apache.geronimo.plugin.packaging.JMXDistributor" method="execute"/>
         <define:jellybean name="dependencies" className="org.apache.geronimo.plugin.packaging.PlanProcessor" method="execute"/>
     </define:taglib>
@@ -52,6 +52,8 @@
 
     <goal name="car:package" prereqs="car:prepare-plan" description="Package a Geronimo Configuration">
         <car:package
+            context="${context}"
+            artifacts="${pom.artifacts}"
             repository="${geronimo.packaging.repository}"
             deploymentConfig="${geronimo.packaging.deploymentConfig}"
             deployerName="${geronimo.packaging.deployerName}"

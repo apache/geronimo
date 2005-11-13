@@ -31,6 +31,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.log4j.BasicConfigurator;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -89,7 +90,8 @@ public class PackageBuilder {
     }
 
     private File repository;
-    private URI deploymentConfig;
+    private String deploymentConfigString;
+    private URI[] deploymentConfig;
     private ObjectName deployerName;
 
     private File planFile;
@@ -114,16 +116,22 @@ public class PackageBuilder {
     }
 
     public String getDeploymentConfig() {
-        return deploymentConfig.toString();
+        return deploymentConfigString;
     }
 
     /**
      * Set the id of the Configuration to use to perform the packaging.
      *
-     * @param deploymentConfig the id of the Configuration performing the deployment
+     * @param deploymentConfigString comma-separated list of the ids of the Configurations performing the deployment
      */
-    public void setDeploymentConfig(String deploymentConfig) {
-        this.deploymentConfig = URI.create(deploymentConfig);
+    public void setDeploymentConfig(String deploymentConfigString) {
+        this.deploymentConfigString = deploymentConfigString;
+        String[] configNames = deploymentConfigString.split(",");
+        deploymentConfig = new URI[configNames.length];
+        for (int i = 0; i < configNames.length; i++) {
+            String configName = configNames[i];
+            deploymentConfig[i] = URI.create(configName);
+        }
     }
 
     public String getDeployerName() {
@@ -225,15 +233,19 @@ public class PackageBuilder {
         // start the Configuration we're going to use for this deployment
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {
-            if (!configurationManager.isLoaded(deploymentConfig)) {
-                List configs = configurationManager.loadRecursive(deploymentConfig);
-                for (int i = 0; i < configs.size(); i++) {
-                    URI configName = (URI) configs.get(i);
-                    try {
-                        configurationManager.start(configName);
-                    } catch (Throwable e) {
-                        throw new RuntimeException("Could not start configuration: " + configName, e);
+            for (int i = 0; i < deploymentConfig.length; i++) {
+                URI configName = deploymentConfig[i];
+                if (!configurationManager.isLoaded(configName)) {
+                    List configs = configurationManager.loadRecursive(configName);
+                    for (Iterator iterator = configs.iterator(); iterator.hasNext(); ) {
+                        URI ancestorConfigName = (URI) iterator.next();
+                        try {
+                            configurationManager.loadGBeans(ancestorConfigName);
+                        } catch (Throwable e) {
+                            throw new RuntimeException("Could not start configuration: " + configName, e);
+                        }
                     }
+                    configurationManager.start(configName);
                 }
             }
         } finally {
@@ -259,7 +271,8 @@ public class PackageBuilder {
         if (kernel != null) {
             return kernel;
         }
-
+        
+        BasicConfigurator.configure();
         // boot one ourselves
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
