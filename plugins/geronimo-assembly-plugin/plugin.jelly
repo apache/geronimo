@@ -53,6 +53,39 @@
                 </j:forEach>
             </ant:fileset>
         </ant:copy>
+        <ant:mkdir dir="${geronimo.assembly.dest}/lib/endorsed"/>
+        <ant:copy todir="${geronimo.assembly.dest}/lib/endorsed" flatten="true">
+            <ant:fileset dir="${maven.repo.local}">
+                <j:set var="hasEndorsed" value="false"/>
+
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'endorsed'}">
+                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        <j:set var="hasEndorsed" value="true"/>
+                    </j:if>
+                </j:forEach>
+                <j:if test="${hasEndorsed == 'false'}">
+                    <ant:exclude name="**/*"/>
+                </j:if>
+            </ant:fileset>
+        </ant:copy>
+        <ant:mkdir dir="${geronimo.assembly.dest}/lib/extension"/>
+        <ant:copy todir="${geronimo.assembly.dest}/lib/extension" flatten="true">
+            <ant:fileset dir="${maven.repo.local}">
+                <j:set var="hasExtension" value="false"/>
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'extension'}">
+                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        <j:set var="hasExtension" value="true"/>
+                    </j:if>
+                </j:forEach>
+                <j:if test="${hasExtension == 'false'}">
+                    <ant:exclude name="**/*"/>
+                </j:if>
+            </ant:fileset>
+        </ant:copy>
     </goal>
 
     <goal name="geronimo:assemble-repository">
@@ -61,7 +94,7 @@
             <ant:fileset dir="${maven.repo.local}">
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
-                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library'}">
+                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assemble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                     </j:if>
                 </j:forEach>
