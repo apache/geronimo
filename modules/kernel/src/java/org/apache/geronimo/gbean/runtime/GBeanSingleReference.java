@@ -61,11 +61,11 @@ public class GBeanSingleReference extends AbstractGBeanReference {
             Set targets = getTargets();
             if (targets.size() == 0) {
                 waitingForMe = true;
-                log.debug("Waiting to start " + objectName + " because no targets are running for reference " + getName() +" matching the patternspatterns " + getPatternsText());
+                log.debug("Waiting to start " + objectName + " because no targets are running for reference " + getName() +" matching the patterns " + getPatternsText());
                 return false;
             } else if (targets.size() > 1) {
                 waitingForMe = true;
-                log.debug("Waiting to start " + objectName + " because more then one targets are running for the single valued reference " + getName() +" matching the patternspatterns " + getPatternsText());
+                log.debug("Waiting to start " + objectName + " because more then one targets are running for the single valued reference " + getName() +" matching the patterns " + getPatternsText());
                 return false;
             }
             waitingForMe = false;
