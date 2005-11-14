@@ -16,20 +16,19 @@
  */
 package org.apache.geronimo.tomcat.realm;
 
-import java.security.Principal;
-import javax.security.auth.Subject;
-import javax.security.auth.login.AccountExpiredException;
-import javax.security.auth.login.CredentialExpiredException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
 import org.apache.catalina.realm.JAASCallbackHandler;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.*;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -37,7 +36,7 @@ import org.apache.geronimo.security.ContextManager;
  */
 public class TomcatJAASRealm extends JAASRealm implements Cloneable {
     private static final Log log = LogFactory.getLog(TomcatJAASRealm.class);
-    
+
     private static final String DEFAULT_NAME = "tomcat";
 
     /**
@@ -154,13 +153,85 @@ public class TomcatJAASRealm extends JAASRealm implements Cloneable {
             }
 
             return (principal);
+
         } catch (Throwable t) {
             log.error("error ", t);
             return null;
         }
     }
 
+    protected Principal createPrincipal(String username, Subject subject) {
+        // Prepare to scan the Principals for this Subject
+        String password = null; // Will not be carried forward
+
+        List roles = new ArrayList();
+        Principal userPrincipal = null;
+
+        // Scan the Principals for this Subject
+        Iterator principals = subject.getPrincipals().iterator();
+        while (principals.hasNext()) {
+            Principal principal = (Principal) principals.next();
+
+            String principalClass = principal.getClass().getName();
+
+            if( log.isDebugEnabled() ) {
+                log.debug(sm.getString("jaasRealm.checkPrincipal", principal, principalClass));
+            }
+
+            if (userPrincipal == null && userClasses.contains(principalClass)) {
+                userPrincipal = principal;
+                if( log.isDebugEnabled() ) {
+                    log.debug(sm.getString("jaasRealm.userPrincipalSuccess", principal.getName()));
+                }
+            }
+
+            if (roleClasses.contains(principalClass)) {
+                roles.add(principal.getName());
+                if( log.isDebugEnabled() ) {
+                    log.debug(sm.getString("jaasRealm.rolePrincipalAdd", principal.getName()));
+                }
+            }
+        }
+
+        // Print failure message if needed
+        if (userPrincipal == null) {
+            if (log.isDebugEnabled()) {
+                log.debug(sm.getString("jaasRealm.userPrincipalFailure"));
+                log.debug(sm.getString("jaasRealm.rolePrincipalFailure"));
+            }
+        } else {
+            if (roles.size() == 0) {
+                if (log.isDebugEnabled()) {
+                    log.debug(sm.getString("jaasRealm.rolePrincipalFailure"));
+                }
+            }
+        }
+
+        JAASTomcatPrincipal jaasPrincipal = new JAASTomcatPrincipal(username);
+        jaasPrincipal.setSubject(subject);
+        jaasPrincipal.setRoles(roles);
+
+        // Return the resulting Principal for our authenticated user
+        return jaasPrincipal;
+    }
+
+
     public Object clone() throws CloneNotSupportedException{
         return super.clone();
     }
+
+
+    public boolean hasRole(Principal principal, String role) {
+
+        if ((principal == null) || (role == null) ||
+            !(principal instanceof JAASTomcatPrincipal))
+            return (false);
+
+        JAASTomcatPrincipal jtp = (JAASTomcatPrincipal) principal;
+        if (jtp.getRoles().contains(role))
+            return true;
+
+        return false;
+    }
+
 }

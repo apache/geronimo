@@ -18,6 +18,7 @@ package org.apache.geronimo.tomcat;
 
 
 import java.security.Principal;
+import java.util.List;
 import javax.security.auth.Subject;
 
 
@@ -27,6 +28,7 @@ import javax.security.auth.Subject;
 public class JAASTomcatPrincipal implements Principal {
     private final String name;
     private Subject subject;
+    private List roles;
 
     public JAASTomcatPrincipal(String name) {
         this.name = name;
@@ -42,5 +44,13 @@ public class JAASTomcatPrincipal implements Principal {
 
     public void setSubject(Subject subject) {
         this.subject = subject;
+    }
+
+    public List getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List roles) {
+        this.roles = roles;
     }
 }

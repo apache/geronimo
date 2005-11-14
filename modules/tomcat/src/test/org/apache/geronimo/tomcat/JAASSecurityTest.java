@@ -104,8 +104,8 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         //Give the container some time to load the web context
         //this is wierd..it only needs to be done on this test
-        Thread.sleep(5000);       
- 
+        Thread.sleep(5000);
+
         //Begin the test
         HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8181/securetest/protected/hello.txt").openConnection();
         connection.setInstanceFollowRedirects(false);
@@ -122,6 +122,7 @@ public class JAASSecurityTest extends AbstractWebModuleTest {
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
+        connection.setRequestProperty("Referer","http://localhost:8181/securetest/auth/logon.html?param=test");
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());
