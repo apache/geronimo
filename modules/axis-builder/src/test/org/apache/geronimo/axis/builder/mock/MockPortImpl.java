@@ -21,7 +21,7 @@ import java.rmi.RemoteException;
 import javax.xml.rpc.Service;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MockPortImpl implements MockPort {
     

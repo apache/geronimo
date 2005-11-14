@@ -20,7 +20,7 @@ import javax.xml.rpc.Service;
 import javax.xml.rpc.ServiceException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface MockService extends Service {
 

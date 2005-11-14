@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class WSDLMapTest extends TestCase {
 

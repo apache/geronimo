@@ -76,7 +76,7 @@ import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ServiceReferenceTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));

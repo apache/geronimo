@@ -26,7 +26,7 @@ import org.apache.geronimo.xbeans.j2ee.PortComponentHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceEndpointInterfaceMappingType;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class PortInfo {
     private final String portComponentName;

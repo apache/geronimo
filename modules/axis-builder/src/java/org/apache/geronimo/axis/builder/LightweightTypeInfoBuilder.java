@@ -42,7 +42,7 @@ import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class LightweightTypeInfoBuilder implements TypeInfoBuilder {
     private final ClassLoader cl;

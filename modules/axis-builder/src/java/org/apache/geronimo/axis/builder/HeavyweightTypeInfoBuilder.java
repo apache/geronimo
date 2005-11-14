@@ -66,7 +66,7 @@ import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
     private static final String SOAP_ENCODING_NS = "http://schemas.xmlsoap.org/soap/encoding/";

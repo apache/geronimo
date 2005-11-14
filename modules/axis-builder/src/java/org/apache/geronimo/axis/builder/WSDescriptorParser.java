@@ -78,7 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.xmlbeans.XmlException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class WSDescriptorParser {
 

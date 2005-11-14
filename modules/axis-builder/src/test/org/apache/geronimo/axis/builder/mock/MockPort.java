@@ -20,7 +20,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface MockPort extends Remote {
 

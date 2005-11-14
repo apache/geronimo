@@ -19,7 +19,7 @@ package org.apache.geronimo.axis.builder;
 import javax.xml.namespace.QName;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public final class SchemaTypeKey {
     public static final String QNAME_SCOPE_COMPLEX_TYPE = "complexType";

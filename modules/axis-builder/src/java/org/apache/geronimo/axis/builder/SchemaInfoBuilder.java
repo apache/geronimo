@@ -76,7 +76,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class SchemaInfoBuilder {
     private static final Log log = LogFactory.getLog(SchemaInfoBuilder.class);

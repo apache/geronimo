@@ -26,7 +26,7 @@ import org.apache.geronimo.axis.client.OperationInfo;
 import org.apache.geronimo.axis.client.SEIFactory;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MockSEIFactory implements SEIFactory {
     public Remote createServiceEndpoint() {
