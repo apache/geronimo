@@ -26,16 +26,16 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 
-public class ClusterDeployerGBean  extends BaseGBean implements
-        GBeanLifecycle, ObjectRetriever {
+public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
     private static final Log log = LogFactory
-            .getLog(MembershipServiceGBean.class);
+            .getLog(ClusterDeployerGBean.class);
 
-    public static final String J2EE_TYPE = "MembershipService";
+    public static final String J2EE_TYPE = "ClusterDeployer";
 
-    private final ClusterDeployer deployer;
+    protected final ClusterDeployer deployer;
 
     public ClusterDeployerGBean(String className, Map initParams) throws Exception {
 
@@ -60,15 +60,15 @@ public class ClusterDeployerGBean  extends BaseGBean implements
     }
 
     public void doFail() {
-        log.info("Failed");
+        log.info("Failed: "+ deployer.getClass().getName());
     }
 
     public void doStart() throws Exception {
-        log.info("Started ClusterDeployer gbean.");
+        log.info("Started "+ deployer.getClass().getName() +" gbean.");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped ClusterDeployer gbean.");
+        log.info("Stopped " + deployer.getClass().getName() + " gbean.");
     }
 
     public static final GBeanInfo GBEAN_INFO;
