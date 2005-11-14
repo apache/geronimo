@@ -66,6 +66,7 @@ import org.apache.geronimo.util.jce.PKCS10CertificationRequest;
 import org.apache.geronimo.util.jce.X509Principal;
 import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
 import org.apache.geronimo.util.encoders.Base64;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class KeyStoreGBean implements GBeanLifecycle {
     public static final String KEY_STORE_OBJ_NAME = "geronimo.security:type=KeyStore";
@@ -94,7 +95,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
     public void doStart() throws WaitingException, Exception {
 
         //Security.addProvider(new BouncyCastleProvider());
-        
+
         this.keystore = KeyStore.getInstance(keyStoreType);
 
         boolean keystoreExistsFlag = true;
@@ -126,43 +127,6 @@ public class KeyStoreGBean implements GBeanLifecycle {
     }
 
     public void doFail() {
-    }
-
-    public static final GBeanInfo GBEAN_INFO;
-
-    static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(KeyStoreGBean.class);
-
-        infoFactory.addAttribute("keyStoreType", String.class, true);
-        infoFactory.addAttribute("keyStoreProvider", String.class, true);
-        infoFactory.addAttribute("keyStoreLocation", String.class, true);
-        infoFactory.addAttribute("keyStorePassword", String.class, true);
-
-        infoFactory.addReference("serverInfo", ServerInfo.class);
-
-        infoFactory.addOperation("getKeyEntryInfo",
-                new Class[] { String.class });
-        infoFactory.addOperation("getKeyStoreSize");
-        infoFactory.addOperation("getKeyStoreEntries");
-        infoFactory.addOperation("getCertificateChain",
-                new Class[] { String.class });
-        infoFactory.addOperation("generateCSR", new Class[] { String.class });
-
-        infoFactory.addOperation("generateKeyPair", new Class[] { String.class,
-                String.class, Integer.class, String.class, Integer.class,
-                String.class, String.class, String.class, String.class,
-                String.class, String.class });
-
-        infoFactory.addOperation("importTrustedX509Certificate", new Class[] {
-                String.class, String.class });
-        infoFactory.addOperation("importPKCS7Certificate", new Class[] {
-                String.class, String.class });
-
-        GBEAN_INFO = infoFactory.getBeanInfo();
-    }
-
-    public static GBeanInfo getGBeanInfo() {
-        return GBEAN_INFO;
     }
 
     public void setKeyStoreType(String keyStoreType) {
@@ -503,4 +467,43 @@ public class KeyStoreGBean implements GBeanLifecycle {
 
         saveKeyStore();
     }
+
+
+    public static final GBeanInfo GBEAN_INFO;
+
+    static {
+        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(KeyStoreGBean.class);
+
+        infoFactory.addAttribute("keyStoreType", String.class, true);
+        infoFactory.addAttribute("keyStoreProvider", String.class, true);
+        infoFactory.addAttribute("keyStoreLocation", String.class, true);
+        infoFactory.addAttribute("keyStorePassword", String.class, true);
+
+        infoFactory.addReference("serverInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+
+        infoFactory.addOperation("getKeyEntryInfo",
+                new Class[] { String.class });
+        infoFactory.addOperation("getKeyStoreSize");
+        infoFactory.addOperation("getKeyStoreEntries");
+        infoFactory.addOperation("getCertificateChain",
+                new Class[] { String.class });
+        infoFactory.addOperation("generateCSR", new Class[] { String.class });
+
+        infoFactory.addOperation("generateKeyPair", new Class[] { String.class,
+                String.class, Integer.class, String.class, Integer.class,
+                String.class, String.class, String.class, String.class,
+                String.class, String.class });
+
+        infoFactory.addOperation("importTrustedX509Certificate", new Class[] {
+                String.class, String.class });
+        infoFactory.addOperation("importPKCS7Certificate", new Class[] {
+                String.class, String.class });
+
+        GBEAN_INFO = infoFactory.getBeanInfo();
+    }
+
+    public static GBeanInfo getGBeanInfo() {
+        return GBEAN_INFO;
+    }
+
 }

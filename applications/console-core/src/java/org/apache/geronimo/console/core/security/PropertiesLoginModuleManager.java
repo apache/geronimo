@@ -28,6 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class PropertiesLoginModuleManager {
 
@@ -257,8 +258,8 @@ public class PropertiesLoginModuleManager {
         infoFactory.addOperation("removeFromGroup", new Class[] { String.class,
                 String.class });
 
-        infoFactory.addReference("ServerInfo", ServerInfo.class);
-        infoFactory.addReference("LoginModule", LoginModuleGBean.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoFactory.addReference("LoginModule", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
 
         infoFactory
                 .setConstructor(new String[] { "ServerInfo", "LoginModule" });
