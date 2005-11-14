@@ -292,7 +292,28 @@ public final class GBeanInstance implements StateManageable {
         try {
             constructor = type.getConstructor(parameterTypes);
         } catch (NoSuchMethodException e) {
-            throw new InvalidConfigurationException("Could not find a valid constructor for GBean: " + gbeanInfo.getName());
+            StringBuffer buf = new StringBuffer("Could not find a valid constructor for GBean: ").append(gbeanInfo.getName()).append("\n");
+            Constructor[] constructors = type.getConstructors();
+            for (int i = 0; i < constructors.length; i++) {
+                Constructor testConstructor = constructors[i];
+                buf.append("constructor types: " + testConstructor.getParameterTypes() + "\n");
+                if (testConstructor.getParameterTypes().length == parameterTypes.length) {
+                    Class[] testParameterTypes = testConstructor.getParameterTypes();
+                    for (int k = 0; k < testParameterTypes.length; k++) {
+                        Class testParameterType = testParameterTypes[k];
+                        if (parameterTypes[k].getName().equals(testParameterType.getName())) {
+                            if (parameterTypes[k].getClassLoader() != testParameterType.getClassLoader()) {
+                                buf.append("different classloaders in position: ").append(k).append(" class name: ").append(testParameterType.getName()).append("\n");
+                                buf.append("parameter type classloader: ").append(parameterTypes[k].getClassLoader()).append("\n");
+                                buf.append("constructor type classloader: ").append(testParameterType.getClassLoader()).append("\n");
+                            }
+                        } else {
+                            buf.append("different type in position: ").append(k).append("\n");
+                        }
+                    }
+                }
+            }
+            throw new InvalidConfigurationException(buf.toString());
         }
 
         // rebuild the gbean info based on the current attributes, operations, and references because
