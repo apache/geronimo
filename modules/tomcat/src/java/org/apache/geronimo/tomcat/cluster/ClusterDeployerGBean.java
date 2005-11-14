@@ -26,7 +26,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.tomcat.BaseGBean;
 import org.apache.geronimo.tomcat.ObjectRetriever;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 
