@@ -20,8 +20,8 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../jetty-deployer/project.xml</extend>
-<!--    <extend>../../etc/project.xml</extend>-->
+<!--    <extend>../jetty-deployer/project.xml</extend>-->
+    <extend>../../etc/project.xml</extend>
     <id>webconsole-jetty</id>
     <name>Web console deployed on jetty</name>
 
@@ -32,13 +32,54 @@
             <artifactId>j2ee-server</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-console</artifactId>
-            <version>${geronimo_version}</version>
-            <type>ear</type>
-        </dependency>
+
+    <dependency>
+        <groupId>portlet-api</groupId>
+        <artifactId>portlet-api</artifactId>
+        <version>${portlet_api_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.pluto</groupId>
+        <artifactId>pluto</artifactId>
+        <version>${pluto_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-console-core</artifactId>
+        <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-management</artifactId>
+        <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+    </dependency>
+
+    <!-- Keystore dependency -->
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-util</artifactId>
+        <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+    </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

@@ -5,7 +5,7 @@
     >
 
     <!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
-    <dependency>
+<!--    <dependency>
         <groupId>portlet-api</groupId>
         <artifactId>portlet-api</artifactId>
         <version>${portlet_api_version}</version>
@@ -26,12 +26,14 @@
         <version>${geronimo_version}</version>
     </dependency>
 
-    <!-- Keystore dependency -->
+  
     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-util</artifactId>
         <version>${geronimo_version}</version>
-    </dependency>
+    </dependency>-->
+
+
     <module>
         <web>geronimo-console-framework-${pom.currentVersion}.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0" configId="console">
@@ -64,11 +66,16 @@
     <!-- Console specific server info -->
     <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
         <reference name="ServerInfo">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
+            <application>null</application>
+            <moduleType>J2EEModule</moduleType>
+            <module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module>
+            <name>ServerInfo</name>
         </reference>
         <reference name="LoginModule">
-            <!--            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>-->
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Security,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
+            <application>null</application>
+            <moduleType>J2EEModule</moduleType>
+            <module>${pom.groupId}/cars/j2ee-security-${pom.currentVersion}.car</module>
+            <name>properties-login</name>
         </reference>
     </gbean>
 
@@ -81,8 +88,7 @@
         <reference name="serverInfo">
             <application>null</application>
             <moduleType>J2EEModule</moduleType>
-            <module>org/apache/geronimo/System</module>
-            <type>GBean</type>
+            <module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

@@ -60,9 +60,11 @@
 
     <!-- Deployer used to process modules and plans -->
     <gbean gbeanName="geronimo.maven:name=Deployer,j2eeType=Deployer,J2EEModule=${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car" class="org.apache.geronimo.deployment.Deployer">
-        <reference name="Store">
-            <gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name>
-        </reference>
+        <references name="Store">
+            <!--gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name-->
+            <pattern><gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationStore,name=Local</gbean-name></pattern>
+         </references>
         <reference name="Builders">
             <gbean-name>geronimo.maven:j2eeType=ConfigBuilder,*</gbean-name>
         </reference>
@@ -71,9 +73,10 @@
     <!-- Builder for handling plans defining Geronimo configurations -->
     <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
         <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
-        <reference name="Repository">
-            <gbean-name>geronimo.maven:name=Repository</gbean-name>
-        </reference>
+        <references name="Repository">
+            <pattern><gbean-name>geronimo.maven:name=Repository</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:name=Repository,*</gbean-name></pattern>
+        </references>
         <reference name="XmlAttributeBuilders">
             <module>*</module>
             <name>*</name>

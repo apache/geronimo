@@ -239,10 +239,11 @@
         <reference name="ServiceReferenceBuilder">
             <name>WebServiceBuilder</name>
         </reference>
-        <reference name="Store">
+        <references name="Store">
             <!-- todo replace with a store the Client Builder can write to -->
-            <gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name>
-        </reference>
+            <pattern><gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name></pattern>
+            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationStore,name=Local</gbean-name></pattern>
+        </references>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>

@@ -282,6 +282,15 @@
 
         <dependency>
             <groupId>openejb</groupId>
+            <artifactId>openejb-pkgen-builder</artifactId>
+            <version>${openejb_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>openejb</groupId>
             <artifactId>openejb-builder</artifactId>
             <version>${openejb_version}</version>
             <properties>
@@ -305,8 +314,7 @@
             <artifactId>xercesImpl</artifactId>
             <version>${xerces_version}</version>
             <properties>
-                <endorsed>true</endorsed>
-                <geronimo.assemble>repository</geronimo.assemble>
+                <geronimo.assemble>endorsed</geronimo.assemble>
             </properties>
         </dependency>
 
@@ -315,8 +323,7 @@
             <artifactId>xmlParserAPIs</artifactId>
             <version>${xml_parser_apis_version}</version>
             <properties>
-                <endorsed>true</endorsed>
-                <geronimo.assemble>repository</geronimo.assemble>
+                <geronimo.assemble>endorsed</geronimo.assemble>
             </properties>
         </dependency>
 
@@ -1114,6 +1121,14 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-servicemix-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -1252,9 +1267,9 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-<!--        <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-welcome</artifactId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -1263,14 +1278,41 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-console</artifactId>
+            <artifactId>j2ee-deployer</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
--->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>jetty-deployer</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>welcome-jetty</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>webconsole-jetty</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-assembly-plugin</artifactId>

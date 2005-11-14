@@ -21,8 +21,8 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>system-database</id>
-    <name>System Database Configuration for the J2EE Server</name>
+    <id>welcome-jetty</id>
+    <name>Welcome app for Jetty</name>
 
     <dependencies>
         <!-- parent config -->
