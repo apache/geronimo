@@ -31,7 +31,7 @@ public class ReceiverGBean  extends BaseGBean implements
         GBeanLifecycle, ObjectRetriever {
 
     private static final Log log = LogFactory
-            .getLog(MembershipServiceGBean.class);
+            .getLog(ReceiverGBean.class);
 
     public static final String J2EE_TYPE = "Receiver";
 
