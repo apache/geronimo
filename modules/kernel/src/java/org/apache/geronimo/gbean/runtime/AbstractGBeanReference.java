@@ -111,7 +111,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
 
         this.name = referenceInfo.getName();
         try {
-            this.referenceType = ClassLoading.loadClass(referenceInfo.getReferenceType(), gbeanInstance.getClassLoader());
+            this.referenceType = ClassLoading.loadClass(referenceInfo.getReferenceType(), gbeanInstance.getType().getClassLoader());
         } catch (ClassNotFoundException e) {
             throw new InvalidConfigurationException("Could not load Reference Type: " + getDescription());
         }
@@ -119,7 +119,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
             throw new IllegalArgumentException("Proxy interface cannot be a final class: " + referenceType.getName());
         }
         try {
-            this.proxyType = ClassLoading.loadClass(referenceInfo.getProxyType(), gbeanInstance.getClassLoader());
+            this.proxyType = ClassLoading.loadClass(referenceInfo.getProxyType(), gbeanInstance.getType().getClassLoader());
         } catch (ClassNotFoundException e) {
             throw new InvalidConfigurationException("Could not load Proxy Type:" + getDescription());
         }
