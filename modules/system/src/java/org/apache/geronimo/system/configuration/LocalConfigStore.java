@@ -68,7 +68,6 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private final Kernel kernel;
     private final ObjectName objectName;
     private final URI root;
-    private final ManageableAttributeStore attributeStore;
     private final ServerInfo serverInfo;
     private final Properties index = new Properties();
     private final Log log;
@@ -83,17 +82,15 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         objectName = null;
         serverInfo = null;
         this.root = null;
-        this.attributeStore = null;
         this.rootDir = rootDir;
         log = LogFactory.getLog("LocalConfigStore:"+rootDir.getName());
     }
 
-    public LocalConfigStore(Kernel kernel, String objectName, URI root, ServerInfo serverInfo, ManageableAttributeStore attributeStore) throws MalformedObjectNameException {
+    public LocalConfigStore(Kernel kernel, String objectName, URI root, ServerInfo serverInfo) throws MalformedObjectNameException {
         this.kernel = kernel;
         this.objectName = new ObjectName(objectName);
         this.root = root;
         this.serverInfo = serverInfo;
-        this.attributeStore = attributeStore;
         log = LogFactory.getLog("LocalConfigStore:"+root.toString());
     }
 
@@ -176,6 +173,10 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     }
 
     public URI install(URL source) throws IOException, InvalidConfigException {
+        return (URI) install2(source).getAttribute("id");
+    }
+
+    public GBeanData install2(URL source) throws IOException, InvalidConfigException {
         File configurationDir = createNewConfigurationDir();
 
         InputStream is = source.openStream();
@@ -189,8 +190,9 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
 
         URI configId;
+        GBeanData config;
         try {
-            GBeanData config = loadConfig(configurationDir);
+            config = loadConfig(configurationDir);
             configId = (URI) config.getAttribute("id");
             index.setProperty(configId.toString(), configurationDir.getName());
         } catch (Exception e) {
@@ -203,7 +205,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
 
         log.info("Installed configuration (URL) " + configId + " in location " + configurationDir.getName());
-        return configId;
+        return config;
     }
 
     public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
@@ -421,10 +423,9 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("root", URI.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
-        infoFactory.addReference("AttributeStore", ManageableAttributeStore.class, "AttributeStore");
         infoFactory.addInterface(ConfigurationStore.class);
 
-        infoFactory.setConstructor(new String[]{"kernel", "objectName", "root", "ServerInfo", "AttributeStore"});
+        infoFactory.setConstructor(new String[]{"kernel", "objectName", "root", "ServerInfo"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

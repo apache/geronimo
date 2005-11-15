@@ -62,9 +62,6 @@ Configuration for the system layer of the Geronimo deployer
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
-        <reference name="AttributeStore">
-            <name>AttributeManager</name>
-        </reference>
     </gbean>
 
     <!-- Repository -->

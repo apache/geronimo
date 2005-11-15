@@ -164,7 +164,11 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
 
     public void doStart() throws Exception {
         if (rootURI == null) {
-            rootURI = serverInfo.resolve(root);
+            if (serverInfo != null) {
+                rootURI = serverInfo.resolve(root);
+            } else {
+                rootURI = root;
+            }
             if(!rootURI.getScheme().equals("file")) {
                 throw new IllegalStateException("FileSystemRepository must have a root that's a local directory (not "+rootURI+")");
             }
