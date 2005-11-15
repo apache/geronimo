@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -55,15 +56,16 @@ public class UndeployCommand extends CommandSupport {
 
                     URI moduleID = URI.create(module.getModuleID());
                     try {
-                        ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
                         try {
-                            kernel.stopGBean(configName);
-                            updateStatus("Module "+moduleID+" stopped.");
-                        } catch (GBeanNotFoundException e) {
-                            if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
-                                // the module is not running
-                            } else {
-                                throw e;
+                            configurationManager.stop(moduleID);
+                        } catch (InvalidConfigException e) {
+                            if(e.getCause() instanceof GBeanNotFoundException) {
+                                GBeanNotFoundException gnf = (GBeanNotFoundException) e.getCause();
+                                if(clean(gnf.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
+                                    // the module is not running
+                                } else {
+                                    throw gnf;
+                                }
                             }
                         }
                         configurationManager.unload(moduleID);
@@ -88,6 +90,7 @@ public class UndeployCommand extends CommandSupport {
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
+            //todo: this will probably never happen because the command line args are compared to actual modules
             if(getModuleCount() < modules.length) {
                 updateStatus("Some of the modules to undeploy were not previously deployed.  This is not treated as an error.");
             }

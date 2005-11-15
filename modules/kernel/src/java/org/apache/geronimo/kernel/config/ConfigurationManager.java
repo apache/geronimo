@@ -23,6 +23,8 @@ import java.util.Collection;
 import javax.management.ObjectName;
 
 /**
+ *
+ *
  * @version $Rev$ $Date$
  */
 public interface ConfigurationManager {
@@ -73,7 +75,7 @@ public interface ConfigurationManager {
 
     /**
      * Unloads the gbeans of the specified configuration, stops the configuration gbean, and unloads the
-     * configuration gbean from the kernel.
+     * configuration gbean from the kernel.  Stop should always be called first.
      *
      * @param configID the name fo the configuration to remove
      * @throws NoSuchConfigException if the configuration is now loaded into the kernel

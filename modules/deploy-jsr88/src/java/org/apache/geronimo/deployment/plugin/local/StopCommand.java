@@ -52,21 +52,12 @@ public class StopCommand extends CommandSupport {
             try {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID module = modules[i];
-
                     URI moduleID = URI.create(module.getModuleID());
-//                    ObjectName configName = Configuration.getConfigurationObjectName(moduleID);
                     try {
-//                        kernel.stopGBean(configName);
                         configurationManager.stop(moduleID);
-//                    } catch (GBeanNotFoundException e) {
                     } catch (InvalidConfigException e) {
-//                        if(clean(e.getGBeanName().getKeyProperty("name")).equals(moduleID.toString())) {
-                            updateStatus("Module "+moduleID+" is not running.");
-                            continue;
-//                        } else {
-//                            System.out.println("Unmatched name '"+clean(e.getGBeanName().getKeyProperty("name"))+"'");
-//                            throw e;
-//                        }
+                        updateStatus("Module "+moduleID+" is not running.");
+                        continue;
                     }
                     configurationManager.unload(moduleID);
                     addModule(module);
