@@ -33,7 +33,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     private PrintStream out;
     private String currentOperation;
     private URI[] configurations;
-    private char[] configStatus;
+    private char[] configStatus = new char[0];
     private long started;
     private int percent = 0;
     private Kernel kernel;
