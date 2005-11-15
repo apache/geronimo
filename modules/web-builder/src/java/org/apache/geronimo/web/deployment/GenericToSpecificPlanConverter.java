@@ -53,64 +53,66 @@ public class GenericToSpecificPlanConverter {
                 XmlObject webPlan = rawCursor.getObject().copy();
 
                 XmlCursor cursor = webPlan.newCursor();
-                cursor.push();
-                if (cursor.toChild(GENERIC_CONFIG_QNAME)) {
-                    XmlCursor source = cursor.newCursor();
+                XmlCursor end = cursor.newCursor();
+                try {
                     cursor.push();
-                    cursor.toEndToken();
-                    cursor.toNextToken();
-                    try {
-                        if (source.toChild(configNamespace, element)) {
-                            source.copyXmlContents(cursor);
-                        }
+                    if (cursor.toChild(GENERIC_CONFIG_QNAME)) {
+                        XmlCursor source = cursor.newCursor();
+                        cursor.push();
+                        cursor.toEndToken();
+                        cursor.toNextToken();
+                        try {
+                            if (source.toChild(configNamespace, element)) {
+                                source.copyXmlContents(cursor);
+                            }
 
-                    } finally {
-                        source.dispose();
+                        } finally {
+                            source.dispose();
+                        }
+                        cursor.pop();
+                        cursor.removeXml();
                     }
                     cursor.pop();
-                    cursor.removeXml();
-                }
-                cursor.pop();
-                cursor.push();
-                while (cursor.hasNextToken()) {
-                    if (cursor.isStart()) {
-                        if (namespace.equals(cursor.getName().getNamespaceURI())) {
-                            //already has correct schema, exit
-                            break;
+                    cursor.push();
+                    while (cursor.hasNextToken()) {
+                        if (cursor.isStart()) {
+                            if (!SchemaConversionUtils.convertSingleElementToGeronimoSubSchemas(cursor, end)
+                            && !namespace.equals(cursor.getName().getNamespaceURI())) {
+                                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
+                            }
                         }
-                        cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
-                        cursor.toNextToken();
-                    } else {
                         cursor.toNextToken();
                     }
-                }
-                SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
-                //move security elements after refs
+                    //move security elements after refs
 
-                cursor.pop();
-                cursor.push();
-                if (cursor.toChild(namespace, "security-realm-name")) {
-                    XmlCursor other = cursor.newCursor();
-                    try {
-                        other.toParent();
-                        if (other.toChild(SYSTEM_NAMESPACE, "gbean")) {
-                            other.toPrevToken();
-                        } else {
-                            other.toEndToken();
-                            other.toPrevToken();
-                        }
-                        cursor.moveXml(other);
-                        cursor.pop();
-                        cursor.push();
-                        if (cursor.toChild(SECURITY_QNAME)) {
+                    cursor.pop();
+                    cursor.push();
+                    if (cursor.toChild(namespace, "security-realm-name")) {
+                        XmlCursor other = cursor.newCursor();
+                        try {
+                            other.toParent();
+                            if (other.toChild(SYSTEM_NAMESPACE, "gbean")) {
+                                other.toPrevToken();
+                            } else {
+                                other.toEndToken();
+                                other.toPrevToken();
+                            }
                             cursor.moveXml(other);
+                            cursor.pop();
+                            cursor.push();
+                            if (cursor.toChild(SECURITY_QNAME)) {
+                                cursor.moveXml(other);
+                            }
+                        } finally {
+                            other.dispose();
                         }
-                    } finally {
-                        other.dispose();
                     }
+                    cursor.pop();
+                    return webPlan;
+                } finally {
+                    cursor.dispose();
+                    end.dispose();
                 }
-                cursor.pop();
-                return webPlan;
             } else {
                 throw new DeploymentException("No web-app element");
             }

@@ -2,6 +2,7 @@ package org.apache.geronimo.jetty.deployment;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +28,8 @@ import org.apache.xmlbeans.XmlObject;
 /**
  */
 public class PlanParsingTest extends TestCase {
+    private ClassLoader classLoader = this.getClass().getClassLoader();
+
     ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
     ObjectName pojoWebServiceTemplate = null;
     WebServiceBuilder webServiceBuilder = null;
@@ -38,58 +41,58 @@ public class PlanParsingTest extends TestCase {
     }
 
     public void testContents() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan1.xml");
-        assertTrue(resourcePlan.exists());
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        URL resourcePlan = classLoader.getResource("plans/plan1.xml");
+        assertTrue(resourcePlan != null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
         assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
 
     public void testMoveSecurity1() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan1A.xml");
-        assertTrue(resourcePlan.exists());
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        URL resourcePlan = classLoader.getResource("plans/plan1A.xml");
+        assertTrue(resourcePlan != null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
         assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
 
     public void testMoveSecurity2() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan1B.xml");
-        assertTrue(resourcePlan.exists());
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        URL resourcePlan = classLoader.getResource("plans/plan1B.xml");
+        assertTrue(resourcePlan != null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
         assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
 
     public void testMoveSecurity3() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan1C.xml");
-        assertTrue(resourcePlan.exists());
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        URL resourcePlan = classLoader.getResource("plans/plan1C.xml");
+        assertTrue(resourcePlan != null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
         assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
 //        System.out.println(jettyWebApp.xmlText());
     }
 
     public void testOldFormat() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan2.xml");
-        assertTrue(resourcePlan.exists());
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, true, null, null);
+        URL resourcePlan = classLoader.getResource("plans/plan2.xml");
+        assertTrue(resourcePlan!= null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, true, null, null);
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
         assertEquals(4, jettyWebApp.getSecurity().getRoleMappings().getRoleArray().length);
     }
 
     public void testOldFormatExploded() throws Exception {
-        File war = new File(basedir, "src/test-resources/deployables/war5");
-        assertTrue(war.exists());
-        UnpackedJarFile moduleFile = new UnpackedJarFile(war);
+        URL war = classLoader.getResource("deployables/war5");
+        assertTrue(war != null);
+        UnpackedJarFile moduleFile = new UnpackedJarFile(new File(war.getFile()));
         JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
         moduleFile.close();
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
     }
 
     public void XtestOldFormatPackaged() throws Exception {
-        File war = new File(basedir, "src/test-resources/deployables/war6.war");
-        assertTrue(war.exists());
-        JarFile moduleFile = new JarFile(war);
+        URL war = classLoader.getResource("deployables/war6.war");
+        assertTrue(war != null);
+        JarFile moduleFile = new JarFile(new File(war.getFile()));
         JettyWebAppType jettyWebApp = builder.getJettyWebApp(null, moduleFile, true, null, null);
         moduleFile.close();
         assertEquals(1, jettyWebApp.getResourceRefArray().length);
@@ -110,18 +113,18 @@ public class PlanParsingTest extends TestCase {
     }
 
     public void testContextPriorityClassloader() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan3.xml");
-        assertTrue(resourcePlan.exists());
+        URL resourcePlan = classLoader.getResource("plans/plan3.xml");
+        assertTrue(resourcePlan != null);
 
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, false, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, false, null, null);
         assertFalse(jettyWebApp.getContextPriorityClassloader());
     }
 
     public void testContextPriorityClassloaderTrue() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan4.xml");
-        assertTrue(resourcePlan.exists());
+        URL resourcePlan = classLoader.getResource("plans/plan4.xml");
+        assertTrue(resourcePlan != null);
 
-        JettyWebAppType jettyWebApp = builder.getJettyWebApp(resourcePlan, null, false, null, null);
+        JettyWebAppType jettyWebApp = builder.getJettyWebApp(new File(resourcePlan.getFile()), null, false, null, null);
         assertTrue(jettyWebApp.getContextPriorityClassloader());
 
     }
@@ -140,7 +143,9 @@ public class PlanParsingTest extends TestCase {
         webApp.setContextRoot("myContextRoot");
         webApp.setContextPriorityClassloader(false);
 
-        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+        URL war = classLoader.getResource("deployables/war2.war");
+        assertTrue(war != null);
+        JarFile dummyFile = new JarFile(new File(war.getFile()));
 
         webApp = builder.getJettyWebApp(webApp, dummyFile, true, null, null);
 
@@ -150,7 +155,9 @@ public class PlanParsingTest extends TestCase {
 
     public void testContextRootWithoutPlanStandAlone() throws Exception {
 
-        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+        URL war = classLoader.getResource("deployables/war2.war");
+        assertTrue(war != null);
+        JarFile dummyFile = new JarFile(new File(war.getFile()));
         JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, true, null, null);
 
         assertEquals("war2", GerWebAppType.getContextRoot());
@@ -159,7 +166,9 @@ public class PlanParsingTest extends TestCase {
 
     public void testContextRootWithoutPlanAndTargetPath() throws Exception {
 
-        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+        URL war = classLoader.getResource("deployables/war2.war");
+        assertTrue(war != null);
+        JarFile dummyFile = new JarFile(new File(war.getFile()));
         JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", null);
 
         assertEquals("myTargetPath", GerWebAppType.getContextRoot());
@@ -172,7 +181,9 @@ public class PlanParsingTest extends TestCase {
         WebAppType webAppType = webAppDocument.addNewWebApp();
         webAppType.setId("myId");
 
-        JarFile dummyFile = new JarFile(new File(basedir, "src/test-resources/deployables/war2.war"));
+        URL war = classLoader.getResource("deployables/war2.war");
+        assertTrue(war != null);
+        JarFile dummyFile = new JarFile(new File(war.getFile()));
         JettyWebAppType GerWebAppType = builder.getJettyWebApp(null, dummyFile, false, "myTargetPath", webAppType);
 
         assertEquals("myId", GerWebAppType.getContextRoot());
@@ -184,14 +195,14 @@ public class PlanParsingTest extends TestCase {
     }
 
     public void testConvertToJettySchema() throws Exception {
-        File resourcePlan = new File(basedir, "src/test-resources/plans/plan4.xml");
-        assertTrue(resourcePlan.exists());
-        XmlObject rawPlan = XmlBeansUtil.parse(resourcePlan.toURL());
+        URL resourcePlan = classLoader.getResource("plans/plan4.xml");
+        assertTrue(resourcePlan != null);
+        XmlObject rawPlan = XmlBeansUtil.parse(resourcePlan);
         XmlObject webPlan = new GenericToSpecificPlanConverter(GerJettyDocument.type.getDocumentElementName().getNamespaceURI(),
                 JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "jetty").convertToSpecificPlan(rawPlan);
-        File ConvertedPlan = new File(basedir, "src/test-resources/plans/plan4-converted.xml");
-        assertTrue(ConvertedPlan.exists());
-        XmlObject converted = XmlBeansUtil.parse(ConvertedPlan.toURL());
+        URL ConvertedPlan = classLoader.getResource("plans/plan4-converted.xml");
+        assertTrue(ConvertedPlan != null);
+        XmlObject converted = XmlBeansUtil.parse(ConvertedPlan);
         XmlCursor c = converted.newCursor();
         SchemaConversionUtils.findNestedElement(c, "web-app");
         c.toFirstChild();

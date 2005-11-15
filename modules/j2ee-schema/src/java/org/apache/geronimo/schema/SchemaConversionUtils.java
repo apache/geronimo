@@ -327,18 +327,26 @@ public class SchemaConversionUtils {
         XmlCursor end = cursor.newCursor();
         try {
             while (cursor.hasNextToken()) {
-                if (cursor.isStart()) {
-                    String localName = cursor.getName().getLocalPart();
-                    ElementConverter converter = (ElementConverter) GERONIMO_SCHEMA_CONVERSIONS.get(localName);
-                    if (converter != null) {
-                        converter.convertElement(cursor, end);
-                    }
-                }
+                convertSingleElementToGeronimoSubSchemas(cursor, end);
                 cursor.toNextToken();
             }
         } finally {
             end.dispose();
         }
+    }
+
+    public static boolean convertSingleElementToGeronimoSubSchemas(XmlCursor cursor, XmlCursor end) {
+        if (cursor.isStart()) {
+            String localName = cursor.getName().getLocalPart();
+            ElementConverter converter = (ElementConverter) GERONIMO_SCHEMA_CONVERSIONS.get(localName);
+            if (converter != null) {
+                converter.convertElement(cursor, end);
+                return true;
+            }
+            return false;
+        }
+        //you should only call this method at a start token
+        return false;
     }
 
     public static XmlObject fixGeronimoSchema(XmlObject rawPlan, String desiredElement, SchemaType desiredType) throws XmlException {

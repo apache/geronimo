@@ -38,10 +38,9 @@ public class GBeanElementConverter implements ElementConverter {
                     return;
                 }
                 String localPart = cursor.getName().getLocalPart();
+                cursor.setName(new QName(GERONIMO_SERVICE_NAMESPACE, localPart));
                 if (localPart.equals("xml-attribute") || localPart.equals("xml-reference")) {
                     cursor.toEndToken();
-                } else {
-                    cursor.setName(new QName(GERONIMO_SERVICE_NAMESPACE, localPart));
                 }
             }
             //this should not break because the xml-* elements are never top level.
