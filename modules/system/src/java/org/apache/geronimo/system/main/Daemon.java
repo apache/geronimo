@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.Kernel;
@@ -154,6 +155,9 @@ public class Daemon {
     private void initializeSystem() {
         if (!started) {
             started = true;
+
+            // Perform initialization tasks common with the various Geronimo environments
+            GeronimoEnvironment.init();
 
             // This MUST be done before the first log is acquired (WHICH THE STARTUP MONITOR 5 LINES LATER DOES!)
             GeronimoLogging.initialize(verboseArg == null ? GeronimoLogging.WARN : verboseArg == ARGUMENT_VERBOSE ? GeronimoLogging.INFO : GeronimoLogging.DEBUG);
