@@ -95,6 +95,12 @@
             <version>${commons_logging_version}</version>
             <url>http://jakarta.apache.org/commons/logging/</url>
         </dependency>
+
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j</artifactId>
+            <version>${mx4j_version}</version>
+        </dependency>
     </dependencies>
 
     <build>

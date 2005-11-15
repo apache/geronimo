@@ -19,8 +19,10 @@ package org.apache.geronimo.deployment.hot;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 import org.apache.geronimo.deployment.cli.DeployUtils;
+import org.apache.geronimo.common.DeploymentException;
 import java.io.File;
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -153,7 +155,7 @@ public class DirectoryMonitor implements Runnable {
             FileInfo now = child.isDirectory() ? getDirectoryInfo(child) : getFileInfo(child);
             now.setChanging(false);
             try {
-                now.setConfigId(DeployUtils.extractModuleIdFromArchive(child));
+                now.setConfigId(calculateModuleId(child));
                 if(listener == null || listener.isFileDeployed(child, now.getConfigId())) {
                     if(listener != null) {
                         now.setModified(listener.getDeploymentTime(child, now.getConfigId()));
@@ -192,7 +194,7 @@ public class DirectoryMonitor implements Runnable {
                             log.debug("File finished changing: "+now.getPath());
                             // Used to be changing, now in (hopefully) its final state
                             if(then.isNewFile()) {
-                                then.setConfigId(DeployUtils.extractModuleIdFromArchive(child));
+                                then.setConfigId(calculateModuleId(child));
                                 if(listener == null || listener.fileAdded(child)) {
                                     then.setNewFile(false);
                                 }
@@ -223,6 +225,15 @@ public class DirectoryMonitor implements Runnable {
                 files.remove(name);
             }
         }
+    }
+
+    private static String calculateModuleId(File module) throws IOException, DeploymentException {
+        String moduleId = DeployUtils.extractModuleIdFromArchive(module);
+        if(moduleId == null) {
+            int pos = module.getName().lastIndexOf('.');
+            moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
+        }
+        return moduleId;
     }
 
     /**

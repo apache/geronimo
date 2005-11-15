@@ -19,10 +19,13 @@ package org.apache.geronimo.deployment.hot;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,26 +35,34 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import javax.management.ObjectName;
 import java.io.File;
+import java.util.Set;
+import java.util.Iterator;
 
 /**
  * A directory-scanning hot deployer
  *
  * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
  */
-public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
+public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //todo: write unit tests
     private static final Log log = LogFactory.getLog(DirectoryHotDeployer.class);
     private DirectoryMonitor monitor;
     private String path;
     private ServerInfo serverInfo;
     private int pollIntervalMillis;
+    private String deploymentURI = "deployer:geronimo:inVM";
+    private String deploymentUser;
+    private String deploymentPassword;
+    private transient Kernel kernel;
     private transient DeploymentFactory factory;
     private transient TargetModuleID[] startupModules = null;
 
-    public DirectoryHotDeployer(String path, int pollIntervalMillis, ServerInfo serverInfo) {
+    public DirectoryHotDeployer(String path, int pollIntervalMillis, ServerInfo serverInfo, Kernel kernel) {
         this.path = path;
         this.serverInfo = serverInfo;
         this.pollIntervalMillis = pollIntervalMillis;
+        this.kernel = kernel;
     }
 
     public String getPath() {
@@ -78,6 +89,32 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
         this.pollIntervalMillis = pollIntervalMillis;
     }
 
+    public String getDeploymentURI() {
+        return deploymentURI;
+    }
+
+    public void setDeploymentURI(String deploymentURI) {
+        if(deploymentURI != null && !deploymentURI.trim().equals("")) {
+            this.deploymentURI = deploymentURI.trim();
+        }
+    }
+
+    public String getDeploymentUser() {
+        return deploymentUser;
+    }
+
+    public void setDeploymentUser(String deploymentUser) {
+        this.deploymentUser = deploymentUser;
+    }
+
+    public String getDeploymentPassword() {
+        return deploymentPassword;
+    }
+
+    public void setDeploymentPassword(String deploymentPassword) {
+        this.deploymentPassword = deploymentPassword;
+    }
+
     public void doStart() throws Exception {
         if(factory == null) {
             factory = new DeploymentFactoryImpl();
@@ -92,7 +129,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
         }
         DeploymentManager mgr = null;
         try {
-            mgr = factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
+            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
             Target[] targets = mgr.getTargets();
             startupModules = mgr.getAvailableModules(null, targets);
             mgr.release();
@@ -130,7 +167,21 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
     }
 
     public boolean isServerRunning() {
-        return true; //todo: figure out whether it's safe to do deploy operations
+        // a bit of a hack, but the PersistentConfigurationList is the only thing that knows whether the server is full started!
+        GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
+        Set configLists = kernel.listGBeans(query);
+        for (Iterator i = configLists.iterator(); i.hasNext();) {
+            ObjectName configListName = (ObjectName) i.next();
+            try {
+                Boolean result = (Boolean) kernel.getAttribute(configListName, "kernelFullyStarted");
+                if(!result.booleanValue()) {
+                    return false;
+                }
+            } catch (Exception e) {
+                log.warn("Hot deployer unable to determine whether kernel is started", e);
+            }
+        }
+        return true;
     }
 
     public long getDeploymentTime(File file, String configId) {
@@ -140,7 +191,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
     public boolean fileAdded(File file) {
         DeploymentManager mgr = null;
         try {
-            mgr = factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
+            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
             Target[] targets = mgr.getTargets();
             ProgressObject po = mgr.distribute(targets, file, null);
             waitForProgress(po);
@@ -178,7 +229,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
     public boolean fileRemoved(File file, String configId) {
         DeploymentManager mgr = null;
         try {
-            mgr = factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
+            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
@@ -209,7 +260,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
     public void fileUpdated(File file, String configId) {
         DeploymentManager mgr = null;
         try {
-            mgr = factory.getDeploymentManager("deployer:geronimo:inVM", null, null);
+            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
@@ -254,12 +305,19 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DirectoryHotDeployer.class);
 
-        infoFactory.addAttribute("path", String.class, true);
-        infoFactory.addAttribute("pollIntervalMillis", int.class, true);
+        infoFactory.addAttribute("path", String.class, true, true);
+        infoFactory.addAttribute("pollIntervalMillis", int.class, true, true);
+
+        // The next 3 args can be used to configure the hot deployer for a remote (out of VM) server
+        infoFactory.addAttribute("deploymentURI", String.class, true, true);
+        infoFactory.addAttribute("deploymentUser", String.class, true, true);
+        infoFactory.addAttribute("deploymentPassword", String.class, true, true);
+
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
+        infoFactory.addAttribute("kernel", Kernel.class, false, false);
         infoFactory.addInterface(HotDeployer.class);
 
-        infoFactory.setConstructor(new String[]{"path", "pollIntervalMillis", "ServerInfo"});
+        infoFactory.setConstructor(new String[]{"path", "pollIntervalMillis", "ServerInfo", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
