@@ -26,17 +26,17 @@ import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 /**
  * @version $Rev$ $Date$
  */
-public class Principal implements Serializable {
+public class PrincipalInfo implements Serializable {
 
     static {
-        PropertyEditorManager.registerEditor(Principal.class, PrincipalEditor.class);
+        PropertyEditorManager.registerEditor(PrincipalInfo.class, PrincipalEditor.class);
     }
 
     private final String className;
     private final String principalName;
     private final boolean designatedRunAs;
 
-    public Principal(String className, String principalName, boolean designatedRunAs) {
+    public PrincipalInfo(String className, String principalName, boolean designatedRunAs) {
         this.className = className;
         this.principalName = principalName;
         this.designatedRunAs = designatedRunAs;
@@ -62,19 +62,19 @@ public class Principal implements Serializable {
                 if (parts.length != 3) {
                     throw new PropertyEditorException("Principal should have the form 'name,class,run-as'");
                 }
-                Principal principal = new Principal(parts[0], parts[1], Boolean.valueOf(parts[2]).booleanValue());
-                setValue(principal);
+                PrincipalInfo principalInfo = new PrincipalInfo(parts[0], parts[1], Boolean.valueOf(parts[2]).booleanValue());
+                setValue(principalInfo);
             } else {
                 setValue(null);
             }
         }
 
         public String getAsText() {
-            Principal principal = (Principal) getValue();
-            if (principal == null) {
+            PrincipalInfo principalInfo = (PrincipalInfo) getValue();
+            if (principalInfo == null) {
                 return null;
             }
-            return principal.getPrincipalName() + "," + principal.getClassName() + "," + principal.isDesignatedRunAs();
+            return principalInfo.getPrincipalName() + "," + principalInfo.getClassName() + "," + principalInfo.isDesignatedRunAs();
         }
     }
 }

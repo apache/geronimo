@@ -17,7 +17,7 @@
 package org.apache.geronimo.security.realm;
 
 import org.apache.geronimo.security.deploy.MapOfSets;
-import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.PrincipalInfo;
 
 
 /**
@@ -43,7 +43,7 @@ public interface AutoMapAssistant {
      *
      * @return the default principal
      */
-    public Principal getDefaultPrincipal();
+    public PrincipalInfo getDefaultPrincipal();
 
     /**
      * Provides a set of principal class names to be used when automatically

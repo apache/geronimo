@@ -426,7 +426,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             if (!gerWebApp.isSetSecurityRealmName()) {
                 throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
             }
-            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity());
+            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity(), cl);
             earContext.setSecurityConfiguration(securityConfiguration);
         }
     }

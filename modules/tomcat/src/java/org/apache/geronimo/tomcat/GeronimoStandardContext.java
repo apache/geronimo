@@ -127,7 +127,7 @@ public class GeronimoStandardContext extends StandardContext {
                  */
                 DefaultPrincipal defaultPrincipal = securityHolder.getDefaultPrincipal();
                 if (defaultPrincipal != null) {
-                    defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+                    defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getWebClassLoader());
                     ContextManager.registerSubject(defaultSubject);
                     SubjectId id = ContextManager.getSubjectId(defaultSubject);
                     defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
@@ -166,11 +166,11 @@ public class GeronimoStandardContext extends StandardContext {
                 addValve(valve);
             }
         }
-        
+
         CatalinaCluster cluster = ctx.getCluster();
         if (cluster != null)
             this.setCluster(cluster);
-        
+
         pipelineInitialized = true;
         this.webServiceMap = ctx.getWebServices();
 
@@ -202,7 +202,7 @@ public class GeronimoStandardContext extends StandardContext {
 
         super.stop();
     }
-    
+
     public void addChild(Container child) {
         Wrapper wrapper = (Wrapper) child;
 

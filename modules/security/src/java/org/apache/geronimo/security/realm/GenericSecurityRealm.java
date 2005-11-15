@@ -28,7 +28,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.jaas.ConfigurationEntryFactory;
 import org.apache.geronimo.security.jaas.client.JaasLoginCoordinator;
 import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
@@ -77,7 +77,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     private JaasLoginModuleConfiguration[] config;
     private final Kernel kernel;
 
-    private final Principal defaultPrincipal;
+    private final PrincipalInfo defaultPrincipalInfo;
 
     private String[] domains;
     private final boolean restrictPrincipalsToServer;
@@ -88,7 +88,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
                                 JaasLoginModuleUse loginModuleUse,
                                 boolean restrictPrincipalsToServer,
                                 boolean wrapPrincipals,
-                                Principal defaultPrincipal,
+                                PrincipalInfo defaultPrincipalInfo,
                                 ServerInfo serverInfo,
                                 ClassLoader classLoader,
                                 Kernel kernel,
@@ -97,7 +97,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         this.kernel = kernel;
         this.restrictPrincipalsToServer = restrictPrincipalsToServer;
         this.wrapPrincipals = wrapPrincipals;
-        this.defaultPrincipal = defaultPrincipal;
+        this.defaultPrincipalInfo = defaultPrincipalInfo;
         this.loginService = loginService;
 
         Set domainNames = new HashSet();
@@ -137,8 +137,8 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
      *
      * @return the default principal
      */
-    public Principal getDefaultPrincipal() {
-        return defaultPrincipal;
+    public PrincipalInfo getDefaultPrincipal() {
+        return defaultPrincipalInfo;
     }
 
     /**
@@ -184,7 +184,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         infoFactory.addAttribute("realmName", String.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
-        infoFactory.addAttribute("defaultPrincipal", Principal.class, true);
+        infoFactory.addAttribute("defaultPrincipal", PrincipalInfo.class, true);
         infoFactory.addAttribute("deploymentSupport", Properties.class, true);
         infoFactory.addAttribute("restrictPrincipalsToServer", boolean.class, true);
         infoFactory.addAttribute("wrapPrincipals", boolean.class, true);

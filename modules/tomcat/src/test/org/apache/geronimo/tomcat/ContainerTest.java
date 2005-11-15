@@ -39,7 +39,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -215,7 +215,7 @@ public class ContainerTest extends TestCase {
         propertiesRealmGBean.setAttribute("realmName", "Geronimo");
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
         propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
-        Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
+        PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 

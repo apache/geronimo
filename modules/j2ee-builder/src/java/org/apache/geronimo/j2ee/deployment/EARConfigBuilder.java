@@ -385,7 +385,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             //look for application plan security config
             if (geronimoApplication != null && geronimoApplication.isSetSecurity()) {
-                SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(geronimoApplication.getSecurity());
+                SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(geronimoApplication.getSecurity(), cl);
                 earContext.setSecurityConfiguration(securityConfiguration);
             }
 

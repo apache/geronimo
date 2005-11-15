@@ -41,7 +41,7 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.jaas.GeronimoLoginConfiguration;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -223,7 +223,7 @@ public class AbstractWebModuleTest extends TestCase {
 //        config.setProperty("LoginModule.1.REQUIRED", propertiesLMName.getCanonicalName());
 //        propertiesRealmGBean.setAttribute("loginModuleConfiguration", config);
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        Principal.PrincipalEditor principalEditor = new Principal.PrincipalEditor();
+        PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
         principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 

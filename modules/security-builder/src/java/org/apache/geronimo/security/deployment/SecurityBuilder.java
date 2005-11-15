@@ -28,9 +28,9 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.DistinguishedName;
-import org.apache.geronimo.security.deploy.LoginDomainPrincipal;
-import org.apache.geronimo.security.deploy.Principal;
-import org.apache.geronimo.security.deploy.RealmPrincipal;
+import org.apache.geronimo.security.deploy.LoginDomainPrincipalInfo;
+import org.apache.geronimo.security.deploy.PrincipalInfo;
+import org.apache.geronimo.security.deploy.RealmPrincipalInfo;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
@@ -52,16 +52,16 @@ import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
  */
 public class SecurityBuilder {
 
-    public static SecurityConfiguration buildSecurityConfiguration(GerSecurityType securityType) {
+    public static SecurityConfiguration buildSecurityConfiguration(GerSecurityType securityType, ClassLoader classLoader) {
         Security security = buildSecurityConfig(securityType);
-        return buildSecurityConfiguration(security);
+        return buildSecurityConfiguration(security, classLoader);
     }
 
-    public static SecurityConfiguration buildSecurityConfiguration(Security security) {
+    public static SecurityConfiguration buildSecurityConfiguration(Security security, ClassLoader classLoader) {
         Map roleDesignates = new HashMap();
         Map principalRoleMap = new HashMap();
         Map roleToPrincipalMap = new HashMap();
-        buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
+        buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap, classLoader);
         invertMap(roleToPrincipalMap, principalRoleMap);
         return new SecurityConfiguration(principalRoleMap, roleDesignates, security.getDefaultPrincipal(), security.getDefaultRole(), security.isDoAsCurrentCaller(), security.isUseContextHandler());
     }
@@ -85,7 +85,7 @@ public class SecurityBuilder {
         return principalRoleMapping;
     }
 
-    public static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap) {
+    public static void buildRolePrincipalMap(Security security, Map roleDesignates, Map roleToPrincipalMap, ClassLoader classLoader) {
 
         Iterator roleMappings = security.getRoleMappings().values().iterator();
         while (roleMappings.hasNext()) {
@@ -97,8 +97,8 @@ public class SecurityBuilder {
 
             Iterator realmPrincipals = role.getRealmPrincipals().iterator();
             while (realmPrincipals.hasNext()) {
-                RealmPrincipal realmPrincipal = (RealmPrincipal) realmPrincipals.next();
-                java.security.Principal principal = ConfigurationUtil.generateRealmPrincipal(realmPrincipal.getRealm(), realmPrincipal.getDomain(), realmPrincipal);
+                RealmPrincipalInfo realmPrincipal = (RealmPrincipalInfo) realmPrincipals.next();
+                java.security.Principal principal = ConfigurationUtil.generateRealmPrincipal(realmPrincipal.getRealm(), realmPrincipal.getDomain(), realmPrincipal, classLoader);
 
                 principalSet.add(principal);
                 if (realmPrincipal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(principal);
@@ -106,8 +106,8 @@ public class SecurityBuilder {
 
             Iterator domainPrincipals = role.getLoginDomainPrincipals().iterator();
             while (domainPrincipals.hasNext()) {
-                LoginDomainPrincipal domainPrincipal = (LoginDomainPrincipal) domainPrincipals.next();
-                java.security.Principal principal = ConfigurationUtil.generateDomainPrincipal(domainPrincipal.getDomain(), domainPrincipal);
+                LoginDomainPrincipalInfo domainPrincipal = (LoginDomainPrincipalInfo) domainPrincipals.next();
+                java.security.Principal principal = ConfigurationUtil.generateDomainPrincipal(domainPrincipal.getDomain(), domainPrincipal, classLoader);
 
                 principalSet.add(principal);
                 if (domainPrincipal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(principal);
@@ -115,11 +115,11 @@ public class SecurityBuilder {
 
             Iterator principals = role.getPrincipals().iterator();
             while (principals.hasNext()) {
-                Principal plainPrincipal = (Principal) principals.next();
-                java.security.Principal principal = ConfigurationUtil.generatePrincipal(plainPrincipal);
+                PrincipalInfo plainPrincipalInfo = (PrincipalInfo) principals.next();
+                java.security.Principal principal = ConfigurationUtil.generatePrincipal(plainPrincipalInfo, classLoader);
 
                 principalSet.add(principal);
-                if (plainPrincipal.isDesignatedRunAs()) roleDesignate.getPrincipals().add(principal);
+                if (plainPrincipalInfo.isDesignatedRunAs()) roleDesignate.getPrincipals().add(principal);
             }
 
             for (Iterator names = role.getDistinguishedNames().iterator(); names.hasNext();) {
@@ -213,16 +213,16 @@ public class SecurityBuilder {
     }
 
     //used from TSSConfigEditor
-    public static RealmPrincipal buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType) {
-        return new RealmPrincipal(realmPrincipalType.getDomainName(), realmPrincipalType.getRealmName(), realmPrincipalType.getClass1(), realmPrincipalType.getName(), realmPrincipalType.isSetDesignatedRunAs());
+    public static RealmPrincipalInfo buildRealmPrincipal(GerRealmPrincipalType realmPrincipalType) {
+        return new RealmPrincipalInfo(realmPrincipalType.getDomainName(), realmPrincipalType.getRealmName(), realmPrincipalType.getClass1(), realmPrincipalType.getName(), realmPrincipalType.isSetDesignatedRunAs());
     }
 
-    public static LoginDomainPrincipal buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType) {
-        return new LoginDomainPrincipal(domainPrincipalType.getDomainName(), domainPrincipalType.getClass1(), domainPrincipalType.getName(), domainPrincipalType.isSetDesignatedRunAs());
+    public static LoginDomainPrincipalInfo buildDomainPrincipal(GerLoginDomainPrincipalType domainPrincipalType) {
+        return new LoginDomainPrincipalInfo(domainPrincipalType.getDomainName(), domainPrincipalType.getClass1(), domainPrincipalType.getName(), domainPrincipalType.isSetDesignatedRunAs());
     }
 
-    public static Principal buildPrincipal(GerPrincipalType principalType) {
-        return new Principal(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
+    public static PrincipalInfo buildPrincipal(GerPrincipalType principalType) {
+        return new PrincipalInfo(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
     }
 
     public static GBeanData configureApplicationPolicyManager(ObjectName name, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {

@@ -33,7 +33,7 @@ import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebUserDataPermission;
 
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.deploy.Principal;
+import org.apache.geronimo.security.deploy.PrincipalInfo;
 import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
@@ -57,15 +57,15 @@ public class SecurityTest extends AbstractWebModuleTest {
         securityConfig.setUseContextHandler(false);
 
         DefaultPrincipal defaultPrincipal = new DefaultPrincipal();
-        Principal principal = new Principal("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal", "izumi", false);
-        defaultPrincipal.setPrincipal(principal);
+        PrincipalInfo principalInfo = new PrincipalInfo("org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal", "izumi", false);
+        defaultPrincipal.setPrincipal(principalInfo);
 
         securityConfig.setDefaultPrincipal(defaultPrincipal);
 
         Role role = new Role();
         role.setRoleName("content-administrator");
-        principal = new Principal("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal", "it", false);
-        role.getPrincipals().add(principal);
+        principalInfo = new PrincipalInfo("org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal", "it", false);
+        role.getPrincipals().add(principalInfo);
 
         securityConfig.getRoleMappings().put(role.getRoleName(), role);
 
@@ -180,9 +180,9 @@ public class SecurityTest extends AbstractWebModuleTest {
     }
 
     //copied from SecurityBuilder
-    public static void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {
+    public void buildPrincipalRoleMap(Security security, Map roleDesignates, Map principalRoleMap) {
         Map roleToPrincipalMap = new HashMap();
-        SecurityBuilder.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap);
+        SecurityBuilder.buildRolePrincipalMap(security, roleDesignates, roleToPrincipalMap, getClass().getClassLoader());
         invertMap(roleToPrincipalMap, principalRoleMap);
     }
 

@@ -24,16 +24,16 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class DefaultPrincipal implements Serializable {
-    private Principal principal;
+    private PrincipalInfo principalInfo;
 
     private Set namedUserPasswordCredentials;
 
-    public Principal getPrincipal() {
-        return principal;
+    public PrincipalInfo getPrincipal() {
+        return principalInfo;
     }
 
-    public void setPrincipal(Principal principal) {
-        this.principal = principal;
+    public void setPrincipal(PrincipalInfo principalInfo) {
+        this.principalInfo = principalInfo;
     }
 
     public Set getNamedUserPasswordCredentials() {

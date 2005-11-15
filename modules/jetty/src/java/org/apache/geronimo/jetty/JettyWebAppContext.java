@@ -258,7 +258,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             //set the JAASJettyRealm as our realm.
             JAASJettyRealm realm = new JAASJettyRealm(realmName, securityRealmName);
             setRealm(realm);
-            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm);
+            this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm, classLoader);
             interceptor = this.securityInterceptor;
         } else {
             securityInterceptor = null;
@@ -359,7 +359,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
         LogFactory.release(webClassLoader);
-        
+
         log.info("JettyWebAppContext stopped");
     }
 

@@ -79,7 +79,7 @@ public final class AppClientContainer {
             callbackHandlerClass = null;
         }
         if (defaultPrincipal != null) {
-            defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+            defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, classLoader);
         } else {
             defaultSubject = null;
         }

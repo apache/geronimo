@@ -77,14 +77,14 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
                                       Map roleDesignates,
-                                      UserRealm realm)
+                                      UserRealm realm, ClassLoader classLoader)
     {
         this.next = next;
         this.policyContextIDIndex = policyContextIDIndex;
         this.webAppContextIndex = webAppContextIndex;
         this.policyContextID = policyContextID;
 
-        this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal);
+        this.defaultPrincipal = generateDefaultPrincipal(defaultPrincipal, classLoader);
         this.roleDesignates = roleDesignates;
         this.checked = checkedPermissions;
         this.excludedPermissions = excludedPermissions;
@@ -294,9 +294,10 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
      * Generate the default principal from the security config.
      *
      * @param defaultPrincipal The Geronimo security configuration.
+     * @param classLoader
      * @return the default principal
      */
-    protected JAASJettyPrincipal generateDefaultPrincipal(DefaultPrincipal defaultPrincipal) throws GeronimoSecurityException {
+    protected JAASJettyPrincipal generateDefaultPrincipal(DefaultPrincipal defaultPrincipal, ClassLoader classLoader) throws GeronimoSecurityException {
 
         if (defaultPrincipal == null) {
             throw new GeronimoSecurityException("Unable to generate default principal");
@@ -304,7 +305,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
         try {
             JAASJettyPrincipal result = new JAASJettyPrincipal("default");
-            Subject defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal);
+            Subject defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, classLoader);
 
             result.setSubject(defaultSubject);
 

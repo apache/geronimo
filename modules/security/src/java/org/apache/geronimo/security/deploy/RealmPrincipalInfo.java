@@ -25,32 +25,32 @@ import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 /**
  * @version $Rev: 154957 $ $Date: 2005-02-22 21:07:36 -0800 (Tue, 22 Feb 2005) $
  */
-public class LoginDomainPrincipal extends Principal {
+public class RealmPrincipalInfo extends LoginDomainPrincipalInfo {
 
     static {
-        PropertyEditorManager.registerEditor(LoginDomainPrincipal.class, LoginDomainPrincipalEditor.class);
+        PropertyEditorManager.registerEditor(RealmPrincipalInfo.class, RealmPrincipalEditor.class);
     }
 
-    public LoginDomainPrincipal(String domainName, String className, String principalName, boolean designatedRunAs) {
-        super(className, principalName, designatedRunAs);
-        this.domainName = domainName;
+    private final String realm;
+
+    public RealmPrincipalInfo(String realm, String domainName, String className, String principalName, boolean designatedRunAs) {
+        super(domainName, className, principalName, designatedRunAs);
+        this.realm = realm;
     }
 
-    private final String domainName;
-
-    public String getDomain() {
-        return domainName;
+    public String getRealm() {
+        return realm;
     }
 
-    public static class LoginDomainPrincipalEditor extends TextPropertyEditorSupport {
+    public static class RealmPrincipalEditor extends TextPropertyEditorSupport {
 
         public void setAsText(String text) {
             if (text != null) {
                 String[] parts = text.split(",");
-                if (parts.length != 4) {
-                    throw new PropertyEditorException("Principal should have the form 'domain,class,name,run-as'");
+                if (parts.length != 5) {
+                    throw new PropertyEditorException("Principal should have the form 'domain,realm,class,name,run-as'");
                 }
-                LoginDomainPrincipal principal = new LoginDomainPrincipal(parts[0], parts[1], parts[2], Boolean.valueOf(parts[3]).booleanValue());
+                RealmPrincipalInfo principal = new RealmPrincipalInfo(parts[0], parts[1], parts[2], parts[3], Boolean.valueOf(parts[4]).booleanValue());
                 setValue(principal);
             } else {
                 setValue(null);
@@ -58,11 +58,11 @@ public class LoginDomainPrincipal extends Principal {
         }
 
         public String getAsText() {
-            LoginDomainPrincipal principal = (LoginDomainPrincipal) getValue();
+            RealmPrincipalInfo principal = (RealmPrincipalInfo) getValue();
             if (principal == null) {
                 return null;
             }
-            return principal.getPrincipalName() + "," + principal.getClassName() + "," + principal.isDesignatedRunAs() + "," + principal.getDomain();
+            return principal.getPrincipalName() + "," + principal.getClassName() + "," + principal.isDesignatedRunAs() + "," + principal.getDomain() + "," + principal.getRealm();
         }
     }
 }

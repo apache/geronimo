@@ -379,7 +379,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             if (!gerWebApp.isSetSecurityRealmName()) {
                 throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
             }
-            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity());
+            SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity(), cl);
             earContext.setSecurityConfiguration(securityConfiguration);
         }
     }
@@ -468,7 +468,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 ObjectName valveName = NameFactory.getComponentName(null, null, null, null, valveChain, ValveGBean.J2EE_TYPE, moduleJ2eeContext);
                 webModuleData.setReferencePattern("TomcatValveChain", valveName);
             }
-            
+
             if (tomcatWebApp.isSetCluster()) {
                 String cluster = tomcatWebApp.getCluster().trim();
                 ObjectName clusterName = NameFactory.getComponentName(null, null, null, null, cluster, CatalinaClusterGBean.J2EE_TYPE, moduleJ2eeContext);
