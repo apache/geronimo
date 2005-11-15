@@ -98,6 +98,7 @@
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                     </j:if>
                 </j:forEach>
+                <ant:exclude name="**/*"/>
             </ant:fileset>
         </ant:copy>
     </goal>
@@ -105,14 +106,20 @@
     <!-- todo automatically add dependencies from configurations into the repo -->
     <!-- todo automatically add libraries listed in an executable's MCP in the right place, relative to it -->
     <goal name="geronimo:assemble-configurations">
-        <j:set var="configStore" value="${geronimo.assembly.dest}/config-store"/>
-        <ant:delete dir="${configStore}"/>
-        <ant:mkdir dir="${configStore}"/>
+        <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
+        <ant:delete dir="${configStoreDir}"/>
+        <ant:mkdir dir="${configStoreDir}"/>
+        <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
             <j:set var="dependency" value="${artifact.dependency}"/>
             <j:if test="${dependency.type == 'car'}">
                 <j:if test="${dependency.getProperty('geronimo.assemble') == 'install'}">
-                    <assemble:installConfig root="${configStore}" artifact="${artifact.file}"/>
+                    <assemble:installConfig
+                        root="${geronimo.assembly.dest}"
+                        configStore="config-store"
+                        repository="repository"
+                        mavenRepoLocal="${maven.repo.local}"
+                        artifact="${artifact.file}"/>
                 </j:if>
 
                 <!-- handle executable configs -->

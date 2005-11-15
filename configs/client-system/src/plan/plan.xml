@@ -66,9 +66,6 @@ specific services - those should be provided by children.
         <reference name="ServerInfo">
             <name>ServerInfo</name>
         </reference>
-        <reference name="AttributeStore">
-            <name>AttributeManager</name>
-        </reference>
     </gbean>
 
     <!-- Repository -->
