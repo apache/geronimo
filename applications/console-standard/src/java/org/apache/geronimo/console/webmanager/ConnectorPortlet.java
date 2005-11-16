@@ -65,8 +65,8 @@ public class ConnectorPortlet extends BasePortlet {
         String mode = actionRequest.getParameter("mode");
         String managerName = actionRequest.getParameter("managerObjectName");
         String containerName = actionRequest.getParameter("containerObjectName");
-        actionResponse.setRenderParameter("managerObjectName", managerName);
-        actionResponse.setRenderParameter("containerObjectName", containerName);
+        if(managerName != null) actionResponse.setRenderParameter("managerObjectName", managerName);
+        if(containerName != null) actionResponse.setRenderParameter("containerObjectName", containerName);
 
         WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
         String server = getWebServerType(container.getClass());
@@ -276,8 +276,8 @@ public class ConnectorPortlet extends BasePortlet {
         } else {
             String managerName = renderRequest.getParameter("managerObjectName");
             String containerName = renderRequest.getParameter("containerObjectName");
-            renderRequest.setAttribute("managerObjectName", managerName);
-            renderRequest.setAttribute("containerObjectName", containerName);
+            if(managerName != null) renderRequest.setAttribute("managerObjectName", managerName);
+            if(containerName != null) renderRequest.setAttribute("containerObjectName", containerName);
 
             WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
             String server = getWebServerType(container.getClass());
