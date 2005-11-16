@@ -36,11 +36,9 @@ public class NamespaceElementConverter implements ElementConverter {
         end.toEndToken();
         while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
             if (cursor.isStart()) {
-                if (namespace.equals(cursor.getName().getNamespaceURI())) {
-                    //already has correct schema, exit
-                    return;
+                if (!namespace.equals(cursor.getName().getNamespaceURI())) {
+                    cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
                 }
-                cursor.setName(new QName(namespace, cursor.getName().getLocalPart()));
             }
             cursor.toNextToken();
         }
