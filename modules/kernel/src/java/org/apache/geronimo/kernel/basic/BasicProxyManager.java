@@ -207,6 +207,24 @@ public class BasicProxyManager implements ProxyManager {
             } else if(type.length == 1) { // Unlikely (as a result of GeronimoManagedBean)
                 enhancer.setSuperclass(type[0]);
             } else {
+                ClassLoader best = null;
+                outer:
+                for (int i = 0; i < type.length; i++) {
+                    ClassLoader test = type[i].getClassLoader();
+                    for (int j = 0; j < type.length; j++) {
+                        String className = type[j].getName();
+                        try {
+                            test.loadClass(className);
+                        } catch (ClassNotFoundException e) {
+                            continue outer;
+                        }
+                    }
+                    best = test;
+                    break;
+                }
+                if(best != null) {
+                    enhancer.setClassLoader(best);
+                }
                 if(type[0].isInterface()) {
                     enhancer.setSuperclass(Object.class);
                     enhancer.setInterfaces(type);
