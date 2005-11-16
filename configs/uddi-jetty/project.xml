@@ -21,17 +21,31 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>system-database</id>
-    <name>System Database Configuration for the J2EE Server</name>
+    <id>uddi-jetty</id>
+    <name>UDDI server Configuration for the J2EE Jetty Server</name>
 
     <dependencies>
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>j2ee-server</artifactId>
+            <artifactId>system-database</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
         </dependency>
+
+        <dependency>
+            <groupId>juddi</groupId>
+            <artifactId>juddi</artifactId>
+            <version>${juddi_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+
+<!-- should be transitive deps -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

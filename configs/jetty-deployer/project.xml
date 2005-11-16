@@ -31,21 +31,31 @@
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>jetty</artifactId>
+            <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+            </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>j2ee-deployer</artifactId>
+            <artifactId>jetty</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jetty-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>

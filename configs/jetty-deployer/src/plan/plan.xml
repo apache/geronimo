@@ -16,21 +16,12 @@
 -->
 
 <!-- $Rev: 216115 $ $Date: 2005-07-12 23:22:18 -0600 (Tue, 12 Jul 2005) $ -->
-
+<!--               parentId="${pom.groupId}/cars/j2ee-deployer-${pom.currentVersion}.car"
+-->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/j2ee-deployer-${pom.currentVersion}.car"
     >
-
-    <import>
-        <uri>${pom.groupId}/cars/jetty-${pom.currentVersion}.car</uri>
-    </import>
-
-
-    <dependency>
-        <uri>geronimo/jars/geronimo-jetty-builder-${geronimo_version}.jar</uri>
-    </dependency>
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
         <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car,${pom.groupId}/cars/jetty-${pom.currentVersion}.car</attribute>

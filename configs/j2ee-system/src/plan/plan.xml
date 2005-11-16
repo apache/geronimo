@@ -66,14 +66,6 @@ specific services - those should be provided by children.
         </reference>
     </gbean>
 
-    <!-- Persistent List of running Configurations service -->
-<!--    <gbean name="Default" class="org.apache.geronimo.system.configuration.KernelMonitoringConfigurationList">-->
-<!--        <reference name="Delegate">-->
-<!--            <type>AttributeStore</type>-->
-<!--            <name>AttributeManager</name>-->
-<!--        </reference>-->
-<!--    </gbean>-->
-
     <!-- Repository -->
     <gbean name="Repository" class="org.apache.geronimo.system.repository.ReadOnlyRepository">
         <attribute name="root">repository/</attribute>

@@ -29,10 +29,6 @@ Configuration for the security of a Geronimo server.
 
 
     <!--runtime dependencies-->
- <!--   <dependency>
-        <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
-    </dependency>
--->
 
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <reference name="ServerInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
