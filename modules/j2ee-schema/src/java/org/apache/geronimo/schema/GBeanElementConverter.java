@@ -33,12 +33,10 @@ public class GBeanElementConverter implements ElementConverter {
         end.toEndToken();
         while (cursor.hasNextToken() && cursor.isLeftOf(end)) {
             if (cursor.isStart()) {
-                if (GERONIMO_SERVICE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
-                    //already has correct schema, exit
-                    return;
-                }
                 String localPart = cursor.getName().getLocalPart();
-                cursor.setName(new QName(GERONIMO_SERVICE_NAMESPACE, localPart));
+                if (!GERONIMO_SERVICE_NAMESPACE.equals(cursor.getName().getNamespaceURI())) {
+                    cursor.setName(new QName(GERONIMO_SERVICE_NAMESPACE, localPart));
+                }
                 if (localPart.equals("xml-attribute") || localPart.equals("xml-reference")) {
                     cursor.toEndToken();
                 }

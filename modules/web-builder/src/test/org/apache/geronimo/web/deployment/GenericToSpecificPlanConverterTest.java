@@ -20,6 +20,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
@@ -45,6 +47,21 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
         assertTrue("Differences: " + problems, ok);
     }
 
+    public void testConvertPlan2() throws Exception {
+        URL srcXml = classLoader.getResource("plans/tomcat-pre2.xml");
+        URL expectedOutputXml = classLoader.getResource("plans/tomcat-post.xml");
+        XmlObject rawPlan = XmlObject.Factory.parse(srcXml);
+        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+        XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat/config-1.0",
+                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0", "tomcat").convertToSpecificPlan(rawPlan);
+
+        System.out.println(webPlan.toString());
+//        System.out.println(expected.toString());
+        List problems = new ArrayList();
+        boolean ok = compareXmlObjects(webPlan, expected, problems);
+        assertTrue("Differences: " + problems, ok);
+    }
+
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
         XmlCursor test = xmlObject.newCursor();
@@ -57,8 +74,8 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
                 problems.add("test longer than expected at element: " + elementCount);
                 return false;
             }
-            String actualChars = test.getName().getLocalPart();
-            String expectedChars = expected.getName().getLocalPart();
+            QName actualChars = test.getName();
+            QName expectedChars = expected.getName();
             if (!actualChars.equals(expectedChars)) {
                 problems.add("Different elements at elementCount: " + elementCount + ", test: " + actualChars + ", expected: " + expectedChars);
                 similar = false;
