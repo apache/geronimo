@@ -21,6 +21,6 @@
 
 <project default="default"
     >
-    <goal name="default" prereqs="geronimo:assemble"/>
+    <goal name="default" prereqs="geronimo:package-assembly"/>
 
 </project>
