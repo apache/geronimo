@@ -98,7 +98,6 @@
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                     </j:if>
                 </j:forEach>
-                <ant:exclude name="**/*"/>
             </ant:fileset>
         </ant:copy>
     </goal>
