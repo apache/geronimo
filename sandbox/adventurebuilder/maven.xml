@@ -28,10 +28,10 @@
     <j:set var="instDir" value="${maven.build.dir}/geronimo-${geronimo_version}"/>
 
     <goal name="default">
-        <attainGoal name="adventure:deploy"/>
+        <attainGoal name="ab:deploy"/>
     </goal>
 
-    <goal name="adventure:deploy" description="Deploys Adventure Builder" prereqs="clean">
+    <goal name="ab:deploy" description="Deploys Adventure Builder" prereqs="clean">
         <deploy:unpackServer
             geronimoVersion="${geronimo_version}"
             geronimoName="geronimo"/>
@@ -61,7 +61,7 @@
             <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar"/>
         </ant:java>
 
-		<ant:echo>Distributing Adventure Builder Consumer Website Application</ant:echo>
+        <ant:echo>Distributing Adventure Builder Consumer Website Application</ant:echo>
         <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
 <!--
@@ -71,12 +71,12 @@
             <ant:arg value="--offline"/>
             <ant:arg value="distribute"/>
             <ant:arg value="${maven.build.dir}/plan/consumerwebsite1.0.1.ear-plan.xml"/>
-            <!--ant:arg value="${adventure.home}/project/apps/consumerwebsite/build/consumerwebsite.ear"/-->
-            <ant:arg value="${adventure.home}/consumerwebsite.ear"/>
+            <!--ant:arg value="${ab.home}/project/apps/consumerwebsite/build/consumerwebsite.ear"/-->
+            <ant:arg value="${ab.home}/consumerwebsite.ear"/>
         </ant:java>
     </goal>
 
-    <goal name="adventure:start" description="Start Adventure Builder">
+    <goal name="ab:start" description="Start Adventure Builder">
         <deploy:startRemoteServer
             geronimoTarget="${instDir}"
             debugPort="8000"
@@ -90,7 +90,7 @@
         <echo message="PetStore has started"/>
     </goal>
 
-    <goal name="adventure:stop" description="Stop Adventure Builder">
+    <goal name="ab:stop" description="Stop Adventure Builder">
         <deploy:stopRemoteServer
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
