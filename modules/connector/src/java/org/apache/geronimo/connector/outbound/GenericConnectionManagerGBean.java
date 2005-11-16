@@ -21,6 +21,7 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
@@ -28,12 +29,27 @@ import org.apache.geronimo.transaction.context.TransactionContextManager;
  *
  * @version $Revision$
  */
-public class GenericConnectionManagerGBean {
+public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle {
 
+
+    public GenericConnectionManagerGBean() {
+        super();
+    }
+
+    public GenericConnectionManagerGBean(TransactionSupport transactionSupport,
+                                    PoolingSupport pooling,
+                                    boolean containerManagedSecurity,
+                                    ConnectionTracker connectionTracker,
+                                    TransactionContextManager transactionContextManager,
+                                    String objectName,
+                                    ClassLoader classLoader) {
+        super(transactionSupport, pooling, containerManagedSecurity, connectionTracker, transactionContextManager, objectName, classLoader);
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(GenericConnectionManager.class, AbstractConnectionManagerGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(GenericConnectionManagerGBean.class, AbstractConnectionManagerGBean.GBEAN_INFO);
 
         infoBuilder.addAttribute("transactionSupport", TransactionSupport.class, true);
         infoBuilder.addAttribute("pooling", PoolingSupport.class, true);

@@ -25,12 +25,11 @@ import javax.resource.spi.ManagedConnectionFactory;
 
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.PoolingSupport;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
-import org.apache.geronimo.gbean.GBeanLifecycle;
 
 /**
  * @version $Rev$ $Date$
  */
-public abstract class AbstractConnectionManager implements ConnectionManagerContainer, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes, GBeanLifecycle {
+public abstract class AbstractConnectionManager implements ConnectionManagerContainer, ConnectionManager, LazyAssociatableConnectionManager, PoolingAttributes {
     protected final Interceptors interceptors;
 
     //default constructor for use as endpoint
