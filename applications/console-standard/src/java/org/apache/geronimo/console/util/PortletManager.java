@@ -205,6 +205,11 @@ public class PortletManager {
         return getCurrentServer(request).getWebManagers();
     }
 
+    public static WebManager[] getWebManagers(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getWebManagers(getCurrentServer(request));
+    }
+
     public static WebManager getWebManager(PortletRequest request, String managerObjectName) {
         ManagementHelper helper = getManagementHelper(request);
         return (WebManager) helper.getObject(managerObjectName);

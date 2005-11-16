@@ -23,7 +23,7 @@ import java.util.Collection;
 import javax.management.ObjectName;
 
 /**
- *
+ * Encapsulates logic for dealing with configurations.
  *
  * @version $Rev$ $Date$
  */

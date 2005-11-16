@@ -24,18 +24,24 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.gbean.GBeanQuery;
 
 /**
  * @version $Rev$ $Date$
  */
 public final class ConfigurationUtil {
-    private static final ObjectName CONFIGURATION_MANAGER_QUERY = JMXUtil.getObjectName("*:j2eeType=ConfigurationManager,*");
-
     private ConfigurationUtil() {
     }
 
+    /**
+     * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
+     *
+     * @return The ConfigurationManager
+     *
+     * @throws IllegalStateException Occurs if a ConfigurationManager cannot be identified
+     */
     public static ConfigurationManager getConfigurationManager(Kernel kernel) {
-        Set names = kernel.listGBeans(CONFIGURATION_MANAGER_QUERY);
+        Set names = kernel.listGBeans(new GBeanQuery(null, ConfigurationManager.class.getName()));
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
             try {
@@ -48,13 +54,43 @@ public final class ConfigurationUtil {
             }
         }
         if (names.isEmpty()) {
-            throw new IllegalStateException("Configuration mananger could not be found in kernel: " + CONFIGURATION_MANAGER_QUERY);
+            throw new IllegalStateException("Configuration mananger could not be found in kernel");
         }
         if (names.size() > 1) {
-            throw new IllegalStateException("More then one configuration mananger was found in kernel: " + CONFIGURATION_MANAGER_QUERY);
+            throw new IllegalStateException("More than one configuration mananger was found in kernel");
         }
         ObjectName configurationManagerName = (ObjectName) names.iterator().next();
         return (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
+    }
+
+    /**
+     * Gets a reference or proxy to an EditableConfigurationManager running in the specified kernel, if there is one.
+     *
+     * @return The EdtiableConfigurationManager, or none if there is not one available.
+     *
+     * @throws IllegalStateException Occurs if there are multiple EditableConfigurationManagers in the kernel.
+     */
+    public static EditableConfigurationManager getEditableConfigurationManager(Kernel kernel) {
+        Set names = kernel.listGBeans(new GBeanQuery(null, EditableConfigurationManager.class.getName()));
+        for (Iterator iterator = names.iterator(); iterator.hasNext();) {
+            ObjectName objectName = (ObjectName) iterator.next();
+            try {
+                if (kernel.getGBeanState(objectName) != State.RUNNING_INDEX) {
+                    iterator.remove();
+                }
+            } catch (GBeanNotFoundException e) {
+                // bean died
+                iterator.remove();
+            }
+        }
+        if (names.isEmpty()) {
+            return null; // may be one, just not editable
+        }
+        if (names.size() > 1) {
+            throw new IllegalStateException("More than one configuration mananger was found in kernel");
+        }
+        ObjectName configurationManagerName = (ObjectName) names.iterator().next();
+        return (EditableConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
     }
 
     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {

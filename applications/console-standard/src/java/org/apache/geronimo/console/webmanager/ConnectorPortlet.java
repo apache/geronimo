@@ -38,6 +38,7 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.SecureConnector;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -62,37 +63,100 @@ public class ConnectorPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         String mode = actionRequest.getParameter("mode");
-        String[] names = PortletManager.getWebManagerNames(actionRequest);  //todo: handle multiple
-        if (names != null) {
-            String managerName = names[0];  //todo: handle multiple
-            String[] containers = PortletManager.getWebContainerNames(actionRequest, managerName);  //todo: handle multiple
-            if (containers != null) {
-                String containerName = containers[0];  //todo: handle multiple
-                WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
-                String server = getWebServerType(container.getClass());
-                actionResponse.setRenderParameter("server", server);
-                if(mode.equals("new")) {
-                    // User selected to add a new connector, need to show criteria portlet
-                    actionResponse.setRenderParameter("mode", "new");
-                    String protocol = actionRequest.getParameter("protocol");
-                    actionResponse.setRenderParameter("protocol", protocol);
-                } else if(mode.equals("add")) { // User just submitted the form to add a new connector
-                    // Get submitted values
-                    //todo: lots of validation
-                    String protocol = actionRequest.getParameter("protocol");
-                    String host = actionRequest.getParameter("host");
-                    int port = Integer.parseInt(actionRequest.getParameter("port"));
-                    int maxThreads = Integer.parseInt(actionRequest.getParameter("maxThreads"));
-                    Integer minThreads = getInteger(actionRequest, "minThreads");
-                    String name = actionRequest.getParameter("name");
-                    // Create and configure the connector
-                    WebConnector connector = PortletManager.createWebConnector(actionRequest, managerName, containerName, name, protocol, host, port);
-                    connector.setMaxThreads(maxThreads);
-                    // todo: more configurable HTTP/Jetty values
-                    if(server.equals(WEB_SERVER_JETTY)) {
-                        if(minThreads != null) {
-                            setProperty(connector, "minThreads", minThreads);
-                        }
+        String managerName = actionRequest.getParameter("managerObjectName");
+        String containerName = actionRequest.getParameter("containerObjectName");
+        actionResponse.setRenderParameter("managerObjectName", managerName);
+        actionResponse.setRenderParameter("containerObjectName", containerName);
+
+        WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
+        String server = getWebServerType(container.getClass());
+        actionResponse.setRenderParameter("server", server);
+        if(mode.equals("new")) {
+            // User selected to add a new connector, need to show criteria portlet
+            actionResponse.setRenderParameter("mode", "new");
+            String protocol = actionRequest.getParameter("protocol");
+            actionResponse.setRenderParameter("protocol", protocol);
+        } else if(mode.equals("add")) { // User just submitted the form to add a new connector
+            // Get submitted values
+            //todo: lots of validation
+            String protocol = actionRequest.getParameter("protocol");
+            String host = actionRequest.getParameter("host");
+            int port = Integer.parseInt(actionRequest.getParameter("port"));
+            int maxThreads = Integer.parseInt(actionRequest.getParameter("maxThreads"));
+            Integer minThreads = getInteger(actionRequest, "minThreads");
+            String name = actionRequest.getParameter("name");
+            // Create and configure the connector
+            WebConnector connector = PortletManager.createWebConnector(actionRequest, managerName, containerName, name, protocol, host, port);
+            connector.setMaxThreads(maxThreads);
+            // todo: more configurable HTTP/Jetty values
+            if(server.equals(WEB_SERVER_JETTY)) {
+                if(minThreads != null) {
+                    setProperty(connector, "minThreads", minThreads);
+                }
+            }
+            else if (server.equals(WEB_SERVER_TOMCAT)) {
+                //todo:   Any Tomcat specific processing?
+            }
+            else {
+                //todo:   Handle "should not occur" condition
+            }
+            if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
+                String keystoreType = actionRequest.getParameter("keystoreType");
+                String keystoreFile = actionRequest.getParameter("keystoreFile");
+                String privateKeyPass = actionRequest.getParameter("privateKeyPassword");
+                String keystorePass = actionRequest.getParameter("keystorePassword");
+                String secureProtocol = actionRequest.getParameter("secureProtocol");
+                String algorithm = actionRequest.getParameter("algorithm");
+                boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
+                SecureConnector secure = (SecureConnector) connector;
+                if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
+                if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
+                if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
+                if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
+                if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
+                secure.setClientAuthRequired(clientAuth);
+                if(server.equals(WEB_SERVER_JETTY)) {
+                    if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
+                }
+                else if (server.equals(WEB_SERVER_TOMCAT)) {
+                    //todo:   Any Tomcat specific processing?
+                }
+                else {
+                    //todo:   Handle "should not occur" condition
+                }
+            }
+            // Start the connector
+            try {
+                ((GeronimoManagedBean)connector).startRecursive();
+            } catch (Exception e) {
+                log.error("Unable to start connector", e); //todo: get into rendered page somehow?
+            }
+            actionResponse.setRenderParameter("mode", "list");
+        } else if(mode.equals("save")) { // User just submitted the form to update a connector
+            // Get submitted values
+            //todo: lots of validation
+            String host = actionRequest.getParameter("host");
+            int port = Integer.parseInt(actionRequest.getParameter("port"));
+            int maxThreads = Integer.parseInt(actionRequest.getParameter("maxThreads"));
+            Integer minThreads = getInteger(actionRequest, "minThreads");
+            String objectName = actionRequest.getParameter("objectName");
+            // Identify and update the connector
+            WebConnector connector = null;
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
+            for (int i = 0; i < all.length; i++) {
+                WebConnector conn = all[i];
+                if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
+                    connector = conn;
+                    break;
+                }
+            }
+            if(connector != null) {
+                connector.setHost(host);
+                connector.setPort(port);
+                connector.setMaxThreads(maxThreads);
+                if(server.equals(WEB_SERVER_JETTY)) {
+                    if(minThreads != null) {
+                        setProperty(connector,"minThreads",minThreads);
                     }
                     else if (server.equals(WEB_SERVER_TOMCAT)) {
                         //todo:   Any Tomcat specific processing?
@@ -100,163 +164,91 @@ public class ConnectorPortlet extends BasePortlet {
                     else {
                         //todo:   Handle "should not occur" condition
                     }
-                    if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
-                        String keystoreType = actionRequest.getParameter("keystoreType");
-                        String keystoreFile = actionRequest.getParameter("keystoreFile");
-                        String privateKeyPass = actionRequest.getParameter("privateKeyPassword");
-                        String keystorePass = actionRequest.getParameter("keystorePassword");
-                        String secureProtocol = actionRequest.getParameter("secureProtocol");
-                        String algorithm = actionRequest.getParameter("algorithm");
-                        boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
-                        SecureConnector secure = (SecureConnector) connector;
-                        if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
-                        if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
-                        if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
-                        if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
-                        if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
-                        secure.setClientAuthRequired(clientAuth);
-                        if(server.equals(WEB_SERVER_JETTY)) {
-                            if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
-                        }
-                        else if (server.equals(WEB_SERVER_TOMCAT)) {
-                            //todo:   Any Tomcat specific processing?
-                        }
-                        else {
-                            //todo:   Handle "should not occur" condition
-                        }
+                }
+                if(connector instanceof SecureConnector) {
+                    String keystoreType = actionRequest.getParameter("keystoreType");
+                    String keystoreFile = actionRequest.getParameter("keystoreFile");
+                    String privateKeyPass = actionRequest.getParameter("privateKeyPassword");
+                    String keystorePass = actionRequest.getParameter("keystorePassword");
+                    String secureProtocol = actionRequest.getParameter("secureProtocol");
+                    String algorithm = actionRequest.getParameter("algorithm");
+                    boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
+                    SecureConnector secure = (SecureConnector) connector;
+                    if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
+                    if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
+                    if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
+                    if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
+                    if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
+                    secure.setClientAuthRequired(clientAuth);
+                    if(server.equals(WEB_SERVER_JETTY)) {
+                        if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
                     }
-                    // Start the connector
-                    try {
-                        ((GeronimoManagedBean)connector).startRecursive();
-                    } catch (Exception e) {
-                        log.error("Unable to start connector", e); //todo: get into rendered page somehow?
-                    }
-                    actionResponse.setRenderParameter("mode", "list");
-                } else if(mode.equals("save")) { // User just submitted the form to update a connector
-                    // Get submitted values
-                    //todo: lots of validation
-                    String host = actionRequest.getParameter("host");
-                    int port = Integer.parseInt(actionRequest.getParameter("port"));
-                    int maxThreads = Integer.parseInt(actionRequest.getParameter("maxThreads"));
-                    Integer minThreads = getInteger(actionRequest, "minThreads");
-                    String objectName = actionRequest.getParameter("objectName");
-                    // Identify and update the connector
-                    WebConnector connector = null;
-                    WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
-                    for (int i = 0; i < all.length; i++) {
-                        WebConnector conn = all[i];
-                        if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
-                            connector = conn;
-                            break;
-                        }
-                    }
-                    if(connector != null) {
-                        connector.setHost(host);
-                        connector.setPort(port);
-                        connector.setMaxThreads(maxThreads);
-                        if(server.equals(WEB_SERVER_JETTY)) {
-                            if(minThreads != null) {
-                                setProperty(connector,"minThreads",minThreads);
-                            }
-                            else if (server.equals(WEB_SERVER_TOMCAT)) {
-                                //todo:   Any Tomcat specific processing?
-                            }
-                            else {
-                                //todo:   Handle "should not occur" condition
-                            }
-                        }
-                        if(connector instanceof SecureConnector) {
-                            String keystoreType = actionRequest.getParameter("keystoreType");
-                            String keystoreFile = actionRequest.getParameter("keystoreFile");
-                            String privateKeyPass = actionRequest.getParameter("privateKeyPassword");
-                            String keystorePass = actionRequest.getParameter("keystorePassword");
-                            String secureProtocol = actionRequest.getParameter("secureProtocol");
-                            String algorithm = actionRequest.getParameter("algorithm");
-                            boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
-                            SecureConnector secure = (SecureConnector) connector;
-                            if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
-                            if(isValid(keystoreFile)) {secure.setKeystoreFileName(keystoreFile);}
-                            if(isValid(keystorePass)) {secure.setKeystorePassword(keystorePass);}
-                            if(isValid(secureProtocol)) {secure.setSecureProtocol(secureProtocol);}
-                            if(isValid(algorithm)) {secure.setAlgorithm(algorithm);}
-                            secure.setClientAuthRequired(clientAuth);
-                            if(server.equals(WEB_SERVER_JETTY)) {
-                                if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
-                            }
-                            else if (server.equals(WEB_SERVER_TOMCAT)) {
-                                //todo:   Any Tomcat specific processing?
-                            }
-                            else {
-                                //todo:   Handle "should not occur" condition
-                            }
-                        }
-                    }
-                    actionResponse.setRenderParameter("mode", "list");
-                } else if(mode.equals("start")) {
-                    String objectName = actionRequest.getParameter("name");
-                    // work with the current connector to start it.
-                    WebConnector connector = null;
-                    WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
-                    for (int i = 0; i < all.length; i++) {
-                        WebConnector conn = all[i];
-                        if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
-                            connector = conn;
-                            break;
-                        }
-                    }
-                    if(connector != null) {
-                        try {
-                            ((GeronimoManagedBean)connector).startRecursive();
-                        } catch (Exception e) {
-                            log.error("Unable to start connector", e); //todo: get into rendered page somehow?
-                        }
+                    else if (server.equals(WEB_SERVER_TOMCAT)) {
+                        //todo:   Any Tomcat specific processing?
                     }
                     else {
-                        log.error("Incorrect connector reference"); //Replace this with correct error processing
+                        //todo:   Handle "should not occur" condition
                     }
-                    actionResponse.setRenderParameter("name", objectName);
-                    actionResponse.setRenderParameter("mode", "list");
-                } else if(mode.equals("stop")) {
-                    String objectName = actionRequest.getParameter("name");
-                    // work with the current connector to stop it.
-                    WebConnector connector = null;
-                    WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
-                    for (int i = 0; i < all.length; i++) {
-                        WebConnector conn = all[i];
-                        if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
-                            connector = conn;
-                            break;
-                        }
-                    }
-                    if(connector != null) {
-                        try {
-                            ((GeronimoManagedBean)connector).stop();
-                        } catch (Exception e) {
-                            log.error("Unable to stop connector", e); //todo: get into rendered page somehow?
-                        }
-                    }
-                    else {
-                        log.error("Incorrect connector reference"); //Replace this with correct error processing
-                    }
-                    actionResponse.setRenderParameter("name", objectName);
-                    actionResponse.setRenderParameter("mode", "list");
-                } else if(mode.equals("edit")) {
-                    String objectName = actionRequest.getParameter("name");
-                    actionResponse.setRenderParameter("objectName", objectName);
-                    actionResponse.setRenderParameter("mode", "edit");
-
-                } else if(mode.equals("delete")) { // User chose to delete a connector
-                    String objectName = actionRequest.getParameter("name");
-                    PortletManager.getWebManager(actionRequest, managerName).removeConnector(objectName);
-                    actionResponse.setRenderParameter("mode", "list");
+                }
+            }
+            actionResponse.setRenderParameter("mode", "list");
+        } else if(mode.equals("start")) {
+            String objectName = actionRequest.getParameter("name");
+            // work with the current connector to start it.
+            WebConnector connector = null;
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
+            for (int i = 0; i < all.length; i++) {
+                WebConnector conn = all[i];
+                if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
+                    connector = conn;
+                    break;
+                }
+            }
+            if(connector != null) {
+                try {
+                    ((GeronimoManagedBean)connector).startRecursive();
+                } catch (Exception e) {
+                    log.error("Unable to start connector", e); //todo: get into rendered page somehow?
                 }
             }
             else {
-                // todo - Handle "should not occur" error (message?)
+                log.error("Incorrect connector reference"); //Replace this with correct error processing
             }
-        }                   
-        else {
-            // todo - Handle "should not occur" error (message?)
+            actionResponse.setRenderParameter("name", objectName);
+            actionResponse.setRenderParameter("mode", "list");
+        } else if(mode.equals("stop")) {
+            String objectName = actionRequest.getParameter("name");
+            // work with the current connector to stop it.
+            WebConnector connector = null;
+            WebConnector all[] = PortletManager.getWebConnectors(actionRequest, managerName);
+            for (int i = 0; i < all.length; i++) {
+                WebConnector conn = all[i];
+                if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
+                    connector = conn;
+                    break;
+                }
+            }
+            if(connector != null) {
+                try {
+                    ((GeronimoManagedBean)connector).stop();
+                } catch (Exception e) {
+                    log.error("Unable to stop connector", e); //todo: get into rendered page somehow?
+                }
+            }
+            else {
+                log.error("Incorrect connector reference"); //Replace this with correct error processing
+            }
+            actionResponse.setRenderParameter("name", objectName);
+            actionResponse.setRenderParameter("mode", "list");
+        } else if(mode.equals("edit")) {
+            String objectName = actionRequest.getParameter("name");
+            actionResponse.setRenderParameter("objectName", objectName);
+            actionResponse.setRenderParameter("mode", "edit");
+
+        } else if(mode.equals("delete")) { // User chose to delete a connector
+            String objectName = actionRequest.getParameter("name");
+            PortletManager.getWebManager(actionRequest, managerName).removeConnector(objectName);
+            actionResponse.setRenderParameter("mode", "list");
         }
     }
 
@@ -278,21 +270,61 @@ public class ConnectorPortlet extends BasePortlet {
             mode = "list";
         }
 
-        String[] names = PortletManager.getWebManagerNames(renderRequest);  //todo: handle multiple
-        if (names != null) {
-            String managerName = names[0];  //todo: handle multiple
-            String[] containers = PortletManager.getWebContainerNames(renderRequest, managerName);  //todo: handle multiple
-            if (containers != null) {
-                String containerName = containers[0];  //todo: handle multiple
-                WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
-                String server = getWebServerType(container.getClass());
-                renderRequest.setAttribute("server", server);
 
-                if(mode.equals("new")) {
-                    String protocol = renderRequest.getParameter("protocol");
-                    renderRequest.setAttribute("maxThreads", "50");
+        if(mode.equals("list")) {
+            doList(renderRequest, renderResponse);
+        } else {
+            String managerName = renderRequest.getParameter("managerObjectName");
+            String containerName = renderRequest.getParameter("containerObjectName");
+            renderRequest.setAttribute("managerObjectName", managerName);
+            renderRequest.setAttribute("containerObjectName", containerName);
+
+            WebContainer container = PortletManager.getWebContainer(renderRequest, containerName);
+            String server = getWebServerType(container.getClass());
+            renderRequest.setAttribute("server", server);
+
+            if(mode.equals("new")) {
+                String protocol = renderRequest.getParameter("protocol");
+                renderRequest.setAttribute("maxThreads", "50");
+                if(server.equals(WEB_SERVER_JETTY)) {
+                    renderRequest.setAttribute("minThreads", "10");
+                }
+                else if (server.equals(WEB_SERVER_TOMCAT)) {
+                    //todo:   Any Tomcat specific processing?
+                }
+                else {
+                    //todo:   Handle "should not occur" condition
+                }
+                renderRequest.setAttribute("protocol", protocol);
+                renderRequest.setAttribute("mode", "add");
+                if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
+                    editHttpsView.include(renderRequest, renderResponse);
+                } else {
+                    editHttpView.include(renderRequest, renderResponse);
+                }
+
+            } else if(mode.equals("edit")) {
+                String objectName = renderRequest.getParameter("objectName");
+                WebConnector connector = null;
+                WebConnector all[] = PortletManager.getWebConnectors(renderRequest, managerName);
+                for (int i = 0; i < all.length; i++) {
+                    WebConnector conn = all[i];
+                    if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
+                        connector = conn;
+                        break;
+                    }
+                }
+                if(connector == null) {
+                    doList(renderRequest, renderResponse);
+                } else {
+                    renderRequest.setAttribute("objectName", objectName);
+                    renderRequest.setAttribute("port", new Integer(connector.getPort()));
+                    renderRequest.setAttribute("host", connector.getHost());
+                    int maxThreads = connector.getMaxThreads();
+                    renderRequest.setAttribute("maxThreads", Integer.toString(maxThreads));
                     if(server.equals(WEB_SERVER_JETTY)) {
-                        renderRequest.setAttribute("minThreads", "10");
+                        int minThreads = ((Number)getProperty(connector, "minThreads")).intValue();
+                        renderRequest.setAttribute("minThreads", String.valueOf(minThreads));
                     }
                     else if (server.equals(WEB_SERVER_TOMCAT)) {
                         //todo:   Any Tomcat specific processing?
@@ -300,108 +332,130 @@ public class ConnectorPortlet extends BasePortlet {
                     else {
                         //todo:   Handle "should not occur" condition
                     }
-                    renderRequest.setAttribute("protocol", protocol);
-                    renderRequest.setAttribute("mode", "add");
-                    if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
+                    renderRequest.setAttribute("mode", "save");
+
+                    if(connector instanceof SecureConnector) {
+                        SecureConnector secure = (SecureConnector) connector;
+                        renderRequest.setAttribute("keystoreFile",secure.getKeystoreFileName());
+                        renderRequest.setAttribute("keystoreType",secure.getKeystoreType());
+                        renderRequest.setAttribute("algorithm",secure.getAlgorithm());
+                        renderRequest.setAttribute("secureProtocol",secure.getSecureProtocol());
+                        if(secure.isClientAuthRequired()) {
+                            renderRequest.setAttribute("clientAuth", Boolean.TRUE);
+                        }
+                    }
+
+                    if(connector.getProtocol().equals(WebManager.PROTOCOL_HTTPS)) {
                         editHttpsView.include(renderRequest, renderResponse);
                     } else {
                         editHttpView.include(renderRequest, renderResponse);
                     }
-
-                } else if(mode.equals("edit")) {
-                    String objectName = renderRequest.getParameter("objectName");
-                    WebConnector connector = null;
-                    WebConnector all[] = PortletManager.getWebConnectors(renderRequest, managerName);
-                    for (int i = 0; i < all.length; i++) {
-                        WebConnector conn = all[i];
-                        if(((GeronimoManagedBean)conn).getObjectName().equals(objectName)) {
-                            connector = conn;
-                            break;
-                        }
-                    }
-                    if(connector == null) {
-                        doList(renderRequest, managerName, renderResponse);
-                    } else {
-                        renderRequest.setAttribute("objectName", objectName);
-                        renderRequest.setAttribute("port", new Integer(connector.getPort()));
-                        renderRequest.setAttribute("host", connector.getHost());
-                        int maxThreads = connector.getMaxThreads();
-                        renderRequest.setAttribute("maxThreads", Integer.toString(maxThreads));
-                        if(server.equals(WEB_SERVER_JETTY)) {
-                            int minThreads = ((Number)getProperty(connector, "minThreads")).intValue();
-                            renderRequest.setAttribute("minThreads", String.valueOf(minThreads));
-                        }
-                        else if (server.equals(WEB_SERVER_TOMCAT)) {
-                            //todo:   Any Tomcat specific processing?
-                        }
-                        else {
-                            //todo:   Handle "should not occur" condition
-                        }
-                        renderRequest.setAttribute("mode", "save");
-
-                        if(connector instanceof SecureConnector) {
-                            SecureConnector secure = (SecureConnector) connector;
-                            renderRequest.setAttribute("keystoreFile",secure.getKeystoreFileName());
-                            renderRequest.setAttribute("keystoreType",secure.getKeystoreType());
-                            renderRequest.setAttribute("algorithm",secure.getAlgorithm());
-                            renderRequest.setAttribute("secureProtocol",secure.getSecureProtocol());
-                            if(secure.isClientAuthRequired()) {
-                                renderRequest.setAttribute("clientAuth", Boolean.TRUE);
-                            }
-                        }
-
-                        if(connector.getProtocol().equals(WebManager.PROTOCOL_HTTPS)) {
-                            editHttpsView.include(renderRequest, renderResponse);
-                        } else {
-                            editHttpView.include(renderRequest, renderResponse);
-                        }
-                    }
-                } else if(mode.equals("list")) {
-                    doList(renderRequest, managerName, renderResponse);
                 }
             }
-            else {
-                // todo  - Handle "should not occur" error  - message?
-            }
-        }                   
-        else {
-            // todo - Handle "should not occur" error (message?)
         }
 
     }
 
-    private void doList(RenderRequest renderRequest, String managerName, RenderResponse renderResponse) throws PortletException, IOException {
-        List beans = new ArrayList();
-        WebConnector[] connectors = PortletManager.getWebConnectors(renderRequest, managerName);
-        for (int i = 0; i < connectors.length; i++) {
-            WebConnector connector = connectors[i];
-            ConnectorInfo info = new ConnectorInfo();
-                String objectName = ((GeronimoManagedBean)connector).getObjectName();
-                info.setObjectName(objectName);
-                info.setDescription(PortletManager.getGBeanDescription(renderRequest, objectName));
+    private void doList(RenderRequest renderRequest, RenderResponse renderResponse) throws PortletException, IOException {
+        WebManager[] managers = PortletManager.getWebManagers(renderRequest);
+        List all = new ArrayList();
+        for (int i = 0; i < managers.length; i++) {
+            WebManager manager = managers[i];
+            String webManagerName = ((GeronimoManagedBean)manager).getObjectName();
+
+            String[] containers = PortletManager.getWebContainerNames(renderRequest, webManagerName);
+            for (int j = 0; j < containers.length; j++) {
                 try {
-                    ObjectName realName = ObjectName.getInstance(objectName);
-                    info.setDisplayName(realName.getKeyProperty("name"));
+                    List beans = new ArrayList();
+                    String containerName = containers[j];
+                    String id;
+                    if(containers.length == 1) {
+                        id = manager.getProductName();
+                    } else {
+                        ObjectName containerON = ObjectName.getInstance(containerName);
+                        id = manager.getProductName() + " (" + containerON.getKeyProperty(NameFactory.J2EE_NAME) + ")";
+                    }
+                    ContainerStatus result = new ContainerStatus(id, webManagerName, containerName);
+
+                    WebConnector[] connectors = PortletManager.getWebConnectorsForContainer(renderRequest, webManagerName, containerName);
+                    for (int k = 0; k < connectors.length; k++) {
+                        WebConnector connector = connectors[k];
+                        ConnectorInfo info = new ConnectorInfo();
+                            String objectName = ((GeronimoManagedBean)connector).getObjectName();
+                            info.setObjectName(objectName);
+                            info.setDescription(PortletManager.getGBeanDescription(renderRequest, objectName));
+                            try {
+                                ObjectName realName = ObjectName.getInstance(objectName);
+                                info.setDisplayName(realName.getKeyProperty("name"));
+                            } catch (MalformedObjectNameException e) {
+                                log.error("Bad object name for web connector", e);
+                                info.setDisplayName(info.getDescription());
+                            }
+                            info.setState(((GeronimoManagedBean)connector).getState());
+                            info.setPort(connector.getPort());
+                        try {
+                            info.setProtocol(connector.getProtocol());
+                        } catch (IllegalStateException e) {
+                            info.setProtocol("unknown");
+                        }
+                        beans.add(info);
+                    }
+                    result.setConnectors(beans);
+                    result.setProtocols(manager.getSupportedProtocols());
+                    all.add(result);
                 } catch (MalformedObjectNameException e) {
-                    log.error("Bad object name for web connector", e);
-                    info.setDisplayName(info.getDescription());
+                    log.error("Unable to parse ObjectName", e);
                 }
-                info.setState(((GeronimoManagedBean)connector).getState());
-                info.setPort(connector.getPort());
-            try {
-                info.setProtocol(connector.getProtocol());
-            } catch (java.lang.IllegalStateException e) {
-                info.setProtocol("unknown");
             }
-            beans.add(info);
         }
-        renderRequest.setAttribute("connectors", beans);
-        renderRequest.setAttribute("protocols", PortletManager.getWebManager(renderRequest, managerName).getSupportedProtocols());
+        renderRequest.setAttribute("containers", all);
 
         if (WindowState.NORMAL.equals(renderRequest.getWindowState())) {
             normalView.include(renderRequest, renderResponse);
         } else {
             maximizedView.include(renderRequest, renderResponse);
+        }
+    }
+
+    public final static class ContainerStatus {
+        private String name;
+        private String managerObjectName;
+        private String containerObjectName;
+        private String[] protocols;
+        private List connectors;
+
+        public ContainerStatus(String name, String managerObjectName, String containerObjectName) {
+            this.name = name;
+            this.managerObjectName = managerObjectName;
+            this.containerObjectName = containerObjectName;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String[] getProtocols() {
+            return protocols;
+        }
+
+        public void setProtocols(String[] protocols) {
+            this.protocols = protocols;
+        }
+
+        public List getConnectors() {
+            return connectors;
+        }
+
+        public void setConnectors(List connectors) {
+            this.connectors = connectors;
+        }
+
+        public String getManagerObjectName() {
+            return managerObjectName;
+        }
+
+        public String getContainerObjectName() {
+            return containerObjectName;
         }
     }
 

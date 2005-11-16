@@ -513,6 +513,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return nonOverridableClasses;
     }
 
+    public synchronized boolean containsGBean(ObjectName gbean) {
+        return objectNames.contains(gbean);
+    }
+
     public synchronized void addGBean(GBeanData beanData, boolean start) throws InvalidConfigException, GBeanAlreadyExistsException {
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
@@ -528,7 +532,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
-        storeCurrentGBeans();
+        try {
+            saveState(); //todo: once the attribute store can save new GBean data, won't need to update the config store any more
+        } catch (Exception e) {
+            log.error("Unable to save new GBean", e);
+        }
     }
 
     public synchronized void removeGBean(ObjectName name) throws GBeanNotFoundException {
@@ -680,6 +688,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
         infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
+        infoFactory.addOperation("containsGBean", new Class[]{ObjectName.class});
         infoFactory.addOperation("saveState");
         infoFactory.addOperation("loadGBeans", new Class[]{ManageableAttributeStore.class});
         infoFactory.addOperation("startRecursiveGBeans");

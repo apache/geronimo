@@ -35,29 +35,18 @@ public interface ManageableAttributeStore {
 
     public static final String ATTRIBUTE_STORE = "AttributeStore";
 
+    /**
+     * Given a conifguration name and a set of GBeanDatas, apply all the saved
+     * attribute values to those GBeans before the caller attempts to load
+     * them.
+     *
+     * @param configurationName The configuration in question
+     * @param datas             The initial GBeanData's for all the GBeans in
+     *                          the configuration
+     * @return                  The modified GBeanData's
+     * @throws InvalidConfigException If something bad happens
+     */
     public Collection setAttributes(URI configurationName, Collection datas) throws InvalidConfigException;
-    /**
-     * Return the object name of this store
-     * @return the object name of this store
-     */
-//    public String getObjectName();
-
-    /**
-     * Gets a stored value (if any) for a particular attribute.  The attribute
-     * is identified by the configuration name, GBean ObjectName, and attribute
-     * information.  Note: it is not possible to store a meaningful value of
-     * "null"; that would be treated the same as if no value was stored.
-     *
-     * @param configurationName The name of the configuration holding the GBean
-     *                          in question
-     * @param gbean The ObjectName of the GBean in question
-     * @param attribute The attribute in question
-     *
-     * @return An object of the correct type to populate into the attribute in
-     *         question, or null if this store has no value saved for the
-     *         specified attribute.
-     */
-//    public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute);
 
     /**
      * Sets the stored value for a particular attribute.  The attribute is
@@ -76,6 +65,18 @@ public interface ManageableAttributeStore {
      * @param value The value to save, or null if no value should be saved
      */
     public void setValue(String configurationName, ObjectName gbean, GAttributeInfo attribute, Object value);
+
+    /**
+     * Sets whether a particular GBean should be loaded for this configuration.
+     * The GBean must already exist in the configuration, this just toggles the
+     * flag for whether to stop it from loading when the configuration is
+     * loaded.
+     *
+     * @param configurationName The configuration that the GBean belongs to
+     * @param gbean             The GBean in question
+     * @param load              True if the GBean should load with the configuration
+     */
+    public void setShouldLoad(String configurationName, ObjectName gbean, boolean load);
 
     /**
      * Saves the current values to persistent storage.  This should be called

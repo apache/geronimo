@@ -31,25 +31,17 @@ import org.apache.geronimo.kernel.config.ManageableAttributeStore;
  * @version $Rev$ $Date$
  */
 public class MavenAttributeStore implements ManageableAttributeStore {
-    private final String objectName;
-
-    public MavenAttributeStore(String objectName) {
-        this.objectName = objectName;
+    public MavenAttributeStore() {
     }
 
     public Collection setAttributes(URI configurationName, Collection datas) {
         return datas;
     }
 
-    public String getObjectName() {
-        return objectName;
-    }
-
-    public Object getValue(String configurationName, ObjectName gbean, GAttributeInfo attribute) {
-        return null;
-    }
-
     public void setValue(String configurationName, ObjectName gbean, GAttributeInfo attribute, Object value) {
+    }
+
+    public void setShouldLoad(String configurationName, ObjectName gbean, boolean load) {
     }
 
     public void save() throws IOException {
@@ -63,9 +55,7 @@ public class MavenAttributeStore implements ManageableAttributeStore {
 
     static {
         GBeanInfoBuilder builder = new GBeanInfoBuilder(MavenAttributeStore.class);
-        builder.addAttribute("objectName", String.class, false);
         builder.addInterface(ManageableAttributeStore.class);
-        builder.setConstructor(new String[] {"objectName"});
         GBEAN_INFO = builder.getBeanInfo();
     }
 }

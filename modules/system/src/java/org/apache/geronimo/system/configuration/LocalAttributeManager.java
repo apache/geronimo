@@ -211,6 +211,30 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
     }
 
+    public synchronized void setShouldLoad(String configurationName, ObjectName gbean, boolean load) {
+        if (readOnly) {
+            return;
+        }
+        ConfigInfo config = (ConfigInfo) configurations.get(configurationName);
+        if (config == null) {
+            config = new ConfigInfo(true);
+            configurations.put(configurationName, config);
+        }
+        GBeanAttrsInfo atts = config.getGBean(gbean);
+        if (atts == null) {
+            atts = config.getGBean(gbean.getKeyProperty("name"));
+            if (atts == null) {
+                atts = new GBeanAttrsInfo(load);
+                config.addGBean(gbean, atts);
+            } else {
+                atts.setLoad(load);
+            }
+        } else {
+            atts.setLoad(load);
+        }
+        attributeChanged();
+    }
+
     public void load() throws IOException {
         ensureParentDirectory();
         if (!attributeFile.exists()) {
@@ -447,89 +471,6 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         };
         timer.schedule(currentTask, SAVE_BUFFER_MS);
     }
-
-
-    /**
-     * A thread that's notified on every attribute update.  5 seconds after
-     * being notified, it will save the changes to a file.
-     */
-/*
-    // todo: This code is not pleasing -- it uses lots of synchronization and still doesn't guarantee a timely shutdown.
-    private class UpdateThread extends Thread {
-        private boolean done = false;
-        private boolean pending = false;
-
-        public UpdateThread() {
-            super("Manageable-Attribute-Saver");
-            setDaemon(true);
-        }
-
-        public synchronized void setDone() {
-            this.done = true;
-        }
-
-        public synchronized boolean isDone() {
-            return done;
-        }
-
-        public void run() {
-            while (!isDone()) {
-                // Wait until at least one change has been made
-                synchronized (LocalAttributeManager.this) {
-                    if (!pending) {
-                        try {
-                            LocalAttributeManager.this.wait();
-                            pending = true;
-                        } catch (InterruptedException e) {
-                        }
-                    }
-                    if (done) {
-                        return;
-                    }
-                }
-
-                // Pause for effect (and to catch a flurry of changes)
-                // Don't synchronize this as it holds monitors while sleeping
-                try {
-                    sleep(SAVE_BUFFER_MS);
-                } catch (InterruptedException e) {
-                }
-
-                // Save
-                synchronized (LocalAttributeManager.this) {
-                    if (!isDone()) {
-                        try {
-                            save();
-                        } catch (IOException e) {
-                            log.error("Error saving attributes", e);
-                        }
-                        pending = false;
-                    }
-                }
-            }
-        }
-
-        public boolean isPending() {
-            synchronized (LocalAttributeManager.this) {
-                return pending;
-            }
-        }
-
-        public void attributeChanged() {
-            synchronized (LocalAttributeManager.this) {
-                pending = true;
-                LocalAttributeManager.this.notify();
-            }
-        }
-
-        public void shutdown() {
-            setDone();
-            synchronized (LocalAttributeManager.this) {
-                LocalAttributeManager.this.notify();
-            }
-        }
-    }
-*/
 
     private static class ConfigInfo {
         private boolean load;

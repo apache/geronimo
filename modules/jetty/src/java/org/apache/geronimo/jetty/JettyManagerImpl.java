@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.net.URISyntaxException;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -30,6 +31,10 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.connector.HTTPSConnector;
 import org.apache.geronimo.jetty.connector.AJP13Connector;
@@ -91,14 +96,25 @@ public class JettyManagerImpl implements WebManager {
         connector.setAttribute("minThreads", new Integer(10));
         connector.setAttribute("maxThreads", new Integer(50));
         connector.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, container);
-        ObjectName config = Util.getConfiguration(kernel, container);
-        try {
-            kernel.invoke(config, "addGBean", new Object[]{connector, Boolean.FALSE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
-        } catch (Exception e) {
-            log.error("Unable to add GBean ", e);
+        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        if(mgr != null) {
+            try {
+                ObjectName config = Util.getConfiguration(kernel, container);
+                mgr.addGBeanToConfiguration(Configuration.getConfigurationID(config), connector, false);
+                return name.getCanonicalName();
+            } catch (InvalidConfigException e) {
+                log.error("Unable to add GBean", e);
+                return null;
+            } catch (URISyntaxException e) {
+                log.error("Should never happen", e);
+                return null;
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+            }
+        } else {
+            log.warn("The ConfigurationManager in the kernel does not allow editing");
             return null;
         }
-        return name.getCanonicalName();
     }
 
     /**
@@ -150,7 +166,20 @@ public class JettyManagerImpl implements WebManager {
                 throw new GBeanNotFoundException(name);
             }
             ObjectName config = Util.getConfiguration(kernel, name);
-            kernel.invoke(config, "removeGBean", new Object[]{name}, new String[]{ObjectName.class.getName()});
+            EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+            if(mgr != null) {
+                try {
+                    mgr.removeGBeanFromConfiguration(Configuration.getConfigurationID(config), name);
+                } catch (InvalidConfigException e) {
+                    log.error("Unable to add GBean", e);
+                } catch (URISyntaxException e) {
+                    log.error("Should never happen", e);
+                } finally {
+                    ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+                }
+            } else {
+                log.warn("The ConfigurationManager in the kernel does not allow editing");
+            }
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '" + objectName + "'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {

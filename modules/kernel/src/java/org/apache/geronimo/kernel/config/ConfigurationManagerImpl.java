@@ -36,19 +36,24 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.NoSuchOperationException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 /**
+ * The standard non-editable ConfigurationManager implementation.  That is,
+ * you can save a lost configurations and stuff, but not change the set of
+ * GBeans included in a configuration.
+ *
+ * @see EditableConfigurationManager
+ *
  * @version $Rev$ $Date$
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
-    private final Kernel kernel;
+    protected final Kernel kernel;
     private final Collection stores;
-    private final ManageableAttributeStore attributeStore;
-    private final PersistentConfigurationList configurationList;
+    protected final ManageableAttributeStore attributeStore;
+    protected final PersistentConfigurationList configurationList;
     private final ShutdownHook shutdownHook;
     private static final ObjectName CONFIGURATION_NAME_QUERY;
 

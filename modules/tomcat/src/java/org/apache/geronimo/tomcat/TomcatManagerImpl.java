@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
+import java.net.URISyntaxException;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -33,6 +34,10 @@ import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -95,15 +100,25 @@ public class TomcatManagerImpl implements WebManager {
         connector.setAttribute("acceptQueueSize", new Integer(100));
         connector.setReferencePattern(ConnectorGBean.CONNECTOR_CONTAINER_REFERENCE, container);
         connector.setAttribute("name", uniqueName);
-        ObjectName config = Util.getConfiguration(kernel, container);
-        try {
-            kernel.invoke(config, "addGBean", new Object[]{connector, Boolean.FALSE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
-            kernel.invoke(config, "saveState");
-        } catch (Exception e) {
-            log.error("Unable to add GBean ", e);
+        EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+        if(mgr != null) {
+            try {
+                ObjectName config = Util.getConfiguration(kernel, container);
+                mgr.addGBeanToConfiguration(Configuration.getConfigurationID(config), connector, false);
+                return name.getCanonicalName();
+            } catch (InvalidConfigException e) {
+                log.error("Unable to add GBean", e);
+                return null;
+            } catch (URISyntaxException e) {
+                log.error("Should never happen", e);
+                return null;
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+            }
+        } else {
+            log.warn("The ConfigurationManager in the kernel does not allow editing");
             return null;
         }
-        return name.getCanonicalName();
     }
 
     /**
@@ -153,8 +168,20 @@ public class TomcatManagerImpl implements WebManager {
                 throw new GBeanNotFoundException(name);
             }
             ObjectName config = Util.getConfiguration(kernel, name);
-            kernel.invoke(config, "removeGBean", new Object[]{name}, new String[]{ObjectName.class.getName()});
-            kernel.invoke(config, "saveState");
+            EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
+            if(mgr != null) {
+                try {
+                    mgr.removeGBeanFromConfiguration(Configuration.getConfigurationID(config), name);
+                } catch (InvalidConfigException e) {
+                    log.error("Unable to add GBean", e);
+                } catch (URISyntaxException e) {
+                    log.error("Should never happen", e);
+                } finally {
+                    ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
+                }
+            } else {
+                log.warn("The ConfigurationManager in the kernel does not allow editing");
+            }
         } catch (GBeanNotFoundException e) {
             log.warn("No such GBean '"+objectName+"'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {

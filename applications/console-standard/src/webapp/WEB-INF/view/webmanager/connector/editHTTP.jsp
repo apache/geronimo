@@ -5,6 +5,8 @@
 <form name="<portlet:namespace/>" action="<portlet:actionURL/>">
 <input type="hidden" name="mode" value="${mode}">
 <input type="hidden" name="protocol" value="${protocol}">
+<input type="hidden" name="containerObjectName" value="${containerObjectName}">
+<input type="hidden" name="managerObjectName" value="${managerObjectName}">
 <c:if test="${mode eq 'save'}">
   <input type="hidden" name="objectName" value="${objectName}">
 </c:if>
