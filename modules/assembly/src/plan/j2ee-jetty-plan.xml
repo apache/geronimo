@@ -38,6 +38,10 @@ Configuration for Jetty server.
     <gbean name="JettyWebManager" class="org.apache.geronimo.jetty.JettyManagerImpl"/>
 
     <gbean name="JettyAccessLogManager" class="org.apache.geronimo.jetty.requestlog.JettyLogManagerImpl">
+        <reference name="ServerInfo">
+            <module>org/apache/geronimo/System</module>
+            <name>ServerInfo</name>
+        </reference>
         <references name="LogGBeans">
             <pattern>
                 <!-- This is lame and should be replaced by an interface reference -->

@@ -27,6 +27,11 @@ public interface WebManager extends NetworkManager {
     public final static String PROTOCOL_AJP = "AJP";
 
     /**
+     * Gets the name of the product that this manager manages.
+     */
+    public String getProductName(); //todo: move into NetworkManager
+
+    /**
      * Creates a new connector, and returns the ObjectName for it.  Note that
      * the connector may well require further customization before being fully
      * functional (e.g. SSL settings for a secure connector).  This may need

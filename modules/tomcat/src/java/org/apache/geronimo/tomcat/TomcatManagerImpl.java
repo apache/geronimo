@@ -50,6 +50,10 @@ public class TomcatManagerImpl implements WebManager {
         this.kernel = kernel;
     }
 
+    public String getProductName() {
+        return "Tomcat";
+    }
+
     /**
      * Creates a new connector, and returns the ObjectName for it.  Note that the connector may well require further
      * customization before being fully functional (e.g. SSL settings for a secure connector).  This may need to be done

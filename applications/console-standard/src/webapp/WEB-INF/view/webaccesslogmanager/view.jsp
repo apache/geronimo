@@ -50,11 +50,57 @@ function <portlet:namespace/>refresh(){
     <form action="<portlet:renderURL/>" name="<portlet:namespace/>searchForm" method="post">
     <b>Filter results:</b>
     <table width="680">
+    <c:choose>
+      <c:when test="${fn:length(webContainers) > 1}">
+        <tr>
+            <td colspan="4" class="DarkBackground"><b>Container:</b></td>
+        </tr>
+        <tr>
+            <td>Search Web Container:</td>
+            <td>
+              <select name="selectedContainer">
+            <c:forEach var="webContainer" items="${webContainers}">
+                <option value="${webContainer.value}"<c:if test="${webContainer.value eq selectedContainer}"> selected</c:if>>${webContainer.key}</option>
+            </c:forEach>
+              </select>
+            </td>
+        </tr>
+      </c:when>
+      <c:otherwise>
+      <c:forEach var="webContainer" items="${webContainers}">
+        <tr><td><input type="hidden" name="selectedContainer" value="${webContainer.value}" /></td></tr>
+      </c:forEach>
+      </c:otherwise>
+    </c:choose>
+    <%-- todo: When the user changes the selected container, we need to change the log selection options!!!
+         need some AJAX here.  :)  --%>
+    <c:choose>
+      <c:when test="${fn:length(webLogs) > 1}">
+        <tr>
+            <td colspan="4" class="DarkBackground"><b>Log:</b></td>
+        </tr>
+        <tr>
+            <td>Search Web Log:</td>
+            <td>
+              <select name="selectedLog">
+            <c:forEach var="webLog" items="${webLogs}">
+                <option<c:if test="${webLog eq selectedLog}"> selected</c:if>>${webLog}</option>
+            </c:forEach>
+              </select>
+            </td>
+        </tr>
+      </c:when>
+      <c:otherwise>
+      <c:forEach var="webLog" items="${webLogs}">
+        <tr><td><input type="hidden" name="selectedLog" value="${webLog}" /></td></tr>
+      </c:forEach>
+      </c:otherwise>
+    </c:choose>
         <tr>
             <td colspan="4" class="DarkBackground"><b>Date:</b></td>
         </tr>
         <tr>
-            <td>From:</td> 
+            <td>From:</td>
             <td>
                 <select name="startMonth" onchange="<portlet:namespace/>loadDates('startMonth','startDate','startYear');">
                     <option value="0">January</option><option value="1">February</option>
@@ -102,7 +148,7 @@ function <portlet:namespace/>refresh(){
         <tr>
             <td>Ignore Dates:</td>
             <td>
-            <input type="checkbox" name="ignoreDates" <c:if test="${ignoreDate}"> checked</c:if>/>
+            <input type="checkbox" name="ignoreDates" <c:if test="${ignoreDates}"> checked</c:if>/>
             </td>
         </tr>    
         <tr>
@@ -144,7 +190,7 @@ function <portlet:namespace/>refresh(){
 <c:when test="${logs != null && fn:length(logs) > 0}">
     <table>
         <tr>
-            <td><b>Found ${fn:length(logs)} matches in logfile.</b></td>
+            <td><b>Found ${fn:length(logs)} matches in logfile (${logLength} lines searched).</b></td>
         </tr>   
     <c:forEach var="line" items="${logs}">
         <tr>

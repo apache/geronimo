@@ -18,6 +18,7 @@ package org.apache.geronimo.jetty.requestlog;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.MappedByteBuffer;
@@ -40,6 +42,14 @@ import java.text.ParseException;
  */
 public class JettyLogManagerImpl implements JettyLogManager {
     private final static Log log = LogFactory.getLog(JettyLogManagerImpl.class);
+
+    // Pattern that matches the date in the logfile name
+    private final static Pattern FILENAME_DATE_PATTERN = Pattern.compile("[-_ /.](((19|20)\\d\\d)[-_ /.](0[1-9]|1[012])[-_ /.](0[1-9]|[12][0-9]|3[01]))");
+    private final static int GROUP_FILENAME_FULL_DATE = 1;
+    private final static int GROUP_FILENAME_YEAR  = 2;
+    private final static int GROUP_FILENAME_MONTH = 4;
+    private final static int GROUP_FILENAME_DAY   = 5;
+
     // Pattern that matches a single line  (used to calculate line numbers)
     private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
     private final static Pattern ACCESS_LOG_PATTERN = Pattern.compile("(\\S*) (\\S*) (\\S*) \\[(.*)\\] \\\"(\\S*) (\\S*).*?\\\" (\\S*) (\\S*).*");
@@ -51,109 +61,190 @@ public class JettyLogManagerImpl implements JettyLogManager {
     private final static int GROUP_RESPONSE_CODE = 7;
     private final static int GROUP_RESPONSE_LENGTH = 8;
     private final static String ACCESS_LOG_DATE_FORMAT = "dd/MMM/yyyy:HH:mm:ss ZZZZ";
-    private Collection logGbeans;
+    private final static String LOG_FILE_NAME_FORMAT = "yyyy_MM_dd";
+    private final Collection logGbeans;   
+    private final ServerInfo serverInfo;  
 
-    public JettyLogManagerImpl(Collection logGbeans) {
+    public JettyLogManagerImpl(ServerInfo serverInfo, Collection logGbeans) {
+        this.serverInfo = serverInfo;
         this.logGbeans = logGbeans;
     }
 
-    public String[] getLogFileNames() {
-        List files = new ArrayList();
+    /**
+     * Gets the name of all logs used by this system.  Typically there
+     * is only one, but specialized cases may use more.
+     *
+     * @return An array of all log names
+     *
+     */
+    public String[] getLogNames() {
+        List logNames = new ArrayList();
         for (Iterator it = logGbeans.iterator(); it.hasNext();) {
-            JettyRequestLog log = (JettyRequestLog) it.next();
-            if(log.getFilename() != null) {
-                files.add(log.getFilename());
+            JettyRequestLog jettyLog = (JettyRequestLog) it.next();
+            if(jettyLog.getFilename() != null) {
+                logNames.add(jettyLog.getFilename());
             }
         }
-        return (String[]) files.toArray(new String[files.size()]);
+        return (String[]) logNames.toArray(new String[logNames.size()]);
     }
 
-    public SearchResults getMatchingItems(String logFile, String host, String user, String method, String uri,
-                                          Date startDate, Date endDate, Integer skipResults, Integer maxResults) {
-        File log = null;
-        for (Iterator it = logGbeans.iterator(); it.hasNext();) {
-            JettyRequestLog logger = (JettyRequestLog) it.next();
-            if(logger.getFilename() != null && logger.getFilename().equals(logFile)) {
-                log = new File(logger.getAbsoluteFilePath());
-                break;
+    /**
+     * Gets the names of all log files for this log name.  
+     *
+     * @param logName The name of the log for which to return the specific file names.
+     *
+     * @return An array of log file names
+     *
+     */
+    public String[] getLogFileNames(String logName) {
+        List names = new ArrayList();
+
+        // Find all the files for this logName
+        File[] logFiles = getLogFiles(logName);
+
+        if (logFiles !=null) {
+            for (int i = 0; i < logFiles.length; i++) {
+                names.add(logFiles[i].getName());
             }
         }
-        if(log == null) {
-            throw new IllegalArgumentException("Unknown log file '"+logFile+"'");
-        }
-
-        return search(log, host, user, method, uri, startDate, endDate, skipResults, maxResults);
+        return (String[]) names.toArray(new String[names.size()]);
     }
 
-    private SearchResults search(File file, String host, String user, String method, String uri, Date startDate,
-                                 Date endDate, Integer skipResults, Integer maxResults) {
+    /**
+     * Gets the name of all log files used by this log.  Typically there
+     * is only one, but specialized cases may use more.
+     *
+     * @param logName The name of the log for which to return the specific files.
+     *
+     * @return An array of all log file names
+     *
+     */
+    private File[] getLogFiles(String logName) {
+        File[] logFiles = null;
+
+        try {
+            String fileNamePattern = logName;
+            if (fileNamePattern.indexOf(File.separator) > -1) {
+                fileNamePattern = fileNamePattern.substring(fileNamePattern.lastIndexOf(File.separator) + 1);
+            }
+
+            String logFile = serverInfo.resolvePath(logName);
+
+            File parent = new File(logFile).getParentFile();
+
+            if (parent != null) {
+                logFiles = parent.listFiles(new PatternFilenameFilter(fileNamePattern));
+            }
+        } catch (Exception e) {
+            log.error("Exception attempting to locate Jetty log files: "+e);
+            logFiles = new File[0];
+            e.printStackTrace();
+        }
+        return logFiles;
+    }
+
+    /**
+     * Searches the log for records matching the specified parameters.  The
+     * maximum results returned will be the lesser of 1000 and the
+     * provided maxResults argument.
+     *
+     * @see #MAX_SEARCH_RESULTS
+     */
+    public SearchResults getMatchingItems(String logName, String host, String user, String method, String uri, Date startDate,
+                                          Date endDate, Integer skipResults, Integer maxResults) {
+
         // Clean up the arguments so we know what we've really got
         if(host != null && host.equals("")) host = null;
         if(user != null && user.equals("")) user = null;
         if(method != null && method.equals("")) method = null;
         if(uri != null && uri.equals("")) uri = null;
-        // Do the search
+
+        long start = startDate == null ? 0 : startDate.getTime();
+        long end = endDate == null ? 0 : endDate.getTime();
+
         List list = new LinkedList();
         boolean capped = false;
-        int lineCount = 0;
-        try {
-            RandomAccessFile raf = new RandomAccessFile(file, "r");
-            FileChannel fc = raf.getChannel();
-            MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-            CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Jetty use a different charset on a foreign PC?
-            Matcher lines = FULL_LINE_PATTERN.matcher(cb);
-            Matcher target = ACCESS_LOG_PATTERN.matcher("");
-            long start = startDate == null ? 0 : startDate.getTime();
-            long end = endDate == null ? 0 : endDate.getTime();
-            SimpleDateFormat format = (start == 0 && end == 0) ? null : new SimpleDateFormat(ACCESS_LOG_DATE_FORMAT);
-            int max = maxResults == null ? MAX_SEARCH_RESULTS : Math.min(maxResults.intValue(), MAX_SEARCH_RESULTS);
-            while(lines.find()) {
-                ++lineCount;
-                if(capped) {
-                    continue;
-                }
-                CharSequence line = cb.subSequence(lines.start(), lines.end());
-                target.reset(line);
-                if(target.find()) {
-                    if(host != null && !host.equals(target.group(GROUP_HOST))) {
-                        continue;
-                    }
-                    if(user != null && !user.equals(target.group(GROUP_USER))) {
-                        continue;
-                    }
-                    if(method != null && !method.equals(target.group(GROUP_METHOD))) {
-                        continue;
-                    }
-                    if(uri != null && !target.group(GROUP_URI).startsWith(uri)) {
-                        continue;
-                    }
-                    if(format != null) {
-                        try {
-                            long entry = format.parse(target.group(GROUP_DATE)).getTime();
-                            if(start > entry) {
+        int lineCount = 0, fileCount = 0;
+
+        // Find all the files for this logName
+        File logFiles[] = getLogFiles(logName);
+
+        if (logFiles !=null) {
+            for (int i = 0; i < logFiles.length; i++) {
+                fileCount = 0;
+                try {
+                    // Obtain the date for the current log file
+                    String fileName = logFiles[i].getName();
+                    Matcher fileDate = FILENAME_DATE_PATTERN.matcher(fileName);
+                    fileDate.find();
+                    SimpleDateFormat simpleFileDate = new SimpleDateFormat(LOG_FILE_NAME_FORMAT);
+                    long logFileTime = simpleFileDate.parse(fileDate.group(GROUP_FILENAME_FULL_DATE)).getTime();
+
+                    // Check if the dates are null (ignore) or fall within the search range
+                    if (  (start==0 && end==0)
+                       || (start>0 && start<=logFileTime && end>0 && end>=logFileTime)) {
+
+                        // It's in the range, so process the file
+                        RandomAccessFile raf = new RandomAccessFile(logFiles[i], "r");
+                        FileChannel fc = raf.getChannel();
+                        MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+                        CharBuffer cb = Charset.forName("US-ASCII").decode(bb); //todo: does Jetty use a different charset on a foreign PC?
+                        Matcher lines = FULL_LINE_PATTERN.matcher(cb);
+                        Matcher target = ACCESS_LOG_PATTERN.matcher("");
+                        SimpleDateFormat format = (start == 0 && end == 0) ? null : new SimpleDateFormat(ACCESS_LOG_DATE_FORMAT);
+                        int max = maxResults == null ? MAX_SEARCH_RESULTS : Math.min(maxResults.intValue(), MAX_SEARCH_RESULTS);
+
+                        while(lines.find()) {
+                            ++lineCount;
+                            ++fileCount;
+                            if(capped) {
                                 continue;
                             }
-                            if(end > 0 && end < entry) {
-                                continue;
+                            CharSequence line = cb.subSequence(lines.start(), lines.end());
+                            target.reset(line);
+                            if(target.find()) {
+                                if(host != null && !host.equals(target.group(GROUP_HOST))) {
+                                    continue;
+                                }
+                                if(user != null && !user.equals(target.group(GROUP_USER))) {
+                                    continue;
+                                }
+                                if(method != null && !method.equals(target.group(GROUP_METHOD))) {
+                                    continue;
+                                }
+                                if(uri != null && !target.group(GROUP_URI).startsWith(uri)) {
+                                    continue;
+                                }
+                                if(format != null) {
+                                    try {
+                                        long entry = format.parse(target.group(GROUP_DATE)).getTime();
+                                        if(start > entry) {
+                                            continue;
+                                        }
+                                        if(end > 0 && end < entry) {
+                                            continue;
+                                        }
+                                    } catch (ParseException e) {
+                                        // can't read the date, guess this record counts.
+                                    }
+                                }
+                                if(skipResults != null && skipResults.intValue() > lineCount) {
+                                    continue;
+                                }
+                                if(list.size() > max) {
+                                    capped = true;
+                                    continue;
+                                }
+                                list.add(new LogMessage(fileCount,line.toString()));
                             }
-                        } catch (ParseException e) {
-                            // can't read the date, guess this record counts.
                         }
+                        fc.close();
+                        raf.close();
                     }
-                    if(skipResults != null && skipResults.intValue() > lineCount) {
-                        continue;
-                    }
-                    if(list.size() > max) {
-                        capped = true;
-                        continue;
-                    }
-                    list.add(new LogMessage(lineCount,line.toString()));
+                } catch (Exception e) {
+                    log.error("Unexpected error processing logs", e);
                 }
             }
-            fc.close();
-            raf.close();
-        } catch (Exception e) {
-            log.error("Unexpected error processing logs", e);
         }
         return new SearchResults(lineCount, (LogMessage[]) list.toArray(new LogMessage[list.size()]), capped);
     }
@@ -164,52 +255,34 @@ public class JettyLogManagerImpl implements JettyLogManager {
     static {
         GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Log Manager", JettyLogManagerImpl.class);
         infoFactory.addReference("LogGBeans", JettyRequestLog.class);
+        infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(JettyLogManager.class);
 
-        infoFactory.setConstructor(new String[]{"LogGBeans"});
+        infoFactory.setConstructor(new String[]{"ServerInfo","LogGBeans"});  
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
-/*
-    public static void main(String[] args) {
-        String jetty = "127.0.0.1 - - [07/Sep/2005:19:54:41 +0000] \"GET /console/ HTTP/1.1\" 302 0 \"-\" \"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Firefox/1.0.6 SUSE/1.0.6-4.1\" -";
-        String tomcat = "127.0.0.1 - - [07/Sep/2005:15:51:18 -0500] \"GET /console/portal/server/server_info HTTP/1.1\" 200 11708";
 
-        SimpleDateFormat format = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss ZZZZ");
-        try {
-            Pattern p = Pattern.compile("(\\S*) (\\S*) (\\S*) \\[(.*)\\] \\\"(\\S*) (\\S*).*?\\\" (\\S*) (\\S*).*");
-            Matcher m = p.matcher(jetty);
-            if(m.matches()) {
-                System.out.println("Group 1: "+m.group(1)); // client
-                System.out.println("Group 2: "+m.group(2)); // ?? server host?
-                System.out.println("Group 3: "+m.group(3)); // username
-                System.out.println("Group 4: "+format.parse(m.group(4))); // date
-                System.out.println("Group 5: "+m.group(5)); // method
-                System.out.println("Group 5: "+m.group(6)); // URI
-                System.out.println("Group 6: "+m.group(7)); // response code
-                System.out.println("Group 7: "+m.group(8)); // response length
-            } else {
-                System.out.println("No match");
-            }
-            m = p.matcher(tomcat);
-            if(m.matches()) {
-                System.out.println("Group 1: "+m.group(1));
-                System.out.println("Group 2: "+m.group(2));
-                System.out.println("Group 3: "+m.group(3));
-                System.out.println("Group 4: "+format.parse(m.group(4)));
-                System.out.println("Group 5: "+m.group(5)); // method
-                System.out.println("Group 5: "+m.group(6)); // URI
-                System.out.println("Group 6: "+m.group(7)); // response code
-                System.out.println("Group 7: "+m.group(8)); // response length
-            } else {
-                System.out.println("No match");
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+    /*
+     * Static inner class implementation of java.io.Filename. This will help us
+     * filter for only the files that we are interested in.
+     */
+    static class PatternFilenameFilter implements FilenameFilter {
+        Pattern pattern;
+        //todo: put this pattern in a GBean parameter?
+        PatternFilenameFilter(String fileNamePattern) {
+            fileNamePattern = fileNamePattern.replaceAll("yyyy", "\\\\d{4}");
+            fileNamePattern = fileNamePattern.replaceAll("yy", "\\\\d{2}");
+            fileNamePattern = fileNamePattern.replaceAll("mm", "\\\\d{2}");
+            fileNamePattern = fileNamePattern.replaceAll("dd", "\\\\d{2}");
+            this.pattern = Pattern.compile(fileNamePattern);
+        }
+
+        public boolean accept(File file, String fileName) {
+            return pattern.matcher(fileName).matches();
         }
     }
-*/
 }

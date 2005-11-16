@@ -32,10 +32,24 @@ public interface WebAccessLog {
     public final static int MAX_SEARCH_RESULTS = 1000;
 
     /**
-     * Gets the name of all log files used by this log system.  Typically there
+     * Gets the name of all logs used by this system.  Typically there
      * is only one, but specialized cases may use more.
+     *
+     * @return An array of all log names
+     *
      */
-    String[] getLogFileNames();
+    String[] getLogNames();
+
+    /**
+     * Gets the name of all log files used by this log.  Typically there
+     * is only one, but specialized cases may use more.
+     *
+     * @param log The name of the log for which to return the specific file names. 
+     *
+     * @return An array of all log file names
+     *
+     */
+    String[] getLogFileNames(String log);
 
     /**
      * Searches the log for records matching the specified parameters.  The
@@ -44,7 +58,7 @@ public interface WebAccessLog {
      *
      * @see #MAX_SEARCH_RESULTS
      */
-    SearchResults getMatchingItems(String logFile, String host, String user, String method,
+    SearchResults getMatchingItems(String logName, String host, String user, String method,
                                    String uri, Date startDate, Date endDate,
                                    Integer skipResults, Integer maxResults);
 
