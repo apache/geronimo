@@ -20,7 +20,7 @@ import org.mortbay.http.HttpRequest;
 import org.mortbay.http.HttpResponse;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface BeforeAfter {
 

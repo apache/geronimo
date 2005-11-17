@@ -22,7 +22,7 @@ import org.mortbay.http.HttpContext;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class WebApplicationContextBeforeAfter implements BeforeAfter {
 

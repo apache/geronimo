@@ -21,7 +21,7 @@ import org.mortbay.http.HttpResponse;
 
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ThreadClassloaderBeforeAfter implements BeforeAfter {
 

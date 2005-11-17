@@ -23,7 +23,7 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
 import org.mortbay.jetty.servlet.ServletHttpResponse;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class RequestWrappingBeforeAfter implements BeforeAfter {
     private final BeforeAfter next;

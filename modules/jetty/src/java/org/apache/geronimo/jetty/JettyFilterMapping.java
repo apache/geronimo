@@ -25,7 +25,7 @@ import org.mortbay.jetty.servlet.Dispatcher;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class JettyFilterMapping implements Serializable {
 

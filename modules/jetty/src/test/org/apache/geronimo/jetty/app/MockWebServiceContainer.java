@@ -19,7 +19,7 @@ package org.apache.geronimo.jetty.app;
 import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MockWebServiceContainer implements WebServiceContainer {
     public void invoke(Request request, Response response) throws Exception {

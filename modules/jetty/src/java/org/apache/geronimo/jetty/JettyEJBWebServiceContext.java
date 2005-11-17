@@ -58,7 +58,7 @@ import org.mortbay.http.UserRealm;
  * The EJB Web Service architecure, on the other hand, creates one Context for each EJB:
  * Container -> JettyEJBWebServiceContext
  *
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class JettyEJBWebServiceContext extends HttpContext implements HttpHandler {
 

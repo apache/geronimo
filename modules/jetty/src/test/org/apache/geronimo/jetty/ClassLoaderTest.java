@@ -28,7 +28,7 @@ import junit.framework.TestCase;
  * settings for contextPriorityClassLoader to make sure the restrictions on
  * javax.* class loading are honored.
  *
- * @version $Rev: 54805 $ $Date: 2004-10-14 17:51:13 -0400 (Thu, 14 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class ClassLoaderTest extends TestCase {
     JettyClassLoader cl;

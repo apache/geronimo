@@ -56,7 +56,7 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class AbstractWebModuleTest extends TestCase {
     protected Kernel kernel;

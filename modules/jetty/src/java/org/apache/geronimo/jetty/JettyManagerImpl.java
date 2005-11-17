@@ -50,7 +50,7 @@ import org.apache.commons.logging.LogFactory;
  * Jetty implementation of WebManager.  Knows how to manipulate
  * other Jetty objects for management purposes.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class JettyManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(JettyManagerImpl.class);

@@ -44,7 +44,7 @@ import org.mortbay.jetty.servlet.ServletHttpRequest;
  * This is intended to hold the web service stack for an axis POJO web service.
  * It is starting life as a copy of JettyServletHolder.
  *
- * @version $Rev: 154436 $ $Date: 2005-02-19 10:22:02 -0800 (Sat, 19 Feb 2005) $
+ * @version $Rev$ $Date$
  */
 public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLifecycle {
     private StoredObject storedWebServiceContainer;
