@@ -33,7 +33,10 @@ public class GenericToSpecificPlanConverter {
 
     private static final QName GENERIC_QNAME = GerWebAppDocument.type.getDocumentElementName();
     private static final String GENERIC_NAMESPACE = GENERIC_QNAME.getNamespaceURI();
+    private static final String OLD_GENERIC_NAMESPACE = "http://geronimo.apache.org/xml/ns/web";
+
     private static final QName GENERIC_CONFIG_QNAME = new QName(GENERIC_NAMESPACE, "container-config");
+    private static final QName OLD_GENERIC_CONFIG_QNAME = new QName(OLD_GENERIC_NAMESPACE, "container-config");
     private static final String SYSTEM_NAMESPACE = ConfigurationDocument.type.getDocumentElementName().getNamespaceURI();
     private static final QName SECURITY_QNAME = GerSecurityDocument.type.getDocumentElementName();
     private final String configNamespace;
@@ -56,7 +59,7 @@ public class GenericToSpecificPlanConverter {
                 XmlCursor end = cursor.newCursor();
                 try {
                     cursor.push();
-                    if (cursor.toChild(GENERIC_CONFIG_QNAME)) {
+                    if (cursor.toChild(GENERIC_CONFIG_QNAME) || cursor.toChild(OLD_GENERIC_CONFIG_QNAME)) {
                         XmlCursor source = cursor.newCursor();
                         cursor.push();
                         cursor.toEndToken();

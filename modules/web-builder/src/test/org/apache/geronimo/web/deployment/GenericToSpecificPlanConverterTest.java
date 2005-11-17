@@ -32,8 +32,18 @@ import org.apache.xmlbeans.XmlCursor;
 public class GenericToSpecificPlanConverterTest extends TestCase {
     private ClassLoader classLoader = this.getClass().getClassLoader();
 
-    public void testConvertPlan() throws Exception {
-        URL srcXml = classLoader.getResource("plans/tomcat-pre.xml");
+    public void testConvertPlan1() throws Exception {
+        testConvertPlan("plans/tomcat-pre.xml");
+    }
+    public void testConvertPlan2() throws Exception {
+        testConvertPlan("plans/tomcat-pre2.xml");
+    }
+    public void testConvertPlan3() throws Exception {
+        testConvertPlan("plans/tomcat-pre3.xml");
+    }
+
+    public void testConvertPlan(String prePlanName) throws Exception {
+        URL srcXml = classLoader.getResource(prePlanName);
         URL expectedOutputXml = classLoader.getResource("plans/tomcat-post.xml");
         XmlObject rawPlan = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
@@ -47,20 +57,6 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
         assertTrue("Differences: " + problems, ok);
     }
 
-    public void testConvertPlan2() throws Exception {
-        URL srcXml = classLoader.getResource("plans/tomcat-pre2.xml");
-        URL expectedOutputXml = classLoader.getResource("plans/tomcat-post.xml");
-        XmlObject rawPlan = XmlObject.Factory.parse(srcXml);
-        XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat/config-1.0",
-                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0", "tomcat").convertToSpecificPlan(rawPlan);
-
-        System.out.println(webPlan.toString());
-//        System.out.println(expected.toString());
-        List problems = new ArrayList();
-        boolean ok = compareXmlObjects(webPlan, expected, problems);
-        assertTrue("Differences: " + problems, ok);
-    }
 
 
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
