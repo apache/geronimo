@@ -19,7 +19,7 @@ package org.apache.geronimo.security.realm.providers;
 /**
  * This is a marker interface used to indicate that a particular principal should be returned from getCallerPrincipal().
  *
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface GeronimoCallerPrincipal {
 }

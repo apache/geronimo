@@ -33,7 +33,7 @@ import org.apache.geronimo.security.jaas.client.JaasLoginCoordinator;
  * LoginModuleGBean and a DirectConfigurationEntry, but this method saves some
  * configuration effort.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory {
     private final String applicationConfigName;

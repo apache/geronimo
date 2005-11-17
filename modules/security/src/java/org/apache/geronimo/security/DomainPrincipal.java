@@ -23,7 +23,7 @@ import java.security.Principal;
 /**
  * Represents a principal in an realm.
  *
- * @version $Rev: 279959 $ $Date: 2005-09-09 23:00:51 -0700 (Fri, 09 Sep 2005) $
+ * @version $Rev$ $Date$
  */
 public class DomainPrincipal implements Principal, Serializable {
     private final String domain;

@@ -17,7 +17,7 @@
 package org.apache.geronimo.security.jaas;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class NamedUsernamePasswordCredential extends UsernamePasswordCredential{
 

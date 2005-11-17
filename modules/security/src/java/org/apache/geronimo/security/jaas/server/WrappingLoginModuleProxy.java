@@ -31,7 +31,7 @@ import org.apache.geronimo.security.RealmPrincipal;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class WrappingLoginModuleProxy implements LoginModule {
     private final LoginModule source;

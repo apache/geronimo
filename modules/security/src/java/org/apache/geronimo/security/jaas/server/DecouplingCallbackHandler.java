@@ -28,7 +28,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
  * and pass those values to the login module, instead of actually prompting
  * the user at the mercy of the login module.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DecouplingCallbackHandler implements CallbackHandler {
     private Callback[] source;

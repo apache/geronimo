@@ -21,7 +21,7 @@ import java.util.Map;
 import java.io.Serializable;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ComponentPermissions implements Serializable {
     private final PermissionCollection excludedPermissions ;

@@ -24,7 +24,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.callback.CallbackHandler;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class CertificateChainCallbackHandler implements CallbackHandler {
     Certificate[] certificateChain;

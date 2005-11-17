@@ -31,7 +31,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
 
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class NoLoginModuleReuseTest extends TestCase {
 

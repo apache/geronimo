@@ -36,7 +36,7 @@ import javax.security.auth.spi.LoginModule;
  * If either the username or password is not passed in the callback handler,
  * then the credential is not placed into the Subject.
  *
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class UPCredentialLoginModule implements LoginModule {
 

@@ -21,7 +21,7 @@ import java.security.Principal;
 
 
 /**
- * @version $Rev: 315020 $ $Date: 2005-10-12 13:01:56 -0700 (Wed, 12 Oct 2005) $
+ * @version $Rev$ $Date$
  */
 public class PrimaryDomainPrincipal extends DomainPrincipal {
 

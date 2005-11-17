@@ -27,7 +27,7 @@ import org.apache.geronimo.security.deploy.PrincipalInfo;
  * This interface is used by the deployment code to automatically map
  * principals to roles.
  *
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public interface AutoMapAssistant {
 

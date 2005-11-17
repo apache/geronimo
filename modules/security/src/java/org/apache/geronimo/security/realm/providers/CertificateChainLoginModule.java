@@ -47,7 +47,7 @@ import org.apache.commons.logging.LogFactory;
  * The groupsURI property file should have lines of the form group=token1,token2,...
  * where the tokens were associated to the certificate names in the usersURI properties file.
  *
- * @version $Rev: 169154 $ $Date: 2005-05-08 12:35:23 -0700 (Sun, 08 May 2005) $
+ * @version $Rev$ $Date$
  */
 public class CertificateChainLoginModule implements LoginModule {
     private static Log log = LogFactory.getLog(CertificateChainLoginModule.class);

@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class DistinguishedName implements Serializable {
 

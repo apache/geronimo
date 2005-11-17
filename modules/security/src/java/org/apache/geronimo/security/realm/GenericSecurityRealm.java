@@ -68,7 +68,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * These options can be safely ignored by login modules that don't need them
  * (such as any custom LoginModules you may already have lying around).
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFactory {
 

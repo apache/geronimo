@@ -33,7 +33,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
  * Helper class the computes the login result across a number of separate
  * login modules.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class LoginUtils {
     public static void copyPrincipals(Subject to, Subject from) {

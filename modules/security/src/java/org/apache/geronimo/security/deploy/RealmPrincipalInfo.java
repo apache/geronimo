@@ -23,7 +23,7 @@ import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 
 
 /**
- * @version $Rev: 154957 $ $Date: 2005-02-22 21:07:36 -0800 (Tue, 22 Feb 2005) $
+ * @version $Rev$ $Date$
  */
 public class RealmPrincipalInfo extends LoginDomainPrincipalInfo {
 

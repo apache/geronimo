@@ -19,7 +19,7 @@ package org.apache.geronimo.security.realm.providers;
 import javax.security.auth.callback.CallbackHandler;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface ClearableCallbackHandler extends CallbackHandler {
     void clear();

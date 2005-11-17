@@ -28,7 +28,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
  * GBean, but it's not like it will be run through the login service or
  * anything.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     private final String applicationConfigName;

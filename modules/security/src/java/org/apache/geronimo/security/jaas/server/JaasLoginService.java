@@ -59,7 +59,7 @@ import org.apache.geronimo.security.realm.SecurityRealm;
  * this service, or use a LoginModule implementation that interacts with this
  * service.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     public static final Log log = LogFactory.getLog(JaasLoginService.class);

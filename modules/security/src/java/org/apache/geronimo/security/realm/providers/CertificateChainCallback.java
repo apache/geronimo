@@ -22,7 +22,7 @@ import java.io.Serializable;
 import javax.security.auth.callback.Callback;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class CertificateChainCallback implements Callback, Serializable {
     Certificate[] certificateChain;

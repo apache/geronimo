@@ -40,7 +40,7 @@ import org.apache.geronimo.core.service.InvocationResult;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 
 /**
- * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public class RequestChannelInterceptor implements Interceptor {
 

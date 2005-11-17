@@ -19,7 +19,7 @@ package org.apache.geronimo.security.jacc;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class GeronimoPolicyConfigurationFactoryTest extends TestCase {
 

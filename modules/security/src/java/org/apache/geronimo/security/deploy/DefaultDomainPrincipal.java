@@ -17,7 +17,7 @@
 package org.apache.geronimo.security.deploy;
 
 /**
- * @version $Rev: 159325 $ $Date: 2005-03-28 14:53:03 -0800 (Mon, 28 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class DefaultDomainPrincipal extends DefaultPrincipal {
     private String domain;

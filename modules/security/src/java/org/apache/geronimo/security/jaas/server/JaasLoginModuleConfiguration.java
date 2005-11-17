@@ -29,7 +29,7 @@ import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
  * flag, options, and the Geronimo extension for whether it should run on
  * the client side or server side.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class JaasLoginModuleConfiguration implements Serializable {
     private final boolean serverSide;

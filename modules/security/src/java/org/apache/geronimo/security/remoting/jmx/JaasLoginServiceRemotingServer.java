@@ -53,7 +53,7 @@ import java.net.URISyntaxException;
  * It prevents clients from connecting to arbitrary server-side MBeans through
  * this listener -- only the JaasLoginService is exposed.
  *
- * @version $Rev: 56022 $ $Date: 2004-10-30 01:16:18 -0400 (Sat, 30 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkConnector {
 

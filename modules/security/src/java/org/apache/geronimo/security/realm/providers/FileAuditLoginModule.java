@@ -47,7 +47,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * To enable this login module, set your primary login module to REQUIRED or
  * OPTIONAL, and list this module after it (with any setting).
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class FileAuditLoginModule implements LoginModule {
     public static final String LOG_FILE_OPTION = "file";

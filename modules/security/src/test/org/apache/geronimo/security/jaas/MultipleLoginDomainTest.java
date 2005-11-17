@@ -33,7 +33,7 @@ import org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal;
 
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MultipleLoginDomainTest extends TestCase {
 

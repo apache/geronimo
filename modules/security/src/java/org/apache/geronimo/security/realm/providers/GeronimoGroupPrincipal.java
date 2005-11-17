@@ -24,7 +24,7 @@ import java.security.Principal;
  * with Geronimo.  Custom login modules may use this if convenient or provide
  * their own Principal implementations -- it doesn't matter.
  * 
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class GeronimoGroupPrincipal implements Principal, Serializable {
     private final String name;

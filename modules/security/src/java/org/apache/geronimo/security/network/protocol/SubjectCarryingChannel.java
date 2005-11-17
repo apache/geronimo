@@ -41,7 +41,7 @@ import java.util.Collection;
  * the subject associated with the current write operation down to the remote
  * end of the channel.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class SubjectCarryingChannel extends FilterAsyncChannel {
 

@@ -31,7 +31,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditorException;
 import org.apache.geronimo.common.propertyeditor.TextPropertyEditorSupport;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MapOfSets extends HashMap {
 

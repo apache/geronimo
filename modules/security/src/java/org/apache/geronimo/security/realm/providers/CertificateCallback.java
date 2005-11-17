@@ -21,7 +21,7 @@ import java.io.Serializable;
 import javax.security.auth.callback.Callback;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class CertificateCallback implements Callback, Serializable {
     X509Certificate certificate;

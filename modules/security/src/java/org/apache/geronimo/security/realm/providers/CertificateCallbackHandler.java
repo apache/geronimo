@@ -22,7 +22,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class CertificateCallbackHandler implements ClearableCallbackHandler {
     X509Certificate certificate;

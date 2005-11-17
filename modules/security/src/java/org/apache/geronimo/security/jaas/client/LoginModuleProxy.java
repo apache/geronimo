@@ -25,7 +25,7 @@ import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public abstract class LoginModuleProxy implements LoginModule {
     final protected LoginModuleControlFlag controlFlag;

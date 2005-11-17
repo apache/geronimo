@@ -19,7 +19,7 @@ package org.apache.geronimo.security.jacc;
 import java.util.Map;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface RoleDesignateSource {
     Map getRoleDesignateMap();

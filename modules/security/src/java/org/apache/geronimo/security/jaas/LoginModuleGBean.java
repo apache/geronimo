@@ -30,7 +30,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  * to exactly the same login module configuration, you can have both realms
  * refer to a single login module GBean.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class LoginModuleGBean {
     private String loginDomainName;

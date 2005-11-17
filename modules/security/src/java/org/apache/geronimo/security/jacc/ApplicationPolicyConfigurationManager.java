@@ -37,7 +37,7 @@ import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, RoleDesignateSource {
 

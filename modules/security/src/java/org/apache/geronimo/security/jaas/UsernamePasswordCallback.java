@@ -27,7 +27,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 /**
  * Convenience callback handler.
  *
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class UsernamePasswordCallback implements CallbackHandler {
     private final String username;

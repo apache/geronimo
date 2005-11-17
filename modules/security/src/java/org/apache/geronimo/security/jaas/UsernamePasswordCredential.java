@@ -28,7 +28,7 @@ import javax.security.auth.Refreshable;
  * A username/password credential.  Used to store the username/password in the
  * Subject's private credentials.
  *
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class UsernamePasswordCredential implements Destroyable, Refreshable, Serializable {
 

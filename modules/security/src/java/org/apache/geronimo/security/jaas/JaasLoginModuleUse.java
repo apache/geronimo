@@ -33,7 +33,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
  * Holds a reference to a login module and the control flag.  A linked list of these forms the list of login modules
  * in a GenericSecurityRealm.
  *
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class JaasLoginModuleUse {
     public final static String KERNEL_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";

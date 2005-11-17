@@ -28,7 +28,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 /**
  * A client-side utility that connects to a remote login service.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class JaasLoginServiceRemotingClient {
     static public JaasLoginServiceMBean create(String host, int port) throws IllegalArgumentException {

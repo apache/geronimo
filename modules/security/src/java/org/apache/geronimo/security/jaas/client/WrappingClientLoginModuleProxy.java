@@ -32,7 +32,7 @@ import org.apache.geronimo.security.jaas.LoginModuleControlFlag;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class WrappingClientLoginModuleProxy extends ClientLoginModuleProxy {
     private final String loginDomainName;
