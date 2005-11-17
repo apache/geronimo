@@ -25,6 +25,13 @@
     <name>Tomcat Configuration for the J2EE Server</name>
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -35,17 +42,14 @@
                  <geronimo.import>true</geronimo.import>
              </properties>
         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
+            <artifactId>geronimo-tomcat</artifactId>
             <version>${geronimo_version}</version>
-            <type>car</type>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>
@@ -191,11 +195,6 @@
             <version>${activeio_version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>${jetty_version}</version>
-        </dependency>
     </dependencies>
 </project>
 

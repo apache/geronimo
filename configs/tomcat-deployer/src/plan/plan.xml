@@ -21,16 +21,7 @@
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/j2ee-deployer-${pom.currentVersion}.car"
     >
-
-    <import>
-        <uri>${pom.groupId}/cars/tomcat-${pom.currentVersion}.car</uri>
-    </import>
-
-    <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-builder-${geronimo_version}.jar</uri>
-    </dependency>
 
     <gbean name="TomcatWebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
         <attribute name="defaultParentId">${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car,${pom.groupId}/cars/tomcat-${pom.currentVersion}.car</attribute>

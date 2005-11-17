@@ -196,6 +196,15 @@
         </dependency>
         <dependency>
             <groupId>tomcat</groupId>
+            <artifactId>tomcat-ajp</artifactId>
+            <version>${tomcat_version}</version>
+            <url>http://jakarta.apache.org/tomcat/</url>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>tomcat</groupId>
             <artifactId>catalina-cluster</artifactId>
             <version>${tomcat_version}</version>
             <url>http://jakarta.apache.org/tomcat/</url>

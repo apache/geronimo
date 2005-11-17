@@ -20,8 +20,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../j2ee-deployer/project.xml</extend>
-<!--    <extend>../../etc/project.xml</extend>-->
+    <extend>../../etc/project.xml</extend>
     <id>tomcat-deployer</id>
     <name>Tomcat Deployer Configuration for the J2EE Server</name>
 
@@ -29,21 +28,32 @@
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>tomcat</artifactId>
+            <artifactId>j2ee-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-system</artifactId>
-            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>j2ee-deployer</artifactId>
+            <artifactId>tomcat</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+        </dependency>
+
+        <!-- plan dependency -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-tomcat-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
 
         <dependency>

@@ -10,17 +10,6 @@
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/cars/jetty-${pom.currentVersion}.car">
-        <gbean name="JettyWebConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPPortPrimary}</attribute>
-            <attribute name="redirectPort">${PlanHTTPSPortPrimary}</attribute>
-        </gbean>
-        <gbean name="JettySSLConnector">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
-        </gbean>
-    </configuration>
     <configuration name="geronimo/cars/j2ee-server-${pom.currentVersion}.car">
         <gbean name="openejb:type=NetworkService,name=EJB">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -76,52 +65,6 @@
         <gbean name="JettySSLConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
-        </gbean>
-    </configuration>
-    <configuration name="geronimo/cars/j2ee-server-${pom.currentVersion}.car">
-        <gbean name="openejb:type=NetworkService,name=EJB">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanOpenEJBPort}</attribute>
-        </gbean>
-    </configuration>
-    <configuration name="geronimo/cars/j2ee-security-${pom.currentVersion}.car">
-        <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanRemoteLoginPort}</attribute>
-        </gbean>
-        <gbean name="JMXConnector">
-            <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
-        </gbean>
-    </configuration>
-    <configuration name="geronimo/cars/j2ee-corba-${pom.currentVersion}.car" load="false">
-        <gbean name="NameServer">
-            <attribute name="dbDir">var/cosnaming.db</attribute>
-            <attribute name="port">${PlanCOSNamingPort}</attribute>
-        </gbean>
-        <gbean name="Server">
-            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
-        </gbean>
-        <gbean name="UnprotectedServer">
-            <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
-        </gbean>
-    </configuration>
-    <configuration name="geronimo/cars/activemq-broker-${pom.currentVersion}.car">
-        <gbean name="ActiveMQ.tcp.default">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanActiveMQPort}</attribute>
-        </gbean>
-    </configuration>
-    <configuration name="geronimo/cars/activemq-${pom.currentVersion}.car"/>
-    <configuration name="geronimo/cars/system-database-${pom.currentVersion}.car">
-        <gbean name="DerbyNetwork">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanDerbyPort}</attribute>
-        </gbean>
-    </configuration>
-    <configuration name="geronimo/cars/directory-${pom.currentVersion}.car">
-        <gbean name="geronimo.server:name=DirectoryService">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanLdapPort}</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/cars/geronimo-gbean-deployer-${pom.currentVersion}.car"/>
@@ -136,4 +79,5 @@
     <configuration name="geronimo/cars/jetty-deployer-${pom.currentVersion}.car"/>
     <configuration name="geronimo/cars/welcome-jetty-${pom.currentVersion}.car"/>
     <configuration name="geronimo/cars/webconsole-jetty-${pom.currentVersion}.car"/>
+    <configuration name="geronimo/cars/uddi-jetty-${pom.currentVersion}.car"/>
 </attributes>
