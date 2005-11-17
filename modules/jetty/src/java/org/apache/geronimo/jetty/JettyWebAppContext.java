@@ -54,9 +54,9 @@ import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
@@ -240,7 +240,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                     ((ClassLoaderAwareReference) value).setClassLoader(this.webClassLoader);
                 }
             }
-            enc = new SimpleReadOnlyContext(componentContext);
+            enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
         }
 
         int index = 0;

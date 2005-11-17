@@ -30,21 +30,19 @@ import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
-import org.apache.catalina.Pipeline;
 import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.core.StandardPipeline;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.StoredObject;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
@@ -89,7 +87,7 @@ public class GeronimoStandardContext extends StandardContext {
                         ((ClassLoaderAwareReference) value).setClassLoader(ctx.getWebClassLoader());
                     }
                 }
-                enc = new SimpleReadOnlyContext(componentContext);
+                enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
             }
         } catch (NamingException ne) {
             log.error(ne);

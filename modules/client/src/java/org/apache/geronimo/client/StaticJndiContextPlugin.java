@@ -24,9 +24,9 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.apache.geronimo.naming.java.RootContext;
-import org.apache.geronimo.naming.java.SimpleReadOnlyContext;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.Kernel;
@@ -48,7 +48,7 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
                 ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
             }
         }
-        this.context = new SimpleReadOnlyContext(context);
+        this.context = EnterpriseNamingContext.createEnterpriseNamingContext(context);
     }
 
     public void startClient(ObjectName appClientModuleName, Kernel kernel, ClassLoader classLoader) throws Exception {

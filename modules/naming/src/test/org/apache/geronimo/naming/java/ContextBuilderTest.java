@@ -22,10 +22,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 import javax.management.ObjectName;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.Context;
 
 import junit.framework.TestCase;
 
@@ -35,6 +38,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 
 /**
  * @version $Rev$ $Date$
@@ -64,7 +68,7 @@ public class ContextBuilderTest extends TestCase {
         builder.addEnvEntry("double", Double.class.getName(), doubleVal.toString(), null);
         builder.addEnvEntry("boolean", Boolean.class.getName(), booleanVal.toString(), null);
 
-        SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
+        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(builder.getContext());
         Set actual = new HashSet();
         for (NamingEnumeration e = context.listBindings("env"); e.hasMore();) {
             NameClassPair pair = (NameClassPair) e.next();
@@ -87,7 +91,7 @@ public class ContextBuilderTest extends TestCase {
         proxy = new ArrayList();
 //        builder.addResourceEnvRef("resourceenvref", List.class, localRef);
 
-        SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
+        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(builder.getContext());
         Kernel kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
         try {
@@ -105,9 +109,9 @@ public class ContextBuilderTest extends TestCase {
     }
 
     public void testEmptyEnvironment() throws NamingException {
-        SimpleReadOnlyContext context = new SimpleReadOnlyContext(builder.getContext());
+        Context context = EnterpriseNamingContext.createEnterpriseNamingContext(builder.getContext());
         try {
-            ReadOnlyContext env = (ReadOnlyContext) context.lookup("env");
+            Context env = (Context) context.lookup("env");
             assertNotNull(env);
         } catch (NamingException e) {
             fail();
