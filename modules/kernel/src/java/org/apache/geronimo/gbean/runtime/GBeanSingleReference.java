@@ -55,7 +55,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         // We only need to start if there are patterns and we don't already have a proxy
         if (!getPatterns().isEmpty() && getProxy() == null) {
             //
-            // We must have exactally one running target
+            // We must have exactly one running target
             //
             ObjectName objectName = getGBeanInstance().getObjectNameObject();
             Set targets = getTargets();
@@ -116,7 +116,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         // if we are running, and we now have two valid targets, which is an illegal state so we need to fail
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
-            log.error("Illegal state: two or more targets are not running for a signle valued reference: " + getDescription() +
+            log.error("Illegal state: two or more targets are not running for a single valued reference: " + getDescription() +
                     ", currentTarget=" + proxyTarget +
                     ", newTarget=" + target);
             gbeanInstance.referenceFailed();
@@ -133,7 +133,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
             // we no longer have a valid target, which is an illegal state so we need to fail
-            log.error("Illegal state: current target for a signle valued reference stopped: " + getDescription() +
+            log.error("Illegal state: current target for a single valued reference stopped: " + getDescription() +
                     ", currentTarget=" + target);
             gbeanInstance.referenceFailed();
         } else if (waitingForMe) {
