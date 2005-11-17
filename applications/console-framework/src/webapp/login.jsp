@@ -142,7 +142,7 @@
       </td>
 <%--      <td class="Body" width="30%" align="Center" valign="top">     --%>
       <td width="30%" align="Center" valign="top">   
-          <table width="200" border cellspacing="0" cellpadding="0">
+          <table class=BrightBox width="200" border cellspacing="0" cellpadding="0">
               <tr>
                 <td width="50%" class="BrightTitle"><STRONG>&nbsp;Related Links</td>
               </tr>

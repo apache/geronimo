@@ -1,6 +1,6 @@
 body 
 {
-	/*background-color: #9999CC;*/
+	background-color: #FFFFFF;
 }
 
 .BrightTitle
@@ -11,38 +11,43 @@ body
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
+.BrightTitle a:hover
+{
+	color: #5FA3D6;
+}
+
+.BrightBox
+{
+	border: thin solid #5FA3D6;
+}
+
 td
 {
-	font-size: 11px;
+	font-size: 13px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 a:link, a:visited
 {
-	color: #204486;
+	color: #004C93;
 }
 
 a:hover 
 {
-	color: #CF820A;
+	color: #5FA3D6;
 }
 
 .Logo
 {
-	/*background-image:url("images/joe_logo.gif");*/
 	background-image:url("images/head_left_754x86.gif");
 	background-repeat: no-repeat;
 	width: 570px;
 	height: 86px;
-        /*color: #FFFFFF;*/
-        /*color: #FBF9F9;*/
 	font-size: 35px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-align: right;
 	vertical-align: bottom; 
 	line-height: 30px;
-	/*background-color: #909DB8;*/
-	/*background-color: #FBF9F9;*/
 	font-weight: bold;
 }
 
@@ -51,14 +56,10 @@ a:hover
 	background-image:url("images/head_bgstretch_1x86.gif");
 	background-repeat: repeat-x;
 	height: 86px;
-	/*color: #FFFFFF;*/
 	font-size: 11px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-align: right;
 	vertical-align: bottom;
-	/*line-height: 30px;*/
-	/*background-color: #909DB8;*/
-	/*background-color: #FBF9F9;*/
 	font-weight: bold;
 }
 
@@ -89,6 +90,7 @@ a:hover
 
 .Menu .Selection
 {
+	color: #000000;
         background-color: #FBF9F9;
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
@@ -98,14 +100,14 @@ a:hover
 {
 	width: 12px;
 	height: 12px;
-  /*background-color: #919FBC;*/
+	color: #000000;
   background-color: #FFFFFF;
 }
 
 .Menu .Selection .Indent
 {
 	width: 2px;
-  /*background-color: #919FBC;*/
+	color: #000000;
   background-color: #FFFFFF;
 }
 
@@ -113,7 +115,7 @@ a:hover
 {
 	width: 8px;
 	height: 12px;
-  /*background-color: #919FBC;*/
+	color: #000000;
   background-color: #FFFFFF;
 }
 
@@ -121,36 +123,37 @@ a:hover
 {
 	width: 8px;
 	height: 16px;
-  /*background-color: #919FBC;*/
+	color: #000000;
   background-color: #FFFFFF;
 }
 
 .Menu .Selection .TopMiddle
 {
-	/*color: #333333;*/
 	color: #000000;
 	text-decoration: none;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
 }
 
 .Menu .Selection .TopMiddle a:link, 
 .Menu .Selection .TopMiddle a:visited, 
-.Menu .Selection .TopMiddle a:hover
 {
 	color: #000000;
 	line-height: 20px;
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
+}
+
+.Menu .Selection .TopMiddle a:hover
+{
+	color: #5FA3D6;
 }
 
 .Menu .Selection .TopRight
 {
 	width: 8px;
 	height: 16px;
-  /*background-color: #919FBC;*/
+	color: #000000;
   background-color: #FFFFFF;
 }
 
@@ -169,14 +172,12 @@ a:hover
 .Menu .Subselection .Left
 {
 	width: 12px;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
 }
 
 .Menu .Subselection .Indent
 {
 	width: 2px;
-  /*background-color: #919FBC;*/ 
   background-color: #FFFFFF;
 }
 
@@ -184,25 +185,25 @@ a:hover
 {
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
-	/*color:#333333;*/
 	color:#000000;
 }
 
 .Menu .Subselection .Middle a:link, 
 .Menu .Subselection .Middle a:visited, 
-.Menu .Subselection .Middle a:hover
 {
 	line-height: 20px;
-	/*color: #FFFFFF;*/
 	color: #000000;
+}
+
+.Menu .Subselection .Middle a:hover
+{
+	color: #5FA3D6;
 }
 
 .Menu .Subselection .Right
 {
 	width: 8px;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
 }
 
@@ -210,14 +211,12 @@ a:hover
 {
 	width: 8px;
 	height: 8px;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
 }
 
 .Menu .Subselection .BottomMiddle
 {
 	height: 8px;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
 }
 
@@ -225,7 +224,6 @@ a:hover
 {
 	width: 8px;
 	height: 8px;
-  /*background-color: #919FBC;*/
   background-color: #FFFFFF;
 }
 
@@ -239,7 +237,6 @@ a:hover
 	width: 18px;
 	height: 18px;
 	line-height: 18px;
-        /*background-color:#333366;*/
         background-color: #000000;
 }
 
@@ -247,9 +244,7 @@ a:hover
 {
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-	/*background-color: #333366;*/
 	background-color: #000000;
-	/*color: #FCFCFC;*/
 	color: #FFFFFF;
 	height: 18px;
 	line-height: 18px;
@@ -259,9 +254,7 @@ a:hover
 {
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-	/*background-color: #333366;*/
 	background-color: #000000;
-	/*color:#CCCCFF;*/
 	color: #FFFFFF;
 	height: 18px;
 	line-height: 18px;
@@ -276,7 +269,6 @@ a:hover
 {
 	width: 18px;
 	height: 18px;
-        /*background-color:#333366;*/
         background-color:#000000;
 }
 
@@ -297,8 +289,6 @@ a:hover
 .Content .Left
 {
 	width: 18px;
-	/*background-color: #333366;*/
-	/*background-color: #DADEE9;*/
 	background-color: #FFFFFF;
 }
 
@@ -306,7 +296,6 @@ a:hover
 {
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-	/*background-color: #DADEE9;*/
 	background-color: #FFFFFF;
 	color: #1E1E52;
 }
@@ -325,15 +314,15 @@ a:hover
 
 .Content .Body .LightBackground
 {
-	/*background-color: #E8E8F7;*/
         background-color: #E7E7E7;
-	color:#333333;
+	color:#000000;
 }
 
 .Content .Body .LightBackground .InputField
 {
   width: 150px;
 }
+
 .Content .Body .MediumBackground
 {
 	background-color: #CCCCCC;
@@ -345,10 +334,7 @@ a:hover
 .Content .Body .DarkBackground a:visited,
 .Content .Body .DarkBackground a:hover
 {
-	/*background-color: #5C6B8D;*/
-	/*background-color: #000000;*/
 	background-color: #2581C7;
-	/*color:#FCFCFC;*/
 	color:#FFFFFF;
 	font-size: 15px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
@@ -385,13 +371,17 @@ a:hover
 
 .Content .Body a:link,
 .Content .Body a:visited,
-.Content .Body a:hover
 {
 	font-size: 10px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	text-decoration: underline;
 	color: #546BC7;
 	font-weight: bold;
+}
+
+.Content .Body a:hover
+{
+	color: #5FA3D6;
 }
 
 .Content .Buttons {
@@ -411,13 +401,12 @@ a:hover
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	font-size: 12px;
   text-decoration: underline;
-	color: #CCCCCC;
+	color: #5FA3D6;
 }
 
 .Content .Right
 {
 	width: 18px;
-	/*background-color: #DADEE9;*/
 	background-color: #FFFFFF;
 }
 
@@ -443,7 +432,7 @@ a:hover
 .Content .Footer a:visited,
 .Content .Footer a:hover
 {
-	color:#FF9900;
+	color: #5FA3D6;
 }
 
 .Content .BottomRight
@@ -468,18 +457,18 @@ a:hover
 	font-size: 9px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 	height: 20px;
-	background-color: #CCCCCC;
+	background-color: #5FA3D6;
 }
 
 .Footer a:link, 
 .Footer a:visited, 
 .Footer a:hover
 {
-	color:#006699;
+	color: #5FA3D6;
 	text-decoration: underline;	
 }
 
 .Box
 {
-	border: thin solid #333333;
+	border: thin solid #000000;
 }
