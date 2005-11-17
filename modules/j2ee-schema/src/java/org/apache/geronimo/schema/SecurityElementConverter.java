@@ -21,7 +21,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.XmlCursor;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class SecurityElementConverter implements ElementConverter {
 

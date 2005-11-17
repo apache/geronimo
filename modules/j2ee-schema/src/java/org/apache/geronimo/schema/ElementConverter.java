@@ -19,7 +19,7 @@ package org.apache.geronimo.schema;
 import org.apache.xmlbeans.XmlCursor;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface ElementConverter {
 
