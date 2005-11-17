@@ -31,6 +31,9 @@
             <artifactId>rmi-naming</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

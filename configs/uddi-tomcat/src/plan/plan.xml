@@ -18,61 +18,15 @@
 
 <!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+<web-app
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car"
-          >
-    <resourceadapter>
-        <outbound-resourceadapter>
-            <connection-definition>
-                <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
-                <connectiondefinition-instance>
-                    <name>SystemDatasource</name>
-                    <config-property-setting name="UserName"></config-property-setting>
-                    <config-property-setting name="Password"></config-property-setting>
-                    <config-property-setting name="DatabaseName">SystemDatabase</config-property-setting>
-                    <config-property-setting name="CreateDatabase">true</config-property-setting>
-                    <connectionmanager>
-                        <xa-transaction>
-                            <transaction-caching/>
-                        </xa-transaction>
-                        <single-pool>
-                            <max-size>100</max-size>
-                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-                            <match-one/>
-                        </single-pool>
-                    </connectionmanager>
-                </connectiondefinition-instance>
-            </connection-definition>
-        </outbound-resourceadapter>
-    </resourceadapter>
+    >
 
-    <gbean name="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
-        <reference name="ServerInfo"><moduleType>J2EEModule</moduleType><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
-        <attribute name="derbySystemHome">var/derby</attribute>
-    </gbean>
-    <gbean name="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
-        <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
-        <reference name="derbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
-        <attribute name="host">localhost</attribute>
-        <attribute name="port">1527</attribute>
-    </gbean>
-
-    <gbean name="TransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
-        <attribute name="repeatCount">5</attribute>
-        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>geronimo/cars/j2ee-server-${pom.currentVersion}.car</module><name>TransactionContextManager</name></reference>
-        <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
-        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>geronimo/cars/j2ee-server-${pom.currentVersion}.car</module><name>DefaultThreadPool</name></reference>
-        <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
-        <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
-    </gbean>
-
-    <gbean name="NonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
-        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>geronimo/cars/j2ee-server-${pom.currentVersion}.car</module><name>TransactionContextManager</name></reference>
-        <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
-        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>geronimo/cars/j2ee-server-${pom.currentVersion}.car</module><name>DefaultThreadPool</name></reference>
-        <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
-        <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
-    </gbean>
-
-</connector>
+    <context-root>/juddi</context-root>
+    <context-priority-classloader>false</context-priority-classloader>
+    <resource-ref>
+        <ref-name>jdbc/juddiDB</ref-name>
+        <resource-link>SystemDatasource</resource-link>
+    </resource-ref>
+</web-app>

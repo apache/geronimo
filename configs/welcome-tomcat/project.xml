@@ -21,8 +21,8 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>system-database</id>
-    <name>System Database Configuration for the J2EE Server</name>
+    <id>welcome-tomcat</id>
+    <name>Welcome app Tomcat</name>
 
     <dependencies>
         <!-- parent config -->
@@ -32,6 +32,7 @@
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

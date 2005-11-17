@@ -24,7 +24,6 @@ Configuration for Tomcat server.
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
     >
 
     <dependency>
@@ -32,6 +31,9 @@ Configuration for Tomcat server.
     </dependency>
     <dependency>
         <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
+    </dependency>
+    <dependency>
+        <uri>tomcat/jars/catalina-cluster-${tomcat_version}.jar</uri>
     </dependency>
     <dependency>
         <uri>tomcat/jars/catalina-optional-${tomcat_version}.jar</uri>
@@ -105,7 +107,7 @@ Configuration for Tomcat server.
             <name>TomcatEngine</name>
         </reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -163,7 +165,7 @@ Configuration for Tomcat server.
             <name>TomcatWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -190,7 +192,7 @@ Configuration for Tomcat server.
 
     <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module>
             <name>ServerInfo</name>
         </reference>
         <references name="LogGBeans">
@@ -259,7 +261,5 @@ Configuration for Tomcat server.
         </reference>
         -->
     </gbean>
-
-    <!-- TOMCAT CONFIGURATION ENDS HERE -->
 
 </configuration>

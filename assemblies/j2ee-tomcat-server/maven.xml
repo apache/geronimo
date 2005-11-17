@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004-2005 The Apache Software Foundation
+    Copyright 2005 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
-      configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+<!-- $Rev: 158417 $ $Date: 2005-03-20 23:25:45 -0800 (Sun, 20 Mar 2005) $ -->
+
+<project default="default"
     >
+    <goal name="default" prereqs="geronimo:package-assembly"/>
 
-    <context-root>/</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
-</web-app>
+</project>
