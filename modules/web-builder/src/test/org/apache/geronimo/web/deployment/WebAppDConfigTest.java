@@ -30,7 +30,7 @@ import org.apache.geronimo.web.deployment.WebAppDConfigBean;
 import org.apache.geronimo.web.deployment.WARConfiguration;
 
 /**
- * @version $Rev: 56771 $ $Date: 2004-11-06 12:58:54 -0700 (Sat, 06 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public class WebAppDConfigTest extends TestCase {
     private DeploymentConfiguration config;

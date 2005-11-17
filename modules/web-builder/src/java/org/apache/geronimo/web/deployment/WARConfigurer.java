@@ -24,7 +24,7 @@ import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import org.apache.geronimo.deployment.ModuleConfigurer;
 
 /**
- * @version $Rev: 126313 $ $Date: 2005-01-24 14:03:52 -0700 (Mon, 24 Jan 2005) $
+ * @version $Rev$ $Date$
  */
 public class WARConfigurer implements ModuleConfigurer {
     public DeploymentConfiguration createConfiguration(DeployableObject deployable) {

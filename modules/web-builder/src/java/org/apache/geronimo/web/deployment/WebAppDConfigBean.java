@@ -28,7 +28,7 @@ import org.apache.geronimo.xbeans.geronimo.web.GerWebAppType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * @version $Rev: 56771 $ $Date: 2004-11-06 12:58:54 -0700 (Sat, 06 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public class WebAppDConfigBean extends DConfigBeanSupport {
     private final ENCHelper encHelper;

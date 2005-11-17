@@ -27,7 +27,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class GenericToSpecificPlanConverterTest extends TestCase {
     private ClassLoader classLoader = this.getClass().getClassLoader();
