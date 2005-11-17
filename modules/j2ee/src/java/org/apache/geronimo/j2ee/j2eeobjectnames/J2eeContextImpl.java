@@ -19,7 +19,7 @@ package org.apache.geronimo.j2ee.j2eeobjectnames;
 import javax.management.ObjectName;
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class J2eeContextImpl implements J2eeContext {
 

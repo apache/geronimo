@@ -45,7 +45,7 @@ import org.apache.geronimo.management.J2EEManagedObject;
 /**
  * GBean implementing Management interface and supplying proxies to act as the MEJB container.
  *
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MEJB implements Management {
     private final MBeanServer mbeanServer;

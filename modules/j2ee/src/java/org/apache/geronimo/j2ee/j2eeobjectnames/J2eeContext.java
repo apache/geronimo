@@ -17,7 +17,7 @@
 package org.apache.geronimo.j2ee.j2eeobjectnames;
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public interface J2eeContext {
 

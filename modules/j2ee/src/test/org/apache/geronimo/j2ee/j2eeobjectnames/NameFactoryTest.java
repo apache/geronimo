@@ -21,7 +21,7 @@ import javax.management.ObjectName;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class NameFactoryTest extends TestCase {
     String d = "d";

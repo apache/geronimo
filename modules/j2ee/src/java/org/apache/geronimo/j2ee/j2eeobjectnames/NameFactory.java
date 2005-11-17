@@ -21,7 +21,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class NameFactory {
 
