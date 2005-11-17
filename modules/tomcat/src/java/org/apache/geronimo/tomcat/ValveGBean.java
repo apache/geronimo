@@ -54,9 +54,8 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
         
         if (nextValve != null){
             if (!(nextValve.getInternalObject() instanceof Valve)){
-                throw new IllegalArgumentException("className cannot be null.");                
+                throw new IllegalArgumentException("The class given as the NextValve attribute does not wrap an object of org.apache.catalina.Valve type.");                
             }
-            
             this.nextValve = nextValve;
         } else {
             this.nextValve = null;
