@@ -21,11 +21,7 @@ limitations under the License.
 <%@ page import="org.apache.pluto.portalImpl.aggregation.navigation.NavigationTreeBean" %>
 <jsp:useBean id="fragment" type="org.apache.pluto.portalImpl.aggregation.navigation.TabNavigation" scope="request" />
 
-<TABLE WIDTH="200px" border>
-<TR>
-<TD>
-
-<table width="100%"  border="0" cellpadding="0" cellspacing="0"> 
+<table width="200px" border="0" cellpadding="0" cellspacing="0"> 
   				 <tr><td CLASS="ReallyDarkBackground"><STRONG>&nbsp;Console Navigation</TD></TR>
   				 <tr><td><div class="Selection"><table width="100%" border="0" cellpadding="0" cellspacing="0">
               <tr>
@@ -38,6 +34,8 @@ limitations under the License.
 <%
     PortalURL url = PortalEnvironment.getPortalEnvironment(request).getRequestedPortalURL();
     NavigationTreeBean[] tree = fragment.getNavigationView(url);
+    String GIF = ".gif";
+    String DEFAULT_GIF = "ico_doc_16x16.gif";
 
     // Aaron's code -- to force the navigation tree to render fully expanded, and not offer links to non-leaf nodes
     //                 todo this is pretty bad and should be replaced by a subclass of TabNavigation
@@ -65,9 +63,15 @@ limitations under the License.
     // End Aaron's Code
 
     for (int i=0; i<tree.length; i++) {
-%>
-<%
             Navigation nav = tree[i].navigation;
+            String imageName = nav.getDescription();
+            int index = imageName.indexOf(" ");
+            if ((index == -1) || !imageName.substring(index-4, index).equals(GIF)) {
+               imageName = DEFAULT_GIF;
+            } else {
+               imageName = imageName.substring(0,index);
+            }
+
             boolean partOfNav = tree[i].partOfGlobalNav;
 
 						if (tree[i].depth>0)
@@ -88,12 +92,12 @@ limitations under the License.
 							  if (!partOfNav)
 								{
 %>
-                    <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><%=nav.getTitle()%></a>
+                    <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>">&nbsp;<%=nav.getTitle()%></a>
 <%
 								}
 								else
 								{
-%>                  <%=nav.getTitle()%>
+%>                  <img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>">&nbsp;<%=nav.getTitle()%>
 <%
 								}
 %>
@@ -115,16 +119,15 @@ limitations under the License.
 <%
 							  if (!partOfNav)
 								{
-%>                  <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><%=nav.getTitle()%></a>
+%>                  <a href="<%=new PortalURL(request, nav.getLinkedFragment()).toString()%>"><img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>">&nbsp;<%=nav.getTitle()%></a>
 <%
 								}
 								else
 								{
-%>                  <%=nav.getTitle()%>
+%>                  <img border="0" src="<%=request.getContextPath()%>/images/<%=imageName%>">&nbsp;<%=nav.getTitle()%>
 <%
 								}
 %>
-
  							      
 	 						  </td>
                 <td class="CollapsedRight">&nbsp;</td> 
@@ -143,10 +146,5 @@ limitations under the License.
               </tr>
 						</table></div></td></tr>
   </table>
-
-
-<TD>
-</TR>
-</TABLE>
 
 

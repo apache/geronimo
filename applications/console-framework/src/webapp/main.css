@@ -1,6 +1,6 @@
 body 
 {
-	background-color: #FFFFFF;
+	/*background-color: #FFFFFF;*/
 }
 
 .BrightTitle
@@ -23,23 +23,38 @@ body
 
 td
 {
-	font-size: 13px;
+	font-size: 11px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
 a:link, a:visited
 {
-	color: #004C93;
+	color: #204486;
 }
 
 a:hover 
 {
-	color: #5FA3D6;
+	/*color: #5FA3D6;*/
+	color: #CF820A;
 }
 
 .Logo
 {
 	background-image:url("images/head_left_754x86.gif");
+	background-repeat: no-repeat;
+	width: 570px;
+	height: 86px;
+	font-size: 35px;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	text-align: right;
+	vertical-align: bottom; 
+	line-height: 30px;
+	font-weight: bold;
+}
+
+.LoginLogo
+{
+	background-image:url("images/head_left_login_586x86.gif");
 	background-repeat: no-repeat;
 	width: 570px;
 	height: 86px;
@@ -90,8 +105,7 @@ a:hover
 
 .Menu .Selection
 {
-	color: #000000;
-        background-color: #FBF9F9;
+        background-color: #F2F2F2;
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
@@ -101,37 +115,34 @@ a:hover
 	width: 12px;
 	height: 12px;
 	color: #000000;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Selection .Indent
 {
 	width: 2px;
-	color: #000000;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Selection .CollapsedRight
 {
 	width: 8px;
 	height: 12px;
-	color: #000000;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Selection .TopLeft
 {
 	width: 8px;
 	height: 16px;
-	color: #000000;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Selection .TopMiddle
 {
 	color: #000000;
 	text-decoration: none;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Selection .TopMiddle a:link, 
@@ -141,7 +152,7 @@ a:hover
 	line-height: 20px;
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Selection .TopMiddle a:hover
@@ -153,8 +164,7 @@ a:hover
 {
 	width: 8px;
 	height: 16px;
-	color: #000000;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Selection .Spacer
@@ -172,20 +182,20 @@ a:hover
 .Menu .Subselection .Left
 {
 	width: 12px;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Subselection .Indent
 {
 	width: 2px;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Subselection .Middle
 {
 	font-size: 12px;
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 	color:#000000;
 }
 
@@ -204,27 +214,27 @@ a:hover
 .Menu .Subselection .Right
 {
 	width: 8px;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Subselection .BottomLeft
 {
 	width: 8px;
 	height: 8px;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Subselection .BottomMiddle
 {
 	height: 8px;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Menu .Subselection .BottomRight
 {
 	width: 8px;
 	height: 8px;
-  background-color: #FFFFFF;
+        background-color: #F2F2F2;
 }
 
 .Gutter
@@ -276,14 +286,14 @@ a:hover
 {
 	width: 18px;
 	height: 18px;
-  background-color:#000000;
+        background-color:#000000;
 }
 
 .Content .CollapsedRight
 {
 	width: 18px;
 	height: 18px;
-  background-color:#000000;
+        background-color:#000000;
 }
 
 .Content .Left
@@ -314,7 +324,7 @@ a:hover
 
 .Content .Body .LightBackground
 {
-        background-color: #E7E7E7;
+        background-color: #FFFFFF;
 	color:#000000;
 }
 
@@ -325,7 +335,7 @@ a:hover
 
 .Content .Body .MediumBackground
 {
-	background-color: #CCCCCC;
+	background-color: #F2F2F2;
 	color:#000000;
 }
 

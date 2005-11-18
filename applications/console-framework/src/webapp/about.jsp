@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Geronimo Console Login</title>
+<title>Geronimo About Page</title>
 <link href="main.css" rel="stylesheet" type="text/css">
 
   <script language="javascript">
@@ -68,7 +68,49 @@
                         <tr> 
                           <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                           <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
-                          <td class="TopMiddle">&lt;&lt;&nbsp;<a href="index.jsp">GERONIMO CONSOLE</a></td> 
+                          <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif">&lt;&lt;&nbsp;<a href="index.jsp">Return to main view</a></td>
+                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td>
+                        </tr> 
+                      </table> 
+                    </div>
+									</td> 
+								</tr>
+                <tr> 
+                  <td>
+									  <div class="Selection"> 
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+                        <tr> 
+                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                        </tr> 
+                      </table> 
+                    </div>
+									</td> 
+								</tr>
+                <tr> 
+                  <td>
+									  <div class="Selection"> 
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+                        <tr> 
+                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                        </tr> 
+                      </table> 
+                    </div>
+									</td> 
+								</tr>
+                <tr> 
+                  <td>
+									  <div class="Selection"> 
+                      <table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+                        <tr> 
+                          <td class="CollapsedLeft"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="Indent"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
+                          <td class="TopMiddle"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                           <td class="CollapsedRight"><img src="<%=request.getContextPath()%>/images/spacer.gif" width="1" height="1"></td> 
                         </tr> 
                       </table> 

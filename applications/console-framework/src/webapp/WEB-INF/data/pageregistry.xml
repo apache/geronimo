@@ -23,13 +23,13 @@ limitations under the License.
     <fragment name="server" type="page">
         <navigation>
             <title>Server</title>
-            <description>Holds all settings about the running server</description>
+            <description>ico_folder_16x16.gif Holds all settings about the running server</description>
         </navigation>
 
         <fragment name="info" type="page">
             <navigation>
                 <title>Information</title>
-                <description>Shows various information on the current server</description>
+                <description>ico_look_16x16.gif Shows various information on the current server</description> 
             </navigation>
 
             <fragment name="row1" type="row">
@@ -44,7 +44,7 @@ limitations under the License.
         <fragment name="jvm" type="page">
             <navigation>
                 <title>JVM</title>
-                <description>Shows JVM properties for the current server</description>
+                <description>ico_beanjar_16x16.gif Shows JVM properties for the current server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -59,32 +59,32 @@ limitations under the License.
         <fragment name="logs" type="page">
             <navigation>
                 <title>Server Logs</title>
-                <description>View Log Files</description>
+                <description>ico_list_16x16.gif View Log Files</description>
             </navigation>
             <fragment name="row1" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.10"/>
                     </fragment>
                 </fragment>
             </fragment>
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.26"/>
                     </fragment>
                 </fragment>
             </fragment>
             <fragment name="row3" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.27"/>
                     </fragment>
                 </fragment>
             </fragment>
             <fragment name="row4" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.28"/>
                     </fragment>
                 </fragment>
@@ -95,7 +95,7 @@ limitations under the License.
         <fragment name="mgmt" type="page">
             <navigation>
                 <title>Shutdown/Restart</title>
-                <description>Manage this server</description>
+                <description>ico_x_16x16.gif Manage this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -110,7 +110,7 @@ limitations under the License.
         <fragment name="web" type="page">
             <navigation>
                 <title>Web Server</title>
-                <description>Configure Web Server</description>
+                <description>ico_servcomp_16x16.gif Configure Web Server</description>
             </navigation>
             <fragment name="row1" type="row">
                 <fragment name="col1" type="column">
@@ -121,7 +121,7 @@ limitations under the License.
             </fragment>
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p4" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.21"/>
                     </fragment>
                 </fragment>
@@ -131,7 +131,7 @@ limitations under the License.
         <fragment name="ejb" type="page">
             <navigation>
                 <title>EJB Server</title>
-                <description>Configures the EJB server</description>
+                <description>ico_servcomp_16x16.gif Configures the EJB server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -146,7 +146,7 @@ limitations under the License.
         <fragment name="jmsserver" type="page">
             <navigation>
                 <title>JMS Server</title>
-                <description>Configure JMS Server</description>
+                <description>ico_servcomp_16x16.gif Configure JMS Server</description>
             </navigation>
             <fragment name="row1" type="row">
                 <fragment name="col1" type="column">
@@ -157,7 +157,7 @@ limitations under the License.
             </fragment>
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.64"/>
                     </fragment>
                 </fragment>
@@ -167,7 +167,7 @@ limitations under the License.
         <fragment name="j2ca" type="page">
             <navigation>
                 <title>J2EE Connectors</title>
-                <description>Configures the J2EE Connector server features</description>
+                <description>ico_connect_16x16.gif Configures the J2EE Connector server features</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -182,7 +182,7 @@ limitations under the License.
         <fragment name="corba" type="page">
             <navigation>
                 <title>CORBA/IIOP</title>
-                <description>Configures the CORBA/IIOP server features</description>
+                <description>ico_doc_16x16.gif Configures the CORBA/IIOP server features</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -197,7 +197,7 @@ limitations under the License.
         <fragment name="uddi" type="page">
             <navigation>
                 <title>UDDI Server</title>
-                <description>Configures the UDDI Server application</description>
+                <description>ico_servcomp_16x16.gif Configures the UDDI Server application</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -213,13 +213,13 @@ limitations under the License.
     <fragment name="services" type="page">
         <navigation>
             <title>Services</title>
-            <description>Manage services available on this server</description>
+            <description>ico_folder_16x16.gif Manage services available on this server</description>
         </navigation>
 
         <fragment name="repo" type="page">
             <navigation>
                 <title>Common Libraries</title>
-                <description>View Repository</description>
+                <description>ico_list_16x16.gif View Repository</description>
             </navigation>
             <fragment name="row1" type="row">
                 <fragment name="col1" type="column">
@@ -233,7 +233,7 @@ limitations under the License.
         <fragment name="jdbc" type="page">
             <navigation>
                 <title>Database Pools</title>
-                <description>Manage database connections</description>
+                <description>ico_db_16x16.gif Manage database connections</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -248,7 +248,7 @@ limitations under the License.
         <fragment name="jms" type="page">
             <navigation>
                 <title>JMS</title>
-                <description>Configure Java Message Service</description>
+                <description>ico_beanjar_16x16.gif Configure Java Message Service</description>
             </navigation>
             <fragment name="row1" type="row">
                 <fragment name="col1" type="column">
@@ -259,7 +259,7 @@ limitations under the License.
             </fragment>
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.17"/>
                     </fragment>
                 </fragment>
@@ -270,7 +270,7 @@ limitations under the License.
         <fragment name="mail" type="page">
             <navigation>
                 <title>Java Mail</title>
-                <description>Configure Java Mail service</description>
+                <description>ico_mail_16x16.gif Configure Java Mail service</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -286,25 +286,25 @@ limitations under the License.
     <fragment name="apps" type="page">
         <navigation>
             <title>Applications</title>
-            <description>Manage applications on this server</description>
+            <description>ico_folder_16x16.gif Manage applications on this server</description>
         </navigation>
 
         <fragment name="all" type="page">
             <navigation>
                 <title>All Configurations</title>
-                <description>This should be replaced</description>
+                <description>ico_list_16x16.gif This should be replaced</description>
             </navigation>
 
-            <fragment name="row2" type="row">
-                <fragment name="col2" type="column">
-                    <fragment name="p3" type="portlet">
+            <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.1"/>
                     </fragment>
                 </fragment>
             </fragment>
-            <fragment name="row3" type="row">
-                <fragment name="col2" type="column">
-                    <fragment name="p3" type="portlet">
+            <fragment name="row2" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.22"/>
                     </fragment>
                 </fragment>
@@ -314,7 +314,7 @@ limitations under the License.
         <fragment name="ear" type="page">
             <navigation>
                 <title>Application EARs</title>
-                <description>Manage EARs on this server</description>
+                <description>ico_list_16x16.gif Manage EARs on this server</description> 
             </navigation>
 
             <fragment name="row1" type="row">
@@ -329,7 +329,7 @@ limitations under the License.
         <fragment name="war" type="page">
             <navigation>
                 <title>Web App WARs</title>
-                <description>Manage EARs on this server</description>
+                <description>ico_list_16x16.gif Manage EARs on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -344,7 +344,7 @@ limitations under the License.
         <fragment name="ejb" type="page">
             <navigation>
                 <title>EJB JARs</title>
-                <description>Manage EJB JARs on this server</description>
+                <description>ico_beanjar_16x16.gif Manage EJB JARs on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -359,7 +359,7 @@ limitations under the License.
         <fragment name="rar" type="page">
             <navigation>
                 <title>J2EE Connectors</title>
-                <description>Manage RARs on this server</description>
+                <description>ico_connect_16x16.gif Manage RARs on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -374,7 +374,7 @@ limitations under the License.
         <fragment name="client" type="page">
             <navigation>
                 <title>App Clients</title>
-                <description>Manage client JARs on this server</description>
+                <description>ico_list_16x16.gif Manage client JARs on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -389,7 +389,7 @@ limitations under the License.
         <fragment name="system" type="page">
             <navigation>
                 <title>System Modules</title>
-                <description>Manage system deployments on this server</description>
+                <description>ico_list_16x16.gif Manage system deployments on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -406,23 +406,24 @@ limitations under the License.
     <fragment name="Security" type="page">
         <navigation>
             <title>Security</title>
-            <description>Manage security on this server</description>
+            <description>ico_folder_16x16.gif Manage security on this server</description>
         </navigation>
+
         <fragment name="Console" type="page">
             <navigation>
                 <title>Console Realm</title>
-                <description>Manage the console security realm on this server</description>
+                <description>ico_doc_16x16.gif Manage the console security realm on this server</description>
             </navigation>
             <fragment name="row1" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p2" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.3"/>
                     </fragment>
                 </fragment>
             </fragment>
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
-                    <fragment name="p3" type="portlet">
+                    <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.4"/>
                     </fragment>
                 </fragment>
@@ -432,7 +433,7 @@ limitations under the License.
         <fragment name="realms" type="page">
             <navigation>
                 <title>All Realms</title>
-                <description>Manage all security realms on this server</description>
+                <description>ico_doc_16x16.gif Manage all security realms on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -447,7 +448,7 @@ limitations under the License.
         <fragment name="keystore" type="page">
             <navigation>
                 <title>Keystore</title>
-                <description>Manage the keystore for this server</description>
+                <description>ico_doc_16x16.gif Manage the keystore for this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
@@ -463,24 +464,24 @@ limitations under the License.
     <fragment name="misc" type="page">
         <navigation>
             <title>Misc</title>
-            <description>Other management features</description>
+            <description>ico_folder_16x16.gif Other management features</description>
         </navigation>
 
         <fragment name="internalDB" type="page">
             <navigation>
                 <title>Embedded DB</title>
-                <description>Show info about the server's internal database</description>
+                <description>ico_folder_16x16.gif Show info about the server's internal database</description>
             </navigation>
 
             <fragment name="DBInfo" type="page">
                 <navigation>
                     <title>DB Info</title>
-                    <description>Information about the internal database/s</description>
+                    <description>ico_db_16x16.gif Information about the internal database/s</description>
                 </navigation>
 
-                <fragment name="row2" type="row">
-                    <fragment name="col2" type="column">
-                        <fragment name="p8" type="portlet">
+                <fragment name="row1" type="row">
+                    <fragment name="col1" type="column">
+                        <fragment name="p1" type="portlet">
                             <property name="portlet" value="5.32"/>
                         </fragment>
                     </fragment>
@@ -490,19 +491,19 @@ limitations under the License.
             <fragment name="DBManager" type="page">
                 <navigation>
                     <title>DB Manager</title>
-                    <description>Manage the internal database/s</description>
+                    <description>ico_servcomp_16x16.gif Manage the internal database/s</description>
                 </navigation>
 
-                <fragment name="row3" type="row">
-                    <fragment name="col2" type="column">
-                        <fragment name="p9" type="portlet">
+                <fragment name="row1" type="row">
+                    <fragment name="col1" type="column">
+                        <fragment name="p1" type="portlet">
                             <property name="portlet" value="5.33"/>
                         </fragment>
                     </fragment>
                 </fragment>
                 <fragment name="row2" type="row">
-                    <fragment name="col2" type="column">
-                        <fragment name="p9" type="portlet">
+                    <fragment name="col1" type="column">
+                        <fragment name="p1" type="portlet">
                             <property name="portlet" value="5.34"/>
                         </fragment>
                     </fragment>
