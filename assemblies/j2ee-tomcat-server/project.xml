@@ -20,9 +20,9 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>geronimo-j2ee-assembly</id>
-    <name>Geronimo Assembly for a J2EE Server</name>
-    <description>An assembly of Geronimo into a J2EE Server</description>
+    <id>geronimo-tomcat-j2ee</id>
+    <name>Geronimo Assembly for a J2EE Server running Tomcat</name>
+    <description>An assembly of Geronimo into a J2EE Server using Tomcat for the web container</description>
 
     <dependencies>
         <!-- plugin we use --> 
