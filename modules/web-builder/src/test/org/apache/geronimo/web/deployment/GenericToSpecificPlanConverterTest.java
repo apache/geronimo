@@ -47,7 +47,7 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
         URL expectedOutputXml = classLoader.getResource("plans/tomcat-post.xml");
         XmlObject rawPlan = XmlObject.Factory.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
-        XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/j2ee/web/tomcat/config-1.0",
+        XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
                 "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0", "tomcat").convertToSpecificPlan(rawPlan);
 
 //        System.out.println(webPlan.toString());

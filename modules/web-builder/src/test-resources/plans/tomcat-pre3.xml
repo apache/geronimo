@@ -2,7 +2,7 @@
 <web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="org/apache/jetspeed/web">
     <context-priority-classloader>false</context-priority-classloader>
     <container-config>
-        <tomcat xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat/config-1.0">
+        <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0">
             <cross-context/>
             <tomcat-realm>TomcatJAASRealm</tomcat-realm>
         </tomcat>
