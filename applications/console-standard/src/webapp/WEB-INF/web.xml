@@ -22,6 +22,20 @@ limitations under the License.
 
     <display-name>Geronimo Management Console Portlets</display-name>
 
+     <servlet>
+        <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Welcome Portlet</display-name>
+        <servlet-name>Welcome</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.welcome.WelcomePortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.Welcome</param-value>
+        </init-param>
+    </servlet>
     <servlet>
         <display-name>Pluto Wrapper for EJB Server Portlet</display-name>
         <servlet-name>EJBServer</servlet-name>
@@ -666,6 +680,10 @@ limitations under the License.
 
 
 
+    <servlet-mapping>
+        <servlet-name>Welcome</servlet-name>
+        <url-pattern>/Welcome/*</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>EJBServer</servlet-name>
         <url-pattern>/EJBServer/*</url-pattern>

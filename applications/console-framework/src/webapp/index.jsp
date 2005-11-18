@@ -1,4 +1,4 @@
 <%@ page language="java" %>
 <%
-	response.sendRedirect("./portal/server/server_info");
+	response.sendRedirect("./portal/welcome");
 %>

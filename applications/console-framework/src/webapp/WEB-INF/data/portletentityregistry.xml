@@ -18,6 +18,9 @@ limitations under the License.
 <portlet-entity-registry>
     <application id="5">
         <definition-id>console-standard</definition-id>
+        <portlet id="0">
+           <definition-id>console-standard.Welcome</definition-id>
+        </portlet>
         <portlet id="1">
             <definition-id>console-standard.Applications</definition-id>
         </portlet>

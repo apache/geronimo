@@ -22,6 +22,30 @@ limitations under the License.
     xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd
                         http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd">
 
+     <portlet>
+        <description>Initial portlet with Geronimo informat.</description>
+        <portlet-name>Welcome</portlet-name>
+        <display-name>Welcome Portlet</display-name>
+
+        <portlet-class>org.apache.geronimo.console.welcome.WelcomePortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Welcome</title>
+            <short-title>Welcome</short-title>
+            <keywords>Welcome</keywords>
+        </portlet-info>
+    </portlet>
+
 <!-- Server Tab -->
 
     <portlet>

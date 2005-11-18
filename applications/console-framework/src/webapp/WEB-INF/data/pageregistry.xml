@@ -20,6 +20,21 @@ limitations under the License.
     <fragment name="navigation" class="org.apache.pluto.portalImpl.aggregation.navigation.TabNavigation">
     </fragment>
 
+    <fragment name="welcome" type="page">
+        <navigation>
+            <title>Welcome</title>
+            <description>ico_geronimo_16x16.gif Provides information about the Geronimo Console</description>
+        </navigation>
+
+        <fragment name="row1" type="row">
+            <fragment name="col1" type="column">
+                <fragment name="p1" type="portlet">
+                    <property name="portlet" value="5.0"/>
+                </fragment>
+            </fragment>
+        </fragment>
+    </fragment>
+
     <fragment name="server" type="page">
         <navigation>
             <title>Server</title>
