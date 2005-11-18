@@ -58,7 +58,25 @@ public class ResourceReference extends SimpleAwareReference {
             throw new IllegalStateException("Proxy not returned. Target " + containerId + " not started");
         }
         if (!iface.isAssignableFrom(proxy.getClass())) {
-            throw new ClassCastException("Proxy does not implement expected interface " + iface);
+            Class proxyClass = proxy.getClass();
+            Class[] interfaces = proxyClass.getInterfaces();
+            StringBuffer message = new StringBuffer();
+            boolean namesMatch = false;
+            for (int i = 0; i < interfaces.length; i++) {
+                Class anInterface = interfaces[i];
+                if (iface.getName().equals(anInterface.getName())) {
+                    namesMatch = true;
+                    message.append("Proxy implements correct interface: ").append(iface.getName()).append(", but classloaders differ\n");
+                    message.append("lookup interface classloader: ").append(iface.getClassLoader().toString()).append("\n");
+                    message.append("target interface classloader: ").append(anInterface.getClassLoader().toString()).append("\n");
+                    message.append("target proxy classloader: ").append(proxy.getClass().getClassLoader());
+                    break;
+                }
+            }
+            if (!namesMatch) {
+                message.append("Proxy does not implement an interface named: ").append(iface.getName());
+            }
+            throw new ClassCastException(message.toString());
         }
         return proxy;
 
