@@ -44,18 +44,6 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
  * the case of remote clients, and it can auto-role-mapping for its login
  * modules (though you must configure it for that).
  * <p/>
- * To configure the list of LoginModules, set the loginModuleConfiguration
- * to a Properties object with syntax like this:
- * <pre>
- * LoginModule.1.REQUIRED=ObjectName1
- * LoginModule.2.SUFFICIENT=ObjectName2
- * ...
- * </pre>
- * Each ObjectName should identify a LoginModuleGBean in the server
- * configuration.  Each LoginModuleGBean has the configuration options for its
- * login module, and knows whether it should run on the client side or server
- * side.
- * <p/>
  * This realm populates a number of special login module options for the
  * benefit of Geronimo login modules (though some of them are only available to
  * server-side login modules, marked as not Serializable below):
