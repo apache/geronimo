@@ -36,6 +36,7 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
  * @version $Rev$ $Date$
  */
 public class JaasLoginModuleUse {
+    // See also http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASLMDevGuide.html for more standard login module option keys
     public final static String KERNEL_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
     public final static String SERVERINFO_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
     public final static String CLASSLOADER_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.CLASSLOADER";
