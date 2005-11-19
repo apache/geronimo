@@ -47,6 +47,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
@@ -151,7 +152,12 @@ public class LDAPLoginModule implements LoginModule {
         }
 
         try {
-            return authenticate(cbUsername, cbPassword);
+            boolean result = authenticate(cbUsername, cbPassword);
+            if(!result) {
+                throw new FailedLoginException();
+            } else {
+                return true;
+            }
         } catch (Exception e) {
             throw (LoginException) new LoginException("LDAP Error").initCause(e);
         }
@@ -160,6 +166,7 @@ public class LDAPLoginModule implements LoginModule {
     public boolean logout() throws LoginException {
         cbUsername = null;
         cbPassword = null;
+        //todo: should remove principals added by commit
         return true;
     }
 

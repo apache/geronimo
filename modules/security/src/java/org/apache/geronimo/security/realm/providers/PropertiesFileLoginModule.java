@@ -34,6 +34,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.commons.logging.Log;
@@ -135,8 +136,12 @@ public class PropertiesFileLoginModule implements LoginModule {
         String realPassword = users.getProperty(username);
         char[] entered = ((PasswordCallback) callbacks[1]).getPassword();
         password = entered == null ? null : new String(entered);
-        return (realPassword == null && password == null) ||
+        boolean result = (realPassword == null && password == null) ||
                 (realPassword != null && password != null && realPassword.equals(password));
+        if(!result) {
+            throw new FailedLoginException();
+        }
+        return true;
     }
 
     public boolean commit() throws LoginException {
@@ -171,7 +176,7 @@ public class PropertiesFileLoginModule implements LoginModule {
     public boolean logout() throws LoginException {
         username = null;
         password = null;
-
+        //todo: should remove principals added by commit
         return true;
     }
 

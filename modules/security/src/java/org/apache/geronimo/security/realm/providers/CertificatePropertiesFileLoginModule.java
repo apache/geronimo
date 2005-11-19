@@ -35,6 +35,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
@@ -149,7 +150,10 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
         }
         principal = certificate.getSubjectX500Principal();
 
-        return users.containsKey(principal.getName());
+        if(!users.containsKey(principal.getName())) {
+            throw new FailedLoginException();
+        }
+        return true;
     }
 
     public boolean commit() throws LoginException {
@@ -184,7 +188,7 @@ public class CertificatePropertiesFileLoginModule implements LoginModule {
 
     public boolean logout() throws LoginException {
         principal = null;
-
+        //todo: should remove principals added by commit
         return true;
     }
 

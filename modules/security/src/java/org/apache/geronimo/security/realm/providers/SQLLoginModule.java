@@ -35,6 +35,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
@@ -137,7 +138,9 @@ public class SQLLoginModule implements LoginModule {
                     statement.close();
                 }
 
-                if (!found) return false;
+                if (!found) {
+                    throw new FailedLoginException();
+                }
 
                 statement = conn.prepareStatement(groupSelect);
                 try {
@@ -193,7 +196,7 @@ public class SQLLoginModule implements LoginModule {
     public boolean logout() throws LoginException {
         cbUsername = null;
         cbPassword = null;
-
+        //todo: should remove principals put in by commit
         return true;
     }
 }
