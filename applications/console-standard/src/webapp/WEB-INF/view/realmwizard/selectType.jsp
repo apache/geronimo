@@ -50,7 +50,8 @@
       </tr>
       <tr>
         <td></td>
-        <td>A name that is different than the name for any other security realms in the server (no spaces in the name please).</td>
+        <td>A name that is different than the name for any other security realms in the server (no spaces in the name please).
+          Other components will use this name to refer to the security realm.</td>
       </tr>
     <!-- ENTRY FIELD: REALM TYPE -->
       <tr>

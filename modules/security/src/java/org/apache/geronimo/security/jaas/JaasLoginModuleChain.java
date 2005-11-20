@@ -40,7 +40,13 @@ public interface JaasLoginModuleChain {
     /**
      * The String form of the control flag for the login module at this
      * position in the chain.
-     */ 
+     */
     public String getControlFlag();
+
+    /**
+     * The String form of the control flag for the login module at this
+     * position in the chain.
+     */
+    public void setControlFlag(String controlFlag);
 
 }

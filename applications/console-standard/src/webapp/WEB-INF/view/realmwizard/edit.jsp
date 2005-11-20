@@ -26,11 +26,12 @@
       <tr>
         <th><div align="right">Realm Name:</div></th>
         <td>
-      <c:choose> <%-- Can't change the pool name after deployment because it's wired into all the ObjectNames --%>
+      <c:choose> <%-- Can't change the realm name after deployment because it's wired into all the ObjectNames --%>
         <c:when test="${empty realm.objectName}">
           <input name="name" type="text" size="30" value="${realm.name}">
         </c:when>
         <c:otherwise>
+          <input name="name" type="hidden" value="${realm.name}" />
           <b><c:out value="${realm.name}" /></b>
         </c:otherwise>
       </c:choose>
@@ -38,7 +39,8 @@
       </tr>
       <tr>
         <td></td>
-        <td>A name that is different than the name for any other security realms in the server (no spaces in the name please).</td>
+        <td>A name that is different than the name for any other security realms in the server (no spaces in the name please).
+          Other components will use this name to refer to the security realm.</td>
       </tr>
     <!-- HEADER -->
     <c:forEach var="module" items="${realm.modules}" varStatus="status" >
@@ -47,11 +49,25 @@
       </tr>
       <tr>
         <th><div align="right">Login Domain Name:</div></th>
-        <td><input name="module-domain-${status.index}" type="text" size="20" value="${module.loginDomainName}" /></td>
+        <td>
+      <c:choose> <%-- Can't change the login domain name after deployment because it's how we know which GBean is which --%>
+        <c:when test="${empty realm.objectName}">
+          <input name="module-domain-${status.index}" type="text" size="20" value="${module.loginDomainName}" />
+        </c:when>
+        <c:otherwise>
+          <input name="module-domain-${status.index}" type="hidden" value="${module.loginDomainName}" />
+          <b><c:out value="${module.loginDomainName}" /></b>
+        </c:otherwise>
+      </c:choose>
+        </td>
+
+        <td></td>
       </tr>
       <tr>
         <td></td>
-        <td>The login domain for this login module, which must be unique among all modules in the security realm.</td>
+        <td>The login domain for this login module, which must be unique among all modules in the security realm.
+          This can be used to distinguish principals from two otherwise identical login modules (for example,
+          from two LDAP login modules pointing to two different LDAP servers)</td>
       </tr>
       <tr>
         <th><div align="right">Login Module Class:</div></th>

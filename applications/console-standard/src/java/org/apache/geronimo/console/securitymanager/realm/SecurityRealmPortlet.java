@@ -405,6 +405,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     }
 
     private void actionSaveRealm(PortletRequest request, RealmData data) {
+        normalize(data);
         if(data.objectName == null || data.objectName.equals("")) { // we're creating a new realm
             try {
                 XmlObject plan = actionGeneratePlan(request, data);
@@ -432,8 +433,29 @@ public class SecurityRealmPortlet extends BasePortlet {
                 log.error("Unable to save security realm", e);
             }
         } else {
-            //todo: handle editing an existing realm
-            log.error("Saving existing realms is not yet implemented", new UnsupportedOperationException());
+            SecurityRealm realm = (SecurityRealm) PortletManager.getManagedBean(request, data.getObjectName());
+            // index existing modules
+            Map nodes = new HashMap();
+            JaasLoginModuleChain node = (JaasLoginModuleChain) PortletManager.getManagedBean(request, realm.getLoginModuleChainName());
+            while(node != null) {
+                LoginModuleSettings module = (LoginModuleSettings) PortletManager.getManagedBean(request, node.getLoginModuleName());
+                nodes.put(module.getLoginDomainName(), node);
+                final String next = node.getNextName();
+                if(next == null) {
+                    break;
+                }
+                node = (JaasLoginModuleChain) PortletManager.getManagedBean(request, next);
+            }
+            // apply settings
+            for (int i = 0; i < data.getModules().length; i++) {
+                LoginModuleDetails details = data.getModules()[i];
+                node = (JaasLoginModuleChain) nodes.get(details.getLoginDomainName());
+                node.setControlFlag(details.getControlFlag());
+                LoginModuleSettings module = (LoginModuleSettings) PortletManager.getManagedBean(request, node.getLoginModuleName());
+                module.setOptions(details.getOptions());
+                module.setServerSide(details.isServerSide());
+                module.setLoginModuleClass(details.getClassName());
+            }
         }
     }
 

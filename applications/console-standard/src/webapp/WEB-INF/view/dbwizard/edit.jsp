@@ -32,6 +32,7 @@
           <input name="name" type="text" size="30" value="${pool.name}">
         </c:when>
         <c:otherwise>
+          <input name="name" type="hidden" value="${pool.name}" />
           <b><c:out value="${pool.name}" /></b>
         </c:otherwise>
       </c:choose>
