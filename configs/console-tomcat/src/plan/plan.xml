@@ -28,6 +28,7 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0" configId="console">
             <context-root>/console</context-root>
             <context-priority-classloader>false</context-priority-classloader>
+            <cross-context/>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
             <security>
                 <default-principal realm-name="geronimo-properties-realm">
@@ -49,6 +50,7 @@
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0" configId="console-standard">
             <context-root>/console-standard</context-root>
             <context-priority-classloader>false</context-priority-classloader>
+            <cross-context/>
         </web-app>
     </module>
 
