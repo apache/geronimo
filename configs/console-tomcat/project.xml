@@ -75,6 +75,86 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
     </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-test-ddbean</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-deploy-jsr88</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-deploy-config</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-service-builder</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-connector-builder</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-security-builder</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-j2ee-schema</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>xmlbeans</groupId>
+        <artifactId>xbean</artifactId>
+        <version>${xmlbeans_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>stax</groupId>
+        <artifactId>stax-api</artifactId>
+        <version>${stax_api_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
 
     <!-- Keystore dependency -->
     <dependency>
@@ -230,11 +310,6 @@
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
             <version>${asm_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
-            <version>${activemq_version}</version>
         </dependency>
         <dependency>
             <groupId>activeio</groupId>

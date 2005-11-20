@@ -70,6 +70,11 @@
         <artifactId>stax-api</artifactId>
         <version>${stax_api_version}</version>
     </dependency>
+    <dependency>
+        <groupId>activemq</groupId>
+        <artifactId>activemq-gbean-management</artifactId>
+        <version>${activemq_version}</version>
+    </dependency>
 
     <!-- Keystore dependency -->
     <dependency>
