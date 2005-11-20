@@ -35,29 +35,32 @@ import org.apache.geronimo.security.jaas.server.JaasLoginModuleConfiguration;
  *
  * @version $Rev$ $Date$
  */
-public class JaasLoginModuleUse {
+public class JaasLoginModuleUse implements JaasLoginModuleChain {
     // See also http://java.sun.com/j2se/1.4.2/docs/guide/security/jaas/JAASLMDevGuide.html for more standard login module option keys
-    public final static String KERNEL_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
+    public final static String KERNEL_NAME_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.KERNEL";
     public final static String SERVERINFO_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.SERVERINFO";
     public final static String CLASSLOADER_LM_OPTION = "org.apache.geronimo.security.realm.GenericSecurityRealm.CLASSLOADER";
 
     private final LoginModuleGBean loginModule;
     private final JaasLoginModuleUse next;
-    private final LoginModuleControlFlag controlFlag;
+    private LoginModuleControlFlag controlFlag;
+    private final Kernel kernel;
 
     //for reference.
     public JaasLoginModuleUse() {
         loginModule = null;
         next = null;
         controlFlag = null;
+        kernel = null;
     }
 
-    public JaasLoginModuleUse(LoginModuleGBean loginModule, JaasLoginModuleUse next, String controlFlag) {
+    public JaasLoginModuleUse(LoginModuleGBean loginModule, JaasLoginModuleUse next, String controlFlag, Kernel kernel) {
         this.loginModule = loginModule;
         this.next = next;
         LoginModuleControlFlagEditor editor = new LoginModuleControlFlagEditor();
         editor.setAsText(controlFlag);
         this.controlFlag = (LoginModuleControlFlag) editor.getValue();
+        this.kernel = kernel;
     }
 
     public LoginModuleGBean getLoginModule() {
@@ -68,8 +71,25 @@ public class JaasLoginModuleUse {
         return next;
     }
 
+    public String getLoginModuleName() {
+        return kernel.getObjectNameFor(loginModule).getCanonicalName();
+    }
+
+    public String getNextName() {
+        if(next == null) {
+            return null;
+        }
+        return kernel.getObjectNameFor(next).getCanonicalName();
+    }
+
     public String getControlFlag() {
         return controlFlag.toString();
+    }
+
+    public void setControlFlag(String controlFlag) {
+        LoginModuleControlFlagEditor ed = new LoginModuleControlFlagEditor();
+        ed.setAsText(controlFlag);
+        this.controlFlag = (LoginModuleControlFlag) ed.getValue();
     }
 
     public void configure(Set domainNames, List loginModuleConfigurations, Kernel kernel, ServerInfo serverInfo, ClassLoader classLoader) {
@@ -79,8 +99,8 @@ public class JaasLoginModuleUse {
         } else {
             options = new HashMap();
         }
-        if (kernel != null && !options.containsKey(KERNEL_LM_OPTION)) {
-            options.put(KERNEL_LM_OPTION, kernel.getKernelName());
+        if (kernel != null && !options.containsKey(KERNEL_NAME_LM_OPTION)) {
+            options.put(KERNEL_NAME_LM_OPTION, kernel.getKernelName());
         }
         if (serverInfo != null && !options.containsKey(SERVERINFO_LM_OPTION)) {
             options.put(SERVERINFO_LM_OPTION, serverInfo);
@@ -108,12 +128,13 @@ public class JaasLoginModuleUse {
     static {
         GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JaasLoginModuleUse.class, "LoginModuleUse");
         infoBuilder.addAttribute("controlFlag", String.class, true);
+        infoBuilder.addAttribute("kernel", Kernel.class, false, false);
         infoBuilder.addReference("LoginModule", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
         infoBuilder.addReference("Next", JaasLoginModuleUse.class);
 
         infoBuilder.addOperation("configure", new Class[]{Set.class, List.class, Kernel.class, ServerInfo.class, ClassLoader.class});
-
-        infoBuilder.setConstructor(new String[]{"LoginModule", "Next", "controlFlag"});
+        infoBuilder.addInterface(JaasLoginModuleChain.class);
+        infoBuilder.setConstructor(new String[]{"LoginModule", "Next", "controlFlag", "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

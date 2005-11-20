@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
+import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -63,7 +64,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
             throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
         }
         XmlCursor xmlCursor = loginConfig.newCursor();
-        ObjectName nextName = null;
+        List uses = new ArrayList();
         try {
             boolean atStart = true;
             while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling())) {
@@ -130,16 +131,19 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
                 loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
                 loginModuleUseGBeanData.setReferencePattern("LoginModule", loginModuleName);
-                if (nextName != null) {
-                    loginModuleUseGBeanData.setReferencePattern("Next", nextName);
+                uses.add(loginModuleUseGBeanData);
+            }
+            for(int i=uses.size()-1; i>=0; i--) {
+                GBeanData data = (GBeanData) uses.get(i);
+                if(i > 0) {
+                    ((GBeanData)uses.get(i-1)).setReferencePattern("Next", data.getName());
                 }
-                context.addGBean(loginModuleUseGBeanData);
-                nextName = thisName;
+                context.addGBean(data);
             }
         } finally {
             xmlCursor.dispose();
         }
-        return Collections.singleton(nextName);
+        return uses.size() == 0 ? Collections.EMPTY_SET : Collections.singleton(((GBeanData)uses.get(0)).getName());
     }
 
     private String trim(String string) {

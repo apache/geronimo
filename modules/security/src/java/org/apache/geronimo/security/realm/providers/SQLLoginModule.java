@@ -37,13 +37,35 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
+import javax.management.ObjectName;
+import javax.sql.DataSource;
 
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 
 
 /**
  * A login module that loads security information from a SQL database.  Expects
  * to be run by a GenericSecurityRealm (doesn't work on its own).
+ * <p>
+ * This requires database connectivity information (either 1: a dataSourceName and
+ * optional dataSourceApplication or 2: a JDBC driver, URL, username, and password)
+ * and 2 SQL queries.
+ * <p>
+ * The userSelect query should return 2 values, the username and the password in
+ * that order.  It should include one PreparedStatement parameter (a ?) which
+ * will be filled in with the username.  In other words, the query should look
+ * like: <tt>SELECT user, password FROM users WHERE username=?</tt>
+ * <p>
+ * The groupSelect query should return 2 values, the username and the group name in
+ * that order (but it may return multiple rows, one per group).  It should include
+ * one PreparedStatement parameter (a ?) which will be filled in with the username.
+ * In other words, the query should look like:
+ * <tt>SELECT user, role FROM user_roles WHERE username=?</tt>
  *
  * @version $Rev$ $Date$
  */
@@ -54,10 +76,12 @@ public class SQLLoginModule implements LoginModule {
     public final static String USER = "jdbcUser";
     public final static String PASSWORD = "jdbcPassword";
     public final static String DRIVER = "jdbcDriver";
-    //todo: support JNDI data sources too
+    public final static String DATABASE_POOL_NAME = "dataSourceName";
+    public final static String DATABASE_POOL_APP_NAME = "dataSourceApplication";
     private String connectionURL;
     private Properties properties;
     private Driver driver;
+    private JCAManagedConnectionFactory factory;
     private String userSelect;
     private String groupSelect;
 
@@ -70,20 +94,47 @@ public class SQLLoginModule implements LoginModule {
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         this.subject = subject;
         this.handler = callbackHandler;
-
-        connectionURL = (String) options.get(CONNECTION_URL);
-        properties = new Properties();
-        properties.put("user", options.get(USER));
-        properties.put("password", options.get(PASSWORD));
         userSelect = (String) options.get(USER_SELECT);
         groupSelect = (String) options.get(GROUP_SELECT);
-        ClassLoader cl = (ClassLoader) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
-        try {
-            this.driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Driver class " + driver + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to load, instantiate, register driver " + driver + ": " + e.getMessage());
+
+        String dataSourceName = (String) options.get(DATABASE_POOL_NAME);
+        if(dataSourceName != null) {
+            dataSourceName = dataSourceName.trim();
+            String dataSourceAppName = (String) options.get(DATABASE_POOL_APP_NAME);
+            if(dataSourceAppName == null || dataSourceAppName.trim().equals("")) {
+                dataSourceAppName = "null";
+            } else {
+                dataSourceAppName = dataSourceAppName.trim();
+            }
+            String kernelName = (String) options.get(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION);
+            Kernel kernel = KernelRegistry.getKernel(kernelName);
+            Set set = kernel.listGBeans(new GBeanQuery(null, JCAManagedConnectionFactory.class.getName()));
+            JCAManagedConnectionFactory factory;
+            for (Iterator it = set.iterator(); it.hasNext();) {
+                ObjectName name = (ObjectName) it.next();
+                if(name.getKeyProperty(NameFactory.J2EE_APPLICATION).equals(dataSourceAppName) &&
+                    name.getKeyProperty(NameFactory.J2EE_NAME).equals(dataSourceName)) {
+                    factory = (JCAManagedConnectionFactory) kernel.getProxyManager().createProxy(name, JCAManagedConnectionFactory.class.getClassLoader());
+                    String type = factory.getConnectionFactoryInterface();
+                    if(type.equals(DataSource.class.getName())) {
+                        this.factory = factory;
+                        break;
+                    }
+                }
+            }
+        } else {
+            connectionURL = (String) options.get(CONNECTION_URL);
+            properties = new Properties();
+            properties.put("user", options.get(USER));
+            properties.put("password", options.get(PASSWORD));
+            ClassLoader cl = (ClassLoader) options.get(JaasLoginModuleUse.CLASSLOADER_LM_OPTION);
+            try {
+                this.driver = (Driver) cl.loadClass((String) options.get(DRIVER)).newInstance();
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException("Driver class " + driver + " is not available.  Perhaps you need to add it as a dependency in your deployment plan?");
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Unable to load, instantiate, register driver " + driver + ": " + e.getMessage());
+            }
         }
     }
 
@@ -109,15 +160,18 @@ public class SQLLoginModule implements LoginModule {
 
         boolean found = false;
         try {
-            Connection conn = driver.connect(connectionURL, properties);
+            Connection conn;
+            if(factory != null) {
+                DataSource ds = (DataSource) factory.getConnectionFactory();
+                conn = ds.getConnection();
+            } else {
+                conn = driver.connect(connectionURL, properties);
+            }
 
             try {
                 PreparedStatement statement = conn.prepareStatement(userSelect);
                 try {
-                    int count = statement.getParameterMetaData().getParameterCount();
-                    for (int i = 1; i <= count; ++i) {
-                        statement.setObject(i, cbUsername);
-                    }
+                    statement.setObject(1, cbUsername);
                     ResultSet result = statement.executeQuery();
 
                     try {
@@ -125,9 +179,9 @@ public class SQLLoginModule implements LoginModule {
                             String userName = result.getString(1);
                             String userPassword = result.getString(2);
 
-                            if (cbUsername.equals(userName) && ((cbPassword == null && userPassword == null) ||
-                                    (cbPassword != null && userPassword != null && cbPassword.equals(userPassword)))) {
-                                found = true;
+                            if (cbUsername.equals(userName)) {
+                                found = (cbPassword == null && userPassword == null) ||
+                                        (cbPassword != null && userPassword != null && cbPassword.equals(userPassword));
                                 break;
                             }
                         }
@@ -144,16 +198,13 @@ public class SQLLoginModule implements LoginModule {
 
                 statement = conn.prepareStatement(groupSelect);
                 try {
-                    int count = statement.getParameterMetaData().getParameterCount();
-                    for (int i = 1; i <= count; ++i) {
-                        statement.setObject(i, cbUsername);
-                    }
+                    statement.setObject(1, cbUsername);
                     ResultSet result = statement.executeQuery();
 
                     try {
                         while (result.next()) {
-                            String groupName = result.getString(1);
-                            String userName = result.getString(2);
+                            String userName = result.getString(1);
+                            String groupName = result.getString(2);
 
                             if (cbUsername.equals(userName)) {
                                 groups.add(new GeronimoGroupPrincipal(groupName));

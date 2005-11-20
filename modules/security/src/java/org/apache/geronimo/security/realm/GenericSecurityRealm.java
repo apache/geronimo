@@ -70,7 +70,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     private String[] domains;
     private final boolean restrictPrincipalsToServer;
     private final boolean wrapPrincipals;
-
+    private final JaasLoginModuleUse loginModuleUse;
 
     public GenericSecurityRealm(String realmName,
                                 JaasLoginModuleUse loginModuleUse,
@@ -87,6 +87,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
         this.wrapPrincipals = wrapPrincipals;
         this.defaultPrincipalInfo = defaultPrincipalInfo;
         this.loginService = loginService;
+        this.loginModuleUse = loginModuleUse;
 
         Set domainNames = new HashSet();
         List loginModuleConfigurations = new ArrayList();
@@ -106,6 +107,10 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
 
     public JaasLoginModuleConfiguration[] getAppConfigurationEntries() {
         return config;
+    }
+
+    public String getLoginModuleChainName() {
+        return kernel.getObjectNameFor(loginModuleUse).getCanonicalName();
     }
 
     /**

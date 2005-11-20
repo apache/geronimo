@@ -82,7 +82,7 @@ public class PropertiesFileLoginModuleNoCache implements LoginModule {
         this.handler = callbackHandler;
         try {
             kernel = KernelRegistry.getKernel((String) options
-                    .get(JaasLoginModuleUse.KERNEL_LM_OPTION));
+                    .get(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION));
             serverInfo = (ServerInfo) options
                     .get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
             usersURI = new URI((String) options.get(USERS_URI));

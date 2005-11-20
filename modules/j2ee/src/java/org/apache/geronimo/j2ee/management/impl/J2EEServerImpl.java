@@ -31,7 +31,6 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.JMSManager;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -182,6 +181,28 @@ public class J2EEServerImpl implements J2EEServer {
             names[i++] = name.getCanonicalName();
         }
         return names;
+    }
+
+    public String[] getSecurityRealms() {
+        GBeanQuery query = new GBeanQuery(null, "org.apache.geronimo.security.realm.SecurityRealm");
+        Set set = kernel.listGBeans(query);
+        String[] names = new String[set.size()];
+        int i=0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            names[i++] = name.getCanonicalName();
+        }
+        return names;
+    }
+
+    public String getServerInfo() {
+        GBeanQuery query = new GBeanQuery(null, ServerInfo.class.getName());
+        Set set = kernel.listGBeans(query);
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            return name.getCanonicalName();
+        }
+        return null;
     }
 
     public String getServerVendor() {

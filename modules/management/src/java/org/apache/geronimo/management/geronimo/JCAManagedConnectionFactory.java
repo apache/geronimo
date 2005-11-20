@@ -52,4 +52,6 @@ public interface JCAManagedConnectionFactory extends org.apache.geronimo.managem
      * @return
      */
     public String getConnectionManager();
+    
+    public Object getConnectionFactory();
 }

@@ -71,6 +71,8 @@ import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
@@ -502,7 +504,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 JCAManagedConnectionFactory db = databases[j];
                 try {
                     ObjectName name = ObjectName.getInstance(db.getObjectName());
-                    list.add(new ConnectionPool(module.getObjectName(), db.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME)));
+
+                    list.add(new ConnectionPool(ObjectName.getInstance(module.getObjectName()), db.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME), ((GeronimoManagedBean)db).getState()));
                 } catch (MalformedObjectNameException e) {
                     e.printStackTrace();
                 }
@@ -1104,11 +1107,19 @@ public class DatabasePoolPortlet extends BasePortlet {
         private final String adapterObjectName;
         private final String factoryObjectName;
         private final String name;
+        private final String parentName;
+        private final int state;
 
-        public ConnectionPool(String adapterObjectName, String factoryObjectName, String name) {
-            this.adapterObjectName = adapterObjectName;
+        public ConnectionPool(ObjectName adapterObjectName, String factoryObjectName, String name, int state) {
+            this.adapterObjectName = adapterObjectName.getCanonicalName();
+            String parent = adapterObjectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
+            if(parent != null && parent.equals("null")) {
+                parent = null;
+            }
+            parentName = parent;
             this.factoryObjectName = factoryObjectName;
             this.name = name;
+            this.state = state;
         }
 
         public String getAdapterObjectName() {
@@ -1123,8 +1134,39 @@ public class DatabasePoolPortlet extends BasePortlet {
             return name;
         }
 
+        public String getParentName() {
+            return parentName;
+        }
+
+        public int getState() {
+            return state;
+        }
+
+        public String getStateName() {
+            return State.toString(state);
+        }
+
         public int compareTo(Object o) {
-            return name.compareTo(((ConnectionPool)o).name);
+            final ConnectionPool pool = (ConnectionPool)o;
+            int names = name.compareTo(pool.name);
+            if(parentName == null) {
+                if(pool.parentName == null) {
+                    return names;
+                } else {
+                    return -1;
+                }
+            } else {
+                if(pool.parentName == null) {
+                    return 1;
+                } else {
+                    int test = parentName.compareTo(pool.parentName);
+                    if(test != 0) {
+                        return test;
+                    } else {
+                        return names;
+                    }
+                }
+            }
         }
     }
 

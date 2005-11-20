@@ -32,17 +32,18 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  *
  * @version $Rev$ $Date$
  */
-public class LoginModuleGBean {
+public class LoginModuleGBean implements LoginModuleSettings {
     private String loginDomainName;
     private String loginModuleClass;
     private Properties options;
-    private String objectName;
+    private final String objectName;
     private boolean serverSide;
     private boolean wrapPrincipals;
     private final ClassLoader classLoader;
 
     public LoginModuleGBean() {
-        this.classLoader = null;
+        classLoader = null;
+        objectName = null;
     }
 
     public LoginModuleGBean(String loginModuleClass, String objectName, boolean serverSide, boolean wrapPrincipals, ClassLoader classLoader) {
@@ -81,10 +82,6 @@ public class LoginModuleGBean {
         return objectName;
     }
 
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
-    }
-
     public boolean isServerSide() {
         return serverSide;
     }
@@ -116,6 +113,7 @@ public class LoginModuleGBean {
         infoFactory.addAttribute("loginDomainName", String.class, true);
         infoFactory.addAttribute("wrapPrincipals", boolean.class, true);
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
+        infoFactory.addInterface(LoginModuleSettings.class);
         infoFactory.setConstructor(new String[]{"loginModuleClass", "objectName", "serverSide", "wrapPrincipals", "classLoader"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();

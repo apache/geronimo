@@ -91,7 +91,7 @@ public class LoginSQLTest extends AbstractTest {
         props.put("jdbcUser", "loginmodule");
         props.put("jdbcPassword", "password");
         props.put("userSelect", "SELECT UserName, Password FROM Users where UserName = ?");
-        props.put("groupSelect", "SELECT GroupName, UserName FROM Groups where UserName = ?");
+        props.put("groupSelect", "SELECT UserName, GroupName FROM Groups where UserName = ?");
         gbean.setAttribute("options", props);
         gbean.setAttribute("loginDomainName", "SQLDomain");
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);

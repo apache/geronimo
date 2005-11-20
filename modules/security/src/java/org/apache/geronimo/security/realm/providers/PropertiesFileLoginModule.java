@@ -69,14 +69,19 @@ public class PropertiesFileLoginModule implements LoginModule {
         this.subject = subject;
         this.handler = callbackHandler;
         try {
-            Kernel kernel = KernelRegistry.getKernel((String)options.get(JaasLoginModuleUse.KERNEL_LM_OPTION));
+            Kernel kernel = KernelRegistry.getKernel((String)options.get(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION));
             ServerInfo serverInfo = (ServerInfo) options.get(JaasLoginModuleUse.SERVERINFO_LM_OPTION);
-            URI usersURI = new URI((String)options.get(USERS_URI));
-            URI groupsURI = new URI((String)options.get(GROUPS_URI));
+            final String users = (String)options.get(USERS_URI);
+            final String groups = (String)options.get(GROUPS_URI);
+            if(users == null || groups == null) {
+                throw new IllegalArgumentException("Both "+USERS_URI+" and "+GROUPS_URI+" must be provided!");
+            }
+            URI usersURI = new URI(users);
+            URI groupsURI = new URI(groups);
             loadProperties(kernel, serverInfo, usersURI, groupsURI);
         } catch (Exception e) {
-            log.error(e);
-            throw new IllegalArgumentException("Unable to configure properties file login module: "+e);
+            log.error("Initialization failed", e);
+            throw new IllegalArgumentException("Unable to configure properties file login module: "+e.getMessage());
         }
     }
 

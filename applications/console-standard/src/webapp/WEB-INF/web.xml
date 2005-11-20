@@ -251,6 +251,20 @@ limitations under the License.
     </servlet>
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for Security Realm Wizard Portlet</display-name>
+        <servlet-name>RealmWizard</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.securitymanager.realm.SecurityRealmPortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.RealmWizard</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for JMS ConnectionFactory Portlet</display-name>
         <servlet-name>JMSConnections</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -749,6 +763,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>DBWizard</servlet-name>
         <url-pattern>/DBWizard/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RealmWizard</servlet-name>
+        <url-pattern>/RealmWizard/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>SEUsers</servlet-name>

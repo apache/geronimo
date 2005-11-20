@@ -16,18 +16,8 @@
  */
 package org.apache.geronimo.security.realm.providers;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serializable;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
-import java.util.Hashtable;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Iterator;
@@ -38,9 +28,6 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.spi.LoginModule;
-
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * Tracks the number of recent login failures for each user, and starts

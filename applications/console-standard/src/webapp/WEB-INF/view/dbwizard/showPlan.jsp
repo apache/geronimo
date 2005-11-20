@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p><b>Create Database Pool</b> -- Step 4: Test Connection</p>
+<p><b>Create Database Pool</b> -- Show Deployment Plan</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>">

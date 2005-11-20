@@ -506,6 +506,29 @@ limitations under the License.
     </portlet>
 
     <portlet>
+        <description>Portlet for managing security realms</description>
+        <portlet-name>RealmWizard</portlet-name>
+        <display-name>Security Realm Wizard</display-name>
+
+        <portlet-class>org.apache.geronimo.console.securitymanager.realm.SecurityRealmPortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Security Realms</title>
+            <short-title>Security Realms</short-title>
+            <keywords>Security Realm Wizard</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <description>Portlet for managing JMS connections</description>
         <portlet-name>JMSConnections</portlet-name>
         <display-name>JMS Connection Factory Portlet</display-name>

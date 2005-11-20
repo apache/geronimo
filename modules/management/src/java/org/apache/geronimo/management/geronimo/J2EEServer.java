@@ -67,4 +67,24 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      * @return The ObjectNames of the repositories, in String form.
      */
     public String[] getRepositories();
+
+    /**
+     * Gets the ObjectNames of the SecurityRealms associated with this
+     * J2EEServer.
+     *
+     * @see org.apache.geronimo.security.realm.SecurityRealm
+     *
+     * @return The ObjectNames of the realms, in String form.
+     */
+    public String[] getSecurityRealms();
+
+    /**
+     * Gets the ObjectName of the ServerInfo associated with this
+     * J2EEServer.
+     *
+     * @see org.apache.geronimo.system.serverinfo.ServerInfo
+     *
+     * @return The ObjectName of the ServerInfo, in String form.
+     */
+    public String getServerInfo();
 }

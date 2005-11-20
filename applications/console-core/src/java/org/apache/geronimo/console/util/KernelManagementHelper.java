@@ -19,8 +19,18 @@ package org.apache.geronimo.console.util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
+import javax.security.auth.spi.LoginModule;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.NameCallback;
 
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEDeployedObject;
@@ -59,7 +69,10 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -404,6 +417,29 @@ public class KernelManagementHelper implements ManagementHelper {
             log.error("Unable to look up repositories for J2EEServer", e);
         }
         return result;
+    }
+
+    public SecurityRealm[] getSecurityRealms(J2EEServer server) {
+        SecurityRealm[] result = new SecurityRealm[0];
+        try {
+            String[] names = server.getSecurityRealms();
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new SecurityRealm[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (Exception e) {
+            log.error("Unable to look up security realms for J2EEServer", e);
+        }
+        return result;
+    }
+
+    public ServerInfo getServerInfo(J2EEServer server) {
+        try {
+            String name = server.getServerInfo();
+            return (ServerInfo) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+        } catch (Exception e) {
+            log.error("Unable to look up ServerInfo for J2EEServer", e);
+            return null;
+        }
     }
 
     public WebManager[] getWebManagers(J2EEServer server) {
@@ -863,6 +899,49 @@ public class KernelManagementHelper implements ManagementHelper {
         } catch (MalformedObjectNameException e) {
             return "Invalid object name";
         }
+    }
+
+    public void testLoginModule(J2EEServer server, LoginModule module, Map options) {
+        options.put(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION, kernel.getKernelName());
+        options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
+        try {
+            options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, pm.createProxy(ObjectName.getInstance(server.getServerInfo()),module.getClass().getClassLoader()));
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException("Unable to look up server info: "+e.getMessage());
+        }
+        module.initialize(null, null, new HashMap(), options);
+    }
+
+    public Subject testLoginModule(final J2EEServer server, final LoginModule module, final Map options, final String username, final String password) throws LoginException {
+        options.put(JaasLoginModuleUse.KERNEL_NAME_LM_OPTION, kernel.getKernelName());
+        options.put(JaasLoginModuleUse.CLASSLOADER_LM_OPTION, module.getClass().getClassLoader());
+        try {
+            options.put(JaasLoginModuleUse.SERVERINFO_LM_OPTION, pm.createProxy(ObjectName.getInstance(server.getServerInfo()),module.getClass().getClassLoader()));
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException("Unable to look up server info: "+e.getMessage());
+        }
+        Subject sub = new Subject();
+        CallbackHandler handler = new CallbackHandler() {
+            public void handle(Callback[] callbacks) throws UnsupportedCallbackException {
+                for (int i = 0; i < callbacks.length; i++) {
+                    Callback callback = callbacks[i];
+                    if(callback instanceof PasswordCallback) {
+                        ((PasswordCallback)callback).setPassword(password.toCharArray());
+                    } else if(callback instanceof NameCallback) {
+                        ((NameCallback)callback).setName(username);
+                    } else {
+                        throw new UnsupportedCallbackException(callback);
+                    }
+                }
+            }
+        };
+        module.initialize(sub, handler, new HashMap(), options);
+        if(module.login() && module.commit()) {
+            return sub;
+        } else {
+            module.abort();
+        }
+        return null;
     }
 
     /**

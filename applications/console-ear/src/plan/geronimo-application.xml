@@ -48,6 +48,11 @@
     </dependency>
     <dependency>
         <groupId>geronimo</groupId>
+        <artifactId>geronimo-security-builder</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
         <artifactId>geronimo-j2ee-schema</artifactId>
         <version>${geronimo_version}</version>
     </dependency>

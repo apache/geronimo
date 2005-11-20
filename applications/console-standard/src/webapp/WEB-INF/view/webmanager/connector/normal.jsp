@@ -13,8 +13,6 @@
           <c:when test="${empty(container.connectors)}"><p>There are no connectors defined for ${container.name}</p></c:when>
           <c:otherwise>
 <table width="100%">
-  <tr>
-    <td style="padding: 0 20px">
           <tr>
             <td class="DarkBackground">Name</td>
             <td class="DarkBackground" align="center">Protocol</td>
@@ -60,7 +58,7 @@
                  <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
                  <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
                </portlet:actionURL>">delete</a>
-             </td>
+            </td>
             <td>${info.description}</td>
           </tr>
 </c:forEach>

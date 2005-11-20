@@ -447,14 +447,14 @@ limitations under the License.
 
         <fragment name="realms" type="page">
             <navigation>
-                <title>All Realms</title>
-                <description>ico_doc_16x16.gif Manage all security realms on this server</description>
+                <title>Security Realms</title>
+                <description>ico_lock_16x16.gif Manage all security realms on this server</description>
             </navigation>
 
             <fragment name="row1" type="row">
                 <fragment name="col1" type="column">
                     <fragment name="p1" type="portlet">
-                        <property name="portlet" value="5.61"/>
+                        <property name="portlet" value="5.66"/>
                     </fragment>
                 </fragment>
             </fragment>

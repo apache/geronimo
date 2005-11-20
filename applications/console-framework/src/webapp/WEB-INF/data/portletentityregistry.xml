@@ -133,5 +133,8 @@ limitations under the License.
         <portlet id="65">
             <definition-id>console-standard.DBWizard</definition-id>
         </portlet>
+        <portlet id="66">
+            <definition-id>console-standard.RealmWizard</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

@@ -18,6 +18,7 @@ package org.apache.geronimo.console.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.naming.InitialContext;
@@ -25,6 +26,9 @@ import javax.naming.NamingException;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 import javax.servlet.http.HttpSession;
+import javax.security.auth.spi.LoginModule;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.Subject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
@@ -49,6 +53,8 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.apache.geronimo.security.realm.SecurityRealm;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
@@ -143,6 +149,26 @@ public class PortletManager {
     public static Repository[] getRepositories(PortletRequest request) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getRepositories(getCurrentServer(request));
+    }
+
+    public static SecurityRealm[] getSecurityRealms(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getSecurityRealms(getCurrentServer(request));
+    }
+
+    public static ServerInfo getServerInfo(PortletRequest request) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getServerInfo(getCurrentServer(request));
+    }
+
+    public static void testLoginModule(PortletRequest request, LoginModule module, Map options) {
+        ManagementHelper helper = getManagementHelper(request);
+        helper.testLoginModule(getCurrentServer(request), module, options);
+    }
+
+    public static Subject testLoginModule(PortletRequest request, LoginModule module, Map options, String username, String password) throws LoginException {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.testLoginModule(getCurrentServer(request), module, options, username, password);
     }
 
     public static ListableRepository[] getListableRepositories(PortletRequest request) {

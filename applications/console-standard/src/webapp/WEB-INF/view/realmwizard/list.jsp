@@ -2,11 +2,11 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p>This page lists all the available database pools.  Server-wide database pools can be edited, while database
-pools deployed as part of a single application cannot (change the deployment plan in the application instead).</p>
+<p>This page lists all the available security realms.  Server-wide security realms can be edited, while security
+realms deployed as part of a single application cannot (change the deployment plan in the application instead).</p>
 
 <c:choose>
-  <c:when test="${empty(pools)}"><p><i>There are no database pools defined</i></p></c:when>
+  <c:when test="${empty(realms)}"><p><i>There are no security realms defined</i></p></c:when>
   <c:otherwise>
 <table width="100%">
   <tr>
@@ -15,22 +15,22 @@ pools deployed as part of a single application cannot (change the deployment pla
     <td class="DarkBackground" align="center">State</td>
     <td class="DarkBackground" align="center">Actions</td>
   </tr>
-<c:forEach var="pool" items="${pools}">
+<c:forEach var="realm" items="${realms}">
   <tr>
-    <td>${pool.name}</td>
+    <td>${realm.name}</td>
     <td>
       <c:choose>
-        <c:when test="${empty pool.parentName}">
+        <c:when test="${empty realm.parentName}">
           Server-wide
         </c:when>
         <c:otherwise>
-          ${pool.parentName}  <%-- todo: make this a link to an application portlet --%>
+          ${realm.parentName}  <%-- todo: make this a link to an application portlet --%>
         </c:otherwise>
       </c:choose>
     </td>
-    <td>${pool.stateName}</td>
+    <td>${realm.stateName}</td>
     <td>
-    <c:if test="${empty pool.parentName}">
+    <c:if test="${empty realm.parentName}">
          <%--<c:choose>
                <c:when test="${info.stateName eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">
@@ -51,8 +51,7 @@ pools deployed as part of a single application cannot (change the deployment pla
              </c:choose>--%>
       <a href="<portlet:actionURL portletMode="view">
         <portlet:param name="mode" value="editExisting" />
-        <portlet:param name="adapterObjectName" value="${pool.adapterObjectName}" />
-        <portlet:param name="objectName" value="${pool.factoryObjectName}" />
+        <portlet:param name="objectName" value="${realm.objectName}" />
       </portlet:actionURL>">edit</a>
            <%--<a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
@@ -69,5 +68,5 @@ pools deployed as part of a single application cannot (change the deployment pla
 </c:choose>
 
 <p><a href="<portlet:actionURL portletMode="view">
-              <portlet:param name="mode" value="rdbms" />
-            </portlet:actionURL>">Add new database pool</a></p>
+              <portlet:param name="mode" value="type" />
+            </portlet:actionURL>">Add new security realm</a></p>

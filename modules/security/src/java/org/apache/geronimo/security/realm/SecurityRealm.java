@@ -60,4 +60,11 @@ public interface SecurityRealm {
      */
     public String[] getLoginDomains();
 
+    /**
+     * Gets the ObjectName of the first JaasLoginModuleChain node in the
+     * chain of LoginModules for this realm.
+     *
+     * @return The ObjectName, in String form.
+     */
+    public String getLoginModuleChainName();
 }

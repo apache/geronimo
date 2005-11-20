@@ -100,6 +100,16 @@
             <artifactId>geronimo-connector-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 <!--        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-</artifactId>
@@ -262,6 +272,17 @@
             <properties>
                 <war.bundle>true</war.bundle>
             </properties>
+        </dependency>
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+            <version>${xmlbeans_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
         </dependency>
 
     </dependencies>
