@@ -54,6 +54,11 @@ pools deployed as part of a single application cannot (change the deployment pla
         <portlet:param name="adapterObjectName" value="${pool.adapterObjectName}" />
         <portlet:param name="objectName" value="${pool.factoryObjectName}" />
       </portlet:actionURL>">edit</a>
+      <a href="<portlet:actionURL portletMode="view">
+        <portlet:param name="mode" value="usage" />
+        <portlet:param name="name" value="${pool.name}" />
+        <portlet:param name="objectName" value="${pool.factoryObjectName}" />
+      </portlet:actionURL>">usage</a>
            <%--<a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
                  <portlet:param name="name" value="${info.objectName}" />

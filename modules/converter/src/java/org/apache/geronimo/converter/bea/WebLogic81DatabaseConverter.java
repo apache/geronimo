@@ -18,14 +18,13 @@ package org.apache.geronimo.converter.bea;
 
 import java.io.Reader;
 import java.io.IOException;
-import java.io.FileReader;
-import java.io.File;
-import java.io.FilenameFilter;
+import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,6 +46,12 @@ import org.xml.sax.SAXException;
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class WebLogic81DatabaseConverter extends DOMUtils {
+    public static DatabaseConversionStatus convert(String libDir, String domainDir) throws IOException {
+        Weblogic81Utils utils = new Weblogic81Utils(libDir, domainDir);
+        String config = utils.getConfigXML();
+        return convert(new StringReader(config));
+    }
+
     public static DatabaseConversionStatus convert(Reader configXml) throws IOException {
         List status = new ArrayList();
         List noTx = new ArrayList();
@@ -59,7 +64,7 @@ public class WebLogic81DatabaseConverter extends DOMUtils {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(new InputSource(configXml));
             configXml.close();
-            parseDocument(doc, status, noTx, local, xa);
+            parseDocument(doc, status, local, xa);
         } catch (ParserConfigurationException e) {
             throw (IOException)new IOException().initCause(e);
         } catch (SAXException e) {
@@ -74,7 +79,7 @@ public class WebLogic81DatabaseConverter extends DOMUtils {
         return result;
     }
 
-    private static void parseDocument(Document doc, List status, List noTx, List local, List xa) {
+    private static void parseDocument(Document doc, List status, List local, List xa) {
         Element domain = doc.getDocumentElement();
         if(!domain.getNodeName().equalsIgnoreCase("Domain")) {
             status.add("ERROR: Unrecognized file beginning with "+domain.getNodeName()+" element.  Expected a WebLogic config.xml file.");
@@ -107,6 +112,15 @@ public class WebLogic81DatabaseConverter extends DOMUtils {
                     }
                 } else {
                     status.add("Skipping element '"+name+"'");
+                }
+            }
+        }
+        if(pools.size() > 0) {
+            for (Iterator it = pools.values().iterator(); it.hasNext();) {
+                ConnectionPool pool = (ConnectionPool) it.next();
+                if(pool.getPassword() != null && pool.getPassword().startsWith("{")) {
+                    status.add("NOTE: When importing from WebLogic, typically database passwords cannot be recovered, and will need to be re-entered.");
+                    break;
                 }
             }
         }
@@ -174,7 +188,10 @@ public class WebLogic81DatabaseConverter extends DOMUtils {
         result.setConnectionProperties(pool.getProperties());
         result.setDriverClass(pool.getDriverName());
         result.setJdbcURL(pool.getUrl());
-        result.setPassword(pool.getPassword());
+        // Don't bother putting encrypted passwords into the pool
+        if(pool.getPassword() != null && !pool.getPassword().startsWith("{")) {
+            result.setPassword(pool.getPassword());
+        }
         result.setUsername(pool.getUsername());
         return result;
     }
@@ -216,8 +233,9 @@ public class WebLogic81DatabaseConverter extends DOMUtils {
         readProperties(pool.getProperties(), root.getAttribute("Properties"), status);
         pool.setUsername(pool.getProperties().getProperty("user"));
         pool.getProperties().remove("user");
-        pool.setPassword(root.getAttribute("Password"));
-        if(pool.getPassword() == null) {
+        if(root.hasAttribute("Password")) {
+            pool.setPassword(root.getAttribute("Password"));
+        } else if(root.hasAttribute("PasswordEncrypted")) {
             pool.setPassword(root.getAttribute("PasswordEncrypted"));
         }
         pool.setReserveTimeoutSecs(getInteger(root.getAttribute("ConnectionReserveTimeoutSeconds")));
@@ -466,33 +484,6 @@ public class WebLogic81DatabaseConverter extends DOMUtils {
 
         public void setUrl(String url) {
             this.url = url;
-        }
-    }
-
-
-    public static void main(String[] args) {
-        File dir = new File("/Users/ammulder/temp/");
-        File[] files = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.indexOf("config.xml") > -1;
-            }
-        });
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            System.out.println("Reading "+file.getName());
-            try {
-                FileReader reader = new FileReader(file);
-                DatabaseConversionStatus status = WebLogic81DatabaseConverter.convert(reader);
-                for (int j = 0; j < status.getMessages().length; j++) {
-                    String message = status.getMessages()[j];
-                    System.out.println("    "+message);
-                }
-                System.out.println("    FOUND "+status.getNoTXPools().length+" NoTX Pools");
-                System.out.println("    FOUND "+status.getJdbcPools().length+" JDBC Pools");
-                System.out.println("    FOUND "+status.getXaPools().length+" XA Pools");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

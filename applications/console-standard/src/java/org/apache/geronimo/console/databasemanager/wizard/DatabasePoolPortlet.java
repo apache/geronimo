@@ -121,6 +121,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String SHOW_PLAN_VIEW       = "/WEB-INF/view/dbwizard/showPlan.jsp";
     private static final String IMPORT_UPLOAD_VIEW   = "/WEB-INF/view/dbwizard/importUpload.jsp";
     private static final String IMPORT_STATUS_VIEW   = "/WEB-INF/view/dbwizard/importStatus.jsp";
+    private static final String USAGE_VIEW           = "/WEB-INF/view/dbwizard/usage.jsp";
     private static final String LIST_MODE            = "list";
     private static final String EDIT_MODE            = "edit";
     private static final String SELECT_RDBMS_MODE    = "rdbms";
@@ -135,6 +136,8 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String IMPORT_UPLOAD_MODE   = "importUpload";
     private static final String IMPORT_STATUS_MODE   = "importStatus";
     private static final String IMPORT_COMPLETE_MODE = "importComplete";
+    private static final String WEBLOGIC_IMPORT_MODE = "weblogicImport";
+    private static final String USAGE_MODE           = "usage";
     private static final String IMPORT_EDIT_MODE   = "importEdit";
     private static final String MODE_KEY = "mode";
 
@@ -148,6 +151,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private PortletRequestDispatcher planView;
     private PortletRequestDispatcher importUploadView;
     private PortletRequestDispatcher importStatusView;
+    private PortletRequestDispatcher usageView;
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -161,6 +165,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         planView = portletConfig.getPortletContext().getRequestDispatcher(SHOW_PLAN_VIEW);
         importUploadView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_UPLOAD_VIEW);
         importStatusView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_STATUS_VIEW);
+        usageView = portletConfig.getPortletContext().getRequestDispatcher(USAGE_VIEW);
     }
 
     public void destroy() {
@@ -174,6 +179,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         planView = null;
         importUploadView = null;
         importStatusView = null;
+        usageView = null;
         super.destroy();
     }
 
@@ -344,6 +350,18 @@ public class DatabasePoolPortlet extends BasePortlet {
                 data.adapterDisplayName = "TranQL Generic JDBC Resource Adapter";
             }
             actionResponse.setRenderParameter(MODE_KEY, mode);
+        } else if(mode.equals(WEBLOGIC_IMPORT_MODE)) {
+            String domainDir = actionRequest.getParameter("weblogicDomainDir");
+            String libDir = actionRequest.getParameter("weblogicLibDir");
+            try {
+                DatabaseConversionStatus status = WebLogic81DatabaseConverter.convert(libDir, domainDir);
+                actionRequest.getPortletSession(true).setAttribute("ImportStatus", new ImportStatus(status));
+                actionResponse.setRenderParameter(MODE_KEY, IMPORT_STATUS_MODE);
+            } catch (Exception e) {
+                log.error("Unable to import", e);
+                actionResponse.setRenderParameter("from", actionRequest.getParameter("from"));
+                actionResponse.setRenderParameter(MODE_KEY, IMPORT_START_MODE);
+            }
         } else if(mode.equals(IMPORT_START_MODE)) {
             actionResponse.setRenderParameter("from", actionRequest.getParameter("from"));
             actionResponse.setRenderParameter(MODE_KEY, mode);
@@ -616,10 +634,16 @@ public class DatabasePoolPortlet extends BasePortlet {
                 renderImportUploadForm(renderRequest, renderResponse);
             } else if(mode.equals(IMPORT_STATUS_MODE)) {
                 renderImportStatus(renderRequest, renderResponse);
+            } else if(mode.equals(USAGE_MODE)) {
+                renderUsage(renderRequest, renderResponse);
             }
         } catch (Throwable e) {
             log.error("Unable to render portlet", e);
         }
+    }
+
+    private void renderUsage(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        usageView.include(request, response);
     }
 
     private void renderImportStatus(RenderRequest request, RenderResponse response) throws IOException, PortletException {
@@ -1082,6 +1106,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String adapterDescription;
         private String rarPath;
         private String importSource;
+        private Map objectNameMap; // generated as needed, don't need to read/write it
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
@@ -1292,6 +1317,19 @@ public class DatabasePoolPortlet extends BasePortlet {
 
         public String getImportSource() {
             return importSource;
+        }
+
+        public Map getObjectNameMap() {
+            if(objectName == null) return Collections.EMPTY_MAP;
+            if(objectNameMap != null) return objectNameMap;
+            try {
+                ObjectName name = new ObjectName(objectName);
+                objectNameMap = new HashMap(name.getKeyPropertyList());
+                objectNameMap.put("domain", name.getDomain());
+                return objectNameMap;
+            } catch (MalformedObjectNameException e) {
+                return Collections.EMPTY_MAP;
+            }
         }
     }
 
