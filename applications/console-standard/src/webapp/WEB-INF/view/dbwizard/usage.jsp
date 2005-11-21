@@ -7,7 +7,6 @@
   The example here is a web application, but other application modules would work in
   the same way.</p>
 
-
 <p><b>WEB-INF/web.xml</b></p>
 
 <p>The <tt>web.xml</tt> should have a <tt>resource-ref</tt> section declaring the database pool,

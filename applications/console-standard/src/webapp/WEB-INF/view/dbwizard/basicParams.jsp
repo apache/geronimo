@@ -27,7 +27,7 @@
     <table border="0">
     <!-- ENTRY FIELD: Driver Class -->
       <tr>
-        <th><div align="right">JDBC Driver Class:</div></th>
+        <th style="min-width: 140px"><div align="right">JDBC Driver Class:</div></th>
         <td><input name="driverClass" type="text" size="30" value="${pool.driverClass}"></td>
       </tr>
       <tr>

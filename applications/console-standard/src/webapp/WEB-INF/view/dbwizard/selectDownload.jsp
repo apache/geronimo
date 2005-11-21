@@ -41,7 +41,7 @@ install the driver by hand (copy it to a directory under geronimo/repository/)</
     <table border="0">
     <!-- ENTRY FIELD: DRIVER TYPE -->
       <tr>
-        <th><div align="right">Select Driver:</div></th>
+        <th style="min-width: 140px"><div align="right">Select Driver:</div></th>
         <td>
           <select name="driverName">
         <c:forEach var="driver" items="${drivers}">

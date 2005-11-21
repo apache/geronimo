@@ -17,7 +17,7 @@ configuration for each pool we find in the configuration.</p>
         <td class="DarkBackground" colspan="2">${pool.importSource} Import</td>
       </tr>
       <tr>
-        <th align="right">Config File:</th>
+        <th align="right" style="min-width: 140px">Config File:</th>
         <td><input type="file" name="configFile" /></td>
       </tr>
       <tr>
@@ -53,7 +53,7 @@ passwords, whereas if you just import a <tt>config.xml</tt> above you'll
 need to re-enter all the passwords.</td>
       </tr>
       <tr>
-        <th align="right">Domain directory path:</th>
+        <th align="right" style="min-width: 140px">Domain directory path:</th>
         <td><input type="text" name="weblogicDomainDir" size="40" /></td>
       </tr>
       <tr>

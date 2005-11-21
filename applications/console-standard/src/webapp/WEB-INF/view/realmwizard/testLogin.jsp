@@ -52,7 +52,7 @@ does not invoke advanced features such as auditing or lockout.</p>
     <table border="0">
     <!-- ENTRY FIELD: Username -->
       <tr>
-        <th><div align="right">Username:</div></th>
+        <th style="min-width: 140px"><div align="right">Username:</div></th>
         <td><input name="username" type="text" size="20" /></td>
       </tr>
       <tr>

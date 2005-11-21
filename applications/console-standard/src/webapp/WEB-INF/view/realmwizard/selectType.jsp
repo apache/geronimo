@@ -45,7 +45,7 @@
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th><div align="right">Name of Security Realm:</div></th>
+        <th style="min-width: 140px"><div align="right">Name of Security Realm:</div></th>
         <td><input name="name" type="text" size="30" value="${realm.name}" /></td>
       </tr>
       <tr>

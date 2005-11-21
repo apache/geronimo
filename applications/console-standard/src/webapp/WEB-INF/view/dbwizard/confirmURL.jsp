@@ -29,7 +29,7 @@
     <table border="0">
     <!-- ENTRY FIELD: URL -->
       <tr>
-        <th><div align="right">JDBC Connect URL:</div></th>
+        <th style="min-width: 140px"><div align="right">JDBC Connect URL:</div></th>
         <td><input name="url" type="text" size="50" value="${pool.url}"></td>
       </tr>
       <tr>

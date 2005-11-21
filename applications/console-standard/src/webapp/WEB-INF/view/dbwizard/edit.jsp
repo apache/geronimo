@@ -25,7 +25,7 @@
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th><div align="right">Pool Name:</div></th>
+        <th style="min-width: 140px"><div align="right">Pool Name:</div></th>
         <td>
       <c:choose> <%-- Can't change the pool name after deployment because it's wired into all the ObjectNames --%>
         <c:when test="${empty pool.objectName}">

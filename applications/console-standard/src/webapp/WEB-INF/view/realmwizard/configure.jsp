@@ -54,7 +54,7 @@
   <c:otherwise>
     <c:forEach var="option" items="${realm.optionNames}">
       <tr>
-        <th><div align="right">${optionMap[option].displayName}:</div></th>
+        <th style="min-width: 140px"><div align="right">${optionMap[option].displayName}:</div></th>
         <td><input name="option-${option}"
                    type="<c:choose><c:when test="${optionMap[option].password}">password</c:when><c:otherwise>text</c:otherwise></c:choose>"
                    size="${optionMap[option].length}" value="${realm.options[option]}"></td>

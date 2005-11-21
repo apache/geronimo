@@ -33,7 +33,7 @@
     <table border="0">
     <!-- STATUS FIELD: Conection Result -->
       <tr>
-        <th><div align="right">Test Result:</div></th>
+        <th style="min-width: 140px"><div align="right">Test Result:</div></th>
         <td>
           <c:choose>
             <c:when test="${empty connectResult}">

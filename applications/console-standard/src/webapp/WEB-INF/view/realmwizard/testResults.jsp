@@ -48,7 +48,7 @@
     <table border="0">
     <!-- STATUS FIELD: Results -->
       <tr>
-        <th><div align="right">Test Results:</div></th>
+        <th style="min-width: 140px"><div align="right">Test Results:</div></th>
         <td colspan="2">${LoginResults}</td>
       </tr>
     <!-- STATUS FIELD: Principals -->
@@ -71,7 +71,8 @@
           <input type="submit" value="Test Again" />
           <input type="button" value="Edit Realm" onclick="document.<portlet:namespace/>RealmForm.mode.value='configure';document.<portlet:namespace/>RealmForm.submit();return false;" />
           <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>RealmForm.mode.value='plan';document.<portlet:namespace/>RealmForm.submit();return false;" />
-          <input type="button" value="Deploy Realm" onclick="document.<portlet:namespace/>RealmForm.mode.value='save';document.<portlet:namespace/>RealmForm.submit();return false;" />
+          <input type="button" value="<c:choose><c:when test="${empty realm.objectName}">Deploy Realm</c:when><c:otherwise>Save</c:otherwise></c:choose>"
+                 onclick="document.<portlet:namespace/>RealmForm.mode.value='save';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </td>
       </tr>
     </table>

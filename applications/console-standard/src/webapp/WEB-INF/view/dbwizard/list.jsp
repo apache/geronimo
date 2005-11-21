@@ -8,6 +8,9 @@ pools deployed as part of a single application cannot (change the deployment pla
 <c:choose>
   <c:when test="${empty(pools)}"><p><i>There are no database pools defined</i></p></c:when>
   <c:otherwise>
+<p>For each pool listed, you can click the <b>usage</b> link to see examples of how
+  to use the pool from your application.</p>
+
 <table width="100%">
   <tr>
     <td class="DarkBackground">Name</td>

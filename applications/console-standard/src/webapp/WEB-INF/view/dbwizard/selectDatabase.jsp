@@ -31,7 +31,7 @@
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th><div align="right">Name of Database Pool:</div></th>
+        <th style="min-width: 140px"><div align="right">Name of Database Pool:</div></th>
         <td><input name="name" type="text" size="30" value="${pool.name}"></td>
       </tr>
       <tr>

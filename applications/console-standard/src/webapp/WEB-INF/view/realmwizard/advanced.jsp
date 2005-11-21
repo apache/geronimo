@@ -45,7 +45,7 @@
     <table border="0">
     <!-- ENTRY FIELD: Audit Log -->
       <tr>
-        <th valign="top"><div align="right">Enable Auditing:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right">Enable Auditing:</div></th>
         <td valign="top">
           <input type="checkbox" id="<portlet:namespace/>auditCheckbox" name="enableAuditing"<c:if test="${!(empty realm.auditPath)}"> checked="checked"</c:if>
           onclick="document.getElementById('<portlet:namespace/>auditDiv').style.display=this.checked ? 'block' : 'none';document.getElementById('<portlet:namespace/>auditPath').value='';"/>

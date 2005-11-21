@@ -5,6 +5,16 @@
 
 <p>This page edits a new or existing security realm.</p>
 
+<p>A security realm may have one or more login modules.  Many simple realms have
+only one login module.  Additional login modules may be used to access more
+underlying security information stores, or to add functionality such as auditing
+to a realm without affecting the authentication process for the realm.</p>
+
+<c:if test="${empty realm.objectName}">
+<p>If you don't need to use as many login modules as there are entries below,
+just leave the extra ones blank.</p>
+</c:if>
+
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>RealmForm" action="<portlet:actionURL/>">
     <input type="hidden" name="mode" value="save" />
@@ -24,7 +34,7 @@
     <table border="0">
     <!-- ENTRY FIELD: NAME -->
       <tr>
-        <th><div align="right">Realm Name:</div></th>
+        <th style="min-width: 140px"><div align="right">Realm Name:</div></th>
         <td>
       <c:choose> <%-- Can't change the realm name after deployment because it's wired into all the ObjectNames --%>
         <c:when test="${empty realm.objectName}">

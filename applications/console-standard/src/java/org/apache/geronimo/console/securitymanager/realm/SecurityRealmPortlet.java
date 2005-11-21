@@ -105,6 +105,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     private static final String TEST_LOGIN_VIEW    = "/WEB-INF/view/realmwizard/testLogin.jsp";
     private static final String TEST_RESULTS_VIEW  = "/WEB-INF/view/realmwizard/testResults.jsp";
     private static final String SHOW_PLAN_VIEW     = "/WEB-INF/view/realmwizard/showPlan.jsp";
+    private static final String USAGE_VIEW         = "/WEB-INF/view/realmwizard/usage.jsp";
     private static final String LIST_MODE          = "list";
     private static final String EDIT_MODE          = "edit";
     private static final String SELECT_TYPE_MODE   = "type";
@@ -114,6 +115,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     private static final String TEST_RESULTS_MODE  = "results";
     private static final String SHOW_PLAN_MODE     = "plan";
     private static final String EDIT_EXISTING_MODE = "editExisting";
+    private static final String USAGE_MODE         = "usage";
     private static final String SAVE_MODE          = "save";
     private static final String MODE_KEY = "mode";
 
@@ -125,6 +127,7 @@ public class SecurityRealmPortlet extends BasePortlet {
     private PortletRequestDispatcher testLoginView;
     private PortletRequestDispatcher testResultsView;
     private PortletRequestDispatcher planView;
+    private PortletRequestDispatcher usageView;
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -136,6 +139,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         testLoginView = portletConfig.getPortletContext().getRequestDispatcher(TEST_LOGIN_VIEW);
         testResultsView = portletConfig.getPortletContext().getRequestDispatcher(TEST_RESULTS_VIEW);
         planView = portletConfig.getPortletContext().getRequestDispatcher(SHOW_PLAN_VIEW);
+        usageView = portletConfig.getPortletContext().getRequestDispatcher(USAGE_VIEW);
     }
 
     public void destroy() {
@@ -145,6 +149,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         configureView = null;
         advancedView = null;
         testLoginView = null;
+        usageView = null;
         planView = null;
         super.destroy();
     }
@@ -160,7 +165,11 @@ public class SecurityRealmPortlet extends BasePortlet {
         } else if(mode.equals("process-"+SELECT_TYPE_MODE)) {
             if(data.getName() != null && !data.getName().trim().equals("")) {
                 // Config properties have to be set in render since they have values of null
-                actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+                if(data.getRealmType().equals("Other")) {
+                    actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
+                } else {
+                    actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+                }
             } else {
                 actionResponse.setRenderParameter(MODE_KEY, SELECT_TYPE_MODE);
             }
@@ -190,6 +199,12 @@ public class SecurityRealmPortlet extends BasePortlet {
         } else if(mode.equals(EDIT_EXISTING_MODE)) {
             actionLoadExistingRealm(actionRequest, data);
             actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
+        } else if(mode.equals(CONFIGURE_MODE)) {
+            if(data.getObjectName() != null || (data.getRealmType() != null && data.getRealmType().equals("Other"))) {
+                actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
+            } else {
+                actionResponse.setRenderParameter(MODE_KEY, CONFIGURE_MODE);
+            }
         } else if(mode.equals(SAVE_MODE)) {
             actionSaveRealm(actionRequest, data);
             actionResponse.setRenderParameter(MODE_KEY, LIST_MODE);
@@ -220,13 +235,15 @@ public class SecurityRealmPortlet extends BasePortlet {
             } else if(mode.equals(CONFIGURE_MODE)) {
                 renderConfigure(renderRequest, renderResponse, data);
             } else if(mode.equals(ADVANCED_MODE)) {
-                renderAdvanced(renderRequest, renderResponse);
+                renderAdvanced(renderRequest, renderResponse, data);
             } else if(mode.equals(TEST_LOGIN_MODE)) {
                 renderTestLoginForm(renderRequest, renderResponse);
             } else if(mode.equals(TEST_RESULTS_MODE)) {
                 renderTestResults(renderRequest, renderResponse);
             } else if(mode.equals(SHOW_PLAN_MODE)) {
                 renderPlan(renderRequest, renderResponse);
+            } else if(mode.equals(USAGE_MODE)) {
+                renderUsage(renderRequest, renderResponse);
             }
         } catch (Throwable e) {
             log.error("Unable to render portlet", e);
@@ -490,6 +507,8 @@ public class SecurityRealmPortlet extends BasePortlet {
         if(request.getParameter("LoginModuleError") != null) {
             request.setAttribute("LoginModuleError", request.getParameter("LoginModuleError"));
         }
+        // Clear out any cached modules
+        data.modules = null;
         // Configure option list
         MasterLoginModuleInfo info = getSelectedModule(data);
         for (int i = 0; i < info.getOptions().length; i++) {
@@ -507,7 +526,10 @@ public class SecurityRealmPortlet extends BasePortlet {
         configureView.include(request, response);
     }
 
-    private void renderAdvanced(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+    private void renderAdvanced(RenderRequest request, RenderResponse response, RealmData data) throws IOException, PortletException {
+        // Clear out any cached modules
+        data.modules = null;
+        // Show the page
         advancedView.include(request, response);
     }
 
@@ -531,6 +553,10 @@ public class SecurityRealmPortlet extends BasePortlet {
         String plan = (String) request.getPortletSession().getAttribute("SecurityRealmPlan");
         request.setAttribute("deploymentPlan", plan);
         planView.include(request, response);
+    }
+
+    private void renderUsage(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        usageView.include(request, response);
     }
 
     private static MasterLoginModuleInfo getSelectedModule(RealmData data) {
@@ -669,7 +695,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             list.addAll(Arrays.asList(data.modules));
         }
         if(data.getObjectName() == null) {
-            for(int i=list.size(); i<=5; i++) {
+            for(int i=list.size(); i<5; i++) {
                 LoginModuleDetails module = new LoginModuleDetails();
                 list.add(module);
             }

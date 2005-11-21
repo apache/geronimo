@@ -47,7 +47,7 @@
     <table border="0">
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th valign="top"><div align="right">Deployment Plan:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
         <td><textarea rows="30" cols="60" readonly>${deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->
@@ -55,7 +55,7 @@
         <td></td>
         <td>
 <input type="submit" value="<c:choose><c:when test="${empty realm.objectName}">Deploy Realm</c:when><c:otherwise>Save</c:otherwise></c:choose>" />
-<input type="button" value="Edit Settings" onclick="document.<portlet:namespace/>RealmForm.mode.value='edit';document.<portlet:namespace/>RealmForm.submit();return false;" />
+<input type="button" value="Edit Settings" onclick="document.<portlet:namespace/>RealmForm.mode.value='configure';document.<portlet:namespace/>RealmForm.submit();return false;" />
         </td>
       </tr>
     <!-- STATUS FIELD: Command-line guidance -->

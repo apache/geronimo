@@ -33,7 +33,7 @@
     <table border="0">
     <!-- STATUS FIELD: Deployment Plan -->
       <tr>
-        <th valign="top"><div align="right">Deployment Plan:</div></th>
+        <th valign="top" style="min-width: 140px"><div align="right">Deployment Plan:</div></th>
         <td><textarea rows="30" cols="60" readonly>${deploymentPlan}</textarea></td>
       </tr>
     <!-- SUBMIT BUTTON -->

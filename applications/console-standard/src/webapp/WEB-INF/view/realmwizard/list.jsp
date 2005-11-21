@@ -8,6 +8,9 @@ realms deployed as part of a single application cannot (change the deployment pl
 <c:choose>
   <c:when test="${empty(realms)}"><p><i>There are no security realms defined</i></p></c:when>
   <c:otherwise>
+<p>For each realm listed, you can click the <b>usage</b> link to see examples of how
+  to use the realm from your application.</p>
+
 <table width="100%">
   <tr>
     <td class="DarkBackground">Name</td>
@@ -53,6 +56,11 @@ realms deployed as part of a single application cannot (change the deployment pl
         <portlet:param name="mode" value="editExisting" />
         <portlet:param name="objectName" value="${realm.objectName}" />
       </portlet:actionURL>">edit</a>
+      <a href="<portlet:actionURL portletMode="view">
+        <portlet:param name="mode" value="usage" />
+        <portlet:param name="name" value="${realm.name}" />
+        <portlet:param name="objectName" value="${realm.objectName}" />
+      </portlet:actionURL>">usage</a>
            <%--<a href="<portlet:actionURL portletMode="view">
                  <portlet:param name="mode" value="delete" />
                  <portlet:param name="name" value="${info.objectName}" />
