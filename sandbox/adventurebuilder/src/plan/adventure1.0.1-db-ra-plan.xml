@@ -17,7 +17,7 @@
 -->
 <!-- $Rev$ $Date$ -->
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-	parentId="org/apache/geronimo/SystemDatabase"
+    parentId="org/apache/geronimo/SystemDatabase"
     configId="org/apache/geronimo/AdventureDataSource1.0.1">
 
     <resourceadapter>

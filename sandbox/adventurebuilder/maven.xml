@@ -71,16 +71,29 @@
             <ant:arg value="--offline"/>
             <ant:arg value="distribute"/>
             <ant:arg value="${maven.build.dir}/plan/consumerwebsite1.0.1.ear-plan.xml"/>
-            <!--ant:arg value="${ab.home}/project/apps/consumerwebsite/build/consumerwebsite.ear"/-->
-            <ant:arg value="${ab.home}/consumerwebsite.ear"/>
+            <ant:arg value="${ab.home}/project/apps/consumerwebsite/build/consumerwebsite.ear"/>
+            <!-- ant:arg value="${ab.home}/consumerwebsite.ear"/-->
         </ant:java>
+
+        <ant:echo>Creating Adventure Builder Database Schema</ant:echo>
+        <j:invokeStatic className="java.lang.System" method="setProperty">
+            <j:arg type="java.lang.String" value="derby.system.home"/>
+            <j:arg type="java.lang.String" value="${instDir}/var/derby"/>
+        </j:invokeStatic>
+        <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver"
+            url="jdbc:derby:AdventureDB;create=true" userid="" password="">
+            <ant:fileset dir="src/sql"/>
+            <ant:classpath>
+                <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>
+            </ant:classpath>
+        </ant:sql>
     </goal>
 
     <goal name="ab:start" description="Start Adventure Builder">
         <deploy:startRemoteServer
             geronimoTarget="${instDir}"
             debugPort="8000"
-	    configs="org/apache/geronimo/Adventure1.0.1 org/apache/geronimo/RuntimeDeployer"/>
+	    configs="org/apache/geronimo/AdventureBuilder1.0.1"/>
         <ant:echo message="Waiting for server at: ${instDir}"/>
         <deploy:waitForStarted
             uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
