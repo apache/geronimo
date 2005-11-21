@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+    <parent xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
+        <uri>org/foo</uri>
+    </parent>

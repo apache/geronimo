@@ -290,10 +290,11 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+            <xs:group ref="sys:classloader-infoGroup"/>
 
             <xs:element name="resourceadapter" type="ger:resourceadapterType" maxOccurs="unbounded"/>
 

@@ -36,11 +36,7 @@
 
     <xs:complexType name="configurationType">
         <xs:sequence>
-            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:group ref="sys:classloader-include-infoGroup"/>
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="configId" type="xs:string" use="required"/>
@@ -57,10 +53,29 @@
         <xs:attribute name="inverseClassloading" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
+    <xs:group name="classloader-infoGroup">
+        <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:group>
+    <xs:group name="classloader-include-infoGroup">
+        <xs:sequence>
+            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:include" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:group>
+
+    <xs:element name="import" type="sys:dependencyType"/>
+    <xs:element name="include" type="sys:dependencyType"/>
+    <xs:element name="dependency" type="sys:dependencyType"/>
     <xs:element name="hidden-classes" type="sys:classFilterType"/>
     <xs:element name="non-overridable-classes" type="sys:classFilterType"/>
-    <xs:element name="import" type="sys:dependencyType"/>
-    <xs:element name="dependency" type="sys:dependencyType"/>
     <xs:element name="gbean" type="sys:gbeanType"/>
 
     <xs:complexType name="classFilterType">

@@ -36,11 +36,12 @@
 
     <xs:complexType name="web-appType">
         <xs:sequence>
-            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
-
+<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+            <xs:group ref="sys:classloader-infoGroup"/>
+                                                       
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>
             <xs:element name="virtual-host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

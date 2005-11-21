@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+    <import xmlns="http://foo.bar">
+        <groupId>foo</groupId>
+        <type>car</type>
+        <artifactId>bar</artifactId>
+        <version>0.0</version>
+    </import>

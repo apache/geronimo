@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+    <parent xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
+        <groupId>foo</groupId>
+        <type>car</type>
+        <artifactId>bar</artifactId>
+        <version>0.0</version>
+    </parent>

@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.net.URL;
 
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
@@ -439,6 +441,53 @@ public class SchemaConversionUtilsTest extends TestCase {
 
     }
 
+    public void testQNameConverter1() throws Exception {
+        URL srcXml = classLoader.getResource("geronimo/qname1-pre.xml");
+        URL expectedOutputXml = classLoader.getResource("geronimo/qname1-post.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        ElementConverter elementConverter = new QNameConverter("import", "http://geronimo.apache.org/xml/ns/deployment-1.0", "parent");
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor end = cursor.newCursor();
+        try {
+            elementConverter.convertElement(cursor, end);
+            //        System.out.println(xmlObject.toString());
+            XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+            List problems = new ArrayList();
+            boolean ok = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok);
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok2);
+        } finally {
+            cursor.dispose();
+            end.dispose();
+        }
+
+    }
+    public void testQNameConverter2() throws Exception {
+        URL srcXml = classLoader.getResource("geronimo/qname2-pre.xml");
+        URL expectedOutputXml = classLoader.getResource("geronimo/qname2-post.xml");
+        XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
+        ElementConverter elementConverter = new QNameConverter("import", "http://geronimo.apache.org/xml/ns/deployment-1.0", "parent");
+        XmlCursor cursor = xmlObject.newCursor();
+        XmlCursor end = cursor.newCursor();
+        try {
+            elementConverter.convertElement(cursor, end);
+            //        System.out.println(xmlObject.toString());
+            XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
+            List problems = new ArrayList();
+            boolean ok = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok);
+            SchemaConversionUtils.convertToGeronimoSubSchemas(cursor);
+            boolean ok2 = compareXmlObjects(xmlObject, expected, problems);
+            assertTrue("Differences: " + problems, ok2);
+        } finally {
+            cursor.dispose();
+            end.dispose();
+        }
+
+    }
+
     private boolean compareXmlObjects(XmlObject xmlObject, XmlObject expectedObject, List problems) {
         XmlCursor test = xmlObject.newCursor();
         XmlCursor expected = expectedObject.newCursor();
@@ -450,10 +499,10 @@ public class SchemaConversionUtilsTest extends TestCase {
                 problems.add("test longer than expected at element: " + elementCount);
                 return false;
             }
-            String actualChars = test.getName().getLocalPart();
-            String expectedChars = expected.getName().getLocalPart();
-            if (!actualChars.equals(expectedChars)) {
-                problems.add("Different elements at elementCount: " + elementCount + ", test: " + actualChars + ", expected: " + expectedChars);
+            QName actualQName = test.getName();
+            QName expectedQName = expected.getName();
+            if (!actualQName.equals(expectedQName)) {
+                problems.add("Different elements at elementCount: " + elementCount + ", test: " + actualQName + ", expected: " + expectedQName);
                 similar = false;
             }
             test.toNextToken();

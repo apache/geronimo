@@ -37,9 +37,12 @@
 
     <xs:complexType name="application-clientType">
         <xs:sequence>
-            <xs:element ref="sys:import" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>
+<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+            <xs:group ref="sys:classloader-include-infoGroup"/>
 
 
             <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
