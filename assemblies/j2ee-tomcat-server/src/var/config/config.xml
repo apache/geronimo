@@ -57,6 +57,7 @@
         </gbean>
     </configuration>
     <configuration name="geronimo/cars/tomcat-${pom.currentVersion}.car">
+        <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPPortPrimary}</attribute>

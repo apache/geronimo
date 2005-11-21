@@ -54,7 +54,7 @@
         <mkdir dir="${maven.build.dir}/var/catalina"/>
         <mkdir dir="${maven.build.dir}/var/catalina/webapps"/>
         <mkdir dir="${maven.build.dir}/var/catalina/conf"/>
-        <copy todir="${maven.build.dir}/var/catalina/conf" file="src/var/web.xml"/>
+        <copy todir="${maven.build.dir}/var/catalina/conf" file="src/resources/META-INF/var/catalina/conf/web.xml"/>
         <copy todir="${maven.build.dir}/var/catalina/webapps">
             <fileset dir="src/test-resources/deployables">
                 <include name="war1/**"/>

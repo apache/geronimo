@@ -192,10 +192,10 @@
             file="${project.root}/modules/directory/src/var/directory.xml"/>
 
         <!-- Add tomcat files -->
-        <ant:copy todir="${geronimo.assembly.dir}/var/catalina/conf"
-            file="${project.root}/modules/tomcat/src/var/web.xml"/>
-        <ant:copy todir="${geronimo.assembly.dir}/var/catalina/ROOT">
-            <ant:fileset dir="${project.root}/modules/tomcat/src/var/ROOT"/>
+<!--        <ant:copy todir="${geronimo.assembly.dir}/var/catalina/"-->
+<!--            file="${project.root}/modules/tomcat/src/var/web.xml"/>-->
+        <ant:copy todir="${geronimo.assembly.dir}/var/catalina">
+            <ant:fileset dir="${project.root}/modules/tomcat/src/var"/>
         </ant:copy>
 
         <!-- Load the repository -->
@@ -360,15 +360,15 @@
             deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/OfflineDeployer,j2eeType=Deployer,J2EEServer=deployer"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
-    	
+
     	    <bootstrap:shutdown
     	            shutdownJar="${geronimo.assembly.dir}/bin/shutdown.jar"
     	            shutdownClassPath="${deploy.classpath}"
     	            />
-    	
+
         <!-- build the system configuration and server.jar -->
         <ant:echo file="${basedir}/target/deploy-commands">package --classPath "${server.classpath}" --mainClass org.apache.geronimo.system.main.Daemon --endorsedDirs lib/endorsed --extensionDirs lib/ext --install target/plan/system-plan.xml ${geronimo.assembly.dir}/bin/server.jar${line.separator}</ant:echo>
-        
+
         <!-- build the RMINaming configuration -->
         <ant:echo file="${basedir}/target/deploy-commands" append="true"
              message="distribute target/plan/naming-server-plan.xml${line.separator}" />
@@ -385,13 +385,13 @@
 
         <ant:echo file="${basedir}/target/deploy-commands" append="true"
              message="distribute target/plan/j2ee-tomcat-plan.xml${line.separator}" />
-       
+
         <ant:echo file="${basedir}/target/deploy-commands" append="true"
              message="distribute target/plan/j2ee-runtime-deployer-plan.xml${line.separator}" />
 
         <ant:echo file="${basedir}/target/deploy-commands" append="true"
              message="distribute ${basedir}/target/plan/j2ee-jetty-runtime-deployer-plan.xml${line.separator}" />
-        
+
         <ant:echo file="${basedir}/target/deploy-commands" append="true"
              message="distribute ${basedir}/target/plan/j2ee-tomcat-runtime-deployer-plan.xml${line.separator}" />
 
@@ -400,7 +400,7 @@
 
         <ant:echo file="${basedir}/target/deploy-commands" append="true"
              message="distribute target/plan/j2ee-client-plan.xml${line.separator}" />
-        
+
         <!-- to debug this deployer call, include these jvmargs right after the -ea arg
         <ant:jvmarg value="-Xdebug"/>
         <ant:jvmarg value="-Xnoagent"/>
