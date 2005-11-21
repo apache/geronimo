@@ -28,56 +28,11 @@ after the system GBeans but before the server GBeans.
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
     >
-<!--
-    <dependency>
-        <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-transaction-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>howl/jars/howl-logger-${howl_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
-    </dependency>
--->
-    <!-- RMI Registry -->
+
     <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
         <attribute name="port">${PlanNamingPort}</attribute>
     </gbean>
 
-    <!-- Naming properties -->
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
         <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
         <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
