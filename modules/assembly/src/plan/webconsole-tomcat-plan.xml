@@ -75,6 +75,11 @@
         <artifactId>activemq-gbean-management</artifactId>
         <version>${activemq_version}</version>
     </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-converter</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
 
     <!-- Keystore dependency -->
     <dependency>

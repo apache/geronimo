@@ -68,6 +68,19 @@ pools deployed as part of a single application cannot (change the deployment pla
   </c:otherwise>
 </c:choose>
 
-<p><a href="<portlet:actionURL portletMode="view">
+<p>Create a new database pool:</p>
+<ul>
+  <li><a href="<portlet:actionURL portletMode="view">
               <portlet:param name="mode" value="rdbms" />
-            </portlet:actionURL>">Add new database pool</a></p>
+            </portlet:actionURL>">Using the Geronimo database pool wizard</a></li>
+  <li><a href="<portlet:actionURL portletMode="view">
+              <portlet:param name="mode" value="startImport" />
+              <portlet:param name="importSource" value="JBoss 4" />
+              <portlet:param name="from" value="<tt>*-ds.xml</tt> file from the <tt>jboss4/server/name/deploy</tt> directory" />
+            </portlet:actionURL>">Import from JBoss 4</a></li>
+  <li><a href="<portlet:actionURL portletMode="view">
+              <portlet:param name="mode" value="startImport" />
+              <portlet:param name="importSource" value="WebLogic 8.1" />
+              <portlet:param name="from" value="<tt>config.xml</tt> file from the WebLogic domain directory" />
+            </portlet:actionURL>">Import from WebLogic 8.1</a></li>
+</ul>

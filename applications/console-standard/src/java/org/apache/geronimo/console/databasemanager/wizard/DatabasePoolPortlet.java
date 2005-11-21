@@ -25,6 +25,7 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.StringReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,8 +85,15 @@ import org.apache.geronimo.connector.deployment.jsr88.ConfigPropertySetting;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionManager;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
+import org.apache.geronimo.converter.DatabaseConversionStatus;
+import org.apache.geronimo.converter.JDBCPool;
+import org.apache.geronimo.converter.bea.WebLogic81DatabaseConverter;
+import org.apache.geronimo.converter.jboss.JBoss4DatabaseConverter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.FileItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -111,6 +119,8 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String TEST_CONNECTION_VIEW = "/WEB-INF/view/dbwizard/testConnection.jsp";
     private static final String DOWNLOAD_VIEW        = "/WEB-INF/view/dbwizard/selectDownload.jsp";
     private static final String SHOW_PLAN_VIEW       = "/WEB-INF/view/dbwizard/showPlan.jsp";
+    private static final String IMPORT_UPLOAD_VIEW   = "/WEB-INF/view/dbwizard/importUpload.jsp";
+    private static final String IMPORT_STATUS_VIEW   = "/WEB-INF/view/dbwizard/importStatus.jsp";
     private static final String LIST_MODE            = "list";
     private static final String EDIT_MODE            = "edit";
     private static final String SELECT_RDBMS_MODE    = "rdbms";
@@ -121,6 +131,11 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static final String DOWNLOAD_MODE        = "download";
     private static final String EDIT_EXISTING_MODE   = "editExisting";
     private static final String SAVE_MODE            = "save";
+    private static final String IMPORT_START_MODE    = "startImport";
+    private static final String IMPORT_UPLOAD_MODE   = "importUpload";
+    private static final String IMPORT_STATUS_MODE   = "importStatus";
+    private static final String IMPORT_COMPLETE_MODE = "importComplete";
+    private static final String IMPORT_EDIT_MODE   = "importEdit";
     private static final String MODE_KEY = "mode";
 
     private PortletRequestDispatcher listView;
@@ -131,6 +146,8 @@ public class DatabasePoolPortlet extends BasePortlet {
     private PortletRequestDispatcher testConnectionView;
     private PortletRequestDispatcher downloadView;
     private PortletRequestDispatcher planView;
+    private PortletRequestDispatcher importUploadView;
+    private PortletRequestDispatcher importStatusView;
 
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
@@ -142,6 +159,8 @@ public class DatabasePoolPortlet extends BasePortlet {
         testConnectionView = portletConfig.getPortletContext().getRequestDispatcher(TEST_CONNECTION_VIEW);
         downloadView = portletConfig.getPortletContext().getRequestDispatcher(DOWNLOAD_VIEW);
         planView = portletConfig.getPortletContext().getRequestDispatcher(SHOW_PLAN_VIEW);
+        importUploadView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_UPLOAD_VIEW);
+        importStatusView = portletConfig.getPortletContext().getRequestDispatcher(IMPORT_STATUS_VIEW);
     }
 
     public void destroy() {
@@ -153,6 +172,8 @@ public class DatabasePoolPortlet extends BasePortlet {
         testConnectionView = null;
         downloadView = null;
         planView = null;
+        importUploadView = null;
+        importStatusView = null;
         super.destroy();
     }
 
@@ -206,6 +227,11 @@ public class DatabasePoolPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         String mode = actionRequest.getParameter(MODE_KEY);
+        if(mode.equals(IMPORT_UPLOAD_MODE)) {
+            processImportUpload(actionRequest, actionResponse);
+            actionResponse.setRenderParameter(MODE_KEY, IMPORT_STATUS_MODE);
+            return;
+        }
         PoolData data = new PoolData();
         data.load(actionRequest);
         if(mode.equals("process-"+SELECT_RDBMS_MODE)) {
@@ -300,12 +326,12 @@ public class DatabasePoolPortlet extends BasePortlet {
                 actionRequest.getPortletSession(true).setAttribute("connectError", stack);
                 actionResponse.setRenderParameter(MODE_KEY, TEST_CONNECTION_MODE);
             } else {
-                save(actionRequest, data, false);
+                save(actionRequest, actionResponse, data, false);
             }
         } else if(mode.equals(SAVE_MODE)) {
-            save(actionRequest, data, false);
+            save(actionRequest, actionResponse, data, false);
         } else if(mode.equals(SHOW_PLAN_MODE)) {
-            String plan = save(actionRequest, data, true);
+            String plan = save(actionRequest, actionResponse, data, true);
             actionRequest.getPortletSession(true).setAttribute("deploymentPlan", plan);
             actionResponse.setRenderParameter(MODE_KEY, SHOW_PLAN_MODE);
         } else if(mode.equals(EDIT_EXISTING_MODE)) {
@@ -318,10 +344,102 @@ public class DatabasePoolPortlet extends BasePortlet {
                 data.adapterDisplayName = "TranQL Generic JDBC Resource Adapter";
             }
             actionResponse.setRenderParameter(MODE_KEY, mode);
+        } else if(mode.equals(IMPORT_START_MODE)) {
+            actionResponse.setRenderParameter("from", actionRequest.getParameter("from"));
+            actionResponse.setRenderParameter(MODE_KEY, mode);
+        } else if(mode.equals(IMPORT_EDIT_MODE)) {
+            ImportStatus status = getImportStatus(actionRequest);
+            int index = Integer.parseInt(actionRequest.getParameter("importIndex"));
+            status.setCurrentPoolIndex(index);
+            loadImportedData(data, status.getCurrentPool());
+            actionResponse.setRenderParameter(MODE_KEY, EDIT_MODE);
+        } else if(mode.equals(IMPORT_COMPLETE_MODE)) {
+            ImportStatus status = getImportStatus(actionRequest);
+            log.warn("Import Results:"); //todo: create a screen for this
+            log.warn("  "+status.getSkippedCount()+" ignored");
+            log.warn("  "+status.getStartedCount()+" reviewed but not deployed");
+            log.warn("  "+status.getPendingCount()+" not reviewed");
+            log.warn("  "+status.getFinishedCount()+" deployed");
+            actionRequest.getPortletSession().removeAttribute("ImportStatus");
         } else {
             actionResponse.setRenderParameter(MODE_KEY, mode);
         }
         data.store(actionResponse);
+    }
+
+    private void loadImportedData(PoolData data, ImportStatus.PoolProgress progress) {
+        if(!progress.getType().equals(ImportStatus.PoolProgress.TYPE_XA)) {
+            JDBCPool pool = (JDBCPool) progress.getPool();
+            data.dbtype = "Other";
+            data.adapterDisplayName = "TranQL Generic JDBC Resource Adapter";
+            data.blockingTimeout = getImportString(pool.getBlockingTimeoutMillis());
+            data.driverClass = pool.getDriverClass();
+            data.idleTimeout = pool.getIdleTimeoutMillis() == null ? null : Integer.toString(pool.getIdleTimeoutMillis().intValue() / (60 * 1000));
+            data.maxSize = getImportString(pool.getMaxSize());
+            data.minSize = getImportString(pool.getMinSize());
+            data.name = pool.getName();
+            data.password = pool.getPassword();
+            data.url = pool.getJdbcURL();
+            data.user = pool.getUsername();
+            if(pool.getDriverClass() != null) {
+                DatabaseInfo info = getDatabaseInfoFromDriver(data);
+                if(info != null) {
+                    data.rarPath = info.getRarPath();
+                    data.urlPrototype = info.getUrl();
+                } else {
+                    log.warn("Don't recognize database driver "+data.driverClass+"; Using default RAR file");
+                    data.rarPath = DatabaseInfo.getDefaultRARPath();
+                }
+            }
+        } else {
+            //todo: handle XA
+        }
+    }
+
+    private static String getImportString(Integer value) {
+        return value == null ? null : value.toString();
+    }
+
+    private boolean processImportUpload(ActionRequest request, ActionResponse response) throws PortletException {
+        String type = request.getParameter("importSource");
+        response.setRenderParameter("importSource", type);
+        if (!PortletFileUpload.isMultipartContent(request)) {
+            throw new PortletException("Expected file upload");
+        }
+
+        PortletFileUpload uploader = new PortletFileUpload(new DiskFileItemFactory());
+        try {
+            List items = uploader.parseRequest(request);
+            for (Iterator i = items.iterator(); i.hasNext();) {
+                FileItem item = (FileItem) i.next();
+                if (!item.isFormField()) {
+                    File file = File.createTempFile("geronimo-import", "");
+                    file.deleteOnExit();
+                    log.debug("Writing database pool import file to "+file.getAbsolutePath());
+                    item.write(file);
+                    DatabaseConversionStatus status = processImport(file, type);
+                    request.getPortletSession(true).setAttribute("ImportStatus", new ImportStatus(status));
+                    return true;
+                } else {
+                    throw new PortletException("Not expecting any form fields");
+                }
+            }
+        } catch(PortletException e) {
+            throw e;
+        } catch(Exception e) {
+            throw new PortletException(e);
+        }
+        return false;
+    }
+
+    private DatabaseConversionStatus processImport(File importFile, String type) throws PortletException, IOException {
+        if(type.equals("JBoss 4")) {
+            return JBoss4DatabaseConverter.convert(new FileReader(importFile));
+        } else if(type.equals("WebLogic 8.1")) {
+            return WebLogic81DatabaseConverter.convert(new FileReader(importFile));
+        } else {
+            throw new PortletException("Unknown import type '"+type+"'");
+        }
     }
 
     private ResourceAdapterParams loadConfigPropertiesByPath(PortletRequest request, String rarPath) {
@@ -469,9 +587,15 @@ public class DatabasePoolPortlet extends BasePortlet {
             PoolData data = new PoolData();
             data.load(renderRequest);
             renderRequest.setAttribute("pool", data);
+            // If not headed anywhere in particular, send to list
             if(mode == null || mode.equals("")) {
                 mode = LIST_MODE;
             }
+            // If headed to list but there's an import in progress, redirect to import status
+            if(mode.equals(LIST_MODE) && getImportStatus(renderRequest) != null) {
+                mode = IMPORT_STATUS_MODE;
+            }
+
             if(mode.equals(LIST_MODE)) {
                 renderList(renderRequest, renderResponse);
             } else if(mode.equals(EDIT_MODE)) {
@@ -488,13 +612,33 @@ public class DatabasePoolPortlet extends BasePortlet {
                 renderTestConnection(renderRequest, renderResponse);
             } else if(mode.equals(SHOW_PLAN_MODE)) {
                 renderPlan(renderRequest, renderResponse);
+            } else if(mode.equals(IMPORT_START_MODE)) {
+                renderImportUploadForm(renderRequest, renderResponse);
+            } else if(mode.equals(IMPORT_STATUS_MODE)) {
+                renderImportStatus(renderRequest, renderResponse);
             }
         } catch (Throwable e) {
             log.error("Unable to render portlet", e);
         }
     }
 
+    private void renderImportStatus(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        request.setAttribute("status", getImportStatus(request));
+        populatePoolList(request);
+        importStatusView.include(request, response);
+    }
+
+    private void renderImportUploadForm(RenderRequest request, RenderResponse response) throws IOException, PortletException {
+        request.setAttribute("from", request.getParameter("from"));
+        importUploadView.include(request, response);
+    }
+
     private void renderList(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+        populatePoolList(renderRequest);
+        listView.include(renderRequest, renderResponse);
+    }
+
+    private void populatePoolList(PortletRequest renderRequest) {
         ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(renderRequest, "javax.sql.DataSource");
         List list = new ArrayList();
         for (int i = 0; i < modules.length; i++) {
@@ -504,7 +648,6 @@ public class DatabasePoolPortlet extends BasePortlet {
                 JCAManagedConnectionFactory db = databases[j];
                 try {
                     ObjectName name = ObjectName.getInstance(db.getObjectName());
-
                     list.add(new ConnectionPool(ObjectName.getInstance(module.getObjectName()), db.getObjectName(), name.getKeyProperty(NameFactory.J2EE_NAME), ((GeronimoManagedBean)db).getState()));
                 } catch (MalformedObjectNameException e) {
                     e.printStackTrace();
@@ -513,7 +656,6 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
         Collections.sort(list);
         renderRequest.setAttribute("pools", list);
-        listView.include(renderRequest, renderResponse);
     }
 
     private void renderEdit(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
@@ -634,7 +776,8 @@ public class DatabasePoolPortlet extends BasePortlet {
         } else throw new SQLException("Driver "+data.getDriverClass()+" does not accept URL "+data.url);
     }
 
-    private static String save(PortletRequest request, PoolData data, boolean planOnly) {
+    private static String save(PortletRequest request, ActionResponse response, PoolData data, boolean planOnly) {
+        ImportStatus status = getImportStatus(request);
         if(data.objectName == null || data.objectName.equals("")) { // we're creating a new pool
             data.name = data.name.replaceAll("\\s", "");
             DeploymentManager mgr = PortletManager.getDeploymentManager(request);
@@ -736,6 +879,13 @@ public class DatabasePoolPortlet extends BasePortlet {
                         po = mgr.start(ids);
                         waitForProgress(po);
                         if(po.getDeploymentStatus().isCompleted()) {
+                            ids = po.getResultTargetModuleIDs();
+                            if(status != null) {
+                                status.getCurrentPool().setName(data.getName());
+                                status.getCurrentPool().setConfigurationName(ids[0].getModuleID());
+                                status.getCurrentPool().setFinished(true);
+                                response.setRenderParameter(MODE_KEY, IMPORT_STATUS_MODE);
+                            }
                             System.out.println("Deployment completed successfully!");
                         }
                     }
@@ -784,6 +934,10 @@ public class DatabasePoolPortlet extends BasePortlet {
         }
     }
 
+    private static ImportStatus getImportStatus(PortletRequest request) {
+        return (ImportStatus) request.getPortletSession(true).getAttribute("ImportStatus");
+    }
+
     private static URL getRAR(PortletRequest request, String rarPath) {
         try {
             URI uri = new URI(rarPath);
@@ -813,9 +967,9 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static Class attemptDriverLoad(PortletRequest request, PoolData data) {
         List list = new ArrayList();
         try {
-            URI one = new URI(data.getJar1());
-            URI two = new URI(data.getJar2());
-            URI three = new URI(data.getJar3());
+            URI one = data.getJar1() == null ? null : new URI(data.getJar1());
+            URI two = data.getJar2() == null ? null : new URI(data.getJar2());
+            URI three = data.getJar3() == null ? null : new URI(data.getJar3());
 
             ListableRepository[] repos = PortletManager.getListableRepositories(request);
             for (int i = 0; i < repos.length; i++) {
@@ -893,6 +1047,18 @@ public class DatabasePoolPortlet extends BasePortlet {
         return info;
     }
 
+    private static DatabaseInfo getDatabaseInfoFromDriver(PoolData data) {
+        DatabaseInfo info = null;
+        for (int i = 0; i < DatabaseInfo.ALL_DATABASES.length; i++) {
+            DatabaseInfo next = DatabaseInfo.ALL_DATABASES[i];
+            if(next.getDriverClass() != null && next.getDriverClass().equals(data.getDriverClass())) {
+                info = next;
+                break;
+            }
+        }
+        return info;
+    }
+
     public static class PoolData implements Serializable {
         private String name;
         private String dbtype;
@@ -915,26 +1081,47 @@ public class DatabasePoolPortlet extends BasePortlet {
         private String adapterDisplayName;
         private String adapterDescription;
         private String rarPath;
+        private String importSource;
 
         public void load(PortletRequest request) {
             name = request.getParameter("name");
+            if(name != null && name.equals("")) name = null;
             driverClass = request.getParameter("driverClass");
+            if(driverClass != null && driverClass.equals("")) driverClass = null;
             dbtype = request.getParameter("dbtype");
+            if(dbtype != null && dbtype.equals("")) dbtype = null;
             user = request.getParameter("user");
+            if(user != null && user.equals("")) user = null;
             password = request.getParameter("password");
+            if(password != null && password.equals("")) password = null;
             url = request.getParameter("url");
+            if(url != null && url.equals("")) url = null;
             urlPrototype = request.getParameter("urlPrototype");
+            if(urlPrototype != null && urlPrototype.equals("")) urlPrototype = null;
             jar1 = request.getParameter("jar1");
+            if(jar1 != null && jar1.equals("")) jar1 = null;
             jar2 = request.getParameter("jar2");
+            if(jar2 != null && jar2.equals("")) jar2 = null;
             jar3 = request.getParameter("jar3");
+            if(jar3 != null && jar3.equals("")) jar3 = null;
             minSize = request.getParameter("minSize");
+            if(minSize != null && minSize.equals("")) minSize = null;
             maxSize = request.getParameter("maxSize");
+            if(maxSize != null && maxSize.equals("")) maxSize = null;
             blockingTimeout = request.getParameter("blockingTimeout");
+            if(blockingTimeout != null && blockingTimeout.equals("")) blockingTimeout = null;
             idleTimeout = request.getParameter("idleTimeout");
+            if(idleTimeout != null && idleTimeout.equals("")) idleTimeout = null;
             objectName = request.getParameter("objectName");
+            if(objectName != null && objectName.equals("")) objectName = null;
             adapterDisplayName = request.getParameter("adapterDisplayName");
+            if(adapterDisplayName != null && adapterDisplayName.equals("")) adapterDisplayName = null;
             adapterDescription = request.getParameter("adapterDescription");
+            if(adapterDescription != null && adapterDescription.equals("")) adapterDescription = null;
             rarPath = request.getParameter("rarPath");
+            if(rarPath != null && rarPath.equals("")) rarPath = null;
+            importSource = request.getParameter("importSource");
+            if(importSource != null && importSource.equals("")) importSource = null;
             Map map = request.getParameterMap();
             propertyNames = new HashMap();
             for (Iterator it = map.keySet().iterator(); it.hasNext();) {
@@ -998,6 +1185,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(objectName != null) response.setRenderParameter("objectName", objectName);
             if(adapterDisplayName != null) response.setRenderParameter("adapterDisplayName", adapterDisplayName);
             if(adapterDescription != null) response.setRenderParameter("adapterDescription", adapterDescription);
+            if(importSource != null) response.setRenderParameter("importSource", importSource);
             if(rarPath != null) response.setRenderParameter("rarPath", rarPath);
             for (Iterator it = urlProperties.entrySet().iterator(); it.hasNext();) {
                 Map.Entry entry = (Map.Entry) it.next();
@@ -1100,6 +1288,10 @@ public class DatabasePoolPortlet extends BasePortlet {
         public boolean isGeneric() {
             //todo: is there any better way to tell?
             return adapterDisplayName == null || adapterDisplayName.equals("TranQL Generic JDBC Resource Adapter");
+        }
+
+        public String getImportSource() {
+            return importSource;
         }
     }
 

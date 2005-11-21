@@ -86,7 +86,7 @@ public class DatabaseInfo {
         this.url = url;
         this.driverClass = driverClass;
         xa = false;
-        rarPath = TRANQL_RAR_NAME;
+        rarPath = getDefaultRARPath();
     }
 
     public DatabaseInfo(String name, String url, String driverClass, int defaultPort) {
@@ -95,7 +95,7 @@ public class DatabaseInfo {
         this.driverClass = driverClass;
         this.defaultPort = defaultPort;
         xa = false;
-        rarPath = TRANQL_RAR_NAME;
+        rarPath = getDefaultRARPath();
     }
 
     public DatabaseInfo(String name, String rarPath) {
@@ -135,5 +135,9 @@ public class DatabaseInfo {
             list.add(url.substring(m.start()+1, m.end()-1));
         }
         return (String[]) list.toArray(new String[list.size()]);
+    }
+
+    public static String getDefaultRARPath() {
+        return TRANQL_RAR_NAME;
     }
 }

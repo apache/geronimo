@@ -148,6 +148,14 @@
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-converter</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
 
     <!-- Keystore dependency -->
     <dependency>
