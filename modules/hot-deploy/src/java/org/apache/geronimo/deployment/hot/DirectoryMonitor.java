@@ -138,7 +138,7 @@ public class DirectoryMonitor implements Runnable {
             } catch (InterruptedException e) {
                 continue;
             }
-            if(listener == null || listener.isServerRunning()) {
+            if(listener != null && listener.isServerRunning()) {
                 scanDirectory();
             }
         }
@@ -174,6 +174,11 @@ public class DirectoryMonitor implements Runnable {
     private void scanDirectory() {
         File parent = directory;
         File[] children = parent.listFiles();
+        if(!directory.exists() || children == null) {
+            log.error("Hot deploy directory has disappeared!  Shutting down directory monitor.");
+            done = true;
+            return;
+        }
         HashSet oldList = new HashSet(files.keySet());
         for (int i = 0; i < children.length; i++) {
             File child = children[i];
