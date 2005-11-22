@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
       <tr>
-        <th><div align="right">User SELECT SQL:</div></th>
+        <th style="min-width: 140px"><div align="right">User SELECT SQL:</div></th>
         <td><input name="option-userSelect" type="text"
                    size="60" value="${realm.options['userSelect']}"></td>
       </tr>
