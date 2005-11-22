@@ -304,20 +304,22 @@ limitations under the License.
             <description>ico_folder_16x16.gif Manage applications on this server</description>
         </navigation>
 
+        <!-- Don't need to show the "all modules" view any more
+        <fragment name="row1" type="row">
+            <fragment name="col1" type="column">
+                <fragment name="p1" type="portlet">
+                    <property name="portlet" value="5.1"/>
+                </fragment>
+            </fragment>
+        </fragment>-->
+
         <fragment name="all" type="page">
             <navigation>
-                <title>All Configurations</title>
-                <description>ico_list_16x16.gif This should be replaced</description>
+                <title>Deploy New</title>
+                <description>ico_list_16x16.gif Deploy new applications to Geronimo</description>
             </navigation>
 
             <fragment name="row1" type="row">
-                <fragment name="col1" type="column">
-                    <fragment name="p1" type="portlet">
-                        <property name="portlet" value="5.1"/>
-                    </fragment>
-                </fragment>
-            </fragment>
-            <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
                     <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.22"/>
