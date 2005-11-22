@@ -30,6 +30,7 @@
 
     <define:taglib uri="geronimo:assembly">
         <define:jellybean name="installConfig" className="org.apache.geronimo.plugin.assembly.LocalConfigInstaller" method="execute"/>
+        <define:jellybean name="installConfigToRepo" className="org.apache.geronimo.plugin.assembly.RepoConfigInstaller" method="execute"/>
     </define:taglib>
 
     <goal name="geronimo:assemble-prepare">
@@ -102,7 +103,6 @@
         </ant:copy>
     </goal>
 
-    <!-- todo automatically add dependencies from configurations into the repo -->
     <!-- todo automatically add libraries listed in an executable's MCP in the right place, relative to it -->
     <goal name="geronimo:assemble-configurations">
         <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
@@ -114,11 +114,38 @@
             <j:if test="${dependency.type == 'car'}">
                 <j:if test="${dependency.getProperty('geronimo.assemble') == 'install'}">
                     <assemble:installConfig
-                        root="${geronimo.assembly.dest}"
-                        configStore="config-store"
-                        repository="repository"
-                        mavenRepoLocal="${maven.repo.local}"
-                        artifact="${artifact.file}"/>
+                        targetRoot="${geronimo.assembly.dest}"
+                        targetConfigStore="config-store"
+                        targetRepository="repository"
+                        sourceRepository="${maven.repo.local}"
+                        artifact="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                </j:if>
+
+                <!-- handle executable configs -->
+                <j:if test="${dependency.getProperty('geronimo.assemble.executable') != null}">
+                    <j:set var="exe" value="${geronimo.assembly.dest}/${dependency.getProperty('geronimo.assemble.executable')}"/>
+                    <ant:copy tofile="${exe}" file="${artifact.file}"/>
+                    <ant:chmod file="${exe}" perm="ugo+rx"/>
+                </j:if>
+            </j:if>
+        </j:forEach>
+    </goal>
+
+    <goal name="geronimo:assemble-configurations-to-repo">
+        <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
+        <ant:delete dir="${configStoreDir}"/>
+        <ant:mkdir dir="${configStoreDir}"/>
+        <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
+        <j:forEach var="artifact" items="${pom.artifacts}">
+            <j:set var="dependency" value="${artifact.dependency}"/>
+            <j:if test="${dependency.type == 'car'}">
+                <j:if test="${dependency.getProperty('geronimo.assemble') == 'install'}">
+                    <assemble:installConfigToRepo
+                        targetRoot="${geronimo.assembly.dest}"
+                        targetConfigStore="config-store"
+                        targetRepository="repository"
+                        sourceRepository="${maven.repo.local}"
+                        artifact="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                 </j:if>
 
                 <!-- handle executable configs -->
@@ -135,6 +162,12 @@
         <attainGoal name="geronimo:assemble-repository"/>
         <attainGoal name="geronimo:assemble-lib"/>
         <attainGoal name="geronimo:assemble-configurations"/>
+    </goal>
+
+    <goal name="geronimo:assemble-to-repo" prereqs="geronimo:assemble-prepare" description="Assemble a Geronimo installation">
+        <attainGoal name="geronimo:assemble-repository"/>
+        <attainGoal name="geronimo:assemble-lib"/>
+        <attainGoal name="geronimo:assemble-configurations-to-repo"/>
     </goal>
 
     <goal name="geronimo:jar-assembly" prereqs="geronimo:assemble">

@@ -19,6 +19,8 @@ package org.apache.geronimo.plugin.assembly;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -27,29 +29,17 @@ import java.util.List;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.repository.FileSystemRepository;
 
 /**
- * JellyBean that installs configuration artifacts into a LocalConfigurationStore,  It also copies all
+ * JellyBean that installs configuration artifacts into a repository based ConfigurationStore,  It also copies all
  * configuration dependencies into the repository
  *
  * @version $Rev: 156292 $ $Date: 2005-03-05 18:48:02 -0800 (Sat, 05 Mar 2005) $
  */
-public class LocalConfigInstaller extends BaseConfigInstaller {
+public class RepoConfigInstaller extends BaseConfigInstaller {
 
     public void execute() throws Exception {
-        final LocalConfigStore store = new LocalConfigStore(new File(targetRoot, targetConfigStore));
-        store.doStart();
-        InstallAdapter installAdapter = new InstallAdapter() {
-
-            public List install(Repository sourceRepo, String artifactPath) throws IOException, InvalidConfigException {
-                URL artifact = sourceRepo.getURL(URI.create(artifactPath));
-                GBeanData config = store.install2(artifact);
-                List dependencies = (List) config.getAttribute("dependencies");
-                return dependencies;
-            }
-        };
         Repository sourceRepo = new Repository() {
 
             public boolean hasURI(URI uri) {
@@ -73,18 +63,55 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
         };
         URI rootURI = targetRoot.toURI().resolve(targetRepository);
         FileSystemRepository targetRepo = new FileSystemRepository(rootURI, null);
+        InstallAdapter installAdapter = new CopyConfigStore(targetRepo);
         targetRepo.doStart();
 
         try {
-            try {
-                execute(installAdapter, sourceRepo, targetRepo);
-            } finally {
-                store.doStop();
-            }
+            execute(installAdapter, sourceRepo, targetRepo);
         } finally {
             targetRepo.doStop();
         }
 
+    }
+
+    private static class CopyConfigStore implements InstallAdapter {
+
+        private final FileSystemRepository targetRepo;
+
+        public CopyConfigStore(FileSystemRepository targetRepo) {
+            this.targetRepo = targetRepo;
+        }
+
+        public List install(Repository sourceRepo, String artifactPath) throws IOException, InvalidConfigException {
+            URI destination = URI.create(artifactPath);
+            URL sourceURL = sourceRepo.getURL(destination);
+            InputStream in = sourceURL.openStream();
+            try {
+                if (!targetRepo.hasURI(destination)) {
+                    targetRepo.copyToRepository(in, destination, new StartFileWriteMonitor());
+                }
+            } finally {
+                in.close();
+            }
+            URL targetURL = targetRepo.getURL(destination);
+            GBeanData config = new GBeanData();
+            URL baseURL = new URL("jar:" + targetURL.toString() + "!/");
+            InputStream jis = null;
+            try {
+                URL stateURL = new URL(baseURL, "META-INF/config.ser");
+                jis = stateURL.openStream();
+                ObjectInputStream ois = new ObjectInputStream(jis);
+                config.readExternal(ois);
+            } catch (ClassNotFoundException e) {
+                throw new InvalidConfigException("Unable to load class from config: " + destination, e);
+            } finally {
+                if (jis != null) {
+                    jis.close();
+                }
+            }
+            List dependencies = (List) config.getAttribute("dependencies");
+            return dependencies;
+        }
     }
 
 }
