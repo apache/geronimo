@@ -220,6 +220,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         enhancer.setUseFactory(false);
         ByteArrayRetrievingGeneratorStrategy strategy = new ByteArrayRetrievingGeneratorStrategy();
         enhancer.setStrategy(strategy);
+        enhancer.setUseCache(false);
         Class serviceClass = enhancer.createClass();
 
         try {
@@ -521,6 +522,7 @@ public class AxisBuilder implements ServiceReferenceBuilder, WebServiceBuilder {
         enhancer.setUseFactory(false);
         ByteArrayRetrievingGeneratorStrategy strategy = new ByteArrayRetrievingGeneratorStrategy();
         enhancer.setStrategy(strategy);
+        enhancer.setUseCache(false);
         Class serviceEndpointClass = enhancer.createClass();
 
         try {
