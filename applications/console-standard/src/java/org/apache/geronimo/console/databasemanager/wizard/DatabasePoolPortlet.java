@@ -1045,7 +1045,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                         begin = j;
                         break;
                     } else if(c == '/') {
-                        if(url.length() >= end && url.charAt(end) == '/') {
+                        if(url.length() > end && url.charAt(end) == '/') {
                             begin = j; // Don't leave // if foo is null for /<foo>/
                         }
                         break;
