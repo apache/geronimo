@@ -19,17 +19,15 @@ package org.apache.geronimo.plugin.assembly;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Iterator;
 import java.net.URI;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 
-import org.apache.geronimo.system.configuration.LocalConfigStore;
-import org.apache.geronimo.system.repository.FileSystemRepository;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.system.repository.FileSystemRepository;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -97,6 +95,14 @@ public class BaseConfigInstaller {
     public void setSourceRepository(File sourceRepository) {
         this.sourceRepository = sourceRepository;
         sourceRepositoryURI = sourceRepository.toURI();
+    }
+
+    public URI getSourceRepositoryURI() {
+        return sourceRepositoryURI;
+    }
+
+    public void setSourceRepositoryURI(URI sourceRepositoryURI) {
+        this.sourceRepositoryURI = sourceRepositoryURI;
     }
 
     protected void execute(InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
