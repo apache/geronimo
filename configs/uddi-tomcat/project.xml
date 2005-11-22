@@ -25,6 +25,25 @@
     <name>UDDI server Configuration for the J2EE Tomcat Server</name>
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>tomcat-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
