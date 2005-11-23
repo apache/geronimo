@@ -109,7 +109,7 @@ limitations under the License.
 
         <fragment name="mgmt" type="page">
             <navigation>
-                <title>Shutdown/Restart</title>
+                <title>Shutdown</title>
                 <description>ico_x_16x16.gif Manage this server</description>
             </navigation>
 
