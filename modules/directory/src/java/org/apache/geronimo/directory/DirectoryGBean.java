@@ -135,8 +135,10 @@ public class DirectoryGBean implements GBeanLifecycle {
 
     public void setHost(String host) {
         try{
-            if (host == null )
+            if (host == null ){
                 this.host = null;
+                return;
+            }
             
             String strHost = host.trim();
             if (strHost.equals("0.0.0.0")){
