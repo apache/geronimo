@@ -30,12 +30,25 @@ import javax.management.MalformedObjectNameException;
 public interface ProxyManager {
     /**
      * Create a proxy factory which will generate proxies of the specified type,
-     * plus GeronimoManagedBean.
+     * plus GeronimoManagedBean. The proxy class will be created within the class
+     * loader from which the specified type was loaded, or from the system class
+     * loader if the specified type has a null class loader.
      *
      * @param type the type of the proxies to create
      * @return the proxy factory
      */
     public ProxyFactory createProxyFactory(Class type);
+
+
+    /**
+     * Creates a proxy factory for GBeans which will implement the specified types.  The proxy class will be created
+     * within the specified class loader.  All of the specified types must be visible from the class loader.
+     *
+     * @param types the type of the proxies this factory should create
+     * @param classLoader the class loader in which the proxy class will be registered
+     * @return the proxy factory
+     */
+    ProxyFactory createProxyFactory(Class[] types, ClassLoader classLoader);
 
     /**
      * Create a proxy for the specified target.  The proxy will implement
@@ -74,58 +87,6 @@ public interface ProxyManager {
      * @return the proxy
      */
     public Object createProxy(ObjectName target, Class type);
-
-    /**
-     * Create a proxy for the specified target, implementing a variable
-     * number of interfaces.  It's possible to specify one interface that must
-     * be included, and also to specify a number of variable interfaces that
-     * the proxy should implement if the underlying GBean supports them.  Each
-     * proxy will also implement GeronimoManagedBean in addition to any
-     * interfaces provided as arguments.
-     *
-     * @param target the target object name
-     * @param required an interface that the proxy must implement.  This may be
-     *                 null in which case only the optional interfaces will be
-     *                 evaluated.  However, it's recommended that you always
-     *                 provide one in case none of the optional interfaces
-     *                 are a match.
-     * @param optional Interfaces that the proxy may implement.  For each
-     *                 of these interfaces, the proxy must implement it if the
-     *                 underlying GBean declares that it implements it (by
-     *                 declaring the interface in its GBeanInfo), and otherwise
-     *                 the interface will be ignored.
-     * @return the proxy, or null if no required interfaces was specified and
-     *         none of the optional interfaces match the GBeanInfo
-     */
-    public Object createProxy(ObjectName target, Class required, Class[] optional);
-
-    /**
-     * Create a proxy for the specified target, implementing a variable
-     * number of interfaces.  It's possible to specify one interface that must
-     * be included, and also to specify a number of variable interfaces that
-     * the proxy should implement if the underlying GBean supports them.  Each
-     * proxy will also implement GeronimoManagedBean in addition to any
-     * interfaces provided as arguments.
-     *
-     * @param objectNameStrings An array of ObjectNames, each in String form
-     * @param required an interface that the proxies must implement.  This may
-     *                 be null in which case only the optional interfaces will
-     *                 be evaluated.  However, it's recommended that you
-     *                 always provide one in case none of the optional
-     *                 interfaces are a match for a particular target.
-     * @param optional Interfaces that the proxies may implement.  For each
-     *                 proxy for each of these interfaces, the proxy must
-     *                 implement it if the underlying GBean declares that it
-     *                 implements it (by declaring the interface in its
-     *                 GBeanInfo), and otherwise the interface will be
-     *                 ignored for that GBean.  Note that different result
-     *                 proxies may implement different interfaces, depending
-     *                 on the underlyings GBeans.
-     * @return an array of proxies of the same length as the argument array,
-     *         where each value is a proxy or null if no required interface
-     *         was provided and none of the optional interfaces match.
-     */
-    public Object[] createProxies(String[] objectNameStrings, Class required, Class[] optional) throws MalformedObjectNameException;
 
     /**
      * Cleans up and resources associated with the proxy

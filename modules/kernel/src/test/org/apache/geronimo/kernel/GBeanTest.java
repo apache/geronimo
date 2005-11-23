@@ -27,8 +27,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.kernel.basic.BasicProxyManager;
-import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.log4j.Logger;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -124,7 +123,9 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof MockChildInterface2);
         assertFalse(test instanceof Comparable);
 
-        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{MockParentInterface2.class, MockChildInterface2.class});
+        ProxyFactory proxyFactory;
+        proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, MockParentInterface2.class, MockChildInterface2.class}, myCl);
+        test = proxyFactory.createProxy(name);
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertTrue(test instanceof MockParentInterface2);
@@ -132,7 +133,8 @@ public class GBeanTest extends TestCase {
         assertTrue(test instanceof MockChildInterface2);
         assertFalse(test instanceof Comparable);
 
-        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{MockParentInterface1.class, MockChildInterface1.class});
+        proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, MockParentInterface1.class, MockChildInterface1.class}, myCl);
+        test = proxyFactory.createProxy(name);
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
@@ -140,51 +142,50 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof MockChildInterface2);
         assertFalse(test instanceof Comparable);
 
-        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{MockParentInterface1.class, MockChildInterface1.class, Comparable.class});
+        proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, MockParentInterface1.class, MockChildInterface1.class, Comparable.class}, myCl);
+        test = proxyFactory.createProxy(name);
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
         assertTrue(test instanceof MockChildInterface1);
         assertFalse(test instanceof MockChildInterface2);
-        assertFalse(test instanceof Comparable);
 
-        test = mgr.createProxy(name, null, new Class[]{MockParentInterface1.class, MockChildInterface1.class, Comparable.class});
+        proxyFactory = mgr.createProxyFactory(new Class[]{MockParentInterface1.class, MockChildInterface1.class, Comparable.class}, myCl);
+        test = proxyFactory.createProxy(name);
         assertFalse(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
         assertTrue(test instanceof MockChildInterface1);
         assertFalse(test instanceof MockChildInterface2);
-        assertFalse(test instanceof Comparable);
 
-        test = mgr.createProxy(name, MockEndpoint.class, new Class[]{Comparable.class});
+        proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, Comparable.class}, myCl);
+        test = proxyFactory.createProxy(name);
         assertTrue(test instanceof MockEndpoint);
         assertFalse(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
         assertFalse(test instanceof MockChildInterface1);
         assertFalse(test instanceof MockChildInterface2);
-        assertFalse(test instanceof Comparable);
 
-        test = mgr.createProxy(name, null, new Class[]{Comparable.class}); // no implementable interface
-        assertNull(test);
-
-        try {
-            test = mgr.createProxy(name, null, new Class[0]); // no interface
-            fail();
-        }catch(IllegalArgumentException e) {}
+        proxyFactory = mgr.createProxyFactory(new Class[]{Comparable.class}, myCl);
+        test = proxyFactory.createProxy(name);
 
         try {
-            test = mgr.createProxy(name, null, null); // no interface
+            proxyFactory = mgr.createProxyFactory(null, myCl);
             fail();
-        }catch(IllegalArgumentException e) {}
+        } catch (NullPointerException e) {
+        }
 
-        test = mgr.createProxy(name, MockGBean.class, null); // class not interface
-        test = mgr.createProxy(name, MockGBean.class, new Class[]{MockEndpoint.class}); // class and interface
+        try {
+            proxyFactory = mgr.createProxyFactory(new Class[0], myCl);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
 
-        if(mgr instanceof BasicProxyManager) {
-            try { // two classes
-                test = ((BasicProxyManager)mgr).createProxyFactory(new Class[]{MockGBean.class, Object.class}).createProxy(name);
-                fail();
-            }catch(IllegalArgumentException e) {}
+        try {
+            // two classes
+            test = mgr.createProxyFactory(new Class[]{MockGBean.class, Object.class}, cl).createProxy(name);
+            fail();
+        } catch (IllegalArgumentException e) {
         }
     }
 

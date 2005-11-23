@@ -387,7 +387,7 @@ public class BasicProxyMap implements Map {
     /**
      * Purges the specified reference.
      * 
-     * @param ref  the reference to purge
+     * @param purgedEntry the reference to purge
      */
     private void purge(Reference purgedEntry) {
         int hash = ((ReferenceEntry)purgedEntry).hashCode;

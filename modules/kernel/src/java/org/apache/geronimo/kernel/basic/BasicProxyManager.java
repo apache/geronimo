@@ -16,23 +16,27 @@
  */
 package org.apache.geronimo.kernel.basic;
 
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.proxy.ProxyFactory;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.gbean.GBeanInfo;
+import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyFactory;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.proxy.ProxyCreationException;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.Map;
+import java.util.Collections;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Creates proxies that communicate directly with a Kernel located in the same
@@ -41,132 +45,102 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class BasicProxyManager implements ProxyManager {
-    private final String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
+    private final static String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
     private final static Log log = LogFactory.getLog(BasicProxyManager.class);
     private final Kernel kernel;
 
-    private final BasicProxyMap interceptors = new BasicProxyMap();
+    private final Map interceptors = Collections.synchronizedMap(new BasicProxyMap());
 
     public BasicProxyManager(Kernel kernel) {
         this.kernel = kernel;
     }
 
-    public synchronized ProxyFactory createProxyFactory(Class type) {
-        assert type != null: "type is null";
-        if(type.getClassLoader() == null) {
-            // Can't load GeronimoManagedBean if the incoming type doesn't have a ClassLoader set
-            log.debug("Unable to add GeronimoManagedBean to proxy for "+type.getName()+" (no CL)");
-            return new ManagedProxyFactory(type);
-        } else {
-            try {
-                final Class managedBean = type.getClassLoader().loadClass(MANAGED_BEAN_NAME);
-                return new ManagedProxyFactory(new Class[]{type, managedBean});
-            } catch (ClassNotFoundException e) {
-                log.debug("Unable to add GeronimoManagedBean to proxy for "+type.getName()+" (not in CL)");
-                return new ManagedProxyFactory(type);
-            }
+    /**
+     * Creates a proxy factory for GBeans of the specified type.  The proxy class will be created within the class
+     * loader from which the specified type was loaded, or from the system class loader if the specified type has
+     * a null class loader.
+     *
+     * @param type the type of the proxies this factory should create
+     * @return the proxy factory
+     */
+    public ProxyFactory createProxyFactory(Class type) {
+        if (type == null) throw new NullPointerException("type is null");
+
+        ClassLoader classLoader = type.getClassLoader();
+        if(classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
         }
+
+        return createProxyFactory(new Class[] {type}, classLoader);
     }
 
-    public synchronized ProxyFactory createProxyFactory(Class[] type) {
-        assert type != null: "type is null";
-        assert type.length > 0: "interface list is empty";
+    public ProxyFactory createProxyFactory(Class[] types, ClassLoader classLoader) {
+        if (types == null) throw new NullPointerException("type is null");
+        if (types.length == 0) throw new IllegalArgumentException("interface list is empty");
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
+
         Class managedBean = null;
-        for (int i = 0; i < type.length; i++) {
-            if(type[i].getClassLoader() != null) {
-                try {
-                    managedBean = type[i].getClassLoader().loadClass(MANAGED_BEAN_NAME);
-                    break;
-                } catch (ClassNotFoundException e) {} // OK, we'll try the next one
-            }
-        }
-        if(managedBean != null) {
-            Class[] adjusted = new Class[type.length+1];
-            System.arraycopy(type, 0, adjusted, 0, type.length);
-            adjusted[type.length] = managedBean;
-            type = adjusted;
-        } else {
+        try {
+            managedBean = classLoader.loadClass(MANAGED_BEAN_NAME);
+        } catch (ClassNotFoundException e) {
             // Can't load GeronimoManagedBean if the incoming type doesn't have a ClassLoader set
-            log.debug("Unable to add GeronimoManagedBean to proxy (no proxy classes have ClassLoaders)");
+            log.debug("Unable to add GeronimoManagedBean to proxy (specified class loader does not have class)");
         }
-        return new ManagedProxyFactory(type);
+
+        if(managedBean != null) {
+            Class[] adjusted = new Class[types.length+1];
+            System.arraycopy(types, 0, adjusted, 0, types.length);
+            adjusted[types.length] = managedBean;
+            types = adjusted;
+        }
+
+        return new ManagedProxyFactory(types, classLoader);
     }
 
-    public synchronized Object createProxy(ObjectName target, Class type) {
-        assert type != null: "type is null";
-        assert target != null: "target is null";
+    public Object createProxy(ObjectName target, Class type) {
+        if (target == null) throw new NullPointerException("target is null");
+        if (type == null) throw new NullPointerException("type is null");
 
-        return createProxyFactory(type).createProxy(target);
+        ProxyFactory proxyFactory = createProxyFactory(type);
+        Object proxy = proxyFactory.createProxy(target);
+        return proxy;
     }
 
-    public Object createProxy(ObjectName target, ClassLoader loader) {
-        assert target != null: "target is null";
+    public Object createProxy(ObjectName target, ClassLoader classLoader) {
+        if (target == null) throw new NullPointerException("target is null");
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
+
         try {
             GBeanInfo info = kernel.getGBeanInfo(target);
-            if(info.getInterfaces().size() == 0) {
-                log.warn("No interfaces found for "+target+" ("+info.getClassName()+")");
+            Set interfaces = info.getInterfaces();
+            if(interfaces.size() == 0) {
+                log.warn("No interfaces found for " + target + " ("+info.getClassName()+")");
                 return null;
             }
-            String[] names = (String[]) info.getInterfaces().toArray(new String[0]);
+            String[] names = (String[]) interfaces.toArray(new String[0]);
             List intfs = new ArrayList();
             for (int i = 0; i < names.length; i++) {
                 try {
-                    intfs.add(loader.loadClass(names[i]));
+                    intfs.add(classLoader.loadClass(names[i]));
                 } catch (ClassNotFoundException e) {
                     log.warn("Could not load interface "+names[i]+" in provided ClassLoader for "+target.getKeyProperty("name"));
                 }
             }
-            return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()])).createProxy(target);
+            return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()]), classLoader).createProxy(target);
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
         }
     }
 
-    public Object createProxy(ObjectName target, Class required, Class[] optional) {
-        assert target != null: "target is null";
-        if(required == null && (optional == null || optional.length == 0)) {
-            throw new IllegalArgumentException("Cannot create proxy for no interfaces");
-        }
-        List list = new ArrayList();
-        if(required != null) {
-            list.add(required);
-        }
-        if (optional != null) {
-            try {
-                GBeanInfo info = kernel.getGBeanInfo(target);
-                Set set = info.getInterfaces();
-                for (int i = 0; i < optional.length; i++) {
-                    if (set.contains(optional[i].getName())) {
-                        list.add(optional[i]);
-                    }
-                }
-            } catch (GBeanNotFoundException e) {
-                throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
-            }
-        }
-        if(list.size() == 0) {
-            return null;
-        }
-        return createProxyFactory((Class[]) list.toArray(new Class[list.size()])).createProxy(target);
-    }
-
-    public Object[] createProxies(String[] objectNameStrings, ClassLoader loader) throws MalformedObjectNameException {
+    public Object[] createProxies(String[] objectNameStrings, ClassLoader classLoader) throws MalformedObjectNameException {
         Object[] result = new Object[objectNameStrings.length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]), loader);
+            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]), classLoader);
         }
         return result;
     }
 
-    public Object[] createProxies(String[] objectNameStrings, Class required, Class[] optional) throws MalformedObjectNameException {
-        Object[] result = new Object[objectNameStrings.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = createProxy(ObjectName.getInstance(objectNameStrings[i]), required, optional);
-        }
-        return result;
-    }
-
-    public synchronized void destroyProxy(Object proxy) {
+    public void destroyProxy(Object proxy) {
         if (proxy == null) {
             return;
         }
@@ -181,7 +155,7 @@ public class BasicProxyManager implements ProxyManager {
         return interceptors.containsKey(proxy);
     }
 
-    public synchronized ObjectName getProxyTarget(Object proxy) {
+    public ObjectName getProxyTarget(Object proxy) {
         MethodInterceptor methodInterceptor = (MethodInterceptor) interceptors.get(proxy);
         if (methodInterceptor == null) {
             return null;
@@ -191,14 +165,14 @@ public class BasicProxyManager implements ProxyManager {
 
     private class ManagedProxyFactory implements ProxyFactory {
         private final Class proxyType;
-        private final Enhancer enhancer;
+        private final FastClass fastClass;
 
-        public ManagedProxyFactory(Class type) {
-            this(new Class[]{type});
+        public ManagedProxyFactory(Class type, ClassLoader classLoader) {
+            this(new Class[]{type}, classLoader);
         }
 
-        public ManagedProxyFactory(Class[] type) {
-            enhancer = new Enhancer();
+        public ManagedProxyFactory(Class[] type, ClassLoader classLoader) {
+            Enhancer enhancer = new Enhancer();
             if(type.length > 1) { // shrink first -- may reduce from many to one
                 type = reduceInterfaces(type);
             }
@@ -207,24 +181,6 @@ public class BasicProxyManager implements ProxyManager {
             } else if(type.length == 1) { // Unlikely (as a result of GeronimoManagedBean)
                 enhancer.setSuperclass(type[0]);
             } else {
-                ClassLoader best = null;
-                outer:
-                for (int i = 0; i < type.length; i++) {
-                    ClassLoader test = type[i].getClassLoader();
-                    for (int j = 0; j < type.length; j++) {
-                        String className = type[j].getName();
-                        try {
-                            test.loadClass(className);
-                        } catch (ClassNotFoundException e) {
-                            continue outer;
-                        }
-                    }
-                    best = test;
-                    break;
-                }
-                if(best != null) {
-                    enhancer.setClassLoader(best);
-                }
                 if(type[0].isInterface()) {
                     enhancer.setSuperclass(Object.class);
                     enhancer.setInterfaces(type);
@@ -235,22 +191,35 @@ public class BasicProxyManager implements ProxyManager {
                     enhancer.setInterfaces(intfs);
                 }
             }
+            enhancer.setClassLoader(classLoader);
             enhancer.setCallbackType(MethodInterceptor.class);
             enhancer.setUseFactory(false);
             proxyType = enhancer.createClass();
+            fastClass = FastClass.create(proxyType);
         }
 
-        public synchronized Object createProxy(ObjectName target) {
+        public Object createProxy(ObjectName target) {
             assert target != null: "target is null";
 
             Callback callback = getMethodInterceptor(proxyType, kernel, target);
 
-            // @todo trap CodeGenerationException indicating missing no-arg ctr
-            enhancer.setCallbacks(new Callback[]{callback});
-            Object proxy = enhancer.create();
-
-            interceptors.put(proxy, callback);
-            return proxy;
+            Enhancer.registerCallbacks(proxyType, new Callback[]{callback});
+            try {
+                Object proxy = fastClass.newInstance();
+                interceptors.put(proxy, callback);
+                return proxy;
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                  throw (RuntimeException) cause;
+                } else  if (cause instanceof Error) {
+                  throw (RuntimeException) cause;
+                } else if (cause != null) {
+                  throw new ProxyCreationException(cause);
+                } else {
+                  throw new ProxyCreationException(e);
+                }
+            }
         }
 
         /**
@@ -340,5 +309,4 @@ public class BasicProxyManager implements ProxyManager {
      protected ObjectName getObjectName(MethodInterceptor methodInterceptor) {
         return ((ProxyMethodInterceptor)methodInterceptor).getObjectName();
     }
-
 }
