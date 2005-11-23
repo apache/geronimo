@@ -25,24 +25,27 @@
     <name>Security Configuration for the J2EE Client</name>
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>client</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
-        </dependency>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+            </properties>
+         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>

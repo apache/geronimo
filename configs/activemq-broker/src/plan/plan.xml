@@ -24,16 +24,7 @@
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
     >
 
-<!--    <dependency>
-        <uri>activemq/jars/activemq-core-${activemq_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>activemq/jars/activemq-gbean-${activemq_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
-    </dependency>
--->
+
     <!-- management -->
     <gbean name="ActiveMQ" class="org.activemq.gbean.management.ActiveMQManagerGBean" />
 

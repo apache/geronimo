@@ -27,10 +27,6 @@ Configuration for Jetty server.
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
     >
 
-<!--    <dependency>
-        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
-    </dependency>
--->
     <!-- david jencks is not convinced that these 2 gbeans should be in this
          plan and thinks they might belong in the console plan.  Aaron thinks
          they definitely don't belong in the console plan, but could go into

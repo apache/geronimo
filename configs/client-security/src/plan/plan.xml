@@ -25,7 +25,6 @@ Configuration for the security of a Geronimo app client.
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/client-${pom.currentVersion}.car"
     >
 
 

@@ -27,77 +27,8 @@ by the server.
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
-               parentId="${pom.groupId}/cars/j2ee-server-${pom.currentVersion}.car"
     >
-<!--
-    <dependency>
-        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
-    </dependency>
--->
-    <!-- required for rar 1.5 to load realms -->
-<!--    <dependency>
-        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
-    </dependency>
--->
-    <!-- Directory -->
-<!--    <dependency>
-        <uri>geronimo/jars/geronimo-directory-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>org.slf4j/jars/slf4j-simple-${slf4j_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory/jars/apacheds-core-${apacheds_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory/jars/apacheds-shared-${apacheds_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-protocols/jars/ldap-protocol-${ldap_protocols_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-protocols/jars/kerberos-protocol-${kerberos_protocols_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-network/jars/mina-${mina_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-asn1/jars/asn1-ber-${asn1_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-asn1/jars/asn1-codec-${asn1_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-asn1/jars/asn1-der-${asn1_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-shared/jars/apache-ldapber-provider-${apacheds_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-shared/jars/kerberos-common-${kerberos_common_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>directory-shared/jars/ldap-common-${apacheds_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-io/jars/commons-io-${commons_io_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-primitives/jars/commons-primitives-${commons_primitives_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>commons-lang/jars/commons-lang-${commons_lang_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>oro/jars/oro-${oro_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>jdbm/jars/jdbm-${jdbm_version}.jar</uri>
-    </dependency>
--->
+
     <gbean gbeanName="geronimo.server:name=DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
         <attribute name="providerURL">ou=system</attribute>
         <attribute name="securityAuthentication">simple</attribute>

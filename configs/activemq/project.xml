@@ -25,24 +25,27 @@
     <name>Activemq configuration</name>
 
     <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>activemq-broker</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+            </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>j2ee-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
         </dependency>
 
         <dependency>
