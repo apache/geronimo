@@ -152,9 +152,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                         <tss:sasMech>
                             <tss:identityTokenTypes>
                                 <tss:ITTAnonymous/>
-                                <tss:ITTPrincipalNameGSSUP realm-name="cts-properties-realm"/>
-                                <tss:ITTDistinguishedName realm-name="cts-properties-realm"/>
-                                <tss:ITTX509CertChain realm-name="cts-properties-realm"/>
+                                <tss:ITTPrincipalNameGSSUP principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
+                                <tss:ITTDistinguishedName/>
+                                <tss:ITTX509CertChain/>
                             </tss:identityTokenTypes>
                         </tss:sasMech>
                     </tss:compoundSecMech>
@@ -216,9 +216,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                         <tss:sasMech>
                             <tss:identityTokenTypes>
                                 <tss:ITTAnonymous/>
-                                <tss:ITTPrincipalNameGSSUP realm-name="cts-properties-realm"/>
-                                <tss:ITTDistinguishedName realm-name="cts-properties-realm"/>
-                                <tss:ITTX509CertChain realm-name="cts-properties-realm"/>
+                                <tss:ITTPrincipalNameGSSUP principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
+                                <tss:ITTDistinguishedName/>
+                                <tss:ITTX509CertChain/>
                             </tss:identityTokenTypes>
                         </tss:sasMech>
                     </tss:compoundSecMech>
@@ -246,9 +246,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                         <tss:sasMech>
                             <tss:identityTokenTypes>
                                 <tss:ITTAnonymous/>
-                                <tss:ITTPrincipalNameGSSUP realm-name="cts-properties-realm"/>
-                                <tss:ITTDistinguishedName realm-name="cts-properties-realm"/>
-                                <tss:ITTX509CertChain realm-name="cts-properties-realm"/>
+                                <tss:ITTPrincipalNameGSSUP principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
+                                <tss:ITTDistinguishedName/>
+                                <tss:ITTX509CertChain/>
                             </tss:identityTokenTypes>
                         </tss:sasMech>
                     </tss:compoundSecMech>
@@ -371,7 +371,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                             <css:requires>Integrity Confidentiality</css:requires>
                         </css:SSL>
                         <css:sasMech>
-                            <css:ITTPrincipalNameDynamic domain="cts-properties-realm"/>
+                            <css:ITTPrincipalNameDynamic principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
                         </css:sasMech>
                     </css:compoundSecMech>
                 </css:compoundSecMechTypeList>
@@ -411,7 +411,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                             <css:requires>Integrity Confidentiality</css:requires>
                         </css:SSL>
                         <css:sasMech>
-                            <css:ITTPrincipalNameDynamic domain="cts-cert-realm"/>
+                            <css:ITTPrincipalNameDynamic principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
                         </css:sasMech>
                     </css:compoundSecMech>
                 </css:compoundSecMechTypeList>
@@ -447,7 +447,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 <css:compoundSecMechTypeList>
                     <css:compoundSecMech>
                         <css:sasMech>
-                            <css:ITTPrincipalNameDynamic domain="cts-properties-realm"/>
+                            <css:ITTPrincipalNameDynamic principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
                         </css:sasMech>
                     </css:compoundSecMech>
                 </css:compoundSecMechTypeList>
@@ -483,7 +483,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
                 <css:compoundSecMechTypeList>
                     <css:compoundSecMech>
                         <css:sasMech>
-                            <css:ITTPrincipalNameDynamic domain="cts-cert-realm"/>
+                            <css:ITTPrincipalNameDynamic principal-class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"/>
                         </css:sasMech>
                     </css:compoundSecMech>
                 </css:compoundSecMechTypeList>
