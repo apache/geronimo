@@ -68,6 +68,9 @@ public class BasicProxyManager implements ProxyManager {
 
         ClassLoader classLoader = type.getClassLoader();
         if(classLoader == null) {
+            classLoader = getClass().getClassLoader();
+        }
+        if(classLoader == null) {
             classLoader = ClassLoader.getSystemClassLoader();
         }
 
