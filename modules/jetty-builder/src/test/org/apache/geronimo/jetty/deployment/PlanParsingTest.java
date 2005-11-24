@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.jar.JarFile;
 import javax.management.ObjectName;
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
@@ -17,6 +18,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.web.GerWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.config.GerJettyDocument;
@@ -34,7 +36,6 @@ public class PlanParsingTest extends TestCase {
     ObjectName pojoWebServiceTemplate = null;
     WebServiceBuilder webServiceBuilder = null;
     private JettyModuleBuilder builder;
-    private File basedir = new File(System.getProperty("basedir", "."));
 
     public PlanParsingTest() throws Exception {
         builder = new JettyModuleBuilder(new URI[]{URI.create("defaultParent")}, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
@@ -204,7 +205,7 @@ public class PlanParsingTest extends TestCase {
         assertTrue(ConvertedPlan != null);
         XmlObject converted = XmlBeansUtil.parse(ConvertedPlan);
         XmlCursor c = converted.newCursor();
-        SchemaConversionUtils.findNestedElement(c, "web-app");
+        SchemaConversionUtils.findNestedElement(c, JettyWebAppDocument.type.getDocumentElementName());
         c.toFirstChild();
         ArrayList problems = new ArrayList();
         compareXmlObjects(webPlan, c, problems);
@@ -221,10 +222,10 @@ public class PlanParsingTest extends TestCase {
                 problems.add("test longer than expected at element: " + elementCount);
                 return false;
             }
-            String actualChars = test.getName().getLocalPart();
-            String expectedChars = expected.getName().getLocalPart();
-            if (!actualChars.equals(expectedChars)) {
-                problems.add("Different elements at elementCount: " + elementCount + ", test: " + actualChars + ", expected: " + expectedChars);
+            QName actualName = test.getName();
+            QName expectedName = expected.getName();
+            if (!actualName.equals(expectedName)) {
+                problems.add("Different elements at elementCount: " + elementCount + ", test: " + actualName + ", expected: " + expectedName);
                 similar = false;
             }
             test.toNextToken();

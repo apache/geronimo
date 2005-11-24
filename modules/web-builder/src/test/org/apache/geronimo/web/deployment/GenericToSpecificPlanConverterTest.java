@@ -25,6 +25,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 
 /**
  * @version $Rev$ $Date$
@@ -45,7 +46,7 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
     public void testConvertPlan(String prePlanName) throws Exception {
         URL srcXml = classLoader.getResource(prePlanName);
         URL expectedOutputXml = classLoader.getResource("plans/tomcat-post.xml");
-        XmlObject rawPlan = XmlObject.Factory.parse(srcXml);
+        XmlObject rawPlan = XmlBeansUtil.parse(srcXml);
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
                 "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0", "tomcat").convertToSpecificPlan(rawPlan);

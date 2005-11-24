@@ -219,7 +219,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
             // if we got one extract the validate it otherwise create a default one
             if (rawPlan != null) {
-                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "application-client", GerApplicationClientType.type);
+                gerAppClient = (GerApplicationClientType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, GerApplicationClientDocument.type.getDocumentElementName(), GerApplicationClientType.type);
             } else {
                 String path;
                 if (standAlone) {

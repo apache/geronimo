@@ -2,6 +2,8 @@ package org.apache.geronimo.connector.deployment;
 
 import java.io.File;
 
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
@@ -15,6 +17,7 @@ import org.apache.xmlbeans.XmlObject;
 /**
  */
 public class PlanParsingTest extends TestCase {
+    private final static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
 
     File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
@@ -23,7 +26,7 @@ public class PlanParsingTest extends TestCase {
         assertTrue(geronimoDD.exists());
         XmlObject plan = XmlBeansUtil.parse(geronimoDD.toURL());
         GerConnectorDocument connectorDocument = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
-        GerConnectorType connector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(connectorDocument, "connector", GerConnectorType.type);
+        GerConnectorType connector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(connectorDocument, CONNECTOR_QNAME, GerConnectorType.type);
         SchemaConversionUtils.validateDD(connector);
         assertEquals(1, connectorDocument.getConnector().getResourceadapterArray().length);
     }
@@ -42,7 +45,7 @@ public class PlanParsingTest extends TestCase {
         assertTrue(geronimoDD.exists());
         XmlObject plan = XmlBeansUtil.parse(geronimoDD.toURL());
         GerConnectorDocument connectorDocument = (GerConnectorDocument) plan.changeType(GerConnectorDocument.type);
-        GerConnectorType connector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(connectorDocument, "connector", GerConnectorType.type);
+        GerConnectorType connector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(connectorDocument, CONNECTOR_QNAME, GerConnectorType.type);
         assertEquals(1, connector.getResourceadapterArray().length);
     }
 
@@ -108,7 +111,7 @@ public class PlanParsingTest extends TestCase {
         }
         GerConnectorType gerConnector = doc.getConnector();
         ConnectorPlanRectifier.rectifyPlan(gerConnector);
-        gerConnector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(gerConnector, "connector", GerConnectorType.type);
+        gerConnector = (GerConnectorType) SchemaConversionUtils.fixGeronimoSchema(gerConnector, CONNECTOR_QNAME, GerConnectorType.type);
     }
 
 }

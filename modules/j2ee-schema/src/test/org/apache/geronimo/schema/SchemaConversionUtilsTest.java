@@ -389,7 +389,7 @@ public class SchemaConversionUtilsTest extends TestCase {
 //        URL expectedOutputXml = classLoader.getResource("geronimo/ejb-naming-post.xml");
         XmlObject xmlObject = XmlObject.Factory.parse(srcXml);
         //this is not a usable type, we'll see what happens though
-        xmlObject = SchemaConversionUtils.getNestedObjectAsType(xmlObject, "openejb-jar", EjbJarType.type);
+        xmlObject = SchemaConversionUtils.getNestedObjectAsType(xmlObject, new QName("http://www.openejb.org/xml/ns/openejb-jar-2.0", "openejb-jar"), EjbJarType.type);
 //	        System.out.println(xmlObject.toString());
     }
 

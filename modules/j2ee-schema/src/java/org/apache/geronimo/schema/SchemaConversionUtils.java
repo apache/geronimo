@@ -349,7 +349,7 @@ public class SchemaConversionUtils {
         return false;
     }
 
-    public static XmlObject fixGeronimoSchema(XmlObject rawPlan, String desiredElement, SchemaType desiredType) throws XmlException {
+    public static XmlObject fixGeronimoSchema(XmlObject rawPlan, QName desiredElement, SchemaType desiredType) throws XmlException {
         XmlCursor cursor = rawPlan.newCursor();
         try {
             if (findNestedElement(cursor, desiredElement)) {
@@ -372,7 +372,7 @@ public class SchemaConversionUtils {
         }
     }
 
-    public static XmlObject getNestedObject(XmlObject xmlObject, String desiredElement) {
+    public static XmlObject getNestedObject(XmlObject xmlObject, QName desiredElement) {
         XmlCursor cursor = xmlObject.newCursor();
         try {
             if (findNestedElement(cursor, desiredElement)) {
@@ -386,11 +386,11 @@ public class SchemaConversionUtils {
         throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "/n" + xmlObject);
     }
 
-    public static boolean findNestedElement(XmlCursor cursor, String desiredElement) {
+    public static boolean findNestedElement(XmlCursor cursor, QName desiredElement) {
         while (cursor.hasNextToken()) {
             if (cursor.isStart()) {
-                String localName = cursor.getName().getLocalPart();
-                if (localName.equals(desiredElement)) {
+                QName element = cursor.getName();
+                if (element.equals(desiredElement)) {
                     return true;
                 }
             }
@@ -399,7 +399,20 @@ public class SchemaConversionUtils {
         return false;
     }
 
-    public static XmlObject getNestedObjectAsType(XmlObject xmlObject, String desiredElement, SchemaType type) {
+    public static boolean findNestedElement(XmlCursor cursor, String desiredElement) {
+        while (cursor.hasNextToken()) {
+            if (cursor.isStart()) {
+                String element = cursor.getName().getLocalPart();
+                if (element.equals(desiredElement)) {
+                    return true;
+                }
+            }
+            cursor.toNextToken();
+        }
+        return false;
+    }
+
+    public static XmlObject getNestedObjectAsType(XmlObject xmlObject, QName desiredElement, SchemaType type) {
         XmlCursor cursor = xmlObject.newCursor();
         try {
             if (findNestedElement(cursor, desiredElement)) {

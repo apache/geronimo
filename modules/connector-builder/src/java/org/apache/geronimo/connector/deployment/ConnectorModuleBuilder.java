@@ -128,7 +128,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final List defaultParentId;
     private final Repository repository;
     private final Kernel kernel;
-    static final String GERCONNECTOR_NAMESPACE = GerConnectorDocument.type.getDocumentElementName().getNamespaceURI();
+    private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
+    static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
 
     public ConnectorModuleBuilder(URI[] defaultParentId,
                                   int defaultMaxSize,
@@ -194,7 +195,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             try {
                 if (plan instanceof XmlObject) {
                     gerConnector = (GerConnectorType) SchemaConversionUtils.getNestedObjectAsType((XmlObject) plan,
-                            "connector",
+                            CONNECTOR_QNAME,
                             GerConnectorType.type);
                 } else {
                     GerConnectorDocument gerConnectorDoc = null;
@@ -281,10 +282,10 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         if (vendorConnector.isSetInverseClassloading()) {
             earContext.setInverseClassloading(vendorConnector.getInverseClassloading());
         }
-        
+
         ClassFilterType[] filters = vendorConnector.getHiddenClassesArray();
         ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-        
+
         filters = vendorConnector.getNonOverridableClassesArray();
         ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }

@@ -38,6 +38,7 @@ import java.util.zip.ZipEntry;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
@@ -74,6 +75,8 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
+
+    private final static QName APPLICATION_QNAME = GerApplicationDocument.type.getDocumentElementName();
 
     private final Kernel kernel;
     private final Repository repository;
@@ -182,14 +185,14 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             try {
                 if (planFile != null) {
                     rawPlan = XmlBeansUtil.parse(planFile.toURL());
-                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "application", GerApplicationType.type);
+                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                     if (gerApplication == null) {
                         return null;
                     }
                 } else {
                     URL path = DeploymentUtil.createJarURL(earFile, "META-INF/geronimo-application.xml");
                     rawPlan = XmlBeansUtil.parse(path);
-                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, "application", GerApplicationType.type);
+                    gerApplication = (GerApplicationType) SchemaConversionUtils.fixGeronimoSchema(rawPlan, APPLICATION_QNAME, GerApplicationType.type);
                 }
             } catch (IOException e) {
                 //TODO isn't this an error?
