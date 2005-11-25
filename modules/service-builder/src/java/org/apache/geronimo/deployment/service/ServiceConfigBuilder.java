@@ -421,7 +421,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             String type = dep.isSetType() ? dep.getType() : "jar";
             String artifactId = dep.getArtifactId();
             String version = dep.getVersion();
-            String id = groupId + "/" + artifactId + "/" + version + "/" + type;
+            String id = groupId + "/" + type + "s/" + artifactId + '-' + version + "." + type;
             try {
                 uri = new URI(id);
             } catch (URISyntaxException e) {
