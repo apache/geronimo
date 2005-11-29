@@ -31,6 +31,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,9 +61,9 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
     private File rootFile;
 
     public FileSystemRepository(URI root, ServerInfo serverInfo) {
-        if(!root.toString().endsWith("/")) {
+        if (!root.toString().endsWith("/")) {
             try {
-                root = new URI(root.toString()+"/");
+                root = new URI(root.toString() + "/");
             } catch (URISyntaxException e) {
                 throw new RuntimeException("Invalid repository root (does not end with / ) and can't add myself", e);
             }
@@ -71,7 +73,7 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
     }
 
     public boolean hasURI(URI uri) {
-        uri = rootURI.resolve(uri);
+        uri = resolve(uri);
         if ("file".equals(uri.getScheme())) {
             File f = new File(uri);
             return f.exists() && f.canRead();
@@ -81,35 +83,59 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
     }
 
     public URL getURL(URI uri) throws MalformedURLException {
-        URL url = rootURI.resolve(uri).toURL();
-        if(!url.getProtocol().equals("file")) {
+        URL url = resolve(uri).toURL();
+        if (!url.getProtocol().equals("file")) {
             return null;
         }
         return url;
     }
 
+    private URI resolve(final URI uri) {
+        String[] bits = uri.toString().split("/");
+        StringBuffer buf = new StringBuffer(bits[0]).append('/');
+        String type = bits.length >= 4 ? bits[3] : "jar";
+        buf.append(type).append('s').append('/').append(bits[1]).append('-').append(bits[2]).append('.').append(type);
+        return rootURI.resolve(buf.toString());
+    }
+
+
+    //thanks to Brett Porter for this regex lifted from a maven1-2 porting tool
+    private static final Pattern pattern = Pattern.compile("(.+)/(.+)s/(.+)-([0-9].+)\\.([^0-9]+)");
+
     public URI[] listURIs() throws URISyntaxException {
         String[] results = getFiles(rootFile, "");
         URI[] out = new URI[results.length];
+        Matcher matcher = pattern.matcher("");
         for (int i = 0; i < out.length; i++) {
-            out[i] = new URI(results[i]);
+            matcher.reset(results[i]);
+            if (matcher.matches()) {
+                String groupId = matcher.group(1);
+                String artifactId = matcher.group(3);
+                String version = matcher.group(4);
+                String type = matcher.group(5);
+                StringBuffer buf = new StringBuffer(groupId).append("/").append(artifactId).append("/").append(version).append("/").append(type);
+                out[i] = new URI(buf.toString());
+            } else {
+                //??
+            }
+
         }
         return out;
     }
 
     public String[] getFiles(File base, String prefix) {
-        if(!base.canRead() || !base.isDirectory()) {
+        if (!base.canRead() || !base.isDirectory()) {
             throw new IllegalArgumentException(base.getAbsolutePath());
         }
         List list = new ArrayList();
         File[] hits = base.listFiles();
         for (int i = 0; i < hits.length; i++) {
             File hit = hits[i];
-            if(hit.canRead()) {
-                if(hit.isDirectory()) {
-                    list.addAll(Arrays.asList(getFiles(hit, prefix.equals("") ? hit.getName() : prefix+"/"+hit.getName())));
+            if (hit.canRead()) {
+                if (hit.isDirectory()) {
+                    list.addAll(Arrays.asList(getFiles(hit, prefix.equals("") ? hit.getName() : prefix + "/" + hit.getName())));
                 } else {
-                    list.add(prefix.equals("") ? hit.getName() : prefix+"/"+hit.getName());
+                    list.add(prefix.equals("") ? hit.getName() : prefix + "/" + hit.getName());
                 }
             }
         }
@@ -117,22 +143,22 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
     }
 
     public void copyToRepository(File source, URI destination, FileWriteMonitor monitor) throws IOException {
-        if(!source.exists() || !source.canRead() || source.isDirectory()) {
-            throw new IllegalArgumentException("Cannot read source file at "+source.getAbsolutePath());
+        if (!source.exists() || !source.canRead() || source.isDirectory()) {
+            throw new IllegalArgumentException("Cannot read source file at " + source.getAbsolutePath());
         }
         copyToRepository(new FileInputStream(source), destination, monitor);
     }
 
     public void copyToRepository(InputStream source, URI destination, FileWriteMonitor monitor) throws IOException {
-        File dest = new File(rootURI.resolve(destination));
-        if(dest.exists()) {
-            throw new IllegalArgumentException("Destination "+dest.getAbsolutePath()+" already exists!");
+        File dest = new File(resolve(destination));
+        if (dest.exists()) {
+            throw new IllegalArgumentException("Destination " + dest.getAbsolutePath() + " already exists!");
         }
         final File parent = dest.getParentFile();
-        if(!parent.exists() && !parent.mkdirs()) {
-            throw new RuntimeException("Unable to create directories from "+rootFile.getAbsolutePath()+" to "+parent.getAbsolutePath());
+        if (!parent.exists() && !parent.mkdirs()) {
+            throw new RuntimeException("Unable to create directories from " + rootFile.getAbsolutePath() + " to " + parent.getAbsolutePath());
         }
-        if(monitor != null) {
+        if (monitor != null) {
             monitor.writeStarted(destination.toString());
         }
         int total = 0;
@@ -142,11 +168,11 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
             BufferedInputStream in = new BufferedInputStream(source);
             byte[] buf = new byte[TRANSFER_BUF_SIZE];
             int count;
-            while((count = in.read(buf)) > -1) {
+            while ((count = in.read(buf)) > -1) {
                 out.write(buf, 0, count);
-                if(monitor != null) {
+                if (monitor != null) {
                     total += count;
-                    if(total > threshold) {
+                    if (total > threshold) {
                         threshold += TRANSFER_NOTIFICATION_SIZE;
                         monitor.writeProgress(total);
                     }
@@ -156,7 +182,7 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
             out.close();
             in.close();
         } finally {
-            if(monitor != null) {
+            if (monitor != null) {
                 monitor.writeComplete(total);
             }
         }
@@ -169,12 +195,12 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
             } else {
                 rootURI = root;
             }
-            if(!rootURI.getScheme().equals("file")) {
-                throw new IllegalStateException("FileSystemRepository must have a root that's a local directory (not "+rootURI+")");
+            if (!rootURI.getScheme().equals("file")) {
+                throw new IllegalStateException("FileSystemRepository must have a root that's a local directory (not " + rootURI + ")");
             }
             rootFile = new File(rootURI);
-            if(!rootFile.exists() || !rootFile.isDirectory() || !rootFile.canRead() || !rootFile.canWrite()) {
-                throw new IllegalStateException("FileSystemRepository must have a root that's a valid writable directory (not "+rootFile.getAbsolutePath()+")");
+            if (!rootFile.exists() || !rootFile.isDirectory() || !rootFile.canRead() || !rootFile.canWrite()) {
+                throw new IllegalStateException("FileSystemRepository must have a root that's a valid writable directory (not " + rootFile.getAbsolutePath() + ")");
             }
         }
         log.debug("Repository root is " + rootFile.getAbsolutePath());

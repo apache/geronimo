@@ -26,8 +26,8 @@ web application, for example, does.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/SampleSecurityRealm"
-    parentId="org/apache/geronimo/Server"
+    configId="geronimo/sample-security/${pom.currentVersion}/car"
+    parentId="geronimo/security/${pom.currentVersion}/car"
     >
 
     <!-- Security GBeans -->
@@ -50,10 +50,10 @@ web application, for example, does.
             <name>demo-properties-login</name>
         </reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
+        <reference name="LoginService"><module>geronimo/security/${pom.currentVersion}/car</module><name>JaasLoginService</name></reference>
     </gbean>
 
     <gbean name="demo-properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
@@ -67,7 +67,7 @@ web application, for example, does.
         class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
         <attribute name="applicationConfigName">jaasTest</attribute>
         <attribute name="realmName">demo-properties-realm</attribute>
-        <reference name="LoginService"><module>org/apache/geronimo/Server</module><name>JaasLoginService</name></reference>
+        <reference name="LoginService"><module>geronimo/security/${pom.currentVersion}/car</module><name>JaasLoginService</name></reference>
     </gbean>
 
 </configuration>

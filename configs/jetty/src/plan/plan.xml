@@ -20,11 +20,11 @@
 
 <!--
 Configuration for Jetty server.
-               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
+               parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <!-- david jencks is not convinced that these 2 gbeans should be in this
@@ -52,7 +52,7 @@ Configuration for Jetty server.
             <name>JettyWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module>
+            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
@@ -86,7 +86,7 @@ Configuration for Jetty server.
             <name>JettyWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module>
+            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

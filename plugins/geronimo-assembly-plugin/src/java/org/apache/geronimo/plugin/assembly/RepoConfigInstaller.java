@@ -40,27 +40,7 @@ import org.apache.geronimo.system.repository.FileSystemRepository;
 public class RepoConfigInstaller extends BaseConfigInstaller {
 
     public void execute() throws Exception {
-        Repository sourceRepo = new Repository() {
-
-            public boolean hasURI(URI uri) {
-                uri = sourceRepositoryURI.resolve(uri);
-                if ("file".equals(uri.getScheme())) {
-                    return new File(uri).canRead();
-                } else {
-                    try {
-                        uri.toURL().openStream().close();
-                        return true;
-                    } catch (IOException e) {
-                        return false;
-                    }
-                }
-            }
-
-            public URL getURL(URI uri) throws MalformedURLException {
-                uri = sourceRepositoryURI.resolve(uri);
-                return uri.toURL();
-            }
-        };
+        Repository sourceRepo = new InnerRepository();
         URI rootURI = targetRoot.toURI().resolve(targetRepository);
         FileSystemRepository targetRepo = new FileSystemRepository(rootURI, null);
         InstallAdapter installAdapter = new CopyConfigStore(targetRepo);

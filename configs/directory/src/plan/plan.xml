@@ -26,7 +26,7 @@ by the server.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <gbean gbeanName="geronimo.server:name=DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
@@ -38,7 +38,7 @@ by the server.
         <attribute name="enableNetworking">true</attribute>
         <attribute name="host">0.0.0.0</attribute>
         <attribute name="port">1389</attribute>
-        <reference name="ServerInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
     </gbean>
 
 </configuration>

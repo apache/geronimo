@@ -20,15 +20,15 @@
 
 <configuration
   xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-  configId="org/apache/geronimo/SpringRuntime"
-  parentId="org/apache/geronimo/System"
+  configId="geronimo/spring-runtime/${pom.currentVersion}/car"
+  parentId="geronimo/system/${pom.currentVersion}/car"
   >
 
   <dependency>
-    <uri>springframework/jars/spring-${spring_version}.jar</uri>
+    <uri>springframework/spring/${spring_version}/jar</uri>
   </dependency>
   <dependency>
-    <uri>geronimo/jars/geronimo-spring-${geronimo_version}.jar</uri>
+    <uri>geronimo/geronimo-spring/${geronimo_version}/jar</uri>
   </dependency>
 
 <!--

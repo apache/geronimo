@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="org/apache/geronimo/Console/Tomcat"
-    parentId="org/apache/geronimo/Server">
+    configId="geronimo/console-tomcat/${pom.currentVersion}/car"
+    parentId="geronimo/j2ee-server/${pom.currentVersion}/car">
 
     <import>
-      <uri>org/apache/geronimo/Tomcat</uri>
+      <uri>geronimo/tomcat/${pom.currentVersion}/car</uri>
     </import>
 
     <!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
@@ -119,11 +119,11 @@
     <!-- Console specific server info -->
     <gbean name="PropertiesLoginManager" class="org.apache.geronimo.console.core.security.PropertiesLoginModuleManager">
         <reference name="ServerInfo">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/System,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/system/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=ServerInfo</gbean-name>
         </reference>
         <reference name="LoginModule">
-            <!--            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>-->
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Security,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
+            <!--            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>-->
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/security/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=LoginModule,name=properties-login</gbean-name>
         </reference>
     </gbean>
 
@@ -136,7 +136,7 @@
         <reference name="serverInfo">
             <application>null</application>
             <moduleType>J2EEModule</moduleType>
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <type>GBean</type>
             <name>ServerInfo</name>
         </reference>

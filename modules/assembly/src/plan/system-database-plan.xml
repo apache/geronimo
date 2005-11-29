@@ -19,8 +19,19 @@
 <!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-    configId="org/apache/geronimo/SystemDatabase"
-    parentId="org/apache/geronimo/Server">
+    configId="geronimo/system-database/${pom.currentVersion}/car"
+    parentId="geronimo/j2ee-server/${pom.currentVersion}/car">
+
+    <!-- are these dependencies needed here? if not, why not? -->
+    <dependency>
+        <uri>org.apache.derby/derby/${derby_version}/jar</uri>
+    </dependency>
+    <dependency>
+        <uri>org.apache.derby/derbynet/${derby_version}/jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/geronimo-derby/${geronimo_version}/jar</uri>
+    </dependency>
 
     <resourceadapter>
         <outbound-resourceadapter>
@@ -48,7 +59,7 @@
     </resourceadapter>
 
     <gbean name="DerbySystem" class="org.apache.geronimo.derby.DerbySystemGBean">
-        <reference name="ServerInfo"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><moduleType>J2EEModule</moduleType><module>geronimo/system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
         <attribute name="derbySystemHome">var/derby</attribute>
     </gbean>
     <gbean name="DerbyNetwork" class="org.apache.geronimo.derby.DerbyNetworkGBean">
@@ -60,17 +71,17 @@
 
     <gbean name="TransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount">5</attribute>
-        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>TransactionContextManager</name></reference>
+        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>geronimo/j2ee-server/${pom.currentVersion}/car</module><name>TransactionContextManager</name></reference>
         <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
-        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>geronimo/j2ee-server/${pom.currentVersion}/car</module><name>DefaultThreadPool</name></reference>
         <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
         <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
     </gbean>
 
     <gbean name="NonTransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledNonTransactionalTimer">
-        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>TransactionContextManager</name></reference>
+        <reference name="TransactionContextManager"><moduleType>J2EEModule</moduleType><module>geronimo/j2ee-server/${pom.currentVersion}/car</module><name>TransactionContextManager</name></reference>
         <reference name="ManagedConnectionFactoryWrapper"><moduleType>JCAResource</moduleType><name>SystemDatasource</name></reference>
-        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>org/apache/geronimo/Server</module><name>DefaultThreadPool</name></reference>
+        <reference name="ThreadPool"><moduleType>J2EEModule</moduleType><module>geronimo/j2ee-server/${pom.currentVersion}/car</module><name>DefaultThreadPool</name></reference>
         <!--TODO remove moduleType when gbeans get the moduleType of the plan they are in -->
         <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
     </gbean>

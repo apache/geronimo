@@ -20,7 +20,7 @@
 
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <module>
@@ -59,13 +59,13 @@
         <reference name="ServerInfo">
             <application>null</application>
             <moduleType>J2EEModule</moduleType>
-            <module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module>
+            <module>${pom.groupId}/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <reference name="LoginModule">
             <application>null</application>
             <moduleType>J2EEModule</moduleType>
-            <module>${pom.groupId}/cars/j2ee-security-${pom.currentVersion}.car</module>
+            <module>${pom.groupId}/j2ee-security/${pom.currentVersion}/car</module>
             <name>properties-login</name>
         </reference>
     </gbean>
@@ -79,7 +79,7 @@
         <reference name="serverInfo">
             <application>null</application>
             <moduleType>J2EEModule</moduleType>
-            <module>${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car</module>
+            <module>${pom.groupId}/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

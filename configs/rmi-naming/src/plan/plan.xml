@@ -21,12 +21,12 @@
 <!--
 Holds the RMI naming server configuration.  This needs to be started
 after the system GBeans but before the server GBeans.
-    parentId="${pom.groupId}/cars/j2ee-system-${pom.currentVersion}.car"
+    parentId="${pom.groupId}/j2ee-system/${pom.currentVersion}/car"
 
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">
@@ -54,7 +54,7 @@ after the system GBeans but before the server GBeans.
             javax.net.ssl.trustStore=var/security/keystore
         </attribute>
         <reference name="ServerInfo">
-            <module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module>
+            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

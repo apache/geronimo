@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <attributes xmlns="http://geronimo.apache.org/xml/ns/attributes">
-    <configuration name="org/apache/geronimo/OfflineDeployer">
+    <configuration name="geronimo/offline-deployer/${pom.currentVersion}/car">
         <gbean name="WebBuilder">
             <attribute name="defaultNamespace">${PlanWebBuilderDefaultNamespace}</attribute>
         </gbean>

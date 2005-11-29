@@ -23,19 +23,19 @@ Configuration for the security of a Geronimo server.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/Security"
-    parentId="org/apache/geronimo/RMINaming"
+    configId="geronimo/security/${pom.currentVersion}/car"
+    parentId="geronimo/rmi-naming/${pom.currentVersion}/car"
     >
 
 
     <!--runtime dependencies-->
     <dependency>
-        <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-jmxremoting/${geronimo_version}/jar</uri>
     </dependency>
 
 
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
@@ -88,7 +88,7 @@ Configuration for the security of a Geronimo server.
         <reference name="LoginModuleConfiguration">
             <name>properties-login</name>
         </reference>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
         <reference name="LoginService"><name>JaasLoginService</name></reference>
     </gbean>
     <gbean name="properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">

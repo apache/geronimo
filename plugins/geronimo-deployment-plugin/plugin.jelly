@@ -58,14 +58,17 @@
             <j:if test="${geronimoVersion == null}">
                 <fail>Missing required attribute: geronimoVersion</fail>
             </j:if>
-            <j:if test="${geronimoName == null}">
-                <j:set var="geronimoName" value="geronimo"/>
+            <j:if test="${geronimoGroupId == null}">
+                <j:set var="geronimoGroupId" value="geronimo"/>
+            </j:if>
+            <j:if test="${geronimoArtifactId == null}">
+                <j:set var="geronimoArtifactId" value="geronimo"/>
             </j:if>
             <j:if test="${targetDir == null}">
                 <j:set var="targetDir" value="${maven.build.dir}"/>
             </j:if>
 
-            <unzip dest="${maven.build.dir}" src="${maven.repo.local}/${geronimoName}/distributions/${geronimoName}-${geronimo_version}.zip"/>
+            <unzip dest="${maven.build.dir}" src="${maven.repo.local}/${geronimoGroupId}/distributions/${geronimoArtifactId}-${geronimoVersion}.zip"/>
 
             <!--copy stuff for this project into new geronimo repository-->
             <!-- this code deals with jar overrides correctly -->

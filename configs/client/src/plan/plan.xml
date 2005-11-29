@@ -23,18 +23,18 @@ Configuration for the main ring of a Geronimo app client.
 
 This configuration should contain those services normally provided
 by the app client.
-               parentId="${pom.groupId}/cars/client-system-${pom.currentVersion}.car"
+               parentId="${pom.groupId}/client-system/${pom.currentVersion}/car"
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <!-- Naming properties -->
     <gbean name="NamingProperties" class="org.apache.geronimo.system.properties.NamingProperties">
         <attribute name="namingFactoryInitial">com.sun.jndi.rmi.registry.RegistryContextFactory</attribute>
         <attribute name="namingFactoryUrlPkgs">org.apache.geronimo.naming</attribute>
-        <attribute name="namingProviderUrl">rmi://localhost:1099${PlanNamingPort}</attribute>
+        <attribute name="namingProviderUrl">rmi://localhost:${PlanNamingPort}</attribute>
     </gbean>
 
     <!--client connector support-->

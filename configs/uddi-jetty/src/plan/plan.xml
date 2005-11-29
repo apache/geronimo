@@ -20,7 +20,7 @@
 
 <web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
-               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <context-root>/juddi</context-root>

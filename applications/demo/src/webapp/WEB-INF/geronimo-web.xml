@@ -19,8 +19,13 @@
 <web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
     xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-    configId="org/apache/geronimo/Demo"
-    parentId="org/apache/geronimo/SampleSecurityRealm">
+    configId="geronimo/security-demo/1.0-SNAPSHOT/car"
+    parentId="geronimo/security/1.0-SNAPSHOT/car">
+
+<!--
+    configId="geronimo/security-demo/${pom.currentVersion}/car"
+    parentId="geronimo/security/${pom.currentVersion}/car">
+-->
 
     <context-root>/demo</context-root>
     <context-priority-classloader>false</context-priority-classloader>
@@ -37,4 +42,36 @@
             </role>
         </role-mappings>
     </security>
+
+    <gbean name="demo-properties-login"
+        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
+            usersURI=var/security/demo_users.properties
+            groupsURI=var/security/demo_groups.properties
+        </attribute>
+        <attribute name="loginDomainName">demo-properties-realm</attribute>
+    </gbean>
+
+    <gbean name="demo-properties-realm"
+        class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">demo-properties-realm</attribute>
+        <reference name="LoginModuleConfiguration">
+            <name>demo-properties-login</name>
+        </reference>
+        <reference name="ServerInfo">
+            <module>geronimo/system/${pom.currentVersion}/car</module>
+            <name>ServerInfo</name>
+        </reference>
+        <reference name="LoginService"><module>geronimo/security/${pom.currentVersion}/car</module><name>JaasLoginService</name></reference>
+    </gbean>
+
+    <gbean name="demo-properties-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+        <attribute name="controlFlag">REQUIRED</attribute>
+        <reference name="LoginModule">
+            <name>demo-properties-login</name>
+        </reference>
+    </gbean>
+
 </web-app>

@@ -97,6 +97,16 @@
             <artifactId>geronimo-deploy-tool</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
+        <!-- dependency on deployer -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_version}</version>
+            <type>plugin</type>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
+        </dependency>
 
     </dependencies>
 </project>

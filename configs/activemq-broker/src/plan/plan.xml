@@ -17,11 +17,11 @@
 -->
 
 <!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
-<!--               parentId="${pom.groupId}/cars/system-database-${pom.currentVersion}.car"
+<!--               parentId="${pom.groupId}/system-database/${pom.currentVersion}/car"
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
 
@@ -42,14 +42,14 @@
 
     <gbean name="ActiveMQ.journal" class="org.activemq.store.journal.JournalPersistenceAdapterGBean">
         <!--TODO change to ServerInfo -->
-        <reference name="serverInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><type>GBean</type><name>ServerInfo</name></reference>
+        <reference name="serverInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><type>GBean</type><name>ServerInfo</name></reference>
         <attribute name="directory">var/activemq/journal</attribute>
         <attribute name="journalType">default</attribute>
         <reference name="longTermPersistence"><gbean-name>geronimo.server:j2eeType=JMSPersistence,name=ActiveMQ.jdbc,*</gbean-name></reference>
     </gbean>
 
     <gbean name="ActiveMQ.jdbc" class="org.activemq.store.jdbc.JDBCPersistenceAdapterGBean">
-        <reference name="dataSource"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/cars/system-database-${pom.currentVersion}.car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</gbean-name></reference>
+        <reference name="dataSource"><gbean-name>geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/system-database/${pom.currentVersion}/car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource</gbean-name></reference>
     </gbean>
 
     <gbean gbeanName="geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSConnector,broker=ActiveMQ,name=ActiveMQ.tcp.default" class="org.activemq.gbean.ActiveMQConnectorGBean">

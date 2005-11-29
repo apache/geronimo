@@ -19,33 +19,33 @@
 
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/JettyRuntimeDeployer"
-    parentId="org/apache/geronimo/RuntimeDeployer"
+    configId="geronimo/jetty-runtime-deployer/${pom.currentVersion}/car"
+    parentId="geronimo/runtime-deployer/${pom.currentVersion}/car"
     >
 
     <import>
-        <uri>org/apache/geronimo/Jetty</uri>
+        <uri>geronimo/jetty/${pom.currentVersion}/car</uri>
     </import>
 
 
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-builder-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-jetty-builder/${geronimo_version}/jar</uri>
     </dependency>
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
-        <attribute name="defaultParentId">org/apache/geronimo/Server,org/apache/geronimo/Jetty</attribute>
+        <attribute name="defaultParentId">geronimo/j2ee-server/${pom.currentVersion}/car,geronimo/jetty/${pom.currentVersion}/car</attribute>
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
         <attribute name="jettyContainerObjectName">geronimo.server:name=JettyWebContainer,*</attribute>
         <reference name="DefaultServlets">
-            <gbean-name>geronimo.server:j2eeType=DefaultServlet,J2EEModule=org/apache/geronimo/JettyRuntimeDeployer,*</gbean-name>
+            <gbean-name>geronimo.server:j2eeType=DefaultServlet,J2EEModule=geronimo/jetty-runtime-deployer/${pom.currentVersion}/car,*</gbean-name>
         </reference>
         <reference name="PojoWebServiceTemplate">
-            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/JettyRuntimeDeployer,J2EEServer=geronimo,j2eeType=ServletWebServiceTemplate,name=POJOTemplate</gbean-name>
+            <gbean-name>geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty-runtime-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ServletWebServiceTemplate,name=POJOTemplate</gbean-name>
         </reference>
         <reference name="WebServiceBuilder">
-            <module>org/apache/geronimo/RuntimeDeployer</module>
+            <module>geronimo/runtime-deployer/${pom.currentVersion}/car</module>
             <name>WebServiceBuilder</name>
         </reference>
         <reference name="Repository">

@@ -56,7 +56,7 @@ public class ReadOnlyRepository implements Repository, GBeanLifecycle {
     }
 
     public boolean hasURI(URI uri) {
-        uri = rootURI.resolve(uri);
+        uri = resolve(uri);
         if ("file".equals(uri.getScheme())) {
             File f = new File(uri);
             return f.exists() && f.canRead();
@@ -71,9 +71,17 @@ public class ReadOnlyRepository implements Repository, GBeanLifecycle {
     }
 
     public URL getURL(URI uri) throws MalformedURLException {
-        return rootURI.resolve(uri).toURL();
+        return resolve(uri).toURL();
     }
 
+    private URI resolve(final URI uri) {
+        String[] bits = uri.toString().split("/");
+        StringBuffer buf = new StringBuffer(bits[0]).append('/');
+        String type = bits.length >= 4? bits[3]: "jar";
+        buf.append(type).append('s').append('/').append(bits[1]).append('-').append(bits[2]).append('.').append(type);
+        return rootURI.resolve(buf.toString());
+    }
+    
     public void doStart() throws Exception {
         if (rootURI == null) {
             rootURI = serverInfo.resolve(root);

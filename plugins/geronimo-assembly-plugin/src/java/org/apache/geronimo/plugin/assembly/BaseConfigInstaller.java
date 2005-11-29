@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -141,6 +142,42 @@ public class BaseConfigInstaller {
 
         public void writeComplete(int bytes) {
 
+        }
+    }
+
+    protected class InnerRepository implements Repository {
+
+        public boolean hasURI(URI uri) {
+            uri = resolve(uri);
+            if ("file".equals(uri.getScheme())) {
+                return new File(uri).canRead();
+            } else {
+                try {
+                    uri.toURL().openStream().close();
+                    return true;
+                } catch (IOException e) {
+                    return false;
+                }
+            }
+        }
+
+        public URL getURL(URI uri) throws MalformedURLException {
+            uri = resolve(uri);
+            return uri.toURL();
+        }
+
+        /**
+         * todo if the uri has a scheme, don't dissect it.
+         *
+         * @param uri
+         * @return
+         */
+        private URI resolve(final URI uri) {
+            String[] bits = uri.toString().split("/");
+            StringBuffer buf = new StringBuffer(bits[0]).append('/');
+            String type = bits.length >= 4 ? bits[3] : "jar";
+            buf.append(type).append('s').append('/').append(bits[1]).append('-').append(bits[2]).append('.').append(type);
+            return sourceRepositoryURI.resolve(buf.toString());
         }
     }
 }

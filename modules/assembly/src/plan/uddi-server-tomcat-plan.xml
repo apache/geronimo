@@ -20,12 +20,12 @@
 
 <web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
-    configId="org/apache/geronimo/juddiServer/${pom.currentVersion}/Tomcat"
-    parentId="org/apache/geronimo/SystemDatabase"
+    configId="geronimo/uddi-tomcat/${pom.currentVersion}/car"
+    parentId="geronimo/system-database/${pom.currentVersion}/car"
     >
 
     <dependency>
-        <uri>juddi/jars/juddi-${juddi_version}.jar</uri>
+        <uri>juddi/juddi/${juddi_version}/jar</uri>
     </dependency>
 
     <context-root>/juddi</context-root>

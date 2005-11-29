@@ -260,6 +260,7 @@
         <j:if test="${context.getVariable('geronimo.web.container').equals('jetty')}">
             <echo>JETTY CONTAINER</echo>
             <j:set var="PlanWebServerName" value="Jetty"/>
+            <j:set var="PlanWebServerNameLC" value="jetty"/>
             <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"/>
             <j:set var="PlanHTTPPort" value="8080"/>
             <j:set var="PlanHTTPSPort" value="8443"/>
@@ -271,6 +272,7 @@
         <j:if test="${context.getVariable('geronimo.web.container').equals('tomcat')}">
             <echo>TOMCAT CONTAINER</echo>
             <j:set var="PlanWebServerName" value="Tomcat"/>
+            <j:set var="PlanWebServerNameLC" value="tomcat"/>
             <j:set var="PlanWebBuilderDefaultNamespace" value="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"/>
             <j:set var="PlanHTTPPort" value="8090"/>
             <j:set var="PlanHTTPSPort" value="8453"/>
@@ -357,7 +359,7 @@
             deployerSystemPlan="${basedir}/target/plan/deployer-system-plan.xml"
             j2eeDeployerPlan="${basedir}/target/plan/j2ee-deployer-plan.xml"
             deployerClassPath="${deploy.classpath}"
-            deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=org/apache/geronimo/OfflineDeployer,j2eeType=Deployer,J2EEServer=deployer"
+            deployerGBean="geronimo.deployer:name=Deployer,J2EEApplication=null,J2EEModule=geronimo/offline-deployer/${pom.currentVersion}/car,j2eeType=Deployer,J2EEServer=deployer"
             deploymentFactory="org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl"
             />
 
@@ -472,14 +474,14 @@
             <deploy:startRemoteServer
                 geronimoTarget="${geronimo.assembly.dir}"
                 vmArgs="${geronimo.server.debug.options} -Xmx512m -Djava.rmi.server.RMIClassLoaderSpi=org.apache.geronimo.system.rmi.RMIClassLoaderSpiImpl"
-                configs="org/apache/geronimo/Security org/apache/geronimo/RuntimeDeployer org/apache/geronimo/JettyRuntimeDeployer org/apache/geronimo/TomcatRuntimeDeployer"/>
+                configs="geronimo/security/${pom.currentVersion}/car geronimo/runtime-deployer/${pom.currentVersion}/car geronimo/jetty-runtime-deployer/${pom.currentVersion}/car geronimo/tomcat-runtime-deployer/${pom.currentVersion}/car"/>
             <ant:echo message="Waiting for server at: ${geronimo.assembly.dir}"/>
             <deploy:waitForStarted
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 maxtries="125"
                 username="system"
                 password="manager"
-                id="org/apache/geronimo/TomcatRuntimeDeployer"/>
+                id="geronimo/tomcat-runtime-deployer/${pom.currentVersion}/car"/>
             <!-- wait for started does not assure that child services are started so we must sleep -->
             <u:sleep millis="7000"/>
             <echo message="server has started"/>
@@ -570,12 +572,14 @@
                 />
 
             <!-- build the J2EEServer secure configuration -->
+<!--
             <deploy:distribute
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/j2ee-secure-plan.xml"
                 />
+-->
 
             <!-- build the J2EE client configuration -->
             <!--            <deploy:distribute-->

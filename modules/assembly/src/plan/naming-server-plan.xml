@@ -24,55 +24,55 @@ after the system GBeans but before the server GBeans.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/RMINaming"
-    parentId="org/apache/geronimo/System"
+    configId="geronimo/rmi-naming/${pom.currentVersion}/car"
+    parentId="geronimo/system/${pom.currentVersion}/car"
     >
 
     <dependency>
-        <uri>geronimo/jars/geronimo-management-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-management/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-j2ee/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-webservices/${geronimo_version}/jar</uri>
     </dependency>
     <!-- activation must come before spec-j2ee to override stock mailcap file in its javamail api -->
     <dependency>
-        <uri>geronimo/jars/geronimo-activation-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-activation/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-${geronimo_spec_j2ee_version}.jar</uri>
+        <uri>geronimo-spec/geronimo-spec-j2ee/${geronimo_spec_j2ee_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-transaction-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-transaction/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>howl/jars/howl-logger-${howl_version}.jar</uri>
+        <uri>howl/howl-logger/${howl_version}/jar</uri>
     </dependency>
     <!--transaction module requires tranql for cache class -->
     <dependency>
-        <uri>tranql/jars/tranql-${tranql_version}.jar</uri>
+        <uri>tranql/tranql/${tranql_version}/jar</uri>
     </dependency>
     <!-- tranql requires antlr -->
     <dependency>
-        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
+        <uri>antlr/antlr/${antlr_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-security/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
+        <uri>concurrent/concurrent/${concurrent_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-core/${geronimo_version}/jar</uri>
     </dependency>
     <!-- remote login -->
     <dependency>
-        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+        <uri>activeio/activeio/${activeio_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-naming-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-naming/${geronimo_version}/jar</uri>
     </dependency>
 
     <!-- RMI Registry -->
@@ -102,7 +102,7 @@ after the system GBeans but before the server GBeans.
             javax.net.ssl.trustStore=var/security/keystore
         </attribute>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

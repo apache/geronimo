@@ -24,8 +24,8 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/ServerCORBA"
-    parentId="org/apache/geronimo/Server"
+    configId="geronimo/server-corba/${pom.currentVersion}/car"
+    parentId="geronimo/j2ee-server/${pom.currentVersion}/car"
     >
 
     <!-- CORBA -->
@@ -33,7 +33,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     <gbean name="NameServer" class="org.openejb.corba.SunNameService">
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <attribute name="dbDir">var/cosnaming.db</attribute>
@@ -43,7 +43,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
     <gbean name="Server" class="org.openejb.corba.CORBABean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="NameService">
@@ -166,7 +166,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     <!-- orb with no security whatsoever -->
     <gbean name="UnprotectedServer" class="org.openejb.corba.CORBABean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="NameService">
@@ -260,11 +260,11 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     <!--CSS beans for client security.  These specify what the client is willing to provide -->
     <gbean name="SSLClientCert" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -300,11 +300,11 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -341,11 +341,11 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     <gbean name="SSLIdentityTokenPrincipal" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -381,11 +381,11 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     <gbean name="SSLIdentityTokenCert" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -421,11 +421,11 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     <gbean name="NoSecurityIdentityTokenPrincipal" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -457,11 +457,11 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     <gbean name="NoSecurityIdentityTokenCert" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -493,11 +493,11 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
     <gbean name="NoSecurity" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Server</module>
+            <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>

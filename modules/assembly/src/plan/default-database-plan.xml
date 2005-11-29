@@ -19,17 +19,17 @@
 <!-- $Rev$ $Date$ -->
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-    configId="org/apache/geronimo/DefaultDatabase"
-    parentId="org/apache/geronimo/Server">
+    configId="geronimo/default-database/${pom.currentVersion}/car"
+    parentId="geronimo/j2ee-server/${pom.currentVersion}/car">
 
     <dependency>
-        <uri>org.apache.derby/jars/derby-${derby_version}.jar</uri>
+        <uri>org.apache.derby/derby/${derby_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>org.apache.derby/jars/derbynet-${derby_version}.jar</uri>
+        <uri>org.apache.derby/derbynet/${derby_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-derby/${geronimo_version}/jar</uri>
     </dependency>
 
     <resourceadapter>

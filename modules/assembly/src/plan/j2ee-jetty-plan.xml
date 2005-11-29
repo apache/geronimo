@@ -23,12 +23,12 @@ Configuration for Jetty server.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/Jetty"
-    parentId="org/apache/geronimo/RMINaming"
+    configId="geronimo/jetty/${pom.currentVersion}/car"
+    parentId="geronimo/rmi-naming/${pom.currentVersion}/car"
     >
 
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-jetty/${geronimo_version}/jar</uri>
     </dependency>
 
     <!-- david jencks is not convinced that these 2 gbeans should be in this
@@ -39,7 +39,7 @@ Configuration for Jetty server.
 
     <gbean name="JettyAccessLogManager" class="org.apache.geronimo.jetty.requestlog.JettyLogManagerImpl">
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <references name="LogGBeans">
@@ -60,7 +60,7 @@ Configuration for Jetty server.
             <name>JettyWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <attribute name="filename">var/log/jetty_yyyy_mm_dd.log</attribute>
@@ -94,7 +94,7 @@ Configuration for Jetty server.
             <name>JettyWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>

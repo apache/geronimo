@@ -26,105 +26,105 @@ by the server.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/Server"
-    parentId="org/apache/geronimo/RMINaming"
+    configId="geronimo/j2ee-server/${pom.currentVersion}/car"
+    parentId="geronimo/rmi-naming/${pom.currentVersion}/car"
     >
 
 
     <!--runtime dependencies-->
     <dependency>
-        <uri>geronimo/jars/geronimo-core-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-core/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-connector-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-connector/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>concurrent/jars/concurrent-${concurrent_version}.jar</uri>
+        <uri>concurrent/concurrent/${concurrent_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-timer-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-timer/${geronimo_version}/jar</uri>
     </dependency>
 <!--    <dependency>-->
-<!--        <uri>geronimo/jars/geronimo-security-${geronimo_version}.jar</uri>-->
+<!--        <uri>geronimo/geronimo-security/${geronimo_version}/jar</uri>-->
 <!--    </dependency>-->
     <dependency>
-        <uri>openejb/jars/openejb-core-${openejb_version}.jar</uri>
+        <uri>openejb/openejb-core/${openejb_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jmxremoting-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-jmxremoting/${geronimo_version}/jar</uri>
     </dependency>
 
     <!-- required for rar 1.5 to load realms -->
     <dependency>
-        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
+        <uri>regexp/regexp/${regexp_version}/jar</uri>
     </dependency>
 
     <!-- for timer serialization implementation -->
     <dependency>
-        <uri>xstream/jars/xstream-${xstream_version}.jar</uri>
+        <uri>xstream/xstream/${xstream_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>xpp3/jars/xpp3-${xpp3_version}.jar</uri>
-    </dependency>
-
-    <dependency>
-        <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
-    </dependency>
-    <dependency>
-        <uri>geronimo/jars/geronimo-client-${geronimo_version}.jar</uri>
+        <uri>xpp3/xpp3/${xpp3_version}/jar</uri>
     </dependency>
 
     <dependency>
-        <uri>asm/jars/asm-${asm_version}.jar</uri>
+        <uri>geronimo/geronimo-common/${geronimo_version}/jar</uri>
+    </dependency>
+    <dependency>
+        <uri>geronimo/geronimo-client/${geronimo_version}/jar</uri>
     </dependency>
 
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-${geronimo_version}.jar</uri>
+        <uri>asm/asm/${asm_version}/jar</uri>
     </dependency>
 
     <dependency>
-         <uri>geronimo/jars/geronimo-webservices-${geronimo_version}.jar</uri>
+         <uri>geronimo/geronimo-axis/${geronimo_version}/jar</uri>
+    </dependency>
+
+    <dependency>
+         <uri>geronimo/geronimo-webservices/${geronimo_version}/jar</uri>
     </dependency>
 
     <!-- for JBI container -->
     <dependency>
-        <uri>geronimo/jars/geronimo-servicemix-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-servicemix/${geronimo_version}/jar</uri>
     </dependency>
 
     <dependency>
-        <uri>activemq/jars/activemq-gbean-management-${activemq_version}.jar</uri>
+        <uri>activemq/activemq-gbean-management/${activemq_version}/jar</uri>
     </dependency>
     <!-- remote login -->
     <dependency>
-        <uri>activeio/jars/activeio-${activeio_version}.jar</uri>
+        <uri>activeio/activeio/${activeio_version}/jar</uri>
     </dependency>
 
     <!--scout -->
     <dependency>
-        <uri>scout/jars/jaxr-api-${scout_version}.jar</uri>
+        <uri>scout/jaxr-api/${scout_version}/jar</uri>
     </dependency>
 
     <dependency>
-        <uri>scout/jars/scout-${scout_version}.jar</uri>
+        <uri>scout/scout/${scout_version}/jar</uri>
     </dependency>
 
     <dependency>
-        <uri>juddi/jars/juddi-${juddi_version}.jar</uri>
+        <uri>juddi/juddi/${juddi_version}/jar</uri>
     </dependency>
 
     <dependency>
-        <uri>jdom/jars/jdom-1.0.jar</uri>
+        <uri>jdom/jdom/${jdom_version}/jar</uri>
     </dependency>
 
     <!-- Derby classes must be loaded from a common classloader -->
     <dependency>
-        <uri>org.apache.derby/jars/derby-${derby_version}.jar</uri>
+        <uri>org.apache.derby/derby/${derby_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>org.apache.derby/jars/derbynet-${derby_version}.jar</uri>
+        <uri>org.apache.derby/derbynet/${derby_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-derby-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-derby/${geronimo_version}/jar</uri>
     </dependency>
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
@@ -156,7 +156,7 @@ by the server.
         <attribute name="maxLogFiles">2</attribute>
         <attribute name="minBuffers">4</attribute>
         <attribute name="threadsWaitingForceThreshold">-1</attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
     </gbean>
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
@@ -206,14 +206,14 @@ by the server.
     <!-- JSR77 Management Objects -->
     <gbean gbeanName="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
     <gbean gbeanName="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
     </gbean>
 
     <gbean gbeanName="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
-    <gbean gbeanName="geronimo.server:J2EEApplication=null,EJBModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+    <gbean gbeanName="geronimo.server:J2EEApplication=null,EJBModule=geronimo/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 

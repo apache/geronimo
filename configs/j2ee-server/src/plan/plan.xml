@@ -23,12 +23,12 @@ Configuration for the main ring of a Geronimo server.
 
 This configuration should contain those services normally provided
 by the server.
-               parentId="${pom.groupId}/cars/rmi-naming-${pom.currentVersion}.car"
+               parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">
@@ -60,7 +60,7 @@ by the server.
         <attribute name="maxLogFiles">2</attribute>
         <attribute name="minBuffers">4</attribute>
         <attribute name="threadsWaitingForceThreshold">-1</attribute>
-        <reference name="ServerInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
     </gbean>
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
@@ -110,14 +110,14 @@ by the server.
     <!-- JSR77 Management Objects -->
     <gbean gbeanName="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
     <gbean gbeanName="geronimo.server:j2eeType=J2EEServer,name=geronimo" class="org.apache.geronimo.j2ee.management.impl.J2EEServerImpl">
-        <reference name="ServerInfo"><module>geronimo/cars/j2ee-system-${pom.currentVersion}.car</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
     </gbean>
 
     <gbean gbeanName="geronimo.server:j2eeType=JVM,J2EEServer=geronimo,name=JVM" class="org.apache.geronimo.j2ee.management.impl.JVMImpl"/>
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
-    <gbean gbeanName="geronimo.server:J2EEApplication=null,EJBModule=org/apache/geronimo/Server,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+    <gbean gbeanName="geronimo.server:J2EEApplication=null,EJBModule=geronimo/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 

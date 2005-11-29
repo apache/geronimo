@@ -20,30 +20,30 @@
 
 <configuration
   xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-  configId="org/apache/geronimo/SpringDeployer"
-  parentId="org/apache/geronimo/SpringRuntime"
+  configId="geronimo/spring-deployer/${pom.currentVersion}/car"
+  parentId="geronimo/spring-runtime/${pom.currentVersion}/car"
   >
 
   <dependency>
-    <uri>springframework/jars/spring-${spring_version}.jar</uri><!-- lose later -->
+    <uri>springframework/spring/${spring_version}/jar</uri><!-- lose later -->
   </dependency>
   <dependency>
-    <uri>geronimo/jars/geronimo-common-${geronimo_version}.jar</uri>
+    <uri>geronimo/geronimo-common/${geronimo_version}/jar</uri>
   </dependency>
   <dependency>
-    <uri>geronimo/jars/geronimo-deployment-${geronimo_version}.jar</uri>
+    <uri>geronimo/geronimo-deployment/${geronimo_version}/jar</uri>
   </dependency>
   <dependency>
-    <uri>geronimo/jars/geronimo-spring-builder-${geronimo_version}.jar</uri>
+    <uri>geronimo/geronimo-spring-builder/${geronimo_version}/jar</uri>
   </dependency>
 
   <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
     <reference name="Builders"><name>SPRBuilder</name></reference>
-      <reference name="Store"><module>org/apache/geronimo/System</module><name>*</name></reference>
+      <reference name="Store"><module>geronimo/system/${pom.currentVersion}/car</module><name>*</name></reference>
   </gbean>
 
   <gbean name="SPRBuilder" class="org.apache.geronimo.spring.deployment.SPRConfigBuilder">
-    <attribute name="defaultParentId">org/apache/geronimo/SpringRuntime</attribute>
+    <attribute name="defaultParentId">geronimo/spring-runtime/${pom.currentVersion}/car</attribute>
     <reference name="Repository"><gbean-name>*:name=Repository,*</gbean-name></reference>
   </gbean>
 

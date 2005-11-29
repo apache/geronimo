@@ -205,7 +205,7 @@ public final class GBeanInstance implements StateManageable {
         try {
             type = classLoader.loadClass(gbeanInfo.getClassName());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " +
+            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + classLoader + 
                     " className=" + gbeanInfo.getClassName());
         }
 

@@ -42,6 +42,7 @@ public class PropertyEditors {
         appendEditorSearchPath("org.apache.geronimo.common.propertyeditor");
         // and explicitly register the Boolean editor.
         PropertyEditorManager.registerEditor(Boolean.class, BooleanEditor.class);
+        PropertyEditorManager.registerEditor(Integer.class, IntegerEditor.class);
     }
 
     /**

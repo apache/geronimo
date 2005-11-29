@@ -23,82 +23,82 @@ Configuration for Tomcat server.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/Tomcat"
-    parentId="org/apache/geronimo/RMINaming"
+    configId="geronimo/tomcat/${pom.currentVersion}/car"
+    parentId="geronimo/rmi-naming/${pom.currentVersion}/car"
     >
 
     <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-tomcat/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>
+        <uri>tomcat/catalina/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/catalina-cluster-${tomcat_version}.jar</uri>
+        <uri>tomcat/catalina-cluster/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/catalina-optional-${tomcat_version}.jar</uri>
+        <uri>tomcat/catalina-optional/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-coyote-${tomcat_version}.jar</uri>
+        <uri>tomcat/tomcat-coyote/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-http-${tomcat_version}.jar</uri>
+        <uri>tomcat/tomcat-http/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-util-${tomcat_version}.jar</uri>
+        <uri>tomcat/tomcat-util/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/naming-resources-${tomcat_version}.jar</uri>
+        <uri>tomcat/naming-resources/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/servlets-default-${tomcat_version}.jar</uri>
+        <uri>tomcat/servlets-default/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/servlets-invoker-${tomcat_version}.jar</uri>
+        <uri>tomcat/servlets-invoker/${tomcat_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-beanutils/jars/commons-beanutils-${commons_beanutils_version}.jar</uri>
+        <uri>commons-beanutils/commons-beanutils/${commons_beanutils_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
+        <uri>commons-collections/commons-collections/${commons_collections_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-digester/jars/commons-digester-${commons_digester_version}.jar</uri>
+        <uri>commons-digester/commons-digester/${commons_digester_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
+        <uri>commons-el/commons-el/${commons_el_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-modeler/jars/commons-modeler-${commons_modeler_version}.jar</uri>
+        <uri>commons-modeler/commons-modeler/${commons_modeler_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
+        <uri>regexp/regexp/${regexp_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>mx4j/jars/mx4j-${mx4j_version}.jar</uri>
+        <uri>mx4j/mx4j/${mx4j_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/jasper-compiler-${jasper_version}.jar</uri>
+        <uri>tomcat/jasper-compiler/${jasper_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/jasper-compiler-jdt-${jasper_version}.jar</uri>
+        <uri>tomcat/jasper-compiler-jdt/${jasper_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/jasper-runtime-${jasper_version}.jar</uri>
+        <uri>tomcat/jasper-runtime/${jasper_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>tomcat/jars/tomcat-ajp-${tomcat_ajp_version}.jar</uri>
+        <uri>tomcat/tomcat-ajp/${tomcat_ajp_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-el/jars/commons-el-${commons_el_version}.jar</uri>
+        <uri>commons-el/commons-el/${commons_el_version}/jar</uri>
     </dependency>
 
     <gbean name="TomcatResources" class="org.apache.geronimo.tomcat.util.DirectoryInitializationGBean">
         <!-- copies tomcat initialization files into specified location -->
         <attribute name="path">var/catalina</attribute>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -117,7 +117,7 @@ Configuration for Tomcat server.
             <name>TomcatEngine</name>
         </reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -175,7 +175,7 @@ Configuration for Tomcat server.
             <name>TomcatWebContainer</name>
         </reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
@@ -206,7 +206,7 @@ Configuration for Tomcat server.
 
     <gbean name="TomcatAccessLogManager" class="org.apache.geronimo.tomcat.TomcatLogManagerImpl">
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/System</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <references name="LogGBeans">

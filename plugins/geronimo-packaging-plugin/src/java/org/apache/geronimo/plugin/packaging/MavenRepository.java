@@ -32,14 +32,14 @@ import org.apache.geronimo.kernel.repository.Repository;
  * @version $Rev$ $Date$
  */
 public class MavenRepository implements Repository {
-    private final URI root;
+    private final URI rootURI;
 
     public MavenRepository(File root) {
-        this.root = root.toURI();
+        this.rootURI = root.toURI();
     }
 
     public boolean hasURI(URI uri) {
-        uri = root.resolve(uri);
+        uri = resolve(uri);
         if ("file".equals(uri.getScheme())) {
             return new File(uri).canRead();
         } else {
@@ -53,8 +53,21 @@ public class MavenRepository implements Repository {
     }
 
     public URL getURL(URI uri) throws MalformedURLException {
-        uri = root.resolve(uri);
+        uri = resolve(uri);
         return uri.toURL();
+    }
+
+    /**
+     * todo if the uri has a scheme, don't dissect it.
+     * @param uri
+     * @return
+     */
+    private URI resolve(final URI uri) {
+        String[] bits = uri.toString().split("/");
+        StringBuffer buf = new StringBuffer(bits[0]).append('/');
+        String type = bits.length >= 4? bits[3]: "jar";
+        buf.append(type).append('s').append('/').append(bits[1]).append('-').append(bits[2]).append('.').append(type);
+        return rootURI.resolve(buf.toString());
     }
 
     public static final GBeanInfo GBEAN_INFO;

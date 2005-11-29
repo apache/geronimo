@@ -7,7 +7,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/RMINaming</arg>
+            <arg>geronimo/rmi-naming/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="J2EE Features"/>
     </job>
@@ -17,7 +17,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/Server</arg>
+            <arg>geronimo/j2ee-server/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="J2EE Features"/>
     </job>
@@ -27,7 +27,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/Security</arg>
+            <arg>geronimo/security/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="J2EE Features"/>
     </job>
@@ -37,7 +37,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/RuntimeDeployer</arg>
+            <arg>geronimo/runtime-deployer/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="J2EE Features"/>
     </job>
@@ -47,7 +47,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/SystemDatabase</arg>
+            <arg>geronimo/system-database/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="J2EE Features"/>
     </job>
@@ -59,7 +59,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/ServerCORBA</arg>
+            <arg>geronimo/server-corba/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="CORBA Features"/>
     </job>
@@ -71,7 +71,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/ActiveMQServer</arg>
+            <arg>geronimo/activemq-broker/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="JMS Features"/>
     </job>
@@ -81,7 +81,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/SystemJMS</arg>
+            <arg>geronimo/system-jms/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="JMS Features"/>
     </job>
@@ -93,7 +93,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/Jetty</arg>
+            <arg>geronimo/jetty/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Jetty Web Container"/>
     </job>
@@ -103,7 +103,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/JettyRuntimeDeployer</arg>
+            <arg>geronimo/jetty-runtime-deployer/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Jetty Web Container"/>
     </job>
@@ -115,7 +115,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/applications/Welcome/Jetty</arg>
+            <arg>geronimo/welcome-jetty/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Jetty Welcome Application"/>
     </job>
@@ -127,7 +127,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/Console/Jetty</arg>
+            <arg>geronimo/console-jetty/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Jetty Web Management Console"/>
     </job>
@@ -151,7 +151,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/Tomcat</arg>
+            <arg>geronimo/tomcat/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Tomcat Web Container"/>
     </job>
@@ -161,7 +161,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/TomcatRuntimeDeployer</arg>
+            <arg>geronimo/tomcat-runtime-deployer/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Tomcat Web Container"/>
     </job>
@@ -173,7 +173,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/applications/Welcome/Tomcat</arg>
+            <arg>geronimo/welcome-tomcat/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Tomcat Welcome Application"/>
     </job>
@@ -185,7 +185,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/Console/Tomcat</arg>
+            <arg>geronimo/console-tomcat/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Tomcat Web Management Console"/>
     </job>
@@ -209,7 +209,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/Directory</arg>
+            <arg>geronimo/directory/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="LDAP Server"/>
     </job>
@@ -221,7 +221,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/DefaultDatabase</arg>
+            <arg>geronimo/default-database/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Sample Database Pool"/>
     </job>
@@ -233,7 +233,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/SpringRuntime</arg>
+            <arg>geronimo/spring-runtime/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Spring Integration"/>
     </job>
@@ -244,7 +244,7 @@
             <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
             <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
             <arg>$INSTALL_PATH/var/config/config.list</arg>
-            <arg>org/apache/geronimo/SpringDeployer</arg>
+            <arg>geronimo/spring-deployer/${pom.currentVersion}/car</arg>
         </executefile>
         <executeForPack name="Spring Integration"/>
     </job>
@@ -268,7 +268,7 @@
 <!--            <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>-->
 <!--            <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>-->
 <!--            <arg>$INSTALL_PATH/var/config/config.list</arg>-->
-<!--            <arg>org/apache/geronimo/SampleSecurityRealm</arg>-->
+<!--            <arg>geronimo/sample-security/${pom.currentVersion}/car</arg>-->
 <!--        </executefile>-->
 <!--        <executeForPack name="Demo Web Application"/>-->
 <!--    </job>-->

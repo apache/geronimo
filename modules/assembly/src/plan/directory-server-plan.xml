@@ -26,82 +26,82 @@ by the server.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="org/apache/geronimo/Directory"
-    parentId="org/apache/geronimo/Server"
+    configId="geronimo/directory/${pom.currentVersion}/car"
+    parentId="geronimo/j2ee-server/${pom.currentVersion}/car"
     >
 
     <dependency>
-        <uri>antlr/jars/antlr-${antlr_version}.jar</uri>
+        <uri>antlr/antlr/${antlr_version}/jar</uri>
     </dependency>
 
     <!-- required for rar 1.5 to load realms -->
     <dependency>
-        <uri>regexp/jars/regexp-${regexp_version}.jar</uri>
+        <uri>regexp/regexp/${regexp_version}/jar</uri>
     </dependency>
 
     <!-- Directory -->
     <dependency>
-        <uri>geronimo/jars/geronimo-directory-${geronimo_version}.jar</uri>
+        <uri>geronimo/geronimo-directory/${geronimo_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>org.slf4j/jars/slf4j-simple-${slf4j_version}.jar</uri>
+        <uri>org.slf4j/slf4j-simple/${slf4j_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory/jars/apacheds-core-${apacheds_version}.jar</uri>
+        <uri>directory/apacheds-core/${apacheds_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory/jars/apacheds-shared-${apacheds_version}.jar</uri>
+        <uri>directory/apacheds-shared/${apacheds_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-protocols/jars/ldap-protocol-${ldap_protocols_version}.jar</uri>
+        <uri>directory-protocols/ldap-protocol/${ldap_protocols_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-protocols/jars/kerberos-protocol-${kerberos_protocols_version}.jar</uri>
+        <uri>directory-protocols/kerberos-protocol/${kerberos_protocols_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-network/jars/mina-${mina_version}.jar</uri>
+        <uri>directory-network/mina/${mina_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-asn1/jars/asn1-ber-${asn1_version}.jar</uri>
+        <uri>directory-asn1/asn1-ber/${asn1_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-asn1/jars/asn1-codec-${asn1_version}.jar</uri>
+        <uri>directory-asn1/asn1-codec/${asn1_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-asn1/jars/asn1-der-${asn1_version}.jar</uri>
+        <uri>directory-asn1/asn1-der/${asn1_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-shared/jars/apache-ldapber-provider-${apacheds_version}.jar</uri>
+        <uri>directory-shared/apache-ldapber-provider/${apacheds_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-shared/jars/kerberos-common-${kerberos_common_version}.jar</uri>
+        <uri>directory-shared/kerberos-common/${kerberos_common_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>directory-shared/jars/ldap-common-${apacheds_version}.jar</uri>
+        <uri>directory-shared/ldap-common/${apacheds_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-io/jars/commons-io-${commons_io_version}.jar</uri>
+        <uri>commons-io/commons-io/${commons_io_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-primitives/jars/commons-primitives-${commons_primitives_version}.jar</uri>
+        <uri>commons-primitives/commons-primitives/${commons_primitives_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-collections/jars/commons-collections-${commons_collections_version}.jar</uri>
+        <uri>commons-collections/commons-collections/${commons_collections_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>commons-lang/jars/commons-lang-${commons_lang_version}.jar</uri>
+        <uri>commons-lang/commons-lang/${commons_lang_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>oro/jars/oro-${oro_version}.jar</uri>
+        <uri>oro/oro/${oro_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>jdbm/jars/jdbm-${jdbm_version}.jar</uri>
+        <uri>jdbm/jdbm/${jdbm_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>xmlbeans/jars/xbean-${xmlbeans_version}.jar</uri>
+        <uri>xmlbeans/xbean/${xmlbeans_version}/jar</uri>
     </dependency>
     <dependency>
-        <uri>stax/jars/stax-api-${stax_api_version}.jar</uri>
+        <uri>stax/stax-api/${stax_api_version}/jar</uri>
     </dependency>
 
     <gbean gbeanName="geronimo.server:name=DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">
@@ -114,7 +114,7 @@ by the server.
         <attribute name="host">0.0.0.0</attribute>
         <attribute name="port">${PlanLdapPort}</attribute>
         <attribute name="configFile">var/ldap/conf/directory.xml</attribute>
-        <reference name="ServerInfo"><module>org/apache/geronimo/System</module><name>ServerInfo</name></reference>
+        <reference name="ServerInfo"><module>geronimo/system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
     </gbean>
 
 </configuration>

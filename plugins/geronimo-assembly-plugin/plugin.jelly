@@ -33,7 +33,7 @@
         <define:jellybean name="installConfigToRepo" className="org.apache.geronimo.plugin.assembly.RepoConfigInstaller" method="execute"/>
     </define:taglib>
 
-    <goal name="geronimo:assemble-prepare">
+    <goal name="assemble:assemble-prepare">
         <ant:mkdir dir="${geronimo.assembly.dest}"/>
         <ant:copy todir="${geronimo.assembly.dest}">
             <ant:fileset dir="${geronimo.assembly.src}"/>
@@ -42,7 +42,7 @@
         <velocity:merge basedir="${geronimo.assembly.src}/var/config" template="config.xml" name="${geronimo.assembly.dest}/var/config/config.xml"/>
     </goal>
 
-    <goal name="geronimo:assemble-lib">
+    <goal name="assemble:assemble-lib">
         <ant:mkdir dir="${geronimo.assembly.dest}/lib"/>
         <ant:copy todir="${geronimo.assembly.dest}/lib" flatten="true">
             <ant:fileset dir="${maven.repo.local}">
@@ -89,7 +89,7 @@
         </ant:copy>
     </goal>
 
-    <goal name="geronimo:assemble-repository">
+    <goal name="assemble:assemble-repository">
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <ant:copy todir="${geronimo.assembly.dest}/repository">
             <ant:fileset dir="${maven.repo.local}">
@@ -104,9 +104,9 @@
     </goal>
 
     <!-- todo automatically add libraries listed in an executable's MCP in the right place, relative to it -->
-    <goal name="geronimo:assemble-configurations">
+    <goal name="assemble:assemble-configurations">
         <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
-        <ant:delete dir="${configStoreDir}"/>
+<!--        <ant:delete dir="${configStoreDir}"/>-->
         <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
@@ -118,7 +118,7 @@
                         targetConfigStore="config-store"
                         targetRepository="repository"
                         sourceRepository="${maven.repo.local}"
-                        artifact="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        artifact="${dependency.getGroupId()}/${dependency.getArtifactId()}/${dependency.getVersion()}/${dependency.getType()}"/>
                 </j:if>
 
                 <!-- handle executable configs -->
@@ -131,9 +131,9 @@
         </j:forEach>
     </goal>
 
-    <goal name="geronimo:assemble-configurations-to-repo">
+    <goal name="assemble:assemble-configurations-to-repo">
         <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
-        <ant:delete dir="${configStoreDir}"/>
+<!--        <ant:delete dir="${configStoreDir}"/>-->
         <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
@@ -158,23 +158,23 @@
         </j:forEach>
     </goal>
 
-    <goal name="geronimo:assemble" prereqs="geronimo:assemble-prepare" description="Assemble a Geronimo installation">
-        <attainGoal name="geronimo:assemble-repository"/>
-        <attainGoal name="geronimo:assemble-lib"/>
-        <attainGoal name="geronimo:assemble-configurations"/>
+    <goal name="assemble:assemble" prereqs="assemble:assemble-prepare" description="Assemble a Geronimo installation">
+        <attainGoal name="assemble:assemble-repository"/>
+        <attainGoal name="assemble:assemble-lib"/>
+        <attainGoal name="assemble:assemble-configurations"/>
     </goal>
 
-    <goal name="geronimo:assemble-to-repo" prereqs="geronimo:assemble-prepare" description="Assemble a Geronimo installation">
-        <attainGoal name="geronimo:assemble-repository"/>
-        <attainGoal name="geronimo:assemble-lib"/>
-        <attainGoal name="geronimo:assemble-configurations-to-repo"/>
+    <goal name="assemble:assemble-to-repo" prereqs="assemble:assemble-prepare" description="Assemble a Geronimo installation">
+        <attainGoal name="assemble:assemble-repository"/>
+        <attainGoal name="assemble:assemble-lib"/>
+        <attainGoal name="assemble:assemble-configurations-to-repo"/>
     </goal>
 
-    <goal name="geronimo:jar-assembly" prereqs="geronimo:assemble">
+    <goal name="assemble:jar-assembly" prereqs="assemble:assemble">
         <ant:jar jarfile="${maven.build.dir}/${maven.final.name}.jar" basedir="${geronimo.assembly.dest}"/>
     </goal>
 
-    <goal name="geronimo:package-assembly" prereqs="geronimo:assemble" description="Build the binary distribution.">
+    <goal name="assemble:package-assembly" prereqs="assemble:assemble" description="Build the binary distribution.">
         <!-- Create a tar.gz file -->
         <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
             <ant:tar longfile="gnu" compression="gzip" tarfile="${maven.build.dir}/${maven.final.name}.tar.gz">
@@ -201,7 +201,7 @@
     </goal>
 
     <!-- Maven artifict tags are broken so we must copy by hand -->
-    <goal name="geronimo:install-assembly" description="Deploy a binary distribution" prereqs="geronimo:package-assembly">
+    <goal name="assemble:install-assembly" description="Deploy a binary distribution" prereqs="assemble:package-assembly">
         <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
             <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
             <ant:copy file="${maven.build.dir}/${maven.final.name}.tar.gz"

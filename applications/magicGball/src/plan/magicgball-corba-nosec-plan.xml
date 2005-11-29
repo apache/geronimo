@@ -2,7 +2,7 @@
 <application
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
     configId="org/apache/geronimo/MagicGBallCorbaNoSec"
-    parentId="org/apache/geronimo/ServerCORBA">
+    parentId="geronimo/j2ee-server-corba/1.0-SNAPSHOT/car">
 
     <import>
         <uri>org/apache/geronimo/Security</uri>

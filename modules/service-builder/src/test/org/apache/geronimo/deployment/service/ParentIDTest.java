@@ -53,7 +53,7 @@ public class ParentIDTest extends TestCase {
         anImport.setVersion("version");
         List parentId = ServiceConfigBuilder.getParentID(null, new DependencyType[] {anImport});
         assertEquals(1, parentId.size());
-        assertEquals("groupId/types/artifactId-version.type", ((URI)parentId.get(0)).getPath());
+        assertEquals("groupId/artifactId/version/type", ((URI)parentId.get(0)).getPath());
     }
 
     public void testBothParent() throws Exception {

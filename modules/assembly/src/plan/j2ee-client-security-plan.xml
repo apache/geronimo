@@ -26,15 +26,15 @@ by the app client.
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    parentId="org/apache/geronimo/Client"
-    configId="org/apache/geronimo/ClientSecurity"
+    parentId="geronimo/client/${pom.currentVersion}/car"
+    configId="geronimo/client-security/${pom.currentVersion}/car"
     >
 
 
     <!-- required -->
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/ClientSystem</module>
+            <module>geronimo/client-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
@@ -97,7 +97,7 @@ by the app client.
             </lc:login-config>
         </xml-reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/ClientSystem</module>
+            <module>geronimo/client-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <reference name="LoginService">

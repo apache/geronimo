@@ -23,7 +23,7 @@ CSSBean examples for app client
 -->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
     <gbean name="DyanmicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>

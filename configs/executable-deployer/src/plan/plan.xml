@@ -37,7 +37,7 @@
 
     <!-- Builder for handling plans defining Geronimo configurations -->
     <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
-        <attribute name="defaultParentId">geronimo/j2ee-server/${pom.currentVersion}/car</attribute>
+        <attribute name="defaultParentId">org/apache/geronimo/Server</attribute>
         <references name="Repository">
             <pattern><gbean-name>geronimo.maven:name=Repository</gbean-name></pattern>
             <pattern><gbean-name>geronimo.server:name=Repository,*</gbean-name></pattern>

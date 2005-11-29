@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <attributes xmlns="http://geronimo.apache.org/xml/ns/attributes">
-    <configuration name="org/apache/geronimo/ClientCORBA">
+    <configuration name="geronimo/client/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/client-corba/${pom.currentVersion}/car">
         <gbean name="Server">
             <attribute name="args">-ORBPort, ${PlanORBSSLPort}, -ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
             <attribute name="props">
