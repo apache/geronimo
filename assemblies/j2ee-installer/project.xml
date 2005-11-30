@@ -20,9 +20,9 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>geronimo-jetty-j2ee</id>
-    <name>Geronimo Assembly for a J2EE Server running Jetty</name>
-    <description>An assembly of Geronimo into a J2EE Server using Jetty as the web container</description>
+    <id>geronimo-installer</id>
+    <name>Geronimo Assembly for an IZPack Installer</name>
+    <description>An assembly of Geronimo for the IZPack installer</description>
 
     <dependencies>
         <!-- plugin we use --> 

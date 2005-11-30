@@ -95,7 +95,8 @@
             <ant:fileset dir="${maven.repo.local}">
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
-                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assemble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
+                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assem
+ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                     </j:if>
                 </j:forEach>
@@ -201,7 +202,7 @@
     </goal>
 
     <!-- Maven artifict tags are broken so we must copy by hand -->
-    <goal name="assemble:install-assembly" description="Deploy a binary distribution" prereqs="assemble:package-assembly">
+    <goal name="assemble:install" description="Deploy a binary distribution" prereqs="assemble:package-assembly">
         <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
             <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
             <ant:copy file="${maven.build.dir}/${maven.final.name}.tar.gz"
