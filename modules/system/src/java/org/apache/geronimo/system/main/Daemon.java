@@ -101,11 +101,15 @@ public class Daemon {
         out.println();
         out.println("  "+ARGUMENT_CONFIG_OVERRIDE+" [configId] [configId] ...");
         out.println("             USE WITH CAUTION!  Overrides the configurations in\n" +
-                    "             var/config.list such that only the configurations listed on\n" +
+                    "             var/config/config.xml such that only the configurations listed on\n" +
                     "             the command line will be started.  Note that many J2EE\n" +
                     "             features depend on certain configs being started, so you\n" +
                     "             should be very careful what you omit.  Any arguments after\n" +
                     "             this are assumed to be configuration names.");
+        out.println();
+        out.println("In addition you may specify a replacement for var/config/config.xml using by setting the property\n" +
+                    "-Dorg.apache.geronimo.config.file=var/config/<my-config.xml>\n" +
+                    "This is resolved relative to the geronimo base directory.");
         out.println();
     }
 
