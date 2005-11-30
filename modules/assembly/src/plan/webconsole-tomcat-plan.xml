@@ -7,6 +7,9 @@
     <import>
       <uri>geronimo/tomcat/${pom.currentVersion}/car</uri>
     </import>
+    <import>
+      <uri>geronimo/security/${pom.currentVersion}/car</uri>
+    </import>
 
     <!-- these dependencies must be kept here so that their classes are loaded in the "EARs" classloader. -->
     <dependency>
