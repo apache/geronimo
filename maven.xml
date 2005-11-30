@@ -27,6 +27,53 @@
     xmlns:modules="local:modules"
     xmlns:gscm="g:scm">
 
+
+    <goal name="new0">
+        <j:set var="maven.multiproject.includes" value="tranql/tranql/project.xml"/>
+        <j:set var="maven.multiproject.excludes" value=""/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <goal name="new00">
+        <j:set var="maven.multiproject.includes" value="tranql/connector/project.xml,tranql/vendor/*/project.xml"/>
+        <j:set var="maven.multiproject.excludes" value=""/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <goal name="new1">
+        <j:set var="maven.multiproject.includes" value="modules/*/project.xml,plugins/*/project.xml"/>
+        <j:set var="maven.multiproject.excludes" value="modules/assembly/project.xml"/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <goal name="new2">
+        <j:set var="maven.multiproject.includes" value="openejb/modules/core/project.xml,openejb/modules/pkgen-builder/project.xml,openejb/modules/openejb-builder/project.xml"/>
+        <j:set var="maven.multiproject.excludes" value=""/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <goal name="new3">
+        <j:set var="maven.multiproject.includes" value="configs/*/project.xml"/>
+        <j:set var="maven.multiproject.excludes" value=""/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <goal name="new4">
+        <j:set var="maven.multiproject.includes" value="assemblies/*/project.xml"/>
+        <j:set var="maven.multiproject.excludes" value=""/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <goal name="new">
+        <!-- this really doesn't work -->
+        <attainGoal name="new0"/>
+        <attainGoal name="new00"/>
+        <attainGoal name="new1"/>
+        <attainGoal name="new2"/>
+        <attainGoal name="new3"/>
+        <attainGoal name="new4"/>
+    </goal>
+
     <!-- ============= -->
     <!-- New  m: goals -->
     <!-- ============= -->
@@ -172,7 +219,7 @@
         <j:set var="goal" value="eclipse"/>
         <attainGoal name="multiproject:goal"/>
         <echo>Fixing up xmlbeans classpath in .classpath files...</echo>
-        <replace dir="${basedir}" 
+        <replace dir="${basedir}"
             value="&lt;classpathentry kind=&quot;lib&quot; path=&quot;target/xmlbeans-classes&quot;&gt;"
             token="&lt;classpathentry kind=&quot;src&quot; path=&quot;target/xmlbeans-classes&quot;&gt;">
             <include name="**/.classpath"/>
