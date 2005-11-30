@@ -32,15 +32,10 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.console.util.KernelHelper;
 import org.apache.geronimo.console.util.ObjectNameConstants;
 
 public class WebAccessLogHelper extends KernelHelper {
-
-    private static ObjectName objName, serverInfoObjName;
 
     private static final String LOG_FILE_ATTR = "filename";
 
@@ -142,7 +137,7 @@ public class WebAccessLogHelper extends KernelHelper {
     }
 
     public static File[] getFiles() {
-        String fileNamePattern = get(objName, LOG_FILE_ATTR).toString();
+        String fileNamePattern = get(ObjectNameConstants.REQUEST_LOGGER_OBJECT_NAME, LOG_FILE_ATTR).toString();
         if (fileNamePattern.indexOf("/") > -1) {
             fileNamePattern = fileNamePattern.substring(fileNamePattern
                     .lastIndexOf("/") + 1);
@@ -151,10 +146,10 @@ public class WebAccessLogHelper extends KernelHelper {
                     .lastIndexOf("\\") + 1);
         }
 
-        Object[] arg = { get(objName, LOG_FILE_ATTR).toString() };
+        Object[] arg = { get(ObjectNameConstants.REQUEST_LOGGER_OBJECT_NAME, LOG_FILE_ATTR).toString() };
         String[] parms = { String.class.getName() };
         try {
-            String logFile = (String) invoke(serverInfoObjName, "resolvePath",
+            String logFile = (String) invoke(ObjectNameConstants.SERVER_INFO_OBJECT_NAME, "resolvePath",
                     arg, parms);
             File f = new File(logFile).getParentFile();
             return (f != null ? f.listFiles(new PatternFilenameFilter(
@@ -225,16 +220,6 @@ public class WebAccessLogHelper extends KernelHelper {
                 && (date.equals(endDate) || date.before(endDate));
     }
 
-    static {
-        try {
-            objName = new ObjectName(
-                    ObjectNameConstants.REQUEST_LOGGER_OBJECT_NAME);
-            serverInfoObjName = new ObjectName(
-                    ObjectNameConstants.SERVER_INFO_OBJECT_NAME);
-        } catch (MalformedObjectNameException e) {
-
-        }
-    }
 
     /*
      * Static inner class implementation of java.io.Filename. This will help us

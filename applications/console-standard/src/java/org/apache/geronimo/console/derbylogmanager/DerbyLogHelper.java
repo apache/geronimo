@@ -26,26 +26,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Stack;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.console.util.KernelHelper;
-import org.apache.geronimo.console.util.ObjectNameConstants;
 
 public class DerbyLogHelper extends KernelHelper {
-    private static ObjectName objName;
-
     private static ArrayList logs = new ArrayList();
 
     private static boolean cached = false;
 
     private static int lineCount = 0;
 
-    private static final String DATE_PATTERN_REGEX = "2004";
-
     private static final String DERBY_SYSTEM_HOME = "derby.system.home";
-
-    private static final String DERBY_SYS_HOME_PROP = "derbySystemHome";
 
     private static final String LOG_FILENAME = "derby.log";
 
@@ -83,12 +73,5 @@ public class DerbyLogHelper extends KernelHelper {
         return System.getProperty(DERBY_SYSTEM_HOME);
     }
 
-    static {
-        try {
-            objName = new ObjectName(ObjectNameConstants.DERBY_OBJECT_NAME);
-        } catch (MalformedObjectNameException e) {
-
-        }
-    }
 
 }

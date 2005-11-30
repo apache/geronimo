@@ -53,12 +53,18 @@
     </goal>
 
     <goal name="new3">
-        <j:set var="maven.multiproject.includes" value="configs/*/project.xml"/>
+        <j:set var="maven.multiproject.includes" value="applications/*/project.xml"/>
         <j:set var="maven.multiproject.excludes" value=""/>
         <attainGoal name="multiproject:install"/>
     </goal>
 
     <goal name="new4">
+        <j:set var="maven.multiproject.includes" value="configs/*/project.xml"/>
+        <j:set var="maven.multiproject.excludes" value=""/>
+        <attainGoal name="multiproject:install"/>
+    </goal>
+
+    <goal name="new5">
         <j:set var="maven.multiproject.includes" value="assemblies/*/project.xml"/>
         <j:set var="maven.multiproject.excludes" value=""/>
         <attainGoal name="multiproject:install"/>

@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -43,8 +41,6 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class DeploymentPortlet extends BasePortlet {
     private final String LINE_SEP = System.getProperty("line.separator");
@@ -57,9 +53,6 @@ public class DeploymentPortlet extends BasePortlet {
 
     private static final String[] ARGS = {File.class.getName(),
                                           File.class.getName()};
-
-    private static final ObjectName deployer = JMXUtil
-            .getObjectName(ObjectNameConstants.DEPLOYER_OBJECT_NAME);
 
     private boolean messageNotRendered = true;
 
@@ -116,7 +109,7 @@ public class DeploymentPortlet extends BasePortlet {
             throw new PortletException(e);
         }
         try {
-            List list = (List) kernel.invoke(deployer, "deploy", new Object[]{
+            List list = (List) kernel.invoke(ObjectNameConstants.DEPLOYER_OBJECT_NAME, "deploy", new Object[]{
                 moduleFile, planFile}, ARGS);
             actionResponse.setRenderParameter("outcome",
                     "The application was successfully deployed.<br/>");

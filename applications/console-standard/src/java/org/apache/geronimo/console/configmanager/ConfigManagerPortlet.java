@@ -69,9 +69,6 @@ public class ConfigManagerPortlet extends BasePortlet {
 
     private static final String CONFIG_INIT_PARAM = "config-type";
 
-    private static final ObjectName deployer = JMXUtil
-            .getObjectName(ObjectNameConstants.DEPLOYER_OBJECT_NAME);
-
     private String messageInstalled = "";
 
     private String messageStatus = "";
@@ -158,11 +155,7 @@ public class ConfigManagerPortlet extends BasePortlet {
             if (result.booleanValue() == true) {
                 // stop config if running
                 if (configManager.isLoaded(configURI)) {
-                    //int state = kernel.getConfigurationState(configID);
-                    int state = kernel
-                            .getGBeanState(JMXUtil
-                            .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                            + "\"" + configID + "\""));
+                    int state = kernel.getGBeanState(Configuration.getConfigurationObjectName(configURI));
                     if (state == State.RUNNING.toInt()) {
 
                         configManager.stop(configURI);

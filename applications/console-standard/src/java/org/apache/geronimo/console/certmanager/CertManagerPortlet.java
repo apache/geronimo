@@ -19,7 +19,6 @@ package org.apache.geronimo.console.certmanager;
 
 import java.io.IOException;
 import java.util.Enumeration;
-
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -45,8 +44,6 @@ public class CertManagerPortlet extends GenericPortlet {
 
     private PortletContext ctx;
 
-    private ObjectName ksobjname;
-
     public CertManagerPortlet() {
         this.ctx = null;
     }
@@ -56,19 +53,11 @@ public class CertManagerPortlet extends GenericPortlet {
 
         // iniitialize portlet environment
         this.ctx = portletConfig.getPortletContext();
-
-        try {
-            this.ksobjname = new ObjectName(
-                    ObjectNameConstants.KEYSTORE_OBJ_NAME);
-        } catch (Exception e) {
-            throw new PortletException(e);
-        }
-
         this.ctx.log("Certificate manager portlet initialized");
     }
 
     public ObjectName getKeyStoreObjectName() {
-        return ksobjname;
+        return ObjectNameConstants.KEYSTORE_OBJ_NAME;
     }
 
     public void processAction(ActionRequest request, ActionResponse response)
@@ -105,8 +94,6 @@ public class CertManagerPortlet extends GenericPortlet {
 
     public void doView(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
-
-        PortletRequestDispatcher prd = null;
 
         String action = request.getParameter("action");
         ctx.log("do-view: action = " + action);

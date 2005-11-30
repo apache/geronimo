@@ -71,7 +71,7 @@
     </gbean>
 
     <!-- Keystore configuration -->
-    <gbean gbeanName="geronimo.security:type=KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">
+    <gbean name="KeyStore" class="org.apache.geronimo.console.core.keystore.KeyStoreGBean">
         <attribute name="keyStoreLocation">var/security/ssl-keystore-1</attribute>
         <attribute name="keyStoreType">jks</attribute>
         <attribute name="keyStoreProvider">SUN</attribute>

@@ -21,9 +21,6 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Set;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 
@@ -41,35 +38,24 @@ public class SERealmGroupHelper extends RealmHelper {
 
     private static final String GET_USERS_FUNCTION = "getGroupMembers";
 
-    private static final String REFRESH = "refresh";
-
-    private static final String START = "doStart";
-
-    private static final String STOP = "doStop";
-
-    private static final String[] STRING_STRING = { "java.lang.String",
-            "java.lang.String" };
-
     private static final String[] STRING = { "java.lang.String" };
 
     private static final String[] HASHTABLE = { "java.util.Hashtable" };
 
-    private static ObjectName mBeanName;
-
     private static final Kernel kernel = KernelRegistry.getSingleKernel();
 
     public static String[] getGroups() throws Exception {
-        String[] groups = (String[]) invoke(mBeanName, GET_GROUPS_FUNCTION);
+        String[] groups = (String[]) invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, GET_GROUPS_FUNCTION);
         return groups;
     }
 
     private static void refresh() {
         try {
 
-            kernel.stopGBean(new ObjectName(
-                    ObjectNameConstants.SE_REALM_IMMUTABLE_MBEAN_NAME));
-            kernel.startGBean(new ObjectName(
-                    ObjectNameConstants.SE_REALM_IMMUTABLE_MBEAN_NAME));
+            kernel.stopGBean(ObjectNameConstants.SE_REALM_MBEAN_NAME);
+            kernel.startGBean(ObjectNameConstants.SE_REALM_MBEAN_NAME);
+//            kernel.stopGBean(ObjectNameConstants.SE_REALM_IMMUTABLE_MBEAN_NAME);
+//            kernel.startGBean(ObjectNameConstants.SE_REALM_IMMUTABLE_MBEAN_NAME);
 
         } catch (Exception e) {
         }
@@ -90,7 +76,7 @@ public class SERealmGroupHelper extends RealmHelper {
     public static boolean groupExists(String username) throws Exception {
         Boolean ret;
         String[] arg = {username};
-        ret = (Boolean) invoke(mBeanName, GROUP_EXISTS_FUNCTION, arg, STRING);
+        ret = (Boolean) invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, GROUP_EXISTS_FUNCTION, arg, STRING);
         return ret.booleanValue();
     }
 
@@ -101,7 +87,7 @@ public class SERealmGroupHelper extends RealmHelper {
         props.put("GroupName", groupName);
         props.put("Members", userList);
         Object[] args = {props};
-        invoke(mBeanName, ADD_GROUP_FUNCTION, args, HASHTABLE);
+        invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, ADD_GROUP_FUNCTION, args, HASHTABLE);
     }
 
     public static void updateGroup(String groupName, String userList)
@@ -111,19 +97,19 @@ public class SERealmGroupHelper extends RealmHelper {
         props.put("Members", userList);
         Object[] args = {props};
 
-        invoke(mBeanName, UPDATE_GROUP_FUNCTION, args, HASHTABLE);
+        invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, UPDATE_GROUP_FUNCTION, args, HASHTABLE);
     }
 
     public static void deleteGroup(String groupName) throws Exception {
         String[] args = {groupName};
-        invoke(mBeanName, DELETE_GROUP_FUNCTION, args, STRING);
+        invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, DELETE_GROUP_FUNCTION, args, STRING);
         refresh();
     }
 
     public static Set getUsers(String groupName) throws Exception {
         Set ret = null;
         String[] arg = {groupName};
-        ret = (Set) invoke(mBeanName, GET_USERS_FUNCTION, arg, STRING);
+        ret = (Set) invoke(ObjectNameConstants.SE_REALM_MBEAN_NAME, GET_USERS_FUNCTION, arg, STRING);
         return ret;
     }
 
@@ -136,13 +122,6 @@ public class SERealmGroupHelper extends RealmHelper {
     private static Collection getUsersAsCollection(String groupName)
             throws Exception {
         return getUsers(groupName);
-    }
-
-    static {
-        try {
-            mBeanName = new ObjectName(ObjectNameConstants.SE_REALM_MBEAN_NAME);
-        } catch (MalformedObjectNameException e) {
-        }
     }
 
 }

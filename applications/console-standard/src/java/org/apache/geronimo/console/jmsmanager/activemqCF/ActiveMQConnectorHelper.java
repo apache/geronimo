@@ -32,16 +32,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class ActiveMQConnectorHelper {
 
@@ -51,7 +47,7 @@ public class ActiveMQConnectorHelper {
 
     private final static String MODULE_FILE;
 
-    private final static String ACTIVEMQ_RA = "/activemq/rars/activemq-ra-3.2.rar";
+    private final static String ACTIVEMQ_RA = "/activemq/activemq-ra/3.2/rar";
 
     private final static String PLAN_XML = "/activemq/rars/amqconnectorPlan.xml";
 
@@ -59,18 +55,10 @@ public class ActiveMQConnectorHelper {
 
     private static final String PLAN_TEMPLATE = getPlanTemplate();
 
-    // Deployer
-    private static final ObjectName DEPLOYER_NAME = JMXUtil
-            .getObjectName(ObjectNameConstants.DEPLOYER_OBJECT_NAME);
-
     private static final String[] DEPLOYER_ARGS = { File.class.getName(),
             File.class.getName() };
 
     private static final String DEPLOY_METHOD = "deploy";
-
-    // Repository
-    private static final ObjectName REPO_NAME = JMXUtil
-            .getObjectName(ObjectNameConstants.REPO_OBJECT_NAME);
 
     private static final String[] REPO_ARGS = { URI.class.getName() };
 
@@ -89,7 +77,7 @@ public class ActiveMQConnectorHelper {
         try {
             Kernel kernel = KernelRegistry.getSingleKernel();
             URI uri = new URI(".");
-            URL rootURL = (URL) kernel.invoke(REPO_NAME, GETURL_METHOD,
+            URL rootURL = (URL) kernel.invoke(ObjectNameConstants.REPO_OBJECT_NAME, GETURL_METHOD,
                     new Object[] {uri}, REPO_ARGS);
             uri = new URI(rootURL.toString());
             repoFile = new File(uri);
@@ -183,7 +171,7 @@ public class ActiveMQConnectorHelper {
     public void deployPlan(File moduleFile, File planFile) {
         try {
             Kernel kernel = KernelRegistry.getSingleKernel();
-            List list = (List) kernel.invoke(DEPLOYER_NAME, DEPLOY_METHOD,
+            List list = (List) kernel.invoke(ObjectNameConstants.DEPLOYER_OBJECT_NAME, DEPLOY_METHOD,
                     new Object[] {moduleFile, planFile}, DEPLOYER_ARGS);
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);

@@ -35,6 +35,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 public class RemoveDestinationHandler extends AbstractJMSManager implements
@@ -51,6 +52,7 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
             URI destinationConfigURI = new URI(destinationConfigURIName);
+            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(destinationConfigURI);
 
             List stores = configurationManager.listStores();
             assert stores.size() == 1 :"Piling one hack on another, this code only works with exactly one store";
@@ -61,9 +63,7 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
             //GBeanData topicBrowser = (GBeanData) kernel.invoke(storeName,
             // "getConfiguration", new Object[]{destinationConfigURI}, new
             // String[]{URI.class.getName()});
-            GBeanData topicBrowser = kernel.getGBeanData(JMXUtil
-                    .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                            + "\"" + destinationConfigURI + "\""));
+            GBeanData topicBrowser = kernel.getGBeanData(configurationObjectName);
             java.util.Set children = dm.getChildren(topicBrowser.getName());
             for (Iterator i = children.iterator(); i.hasNext();) {
                 ObjectName o = (ObjectName) i.next();
@@ -75,9 +75,7 @@ public class RemoveDestinationHandler extends AbstractJMSManager implements
 
             // Uninstall configuration
             //kernel.stopConfiguration(destinationConfigURI);
-            kernel.stopGBean(JMXUtil
-                    .getObjectName(ObjectNameConstants.CONFIG_GBEAN_PREFIX
-                            + "\"" + destinationConfigURIName + "\""));
+            kernel.stopGBean(configurationObjectName);
             kernel.invoke(storeName, "uninstall",
                     new Object[] {destinationConfigURI},
                     new String[] {URI.class.getName()});
