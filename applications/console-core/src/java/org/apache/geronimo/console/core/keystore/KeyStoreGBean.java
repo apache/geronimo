@@ -69,7 +69,6 @@ import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class KeyStoreGBean implements GBeanLifecycle {
-    public static final String KEY_STORE_OBJ_NAME = "geronimo.security:type=KeyStore";
 
     private static Log log = LogFactory.getLog(KeyStoreGBean.class);
 
