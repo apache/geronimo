@@ -60,6 +60,12 @@
             <version>${activemq_version}</version>
         </dependency>
         <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-ra</artifactId>
+            <version>${activemq_version}</version>
+            <type>rar</type>
+        </dependency>
+        <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
             <version>${activeio_version}</version>
