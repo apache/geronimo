@@ -49,6 +49,11 @@ public class JettyLogManagerImpl implements JettyLogManager {
     private final static int GROUP_FILENAME_YEAR  = 2;
     private final static int GROUP_FILENAME_MONTH = 4;
     private final static int GROUP_FILENAME_DAY   = 5;
+    // NOTE:  The file separators are specified here rather than using something like File.separator because
+    //        they are hard coded in config plans and sometimes in java code itself rather than being dependent
+    //        upon the OS.  This should be fixed someday, but for now we will manually check for either format.
+    private final static String FILE_SEPARATOR_UNIX_STYLE = "/";
+    private final static String FILE_SEPARATOR_WIN_STYLE = "\\";
 
     // Pattern that matches a single line  (used to calculate line numbers)
     private final static Pattern FULL_LINE_PATTERN = Pattern.compile("^.*", Pattern.MULTILINE);
@@ -124,8 +129,10 @@ public class JettyLogManagerImpl implements JettyLogManager {
 
         try {
             String fileNamePattern = logName;
-            if (fileNamePattern.indexOf(File.separator) > -1) {
-                fileNamePattern = fileNamePattern.substring(fileNamePattern.lastIndexOf(File.separator) + 1);
+            if (fileNamePattern.indexOf(FILE_SEPARATOR_UNIX_STYLE) > -1) {
+                fileNamePattern = fileNamePattern.substring(fileNamePattern.lastIndexOf(FILE_SEPARATOR_UNIX_STYLE) + 1);
+            } else if (fileNamePattern.indexOf(FILE_SEPARATOR_WIN_STYLE) > -1) {
+                fileNamePattern = fileNamePattern.substring(fileNamePattern.lastIndexOf(FILE_SEPARATOR_WIN_STYLE) + 1);
             }
 
             String logFile = serverInfo.resolvePath(logName);
