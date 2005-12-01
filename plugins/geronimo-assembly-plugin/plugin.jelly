@@ -46,12 +46,17 @@
         <ant:mkdir dir="${geronimo.assembly.dest}/lib"/>
         <ant:copy todir="${geronimo.assembly.dest}/lib" flatten="true">
             <ant:fileset dir="${maven.repo.local}">
+                <j:set var="hasLib" value="false"/>
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
                     <j:if test="${dependency.getProperty('geronimo.assemble') == 'library'}">
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        <j:set var="hasLib" value="true"/>
                     </j:if>
                 </j:forEach>
+                <j:if test="${hasLib == 'false'}">
+                    <ant:exclude name="**/*"/>
+                </j:if>
             </ant:fileset>
         </ant:copy>
         <ant:mkdir dir="${geronimo.assembly.dest}/lib/endorsed"/>
@@ -93,13 +98,18 @@
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <ant:copy todir="${geronimo.assembly.dest}/repository">
             <ant:fileset dir="${maven.repo.local}">
+                <j:set var="hasRepo" value="false"/>
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
                     <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assem
 ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        <j:set var="hasRepo" value="true"/>
                     </j:if>
                 </j:forEach>
+                <j:if test="${hasRepo == 'false'}">
+                    <ant:exclude name="**/*"/>
+                </j:if>
             </ant:fileset>
         </ant:copy>
     </goal>
