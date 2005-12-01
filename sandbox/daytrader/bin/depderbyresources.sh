@@ -52,4 +52,4 @@ SERVER_JAR=$PRGDIR/server.jar
 
 GERONIMO_HOME=$PRGDIR/../../../modules/assembly/target/geronimo-1.0-SNAPSHOT
 echo $GERONIMO_HOME
-java -jar ${GERONIMO_HOME}/bin/deployer.jar --user system --password manager deploy /home/hogstrom/.maven/repository/daytrader/ears/daytrader-ear-1.0-SNAPSHOT.ear dayTrader-plan.xml
+java -jar ${GERONIMO_HOME}/bin/deployer.jar --user system --password manager deploy ~/.maven/repository/daytrader/ears/daytrader-ear-1.0-SNAPSHOT.ear dayTrader-plan.xml

@@ -518,7 +518,7 @@
             configId="foo"
             clientConfigId="tradeStreamerAppclient">
             <resource>
-                <external-rar>activemq/rars/activemq-ra-3.2-M1.rar</external-rar>
+                <!-- $MRH --> <external-rar>activemq/activemq-ra/3.2.1/rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
            configId="org/apache/geronimo/SystemJMS"
            parentId="org/apache/geronimo/ActiveMQServer">
@@ -571,7 +571,7 @@
     </module>
     <ext-module>
         <connector>TradeDataSource</connector>
-        <external-path>tranql/rars/tranql-connector-derby-embed-xa-1.0.rar</external-path>
+        <external-path>tranql/tranql-connector-derby-embed-xa/1.1-SNAPSHOT/rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             configId="TradeDataSource"
@@ -579,10 +579,10 @@
 
 
             <dependency>
-                <uri>org.apache.derby/jars/derby-10.1.1.0.jar</uri>
+                <uri>org.apache.derby/derby/10.1.1.0/jar</uri>
             </dependency>
             <dependency>
-                <uri>org.apache.derby/jars/derbynet-10.1.1.0.jar</uri>
+                <uri>org.apache.derby/derbynet/10.1.1.0/jar</uri>
             </dependency>
 
             <resourceadapter>
@@ -617,7 +617,7 @@
 
     <ext-module>
         <connector>TradeJMS</connector>
-        <external-path>activemq/rars/activemq-ra-3.2-M1.rar</external-path>
+        <!-- $MRH --> <external-path>activemq/activemq-ra/3.2.1/rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
