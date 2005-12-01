@@ -99,22 +99,6 @@
             <version>${xml_parser_apis_version}</version>
         </dependency>
 
-        <!-- dependency on deployer -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-packaging-plugin</artifactId>
-            <version>${geronimo_version}</version>
-            <type>plugin</type>
-            <properties>
-                <packaging.classpath>true</packaging.classpath>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-        </dependency>
     </dependencies>
 </project>
 

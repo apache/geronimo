@@ -25,6 +25,31 @@
     <name>Web console deployed on jetty</name>
 
     <dependencies>
+        <!-- dependency on deployer -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_version}</version>
+            <type>plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>j2ee-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>jetty-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>

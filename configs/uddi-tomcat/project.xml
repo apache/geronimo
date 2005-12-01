@@ -25,6 +25,13 @@
     <name>UDDI server Configuration for the J2EE Tomcat Server</name>
 
     <dependencies>
+        <!-- dependency on deployer -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_version}</version>
+            <type>plugin</type>
+        </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>

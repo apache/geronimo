@@ -25,6 +25,19 @@
     <name>Activemq configuration</name>
 
     <dependencies>
+        <!-- dependency on deployer -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_version}</version>
+            <type>plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>j2ee-deployer</artifactId>
@@ -60,11 +73,11 @@
             <version>${activemq_version}</version>
         </dependency>
         <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-ra</artifactId>
-            <version>${activemq_version}</version>
-            <type>rar</type>
-        </dependency>
+             <groupId>activemq</groupId>
+             <artifactId>activemq-ra</artifactId>
+             <version>${activemq_version}</version>
+             <type>rar</type>
+         </dependency>
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>

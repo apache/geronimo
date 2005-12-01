@@ -41,8 +41,8 @@ import org.apache.maven.repository.Artifact;
  */
 public class PackageBuilderShell {
 
-//    private URL[] builderClassPath;
     private List artifacts;
+    private List pluginArtifacts;
     private MavenJellyContext context;
 
     private static ClassLoader classLoader;
@@ -183,6 +183,14 @@ public class PackageBuilderShell {
         this.artifacts = artifacts;
     }
 
+    public List getPluginArtifacts() {
+        return pluginArtifacts;
+    }
+
+    public void setPluginArtifacts(List pluginArtifacts) {
+        this.pluginArtifacts = pluginArtifacts;
+    }
+
     public MavenJellyContext getContext() {
         return context;
     }
@@ -217,26 +225,33 @@ public class PackageBuilderShell {
     private Object getPackageBuilder() throws ClassNotFoundException, IllegalAccessException, InstantiationException, MalformedURLException {
         if (classLoader == null) {
             String repo = context.getMavenRepoLocal();
-            String pluginDir = context.getPluginsDir();
             List urls = new ArrayList();
-//            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
-//                Artifact artifact = (Artifact) iterator.next();
-//                Dependency dependency = (Dependency) artifact.getDependency();
-//                if ("true".equals(dependency.getProperty(PACKAGING_CLASSPATH_PROPERTY))) {
-//                    String urlString = artifact.getUrlPath();
-//                    URL url = new File(repo + urlString).toURL();
-//                    urls.add(url);
-//                }
-//            }
-            urls.add(new File(repo + "/geronimo/jars/geronimo-kernel-1.0-SNAPSHOT.jar").toURL());
-            urls.add(new File(repo + "/geronimo/jars/geronimo-system-1.0-SNAPSHOT.jar").toURL());
-            urls.add(new File(repo + "/mx4j/jars/mx4j-3.0.1.jar").toURL());
-            urls.add(new File(repo + "/mx4j/jars/mx4j-remote-3.0.1.jar").toURL());
-            urls.add(new File(repo + "/cglib/jars/cglib-nodep-2.1_2.jar").toURL());
-            urls.add(new File(repo + "/commons-logging/jars/commons-logging-1.0.4.jar").toURL());
-            urls.add(new File(repo + "/log4j/jars/log4j-1.2.8.jar").toURL());
-            urls.add(new File(pluginDir + "/geronimo-packaging-plugin-1.0-SNAPSHOT.jar").toURL());
-            urls.add(new File(repo + "/geronimo/plugins/geronimo-packaging-plugin-1.0-SNAPSHOT.jar").toURL());
+            for (Iterator iterator = pluginArtifacts.iterator(); iterator.hasNext();) {
+                Artifact artifact = (Artifact) iterator.next();
+                Dependency dependency = (Dependency) artifact.getDependency();
+                if ("true".equals(dependency.getProperty(PACKAGING_CLASSPATH_PROPERTY))) {
+                    String urlString = artifact.getUrlPath();
+                    URL url = new File(repo + urlString).toURL();
+                    urls.add(url);
+                }
+            }
+            boolean found = false;
+            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+                Artifact artifact = (Artifact) iterator.next();
+                Dependency dependency = (Dependency) artifact.getDependency();
+                if ("geronimo".equals(dependency.getGroupId())
+                && "geronimo-packaging-plugin".equals(dependency.getArtifactId())
+                && "plugin".equals(dependency.getType())) {
+                    String urlString = artifact.getUrlPath();
+                    URL url = new File(repo + urlString).toURL();
+                    urls.add(url);
+                    found = true;
+                }
+            }
+            if (!found) {
+                System.err.println("You must include the geronimo packaging plugin as a dependency in your project.xml");
+                throw new RuntimeException("You must include the geronimo packaging plugin as a dependency in your project.xml");
+            }
             URL[] builderClassPath = (URL[]) urls.toArray(new URL[urls.size()]);
             classLoader = new URLClassLoader(builderClassPath, ClassLoader.getSystemClassLoader());
         }

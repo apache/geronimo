@@ -54,6 +54,7 @@
         <car:package
             context="${context}"
             artifacts="${pom.artifacts}"
+            pluginArtifacts="${plugin.artifacts}"
             repository="${geronimo.packaging.repository}"
             deploymentConfig="${geronimo.packaging.deploymentConfig}"
             deployerName="${geronimo.packaging.deployerName}"

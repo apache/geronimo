@@ -26,6 +26,14 @@
     <name>Configuration for performing J2EE deployments</name>
 
     <dependencies>
+        <!-- dependency on deployer -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_version}</version>
+            <type>plugin</type>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
