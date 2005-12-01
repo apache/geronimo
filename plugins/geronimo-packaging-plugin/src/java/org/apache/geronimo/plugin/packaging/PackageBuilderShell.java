@@ -236,6 +236,7 @@ public class PackageBuilderShell {
             urls.add(new File(repo + "/commons-logging/jars/commons-logging-1.0.4.jar").toURL());
             urls.add(new File(repo + "/log4j/jars/log4j-1.2.8.jar").toURL());
             urls.add(new File(pluginDir + "/geronimo-packaging-plugin-1.0-SNAPSHOT.jar").toURL());
+            urls.add(new File(repo + "/geronimo/plugins/geronimo-packaging-plugin-1.0-SNAPSHOT.jar").toURL());
             URL[] builderClassPath = (URL[]) urls.toArray(new URL[urls.size()]);
             classLoader = new URLClassLoader(builderClassPath, ClassLoader.getSystemClassLoader());
         }
