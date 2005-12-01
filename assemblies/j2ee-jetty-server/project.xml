@@ -404,14 +404,14 @@
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>${antlr_version}</version>                                                         `
+            <version>${antlr_version}</version>                                                         
         </dependency>
 
         <dependency>
             <!--what is using this? -->
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
-            <version>${asm_version}</version>                                                         `
+            <version>${asm_version}</version>                                                         
         </dependency>
 
         <dependency>
