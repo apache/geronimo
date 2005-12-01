@@ -690,10 +690,26 @@
         <m:makeRelativePath var="geronimo.assembly.dir.name"
             basedir="${geronimo.assembly.dir}/.."
             path="${geronimo.assembly.dir}"/>
+        <!--fixcrlf processing needed so:
+        1. Shell scripts only have LFs, as CRs cause the scripts to abort
+           and the CRs also appear as ^M in editors such as vi.
+        2. Batch files on windows should contain CRLFs so they are editable
+           using notepad (the default editor in Windows) -->	    
+        <ant:fixcrlf srcdir="${geronimo.assembly.dir}/.." 
+            includes="${geronimo.assembly.dir.name}/bin/*.sh" eol="lf" />
+        <ant:fixcrlf srcdir="${geronimo.assembly.dir}/.." 
+            includes="${geronimo.assembly.dir.name}/bin/*.bat" eol="crlf" />
+
+        <!-- build a tar.gz file ensuring execute permission is set for
+            shell script files on the tar task so it works on windows -->
         <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
             <ant:tar longfile="gnu" compression="gzip" tarfile="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz">
                 <ant:tarfileset dir="${geronimo.assembly.dir}/..">
                     <ant:include name="${geronimo.assembly.dir.name}/**"/>
+                    <ant:exclude name="${geronimo.assembly.dir.name}/bin/*.sh"/>
+                </ant:tarfileset>
+                <ant:tarfileset dir="${geronimo.assembly.dir}/.." mode="755">
+                    <ant:include name="${geronimo.assembly.dir.name}/bin/*.sh"/>
                 </ant:tarfileset>
             </ant:tar>
             <checksum file="${geronimo.assembly.distributions.dir}/${maven.final.name}.tar.gz" algorithm="MD5" fileext=".md5"/>
