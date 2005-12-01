@@ -21,6 +21,6 @@
 
 <project default="default"
     >
-    <goal name="default" prereqs="assemble:install-assembly"/>
+    <goal name="default" prereqs="assemble:install"/>
 
 </project>
