@@ -45,7 +45,7 @@ public class ConfigPlanTest extends TestCase {
         DependencyType[] dependencies = configuration.getDependencyArray();
         assertEquals(4, dependencies.length);
         assertEquals("geronimo", dependencies[0].getGroupId());
-        assertEquals("geronimo-kernel", dependencies[0].getArtifactId());
+        assertEquals("foo1", dependencies[0].getArtifactId());
         assertEquals("DEV", dependencies[0].getVersion());
 
         GbeanType[] gbeans = configuration.getGbeanArray();
