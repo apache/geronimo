@@ -30,8 +30,8 @@ import org.apache.geronimo.deployment.FooBarBean;
 import junit.framework.TestCase;
 
 /**
- * 
- * 
+ *
+ *
  * @version $Rev$ $Date$
  */
 public class ConfigPlanTest extends TestCase {
@@ -43,7 +43,7 @@ public class ConfigPlanTest extends TestCase {
         assertEquals("test/plan1", configuration.getConfigId());
 
         DependencyType[] dependencies = configuration.getDependencyArray();
-        assertEquals(1, dependencies.length);
+        assertEquals(4, dependencies.length);
         assertEquals("geronimo", dependencies[0].getGroupId());
         assertEquals("geronimo-kernel", dependencies[0].getArtifactId());
         assertEquals("DEV", dependencies[0].getVersion());

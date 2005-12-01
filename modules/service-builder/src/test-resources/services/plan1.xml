@@ -21,10 +21,43 @@
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
     configId="test/plan1"
     >
+    <import>
+        <groupId>geronimo</groupId>
+        <type>car</type>
+        <artifactId>foo4</artifactId>
+        <version>DEV</version>
+    </import>
+
+    <import>
+        <uri>geronimo/foo5/DEV/car</uri>
+    </import>
+
     <dependency>
         <groupId>geronimo</groupId>
-        <artifactId>geronimo-kernel</artifactId>
+        <artifactId>foo1</artifactId>
         <version>DEV</version>
+    </dependency>
+
+    <dependency>
+        <groupId>
+           geronimo
+        </groupId>
+        <artifactId>
+            foo2
+        </artifactId>
+        <version>
+            DEV
+        </version>
+    </dependency>
+
+    <dependency>
+        <uri>geronimo/foo3/DEV</uri>
+    </dependency>
+
+    <dependency>
+        <uri>
+           geronimo/foo4/DEV
+        </uri>
     </dependency>
 
     <gbean gbeanName="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
@@ -42,6 +75,8 @@
                 </ns:bean-property>
             </ns:javabean>
         </xml-attribute>
-        <reference name="MockEndpoint"><gbean-name>geronimo.test:name=MyMockGMBean</gbean-name></reference>
+        <reference name="MockEndpoint">
+            <gbean-name>geronimo.test:name=MyMockGMBean</gbean-name>
+        </reference>
     </gbean>
 </configuration>

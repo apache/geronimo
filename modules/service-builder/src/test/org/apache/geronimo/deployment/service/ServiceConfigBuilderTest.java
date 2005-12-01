@@ -18,6 +18,7 @@ package org.apache.geronimo.deployment.service;
 
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.FooBarBean;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -53,7 +55,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         referenceCollection.add(javaBeanXmlAttributeBuilder);
         new ServiceConfigBuilder(parentIdArray, null, referenceCollection, null, null);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        URL plan1 = cl.getResource("services/plan1.xml");
+        final URL plan1 = cl.getResource("services/plan1.xml");
         ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);
         ConfigurationType plan = doc.getConfiguration();
         File outFile = File.createTempFile("foo", "bar");
@@ -64,12 +66,22 @@ public class ServiceConfigBuilderTest extends TestCase {
         try {
             DeploymentContext context = new DeploymentContext(outFile, URI.create("foo/bar"), ConfigurationModuleType.SERVICE, parentId, "domain", "server", null);
             J2eeContext j2eeContext = new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
+            ServiceConfigBuilder.addDependencies(context, plan.getDependencyArray(), new Repository() {
+
+                public boolean hasURI(URI uri) {
+                    return true;
+                }
+
+                public URL getURL(URI uri) throws MalformedURLException {
+                    return plan1;
+                }
+            });
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
             Set beanDatas = context.listGBeans(new ObjectName("*:*"));
             assertEquals(1, beanDatas.size());
             ObjectName beanName = (ObjectName) beanDatas.iterator().next();
-            GBeanData data = context.getGBeanInstance(beanName); 
+            GBeanData data = context.getGBeanInstance(beanName);
             FooBarBean fooBarBean = (FooBarBean) data.getAttribute("fooBarBean");
             assertNotNull(fooBarBean);
             assertEquals("foo", fooBarBean.getFoo());

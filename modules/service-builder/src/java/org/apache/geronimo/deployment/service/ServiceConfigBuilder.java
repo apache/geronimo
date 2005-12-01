@@ -412,20 +412,20 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         URI uri;
         if (dep.isSetUri()) {
             try {
-                uri = new URI(dep.getUri());
+                uri = new URI(dep.getUri().trim());
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dep.getUri(), e);
+                throw new DeploymentException("Invalid dependency URI " + dep.getUri().trim(), e);
             }
         } else {
-            String groupId = dep.getGroupId();
-            String type = dep.isSetType() ? dep.getType() : "jar";
-            String artifactId = dep.getArtifactId();
-            String version = dep.getVersion();
+            String groupId = dep.getGroupId().trim();
+            String type = dep.isSetType() ? dep.getType().trim() : "jar";
+            String artifactId = dep.getArtifactId().trim();
+            String version = dep.getVersion().trim();
             String id = groupId + "/" + artifactId + "/" + version + "/" + type;
             try {
                 uri = new URI(id);
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + dep.getGroupId() + ", artifactId=" + dep.getArtifactId() + ", version=" + dep.getVersion(), e);
+                throw new DeploymentException("Unable to construct URI for groupId=" + groupId + ", artifactId=" + artifactId + ", version=" + version + ", type=" + type, e);
             }
         }
         return uri;
