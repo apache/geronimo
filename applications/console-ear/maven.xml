@@ -14,14 +14,4 @@
         <velocity:merge basedir="${maven.ear.src}/META-INF" template="application.xml" name="${maven.ear.descriptordir}/application.xml"/>
     </goal>
 
-    <preGoal name="ear:ear">
-        <ant:mkdir dir="${maven.ear.resources}/META-INF"/>
-        <velocity:merge basedir="${maven.src.dir}/plan" template="geronimo-application.xml" name="${maven.ear.resources}/META-INF/geronimo-application.xml"/>
-    </preGoal>
-
-<!--
-    <postGoal name="ear:install">
-        <attainGoal name="car:install"/>
-    </postGoal>
--->
 </project>

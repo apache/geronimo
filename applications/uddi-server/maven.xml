@@ -26,7 +26,5 @@
     <goal name="default">
         <attainGoal name="war:install"/>
     </goal>
-    <preGoal name="war:war">
-        <velocity:merge basedir="${maven.war.src}/WEB-INF" template="geronimo-web.xml" name="${maven.war.webapp.dir}/WEB-INF/geronimo-web.xml"/>
-    </preGoal>
+
 </project>
