@@ -54,7 +54,7 @@ public class RARConfigurer implements ModuleConfigurer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RARConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RARConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
         infoFactory.addInterface(ModuleConfigurer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

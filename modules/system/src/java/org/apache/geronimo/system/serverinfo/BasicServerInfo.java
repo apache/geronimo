@@ -127,7 +127,7 @@ public class BasicServerInfo implements ServerInfo {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(BasicServerInfo.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(BasicServerInfo.class);
 
         infoFactory.addAttribute("baseDirectory", String.class, true);
         infoFactory.addAttribute("version", String.class, false);

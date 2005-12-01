@@ -118,7 +118,7 @@ public class SecurityServiceImpl implements SecurityService {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SecurityServiceImpl.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SecurityServiceImpl.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);

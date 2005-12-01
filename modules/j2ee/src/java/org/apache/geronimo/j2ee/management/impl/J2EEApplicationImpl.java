@@ -116,7 +116,7 @@ public class J2EEApplicationImpl implements J2EEApplication {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(J2EEApplicationImpl.class, NameFactory.J2EE_APPLICATION);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEApplicationImpl.class, NameFactory.J2EE_APPLICATION);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("j2eeServer", J2EEServer.class);

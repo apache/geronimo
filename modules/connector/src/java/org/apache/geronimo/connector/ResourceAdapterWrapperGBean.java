@@ -62,7 +62,7 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterWrapperGBean.class, NameFactory.RESOURCE_ADAPTER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterWrapperGBean.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 

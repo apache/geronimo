@@ -164,7 +164,7 @@ public class KernelGBean implements Kernel{
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(KernelGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(KernelGBean.class);
         infoFactory.addInterface(Kernel.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.setConstructor(new String[]{"kernel"});

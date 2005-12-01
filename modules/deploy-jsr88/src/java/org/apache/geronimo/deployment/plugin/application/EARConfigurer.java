@@ -43,7 +43,7 @@ public class EARConfigurer implements ModuleConfigurer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EARConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
         infoFactory.addInterface(ModuleConfigurer.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

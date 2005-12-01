@@ -33,7 +33,7 @@ public class ManagedConnectionFactoryWrapperGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ManagedConnectionFactoryWrapperGBean.class, ManagedConnectionFactoryWrapper.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
 
         infoFactory.addAttribute("managedConnectionFactoryClass", String.class, true);
         infoFactory.addAttribute("connectionFactoryInterface", String.class, true);

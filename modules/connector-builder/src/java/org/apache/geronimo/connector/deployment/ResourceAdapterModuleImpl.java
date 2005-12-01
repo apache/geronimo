@@ -109,7 +109,7 @@ public class ResourceAdapterModuleImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ResourceAdapterModuleImpl.class);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
 

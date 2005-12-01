@@ -98,7 +98,7 @@ public class ReadOnlyRepository implements Repository, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ReadOnlyRepository.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ReadOnlyRepository.class);
 
         infoFactory.addAttribute("root", URI.class, true);
 

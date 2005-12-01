@@ -167,7 +167,7 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(SwitchingModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SwitchingModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultNamespace", String.class, true, true);
         infoBuilder.addReference("ModuleBuilders", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(ModuleBuilder.class);

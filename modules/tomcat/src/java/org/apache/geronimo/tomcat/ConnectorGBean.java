@@ -405,7 +405,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Connector", ConnectorGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", ConnectorGBean.class);
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);

@@ -434,7 +434,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceConfigBuilder.class, NameFactory.CONFIG_BUILDER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ServiceConfigBuilder.class, NameFactory.CONFIG_BUILDER);
 
         infoFactory.addInterface(ConfigurationBuilder.class);
 

@@ -122,7 +122,7 @@ public class GBeanInfoTest extends TestCase {
         public static final GBeanInfo GBEAN_INFO;
 
         static {
-            GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockGBean.class);
+            GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockGBean.class);
 
             infoFactory.addAttribute(nonPersistentAttrInfo);
             infoFactory.addAttribute(persistentAttrInfo);

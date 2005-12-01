@@ -57,7 +57,7 @@ public class SystemProperties {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(SystemProperties.class, "GBean");
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(SystemProperties.class, "GBean");
         infoBuilder.addAttribute("systemProperties", Properties.class, true, true);
         infoBuilder.addAttribute("systemPathProperties", Properties.class, true, true);
         infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");

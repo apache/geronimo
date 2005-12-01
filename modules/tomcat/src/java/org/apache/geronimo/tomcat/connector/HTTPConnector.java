@@ -54,7 +54,7 @@ public class HTTPConnector extends Connector implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat HTTP Connector", HTTPConnector.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat HTTP Connector", HTTPConnector.class);
         infoFactory.addAttribute("port", int.class, true);
         infoFactory.addReference("TomcatContainer", TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.setConstructor(new String[] { "TomcatContainer" });

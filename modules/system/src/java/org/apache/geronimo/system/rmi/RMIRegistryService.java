@@ -79,7 +79,7 @@ public class RMIRegistryService implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("RMI Naming", RMIRegistryService.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("RMI Naming", RMIRegistryService.class);
         infoFactory.addAttribute("host", String.class, false);
         infoFactory.addAttribute("protocol", String.class, false);
         infoFactory.addAttribute("port", int.class, true, true);

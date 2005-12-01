@@ -159,7 +159,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatEngine", EngineGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatEngine", EngineGBean.class);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("Hosts", ObjectRetriever.class, HostGBean.J2EE_TYPE);

@@ -143,7 +143,7 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyPOJOWebServiceHolder.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyPOJOWebServiceHolder.class, NameFactory.SERVLET_WEB_SERVICE_TEMPLATE);
         //todo replace with interface
         infoBuilder.addInterface(ServletHolder.class);
 

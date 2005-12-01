@@ -33,7 +33,7 @@ import java.util.Arrays;
 import org.apache.geronimo.kernel.management.NotificationType;
 
 /**
- * Describes a GBean.
+ * Describes a GBean.  This class should never be constructed directly.  Insted use GBeanInfoBuilder.
  *
  * @version $Rev$ $Date$
  */
@@ -68,6 +68,7 @@ public final class GBeanInfo implements Serializable {
         }
     }
 
+    private final String sourceClass;
     private final String name;
     private final String className;
     private final String j2eeType;
@@ -79,25 +80,40 @@ public final class GBeanInfo implements Serializable {
     private final Set references;
     private final Set interfaces;
 
-    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
-    }
-
+    /**
+     * @deprecated use GBeanInfoBuilder
+     */
     public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
-        this(name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
+        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
     }
 
     /**
-     * @deprecated
+     * @deprecated use GBeanInfoBuilder
+     */
+    public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
+        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
+    }
+
+    /**
+     * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
-        this(className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications);
+        this(null, className, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications);
     }
 
     /**
-     * @deprecated
+     * @deprecated use GBeanInfoBuilder
      */
     public GBeanInfo(String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
+        this(null, name, className, j2eeType, attributes, constructor, operations, references, interfaces, notifications);
+    }
+
+    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces) {
+        this(sourceClass, name, className, j2eeType, attributes, constructor, operations, references, interfaces, DEFAULT_NOTIFICATIONS);
+    }
+
+    GBeanInfo(String sourceClass, String name, String className, String j2eeType, Collection attributes, GConstructorInfo constructor, Collection operations, Set references, Set interfaces, Set notifications) {
+        this.sourceClass = sourceClass;
         this.name = name;
         this.className = className;
         this.j2eeType = j2eeType;
@@ -138,6 +154,15 @@ public final class GBeanInfo implements Serializable {
         } else {
             this.notifications = Collections.unmodifiableSet(new HashSet(notifications));
         }
+    }
+
+    /**
+     * Gets the source class from which this GBeanInfo can be retrieved using GBeanInfo.getGBeanInfo(className, classLoader).
+     * A null source class means the gbean info was dynamically generated.
+     * @return the source of this GBeanInfo, or null if it was dynamically generated
+     */
+    public String getSourceClass() {
+        return sourceClass;
     }
 
     public String getName() {
@@ -212,7 +237,10 @@ public final class GBeanInfo implements Serializable {
     }
 
     public String toString() {
-        StringBuffer result = new StringBuffer("[GBeanInfo: id=").append(super.toString()).append(" name=").append(name);
+        StringBuffer result = new StringBuffer("[GBeanInfo:");
+        result.append(" id=").append(super.toString());
+        result.append(" sourceClass=").append(sourceClass);
+        result.append(" name=").append(name);
         for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
             GAttributeInfo geronimoAttributeInfo = (GAttributeInfo) iterator.next();
             result.append("\n    attribute: ").append(geronimoAttributeInfo);

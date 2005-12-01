@@ -61,7 +61,7 @@ public class DirectConfigurationEntry implements ConfigurationEntryFactory {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DirectConfigurationEntry.class, NameFactory.CONFIGURATION_ENTRY);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DirectConfigurationEntry.class, NameFactory.CONFIGURATION_ENTRY);
         infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("controlFlag", LoginModuleControlFlag.class, true);

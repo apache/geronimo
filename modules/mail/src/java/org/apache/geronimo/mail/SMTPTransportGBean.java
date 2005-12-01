@@ -730,7 +730,7 @@ public class SMTPTransportGBean extends ProtocolGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SMTPTransportGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SMTPTransportGBean.class);
 
         infoFactory.addAttribute("port", Integer.class, true);
         infoFactory.addAttribute("connectionTimeout", Integer.class, true);

@@ -31,7 +31,7 @@ public class JCAConnectionFactoryImplGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JCAConnectionFactoryImpl.class, NameFactory.JCA_CONNECTION_FACTORY);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JCAConnectionFactoryImplGBean.class, JCAConnectionFactoryImpl.class, NameFactory.JCA_CONNECTION_FACTORY);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
 
         infoFactory.addAttribute("objectName", String.class, false);

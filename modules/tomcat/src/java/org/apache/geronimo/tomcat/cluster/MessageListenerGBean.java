@@ -78,7 +78,7 @@ public class MessageListenerGBean extends BaseGBean implements GBeanLifecycle, O
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MessageListenerGBean.class, J2EE_TYPE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MessageListenerGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("NextListener", MessageListenerGBean.class, J2EE_TYPE);

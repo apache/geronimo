@@ -126,7 +126,7 @@ public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JavaBeanXmlAttributeBuilder.class, "XmlAttributeBuilder");
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JavaBeanXmlAttributeBuilder.class, "XmlAttributeBuilder");
         infoBuilder.addInterface(XmlAttributeBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

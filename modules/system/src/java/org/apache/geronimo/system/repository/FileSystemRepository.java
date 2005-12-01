@@ -215,7 +215,7 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(FileSystemRepository.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(FileSystemRepository.class);
 
         infoFactory.addAttribute("root", URI.class, true);
 

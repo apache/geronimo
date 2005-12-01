@@ -39,7 +39,7 @@ public class MockGBean {
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("MockGBean", MockGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockGBean.class);
         infoFactory.addAttribute("value", String.class, true);
 
         GBEAN_INFO = infoFactory.getBeanInfo();

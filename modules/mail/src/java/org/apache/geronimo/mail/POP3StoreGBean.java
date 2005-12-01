@@ -426,7 +426,7 @@ public class POP3StoreGBean extends ProtocolGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(POP3StoreGBean.class, ProtocolGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(POP3StoreGBean.class, ProtocolGBean.GBEAN_INFO);
 
         infoFactory.addAttribute("port", Integer.class, true);
         infoFactory.addAttribute("connectionTimeout", Integer.class, true);

@@ -403,7 +403,7 @@ public class JettyModuleBuilderTest extends TestCase {
         private static final byte[] NO_OBJECTS_OS;
 
         static {
-            GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
+            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
             infoBuilder.addAttribute("kernel", Kernel.class, false);
             infoBuilder.setConstructor(new String[] {"kernel"});

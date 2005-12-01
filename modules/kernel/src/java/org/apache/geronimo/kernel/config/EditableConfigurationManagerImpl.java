@@ -46,6 +46,8 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
         } catch (Exception e) {
             throw new InvalidConfigException("Unable to add GBean to configuration", e);
         }
+
+        attributeStore.addGBean(configID.toString(), gbean);
     }
 
     public void removeGBeanFromConfiguration(URI configID, ObjectName gbean) throws GBeanNotFoundException, InvalidConfigException {
@@ -79,7 +81,7 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(EditableConfigurationManagerImpl.class, ConfigurationManagerImpl.GBEAN_INFO, "ConfigurationManager");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EditableConfigurationManagerImpl.class, ConfigurationManagerImpl.GBEAN_INFO, "ConfigurationManager");
         infoFactory.addInterface(EditableConfigurationManager.class);
         infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList"});
         GBEAN_INFO = infoFactory.getBeanInfo();

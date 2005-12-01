@@ -150,7 +150,7 @@ public class MavenConfigStore implements ConfigurationStore {
     }
 
     static {
-        GBeanInfoBuilder builder = new GBeanInfoBuilder(MavenConfigStore.class);
+        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MavenConfigStore.class);
         builder.addInterface(ConfigurationStore.class);
         builder.addAttribute("kernel", Kernel.class, false);
         builder.addAttribute("objectName", String.class, false);

@@ -179,7 +179,7 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MBeanServerKernelBridge.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MBeanServerKernelBridge.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("mbeanServerId", String.class, true);
         infoFactory.setConstructor(new String[]{"kernel", "mbeanServerId"});

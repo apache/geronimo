@@ -39,7 +39,7 @@ public class UnavailableServiceReferenceBuilder implements ServiceReferenceBuild
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(UnavailableServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(UnavailableServiceReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(ServiceReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

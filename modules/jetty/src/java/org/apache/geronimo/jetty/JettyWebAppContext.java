@@ -526,7 +526,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty WebApplication Context", JettyWebAppContext.class, NameFactory.WEB_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty WebApplication Context", JettyWebAppContext.class, NameFactory.WEB_MODULE);
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
         //from jetty's webapp context
 

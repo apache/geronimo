@@ -47,7 +47,7 @@ public class NamingProperties {
     public static final GBeanInfo gbeanInfo;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(NamingProperties.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(NamingProperties.class);
         infoFactory.addAttribute("namingFactoryInitial", String.class, true);
         infoFactory.addAttribute("namingFactoryUrlPkgs", String.class, true);
         infoFactory.addAttribute("namingProviderUrl", String.class, true, true);

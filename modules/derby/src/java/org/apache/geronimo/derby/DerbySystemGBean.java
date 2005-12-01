@@ -90,7 +90,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DerbySystemGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DerbySystemGBean.class);
         infoFactory.addAttribute("derbySystemHome", String.class, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.setConstructor(new String[]{"ServerInfo", "derbySystemHome"});

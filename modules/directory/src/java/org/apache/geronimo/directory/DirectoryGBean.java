@@ -242,8 +242,7 @@ public class DirectoryGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("DirectoryGBean",
-                DirectoryGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("DirectoryGBean", DirectoryGBean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         

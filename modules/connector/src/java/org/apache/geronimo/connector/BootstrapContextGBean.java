@@ -32,7 +32,7 @@ public class BootstrapContextGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(BootstrapContext.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(BootstrapContextGBean.class, BootstrapContext.class);
           //adding interface does not work, creates attributes for references???
 //        infoFactory.addInterface(javax.resource.spi.BootstrapContext.class);
 

@@ -68,8 +68,7 @@ public class JMSConnectionFactoryBean implements GBeanLifecycle {
 
     static {
 
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(
-                "JMS Connection Factory Bean", JMSConnectionFactoryBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("JMS Connection Factory Bean", JMSConnectionFactoryBean.class);
         infoFactory.addAttribute("connectionFactory", ConnectionFactory.class,
                 false);
 

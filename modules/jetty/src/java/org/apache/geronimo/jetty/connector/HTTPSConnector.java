@@ -123,7 +123,7 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Connector HTTPS", HTTPSConnector.class, JettyConnector.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Connector HTTPS", HTTPSConnector.class, JettyConnector.GBEAN_INFO);
         infoFactory.addAttribute("keystoreFileName", String.class, true, true);
         infoFactory.addAttribute("algorithm", String.class, true, true);
         infoFactory.addAttribute("keystorePassword", String.class, true, true);

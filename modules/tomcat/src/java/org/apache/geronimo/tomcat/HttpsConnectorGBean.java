@@ -194,7 +194,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements SecureConnect
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Connector", HttpsConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Connector", HttpsConnectorGBean.class, ConnectorGBean.GBEAN_INFO);
         infoFactory.addAttribute("keystoreFileName", String.class, true, true);
         infoFactory.addAttribute("truststoreFileName", String.class, true, true);
         infoFactory.addAttribute("algorithm", String.class, true, true);

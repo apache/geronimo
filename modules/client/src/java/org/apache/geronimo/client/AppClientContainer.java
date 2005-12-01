@@ -181,7 +181,7 @@ public final class AppClientContainer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientContainer.class, NameFactory.APP_CLIENT);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AppClientContainer.class, NameFactory.APP_CLIENT);
 
         infoFactory.addOperation("main", new Class[]{String[].class});
 

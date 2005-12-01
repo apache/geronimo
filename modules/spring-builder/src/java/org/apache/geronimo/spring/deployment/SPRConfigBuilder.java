@@ -71,7 +71,7 @@ public class SPRConfigBuilder
 
   static
   {
-    GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SPRConfigBuilder.class, NameFactory.CONFIG_BUILDER);
+    GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SPRConfigBuilder.class, NameFactory.CONFIG_BUILDER);
     infoFactory.addAttribute("defaultParentId" , List.class, true);
     infoFactory.addReference("Repository"      , Repository.class, NameFactory.GERONIMO_SERVICE);
     infoFactory.addAttribute("kernel"          , Kernel.class, false);

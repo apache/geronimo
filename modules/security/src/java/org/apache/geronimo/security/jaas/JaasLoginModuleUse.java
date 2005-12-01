@@ -126,7 +126,7 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JaasLoginModuleUse.class, "LoginModuleUse");
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JaasLoginModuleUse.class, "LoginModuleUse");
         infoBuilder.addAttribute("controlFlag", String.class, true);
         infoBuilder.addAttribute("kernel", Kernel.class, false, false);
         infoBuilder.addReference("LoginModule", LoginModuleGBean.class, NameFactory.LOGIN_MODULE);

@@ -69,10 +69,7 @@ public class FarmWarDeployerGBean extends ClusterDeployerGBean{
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(
-                "ClusterDeployer",
-                FarmWarDeployerGBean.class,
-                J2EE_TYPE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("ClusterDeployer", FarmWarDeployerGBean.class, J2EE_TYPE);
 
         infoFactory.addAttribute("tempDir", String.class, true);
         infoFactory.addAttribute("deployDir", String.class, true);

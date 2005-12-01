@@ -29,7 +29,7 @@ public class AbstractConnectionManagerGBean {
     protected static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AbstractConnectionManager.class, NameFactory.JCA_CONNECTION_MANAGER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AbstractConnectionManagerGBean.class, AbstractConnectionManager.class, NameFactory.JCA_CONNECTION_MANAGER);
 
         infoBuilder.addInterface(ConnectionManagerContainer.class);
         //these attributes are persisted via the pooling state.

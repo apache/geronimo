@@ -127,7 +127,7 @@ public class NCSARequestLog implements GBeanLifecycle, JettyRequestLog {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("NCSA Request Log", NCSARequestLog.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("NCSA Request Log", NCSARequestLog.class);
         infoFactory.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 

@@ -62,7 +62,7 @@ public class ServiceMixConfigBuilder implements ConfigurationBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServiceMixConfigBuilder.class, NameFactory.CONFIG_BUILDER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ServiceMixConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addInterface(ConfigurationBuilder.class);
         infoFactory.addAttribute("defaultParentId", List.class, true);
         infoFactory.addAttribute("deploymentDependencies", String.class, true);

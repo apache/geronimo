@@ -27,7 +27,7 @@ public class ResourceAdapterImplGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterImplGBean.class, ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("JCAResource", String.class, true);
         infoBuilder.addInterface(ResourceAdapter.class);

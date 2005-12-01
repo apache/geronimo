@@ -432,7 +432,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JaasLoginService.class, "JaasLoginService");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JaasLoginService.class, "JaasLoginService");
 
         infoFactory.addAttribute("algorithm", String.class, true);
         infoFactory.addAttribute("password", String.class, true);

@@ -75,7 +75,7 @@ public class ClockPool implements GBeanLifecycle {
     private static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ClockPool.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ClockPool.class);
 
         infoFactory.addAttribute("poolName", String.class, true);
 

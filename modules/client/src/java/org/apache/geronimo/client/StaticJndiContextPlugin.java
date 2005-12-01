@@ -66,7 +66,7 @@ public class StaticJndiContextPlugin implements AppClientPlugin {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(StaticJndiContextPlugin.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(StaticJndiContextPlugin.class);
 
         infoFactory.addAttribute("context", Map.class, true);
         infoFactory.addAttribute("kernel", Kernel.class, false);

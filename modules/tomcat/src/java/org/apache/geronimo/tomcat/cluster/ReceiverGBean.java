@@ -74,8 +74,7 @@ public class ReceiverGBean  extends BaseGBean implements
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Receiver",
-                ReceiverGBean.class, J2EE_TYPE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Receiver", ReceiverGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addOperation("getInternalObject");

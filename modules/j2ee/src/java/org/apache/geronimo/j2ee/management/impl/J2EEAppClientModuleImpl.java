@@ -117,7 +117,7 @@ public class J2EEAppClientModuleImpl implements AppClientModule {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(J2EEAppClientModuleImpl.class, NameFactory.APP_CLIENT_MODULE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEAppClientModuleImpl.class, NameFactory.APP_CLIENT_MODULE);
         infoFactory.addReference("J2EEServer", J2EEServer.class);
         infoFactory.addReference("J2EEApplication", J2EEApplication.class);
 

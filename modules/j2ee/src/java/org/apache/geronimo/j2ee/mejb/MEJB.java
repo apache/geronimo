@@ -140,7 +140,7 @@ public class MEJB implements Management {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(MEJB.class);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MEJB.class);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(Management.class);

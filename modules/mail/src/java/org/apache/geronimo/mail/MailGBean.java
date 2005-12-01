@@ -361,7 +361,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MailGBean.class, NameFactory.JAVA_MAIL_RESOURCE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MailGBean.class, NameFactory.JAVA_MAIL_RESOURCE);
 
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addReference("Protocols", ProtocolGBean.class, NameFactory.GERONIMO_SERVICE);

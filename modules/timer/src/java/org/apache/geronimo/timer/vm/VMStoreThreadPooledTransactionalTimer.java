@@ -45,7 +45,7 @@ public class VMStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(VMStoreThreadPooledTransactionalTimer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(VMStoreThreadPooledTransactionalTimer.class);
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addAttribute("repeatCount", int.class, true);

@@ -660,7 +660,7 @@ public class Log4jService implements GBeanLifecycle, SystemLog {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Log4jService.class, "SystemLog");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Log4jService.class, "SystemLog");
 
         infoFactory.addAttribute("configFileName", String.class, true);
         infoFactory.addAttribute("refreshPeriodSeconds", int.class, true);

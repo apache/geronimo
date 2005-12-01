@@ -471,7 +471,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(KeyStoreGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(KeyStoreGBean.class);
 
         infoFactory.addAttribute("keyStoreType", String.class, true);
         infoFactory.addAttribute("keyStoreProvider", String.class, true);

@@ -57,7 +57,7 @@ public class MockGBean implements MockEndpoint, MockParentInterface1, MockParent
     }
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("MockGBean", MockGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockGBean.class);
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("actualObjectName", String.class, false);
         infoFactory.addAttribute("objectName", String.class, false);

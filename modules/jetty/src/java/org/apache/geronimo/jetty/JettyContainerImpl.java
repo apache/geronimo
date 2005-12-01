@@ -195,7 +195,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Jetty Web Container", JettyContainerImpl.class);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Jetty Web Container", JettyContainerImpl.class);
         infoBuilder.addAttribute("collectStatistics", Boolean.TYPE, true);
         //todo: Move all statistics methods to a Stats implementation
         infoBuilder.addAttribute("collectStatisticsStarted", Long.TYPE, false);

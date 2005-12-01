@@ -87,7 +87,7 @@ public class J2EEDomainImpl implements J2EEDomain {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(J2EEDomainImpl.class, NameFactory.J2EE_DOMAIN);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEDomainImpl.class, NameFactory.J2EE_DOMAIN);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);

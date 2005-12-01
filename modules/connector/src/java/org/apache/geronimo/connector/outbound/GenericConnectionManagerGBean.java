@@ -49,7 +49,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(GenericConnectionManagerGBean.class, AbstractConnectionManagerGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(GenericConnectionManagerGBean.class, AbstractConnectionManagerGBean.GBEAN_INFO);
 
         infoBuilder.addAttribute("transactionSupport", TransactionSupport.class, true);
         infoBuilder.addAttribute("pooling", PoolingSupport.class, true);

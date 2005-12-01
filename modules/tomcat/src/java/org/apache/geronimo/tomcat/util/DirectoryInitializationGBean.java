@@ -86,7 +86,7 @@ public class DirectoryInitializationGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(DirectoryInitializationGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(DirectoryInitializationGBean.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("path", String.class, true);
         infoBuilder.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);

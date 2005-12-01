@@ -303,7 +303,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(DirectoryHotDeployer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DirectoryHotDeployer.class);
 
         infoFactory.addAttribute("path", String.class, true, true);
         infoFactory.addAttribute("pollIntervalMillis", int.class, true, true);

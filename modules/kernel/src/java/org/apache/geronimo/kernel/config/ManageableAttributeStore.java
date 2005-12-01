@@ -78,6 +78,14 @@ public interface ManageableAttributeStore {
      */
     public void setShouldLoad(String configurationName, ObjectName gbean, boolean load);
 
+
+    /**
+     * Adds a GBean to the configuration.
+     * @param configurationName the configuration that the GBean belongs to
+     * @param gbeanData the GBean to add
+     */
+    public void addGBean(String configurationName, GBeanData gbeanData);
+
     /**
      * Saves the current values to persistent storage.  This should be called
      * when the server is shut down or more often, to make sure that any

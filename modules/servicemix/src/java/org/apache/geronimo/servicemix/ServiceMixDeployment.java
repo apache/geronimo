@@ -12,7 +12,7 @@ public class ServiceMixDeployment implements GBeanLifecycle {
 
     public static final GBeanInfo GBEAN_INFO;
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ServiceMixDeployment.class);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ServiceMixDeployment.class);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.setConstructor(new String[] { "classLoader", "configurationBaseUrl" });

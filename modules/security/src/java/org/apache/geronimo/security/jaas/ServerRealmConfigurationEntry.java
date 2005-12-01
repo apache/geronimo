@@ -91,7 +91,7 @@ public class ServerRealmConfigurationEntry implements ConfigurationEntryFactory 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ServerRealmConfigurationEntry.class, NameFactory.CONFIGURATION_ENTRY);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ServerRealmConfigurationEntry.class, NameFactory.CONFIGURATION_ENTRY);
         infoFactory.addInterface(ConfigurationEntryFactory.class);
         infoFactory.addAttribute("applicationConfigName", String.class, true);
         infoFactory.addAttribute("realmName", String.class, true);

@@ -28,7 +28,7 @@ public class JCAResourceImplGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JCAResourceImpl.class, NameFactory.JCA_RESOURCE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JCAResourceImplGBean.class, JCAResourceImpl.class, NameFactory.JCA_RESOURCE);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(JCAResource.class);

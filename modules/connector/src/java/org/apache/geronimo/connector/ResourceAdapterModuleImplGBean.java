@@ -36,7 +36,7 @@ public class ResourceAdapterModuleImplGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ResourceAdapterModuleImpl.class, NameFactory.RESOURCE_ADAPTER_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterModuleImplGBean.class, ResourceAdapterModuleImpl.class, NameFactory.RESOURCE_ADAPTER_MODULE);
         infoBuilder.addReference("J2EEServer", J2EEServer.class, null);
         infoBuilder.addReference("J2EEApplication", J2EEApplication.class, null);
 

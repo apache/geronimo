@@ -885,7 +885,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
 
         infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
         infoBuilder.addAttribute("defaultMaxSize", int.class, true, true);

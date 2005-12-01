@@ -170,7 +170,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(GenericSecurityRealm.class, NameFactory.SECURITY_REALM);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(GenericSecurityRealm.class, NameFactory.SECURITY_REALM);
 
         infoFactory.addInterface(SecurityRealm.class);
         infoFactory.addInterface(ConfigurationEntryFactory.class);

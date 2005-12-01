@@ -47,7 +47,7 @@ public class UnavailableWebServiceBuilder implements WebServiceBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(UnavailableWebServiceBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(UnavailableWebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(WebServiceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

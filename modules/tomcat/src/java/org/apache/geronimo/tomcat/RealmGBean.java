@@ -54,7 +54,7 @@ public class RealmGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("TomcatRealm", RealmGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatRealm", RealmGBean.class);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
 

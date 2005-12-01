@@ -43,7 +43,7 @@ public class VMStoreThreadPooledNonTransactionalTimer extends ThreadPooledTimer 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(VMStoreThreadPooledNonTransactionalTimer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(VMStoreThreadPooledNonTransactionalTimer.class);
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addReference("ThreadPool", Executor.class, NameFactory.GERONIMO_SERVICE);

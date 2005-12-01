@@ -73,7 +73,7 @@ public class AppClientCORBABean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AppClientCORBABean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AppClientCORBABean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addAttribute("ORB", ORB.class, false);

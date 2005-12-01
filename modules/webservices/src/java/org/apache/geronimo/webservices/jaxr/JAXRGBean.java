@@ -38,7 +38,7 @@ public class JAXRGBean {
     private final Log log = LogFactory.getLog(JAXRGBean.class);
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JAXRGBean.class,
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JAXRGBean.class,
                 NameFactory.JAXR_CONNECTION_FACTORY);
 
         infoFactory.addOperation("$getResource");

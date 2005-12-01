@@ -30,7 +30,7 @@ public class AdminObjectWrapperGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AdminObjectWrapper.class, NameFactory.JCA_ADMIN_OBJECT);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AdminObjectWrapperGBean.class, AdminObjectWrapper.class, NameFactory.JCA_ADMIN_OBJECT);
         infoBuilder.addAttribute("adminObjectInterface", String.class, true);
         infoBuilder.addAttribute("adminObjectClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);

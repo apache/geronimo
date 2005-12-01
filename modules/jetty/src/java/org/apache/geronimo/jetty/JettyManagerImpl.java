@@ -340,7 +340,7 @@ public class JettyManagerImpl implements WebManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Web Manager", JettyManagerImpl.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Web Manager", JettyManagerImpl.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(WebManager.class);
         infoFactory.setConstructor(new String[] {"kernel"});

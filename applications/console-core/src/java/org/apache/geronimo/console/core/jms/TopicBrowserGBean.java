@@ -188,8 +188,7 @@ public class TopicBrowserGBean implements GBeanLifecycle, Runnable {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(
-                "Topic Browser GBean", TopicBrowserGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Topic Browser GBean", TopicBrowserGBean.class);
         infoFactory.addAttribute("subscriberName", String.class, true);
 
         infoFactory.addReference("ConnectionFactoryWrapper",

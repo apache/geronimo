@@ -133,7 +133,7 @@ public class RmiIiopServerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(RmiIiopServerGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(RmiIiopServerGBean.class);
 
         //infoFactory.addInterface(SocketService.class);
 

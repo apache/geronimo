@@ -183,7 +183,7 @@ public class AdapterManager implements ReferenceCollectionListener {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AdapterManager.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AdapterManager.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         //infoFactory.addReference("containers", EJBContainer.class);

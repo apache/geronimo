@@ -73,8 +73,7 @@ public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("ClusterDeployer",
-                ClusterDeployerGBean.class, J2EE_TYPE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("ClusterDeployer", ClusterDeployerGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addOperation("getInternalObject");

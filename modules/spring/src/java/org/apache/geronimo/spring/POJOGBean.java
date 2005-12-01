@@ -44,7 +44,7 @@ public class POJOGBean
 
   static
   {
-    GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Spring Managed POJO", POJOGBean.class);
+    GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Spring Managed POJO", POJOGBean.class);
 
     infoBuilder.addAttribute("kernel"     , Kernel.class , false);
     infoBuilder.addAttribute("objectName" , String.class , false);

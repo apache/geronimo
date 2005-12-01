@@ -85,7 +85,7 @@ public class ActivationSpecWrapperGBean extends ActivationSpecWrapper implements
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ActivationSpecWrapperGBean.class, NameFactory.JCA_ACTIVATION_SPEC);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ActivationSpecWrapperGBean.class, NameFactory.JCA_ACTIVATION_SPEC);
         infoBuilder.addAttribute("activationSpecClass", String.class, true);
         infoBuilder.addAttribute("containerId", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);

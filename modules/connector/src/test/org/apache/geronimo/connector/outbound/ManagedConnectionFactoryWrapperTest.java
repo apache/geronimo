@@ -158,7 +158,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         static final GBeanInfo GBEAN_INFO;
 
         static {
-            GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(MockConnectionTrackingCoordinator.class);
+            GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockConnectionTrackingCoordinator.class);
             infoFactory.addInterface(ConnectionTracker.class);
             GBEAN_INFO = infoFactory.getBeanInfo();
         }

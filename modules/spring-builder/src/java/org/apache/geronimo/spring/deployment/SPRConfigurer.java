@@ -40,7 +40,7 @@ public class SPRConfigurer
 
   static
   {
-    GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SPRConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
+    GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SPRConfigurer.class, NameFactory.DEPLOYMENT_CONFIGURER);
     infoFactory.addInterface(ModuleConfigurer.class);
     GBEAN_INFO = infoFactory.getBeanInfo();
   }

@@ -349,7 +349,7 @@ public class TomcatManagerImpl implements WebManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Web Manager", TomcatManagerImpl.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Web Manager", TomcatManagerImpl.class);
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addInterface(WebManager.class);
         infoFactory.setConstructor(new String[] {"kernel"});

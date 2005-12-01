@@ -19,6 +19,7 @@ package org.apache.geronimo.system.configuration;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.apache.geronimo.gbean.GBeanData;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -26,6 +27,8 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
@@ -34,15 +37,29 @@ class GBeanOverride {
     private final Object name;
     private boolean load;
     private final Map attributes = new LinkedHashMap();
+    private final Map references = new LinkedHashMap();
+    private final String gbeanInfoSource;
 
     public GBeanOverride(String name, boolean load) {
         this.name = name;
         this.load = load;
+        gbeanInfoSource = null;
     }
 
     public GBeanOverride(ObjectName name, boolean load) {
         this.name = name;
         this.load = load;
+        gbeanInfoSource = null;
+    }
+
+    public GBeanOverride(GBeanData gbeanData) {
+        gbeanInfoSource = gbeanData.getGBeanInfo().getSourceClass();
+        if (gbeanInfoSource == null) {
+            throw new IllegalArgumentException("GBeanInfo must have a source class set");
+        }
+        name = gbeanData.getName();
+        attributes.putAll(gbeanData.getAttributes());
+        references.putAll(gbeanData.getReferences());
     }
 
     public GBeanOverride(Element gbean) throws MalformedObjectNameException {
@@ -52,6 +69,8 @@ class GBeanOverride {
         } else {
             name = nameString;
         }
+
+        gbeanInfoSource = gbean.getAttribute("gbeanInfo");
 
         String loadString = gbean.getAttribute("load");
         load = !"false".equals(loadString);
@@ -76,6 +95,10 @@ class GBeanOverride {
         return name;
     }
 
+    public String getGbeanInfoSource() {
+        return gbeanInfoSource;
+    }
+
     public boolean isLoad() {
         return load;
     }
@@ -96,6 +119,22 @@ class GBeanOverride {
         attributes.put(attributeName, attributeValue);
     }
 
+    public Map getReferences() {
+        return references;
+    }
+
+    public Set getReferencePatterns(String name) {
+        return (Set) references.get(name);
+    }
+
+    public void setReferencePattern(String name, ObjectName pattern) {
+        setReferencePatterns(name, Collections.singleton(pattern));
+    }
+
+    public void setReferencePatterns(String name, Set patterns) {
+        references.put(name, patterns);
+    }
+
     public void writeXml(PrintWriter out) {
         String gbeanName;
         if (name instanceof String) {
@@ -105,6 +144,10 @@ class GBeanOverride {
         }
 
         out.print("    <gbean name=\"" + gbeanName + "\"");
+        if (gbeanInfoSource != null) {
+            out.print(" gbeanInfoSource=\"" + gbeanInfoSource + "\"");
+        }
+        
         if (!load) {
             out.print(" load=\"false\"");
         }

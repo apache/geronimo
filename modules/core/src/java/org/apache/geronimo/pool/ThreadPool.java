@@ -146,7 +146,7 @@ public class ThreadPool implements GeronimoExecutor, GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ThreadPool.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ThreadPool.class);
 
         infoFactory.addAttribute("poolSize", int.class, true);
         infoFactory.addAttribute("poolName", String.class, true);

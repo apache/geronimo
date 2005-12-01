@@ -122,7 +122,7 @@ public class InteropGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(InteropGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(InteropGBean.class);
 
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("strprop", String.class, true);

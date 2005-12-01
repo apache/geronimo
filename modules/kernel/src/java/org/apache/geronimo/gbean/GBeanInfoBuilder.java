@@ -32,10 +32,71 @@ import java.util.Set;
  * @version $Rev$ $Date$
  */
 public class GBeanInfoBuilder {
+    public static GBeanInfoBuilder createStatic(Class gbeanType) {
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(gbeanType, gbeanType.getName(), gbeanType, null, null);
+    }
+
+    public static GBeanInfoBuilder createStatic(Class gbeanType, String j2eeType) {
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(gbeanType, gbeanType.getName(), gbeanType, null, j2eeType);
+    }
+
+    public static GBeanInfoBuilder createStatic(String name, Class gbeanType) {
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(gbeanType, name, gbeanType, null, null);
+    }
+
+    public static GBeanInfoBuilder createStatic(String name, Class gbeanType, String j2eeType) {
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(gbeanType, name, gbeanType, null, j2eeType);
+    }
+
+    public static GBeanInfoBuilder createStatic(Class gbeanType, GBeanInfo source) {
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(gbeanType, gbeanType.getName(), gbeanType, source, null);
+    }
+
+    public static GBeanInfoBuilder createStatic(Class gbeanType, GBeanInfo source, String j2eeType) {
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(gbeanType, gbeanType.getName(), gbeanType, source, j2eeType);
+    }
+
+    public static GBeanInfoBuilder createStatic(String name, Class gbeanType, GBeanInfo source) {
+        if (name == null) throw new NullPointerException("name is null");
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(gbeanType, name, gbeanType, source, null);
+    }
+
+    //
+    // These methods are used by classes that declare a GBeanInfo for another class
+    //
+    public static GBeanInfoBuilder createStatic(Class sourceClass, Class gbeanType) {
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(sourceClass, gbeanType.getName(), gbeanType, null, null);
+    }
+
+    public static GBeanInfoBuilder createStatic(Class sourceClass, Class gbeanType, String j2eeType) {
+        if (sourceClass == null) throw new NullPointerException("sourceClass is null");
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(sourceClass, gbeanType.getName(), gbeanType, null, j2eeType);
+    }
+
+    public static GBeanInfoBuilder createStatic(Class sourceClass, String name, Class gbeanType, GBeanInfo source, String j2eeType) {
+        if (sourceClass == null) throw new NullPointerException("sourceClass is null");
+        if (name == null) throw new NullPointerException("name is null");
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return new GBeanInfoBuilder(sourceClass.getName(), name, gbeanType, source, j2eeType);
+    }
 
     public static final String DEFAULT_J2EE_TYPE = "GBean"; //NameFactory.GERONIMO_SERVICE
 
     private static final Class[] NO_ARGS = {};
+
+    /**
+     * The class from which the info can be retrieved using GBeanInfo.getGBeanInfo(className, classLoader)
+     */
+    private final String sourceClass;
 
     private final String name;
 
@@ -77,7 +138,10 @@ public class GBeanInfoBuilder {
         this(checkNotNull(gbeanType).getName(), gbeanType, source, j2eeType);
     }
 
-    //TODO this is not used, shall we remove it?
+    //TODO remove this
+    /**
+     * @deprecated This will be removed in a future release
+     */
     public GBeanInfoBuilder(String name, ClassLoader classLoader) {
         this(checkNotNull(name), loadClass(classLoader, name), GBeanInfo.getGBeanInfo(name, classLoader));
     }
@@ -87,10 +151,16 @@ public class GBeanInfoBuilder {
     }
 
     public GBeanInfoBuilder(String name, Class gbeanType, GBeanInfo source, String j2eeType) {
+        this(null, name, gbeanType, source, j2eeType);
+    }
+
+    private GBeanInfoBuilder(String sourceClass, String name, Class gbeanType, GBeanInfo source, String j2eeType) {
         checkNotNull(name);
         checkNotNull(gbeanType);
         this.name = name;
         this.gbeanType = gbeanType;
+        this.sourceClass = sourceClass;
+
         if (source != null) {
             for (Iterator i = source.getAttributes().iterator(); i.hasNext();) {
                 GAttributeInfo attributeInfo = (GAttributeInfo) i.next();
@@ -306,8 +376,7 @@ public class GBeanInfoBuilder {
             referenceInfos.add(new GReferenceInfo(referenceName, referenceType, proxyType, setterName, namingType));
         }
 
-
-        return new GBeanInfo(name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces);
+        return new GBeanInfo(sourceClass, name, gbeanType.getName(), j2eeType, attributes.values(), constructor, operations.values(), referenceInfos, interfaces);
     }
 
     private Map getConstructorTypes() throws InvalidConfigurationException {
@@ -336,10 +405,10 @@ public class GBeanInfoBuilder {
         }
 
         if (validConstructors.isEmpty()) {
-            throw new InvalidConfigurationException("Could not find a valid constructor for GBean: " + name);
+            throw new InvalidConfigurationException("Could not find a valid constructor for GBean: " + gbeanType.getName());
         }
         if (validConstructors.size() > 1) {
-            throw new InvalidConfigurationException("More then one valid constructors found for GBean: " + name);
+            throw new InvalidConfigurationException("More then one valid constructors found for GBean: " + gbeanType.getName());
         }
 
         Map constructorTypes = new HashMap();

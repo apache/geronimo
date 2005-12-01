@@ -32,7 +32,7 @@ public class JDBCLogGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCLog.class, NameFactory.JCA_RESOURCE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JDBCLogGBean.class, JDBCLog.class, NameFactory.JCA_RESOURCE);
 
         infoFactory.addAttribute("systemId", String.class, true);
 

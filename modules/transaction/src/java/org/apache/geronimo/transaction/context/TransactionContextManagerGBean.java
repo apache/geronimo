@@ -36,7 +36,7 @@ public class TransactionContextManagerGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(TransactionContextManagerGBean.class, TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
 
         infoFactory.addOperation("getTransactionManager");
         infoFactory.addOperation("getContext");

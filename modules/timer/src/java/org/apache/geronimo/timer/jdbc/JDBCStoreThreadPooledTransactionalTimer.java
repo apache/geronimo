@@ -55,7 +55,7 @@ public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JDBCStoreThreadPooledTransactionalTimer.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JDBCStoreThreadPooledTransactionalTimer.class);
         infoFactory.addInterface(PersistentTimer.class);
 
         infoFactory.addAttribute("repeatCount", int.class, true);

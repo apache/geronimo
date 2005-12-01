@@ -31,7 +31,7 @@ public class ConnectionTrackingCoordinatorGBean {
     public final static GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConnectionTrackingCoordinator.class, NameFactory.JCA_CONNECTION_TRACKER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConnectionTrackingCoordinatorGBean.class, ConnectionTrackingCoordinator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoFactory.addInterface(TrackedConnectionAssociator.class);
         infoFactory.addInterface(ConnectionTracker.class);
         GBEAN_INFO = infoFactory.getBeanInfo();

@@ -417,9 +417,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(
-                "Tomcat WebApplication Context", TomcatWebAppContext.class,
-                NameFactory.WEB_MODULE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Tomcat WebApplication Context", TomcatWebAppContext.class, NameFactory.WEB_MODULE);
 
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addAttribute("objectName", String.class, false);

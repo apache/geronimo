@@ -44,6 +44,9 @@ public class MavenAttributeStore implements ManageableAttributeStore {
     public void setShouldLoad(String configurationName, ObjectName gbean, boolean load) {
     }
 
+    public void addGBean(String configurationName, GBeanData gbeanData) {
+    }
+
     public void save() throws IOException {
     }
 
@@ -54,7 +57,7 @@ public class MavenAttributeStore implements ManageableAttributeStore {
     }
 
     static {
-        GBeanInfoBuilder builder = new GBeanInfoBuilder(MavenAttributeStore.class);
+        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MavenAttributeStore.class);
         builder.addInterface(ManageableAttributeStore.class);
         GBEAN_INFO = builder.getBeanInfo();
     }

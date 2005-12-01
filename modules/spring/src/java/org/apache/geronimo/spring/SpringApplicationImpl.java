@@ -33,7 +33,7 @@ public class SpringApplicationImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SpringApplicationImpl.class, "SpringApplication");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SpringApplicationImpl.class, "SpringApplication");
 
 	//        infoFactory.addAttribute("kernel", Kernel.class, false);
 	//        infoFactory.addAttribute("objectName", String.class, false);

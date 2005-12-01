@@ -260,7 +260,7 @@ public class JettyLogManagerImpl implements JettyLogManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Jetty Log Manager", JettyLogManagerImpl.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty Log Manager", JettyLogManagerImpl.class);
         infoFactory.addReference("LogGBeans", JettyRequestLog.class);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(JettyLogManager.class);

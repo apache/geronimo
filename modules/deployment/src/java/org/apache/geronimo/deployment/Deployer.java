@@ -225,7 +225,7 @@ public class Deployer {
     private static final String DEPLOYER = "Deployer";
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(Deployer.class, DEPLOYER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Deployer.class, DEPLOYER);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});

@@ -228,9 +228,7 @@ public class PropertiesLoginModuleManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(
-                "PropertiesLoginModuleManager",
-                PropertiesLoginModuleManager.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("PropertiesLoginModuleManager", PropertiesLoginModuleManager.class);
 
         infoFactory.addOperation("addUserPrincipal",
                 new Class[] { Hashtable.class });

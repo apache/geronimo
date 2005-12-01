@@ -125,7 +125,7 @@ public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, O
    public static final GBeanInfo GBEAN_INFO;
 
    static {
-       GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("CatalinaCluster", CatalinaClusterGBean.class, J2EE_TYPE);
+       GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("CatalinaCluster", CatalinaClusterGBean.class, J2EE_TYPE);
        infoFactory.addAttribute("className", String.class, true);
        infoFactory.addAttribute("initParams", Map.class, true);
        infoFactory.addReference("Membership", MembershipServiceGBean.class, MembershipServiceGBean.J2EE_TYPE);

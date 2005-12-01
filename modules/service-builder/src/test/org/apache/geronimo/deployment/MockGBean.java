@@ -88,7 +88,7 @@ public class MockGBean implements MockEndpoint {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("MockGBean", MockGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MockGBean.class);
 
         infoFactory.addAttribute("name", String.class, true);
         infoFactory.addAttribute("value", String.class, true);

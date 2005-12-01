@@ -40,7 +40,7 @@ public class AxisDiscoveryCLWorkaroundGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(AxisDiscoveryCLWorkaroundGBean.class);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AxisDiscoveryCLWorkaroundGBean.class);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.setConstructor(new String[] {"classLoader"});
         GBEAN_INFO = infoBuilder.getBeanInfo();

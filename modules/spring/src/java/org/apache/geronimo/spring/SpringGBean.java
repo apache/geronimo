@@ -71,7 +71,7 @@ public class SpringGBean
 
   static
   {
-    GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder("Spring Application Context", SpringGBean.class);
+    GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic("Spring Application Context", SpringGBean.class);
 
     infoBuilder.addAttribute("kernel"               , Kernel.class      , false);
     infoBuilder.addAttribute("objectName"           , String.class      , false);
@@ -308,7 +308,7 @@ public class SpringGBean
       throws MalformedObjectNameException
   {
     Class c=createProxyClass(bean);
-    GBeanInfoBuilder gbif = new GBeanInfoBuilder(c, "POJO["+(_count++)+"]");
+    GBeanInfoBuilder gbif = GBeanInfoBuilder.createStatic(c, "POJO["+(_count++)+"]");
 
     gbif.addAttribute("invocationHandler", java.lang.reflect.InvocationHandler.class, true);
     gbif.setConstructor(new String[]{"invocationHandler"});

@@ -105,7 +105,7 @@ public class LoginModuleGBean implements LoginModuleSettings {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(LoginModuleGBean.class, NameFactory.LOGIN_MODULE);
         infoFactory.addAttribute("options", Properties.class, true);
         infoFactory.addAttribute("loginModuleClass", String.class, true);
         infoFactory.addAttribute("objectName", String.class, false);

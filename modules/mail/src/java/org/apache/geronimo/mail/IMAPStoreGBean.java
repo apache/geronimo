@@ -763,7 +763,7 @@ public class IMAPStoreGBean extends ProtocolGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(IMAPStoreGBean.class, ProtocolGBean.GBEAN_INFO);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(IMAPStoreGBean.class, ProtocolGBean.GBEAN_INFO);
 
         infoFactory.addAttribute("port", Integer.class, true);
         infoFactory.addAttribute("partialFetch", Boolean.class, true);

@@ -77,7 +77,7 @@ public class MavenRepository implements Repository {
     }
 
     static {
-        GBeanInfoBuilder builder = new GBeanInfoBuilder(MavenRepository.class);
+        GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MavenRepository.class);
         builder.addInterface(Repository.class);
         builder.addAttribute("root", File.class, true);
         builder.setConstructor(new String[]{"root"});

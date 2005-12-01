@@ -58,7 +58,7 @@ public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(UnavailableEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(UnavailableEJBReferenceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addInterface(EJBReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

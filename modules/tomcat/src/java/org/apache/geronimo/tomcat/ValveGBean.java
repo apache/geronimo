@@ -94,7 +94,7 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ValveGBean.class, J2EE_TYPE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ValveGBean.class, J2EE_TYPE);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
         infoFactory.addReference("NextValve", ValveGBean.class, J2EE_TYPE);

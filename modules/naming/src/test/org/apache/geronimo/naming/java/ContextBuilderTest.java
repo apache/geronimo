@@ -139,7 +139,7 @@ public class ContextBuilderTest extends TestCase {
     }
 
     public GBeanInfo getGbeanInfo() {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(TestProxyFactory.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ContextBuilderTest.class, TestProxyFactory.class);
         infoFactory.addAttribute("Content", Object.class, true);
         infoFactory.addOperation("getProxy");
         infoFactory.setConstructor(new String[]{"Content"});

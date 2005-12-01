@@ -71,7 +71,7 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(TransactionManagerImplGBean.class, NameFactory.TRANSACTION_MANAGER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TransactionManagerImplGBean.class, NameFactory.TRANSACTION_MANAGER);
 
         infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
         infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.TRANSACTION_LOG);

@@ -216,7 +216,7 @@ public class J2EEServerImpl implements J2EEServer {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(J2EEServerImpl.class, NameFactory.J2EE_SERVER);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(J2EEServerImpl.class, NameFactory.J2EE_SERVER);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);

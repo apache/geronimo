@@ -147,7 +147,7 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(ApplicationPolicyConfigurationManager.class, NameFactory.JACC_MANAGER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationPolicyConfigurationManager.class, NameFactory.JACC_MANAGER);
         infoBuilder.addAttribute("contextIdToPermissionsMap", Map.class, true);
         infoBuilder.addAttribute("principalRoleMap", Map.class, true);
         infoBuilder.addAttribute("roleDesignates", Map.class, true);

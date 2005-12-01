@@ -49,7 +49,7 @@ public class JettyFilterHolder extends FilterHolder {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = new GBeanInfoBuilder(JettyFilterHolder.class, NameFactory.WEB_FILTER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyFilterHolder.class, NameFactory.WEB_FILTER);
         infoBuilder.addAttribute("filterName", String.class, true);
         infoBuilder.addAttribute("filterClass", String.class, true);
         infoBuilder.addAttribute("initParams", Map.class, true);

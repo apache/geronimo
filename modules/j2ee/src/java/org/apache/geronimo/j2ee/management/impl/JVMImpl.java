@@ -195,7 +195,7 @@ public class JVMImpl implements JVM, StatisticsProvider {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(JVMImpl.class, NameFactory.JVM);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JVMImpl.class, NameFactory.JVM);
 
 //        infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("kernel", Kernel.class, false);

@@ -25,7 +25,7 @@ public class AdapterManagerGBean
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(AdapterManager.class);                        
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(AdapterManagerGBean.class, AdapterManager.class);                        
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

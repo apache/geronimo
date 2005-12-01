@@ -58,7 +58,7 @@ public class SEServerInfo {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(SEServerInfo.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(SEServerInfo.class);
 
         infoFactory.addAttribute("version", String.class, false);
         infoFactory.addAttribute("buildDate", String.class, false);

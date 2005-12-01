@@ -396,7 +396,7 @@ public class LocalEntityResolver implements EntityResolver {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("configurable local entity resolver", LocalEntityResolver.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("configurable local entity resolver", LocalEntityResolver.class);
 
         infoFactory.addAttribute("catalogFileURI", URI.class, true);
         infoFactory.addAttribute("localRepositoryURI", URI.class, true);

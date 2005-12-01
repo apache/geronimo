@@ -243,7 +243,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder(ConfigurationManagerImpl.class, "ConfigurationManager");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(ConfigurationManagerImpl.class, "ConfigurationManager");
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addReference("Stores", ConfigurationStore.class, "ConfigurationStore");
         infoFactory.addReference("AttributeStore", ManageableAttributeStore.class, ManageableAttributeStore.ATTRIBUTE_STORE);

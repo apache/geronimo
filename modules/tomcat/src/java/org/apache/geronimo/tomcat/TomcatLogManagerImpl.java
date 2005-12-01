@@ -263,7 +263,7 @@ public class TomcatLogManagerImpl implements TomcatLogManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = new GBeanInfoBuilder("Tomcat Log Manager", TomcatLogManagerImpl.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Tomcat Log Manager", TomcatLogManagerImpl.class);
         infoFactory.addReference("LogGBeans", ValveGBean.class);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addInterface(TomcatLogManager.class);
