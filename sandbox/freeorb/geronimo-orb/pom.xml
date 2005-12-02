@@ -88,7 +88,7 @@
           </execution>
         </executions>
         <configuration>
-          <debug>true</debug>
+          <emit>all</emit>
           <packagePrefixes>
             <packagePrefix>
               <type>corba</type>
