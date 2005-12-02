@@ -20,13 +20,18 @@ import junit.framework.TestCase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -41,6 +46,15 @@ public class ServerOverrideTest extends TestCase {
 
         pizza.setAttribute("cheese", "mozzarella");
         assertEquals("mozzarella", pizza.getAttribute("cheese"));
+
+        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
+        pizza.setReferencePattern("oven", pizzaOvenPattern);
+        assertEquals(Collections.singleton(pizzaOvenPattern), pizza.getReferencePatterns("oven"));
+
+        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
+        Set ovenPatterns = new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern}));
+        pizza.setReferencePatterns("oven", ovenPatterns);
+        assertEquals(ovenPatterns, pizza.getReferencePatterns("oven"));
 
         ConfigurationOverride dinnerMenu = new ConfigurationOverride("Dinner Menu", true);
         assertTrue(dinnerMenu.isLoad());
@@ -68,6 +82,15 @@ public class ServerOverrideTest extends TestCase {
 
         pizza.setAttribute("size", "x-large");
         assertCopyIdentical(pizza);
+
+        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
+        pizza.setReferencePattern("oven", pizzaOvenPattern);
+        assertCopyIdentical(pizza);
+
+        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
+        Set ovenPatterns = new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern}));
+        pizza.setReferencePatterns("oven", ovenPatterns);
+        assertCopyIdentical(pizza);
     }
 
     public void testConfigurationXml() throws Exception {
@@ -80,10 +103,16 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
+        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
+        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
+        pizza.setReferencePatterns("oven", new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern})));
+        assertCopyIdentical(dinnerMenu);
+
         dinnerMenu.addGBean(pizza);
         assertCopyIdentical(dinnerMenu);
 
         GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
+        garlicCheeseBread.setReferencePattern("oven", toasterOvenPattern);
         dinnerMenu.addGBean(garlicCheeseBread);
         assertCopyIdentical(dinnerMenu);
     }
@@ -93,18 +122,35 @@ public class ServerOverrideTest extends TestCase {
         assertCopyIdentical(restaurant);
 
         ConfigurationOverride dinnerMenu = new ConfigurationOverride("Dinner Menu", false);
+        restaurant.addConfiguration(dinnerMenu);
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
+        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
+        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
+        pizza.setReferencePatterns("oven", new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern})));
         dinnerMenu.addGBean(pizza);
         GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
+        garlicCheeseBread.setReferencePattern("oven", toasterOvenPattern);
         dinnerMenu.addGBean(garlicCheeseBread);
         assertCopyIdentical(restaurant);
 
         ConfigurationOverride drinkMenu = new ConfigurationOverride("Drink Menu", false);
+        restaurant.addConfiguration(drinkMenu);
         GBeanOverride beer = new GBeanOverride("Beer", true);
+        pizza.setReferencePatterns("glass", new LinkedHashSet(Arrays.asList(new ObjectName[] {
+            new ObjectName(":name=PintGlass"),
+            new ObjectName(":name=BeerStein"),
+            new ObjectName(":name=BeerBottle"),
+            new ObjectName(":name=BeerCan")
+        })));
         drinkMenu.addGBean(beer);
         GBeanOverride wine = new GBeanOverride("Wine", true);
+        wine.setReferencePatterns("glass", new LinkedHashSet(Arrays.asList(new ObjectName[] {
+            new ObjectName(":name=WineGlass"),
+            new ObjectName(":name=WineBottle"),
+            new ObjectName(":name=BoxWine")
+        })));
         drinkMenu.addGBean(wine);
         assertCopyIdentical(restaurant);
     }
@@ -174,6 +220,8 @@ public class ServerOverrideTest extends TestCase {
     private ServerOverride copy(ServerOverride server) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         server.writeXml(new PrintWriter(out, true));
+        System.out.println();
+        System.out.println();
         System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         Element element = parseXml(in);
@@ -184,6 +232,8 @@ public class ServerOverrideTest extends TestCase {
     private ConfigurationOverride copy(ConfigurationOverride configuration) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         configuration.writeXml(new PrintWriter(out, true));
+        System.out.println();
+        System.out.println();
         System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         Element element = parseXml(in);
@@ -194,6 +244,9 @@ public class ServerOverrideTest extends TestCase {
     private GBeanOverride copy(GBeanOverride gbean) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         gbean.writeXml(new PrintWriter(out, true));
+        System.out.println();
+        System.out.println();
+        System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         Element element = parseXml(in);
         GBeanOverride copy = new GBeanOverride(element);

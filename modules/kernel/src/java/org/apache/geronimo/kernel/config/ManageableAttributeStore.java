@@ -18,11 +18,13 @@ package org.apache.geronimo.kernel.config;
 
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GReferenceInfo;
 
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * Able to retrieve the values of certain "manageable" attributes from a
@@ -43,10 +45,11 @@ public interface ManageableAttributeStore {
      * @param configurationName The configuration in question
      * @param datas             The initial GBeanData's for all the GBeans in
      *                          the configuration
+     * @param classLoader
      * @return                  The modified GBeanData's
      * @throws InvalidConfigException If something bad happens
      */
-    public Collection setAttributes(URI configurationName, Collection datas) throws InvalidConfigException;
+    public Collection setAttributes(URI configurationName, Collection datas, ClassLoader classLoader) throws InvalidConfigException;
 
     /**
      * Sets the stored value for a particular attribute.  The attribute is
@@ -65,6 +68,32 @@ public interface ManageableAttributeStore {
      * @param value The value to save, or null if no value should be saved
      */
     public void setValue(String configurationName, ObjectName gbean, GAttributeInfo attribute, Object value);
+
+    /**
+     * Sets the pattern for a GBean reference. The reference is
+     * identified by the configuration name, GBean ObjectName, and reference
+     * information.
+     *
+     * To "null-out" the reference use setReferencePatterns(configurationName, gbean, reference, Collections.EMPTY_SET).
+     *
+     * @param configurationName the name of the configuration holding the GBean in question
+     * @param gbean the ObjectName of the GBean
+     * @param reference the attribute information
+     * @param pattern new object name pattern for this reference
+     */
+    public void setReferencePattern(String configurationName, ObjectName gbean, GReferenceInfo reference, ObjectName pattern);
+
+    /**
+     * Sets the patterns for a GBean reference. The reference is
+     * identified by the configuration name, GBean ObjectName, and reference
+     * information.
+     *
+     * @param configurationName the name of the configuration holding the GBean in question
+     * @param gbean the ObjectName of the GBean
+     * @param reference the attribute information
+     * @param patterns new object name patterns for this reference; must not be null
+     */
+    public void setReferencePatterns(String configurationName, ObjectName gbean, GReferenceInfo reference, Set patterns);
 
     /**
      * Sets whether a particular GBean should be loaded for this configuration.

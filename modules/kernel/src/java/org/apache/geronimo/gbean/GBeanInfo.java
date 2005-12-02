@@ -78,6 +78,7 @@ public final class GBeanInfo implements Serializable {
     private final Set operations;
     private final Set notifications;
     private final Set references;
+    private final Map referencesByName;
     private final Set interfaces;
 
     /**
@@ -141,7 +142,14 @@ public final class GBeanInfo implements Serializable {
         }
         if (references == null) {
             this.references = Collections.EMPTY_SET;
+            this.referencesByName = Collections.EMPTY_MAP;
         } else {
+            Map map = new HashMap();
+            for (Iterator iterator = references.iterator(); iterator.hasNext();) {
+                GReferenceInfo reference = (GReferenceInfo) iterator.next();
+                map.put(reference.getName(), reference);
+            }
+            this.referencesByName = Collections.unmodifiableMap(map);
             this.references = Collections.unmodifiableSet(new HashSet(references));
         }
         if (interfaces == null) {
@@ -230,6 +238,10 @@ public final class GBeanInfo implements Serializable {
 
     public Set getReferences() {
         return references;
+    }
+
+    public GReferenceInfo getReference(String name) {
+        return (GReferenceInfo) referencesByName.get(name);
     }
 
     public Set getInterfaces() {

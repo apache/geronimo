@@ -303,7 +303,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // create and initialize GBeans
             Collection gbeans = loadGBeans();
             if (attributeStore != null) {
-                gbeans = attributeStore.setAttributes(id, gbeans);
+                gbeans = attributeStore.setAttributes(id, gbeans, configurationClassLoader);
             }
 
             // register all the GBeans

@@ -16,19 +16,24 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import org.apache.geronimo.common.propertyeditor.PropertyEditors;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.apache.geronimo.gbean.GBeanData;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.beans.PropertyEditor;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
 
 /**
  * @version $Rev$ $Date$
@@ -38,27 +43,42 @@ class GBeanOverride {
     private boolean load;
     private final Map attributes = new LinkedHashMap();
     private final Map references = new LinkedHashMap();
-    private final String gbeanInfoSource;
+    private final String gbeanInfo;
 
     public GBeanOverride(String name, boolean load) {
         this.name = name;
         this.load = load;
-        gbeanInfoSource = null;
+        gbeanInfo = null;
     }
 
     public GBeanOverride(ObjectName name, boolean load) {
         this.name = name;
         this.load = load;
-        gbeanInfoSource = null;
+        gbeanInfo = null;
     }
 
-    public GBeanOverride(GBeanData gbeanData) {
-        gbeanInfoSource = gbeanData.getGBeanInfo().getSourceClass();
-        if (gbeanInfoSource == null) {
+    public GBeanOverride(GBeanData gbeanData) throws InvalidAttributeException {
+        GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
+        this.gbeanInfo = gbeanInfo.getSourceClass();
+        if (this.gbeanInfo == null) {
             throw new IllegalArgumentException("GBeanInfo must have a source class set");
         }
         name = gbeanData.getName();
-        attributes.putAll(gbeanData.getAttributes());
+        load = true;
+
+        // set attributes
+        for (Iterator iterator = gbeanData.getAttributes().entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String attributeName = (String) entry.getKey();
+            GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
+            if (attributeInfo == null) {
+                throw new InvalidAttributeException("No attribute: " + attributeName + " for gbean: " + gbeanData.getName());
+            }
+            Object attributeValue = entry.getValue();
+            setAttribute(attributeName, attributeValue, attributeInfo.getType());
+        }
+
+        // references can be coppied in blind
         references.putAll(gbeanData.getReferences());
     }
 
@@ -70,33 +90,73 @@ class GBeanOverride {
             name = nameString;
         }
 
-        gbeanInfoSource = gbean.getAttribute("gbeanInfo");
+        String gbeanInfoString = gbean.getAttribute("gbeanInfo");
+        if (gbeanInfoString.length() > 0) {
+            gbeanInfo = gbeanInfoString;
+        } else {
+            gbeanInfo = null;
+        }
+        if (gbeanInfo != null && !(name instanceof ObjectName)) {
+            throw new MalformedObjectNameException("A gbean element using the gbeanInfo attribute must be specified using a full ObjectName: name=" + nameString);
+        }
 
         String loadString = gbean.getAttribute("load");
         load = !"false".equals(loadString);
 
+        // attributes
         NodeList attributes = gbean.getElementsByTagName("attribute");
         for (int a = 0; a < attributes.getLength(); a++) {
             Element attribute = (Element) attributes.item(a);
-            String attName = attribute.getAttribute("name");
-            String value = "";
-            NodeList text = attribute.getChildNodes();
-            for (int t = 0; t < text.getLength(); t++) {
-                Node n = text.item(t);
-                if (n.getNodeType() == Node.TEXT_NODE) {
-                    value += n.getNodeValue();
-                }
-            }
-            setAttribute(attName, value.trim());
+
+            String attributeName = attribute.getAttribute("name");
+            String attributeValue = getContentsAsText(attribute);
+            setAttribute(attributeName, attributeValue);
         }
+
+        // references
+        NodeList references = gbean.getElementsByTagName("reference");
+        for (int r = 0; r < references.getLength(); r++) {
+            Element reference = (Element) references.item(r);
+
+            String referenceName = reference.getAttribute("name");
+
+            Set objectNamePatterns = new LinkedHashSet();
+            NodeList patterns = reference.getElementsByTagName("pattern");
+            for (int p = 0; p < references.getLength(); p++) {
+                Element pattern = (Element) patterns.item(p);
+                NodeList gbeanNames = pattern.getElementsByTagName("gbean-name");
+                if (gbeanNames.getLength() != 1) {
+                    throw new MalformedObjectNameException("pattern does not contain a valid gbean-name:" +
+                            " name=" + nameString +
+                            " referenceName=" + referenceName);
+                }
+                String value = getContentsAsText((Element)gbeanNames.item(0));
+                ObjectName objectNamePattern = new ObjectName(value);
+                objectNamePatterns.add(objectNamePattern);
+            }
+
+            setReferencePatterns(referenceName, objectNamePatterns);
+        }
+    }
+
+    private static String getContentsAsText(Element element) {
+        String value = "";
+        NodeList text = element.getChildNodes();
+        for (int t = 0; t < text.getLength(); t++) {
+            Node n = text.item(t);
+            if (n.getNodeType() == Node.TEXT_NODE) {
+                value += n.getNodeValue();
+            }
+        }
+        return value.trim();
     }
 
     public Object getName() {
         return name;
     }
 
-    public String getGbeanInfoSource() {
-        return gbeanInfoSource;
+    public String getGBeanInfo() {
+        return gbeanInfo;
     }
 
     public boolean isLoad() {
@@ -115,6 +175,10 @@ class GBeanOverride {
         return (String) attributes.get(attributeName);
     }
 
+    public void setAttribute(String attributeName, Object attributeValue, String attributeType) throws InvalidAttributeException {
+        String stringValue = getAsText(attributeValue, attributeType);
+        attributes.put(attributeName, stringValue);
+    }
     public void setAttribute(String attributeName, String attributeValue) {
         attributes.put(attributeName, attributeValue);
     }
@@ -144,8 +208,8 @@ class GBeanOverride {
         }
 
         out.print("    <gbean name=\"" + gbeanName + "\"");
-        if (gbeanInfoSource != null) {
-            out.print(" gbeanInfoSource=\"" + gbeanInfoSource + "\"");
+        if (gbeanInfo != null) {
+            out.print(" gbeanInfo=\"" + gbeanInfo + "\"");
         }
         
         if (!load) {
@@ -153,14 +217,48 @@ class GBeanOverride {
         }
         out.println(">");
 
-        // Attribute values
-        for (Iterator att = attributes.entrySet().iterator(); att.hasNext();) {
-            Map.Entry attribute = (Map.Entry) att.next();
-            out.print("      <attribute name=\"" + attribute.getKey() + "\">");
-            out.print((String) attribute.getValue());
-            out.println("</attribute>");
+        // attributes
+        for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String name = (String) entry.getKey();
+            String value = (String) entry.getValue();
+            out.println("      <attribute name=\"" + name + "\">" +  value + "</attribute>");
+        }
+
+        // references
+        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            String name = (String) entry.getKey();
+            Set patterns = (Set) entry.getValue();
+
+            out.println("      <reference name=\"" + name + "\">");
+            for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
+                ObjectName pattern = (ObjectName) patternIterator.next();
+                out.print("          <pattern><gbean-name>");
+                out.print(pattern.getCanonicalName());
+                out.println("</gbean-name></pattern>");
+            }
+            out.println("      </reference>");
         }
 
         out.println("    </gbean>");
+    }
+
+    public static String getAsText(Object value, String type) throws InvalidAttributeException {
+        try {
+            String attributeStringValue = null;
+            if (value != null) {
+                PropertyEditor editor = PropertyEditors.findEditor(type, GBeanOverride.class.getClassLoader());
+                if (editor == null) {
+                    throw new InvalidAttributeException("Unable to format attribute of type " + type + "; no editor found");
+                }
+                editor.setValue(value);
+                attributeStringValue = editor.getAsText();
+            }
+            return attributeStringValue;
+        } catch (ClassNotFoundException e) {
+            //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue
+            throw new InvalidAttributeException("Unable to store attribute type " + type);
+        }
     }
 }
