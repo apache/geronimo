@@ -52,11 +52,13 @@ import org.apache.geronimo.system.serverinfo.DirectoryUtils;
  * @version $Rev$ $Date$
  */
 public class Daemon {
-    private final static String ARGUMENT_NO_PROGRESS = "-quiet";
+    private final static String ARGUMENT_NO_PROGRESS = "--quiet";
     private final static String ARGUMENT_LONG_PROGRESS = "--long";
-    private final static String ARGUMENT_VERBOSE = "-v";
-    private final static String ARGUMENT_MORE_VERBOSE = "-vv";
-    private final static String ARGUMENT_CONFIG_OVERRIDE = "-override";
+    private final static String ARGUMENT_VERBOSE_SHORTFORM = "-v";
+    private final static String ARGUMENT_VERBOSE = "--verbose";
+    private final static String ARGUMENT_MORE_VERBOSE_SHORTFORM = "-vv";
+    private final static String ARGUMENT_MORE_VERBOSE = "--veryverbose";
+    private final static String ARGUMENT_CONFIG_OVERRIDE = "--override";
     private static boolean started = false;
     private static Log log;
     private StartupMonitor monitor;
@@ -101,10 +103,10 @@ public class Daemon {
                     "             the server from an IDE or other tool (doesn't use linefeeds to\n" +
                     "             update the progress information that is used by default if you\n" +
                     "             don't specify " +ARGUMENT_NO_PROGRESS +" or "+ARGUMENT_LONG_PROGRESS+").\n");
-        out.println("  "+ARGUMENT_VERBOSE);
+        out.println("  "+ARGUMENT_VERBOSE_SHORTFORM +" " +ARGUMENT_VERBOSE);
         out.println("             Reduces the console log level to INFO, resulting in more\n" +
                     "             console output than is normally present.");
-        out.println("  "+ARGUMENT_MORE_VERBOSE);
+        out.println("  "+ARGUMENT_MORE_VERBOSE_SHORTFORM +" " +ARGUMENT_MORE_VERBOSE);
         out.println("             Reduces the console log level to DEBUG, resulting in still\n" +
                     "             more console output.");
         out.println();
@@ -143,11 +145,13 @@ public class Daemon {
                 noProgressArg = ARGUMENT_NO_PROGRESS;
             } else if (args[i].equals(ARGUMENT_LONG_PROGRESS)) {
                 longProgressArg = ARGUMENT_LONG_PROGRESS;
-            } else if (args[i].equals(ARGUMENT_VERBOSE)) {
+            } else if (args[i].equals(ARGUMENT_VERBOSE_SHORTFORM) ||
+                    args[i].equals(ARGUMENT_VERBOSE)) {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_VERBOSE;
                 }
-            } else if (args[i].equals(ARGUMENT_MORE_VERBOSE)) {
+            } else if (args[i].equals(ARGUMENT_MORE_VERBOSE_SHORTFORM) ||
+                    args[i].equals(ARGUMENT_MORE_VERBOSE)) {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_MORE_VERBOSE;
                 }

@@ -134,10 +134,10 @@ public class StartRemoteServer {
         cmd.add("-ea");
         cmd.add("-jar");
         cmd.add(systemFile.getCanonicalPath());
-        cmd.add("-quiet");
+        cmd.add("--quiet");
 
         if (getConfigs() != null  && getConfigs().trim().length() > 0) {
-            cmd.add("-override");
+            cmd.add("--override");
             for (StringTokenizer st = new StringTokenizer(getConfigs()); st.hasMoreTokens();) {
                 cmd.add(st.nextToken());
             }
