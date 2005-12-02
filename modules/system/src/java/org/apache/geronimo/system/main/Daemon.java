@@ -195,6 +195,18 @@ public class Daemon {
 
     private void doStartup() {
         try {
+            // Check that the tmpdir exists - if not give friendly msg and exit
+            // since we allow it to be configured in geronimo.bat and geronimo.sh
+            // (since 1.0 release) the same way Tomcat allows it to be configured.
+            String tmpDir = System.getProperty("java.io.tmpdir");
+            if (tmpDir == null || (!(new File(tmpDir)).exists()) ||
+                    (!(new File(tmpDir)).isDirectory())) {
+                    System.err.println("The java.io.tmpdir system property specifies the "+
+                            "non-existent directory " +tmpDir);
+                    System.exit(1);
+                    throw new AssertionError();
+                }
+            
             // Determine the geronimo installation directory
             File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
             if (geronimoInstallDirectory == null) {
