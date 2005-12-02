@@ -21,6 +21,7 @@ import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.URLName;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.InternetAddress;
@@ -307,7 +308,7 @@ public class SMTPTransport extends AbstractTransport {
             throw new SMTPTransportException("invalid address");
         }
 
-        String msg = "RCPT TO: " + addr;
+        String msg = "RCPT TO: " + fixEmailAddress(addr);
 
         sendLine(s, msg);
 
@@ -335,7 +336,7 @@ public class SMTPTransport extends AbstractTransport {
          * TODO - what do we do w/ more than one from???
          */
 
-        String msg = "MAIL FROM: " + from[0].toString();
+        String msg = "MAIL FROM: " + fixEmailAddress(from[0].toString());
 
         sendLine(s, msg);
 
@@ -561,20 +562,44 @@ public class SMTPTransport extends AbstractTransport {
         return s;
     }
 
+    private String fixEmailAddress(String mail)
+    {
+        if (mail.charAt(0) == '<') {
+            return mail;
+        }
+        return "<" + mail + ">";
+    }
+
     public static void main(String[] args)
         throws Exception {
 
         Properties props = new Properties();
-        props.setProperty("mail.host", "mail.optonline.net");
+        props.setProperty("mail.host", "localhost");
+        props.setProperty("mail.transport.protocol", "smtp");
+//      props.setProperty("mail.smtp.class", "org.apache.geronimo.mail.SMTPTransport");
 
-        Session session = Session.getDefaultInstance(props);
+        Session session = Session.getInstance(props);
 
         session.setDebug(true);
 
-        SMTPTransport t = new SMTPTransport(session, null);
+        Transport t = session.getTransport("smtp");
 
         MimeMessage msg = new MimeMessage(session);
 
+        msg.setFrom(new InternetAddress("chris@email.com"));
+        msg.addRecipients(Message.RecipientType.TO, "rickmcg@gmail.com");
+        msg.setSubject("From SMTPTransport : this is the second subject");
+        msg.setText("This is the second content (via SMTPTransport)");
+        try {
+
+            t.connect();
+            t.sendMessage(msg, new Address[] {new InternetAddress("rick@us.ibm.com")});
+        } catch (Throwable e) {
+            System.out.println("Exception received: " + e);
+            e.printStackTrace();
+        }
+
+/*
         MimeMultipart mmpt = new MimeMultipart();
         MimeBodyPart b1 = new MimeBodyPart();
         b1.setContent("body 1", "text/plain");
@@ -586,18 +611,24 @@ public class SMTPTransport extends AbstractTransport {
         mmpt.addBodyPart(b1);
 
         Address[] list = new Address[1];
-        list[0] =  new InternetAddress("geirm@optonline.net");
+        list[0] =  new InternetAddress("rick@us.ibm.com");
 //        list[1] =  new InternetAddress("jeremy@boynes.com");
 
         msg.setSubject("From SMTPTransport : this is the subject");
-        msg.setFrom(new InternetAddress("geirm@optonline.net"));
-//        msg.setContent("This is the content (via SMTPTransport)", "text/plain");
+        msg.setFrom(new InternetAddress("rickmcg@gmail.com"));
+        msg.setContent("This is the content (via SMTPTransport)", "text/plain");
         msg.setRecipients(Message.RecipientType.TO, list);
-        msg.setContent(mmpt);
+//        msg.setContent(mmpt);
 
         msg.setSentDate(new Date());
 
-        t.sendMessage(msg, list);
+        try {
+            t.sendMessage(msg, list);
+        } catch (Throwable e) {
+            System.out.println("Exception received: " + e);
+            e.printStackTrace();
+        }
+        */
     }
 
     /**

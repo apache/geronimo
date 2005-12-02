@@ -48,21 +48,16 @@
     <!-- ============ -->
 
     <dependencies>
-
-        <!-- Module Dependencies -->
-
         <dependency>
-            <groupId>geronimo-sandbox</groupId>
-            <artifactId>geronimo-sandbox-activation</artifactId>
-            <version>${pom.currentVersion}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-activation</artifactId>
+            <version>${geronimo_spec_activation_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>geronimo-sandbox</groupId>
-            <artifactId>geronimo-sandbox-javamail</artifactId>
-            <version>${pom.currentVersion}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-javamail</artifactId>
+            <version>${geronimo_spec_javamail_version}</version>
         </dependency>
-
     </dependencies>
-
 </project>
