@@ -50,16 +50,16 @@
 
     <xsd:complexType name="attributesType">
         <xsd:sequence>
-            <xsd:element name="configuration" type="atts:configurationType" minOccurs="0" maxOccurs="unlimited" />
+            <xsd:element name="configuration" type="atts:configurationType" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
     </xsd:complexType>
 
     <xsd:complexType name="configurationType">
         <xsd:sequence>
-            <xsd:element name="gbean" type="atts:gbeanType" minOccurs="0" maxOccurs="unlimited" />
+            <xsd:element name="gbean" type="atts:gbeanType" minOccurs="0" maxOccurs="unbounded" />
         </xsd:sequence>
-        <xsd:attribute name="name" type="xs:string" use="required"/>
-        <xsd:attribute name="load" type="xs:boolean" use="optional" default="true"/>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+        <xsd:attribute name="load" type="xsd:boolean" use="optional" default="true"/>
     </xsd:complexType>
 
     <xsd:complexType name="gbeanType">
@@ -75,11 +75,13 @@
                 ]]>
             </xsd:documentation>
         </xsd:annotation>
-        <xsd:sequence>
-            <xsd:element name="attribute" type="atts:attributeType" minOccurs="0" maxOccurs="unlimited" />
-        </xsd:sequence>
-        <xsd:attribute name="name" type="xs:string" use="required"/>
-        <xsd:attribute name="load" type="xs:boolean" use="optional" default="true"/>
+        <xsd:choice minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="attribute" type="atts:attributeType"/>
+            <xsd:element name="reference" type="atts:referenceType"/>
+        </xsd:choice>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+        <xsd:attribute name="gbeanInfo" type="xsd:string" use="optional"/>
+        <xsd:attribute name="load" type="xsd:boolean" use="optional" default="true"/>
     </xsd:complexType>
 
     <xsd:complexType name="attributeType">
@@ -89,4 +91,17 @@
             </xsd:extension>
         </xsd:simpleContent>
     </xsd:complexType>
-</xsd:schema>
+
+    <xsd:complexType name="referenceType">
+        <xsd:sequence>
+            <xsd:element name="pattern" minOccurs="1" maxOccurs="unbounded">
+              <xsd:complexType>
+                  <xsd:sequence>
+                      <xsd:element name="gbean-name" type="xsd:string"/>
+                  </xsd:sequence>
+              </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string"/>
+    </xsd:complexType>
+  </xsd:schema>
