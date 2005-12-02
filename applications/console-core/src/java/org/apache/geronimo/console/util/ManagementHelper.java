@@ -55,6 +55,7 @@ import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -87,6 +88,7 @@ public interface ManagementHelper {
     Repository[] getRepositories(J2EEServer server);
     SecurityRealm[] getSecurityRealms(J2EEServer server);
     ServerInfo getServerInfo(J2EEServer server);
+    JaasLoginServiceMBean getLoginService(J2EEServer server);
     WebManager[] getWebManagers(J2EEServer server);
     WebAccessLog getWebAccessLog(WebManager manager, WebContainer container);
     WebAccessLog getWebAccessLog(WebManager manager, String containerObjectName);

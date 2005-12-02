@@ -206,7 +206,6 @@ public class DatabasePoolPortlet extends BasePortlet {
      * @param rarPath            If we're creating a new RA, the path to identify it
      * @param displayName        If we're editing an existing RA, its name
      * @param adapterObjectName  If we're editing an existing RA, its ObjectName
-     * @return
      */
     public ResourceAdapterParams getRARConfiguration(PortletRequest request, String rarPath, String displayName, String adapterObjectName) {
         PortletSession session = request.getPortletSession(true);
@@ -291,7 +290,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                             System.out.println("Finished downloading "+bytes+"b");
                         }
                     });
-                    data.jar1 = found.getRepositoryPath();
+                    data.jar1 = found.getRepositoryURI();
                 } catch (IOException e) {
                     log.error("Unable to download JDBC driver", e);
                 }

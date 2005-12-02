@@ -453,6 +453,7 @@ public class JaasLoginService implements GBeanLifecycle, JaasLoginServiceMBean {
         infoFactory.addOperation("syncPrincipals", new Class[]{JaasSessionId.class, Set.class});
 
         infoFactory.addReference("Realms", SecurityRealm.class, NameFactory.SECURITY_REALM);
+        infoFactory.addInterface(JaasLoginServiceMBean.class);
 
         infoFactory.setConstructor(new String[]{"algorithm", "password", "classLoader", "objectName"});
 

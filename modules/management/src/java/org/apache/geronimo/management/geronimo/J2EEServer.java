@@ -87,4 +87,14 @@ public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
      * @return The ObjectName of the ServerInfo, in String form.
      */
     public String getServerInfo();
+
+    /**
+     * Gets the ObjectName of the LoginService associated with this
+     * J2EEServer.
+     *
+     * @see org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean
+     *
+     * @return The ObjectName of the LoginService, in String form.
+     */
+    public String getLoginService();
 }

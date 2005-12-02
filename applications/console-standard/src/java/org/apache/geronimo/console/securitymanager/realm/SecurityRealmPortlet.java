@@ -318,7 +318,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
         ConfigurationType root = doc.addNewConfiguration();
         root.setConfigId("SecurityRealm"+data.getName());
-        root.setParentId("org/apache/geronimo/Server");
+        // Use a parentId of null to pick up the default
         // Dependencies
         if(data.getJar() != null) {
             DependencyType jar = root.addNewDependency();
@@ -334,6 +334,9 @@ public class SecurityRealmPortlet extends BasePortlet {
         ReferenceType serverInfo = realm.addNewReference();
         serverInfo.setName2("ServerInfo");
         serverInfo.setGbeanName(PortletManager.getCurrentServer(request).getServerInfo());
+        ReferenceType loginService = realm.addNewReference();
+        loginService.setName2("LoginService");
+        loginService.setGbeanName(PortletManager.getCurrentServer(request).getLoginService());
         XmlAttributeType config = realm.addNewXmlReference();
         // Construct the content to put in the XmlAttributeType
         GerLoginConfigDocument lcDoc = GerLoginConfigDocument.Factory.newInstance();

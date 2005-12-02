@@ -16,31 +16,30 @@
  */
 package org.apache.geronimo.console.databasemanager.wizard;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-
-import java.net.URL;
-import java.net.URI;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.File;
-import java.io.OutputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
-import java.util.Properties;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.Random;
-import java.util.Collections;
-import java.util.jar.JarFile;
+import java.util.Set;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
 
 /**
  * A utility that handles listing and downloading available JDBC driver JARs.
@@ -88,7 +87,6 @@ public class DriverDownloader {
             String name = props.getProperty("driver."+driver+".name");
             String repository = props.getProperty("driver."+driver+".repository");
             String unzip = props.getProperty("driver."+driver+".unzip");
-            String rename = props.getProperty("driver."+driver+".rename");
             urls.clear();
             int index = 1;
             while(true) {
@@ -107,7 +105,6 @@ public class DriverDownloader {
             if(name != null && repository != null && urls.size() > 0) {
                 DriverInfo info = new DriverInfo(name, repository);
                 info.setUnzipPath(unzip);
-                info.setRenameTo(rename);
                 info.setUrls((URL[]) urls.toArray(new URL[urls.size()]));
                 list.add(info);
             }
@@ -130,7 +127,7 @@ public class DriverDownloader {
             }
             URL url = driver.urls[urlIndex];
             InputStream in;
-            String fileName = driver.getRepositoryPath();
+            String uri = driver.getRepositoryURI();
             if(driver.unzipPath != null) {
                 byte[] buf = new byte[1024];
                 int size;
@@ -169,7 +166,7 @@ public class DriverDownloader {
                         log.error("Cannot extract driver JAR "+driver.unzipPath+" from download file "+url);
                     } else {
                         in = jar.getInputStream(entry);
-                        repo.copyToRepository(in, new URI(fileName), monitor);
+                        repo.copyToRepository(in, new URI(uri), monitor);
                     }
                 } finally {
                     if(jar != null) try{jar.close();}catch(IOException e) {log.error("Unable to close JAR file", e);}
@@ -177,7 +174,7 @@ public class DriverDownloader {
                 }
             } else {
                 in = url.openStream();
-                repo.copyToRepository(in, new URI(fileName), monitor);
+                repo.copyToRepository(in, new URI(uri), monitor);
             }
         } catch (URISyntaxException e) {
             throw new IOException("Unable to save to repository URI: "+e.getMessage());
@@ -214,14 +211,13 @@ public class DriverDownloader {
 
     public static class DriverInfo implements Comparable {
         private String name;
-        private String repositoryDir;
+        private String repositoryURI;
         private String unzipPath;
-        private String renameTo;
         private URL[] urls;
 
-        public DriverInfo(String name, String repositoryDir) {
+        public DriverInfo(String name, String repositoryURI) {
             this.name = name;
-            this.repositoryDir = repositoryDir;
+            this.repositoryURI = repositoryURI;
         }
 
         public String getName() {
@@ -232,12 +228,12 @@ public class DriverDownloader {
             this.name = name;
         }
 
-        public String getRepositoryDir() {
-            return repositoryDir;
+        public String getRepositoryURI() {
+            return repositoryURI;
         }
 
-        public void setRepositoryDir(String repositoryDir) {
-            this.repositoryDir = repositoryDir;
+        public void setRepositoryURI(String repositoryURI) {
+            this.repositoryURI = repositoryURI;
         }
 
         public String getUnzipPath() {
@@ -254,32 +250,6 @@ public class DriverDownloader {
 
         public void setUrls(URL[] urls) {
             this.urls = urls;
-        }
-
-        public String getRenameTo() {
-            return renameTo;
-        }
-
-        public void setRenameTo(String renameTo) {
-            this.renameTo = renameTo;
-        }
-
-        public String getRepositoryPath() {
-            String fileName;
-            if(unzipPath != null) {
-                if(renameTo != null) {
-                    fileName = renameTo;
-                } else {
-                    fileName = unzipPath;
-                }
-            } else {
-                fileName = urls[0].toString();
-            }
-            int pos = fileName.lastIndexOf('/');
-            if(pos > -1) {
-                fileName = fileName.substring(pos+1);
-            }
-            return repositoryDir+"/jars/"+fileName;
         }
 
         public int compareTo(Object o) {

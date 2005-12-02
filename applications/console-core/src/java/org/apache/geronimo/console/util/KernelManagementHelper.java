@@ -73,6 +73,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -438,6 +439,16 @@ public class KernelManagementHelper implements ManagementHelper {
             return (ServerInfo) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
         } catch (Exception e) {
             log.error("Unable to look up ServerInfo for J2EEServer", e);
+            return null;
+        }
+    }
+
+    public JaasLoginServiceMBean getLoginService(J2EEServer server) {
+        try {
+            String name = server.getServerInfo();
+            return (JaasLoginServiceMBean) pm.createProxy(ObjectName.getInstance(name), KernelManagementHelper.class.getClassLoader());
+        } catch (Exception e) {
+            log.error("Unable to look up LoginService for J2EEServer", e);
             return null;
         }
     }
