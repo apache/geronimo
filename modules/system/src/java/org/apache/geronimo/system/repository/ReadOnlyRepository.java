@@ -86,7 +86,7 @@ public class ReadOnlyRepository implements Repository, GBeanLifecycle {
         if (rootURI == null) {
             rootURI = serverInfo.resolve(root);
         }
-        log.info("Repository root is " + rootURI);
+        log.debug("Repository root is " + rootURI);
     }
 
     public void doStop() throws Exception {

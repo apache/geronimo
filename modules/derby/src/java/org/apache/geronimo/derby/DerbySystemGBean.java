@@ -60,7 +60,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
 
         // load the Embedded driver to initialize the home
         new org.apache.derby.jdbc.EmbeddedDriver();
-        log.info("Started in " + actualHome);
+        log.debug("Started in " + actualHome);
     }
 
     public void doStop() throws Exception {
@@ -70,7 +70,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
             // SQLException gets thrown on successful shutdown so ignore
         }
         System.gc();  // Added per recommendation Derby documentation
-	log.info("Stopped");
+        log.debug("Stopped");
     }
 
     public void doFail() {
@@ -80,7 +80,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
             // SQLException gets thrown on successful shutdown so ignore
         }
         System.gc();  // Added per recommendation Derby documentation
-        log.info("Failed");
+        log.warn("Failed");
     }
 
     public static final GBeanInfo GBEAN_INFO;

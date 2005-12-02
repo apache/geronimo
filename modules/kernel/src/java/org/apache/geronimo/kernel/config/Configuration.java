@@ -279,7 +279,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             configurationClassLoader = new MultiParentClassLoader(id, urls, getClassLoaders(parentId), inverseClassLoading, hiddenClasses, nonOverridableClasses);
         }
 
-        log.info("Started configuration " + id);
+        log.debug("Started configuration " + id);
     }
 
     public void loadGBeans(ManageableAttributeStore attributeStore) throws InvalidConfigException, GBeanAlreadyExistsException {
@@ -402,7 +402,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public synchronized void doStop() throws Exception {
-        log.info("Stopping configuration " + id);
+        log.debug("Stopping configuration " + id);
         // shutdown the configuration and unload all beans
         shutdown();
 
@@ -583,7 +583,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         try {
             gbeanState = storeGBeans(gbeans);
         } catch (InvalidConfigException e) {
-            log.info("Unable to update persistent state during shutdown", e);
+            log.warn("Unable to update persistent state during shutdown", e);
         }
         return gbeans;
     }

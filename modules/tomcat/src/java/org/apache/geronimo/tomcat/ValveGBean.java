@@ -72,15 +72,15 @@ public class ValveGBean extends BaseGBean implements GBeanLifecycle, ObjectRetri
     }
     
     public void doStart() throws Exception {
-        log.info(className + " started.");
+        log.debug(className + " started.");
     }
 
     public void doStop() throws Exception {
-        log.info(className + " stopped.");
+        log.debug(className + " stopped.");
     }
 
     public void doFail() {
-        log.info(className + " failed.");
+        log.warn(className + " failed.");
     }
 
     public Object getInternalObject() {

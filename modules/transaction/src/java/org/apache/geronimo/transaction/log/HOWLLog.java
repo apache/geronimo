@@ -211,7 +211,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     public void doStart() throws Exception {
         started = true;
         setLogFileDir(logFileDir);
-        log.info("Initiating transaction manager recovery");
+        log.debug("Initiating transaction manager recovery");
         recovered = new HashMap();
 
         logger.open(null);
@@ -219,7 +219,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         ReplayListener replayListener = new GeronimoReplayListener(xidFactory, recovered);
         logger.replayActiveTx(replayListener);
 
-        log.info("In doubt transactions recovered from log");
+        log.debug("In doubt transactions recovered from log");
     }
 
     public void doStop() throws Exception {
@@ -363,7 +363,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
 
                 Recovery.XidBranchesPair xidBranchesPair = new Recovery.XidBranchesPair(masterXid, tx);
                 recoveredTx.put(masterXid, xidBranchesPair);
-                log.info("recovered prepare record for master xid: " + masterXid);
+                log.debug("recovered prepare record for master xid: " + masterXid);
                 for (int i = 3; i < data.length; i += 2) {
                     byte[] branchBranchId = data[i];
                     String name = new String(data[i + 1]);
@@ -371,7 +371,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
                     Xid branchXid = xidFactory.recover(formatId, globalId, branchBranchId);
                     TransactionBranchInfoImpl branchInfo = new TransactionBranchInfoImpl(branchXid, name);
                     xidBranchesPair.addBranch(branchInfo);
-                    log.info("recovered branch for resource manager, branchId " + name + ", " + branchXid);
+                    log.debug("recovered branch for resource manager, branchId " + name + ", " + branchXid);
                 }
             } else {
                 if(recordType != LogRecordType.END_OF_LOG) { // This value crops up every time the server is started

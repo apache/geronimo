@@ -17,10 +17,8 @@
 package org.apache.geronimo.tomcat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.apache.catalina.Cluster;
 import org.apache.catalina.Host;
 import org.apache.catalina.Realm;
@@ -113,15 +111,15 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
     }
 
     public void doFail() {
-        log.info("Failed");
+        log.warn("Failed");
     }
 
     public void doStart() throws Exception {
-        log.info("Started host name '" + host.getName() + "'");
+        log.debug("Started host name '" + host.getName() + "'");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped host '" + host.getName() + "'");
+        log.debug("Stopped host '" + host.getName() + "'");
     }
 
     public static final GBeanInfo GBEAN_INFO;

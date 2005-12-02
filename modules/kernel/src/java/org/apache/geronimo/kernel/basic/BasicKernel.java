@@ -23,10 +23,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-
+import javax.management.ObjectName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
@@ -333,7 +331,7 @@ public class BasicKernel implements Kernel {
         }
         bootTime = new Date();
         log = LogFactory.getLog(BasicKernel.class.getName());
-        log.info("Starting boot");
+        log.debug("Starting boot");
 
         // todo cleanup when boot fails
         KernelRegistry.registerKernel(this);
@@ -351,7 +349,7 @@ public class BasicKernel implements Kernel {
         startGBean(KERNEL);
 
         running = true;
-        log.info("Booted");
+        log.debug("Booted");
     }
 
     public Date getBootTime() {
@@ -380,7 +378,7 @@ public class BasicKernel implements Kernel {
             return;
         }
         running = false;
-        log.info("Starting kernel shutdown");
+        log.debug("Starting kernel shutdown");
 
         notifyShutdownHooks();
 
@@ -395,7 +393,7 @@ public class BasicKernel implements Kernel {
 
         KernelRegistry.unregisterKernel(this);
 
-        log.info("Kernel shutdown complete");
+        log.debug("Kernel shutdown complete");
     }
 
     private void notifyShutdownHooks() {

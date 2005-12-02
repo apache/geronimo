@@ -16,6 +16,28 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import java.beans.PropertyEditor;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
@@ -33,29 +55,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.beans.PropertyEditor;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Set;
 
 /**
  * Stores managed attributes in an XML file on the local filesystem.
@@ -418,7 +417,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         if (!readOnly) {
             timer = new Timer();
         }
-        log.info("Started LocalAttributeManager with data on " + serverOverride.getConfigurations().size() + " configurations");
+        log.debug("Started LocalAttributeManager with data on " + serverOverride.getConfigurations().size() + " configurations");
     }
 
     public synchronized void doStop() throws Exception {
@@ -435,7 +434,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         if (doSave) {
             save();
         }
-        log.info("Stopped LocalAttributeManager with data on " + serverOverride.getConfigurations().size() + " configurations");
+        log.debug("Stopped LocalAttributeManager with data on " + serverOverride.getConfigurations().size() + " configurations");
         serverOverride = new ServerOverride();
     }
 

@@ -128,7 +128,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public void doStart() throws LifecycleException {
         container.addConnector(connector);
         connector.start();
-        log.info(name + " connector started");
+        log.debug(name + " connector started");
    }
 
     public void doStop() {
@@ -138,11 +138,11 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
             log.error(e);
         }
         container.removeConnector(connector);
-        log.info(name + " connector stopped");
+        log.debug(name + " connector stopped");
     }
 
     public void doFail() {
-        log.info(name + " connector failed");
+        log.warn(name + " connector failed");
         doStop();
     }
 

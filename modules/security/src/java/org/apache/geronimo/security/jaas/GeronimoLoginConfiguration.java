@@ -101,7 +101,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         ConfigurationEntryFactory factory = (ConfigurationEntryFactory) event.getMember();
 
         entries.remove(factory.getConfigurationName());
-        log.info("Removed Application Configuration Entry " + factory.getConfigurationName());
+        log.debug("Removed Application Configuration Entry " + factory.getConfigurationName());
     }
 
     private final void addConfiguration(ConfigurationEntryFactory factory) {
@@ -115,7 +115,7 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
         AppConfigurationEntry ace = new AppConfigurationEntry(config.getLoginModuleClassName(), config.getFlag().getFlag(), config.getOptions());
 
         entries.put(factory.getConfigurationName(), ace);
-        log.info("Added Application Configuration Entry " + factory.getConfigurationName());
+        log.debug("Added Application Configuration Entry " + factory.getConfigurationName());
     }
 
     public void doStart() throws Exception {
@@ -125,23 +125,23 @@ public class GeronimoLoginConfiguration extends Configuration implements GBeanLi
             oldConfiguration = null;
         }
         Configuration.setConfiguration(this);
-        log.info("Installed Geronimo login configuration");
+        log.debug("Installed Geronimo login configuration");
     }
 
     public void doStop() throws Exception {
         Configuration.setConfiguration(oldConfiguration);
 
         for (Iterator iter = entries.keySet().iterator(); iter.hasNext();){
-            log.info("Removed Application Configuration Entry " + iter.next());
+            log.debug("Removed Application Configuration Entry " + iter.next());
         }
         entries.clear();
 
-        log.info("Uninstalled Geronimo login configuration");
+        log.debug("Uninstalled Geronimo login configuration");
     }
 
     public void doFail() {
         Configuration.setConfiguration(oldConfiguration);
-        log.info("Uninstalled Geronimo login configuration");
+        log.debug("Uninstalled Geronimo login configuration");
     }
 
     public static GBeanInfo getGBeanInfo() {

@@ -18,25 +18,16 @@
 package org.apache.geronimo.directory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Properties;
-import java.util.Set;
-
 import javax.naming.Context;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.InitialDirContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.ldap.server.configuration.MutableContextPartitionConfiguration;
 import org.apache.ldap.server.configuration.ShutdownConfiguration;
 import org.apache.ldap.server.jndi.CoreContextFactory;
 
@@ -162,7 +153,7 @@ public class DirectoryGBean implements GBeanLifecycle {
     }
 
     public void doFail() {
-        log.info("Service failed");
+        log.warn("Service failed");
         //Insert failure code here
     }
 
@@ -186,7 +177,7 @@ public class DirectoryGBean implements GBeanLifecycle {
     }
     
     public void doStart() throws Exception {
-        log.info("Starting LDAP Directory service");
+        log.debug("Starting LDAP Directory service");
         
         MutableServerStartupConfiguration startup = new MutableServerStartupConfiguration();
         // put some mandatory JNDI properties here
@@ -216,11 +207,11 @@ public class DirectoryGBean implements GBeanLifecycle {
         
         //Set it back
         Thread.currentThread().setContextClassLoader(oldCL);
-        log.info("LDAP Directory service started.");
+        log.debug("LDAP Directory service started.");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopping LDAP Directory service");
+        log.debug("Stopping LDAP Directory service");
         //Insert stopping code here
         Properties env = new Properties();
         env.putAll(new ShutdownConfiguration().toJndiEnvironment());

@@ -17,6 +17,11 @@
 
 package org.apache.geronimo.security.remoting.jmx;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
+import javax.management.ObjectName;
 import org.activeio.AcceptListener;
 import org.activeio.AsyncChannelServer;
 import org.activeio.Channel;
@@ -40,12 +45,6 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
 import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
-
-import javax.management.ObjectName;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 
 /**
@@ -128,7 +127,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
                     requestChannel.setRequestListener(invoker);
                     requestChannel.start();
                 } catch (IOException e) {
-                    log.info("Failed to accept connection.", e);
+                    log.warn("Failed to accept connection.", e);
                     if (requestChannel != null)
                         requestChannel.dispose();
                     else
@@ -137,12 +136,12 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
             }
 
             public void onAcceptError(IOException error) {
-                log.info("Accept Failed: " + error);
+                log.warn("Accept Failed: " + error);
             }
         });
 
         server.start();
-        log.info("Remote login service started on: " + server.getConnectURI() + " clients can connect to: " + server.getConnectURI());
+        log.debug("Remote login service started on: " + server.getConnectURI() + " clients can connect to: " + server.getConnectURI());
     }
 
     private AsyncChannelServer createAsyncChannelServer() throws IOException, URISyntaxException {
@@ -167,7 +166,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
     public void doStop() {
         server.dispose();
         server = null;
-        log.info("Stopped remote login service.");
+        log.debug("Stopped remote login service.");
     }
 
     public void doFail() {
@@ -175,7 +174,7 @@ public class JaasLoginServiceRemotingServer implements GBeanLifecycle, NetworkCo
             server.dispose();
             server = null;
         }
-        log.info("Failed remote login service.");
+        log.warn("Failed remote login service.");
     }
 
     public static final GBeanInfo GBEAN_INFO;

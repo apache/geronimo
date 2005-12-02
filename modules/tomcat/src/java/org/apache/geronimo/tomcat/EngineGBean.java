@@ -19,13 +19,11 @@ package org.apache.geronimo.tomcat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.apache.catalina.Cluster;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
-import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.core.StandardEngine;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,8 +31,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
 
@@ -145,15 +143,15 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
     }
 
     public void doFail() {
-        log.info("Failed");
+        log.warn("Failed");
     }
 
     public void doStart() throws Exception {
-        log.info("Started");
+        log.debug("Started");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped");
+        log.debug("Stopped");
     }
 
     public static final GBeanInfo GBEAN_INFO;

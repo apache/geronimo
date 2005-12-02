@@ -29,7 +29,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -41,32 +40,21 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.WaitingException;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-/*
-import org.bouncycastle.asn1.ASN1Set;
-import org.bouncycastle.asn1.DEROutputStream;
-import org.bouncycastle.asn1.x509.X509Name;
-import org.bouncycastle.jce.PKCS10CertificationRequest;
-import org.bouncycastle.jce.X509Principal;
-import org.bouncycastle.jce.X509V1CertificateGenerator;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.encoders.Base64;
-*/
 import org.apache.geronimo.util.asn1.ASN1Set;
 import org.apache.geronimo.util.asn1.DEROutputStream;
 import org.apache.geronimo.util.asn1.x509.X509Name;
+import org.apache.geronimo.util.encoders.Base64;
 import org.apache.geronimo.util.jce.PKCS10CertificationRequest;
 import org.apache.geronimo.util.jce.X509Principal;
 import org.apache.geronimo.util.jce.X509V1CertificateGenerator;
-import org.apache.geronimo.util.encoders.Base64;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 public class KeyStoreGBean implements GBeanLifecycle {
 
@@ -101,7 +89,7 @@ public class KeyStoreGBean implements GBeanLifecycle {
         InputStream is = null;
 
         try {
-            log.info("loading keystore from "
+            log.debug("loading keystore from "
                     + serverInfo.resolvePath(this.keyStoreLocation));
             is = new java.io.FileInputStream(serverInfo
                     .resolvePath(this.keyStoreLocation));

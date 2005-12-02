@@ -17,20 +17,19 @@
 
 package org.apache.geronimo.security;
 
+import java.security.Policy;
+import javax.security.jacc.PolicyConfigurationFactory;
+import javax.security.jacc.PolicyContextException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerHttpServletRequest;
 import org.apache.geronimo.security.jacc.PolicyContextHandlerSOAPMessage;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-
-import javax.security.jacc.PolicyConfigurationFactory;
-import javax.security.jacc.PolicyContextException;
-import java.security.Policy;
 
 
 /**
@@ -94,7 +93,7 @@ public class SecurityServiceImpl implements SecurityService {
         log.debug(KEYSTORE + ": " + System.getProperty(KEYSTORE));
         log.debug(TRUSTSTORE + ": " + System.getProperty(TRUSTSTORE));
 
-        log.info("JACC factory registered");
+        log.debug("JACC factory registered");
     }
 
     private String sysOverRide(String attribute, String sysVar) {

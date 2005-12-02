@@ -140,7 +140,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
     public void doStart() throws Exception {
         log.debug("doStart()");
 
-        log.info("Endorsed Dirs set to:" + System.getProperty("java.endorsed.dirs"));
+        log.debug("Endorsed Dirs set to:" + System.getProperty("java.endorsed.dirs"));
 
         // The comments are from the javadoc of the Embedded class
 

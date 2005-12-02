@@ -66,7 +66,7 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
         InetAddress address = InetAddress.getByName(host);
         network = new NetworkServerControl(address, port);
         network.start(null); // todo work out how to add this to our log stream
-        log.info("Started on host " + host + ':' + port);
+        log.debug("Started on host " + host + ':' + port);
     }
 
     public void doStop() throws Exception {
@@ -77,7 +77,7 @@ public class DerbyNetworkGBean implements GBeanLifecycle {
                 network = null;
             }
         }
-        log.info("Stopped");
+        log.debug("Stopped");
     }
 
     public void doFail() {

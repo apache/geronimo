@@ -336,7 +336,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         //super.doStart sets welcomefiles to null!!
         setWelcomeFiles(welcomeFiles);
 
-        log.info("JettyWebAppContext started");
+        log.debug("JettyWebAppContext started");
     }
 
     public void doStop() throws Exception {
@@ -360,7 +360,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
         LogFactory.release(webClassLoader);
 
-        log.info("JettyWebAppContext stopped");
+        log.debug("JettyWebAppContext stopped");
     }
 
     public void doFail() {
@@ -370,7 +370,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         } catch (InterruptedException e) {
         }
 
-        log.info("JettyWebAppContext failed");
+        log.warn("JettyWebAppContext failed");
     }
 
 

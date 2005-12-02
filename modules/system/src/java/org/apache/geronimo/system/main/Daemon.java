@@ -179,7 +179,7 @@ public class Daemon {
             GeronimoEnvironment.init();
 
             // This MUST be done before the first log is acquired (WHICH THE STARTUP MONITOR 5 LINES LATER DOES!)
-            GeronimoLogging.initialize(verboseArg == null ? GeronimoLogging.WARN : verboseArg == ARGUMENT_VERBOSE ? GeronimoLogging.INFO : GeronimoLogging.DEBUG);
+            GeronimoLogging.initialize(verboseArg == null ? GeronimoLogging.WARN : verboseArg.equals(ARGUMENT_VERBOSE) ? GeronimoLogging.INFO : GeronimoLogging.DEBUG);
             log = LogFactory.getLog(Daemon.class.getName());
         }
 

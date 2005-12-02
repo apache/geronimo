@@ -56,12 +56,12 @@ public class RMIRegistryService implements GBeanLifecycle {
     public void doStart() throws Exception {
         System.setProperty("java.rmi.server.RMIClassLoaderSpi",RMIClassLoaderSpiImpl.class.getName());
         registry = LocateRegistry.createRegistry(port);
-        log.info("Started RMI Registry on port " + port);
+        log.debug("Started RMI Registry on port " + port);
     }
 
     public void doStop() throws Exception {
         UnicastRemoteObject.unexportObject(registry, true);
-        log.info("Stopped RMI Registry");
+        log.debug("Stopped RMI Registry");
     }
 
     public void doFail() {

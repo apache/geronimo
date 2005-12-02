@@ -202,7 +202,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             saveIndex();
         }
 
-        log.info("Installed configuration (URL) " + configId + " in location " + configurationDir.getName());
+        log.debug("Installed configuration (URL) " + configId + " in location " + configurationDir.getName());
         return config;
     }
 
@@ -222,7 +222,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             saveIndex();
         }
 
-        log.info("Installed configuration (file) " + configurationData.getId() + " in location " + source.getName());
+        log.debug("Installed configuration (file) " + configurationData.getId() + " in location " + source.getName());
     }
 
     public void uninstall(URI configID) throws NoSuchConfigException, IOException {
@@ -241,7 +241,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             index.remove(id);
             saveIndex();
         }
-        log.info("Uninstalled configuration " + configID);
+        log.debug("Uninstalled configuration " + configID);
         delete(configDir);
     }
 
@@ -263,7 +263,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             throw new InvalidConfigException("Unable to register configuration", e);
         }
 
-        log.info("Loaded Configuration " + name);
+        log.debug("Loaded Configuration " + name);
 
         return name;
     }
@@ -295,7 +295,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
                     configs.add(new ConfigurationInfo(objectName, configId, state, type));
                 } catch (Exception e) {
                     // bad configuration in store - ignored for this purpose
-                    log.info("Unable get configuration info for configuration " + configId, e);
+                    log.warn("Unable get configuration info for configuration " + configId, e);
                 }
             }
         }
