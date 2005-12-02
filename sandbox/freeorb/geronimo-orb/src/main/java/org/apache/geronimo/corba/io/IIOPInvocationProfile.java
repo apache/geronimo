@@ -16,21 +16,90 @@
  */
 package org.apache.geronimo.corba.io;
 
-import org.apache.geronimo.corba.InvocationProfile;
-import org.apache.geronimo.corba.giop.GIOPOutputStream;
-import org.apache.geronimo.corba.ior.IIOPProfile;
+import java.io.IOException;
 
+import org.apache.geronimo.corba.ClientDelegate;
+import org.apache.geronimo.corba.ClientInvocation;
+import org.apache.geronimo.corba.InvocationProfile;
+import org.apache.geronimo.corba.giop.GIOPInputStream;
+import org.apache.geronimo.corba.giop.GIOPMessageTransport;
+import org.apache.geronimo.corba.giop.GIOPOutputStream;
+import org.apache.geronimo.corba.giop.RequestID;
+import org.apache.geronimo.corba.ior.IIOPProfile;
+import org.apache.geronimo.corba.ior.InternalServiceContextList;
+import org.apache.geronimo.corba.ior.InternalTargetAddress;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.MARSHAL;
+import org.omg.CORBA.TRANSIENT;
+import org.omg.CORBA.portable.InputStream;
 
 public class IIOPInvocationProfile implements InvocationProfile {
 
-    public IIOPInvocationProfile(IIOPProfile profile, ClientConnectionFactory endpoint) {
-        // TODO Auto-generated constructor stub
-    }
+	private IIOPProfile profile;
 
-    public GIOPOutputStream startRequest() {
+	private ClientConnectionFactory endpoint;
 
-        // TODO Auto-generated method stub
-        return null;
-    }
+	private GIOPMessageTransport mt;
+
+	public IIOPInvocationProfile(IIOPProfile profile,
+			ClientConnectionFactory endpoint) {
+		this.profile = profile;
+		this.endpoint = endpoint;
+
+		ClientConnection conn = endpoint.getConnection();
+
+		try {
+			mt = conn.getGIOPMessageTransport();
+		} catch (IOException e) {
+			e.printStackTrace();
+			TRANSIENT tt =  new TRANSIENT();
+			tt.initCause(e);
+			throw tt;
+		}
+	}
+
+	public GIOPOutputStream startRequest(ClientInvocation inv) {
+
+		byte[] principal = new byte[0]; // TODO: old-style principal handling
+		InternalTargetAddress targetAddress = profile.getTargetAddress();
+		GIOPVersion version = profile.getGIOPVersion();
+
+		try {
+			return mt.startRequest(version, targetAddress, inv, principal);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			MARSHAL ex = new MARSHAL("failed to start request", MinorCodes.REQUEST_START_FAILED,
+					CompletionStatus.COMPLETED_NO);
+			ex.initCause(e);
+			throw ex;
+		}
+	}
+
+	public InputStreamBase invoke(ClientInvocation invocation,
+			ClientDelegate delegate, OutputStreamBase out) {
+
+		GIOPOutputStream gout = (GIOPOutputStream) out;
+
+		if (invocation.isResponseExpected()) {
+			mt.registerResponse(invocation.getRequestID());
+		}
+
+		// push message
+		gout.finishGIOPMessage();
+
+		if (!invocation.isResponseExpected()) {
+			return null;
+		}
+
+		GIOPInputStream in = mt.waitForResponse(invocation);
+		
+		return in;
+	}
+
+	public void releaseReply(InputStreamBase in) {
+		GIOPInputStream gin = (GIOPInputStream) in;
+		gin.finishGIOPMessage();		
+	}
 
 }

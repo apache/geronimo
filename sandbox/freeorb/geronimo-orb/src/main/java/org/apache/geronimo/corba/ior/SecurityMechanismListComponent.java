@@ -29,7 +29,7 @@ public class SecurityMechanismListComponent extends Component {
 
     private final AbstractORB orb;
     private final CompoundSecMechList mech_list;
-    private CompoundSecurityMechanism[] mechs;
+    private CompoundSecurityMechanism[] mechs_cache;
 
     public SecurityMechanismListComponent(AbstractORB orb2, CompoundSecMechList mech_list) {
         this.orb = orb2;
@@ -59,15 +59,15 @@ public class SecurityMechanismListComponent extends Component {
     }
 
     public CompoundSecurityMechanism getSecurityMechanism(int j) {
-        if (mechs == null) {
-            mechs = new CompoundSecurityMechanism[mech_list.mechanism_list.length];
+        if (mechs_cache == null) {
+            mechs_cache = new CompoundSecurityMechanism[mech_list.mechanism_list.length];
         }
 
-        if (mechs[j] == null) {
-            mechs[j] = new CompoundSecurityMechanism(orb, mech_list.mechanism_list[j]);
+        if (mechs_cache[j] == null) {
+            mechs_cache[j] = new CompoundSecurityMechanism(orb, mech_list.mechanism_list[j]);
         }
 
-        return mechs[j];
+        return mechs_cache[j];
     }
 
 }

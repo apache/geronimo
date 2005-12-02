@@ -28,8 +28,10 @@ import org.omg.CORBA_2_3.portable.ObjectImpl;
 import org.apache.geronimo.corba.AbstractORB;
 import org.apache.geronimo.corba.AnyImpl;
 import org.apache.geronimo.corba.ClientDelegate;
+import org.apache.geronimo.corba.ClientInvocation;
 import org.apache.geronimo.corba.PlainObject;
 import org.apache.geronimo.corba.TypeCodeUtil;
+import org.apache.geronimo.corba.codeset.CharConverter;
 import org.apache.geronimo.corba.ior.InternalIOR;
 import org.apache.geronimo.corba.util.IntegerToObjectHashMap;
 import org.apache.geronimo.corba.util.IntegerToObjectMap;
@@ -45,7 +47,7 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
     /**
      * Return our ORB implementation
      */
-    protected abstract AbstractORB __orb();
+    public abstract AbstractORB __orb();
 
     public ORB orb() {
         return __orb();
@@ -54,6 +56,7 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
     private IntegerToObjectMap valueMap;
     private CharConverter char_converter;
     private CharConverter wchar_converter;
+	private ClientInvocation clientInvocation;
 
     IntegerToObjectMap __get_value_map() {
         if (valueMap == null) {
@@ -61,6 +64,17 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
         }
         return valueMap;
     }
+
+    public int computeAlignment(int pos, int align) {
+        if (align > 1) {
+            int incr = pos & (align - 1);
+            if (incr != 0) {
+                return align - incr;
+            }
+        }
+        return 0;
+    }
+
 
     private void __register_value(int pos, Object value) {
         __get_value_map().put(pos, value);
@@ -108,7 +122,7 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
         this.wchar_converter = converter;
     }
 
-    private CharConverter __get_char_converter() {
+    public CharConverter __get_char_converter() {
         if (char_converter == null) {
             char_converter = __orb().get_char_converter(getGIOPVersion());
         }
@@ -121,7 +135,7 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
         return converter.read_char(this);
     }
 
-    private CharConverter __get_wchar_converter() {
+    public CharConverter __get_wchar_converter() {
         if (wchar_converter == null) {
             wchar_converter = __orb().get_wchar_converter(getGIOPVersion());
         }
@@ -129,7 +143,7 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
         return wchar_converter;
     }
 
-    public final String read_string() {
+    public String read_string() {
         int tag = read_long();
         int tag_position = __stream_position() - 4;
         if (tag == -1) {
@@ -265,7 +279,7 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
 
     }
 
-    protected abstract GIOPVersion getGIOPVersion();
+    public abstract GIOPVersion getGIOPVersion();
 
     protected SystemException translate_exception(IOException e) {
         SystemException result;
@@ -275,6 +289,16 @@ public abstract class InputStreamBase extends org.omg.CORBA_2_3.portable.InputSt
 
         return result;
     }
+
+	public abstract boolean __isLittleEndian();
+
+	public ClientInvocation getClientInvocation() {
+		return clientInvocation;
+	}
+
+	public void setClientInvocation(ClientInvocation invocation) {
+		this.clientInvocation = invocation;
+	}
 
 
 }

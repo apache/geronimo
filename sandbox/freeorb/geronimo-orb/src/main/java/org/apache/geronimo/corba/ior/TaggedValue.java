@@ -29,15 +29,23 @@ public abstract class TaggedValue {
 
     public abstract int tag();
 
-    public void write(OutputStreamBase out) {
+    public final void write(OutputStreamBase out) {
         out.write_long(tag());
         write_encapsulated_content(out);
     }
 
     protected void write_encapsulated_content(OutputStreamBase out) {
+    		byte[] cached_bytes = get_cached_byte_encoding();
+    		if (cached_bytes != null) {
+    			out.write_long(cached_bytes.length);
+    			out.write_octet_array(cached_bytes, 0, cached_bytes.length);
+    			return;
+    		}
+    		
         EncapsulationOutputStream eo = new EncapsulationOutputStream(out.__orb());
         write_content(eo);
         try {
+        	   out.write_long(eo.__stream_position());
             eo.writeTo(out);
         }
         catch (IOException ex) {
@@ -47,6 +55,7 @@ public abstract class TaggedValue {
         }
     }
 
+    protected byte[] get_cached_byte_encoding() { return null; }
     protected abstract void write_content(OutputStream eo);
 
 }

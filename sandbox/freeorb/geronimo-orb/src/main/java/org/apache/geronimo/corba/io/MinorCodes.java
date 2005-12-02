@@ -23,6 +23,7 @@ public abstract class MinorCodes {
     public static final int BAD_MAJOR = 2 | FREEORB_ID;
     public static final int BAD_MINOR = 3 | FREEORB_ID;
     public static final int END_OF_ENCAPSULATION = 4 | FREEORB_ID;
+	public static final int REQUEST_START_FAILED = 5 | FREEORB_ID;
 
 
 }

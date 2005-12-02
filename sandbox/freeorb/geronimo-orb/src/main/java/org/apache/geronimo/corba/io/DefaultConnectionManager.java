@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.corba.io;
 
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +33,8 @@ import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 import org.apache.geronimo.corba.ConnectionManager;
 import org.apache.geronimo.corba.InvocationProfile;
 import org.apache.geronimo.corba.ORB;
+import org.apache.geronimo.corba.channel.TransportManager;
+import org.apache.geronimo.corba.channel.nio.AsyncNIOTransportManager;
 import org.apache.geronimo.corba.ior.AlternateIIOPComponent;
 import org.apache.geronimo.corba.ior.CompoundSecurityMechanism;
 import org.apache.geronimo.corba.ior.IIOPProfile;
@@ -47,8 +50,22 @@ public class DefaultConnectionManager implements ConnectionManager {
     SyncMap connectionFactories = new SyncMap(new HashMap(),
                                               new WriterPreferenceReadWriteLock());
 
-    public DefaultConnectionManager(ORB orb) {
+    TransportManager tcpTransportManager;
+    TransportManager sslTransportManager;
+    TransportManager tlsTransportManager;
+    
+    
+    public DefaultConnectionManager(ORB orb) throws IOException {
         this.orb = orb;
+        
+        tcpTransportManager = new AsyncNIOTransportManager(orb.getExecutor());
+        try {
+			tcpTransportManager.start();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
     }
 
     public InvocationProfile[] getInvocationProfiles(InternalIOR ior) {
@@ -152,19 +169,19 @@ public class DefaultConnectionManager implements ConnectionManager {
     }
 
     private ClientConnectionFactory getClientEndpoint(
-            IIOPTransportSpec transport)
+            IIOPTransportSpec transportSpec)
     {
         ClientConnectionFactory ccf = (ClientConnectionFactory) connectionFactories
-                .get(transport);
+                .get(transportSpec);
 
         if (ccf == null) {
-            String protocol = transport.protocol();
+            String protocol = transportSpec.protocol();
             if (IIOPTransportSpec.PROTO_TCP.equals(protocol)) {
-                ccf = new TCPClientConnectionFactory(transport);
+                ccf = new TCPClientConnectionFactory(orb, transportSpec, tcpTransportManager);
             } else if (IIOPTransportSpec.PROTO_SSL.equals(protocol)) {
-                ccf = new SSLClientConnectionFactory(transport);
+                ccf = new SSLClientConnectionFactory(orb, transportSpec, sslTransportManager);
             } else if (IIOPTransportSpec.PROTO_TLS.equals(protocol)) {
-                ccf = new TLSClientConnectionFactory(transport);
+                ccf = new TLSClientConnectionFactory(orb, transportSpec, tlsTransportManager);
             }
         }
 

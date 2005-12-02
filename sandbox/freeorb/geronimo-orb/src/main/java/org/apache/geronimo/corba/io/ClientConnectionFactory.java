@@ -16,13 +16,17 @@
  */
 package org.apache.geronimo.corba.io;
 
+import org.apache.geronimo.corba.ORB;
 import org.apache.geronimo.corba.ior.IIOPTransportSpec;
 
-
+/** this is the "sharing point" for reuse of client connections */
 public interface ClientConnectionFactory {
 
     ClientConnection getConnection();
 
     IIOPTransportSpec getTransportSpec();
+
+    ORB getORB();
+
 
 }

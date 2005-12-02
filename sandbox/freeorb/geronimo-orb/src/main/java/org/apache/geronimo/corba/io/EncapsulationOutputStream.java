@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.geronimo.corba.AbstractORB;
+import org.apache.geronimo.corba.channel.MarkHandler;
+import org.apache.geronimo.corba.channel.OutputChannelMarker;
+import org.omg.CORBA.NO_IMPLEMENT;
 
 
 public class EncapsulationOutputStream extends OutputStreamBase {
@@ -130,5 +133,13 @@ public class EncapsulationOutputStream extends OutputStreamBase {
     public void writeTo(OutputStream out) throws IOException {
         barr.writeTo(out);
     }
+
+	protected OutputChannelMarker mark(MarkHandler handler) {
+		throw new NO_IMPLEMENT();
+	}
+
+	protected GIOPVersion getGIOPVersion() {
+		return GIOPVersion.V1_0;
+	}
 
 }

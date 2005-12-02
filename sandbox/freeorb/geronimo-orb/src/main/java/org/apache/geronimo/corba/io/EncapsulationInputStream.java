@@ -19,6 +19,7 @@ package org.apache.geronimo.corba.io;
 import org.omg.CORBA.MARSHAL;
 
 import org.apache.geronimo.corba.AbstractORB;
+import org.apache.geronimo.corba.codeset.CharConverter;
 
 
 public class EncapsulationInputStream extends InputStreamBase {
@@ -70,7 +71,7 @@ public class EncapsulationInputStream extends InputStreamBase {
     }
 
     protected void __check(int size, int align) {
-        int padding = pos & (align - 1);
+        int padding = computeAlignment(pos, align);
         if (pos + padding + size > len) {
             throw new MARSHAL();
         }
@@ -81,7 +82,7 @@ public class EncapsulationInputStream extends InputStreamBase {
         return pos - len;
     }
 
-    protected GIOPVersion getGIOPVersion() {
+    public GIOPVersion getGIOPVersion() {
         return version;
     }
 
@@ -150,5 +151,7 @@ public class EncapsulationInputStream extends InputStreamBase {
         return new EncapsulationInputStream(__orb(), data, pos, encap_len);
     }
 
-
+    public boolean __isLittleEndian() {
+    	return little_endian;
+    }
 }

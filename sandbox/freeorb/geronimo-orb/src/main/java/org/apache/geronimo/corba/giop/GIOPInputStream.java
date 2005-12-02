@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 
 import org.apache.geronimo.corba.AbstractORB;
+import org.apache.geronimo.corba.ORB;
 import org.apache.geronimo.corba.channel.InputChannel;
 import org.apache.geronimo.corba.io.GIOPVersion;
 import org.apache.geronimo.corba.io.InputStreamBase;
+import org.omg.CORBA.INTERNAL;
 
 
 public class GIOPInputStream extends InputStreamBase {
@@ -41,7 +43,9 @@ public class GIOPInputStream extends InputStreamBase {
     private GIOPVersion version;
     private int message_start;
 
-    protected GIOPInputStream(InputController controller, InputChannel ch) {
+    protected GIOPInputStream(ORB orb, GIOPVersion version, InputController controller, InputChannel ch) {
+    		this.orb = orb;
+    		this.version = version;
         this.controller = controller;
         this.ch = ch;
     }
@@ -199,13 +203,34 @@ public class GIOPInputStream extends InputStreamBase {
         return size_of_previous_fragments + position - message_start;
     }
 
-    protected AbstractORB __orb() {
+    public AbstractORB __orb() {
         return orb;
     }
 
-    protected GIOPVersion getGIOPVersion() {
+    public GIOPVersion getGIOPVersion() {
         return version;
     }
+
+	public boolean __isLittleEndian() {
+		return ch.getOrder() == ByteOrder.LITTLE_ENDIAN;
+	}
+
+	public void finishGIOPMessage() {
+		// skip input at end of message, if any
+		if (limit > position()) {
+			try {
+				ch.skip(limit - position());
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new INTERNAL();
+			}
+		}
+		ch.relinquish();
+	}
+
+	public void setGIOPVersion(GIOPVersion version2) {
+		this.version = version2;
+	}
 
 
 }

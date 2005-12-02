@@ -178,8 +178,8 @@ public class AsyncNIOSocketTransport extends SocketTransportBase implements
         try {
             sendBuffer.writeTo(chan);
 
-            if (sendBuffer.isClosed() && sendBuffer.isEmpty()) {
-                removeInterest(SelectionKey.OP_WRITE, "output closed");
+            if (sendBuffer.isClosed() || sendBuffer.isEmpty()) {
+                removeInterest(SelectionKey.OP_WRITE, "output closed/empty");
             }
 
         }

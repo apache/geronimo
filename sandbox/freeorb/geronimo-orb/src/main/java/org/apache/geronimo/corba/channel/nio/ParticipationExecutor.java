@@ -16,6 +16,7 @@
  */
 package org.apache.geronimo.corba.channel.nio;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -26,100 +27,156 @@ import EDU.oswego.cs.dl.util.concurrent.Mutex;
 import EDU.oswego.cs.dl.util.concurrent.ReentrantLock;
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
+import EDU.oswego.cs.dl.util.concurrent.SyncList;
 import EDU.oswego.cs.dl.util.concurrent.SyncMap;
-
 
 public class ParticipationExecutor implements Executor {
 
-    private SyncMap map = new SyncMap(new HashMap(), new Mutex(),
-                                      new ReentrantLock());
+	static void assertTrue(boolean x) {
+		if (x == false) {
+			throw new Error("assertion failed");
+		}
+	}
 
-    private final Executor backing;
+	private SyncMap map = new SyncMap(new HashMap(), new Mutex(),
+			new ReentrantLock());
 
-    public ParticipationExecutor(Executor backing) {
-        this.backing = backing;
-    }
+	private SyncList available = new SyncList(new ArrayList(), new Mutex(),
+			new Mutex());
 
-    public void execute(Runnable arg0) throws InterruptedException {
+	private final Executor backing;
 
-        Participation p = null;
-        if (!map.isEmpty()) {
-            Sync lock = map.writerSync();
-            lock.acquire();
-            try {
-                Set set = map.entrySet();
-                Iterator iter = set.iterator();
-                if (iter.hasNext()) {
-                    Map.Entry ent = (Map.Entry) iter.next();
-                    p = (Participation) ent.getValue();
-                    iter.remove();
-                }
-            }
-            finally {
-                lock.release();
-            }
-        }
+	public ParticipationExecutor(Executor backing) {
+		this.backing = backing;
+	}
 
-        if (p == null) {
-            backing.execute(arg0);
-        } else {
-            p.task = arg0;
-            p.release();
-        }
+	class Participation {
 
-    }
+		Semaphore sem = new Semaphore(0);
 
-    static class Participation extends Semaphore {
+		Thread participant = null;
 
-        Thread participant = Thread.currentThread();
+		private final Object key;
 
-        public Participation() {
-            super(0);
-        }
+		Participation(Object key) {
+			this.key = key;
+		}
 
-        Runnable task;
-        public Object value;
-    }
+		private boolean isReleased;
 
-    public Object participate(Object key) {
+		private Runnable task;
 
-        Participation p = new Participation();
-        map.put(key, p);
+		private Object value;
 
-        while (true) {
-            try {
-                p.acquire();
-            }
-            catch (InterruptedException e) {
-                continue;
-            }
+		public Object run() throws InterruptedException {
+			
+			
+			
+			try {
+				if (isReleased) {
+					return value;
+				}
+				
+				participant = Thread.currentThread();				
+				available.add(this);
 
-            if (p.task == null) {
-                return p.value;
-            } else {
-                try {
-                    p.task.run();
-                }
-                catch (RuntimeException ex) {
-                    ex.printStackTrace();
-                }
-                catch (Error ex) {
-                    ex.printStackTrace();
-                }
-                finally {
-                    p.task = null;
-                    map.put(key, p);
-                }
-            }
-        }
-    }
+				while (true) {
+					sem.acquire();
 
-    public void release(Object key, Object value) {
-        Participation p = (Participation) map.remove(key);
-        if (p != null) {
-            p.value = value;
-            p.release();
-        }
-    }
+					assertTrue(!available.contains(this));
 
+					if (task != null) {
+						task.run();
+						task = null;
+						available.add(this);
+					}
+
+					if (isReleased) {
+						break;
+					}
+				}
+
+			} finally {
+				participant = null;
+				map.remove(key);
+			}
+
+			return value;
+		}
+
+		void executeTask(Runnable task) {
+
+			assertTrue(!available.contains(this));
+
+			this.task = task;
+			sem.release();
+		}
+
+		void releaseWithValue(Object value) {
+			this.value = value;
+			this.isReleased = true;
+
+			if (available.remove(this)) {
+				// ok.  the participant is not active, and so it
+				// will wake up immediately				
+			} else {
+				// possible race?  the participant is currently activ
+			}
+
+			sem.release();
+		}
+	}
+
+	public void execute(Runnable task) throws InterruptedException {
+
+		Participation p = null;
+		/*
+		available.writerSync().acquire();
+		try {
+			if (!available.isEmpty()) {
+				p = (Participation) available.remove(available.size() - 1);
+			}
+		} finally {
+			available.writerSync().release();
+		}
+*/
+		
+		if (p == null) {
+			backing.execute(task);
+		} else {
+			p.executeTask(task);
+		}
+
+	}
+
+	public Participation create(Object key) {
+		Participation result = new Participation(key);
+		map.put(key, result);
+		return result;
+	}
+
+	/**
+	 * @throws InterruptedException
+	 * @deprecated
+	 */
+	public Object participate(Object key) throws InterruptedException {
+
+		Participation p = (Participation) map.get(key);
+		if (p == null) {
+			p = create(key);
+		}
+
+		return p.run();
+	}
+
+	public void release(Object key, Object value) {
+		Participation p = (Participation) map.get(key);
+
+		if (p != null) {
+			p.releaseWithValue(value);
+		} else {
+			System.out.println("NO PARTICIPANT WAITING FOR " + key + " in "
+					+ this);
+		}
+	}
 }

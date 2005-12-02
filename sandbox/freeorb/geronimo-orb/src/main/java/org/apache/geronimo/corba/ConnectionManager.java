@@ -18,7 +18,11 @@ package org.apache.geronimo.corba;
 
 import org.apache.geronimo.corba.ior.InternalIOR;
 
-
+/** A connection manager can translate an IOR into a series of InvocationProfiles.
+ *  
+ *  an InvocationProfile is a profile from the IOR paired with the means needed to 
+ *  connect to the object (i.e. some kind of client connection factory).
+ * */
 public interface ConnectionManager {
 
     InvocationProfile[] getInvocationProfiles(InternalIOR ior);

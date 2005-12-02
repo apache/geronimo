@@ -25,11 +25,11 @@ public class FilterInputStream extends InputStreamBase {
 
     private final InputStreamBase base;
 
-    FilterInputStream(InputStreamBase base) {
+    protected FilterInputStream(InputStreamBase base) {
         this.base = base;
     }
 
-    protected AbstractORB __orb() {
+    public AbstractORB __orb() {
         return base.__orb();
     }
 
@@ -41,7 +41,7 @@ public class FilterInputStream extends InputStreamBase {
         return base.__stream_position();
     }
 
-    protected GIOPVersion getGIOPVersion() {
+    public GIOPVersion getGIOPVersion() {
         return base.getGIOPVersion();
     }
 
@@ -60,6 +60,10 @@ public class FilterInputStream extends InputStreamBase {
     public long read_longlong() {
         return base.read_longlong();
     }
+
+	public boolean __isLittleEndian() {
+		return base.__isLittleEndian();
+	}
 
 
 }

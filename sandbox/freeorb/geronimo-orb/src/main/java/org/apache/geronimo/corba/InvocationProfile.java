@@ -17,10 +17,17 @@
 package org.apache.geronimo.corba;
 
 import org.apache.geronimo.corba.giop.GIOPOutputStream;
-
+import org.apache.geronimo.corba.io.InputStreamBase;
+import org.apache.geronimo.corba.io.OutputStreamBase;
+import org.omg.CORBA.portable.InputStream;
 
 public interface InvocationProfile {
 
-    GIOPOutputStream startRequest();
+	GIOPOutputStream startRequest(ClientInvocation invocation);
+
+	InputStreamBase invoke(ClientInvocation invocation, ClientDelegate delegate,
+			OutputStreamBase out);
+
+	void releaseReply(InputStreamBase in);
 
 }

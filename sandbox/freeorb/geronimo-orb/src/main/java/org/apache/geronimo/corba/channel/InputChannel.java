@@ -49,4 +49,6 @@ public abstract class InputChannel extends InputStream {
 
     public abstract void setOrder(ByteOrder order);
 
+	public abstract ByteOrder getOrder();
+
 }

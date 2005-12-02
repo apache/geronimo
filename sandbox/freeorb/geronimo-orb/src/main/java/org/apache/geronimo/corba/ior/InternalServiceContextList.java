@@ -16,13 +16,38 @@
  */
 package org.apache.geronimo.corba.ior;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.geronimo.corba.io.InputStreamBase;
 import org.apache.geronimo.corba.io.OutputStreamBase;
 
 
 public class InternalServiceContextList {
 
+	List scl = new ArrayList();
+	
     public void write(OutputStreamBase out) {
         out.write_long(0);
     }
+
+	public void read(InputStreamBase in) {
+		int count = in.read_long();
+		for (int i = 0; i < count; i++) {
+			InternalServiceContext sc = InternalServiceContext.read(in);
+			scl.add(sc);
+		}
+	}
+
+	public InternalServiceContext getContextWithID(int value) {
+		for (int i = 0; i < scl.size(); i++) {
+			InternalServiceContext ctx = (InternalServiceContext) scl.get(i);
+			if (ctx.tag() == value) {
+				return ctx;
+			}
+		}
+		
+		return null;
+	}
 
 }

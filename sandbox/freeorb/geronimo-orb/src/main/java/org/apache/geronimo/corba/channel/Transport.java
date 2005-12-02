@@ -50,4 +50,8 @@ public abstract class Transport {
 
     public abstract void setInputHandler(InputHandler handler);
 
+	public void registerResponse(Object object) {
+		// TODO Auto-generated method stub
+	}
+
 }

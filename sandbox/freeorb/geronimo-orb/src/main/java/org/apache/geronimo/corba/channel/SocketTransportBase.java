@@ -25,279 +25,258 @@ import EDU.oswego.cs.dl.util.concurrent.Sync;
 
 import org.apache.geronimo.corba.channel.nio.ParticipationExecutor;
 
-
 public abstract class SocketTransportBase extends Transport {
 
-    static protected final int RCV_BUFFER_SIZE = getIntProperty("org.freeorb.rcv_buffer_size", 64 * 1024);
+	static protected final int RCV_BUFFER_SIZE = getIntProperty(
+			"org.freeorb.rcv_buffer_size", 64 * 1024);
 
-    static protected final int SND_BUFFER_SIZE = getIntProperty("org.freeorb.snd_buffer_size", 64 * 1024);
+	static protected final int SND_BUFFER_SIZE = getIntProperty(
+			"org.freeorb.snd_buffer_size", 64 * 1024);
 
-    protected InputHandler handler;
+	protected InputHandler handler;
 
-    protected Thread inputWorker;
+	protected Thread inputWorker;
 
-    protected Sync inputWorkerLock = new Mutex();
+	protected Sync inputWorkerLock = new Mutex();
 
-    protected RingByteBuffer receiveBuffer;
+	protected RingByteBuffer receiveBuffer;
 
-    protected RingByteBuffer sendBuffer;
+	protected RingByteBuffer sendBuffer;
 
-    protected Semaphore outputWorkerLock = new Semaphore(1);
+	protected Semaphore outputWorkerLock = new Semaphore(1);
 
-    protected Thread outputWorker;
+	protected Thread outputWorker;
 
-    protected TransportManager manager;
+	protected TransportManager manager;
 
-    private ParticipationExecutor executor;
+	private ParticipationExecutor executor;
 
-    protected Socket sock;
+	protected Socket sock;
 
-    protected SocketTransportBase(TransportManager manager, InputHandler handler, Socket sock) {
-        this.manager = manager;
-        this.handler = handler;
-        this.executor = new ParticipationExecutor(manager.getExecutor());
-        this.sock = sock;
+	protected SocketTransportBase(TransportManager manager,
+			InputHandler handler, Socket sock) {
+		this.manager = manager;
+		this.handler = handler;
+		this.executor = new ParticipationExecutor(manager.getExecutor());
+		this.sock = sock;
 
-        this.receiveBuffer = allocateReceiveBuffer(RCV_BUFFER_SIZE);
-        this.sendBuffer = allocateSendBuffer(SND_BUFFER_SIZE);
-    }
+		this.receiveBuffer = allocateReceiveBuffer(RCV_BUFFER_SIZE);
+		this.sendBuffer = allocateSendBuffer(SND_BUFFER_SIZE);
+	}
 
+	protected abstract RingByteBuffer allocateSendBuffer(int bufferSize);
 
-    protected abstract RingByteBuffer allocateSendBuffer(int bufferSize);
+	protected abstract RingByteBuffer allocateReceiveBuffer(int bufferSize);
 
-    protected abstract RingByteBuffer allocateReceiveBuffer(int bufferSize);
+	private static int getIntProperty(String string, int defaultValue) {
+		try {
+			return Integer.parseInt(System.getProperty(string, ""));
+		} catch (NumberFormatException ex) {
+			return defaultValue;
+		}
+	}
 
+	public void releaseOutputChannel() {
+		if (outputWorker == Thread.currentThread()) {
 
-    private static int getIntProperty(String string, int defaultValue) {
-        try {
-            return Integer.parseInt(System.getProperty(string, ""));
-        }
-        catch (NumberFormatException ex) {
-            return defaultValue;
-        }
-    }
+			try {
+				sendBuffer.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-    public void releaseOutputChannel() {
-        if (outputWorker == Thread.currentThread()) {
+			outputWorker = null;
+			outputWorkerLock.release();
+		}
+	}
 
-            try {
-                sendBuffer.flush();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+	/**
+	 * wait for the output channel to become available
+	 */
+	public OutputChannel getOutputChannel() {
 
-            outputWorker = null;
-            outputWorkerLock.release();
-        }
-    }
+		do {
+			try {
+				outputWorkerLock.acquire();
+			} catch (InterruptedException e) {
+				continue;
+			}
+		} while (false);
 
-    /**
-     * wait for the output channel to become available
-     */
-    public OutputChannel getOutputChannel() {
+		assertEquals(outputWorker, null);
 
-        do {
-            try {
-                outputWorkerLock.acquire();
-            }
-            catch (InterruptedException e) {
-                continue;
-            }
-        }
-        while (false);
+		outputWorker = Thread.currentThread();
+		return sendBuffer.getOutputChannel();
+	}
 
-        assertEquals(outputWorker, null);
+	public InputChannel getInputChannel() {
+		LOOP: do {
+			try {
+				inputWorkerLock.acquire();
+			} catch (InterruptedException e) {
+				continue LOOP;
+			}
+		} while (false);
 
-        outputWorker = Thread.currentThread();
-        return sendBuffer.getOutputChannel();
-    }
+		try {
 
-    public InputChannel getInputChannel() {
-        LOOP:
-        do {
-            try {
-                inputWorkerLock.acquire();
-            }
-            catch (InterruptedException e) {
-                continue LOOP;
-            }
-        }
-        while (false);
+			if (inputWorker == null) {
+				inputWorker = Thread.currentThread();
 
-        try {
+			} else if (inputWorker != Thread.currentThread()) {
+				throw new IllegalStateException(
+						"only the designated input worker can do that");
+			}
 
-            if (inputWorker == null) {
-                inputWorker = Thread.currentThread();
+		} finally {
+			inputWorkerLock.release();
+		}
 
-            } else if (inputWorker != Thread.currentThread()) {
-                throw new IllegalStateException(
-                        "only the designated input worker can do that");
-            }
+		return receiveBuffer.getInputChannel();
+	}
 
-        }
-        finally {
-            inputWorkerLock.release();
-        }
+	/**
+	 * this runnable is started when input is available
+	 */
+	protected final Runnable processInput = new Runnable() {
+		public void run() {
 
-        return receiveBuffer.getInputChannel();
-    }
+			assertEquals(inputWorker, null);
 
-    /**
-     * this runnable is started when input is available
-     */
-    protected final Runnable processInput = new Runnable() {
-        public void run() {
+			inputWorker = Thread.currentThread();
+			try {
+				inputWorkerLock.release();
+				handler.inputAvailable(SocketTransportBase.this);
+			} catch (Error e) {
+				e.printStackTrace();
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			} finally {
+				releaseOutputChannel();
+				unsetInputWorker();
+			}
+		}
+	};
 
-            assertEquals(inputWorker, null);
+	/**
+	 * to be called when something is added to the input buffer
+	 */
+	protected void processAvailableInput() throws InterruptedException {
+		inputWorkerLock.acquire();
 
-            inputWorker = Thread.currentThread();
-            try {
-                inputWorkerLock.release();
-                handler.inputAvailable(SocketTransportBase.this);
-            }
-            catch (Error e) {
-                e.printStackTrace();
-            }
-            catch (RuntimeException e) {
-                e.printStackTrace();
-            }
-            finally {
-                releaseOutputChannel();
-                unsetInputWorker();
-            }
-        }
-    };
+		// is there someone processing input?
+		// if not, then we need to start a new
+		// input processor
 
-    /**
-     * to be called when something is added to the input buffer
-     */
-    protected void processAvailableInput() throws InterruptedException {
-        inputWorkerLock.acquire();
+		if (inputWorker == null && !receiveBuffer.isEmpty() && handler != null) {
+			executor.execute(processInput);
+		} else {
+			inputWorkerLock.release();
+		}
+	}
 
-        // is there someone processing input?
-        // if not, then we need to start a new
-        // input processor
+	public void releaseInputChannel() {
+		unsetInputWorker();
+	}
 
-        if (inputWorker == null && !receiveBuffer.isEmpty()
-            && handler != null)
-        {
-            executor.execute(processInput);
-        } else {
-            inputWorkerLock.release();
-        }
-    }
+	void unsetInputWorker() {
 
+		Thread.interrupted();
 
-    public void releaseInputChannel() {
-        unsetInputWorker();
-    }
+		do {
+			try {
+				inputWorkerLock.acquire();
+			} catch (InterruptedException e) {
+				continue;
+			}
+		} while (false);
 
-    void unsetInputWorker() {
+		if (inputWorker == Thread.currentThread()) {
+			inputWorker = null;
+			if (!receiveBuffer.isEmpty() && handler != null) {
+				// we're done with this request, but there
+				// is a new request (partially) available
 
-        Thread.interrupted();
+				do {
+					try {
+						executor.execute(processInput);
+					} catch (InterruptedException e) {
+						continue;
+					}
+				} while (false);
+			} else {
+				// we're done with this request and there is
+				// no more input
+				inputWorkerLock.release();
+			}
+		} else {
+			// response was given to another thread via signalResponse
+			inputWorkerLock.release();
+		}
 
-        do {
-            try {
-                inputWorkerLock.acquire();
-            }
-            catch (InterruptedException e) {
-                continue;
-            }
-        }
-        while (false);
+	}
 
-        if (inputWorker == Thread.currentThread()) {
-            inputWorker = null;
-            if (!receiveBuffer.isEmpty() && handler != null) {
-                // we're done with this request, but there
-                // is a new request (partially) available
+	public void registerResponse(Object key) {
+		executor.create(key);
+	}
 
-                do {
-                    try {
-                        executor.execute(processInput);
-                    }
-                    catch (InterruptedException e) {
-                        continue;
-                    }
-                }
-                while (false);
-            } else {
-                // we're done with this request and there is
-                // no more input
-                inputWorkerLock.release();
-            }
-        } else {
-            // response was given to another thread via signalResponse
-            inputWorkerLock.release();
-        }
+	public Object waitForResponse(Object key) {
 
-    }
+		do {
+			try {
+				inputWorkerLock.acquire();
+			} catch (InterruptedException e) {
+				continue;
+			}
+		} while (false);
 
-    void registerResponse(Object key) {
+		if (inputWorker == Thread.currentThread()) {
+			inputWorker = null;
+		}
+		inputWorkerLock.release();
 
-    }
+		Object value = null;
+		try {
+			value = executor.participate(key);
+		} catch (InterruptedException e) {
+			// TODO: dont ignore
+		}
 
-    public Object waitForResponse(Object key) {
+		inputWorker = Thread.currentThread();
+		inputWorkerLock.release(); // {22}
 
-        do {
-            try {
-                inputWorkerLock.acquire();
-            }
-            catch (InterruptedException e) {
-                continue;
-            }
-        }
-        while (false);
+		return value;
+	}
 
-        if (inputWorker == Thread.currentThread()) {
-            inputWorker = null;
-        }
-        inputWorkerLock.release();
+	public void signalResponse(Object key, Object value) {
+		assertEquals(inputWorker, Thread.currentThread());
 
-        Object value = executor.participate(key);
+		// this lock is released at {22}, when the
+		// relevant participant reaquires control
+		do {
+			try {
+				inputWorkerLock.acquire();
+			} catch (InterruptedException e) {
+				continue;
+			}
+		} while (false);
 
-        inputWorker = Thread.currentThread();
-        inputWorkerLock.release(); // {22}
+		inputWorker = null;
+		executor.release(key, value);
+	}
 
-        return value;
-    }
+	public void setInputHandler(InputHandler handler) {
+		this.handler = handler;
+	}
 
-    public void signalResponse(Object key, Object value) {
-        assertEquals(inputWorker, Thread.currentThread());
+	private void assertEquals(Object o1, Object o2) {
+		if (o1 != o2) {
+			throw new IllegalStateException("assertion failed");
+		}
+	}
 
-        // this lock is released at {22}, when the
-        // relevant participant reaquires control
-        do {
-            try {
-                inputWorkerLock.acquire();
-            }
-            catch (InterruptedException e) {
-                continue;
-            }
-        }
-        while (false);
-
-        inputWorker = null;
-        executor.release(key, value);
-    }
-
-
-    public void setInputHandler(InputHandler handler) {
-        this.handler = handler;
-    }
-
-
-    private void assertEquals(Object o1, Object o2) {
-        if (o1 != o2) {
-            throw new IllegalStateException("assertion failed");
-        }
-    }
-
-
-    public void close() throws IOException {
-        sock.close();
-    }
-
+	public void close() throws IOException {
+		sock.close();
+	}
 
 }

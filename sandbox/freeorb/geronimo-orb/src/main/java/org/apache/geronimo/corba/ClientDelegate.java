@@ -16,13 +16,22 @@
  */
 package org.apache.geronimo.corba;
 
-import org.omg.CORBA.Context;
-import org.omg.CORBA.ContextList;
-import org.omg.CORBA.ExceptionList;
-import org.omg.CORBA.NVList;
-import org.omg.CORBA.NamedValue;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.corba.dii.ExceptionListImpl;
+import org.apache.geronimo.corba.dii.NVListImpl;
+import org.apache.geronimo.corba.dii.NamedValueImpl;
+import org.apache.geronimo.corba.dii.RequestImpl;
+import org.apache.geronimo.corba.io.InputStreamBase;
+import org.apache.geronimo.corba.io.OutputStreamBase;
+import org.apache.geronimo.corba.ior.InternalIOR;
+import org.apache.geronimo.corba.server.POA;
+import org.apache.geronimo.corba.server.ServantObject;
+import org.omg.CORBA.BAD_INV_ORDER;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.LocalObject;
 import org.omg.CORBA.Object;
-import org.omg.CORBA.Request;
+import org.omg.CORBA.Policy;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
@@ -30,155 +39,412 @@ import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA_2_3.portable.Delegate;
 import org.omg.IOP.IOR;
 
-import org.apache.geronimo.corba.ior.InternalIOR;
-
-
 public class ClientDelegate extends Delegate {
 
-    private final ORB orb;
-    private InternalIOR ior;
+	private static final Log log = LogFactory.getLog(ClientDelegate.class);
 
-    private InvocationProfileSelector profileManager;
+	private final ORB orb;
 
-    public ClientDelegate(InternalIOR ior) {
-        this.ior = ior;
-        this.orb = (ORB) ior.orb;
-    }
+	private InternalIOR ior;
 
-    ClientDelegate(ORB orb, IOR ior) {
-        this(new InternalIOR(orb, ior));
-    }
+	private InvocationProfileSelector profileManager;
 
-    //
-    //
-    //
+	private final Policy[] policies;
 
-    public boolean is_local(org.omg.CORBA.Object self) {
-        // TODO: implement
-        return false;
-    }
+	private POA poa;
 
-    public OutputStream request(org.omg.CORBA.Object self, String operation,
-                                boolean responseExpected)
-    {
+	private byte[] oid;
 
+	private boolean certainlyRemote;
 
-        while (true) {
+	private ServantObject servantObject;
 
-            InvocationProfileSelector manager = getProfileSelector();
+	private InternalIOR orig_ior;
 
-            try {
+	private ThreadLocal retryState;
 
-                // process client interceptor (pre-marshal) and write
-                // RequestHeader to output stream.
+	/* @deprecated */
+	public ClientDelegate(InternalIOR ior) {
+		this(ior, null);
+	}
 
-                OutputStream result = manager.setupRequest(operation,
-                                                           responseExpected);
+	public ClientDelegate(InternalIOR ior, Policy[] policies) {
+		this.ior = ior;
+		this.policies = policies;
+		this.orb = (ORB) ior.orb;
+	}
 
-                return result;
+	public ClientDelegate(ORB orb, IOR ior) {
+		this(new InternalIOR(orb, ior), orb.getPolicies());
+	}
 
-            }
-            catch (org.omg.PortableInterceptor.ForwardRequest ex) {
+	ClientDelegate(ORB orb, IOR ior, Policy[] policies) {
+		this(new InternalIOR(orb, ior), policies);
+	}
 
-                setIOR(InternalIOR.extract(ex.forward));
+	//
+	//
+	//
 
-                continue;
+	public ClientDelegate(ORB orb, POA poa, byte[] oid, String repository_id,
+			Policy[] policies) {
+		this.orb = orb;
+		this.policies = policies;
+		this.poa = poa;
+		this.oid = oid;
+	}
 
-            }
-
+	public boolean is_local(org.omg.CORBA.Object self) {
+		
+        if (log.isDebugEnabled ()) {
+            log.debug ("is_local "+self);
         }
-    }
 
-    private void setIOR(InternalIOR ior) {
-        this.ior = ior;
-        this.profileManager = null;
-    }
+        if(certainlyRemote) {
+            if (log.isDebugEnabled ()) {
+                log.debug ("is_local ==> false [certainlyRemote == true]");
+            }
 
-
-    private InvocationProfileSelector getProfileSelector() {
-        if (this.profileManager == null) {
-            this.profileManager = orb.createInvocationProfileSelector(this);
+            return false;
         }
-        return profileManager;
-    }
 
-    public InputStream invoke(org.omg.CORBA.Object self, OutputStream output)
-            throws ApplicationException, RemarshalException
-    {
-        // TODO: implement
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
+        if(servantObject != null && !servantObject.isDeactivated()) {
+            if (log.isDebugEnabled ()) {
+                log.debug ("is_local ==> true [servantObject != null]");
+            }
 
-    public void releaseReply(org.omg.CORBA.Object self, InputStream input) {
-        // TODO: implement
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
+            return true;
+        }
 
-    public Object get_interface_def(Object self) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+        int count = 0;
+        while(true)
+            {
+                try {
+                    servantObject = orb.__getServerManager().getServantObject(getIOR(), policies);
+                    break;
 
-    public Object duplicate(Object obj) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+                } catch (LocationForwardException lex) {
 
-    public void release(Object obj) {
-        // TODO Auto-generated method stub
+                        ior = lex.getIor ();
+                        if (lex.isPermanent ()) {
+                            orig_ior = ior;
+                        }
+                        
+                        profileManager.reset();
+                        certainlyRemote = false;
+                            
+                }
 
-    }
+                if (count++ == 100)
+                    throw new org.omg.CORBA.COMM_FAILURE ("More than 100 successive forwards?");
+            }
+        
+        if(servantObject != null) {
+            setRetry (true);
 
-    public boolean is_a(Object obj, String repository_id) {
-        // TODO Auto-generated method stub
+            if (log.isDebugEnabled ()) {
+                log.debug ("is_local ==> true [found local servant]");
+            }
+
+            return true;
+
+        } else {
+
+            if (log.isDebugEnabled ()) {
+                log.debug ("is_local ==> false [no local servant]");
+            }
+
+            certainlyRemote = true;
+        }
+
         return false;
-    }
 
-    public boolean non_existent(Object obj) {
-        // TODO Auto-generated method stub
-        return false;
-    }
 
-    public boolean is_equivalent(Object obj, Object other) {
-        // TODO Auto-generated method stub
-        return false;
-    }
+	}
 
-    public int hash(Object obj, int max) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
+	public OutputStream request(org.omg.CORBA.Object self, String operation,
+			boolean responseExpected) {
 
-    public Request request(Object obj, String operation) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+		while (true) {
 
-    public Request create_request(Object obj, Context ctx, String operation,
-                                  NVList arg_list, NamedValue result)
+			InvocationProfileSelector manager = getProfileSelector();
+
+			try {
+
+				// process client interceptor (pre-marshal) and write
+				// RequestHeader to output stream.
+
+				OutputStreamBase result = manager.setupRequest(operation,
+						responseExpected);
+
+				if (result.getClientInvocation() == null) {
+					throw new INTERNAL();
+				}
+
+				return result;
+
+			} catch (org.omg.PortableInterceptor.ForwardRequest ex) {
+
+				setIOR(InternalIOR.extract(ex.forward));
+
+				continue;
+
+			}
+
+		}
+	}
+
+	private void setIOR(InternalIOR ior) {
+		this.ior = ior;
+		this.profileManager = null;
+	}
+
+	private InvocationProfileSelector getProfileSelector() {
+		if (this.profileManager == null) {
+			this.profileManager = orb.createInvocationProfileSelector(this);
+		}
+		return profileManager;
+	}
+
+	/**
+	 * Method invocation sequence, step 2.
+	 * 
+	 * this method is responsible for finishing the output stream and
+	 * relinquishing the underlying channel to let other threads do invocations
+	 * on the same GIOPMessageTransport.
+	 * 
+	 */
+	public InputStream invoke(org.omg.CORBA.Object self, OutputStream output)
+			throws ApplicationException, RemarshalException {
+		OutputStreamBase out = (OutputStreamBase) output;
+
+		ClientInvocation inv = out.getClientInvocation();
+
+		if (inv == null) {
+			throw new BAD_INV_ORDER("OutputStream from wrong context");
+		}
+
+		InputStream in = inv.invoke(this, out);
+
+		inv.checkException();
+
+		return in;
+	}
+
+	public void releaseReply(org.omg.CORBA.Object self, InputStream input) {
+		InputStreamBase in = (InputStreamBase) input;
+
+		if (in == null)
+			return;
+
+		ClientInvocation inv = in.getClientInvocation();
+
+		if (inv == null)
+			return;
+
+		inv.releaseReply(in);
+	}
+
+	public Object get_interface_def(Object self) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Object duplicate(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void release(Object obj) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public boolean is_a(Object self, String rid) {
+
+		if (log.isDebugEnabled()) {
+			log.debug("is_a " + rid);
+		}
+
+		if (rid.equals("IDL:omg.org/CORBA/Object:1.0")) {
+			if (log.isDebugEnabled()) {
+				log.debug("is_a org.omg.CORBA.Object => true");
+			}
+
+			return true;
+		}
+
+		org.omg.CORBA.portable.ObjectImpl obj = (org.omg.CORBA.portable.ObjectImpl) self;
+		String[] ids = obj._ids();
+		for (int i = 0; i < ids.length; i++) {
+			if (log.isDebugEnabled()) {
+				log.debug("is_a ids[" + i + "] =" + ids[i]);
+			}
+
+			if (ids[i].equals(rid))
+				return true;
+		}
+
+		if (log.isDebugEnabled()) {
+			log.debug("is_a ior.type_id =" + getIOR().getType());
+		}
+
+		if (rid.equals(getIOR().getType()))
+			return true;
+
+		while (true) {
+			if (!is_local(self)) {
+				OutputStream out = null;
+				InputStream in = null;
+
+				if (log.isDebugEnabled()) {
+					log.debug("invoking remote _is_a");
+				}
+
+				try {
+					out = (OutputStream) request(self, "_is_a", true);
+					out.write_string(rid);
+					in = (InputStream) invoke(self, out);
+					boolean result = in.read_boolean();
+
+					if (log.isDebugEnabled()) {
+						log.debug("invoking remote _is_a => " + result);
+					}
+
+					return result;
+
+				} catch (org.omg.CORBA.portable.ApplicationException ex) {
+					orb.fatal("unexpected exception from invoking is_a", ex);
+
+				} catch (org.omg.CORBA.portable.RemarshalException ex) {
+					continue;
+
+				} finally {
+					releaseReply(self, in);
+				}
+			} else {
+				if (log.isDebugEnabled()) {
+					log.debug("invoking local _is_a");
+				}
+
+				ServantObject so = (ServantObject) servant_preinvoke(self,
+						"_is_a", null);
+
+				if (so == null)
+					continue;
+
+				try {
+					org.omg.PortableServer.Servant servant = so.original_servant;
+
+					boolean result = servant._is_a(rid);
+
+					if (log.isDebugEnabled()) {
+						log.debug("invoking local _is_a => " + result);
+					}
+
+					return result;
+				} finally {
+					servant_postinvoke(self, so);
+				}
+			}
+		}
+	}
+
+	public boolean non_existent(Object obj) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean is_equivalent(Object self, Object other) {
+		if (other == null)
+			return false;
+
+		if (self == other)
+			return true;
+
+		if (self instanceof LocalObject || other instanceof LocalObject)
+			return false;
+
+		org.omg.CORBA.portable.ObjectImpl otherObject = (org.omg.CORBA.portable.ObjectImpl) other;
+
+		ClientDelegate delegate = (ClientDelegate) otherObject._get_delegate();
+		if (delegate == this)
+			return true;
+
+		synchronized (this) {
+			return getIOR().equals(delegate.getIOR());
+		}
+	}
+
+	public int hash(Object obj, int max) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public org.omg.CORBA.Request create_request(org.omg.CORBA.Object self,
+			org.omg.CORBA.Context ctx, String operation,
+			org.omg.CORBA.NVList arg_list, org.omg.CORBA.NamedValue result) {
+		return new RequestImpl(orb, (org.omg.CORBA.portable.ObjectImpl) self,
+				operation, ctx, (NVListImpl) arg_list, (NamedValueImpl) result);
+	}
+
+	public org.omg.CORBA.Request create_request(org.omg.CORBA.Object self,
+			org.omg.CORBA.Context ctx, String operation,
+			org.omg.CORBA.NVList arg_list, org.omg.CORBA.NamedValue result,
+			org.omg.CORBA.ExceptionList excepts,
+			org.omg.CORBA.ContextList contexts) {
+		return new RequestImpl(orb, (org.omg.CORBA.portable.ObjectImpl) self,
+				operation, ctx, (NVListImpl) arg_list, (NamedValueImpl) result,
+				(ExceptionListImpl) excepts, contexts);
+	}
+
+	public org.omg.CORBA.Request request(org.omg.CORBA.Object self,
+			String operation) {
+		return new RequestImpl(orb, (org.omg.CORBA.portable.ObjectImpl) self,
+				operation);
+	}
+
+	public InternalIOR getInternalIOR() {
+		return ior;
+	}
+
+	public ORB getORB() {
+		return orb;
+	}
+
+	public InternalIOR getIOR() {
+		return ior;
+	}
+
+    private synchronized void setRetry (boolean value)
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (retryState == null && value == true)
+            return;
+
+        if (retryState == null)
+            retryState = new ThreadLocal();
+
+        if (value == true)
+            retryState.set (null);
+        else
+            retryState.set (this);
     }
 
-    public Request create_request(Object obj, Context ctx, String operation,
-                                  NVList arg_list, NamedValue result, ExceptionList exclist,
-                                  ContextList ctxlist)
+    private synchronized boolean getRetry ()
     {
-        // TODO Auto-generated method stub
-        return null;
+        if (retryState == null)
+            return true;
+
+        return retryState.get () == null;
     }
 
-    public InternalIOR getInternalIOR() {
-        return ior;
+    private synchronized boolean getAndSetRetry (boolean value)
+    {
+        boolean result = getRetry ();
+        if (result != value)
+            setRetry (value);
+        return result;
     }
 
-    public ORB getORB() {
-        return orb;
-    }
-
-    public InternalIOR getIOR() {
-        return ior;
-    }
-
+	
 }

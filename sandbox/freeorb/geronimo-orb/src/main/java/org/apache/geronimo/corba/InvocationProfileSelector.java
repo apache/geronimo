@@ -20,6 +20,7 @@ import org.omg.CORBA.NO_RESOURCES;
 import org.omg.CORBA.portable.OutputStream;
 
 import org.apache.geronimo.corba.giop.GIOPOutputStream;
+import org.apache.geronimo.corba.io.OutputStreamBase;
 
 
 public class InvocationProfileSelector {
@@ -46,7 +47,7 @@ public class InvocationProfileSelector {
         return orb;
     }
 
-    public OutputStream setupRequest(String operation, boolean responseExpected)
+    public OutputStreamBase setupRequest(String operation, boolean responseExpected)
             throws org.omg.PortableInterceptor.ForwardRequest
     {
         while (true) {
@@ -55,7 +56,10 @@ public class InvocationProfileSelector {
 
             try {
 
-                GIOPOutputStream out = invocation.startRequest();
+                OutputStreamBase out = invocation.startRequest();
+                
+                out.setClientInvocation(invocation);
+                
                 return out;
 
             }
@@ -92,5 +96,9 @@ public class InvocationProfileSelector {
     public ClientDelegate getDelegate() {
         return delegate;
     }
+
+	public void reset() {
+		currentProfile = 0;
+	}
 
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.corba.io;
 
+import org.apache.geronimo.corba.ORB;
+import org.apache.geronimo.corba.channel.TransportManager;
 import org.apache.geronimo.corba.ior.IIOPTransportSpec;
 
 
@@ -23,8 +25,8 @@ public class SSLClientConnectionFactory extends TCPClientConnectionFactory
         implements ClientConnectionFactory
 {
 
-    public SSLClientConnectionFactory(IIOPTransportSpec transport) {
-        super(transport);
+    public SSLClientConnectionFactory(ORB orb, IIOPTransportSpec transport, TransportManager sslTransportManager) {
+        super(orb, transport, sslTransportManager);
         // TODO Auto-generated constructor stub
     }
 

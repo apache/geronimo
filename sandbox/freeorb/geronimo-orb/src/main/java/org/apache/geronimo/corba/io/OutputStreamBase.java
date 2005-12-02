@@ -32,7 +32,11 @@ import org.omg.CORBA_2_3.portable.OutputStream;
 
 import org.apache.geronimo.corba.AbstractORB;
 import org.apache.geronimo.corba.ClientDelegate;
+import org.apache.geronimo.corba.ClientInvocation;
 import org.apache.geronimo.corba.TypeCodeUtil;
+import org.apache.geronimo.corba.channel.MarkHandler;
+import org.apache.geronimo.corba.channel.OutputChannelMarker;
+import org.apache.geronimo.corba.codeset.CharConverter;
 
 
 public abstract class OutputStreamBase extends OutputStream implements
@@ -50,6 +54,17 @@ public abstract class OutputStreamBase extends OutputStream implements
     public ORB orb() {
         return __orb();
     }
+
+    public int computeAlignment(int pos, int align) {
+        if (align > 1) {
+            int incr = pos & (align - 1);
+            if (incr != 0) {
+                return align - incr;
+            }
+        }
+        return 0;
+    }
+
 
     public InputStream create_input_stream() {
         throw new NO_RESOURCES();
@@ -78,10 +93,7 @@ public abstract class OutputStreamBase extends OutputStream implements
         return wchar_writer;
     }
 
-    private GIOPVersion getGIOPVersion() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    protected abstract GIOPVersion getGIOPVersion();
 
     public void write(int value) throws IOException {
         try {
@@ -343,4 +355,18 @@ public abstract class OutputStreamBase extends OutputStream implements
             throw translate_exception(e);
         }
     }
+    
+    protected abstract OutputChannelMarker mark(MarkHandler handler);
+    
+	private ClientInvocation clientInvocation;
+
+	public ClientInvocation getClientInvocation() {
+		return clientInvocation;
+	}
+	
+	public void setClientInvocation(ClientInvocation inv) {
+		this.clientInvocation = inv;
+	}
+
+
 }

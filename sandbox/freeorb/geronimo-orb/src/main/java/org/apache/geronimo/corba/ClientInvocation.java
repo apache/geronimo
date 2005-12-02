@@ -18,9 +18,19 @@ package org.apache.geronimo.corba;
 
 import java.util.List;
 
+import org.omg.CORBA.SystemException;
+import org.omg.CORBA.portable.ApplicationException;
+import org.omg.CORBA.portable.InputStream;
+import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.PortableInterceptor.ForwardRequest;
 
+import org.apache.geronimo.corba.giop.GIOPMessageTransport;
 import org.apache.geronimo.corba.giop.GIOPOutputStream;
+import org.apache.geronimo.corba.giop.RequestID;
+import org.apache.geronimo.corba.io.GIOPVersion;
+import org.apache.geronimo.corba.io.InputStreamBase;
+import org.apache.geronimo.corba.io.OutputStreamBase;
+import org.apache.geronimo.corba.ior.InternalServiceContextList;
 
 
 public class ClientInvocation implements Invocation {
@@ -32,7 +42,12 @@ public class ClientInvocation implements Invocation {
     /** */
     private final InvocationProfile profile;
 
-    private List requestServiceContextList;
+	private RequestID requestID;
+	private InternalServiceContextList iscl;
+	private InternalServiceContextList respose_scl;
+	private ReplyStatusType_1_2 reply_status;
+	private SystemException systemException;
+	private ApplicationException userException;
 
     public ClientInvocation(InvocationProfileSelector manager,
                             String operation,
@@ -44,6 +59,7 @@ public class ClientInvocation implements Invocation {
         this.operation = operation;
         this.responseExpected = responseExpected;
         this.profile = profile;
+        this.iscl = new InternalServiceContextList();
     }
 
     ClientDelegate getDelegate() {
@@ -54,7 +70,85 @@ public class ClientInvocation implements Invocation {
     public GIOPOutputStream startRequest()
             throws ForwardRequest
     {
-        return profile.startRequest();
+        return profile.startRequest(this);
     }
+
+	public String getOperation() {
+		return operation;
+	}
+
+	public byte getResponseFlags() {
+		if (responseExpected) {
+			return GIOPMessageTransport.SYNC_WITH_TARGET;
+		} else {
+			return GIOPMessageTransport.SYNC_NONE;
+		}
+	}
+
+	public InputStream invoke(ClientDelegate delegate, OutputStreamBase out) {
+		InputStreamBase in = profile.invoke(this, delegate, out);
+		if (in != null) {
+			in.setClientInvocation(this);
+		}
+		return in;
+	}
+
+	public boolean isResponseExpected() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public void setRequestID(RequestID requestID) {
+		this.requestID = requestID;		
+	}
+
+	public InternalServiceContextList getRequestServiceContextList() {
+		return iscl;
+	}
+
+	public RequestID getRequestID() {
+		return requestID;
+	}
+
+	public void releaseReply(InputStreamBase in) {
+		profile.releaseReply(in);
+	}
+
+	public void setResposeServiceContextList (InternalServiceContextList scl) {
+		this.respose_scl = scl;
+	}
+
+	public void setReplyStatus(ReplyStatusType_1_2 reply_status) {
+		this.reply_status = reply_status;
+	}
+
+	public ReplyStatusType_1_2 getReplyStatus() {
+		return reply_status;
+	}
+
+	public void setSystemException(SystemException sex) {
+		this.systemException = sex;
+		this.reply_status = ReplyStatusType_1_2.SYSTEM_EXCEPTION;
+	}
+
+	public void setUserException(ApplicationException aex) {
+		this.userException = aex;
+		this.reply_status = ReplyStatusType_1_2.USER_EXCEPTION;
+	}
+
+	public void checkException() throws ApplicationException {
+		if (this.systemException != null) {
+			throw systemException;
+		}
+		
+		if (userException != null) {
+			throw userException;
+		}
+		
+	}
+
+	public InternalServiceContextList getReplyServiceContextList() {
+		return respose_scl;
+	}
 
 }

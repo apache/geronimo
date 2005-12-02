@@ -19,7 +19,7 @@
  */
 package org.apache.geronimo.corba.giop;
 
-class RequestID {
+public class RequestID {
 
     final int id;
 
@@ -27,6 +27,11 @@ class RequestID {
         this.id = id;
     }
 
+    public String toString() {
+    		return "RequestID[" + id + "]";
+    }
+    
+    
     public boolean equals(Object other) {
         if (other == this) {
             return true;

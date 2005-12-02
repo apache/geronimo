@@ -64,4 +64,8 @@ public class FilterInputChannel extends InputChannel {
         ch.relinquish();
     }
 
+	public ByteOrder getOrder() {
+		return ch.getOrder();
+	}
+
 }

@@ -37,7 +37,7 @@ public class AsyncNIOTransportManager implements TransportManager {
 
     private final Executor executor;
 
-    AsyncNIOTransportManager(Executor executor) throws IOException {
+    public AsyncNIOTransportManager(Executor executor) throws IOException {
         this(executor, SelectorProvider.provider());
     }
 

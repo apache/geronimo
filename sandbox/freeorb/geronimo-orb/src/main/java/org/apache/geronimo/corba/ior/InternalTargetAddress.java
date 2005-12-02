@@ -24,13 +24,15 @@ import org.apache.geronimo.corba.AbstractORB;
 
 public abstract class InternalTargetAddress {
 
-    private AbstractORB orb;
-
-    static class ObjectKeyAddress extends InternalTargetAddress {
+    public static class ObjectKeyAddress extends InternalTargetAddress {
 
         byte[] key;
 
-        public void writeObjectKey(OutputStream out) {
+        public ObjectKeyAddress(byte[] object_key) {
+        	   this.key = object_key;
+		}
+
+		public void writeObjectKey(OutputStream out) {
             OctetSeqHelper.write(out, key);
         }
 
@@ -43,6 +45,8 @@ public abstract class InternalTargetAddress {
     static class ProfileAddress extends InternalTargetAddress {
 
         IIOPProfile key;
+        
+        public ProfileAddress(IIOPProfile profile) { this.key = profile; }
 
         public void writeObjectKey(OutputStream out) {
             OctetSeqHelper.write(out, key.getObjectKey());

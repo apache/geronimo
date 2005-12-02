@@ -21,7 +21,15 @@ import org.omg.CORBA_2_3.portable.ObjectImpl;
 
 public class PlainObject extends ObjectImpl {
 
-    ClientDelegate __get_delegate() {
+	public PlainObject() {
+		
+	}
+	
+    public PlainObject(ClientDelegate delegate) {
+    		_set_delegate(delegate);
+	}
+
+	ClientDelegate __get_delegate() {
         return (ClientDelegate) _get_delegate();
     }
 

@@ -23,6 +23,7 @@ import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import org.omg.IOP.TaggedComponent;
 
 import org.apache.geronimo.corba.AbstractORB;
+import org.apache.geronimo.corba.io.OutputStreamBase;
 
 
 public abstract class Profile extends TaggedValue {
@@ -30,6 +31,15 @@ public abstract class Profile extends TaggedValue {
     public Profile() {
     }
 
+    public void write_encapsulated_content(OutputStreamBase out) {
+    		byte[] bytes = get_encapsulation_bytes();
+    		if (bytes == null) {
+    			super.write_encapsulated_content(out);
+    		} else {
+    			out.write_octet_array(bytes, 0, bytes.length);
+    		}
+    }
+    
     /**
      * write content including tag
      */

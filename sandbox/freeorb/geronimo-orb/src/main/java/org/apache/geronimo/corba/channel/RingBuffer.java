@@ -150,13 +150,19 @@ public abstract class RingBuffer {
             RingBuffer.this.setByteOrderForGet(order);
         }
 
+		public ByteOrder getOrder() {
+			return RingBuffer.this.getByteOrderForGet();
+		}
+
     };
 
     public OutputChannel getOutputChannel() {
         return outputView;
     }
 
-    protected abstract void setByteOrderForGet(ByteOrder order);
+    protected abstract ByteOrder getByteOrderForGet();
+
+	protected abstract void setByteOrderForGet(ByteOrder order);
 
     protected abstract void relinquishInput();
 

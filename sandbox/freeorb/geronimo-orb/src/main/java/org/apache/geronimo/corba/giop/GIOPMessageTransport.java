@@ -17,321 +17,413 @@
 package org.apache.geronimo.corba.giop;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteOrder;
 
 import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.SystemException;
+import org.omg.CORBA.portable.ApplicationException;
 import org.omg.GIOP.MsgType_1_1;
+import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.GIOP.ReplyStatusType_1_2Helper;
 
+import org.apache.geronimo.corba.ClientInvocation;
 import org.apache.geronimo.corba.ORB;
 import org.apache.geronimo.corba.channel.InputHandler;
+import org.apache.geronimo.corba.channel.OutputChannel;
 import org.apache.geronimo.corba.channel.Transport;
+import org.apache.geronimo.corba.channel.TransportManager;
 import org.apache.geronimo.corba.io.GIOPVersion;
 import org.apache.geronimo.corba.ior.InternalServiceContextList;
 import org.apache.geronimo.corba.ior.InternalTargetAddress;
 
-
 public class GIOPMessageTransport implements InputHandler {
 
-    static final byte SYNC_NONE = 0;
-    static final byte SYNC_WITH_TRANSPORT = 1;
-    static final byte SYNC_WITH_SERVER = 2;
-    static final byte SYNC_WITH_TARGET = 3;
+	static public final byte SYNC_NONE = 0;
 
+	static final byte SYNC_WITH_TRANSPORT = 1;
 
-    public boolean isAssignedHere(RequestID id) {
-        return id.isAssignedHere(isClient);
-    }
+	static public final byte SYNC_WITH_SERVER = 2;
 
-    static final int GIOP_MAGIC = ('G' << 24) | ('I' << 16) | ('O' << 8) | 'P';
+	static public final byte SYNC_WITH_TARGET = 3;
 
-    static final int POIG_MAGIC = ('P' << 24) | ('O' << 16) | ('I' << 8) | 'G';
+	public boolean isAssignedHere(RequestID id) {
+		return id.isAssignedHere(isClient);
+	}
 
-    int next_request_id = 2;
+	static final int GIOP_MAGIC = ('G' << 24) | ('I' << 16) | ('O' << 8) | 'P';
 
-    RequestID giop_1_1_request_id = new RequestID(0);
+	static final int POIG_MAGIC = ('P' << 24) | ('O' << 16) | ('I' << 8) | 'G';
 
-    public class MessageHeader implements InputController {
+	int next_request_id = 2;
 
-        GIOPInputStream in;
+	RequestID giop_1_1_request_id = new RequestID(0);
 
-        private byte major;
+	public class MessageHeader implements InputController {
 
-        private byte minor;
+		GIOPInputStream in;
 
-        private byte flags;
+		private byte major;
 
-        private byte type;
+		private byte minor;
 
-        private int size;
+		private byte flags;
 
-        private boolean hasMoreFragments;
+		private byte type;
 
-        private RequestID requestID;
+		private int size;
 
-        private int message_start;
+		private boolean hasMoreFragments;
 
-        public MessageHeader() {
-        }
+		private RequestID requestID;
 
-        public void process(Transport transport) {
-            in = new GIOPInputStream(this, transport.getInputChannel());
+		private int message_start;
 
-            try {
-                in.position(0); // reset alignment
-                int magic = in.read_long();
-                switch (magic) {
-                    case GIOP_MAGIC:
-                    case POIG_MAGIC:
-                        // THAT's OK!
-                        break;
+		private int position;
 
-                    default:
-                        sendErrorAndClose();
-                        return;
-                }
+		public MessageHeader() {
+		}
 
-                this.major = in.read_octet();
-                this.minor = in.read_octet();
+		public void process(Transport transport) {
+			in = new GIOPInputStream(orb, GIOPVersion.V1_0, this, transport.getInputChannel());
 
-                this.flags = in.read_octet();
-                this.type = in.read_octet();
+			try {
+				in.position(0); // reset alignment
+				in.limit(12); //
+				int magic = in.read_long();
+				switch (magic) {
+				case GIOP_MAGIC:
+				case POIG_MAGIC:
+					// THAT's OK!
+					break;
 
-                boolean littleEndian = ((flags & 1) == 1);
-                in.setOrder(littleEndian ? ByteOrder.LITTLE_ENDIAN
-                            : ByteOrder.BIG_ENDIAN);
+				default:
+					sendErrorAndClose();
+					return;
+				}
 
-                this.size = in.read_long();
-                in.limit(size + 12);
+				this.major = in.read_octet();
+				this.minor = in.read_octet();
 
-                this.hasMoreFragments = false;
-                if (minor > 0) {
-                    hasMoreFragments = ((flags & 2) == 2);
-                }
+				in.setGIOPVersion(GIOPVersion.get(major, minor));
+				
+				this.flags = in.read_octet();
+				this.type = in.read_octet();
 
-                switch (type) {
-                    case MsgType_1_1._Fragment:
+				boolean littleEndian = ((flags & 1) == 1);
+				in.setOrder(littleEndian ? ByteOrder.LITTLE_ENDIAN
+						: ByteOrder.BIG_ENDIAN);
 
-                        if (minor == 2) {
-                            this.requestID = new RequestID(in.read_long());
+				this.size = in.read_long();
+				in.limit(size + 12);
 
-                            // this position counts as the start of this
-                            // message with respect to calculation of the
-                            // stream position
-                            this.message_start = in.position();
-                            transport.signalResponse(requestID, this);
+				this.hasMoreFragments = false;
+				if (minor > 0) {
+					hasMoreFragments = ((flags & 2) == 2);
+				}
 
-                        } else if (minor == 1) {
+				this.message_start = in.position();
 
-                            this.message_start = in.position();
+				switch (type) {
+				case MsgType_1_1._Fragment:
 
-                            // in GIOP 1.1 the there is no FragmentHeader, so
-                            // we need to "guess", that the incoming fragment
-                            // is the same as that read by a previosus message
-                            this.requestID = giop_1_1_request_id;
+					if (minor == 2) {
+						this.requestID = new RequestID(in.read_long());
 
-                            // reset the guess
-                            if (!hasMoreFragments) {
-                                giop_1_1_request_id = new RequestID(0);
-                            }
+						// this position counts as the start of this
+						// message with respect to calculation of the
+						// stream position
+						this.message_start = in.position();
+						transport.signalResponse(requestID, this);
 
-                            transport.signalResponse(this.requestID, this);
+					} else if (minor == 1) {
 
-                        } else {
-                            // todo: send message error
-                            throw new INTERNAL();
-                        }
-                        return;
+						this.message_start = in.position();
 
-                    case MsgType_1_1._Reply:
-                        if (minor == 2) {
-                            this.requestID = new RequestID(in.read_long());
-                            transport.signalResponse(requestID, this);
+						// in GIOP 1.1 the there is no FragmentHeader, so
+						// we need to "guess", that the incoming fragment
+						// is the same as that read by a previosus message
+						this.requestID = giop_1_1_request_id;
 
-                        } else if (minor == 1) {
-                            // here we can have a problem, because the requestID may
-                            // not be there
-                            in.mark(in.available());
-                            try {
-                                int count = in.read_long();
-                                for (int i = 0; i < count; i++) {
-                                    int len = in.read_long();
-                                    in.skip(len);
-                                }
-                                this.requestID = new RequestID(in.read_long());
-                            }
-                            finally {
-                                in.reset();
-                            }
+						// reset the guess
+						if (!hasMoreFragments) {
+							giop_1_1_request_id = new RequestID(0);
+						}
 
-                        } else if (minor == 0) {
+						transport.signalResponse(this.requestID, this);
 
-                        }
-                        return;
+					} else {
+						// todo: send message error
+						throw new INTERNAL();
+					}
+					return;
 
-                    case MsgType_1_1._Request:
-
-                        this.requestID = new RequestID(in.read_long());
-                        transport.signalResponse(requestID, this);
-                        return;
-
-                }
-
-            }
-            catch (IOException e) {
-                sendErrorAndClose();
-            }
-
-        }
-
-        private void sendErrorAndClose() {
-            // TODO Auto-generated method stub
-
-        }
-
-        public void getNextFragment(GIOPInputStream channel) {
-
-            if (!hasMoreFragments) {
-                // big problem //
-
-            }
-
-            MessageHeader handler = (MessageHeader) transport
-                    .waitForResponse(requestID);
-
-            channel.position(handler.message_start);
-            channel.setMessageStart(handler.message_start);
-            channel.limit(handler.size + 12);
-            channel.controller(handler);
-        }
-
-    }
-
-    private Transport transport;
-
-    private boolean isClient;
-
-    private final ORB orb;
-
-    GIOPMessageTransport(ORB orb, Transport transport, boolean isClient)
-            throws IOException
-    {
-        this.orb = orb;
-        this.transport = transport;
-        this.isClient = isClient;
-
-        if (isClient) {
-            next_request_id = 2;
-        } else {
-            next_request_id = 1;
-        }
-
-        transport.setInputHandler(this);
-    }
-
-    public void inputAvailable(Transport transport) {
-
-        // there is a new message available //
-        new MessageHeader().process(transport);
-
-    }
-
-    /**
-     * this will write
-     */
-    GIOPOutputStream startRequest(GIOPVersion version,
-                                  InternalTargetAddress targetAddress,
-                                  InternalServiceContextList contextList, byte response_flags,
-                                  String operation, byte[] principal) throws IOException
-    {
-
-        RequestID requestID = getNextRequestID();
-        GIOPOutputStream out = new GIOPOutputStream(orb, transport
-                .getOutputChannel(), version);
-
-        // this will write a GIOP message header
-        out.beginGIOPStream(MsgType_1_1._Request, requestID);
-
-        // add stuff like character encoding, and
-        // sending context rumtine service contexts...
-        add_outgoing_system_contexts(contextList);
-
-        // now write the request
-
-        switch (version.minor) {
-            case 0:
-            case 1:
-                // Write RequestHeader_1_1
-            {
-                contextList.write(out);
-                out.write_long(requestID.value());
-                switch (response_flags) {
-                    case SYNC_NONE:
-                    case SYNC_WITH_TRANSPORT:
-                        out.write_boolean(false);
-                        break;
-                    case SYNC_WITH_SERVER:
-                    case SYNC_WITH_TARGET:
-                        out.write_boolean(true);
-                        break;
-                }
-                out.skip(3);
-                targetAddress.writeObjectKey(out);
-                if (principal == null) {
-                    out.write_long(0);
-                } else {
-                    out.write_long(principal.length);
-                    out.write_octet_array(principal, 0, principal.length);
-                }
-            }
-
-            case 2:
-                // Write RequestHeader_1_2
-            {
-                out.write_long(requestID.value());
-                out.write_octet(response_flags);
-                out.skip(3); // can be dropped, target address aligns anyway
-                targetAddress.write(out);
-                out.write_string(operation);
-                contextList.write(out);
-                break;
-            }
-        }
-
-        return out;
-    }
-
-    // add stuff like character encoding, and
-    // sending context rumtine service contexts...
-    private void add_outgoing_system_contexts(InternalServiceContextList contextList) {
-        // TODO Auto-generated method stub
-
-    }
-
-    private RequestID getNextRequestID() {
-        int id;
-        synchronized (this) {
-            id = next_request_id;
-            next_request_id += 1;
-        }
-        RequestID result = new RequestID(id);
-        return result;
-    }
-
-    GIOPInputStream waitForResponse(RequestID requestID) {
-
-        MessageHeader header = (MessageHeader) transport
-                .waitForResponse(requestID);
-
-        GIOPInputStream result = new GIOPInputStream(header, transport
-                .getInputChannel());
-
-        result.limit(header.size + 12);
-        result.position(header.message_start);
-        result.setMessageStart(header.message_start);
-
-        // now read rest of response header //
-
-        return result;
-    }
+				case MsgType_1_1._Reply:
+					if (minor == 2) {
+						this.requestID = new RequestID(in.read_long());
+						this.position = in.position();
+						transport.signalResponse(requestID, this);
+
+					} else if (minor == 1) {
+						// here we can have a problem, because the requestID may
+						// not be there
+						in.mark(in.available());
+						try {
+							int count = in.read_long();
+							for (int i = 0; i < count; i++) {
+								int len = in.read_long();
+								in.skip(len);
+							}
+							this.requestID = new RequestID(in.read_long());
+						} finally {
+							in.reset();
+						}
+						transport.signalResponse(requestID, this);
+
+					} else if (minor == 0) {
+
+					}
+					return;
+
+				case MsgType_1_1._Request:
+
+					this.requestID = new RequestID(in.read_long());
+					transport.signalResponse(requestID, this);
+					return;
+
+				}
+
+			} catch (IOException e) {
+				sendErrorAndClose();
+			}
+
+		}
+
+		private void sendErrorAndClose() {
+			// TODO Auto-generated method stub
+
+		}
+
+		public void getNextFragment(GIOPInputStream channel) {
+
+			if (!hasMoreFragments) {
+				// big problem //
+				// TODO: handle
+			}
+
+			MessageHeader handler = (MessageHeader) transport
+					.waitForResponse(requestID);
+
+			channel.position(handler.message_start);
+			channel.setMessageStart(handler.message_start);
+			channel.limit(handler.size + 12);
+			channel.controller(handler);
+		}
+
+		public GIOPVersion getGIOPVersion() {
+			return GIOPVersion.get(major, minor);
+		}
+
+	}
+
+	private Transport transport;
+
+	private boolean isClient;
+
+	private final ORB orb;
+
+	public GIOPMessageTransport(ORB orb, Transport transport, boolean isClient)
+			throws IOException {
+		this.orb = orb;
+		this.transport = transport;
+		this.isClient = isClient;
+
+		if (isClient) {
+			next_request_id = 2;
+		} else {
+			next_request_id = 1;
+		}
+
+		transport.setInputHandler(this);
+	}
+
+	public GIOPMessageTransport(ORB orb, TransportManager tm,
+			InetSocketAddress socketAddress, boolean isClient)
+			throws IOException {
+
+		this.orb = orb;
+		this.isClient = isClient;
+
+		if (isClient) {
+			next_request_id = 2;
+		} else {
+			next_request_id = 1;
+		}
+
+		transport = tm.createTransport(socketAddress, this);
+	}
+
+	public void inputAvailable(Transport transport) {
+
+		// there is a new message available //
+		new MessageHeader().process(transport);
+
+	}
+
+	/**
+	 * this will write
+	 */
+	public GIOPOutputStream startRequest(GIOPVersion version,
+			InternalTargetAddress targetAddress, ClientInvocation inv,
+			byte[] principal) throws IOException {
+		InternalServiceContextList contextList = inv
+				.getRequestServiceContextList();
+		byte response_flags = inv.getResponseFlags();
+		String operation = inv.getOperation();
+
+		RequestID requestID = getNextRequestID();
+
+		inv.setRequestID(requestID);
+
+		// acquire output channel token
+		OutputChannel outputChannel = transport.getOutputChannel();
+		GIOPOutputStream out = new GIOPOutputStream(orb, outputChannel, version);
+
+		// this will write a GIOP message header
+		out.beginGIOPStream(MsgType_1_1._Request, requestID);
+
+		// add stuff like character encoding, and
+		// sending context rumtine service contexts...
+		add_outgoing_system_contexts(contextList);
+
+		// now write the request
+
+		switch (version.minor) {
+		case 0:
+		case 1:
+		// Write RequestHeader_1_1
+		{
+			contextList.write(out);
+			out.write_long(requestID.value());
+			switch (response_flags) {
+			case SYNC_NONE:
+			case SYNC_WITH_TRANSPORT:
+				out.write_boolean(false);
+				break;
+			case SYNC_WITH_SERVER:
+			case SYNC_WITH_TARGET:
+				out.write_boolean(true);
+				break;
+			}
+			out.skip(3);
+			targetAddress.writeObjectKey(out);
+			if (principal == null) {
+				out.write_long(0);
+			} else {
+				out.write_long(principal.length);
+				out.write_octet_array(principal, 0, principal.length);
+			}
+		}
+
+		case 2:
+		// Write RequestHeader_1_2
+		{
+			out.write_long(requestID.value());
+			out.write_octet(response_flags);
+			out.skip(3); // can be dropped, target address aligns anyway
+			targetAddress.write(out);
+			out.write_string(operation);
+			contextList.write(out);
+			
+			out.setInsertHeaderPadding(true);
+			
+			break;
+		}
+		}
+
+		return out;
+	}
+
+	// add stuff like character encoding, and
+	// sending context rumtine service contexts...
+	private void add_outgoing_system_contexts(
+			InternalServiceContextList contextList) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private RequestID getNextRequestID() {
+		int id;
+		synchronized (this) {
+			id = next_request_id;
+			next_request_id += 1;
+		}
+		RequestID result = new RequestID(id);
+		return result;
+	}
+
+	public GIOPInputStream waitForResponse(ClientInvocation inv) {
+
+		MessageHeader header = (MessageHeader) transport.waitForResponse(inv
+				.getRequestID());
+
+		GIOPInputStream in = new GIOPInputStream(orb, header.getGIOPVersion(), header, transport
+				.getInputChannel());
+
+		in.limit(header.size + 12);
+		in.position(header.position);
+		in.setMessageStart(header.message_start);
+
+		// now read rest of response header //
+
+		switch (header.minor) {
+		case 2:
+
+			// read reply (for GIOP 1.2 we have already read the request id)
+			int request_id = inv.getRequestID().id;
+
+			ReplyStatusType_1_2 reply_status = ReplyStatusType_1_2Helper
+					.read(in);
+			inv.setReplyStatus(reply_status);
+
+			InternalServiceContextList scl = new InternalServiceContextList();
+			scl.read(in);
+
+			inv.setResposeServiceContextList(scl);
+
+			break;
+		default:
+			throw new NO_IMPLEMENT();
+		}
+
+		ApplicationException aex;
+		SystemException sex;
+		switch (inv.getReplyStatus().value()) {
+		case ReplyStatusType_1_2._NO_EXCEPTION:
+			return in;
+			
+		case ReplyStatusType_1_2._USER_EXCEPTION:
+			String id = in.read_string();
+			aex = new org.omg.CORBA.portable.ApplicationException(id, new UserExceptionInputStream (in, id));
+			inv.setUserException(aex);
+			return null;
+			
+		case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
+			sex = GIOPHelper.unmarshalSystemException(inv.getReplyServiceContextList(), in);
+			inv.setSystemException(sex);
+			return null;
+
+		default:
+			// todo: make sure we handle all cases here
+			throw new NO_IMPLEMENT();
+		}
+
+	}
+
+	public void registerResponse(RequestID requestID) {
+		// TODO: HANDLE RACE
+		transport.registerResponse((Object) requestID);
+	}
 
 }

@@ -50,7 +50,7 @@ public final class GIOPVersion {
         return get(version.major, version.minor);
     }
 
-    private static GIOPVersion get(int major2, int minor2) {
+    public static GIOPVersion get(int major2, int minor2) {
         if (major2 == 1) {
             if (minor2 == 0) return V1_0;
             if (minor2 == 1) return V1_1;

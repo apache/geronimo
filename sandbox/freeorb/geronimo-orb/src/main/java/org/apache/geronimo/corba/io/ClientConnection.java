@@ -16,6 +16,12 @@
  */
 package org.apache.geronimo.corba.io;
 
+import java.io.IOException;
+
+import org.apache.geronimo.corba.giop.GIOPMessageTransport;
+
 public interface ClientConnection {
 
+	GIOPMessageTransport getGIOPMessageTransport() throws IOException;
+	
 }

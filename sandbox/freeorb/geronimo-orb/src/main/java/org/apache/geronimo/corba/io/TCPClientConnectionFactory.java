@@ -16,25 +16,43 @@
  */
 package org.apache.geronimo.corba.io;
 
+import org.apache.geronimo.corba.ORB;
+import org.apache.geronimo.corba.channel.Transport;
+import org.apache.geronimo.corba.channel.TransportManager;
+import org.apache.geronimo.corba.giop.GIOPMessageTransport;
 import org.apache.geronimo.corba.ior.IIOPTransportSpec;
 
 
 public class TCPClientConnectionFactory implements ClientConnectionFactory {
 
-    private final IIOPTransportSpec transport;
+    private final IIOPTransportSpec spec;
+	private ClientConnection connection;
+	private final ORB orb;
+	private TransportManager transportmanger;
 
-    public TCPClientConnectionFactory(IIOPTransportSpec transport) {
-        this.transport = transport;
+    public TCPClientConnectionFactory(ORB orb, IIOPTransportSpec spec, TransportManager manager) {
+        this.orb = orb;
+		this.spec = spec;
+		this.transportmanger = manager;
     }
 
     public ClientConnection getConnection() {
-        // TODO Auto-generated method stub
-        return null;
+    		
+	    	if (connection == null) {
+	    		connection = new DefaultClientConnection(this, transportmanger);
+	    	}
+	    	
+	    	return connection;
+	    	
     }
 
     public IIOPTransportSpec getTransportSpec() {
-        return transport;
+        return spec;
     }
+
+	public ORB getORB() {
+		return orb;
+	}
 
 
 }

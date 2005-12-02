@@ -1,58 +1,120 @@
 <project>
 
-    <parent>
-        <groupId>org.apache.geronimo</groupId>
-        <artifactId>geronimo</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-
-    <modelVersion>4.0.0</modelVersion>
+  <parent>
     <groupId>org.apache.geronimo</groupId>
-    <artifactId>geronimo-orb</artifactId>
-    <name>Geronimo :: CORBA ORB</name>
+    <artifactId>geronimo</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+  </parent>
 
-    <dependencies>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.geronimo</groupId>
+  <artifactId>geronimo-orb</artifactId>
+  <name>Geronimo :: CORBA ORB</name>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-        </dependency>
+  <dependencies>
 
-        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-        </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
 
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-        </dependency>
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+    </dependency>
 
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-spec-corba</artifactId>
-            <version>2.3-rc4</version>
-        </dependency>      
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-spec-corba</artifactId>
+      <version>2.3-rc4</version>
+    </dependency>
+        
+  </dependencies>
 
-    </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>maven-idlj-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+              <goal>generate-test</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-clover-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-pmd-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </reporting>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>test-compile</phase>
+            <configuration>
+              <tasks>
+                <rmic base="target/test-classes" includes="**/TestDriverImpl.class, **/VMControllerImpl.class"/>                      
+              </tasks>
+            </configuration>
+                
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include implementation="java.lang.String">**/CorbaTestSuite.java</include>
+          </includes>
+        </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>maven-idlj-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+              <goal>generate-test</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <debug>true</debug>
+          <packagePrefixes>
+            <packagePrefix>
+              <type>corba</type>
+              <prefix>org.apache.geronimo</prefix>
+            </packagePrefix>
+          </packagePrefixes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-clover-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
 
 </project>

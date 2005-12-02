@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.geronimo.corba.concurrency.IOSemaphoreClosedException;
+import org.apache.geronimo.corba.util.HexUtil;
 
 
 /**
@@ -424,6 +425,10 @@ public abstract class RingByteBuffer extends RingBuffer {
         byteBuffer.order(order);
     }
 
+    protected ByteOrder getByteOrderForGet() {
+    		return byteBuffer.order();
+    }
+    
     protected int getInt() throws IOException {
         ensureGetSpace(4);
         int result;
@@ -639,6 +644,7 @@ public abstract class RingByteBuffer extends RingBuffer {
 
         public AsyncMarkState(MarkHandler handler) {
             this.handler = handler;
+            this.position = nextPutPos;
         }
 
         public void release() {
@@ -671,6 +677,7 @@ public abstract class RingByteBuffer extends RingBuffer {
             nextPutPos = incr(position, idx);
             RingByteBuffer.this.putByte(b);
             nextPutPos = oldPut;
+            permits -= 1;
         }
 
         public void putInt(int idx, int b) throws IOException {
@@ -678,6 +685,7 @@ public abstract class RingByteBuffer extends RingBuffer {
             nextPutPos = incr(position, idx);
             RingByteBuffer.this.putInt(b);
             nextPutPos = oldPut;
+            permits -= 4;
         }
 
         public void putLong(int idx, long b) throws IOException {
@@ -685,6 +693,7 @@ public abstract class RingByteBuffer extends RingBuffer {
             nextPutPos = incr(position, idx);
             RingByteBuffer.this.putLong(b);
             nextPutPos = oldPut;
+            permits -= 8;
         }
     }
 
@@ -750,20 +759,18 @@ public abstract class RingByteBuffer extends RingBuffer {
 
         int count;
 
+        HexUtil.printHex(System.out, "S: ", buffers);
+        
         try {
             if (buffers.length == 1) {
                 count = chan.write(buffers[0]);
             } else {
                 count = (int) chan.write(buffers);
             }
-
-        }
-        catch (ChannelClosedException ex) {
+        } catch (ChannelClosedException ex) {
             close();
             count = 0;
-
-        }
-        catch (InterruptedIOException ex) {
+        } catch (InterruptedIOException ex) {
             count = ex.bytesTransferred;
         }
 
@@ -970,7 +977,22 @@ public abstract class RingByteBuffer extends RingBuffer {
         long after = System.currentTimeMillis();
         System.out.println("" + new Date() + " did read " + count
                            + " bytes OF " + bufsize + " TOOK " + (after - before) + " ms");
-
+/*
+        int length = count;
+        for (int i = buffers.length-1; i >- 0; i--) {
+        		int bufsz = buffers[i].position();
+        		if (length > bufsz) {
+        			buffers[i].position(0);
+        			length -= bufsz;
+        		} else {
+        			buffers[i].position(bufsz-length);
+        			break;
+        		}
+        }
+        
+        HexUtil.printHex(System.out, "R:", buffers);
+*/
+        
         if (count == -1) {
             closePutEnd();
             return true;

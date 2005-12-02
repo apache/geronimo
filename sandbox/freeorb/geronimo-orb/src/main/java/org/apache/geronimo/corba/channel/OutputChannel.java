@@ -19,7 +19,7 @@ package org.apache.geronimo.corba.channel;
 import java.io.IOException;
 import java.io.OutputStream;
 
-
+/** for now, this is always big endian writing */
 public abstract class OutputChannel extends OutputStream {
 
     public abstract void writeByte(byte b) throws IOException;

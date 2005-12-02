@@ -29,116 +29,131 @@ import org.omg.IOP.TaggedComponent;
 import org.apache.geronimo.corba.AbstractORB;
 import org.apache.geronimo.corba.io.EncapsulationInputStream;
 import org.apache.geronimo.corba.io.EncapsulationOutputStream;
-
+import org.apache.geronimo.corba.io.GIOPVersion;
 
 public class IIOPProfile extends Profile {
 
-    byte[] bytes;
+	byte[] bytes;
 
-    ProfileBody_1_0 body;
-    TaggedComponent[] tagged_components;
-    Component[] components;
-    private final AbstractORB orb;
-    private IIOPTransportSpec saddr;
+	ProfileBody_1_0 body;
 
-    IIOPProfile(AbstractORB orb) {
-        super();
-        this.orb = orb;
-    }
+	TaggedComponent[] tagged_components;
 
-    public int tag() {
-        return TAG_INTERNET_IOP.value;
-    }
+	Component[] components_cache;
 
-    public Version getVersion() {
-        return body.iiop_version;
-    }
+	private final AbstractORB orb;
 
-    public byte[] getObjectKey() {
-        return body.object_key;
-    }
+	private IIOPTransportSpec saddr;
 
-    public int getComponentCount() {
-        if (tagged_components == null) {
-            return 0;
-        } else {
-            return tagged_components.length;
-        }
-    }
+	IIOPProfile(AbstractORB orb) {
+		super();
+		this.orb = orb;
+	}
 
-    public int getTag(int idx) {
-        return tagged_components[idx].tag;
-    }
+	public IIOPProfile(AbstractORB orb, Version version, InetAddress addr,
+			short port, byte[] keyData) {
+		this.orb = orb;
+		this.saddr = new IIOPTransportSpec(version, addr, port);
+		body = new org.omg.IIOP.ProfileBody_1_0(version, addr.getHostName(),
+				port, keyData);
+	}
 
-    public TaggedComponent getTaggedComponent(int idx) {
-        return tagged_components[idx];
-    }
+	public int tag() {
+		return TAG_INTERNET_IOP.value;
+	}
 
-    public Component getComponent(int idx) {
+	public Version getVersion() {
+		return body.iiop_version;
+	}
 
-        if (components == null) {
-            components = new Component[getComponentCount()];
-        }
+	public byte[] getObjectKey() {
+		return body.object_key;
+	}
 
-        if (components[idx] == null) {
-            components[idx] = Component.read(orb, tagged_components[idx].tag,
-                                             tagged_components[idx].component_data);
-        }
+	public int getComponentCount() {
+		if (tagged_components == null) {
+			return 0;
+		} else {
+			return tagged_components.length;
+		}
+	}
 
-        return components[idx];
-    }
+	public int getTag(int idx) {
+		return tagged_components[idx].tag;
+	}
 
+	public TaggedComponent getTaggedComponent(int idx) {
+		return tagged_components[idx];
+	}
 
-    public static Profile read(AbstractORB orb, byte[] data) {
+	public Component getComponent(int idx) {
 
-        EncapsulationInputStream ein = new EncapsulationInputStream(orb, data);
-        IIOPProfile result = new IIOPProfile(orb);
-        result.body = ProfileBody_1_0Helper.read(ein);
-        if (result.body.iiop_version.major == 1
-            && result.body.iiop_version.minor >= 1)
-        {
-            result.tagged_components = TaggedComponentSeqHelper.read(ein);
-        }
+		if (components_cache == null) {
+			components_cache = new Component[getComponentCount()];
+		}
 
-        result.bytes = data;
-        return result;
-    }
+		if (components_cache[idx] == null) {
+			components_cache[idx] = Component.read(orb, tagged_components[idx].tag,
+					tagged_components[idx].component_data);
+		}
 
-    public IIOPTransportSpec getInetTransport() throws UnknownHostException {
-        if (saddr == null) {
-            saddr = new IIOPTransportSpec(getVersion(), getAddress(), getPort());
-        }
-        return saddr;
-    }
+		return components_cache[idx];
+	}
 
-    public InetAddress getAddress() throws UnknownHostException {
-        return orb.getAddress(body.host);
-    }
+	public static Profile read(AbstractORB orb, byte[] data) {
 
-    public String getHost() {
-        return body.host;
-    }
+		EncapsulationInputStream ein = new EncapsulationInputStream(orb, data);
+		IIOPProfile result = new IIOPProfile(orb);
+		result.body = ProfileBody_1_0Helper.read(ein);
+		if (result.body.iiop_version.major == 1
+				&& result.body.iiop_version.minor >= 1) {
+			result.tagged_components = TaggedComponentSeqHelper.read(ein);
+		}
 
-    public int getPort() {
-        return (body.port & 0xffff);
-    }
+		result.bytes = data;
+		return result;
+	}
 
-    protected void write_content(OutputStream eo) {
-        ProfileBody_1_0Helper.write(eo, body);
-        if (body.iiop_version.major == 1 && body.iiop_version.minor > 0) {
-            TaggedComponentSeqHelper.write(eo, tagged_components);
-        }
-    }
+	public IIOPTransportSpec getInetTransport() throws UnknownHostException {
+		if (saddr == null) {
+			saddr = new IIOPTransportSpec(getVersion(), getAddress(), getPort());
+		}
+		return saddr;
+	}
 
-    protected byte[] get_encapsulation_bytes() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	public InetAddress getAddress() throws UnknownHostException {
+		return orb.getAddress(body.host);
+	}
 
-    protected void write_content(EncapsulationOutputStream eo) {
-        // TODO Auto-generated method stub
+	public String getHost() {
+		return body.host;
+	}
 
-    }
+	public int getPort() {
+		return (body.port & 0xffff);
+	}
 
+	protected void write_content(OutputStream eo) {
+		ProfileBody_1_0Helper.write(eo, body);
+		if (body.iiop_version.major == 1 && body.iiop_version.minor > 0) {
+			TaggedComponentSeqHelper.write(eo, tagged_components);
+		}
+	}
+
+	protected byte[] get_cached_byte_encoding() {
+		return bytes;
+	}
+
+	public InternalTargetAddress getTargetAddress() {
+		return new InternalTargetAddress.ObjectKeyAddress(body.object_key);
+	}
+
+	public GIOPVersion getGIOPVersion() {
+		return GIOPVersion.get(getVersion());
+	}
+
+	protected byte[] get_encapsulation_bytes() {
+		return bytes;
+	}
 
 }

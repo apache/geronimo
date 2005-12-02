@@ -235,7 +235,7 @@ public class ValueWriter {
         //
         // TODO: this was always true in Trifork codebase, find out why!
 
-        boolean isChunked = valueHandler.isCustomMarshaled(clz);
+        boolean isChunked = true || valueHandler.isCustomMarshaled(clz);
 
         // System.out.println ("write_value (2) "+ids[0]);
 
@@ -421,6 +421,7 @@ public class ValueWriter {
         }
     };
 
+        
     private void startChunk() {
         if (currentValueIsChunked == false)
             out.__fatal("not chunked");
@@ -428,6 +429,7 @@ public class ValueWriter {
         out.align(4);
         // TODO: revisit chunkMark = out.mark(chunkHandler);
         startPosOfCurrentChunk = out.__stream_position();
+        chunkMark = out.mark(chunkHandler);
         out.write_long(0);
     }
 
