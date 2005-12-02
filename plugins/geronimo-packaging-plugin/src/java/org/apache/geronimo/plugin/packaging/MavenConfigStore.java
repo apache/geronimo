@@ -75,7 +75,6 @@ public class MavenConfigStore implements ConfigurationStore {
             jis = stateURL.openStream();
             ObjectInputStream ois = new ObjectInputStream(jis);
             config.readExternal(ois);
-            config.setReferencePattern("ConfigurationStore", objectName);
         } catch (ClassNotFoundException e) {
             throw new InvalidConfigException("Unable to load class from config: " + configId, e);
         } finally {
