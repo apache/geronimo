@@ -79,13 +79,6 @@ public interface ConfigurationStore {
     boolean containsConfiguration(URI configID);
 
     /**
-     * Updates the saved state of the configuration.
-     *
-     * @param configurationData the configuration to update
-     */
-    void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception;
-
-    /**
      * Return the object name for the store.
      *
      * @return the object name for the store

@@ -73,47 +73,6 @@ public class LocalConfigStoreTest extends TestCase {
         assertTrue(new File(root, "6/META-INF/config.ser").exists());
     }
 
-    public void testUpdateConfig() throws Exception {
-        // install the config
-        kernel.invoke(storeName, "install", new Object[] {source}, new String[] {"java.net.URL"});
-
-        // load and start the config
-        ObjectName configName = configurationManager.load(uri);
-        configurationManager.loadGBeans(uri);
-        configurationManager.start(uri);
-
-        // make sure the config and the enabled gbean are running
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configName));
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName1));
-
-        // make sure the config and the disabled gbean are NOT running
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
-
-        // set the value
-        kernel.setAttribute(gbeanName1, "value", "9900990099");
-        assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));
-
-        kernel.invoke(configName, "saveState");
-        // stop and unload the config
-        configurationManager.stop(uri);
-        configurationManager.unload(uri);
-
-        // assure it was unloaded
-        assertFalse(kernel.isLoaded(configName));
-
-        // now reload and restart the config
-        configName = configurationManager.load(uri);
-        configurationManager.loadGBeans(uri);
-        configurationManager.start(uri);
-
-        // make sure the value was reloaded correctly
-        assertEquals("9900990099", kernel.getAttribute(gbeanName1, "value"));
-
-        // stop and unload the config
-        kernel.stopGBean(configName);
-        kernel.unloadGBean(configName);
-    }
-
     protected void setUp() throws Exception {
         try {
             kernel = KernelFactory.newInstance().createKernel("test.kernel");

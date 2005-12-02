@@ -26,7 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
@@ -46,15 +45,14 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -270,27 +268,6 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return name;
     }
 
-    public synchronized void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
-        File root = getRoot(configurationData.getId());
-        File stateFile = new File(root, "META-INF/state.ser");
-        try {
-            FileOutputStream fos = new FileOutputStream(stateFile);
-            ObjectOutputStream oos;
-            try {
-                oos = new ObjectOutputStream(fos);
-                GBeanData configurationGBeanData = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
-                configurationGBeanData.writeExternal(oos);
-                oos.flush();
-            } finally {
-                fos.close();
-            }
-        } catch (Exception e) {
-            log.error("state store failed", e);
-            stateFile.delete();
-            throw e;
-        }
-    }
-
     public List listConfigurations() {
         List configs;
         synchronized (this) {
@@ -338,12 +315,9 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     }
 
     private GBeanData loadConfig(File configRoot) throws IOException, InvalidConfigException {
-        File file = new File(configRoot, "META-INF/state.ser");
+        File file = new File(configRoot, "META-INF/config.ser");
         if (!file.isFile()) {
-            file = new File(configRoot, "META-INF/config.ser");
-            if (!file.isFile()) {
-                throw new InvalidConfigException("Configuration does not contain a META-INF/config.ser file");
-            }
+            throw new InvalidConfigException("Configuration does not contain a META-INF/config.ser file");
         }
 
         FileInputStream fis = new FileInputStream(file);
@@ -358,7 +332,6 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to set attribute ", e);
             }
-            config.setReferencePattern("ConfigurationStore", objectName);
             return config;
         } finally {
             fis.close();

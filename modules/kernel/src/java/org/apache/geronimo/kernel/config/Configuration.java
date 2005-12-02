@@ -132,13 +132,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     private final URI[] parentId;
 
-    /**
-     * The configuration store from which this configuration was loaded.  May be null if this configuration
-     * was not loaded from a store.  The store is notified when the configurations stopps so it can update
-     * the saved state of the configration.
-     */
-    private final ConfigurationStore configurationStore;
-
     private final List dependencies;
     private final List classPath;
     private final boolean inverseClassLoading;
@@ -184,7 +177,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         id = null;
         moduleType = null;
         parentId = null;
-        configurationStore = null;
         domain = null;
         server = null;
         objectNames = null;
@@ -223,8 +215,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             String[] nonOverridableClasses,
             byte[] gbeanState,
             Collection repositories,
-            List dependencies,
-            ConfigurationStore configurationStore) throws Exception {
+            List dependencies) throws Exception {
 
         this.kernel = kernel;
         this.objectNameString = objectName;
@@ -256,8 +247,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } else {
             this.dependencies = Collections.EMPTY_LIST;
         }
-
-        this.configurationStore = configurationStore;
 
         this.domain = domain;
         this.server = server;
@@ -448,28 +437,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         shutdown();
     }
 
-    public synchronized void saveState() throws Exception {
-        GBeanData[] gbeans = storeCurrentGBeans();
-        // update the configuration store
-        if (configurationStore != null) {
-            ConfigurationData configurationData = new ConfigurationData();
-            configurationData.setId(id);
-            configurationData.setModuleType(moduleType);
-            configurationData.setDomain(domain);
-            configurationData.setServer(server);
-            if (parentId != null && parentId.length > 0) {
-                configurationData.setParentId(Arrays.asList(parentId));
-            } else {
-                configurationData.setParentId(Collections.EMPTY_LIST);
-            }
-            configurationData.setGBeans(Arrays.asList(gbeans));
-            configurationData.setDependencies(dependencies);
-            configurationData.setClassPath(classPath);
-            configurationStore.updateConfiguration(configurationData);
-        }
-
-    }
-
     /**
      * Return the unique id of this Configuration's parent
      *
@@ -531,11 +498,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
-        }
-        try {
-            saveState(); //todo: once the attribute store can save new GBean data, won't need to update the config store any more
-        } catch (Exception e) {
-            log.error("Unable to save new GBean", e);
         }
     }
 
@@ -683,13 +645,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
 
         infoFactory.addReference("Repositories", Repository.class, "GBean");
-        infoFactory.addReference("ConfigurationStore", ConfigurationStore.class);
-//        infoFactory.addReference("AttributeStore", ManageableAttributeStore.class);
 
         infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
         infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
         infoFactory.addOperation("containsGBean", new Class[]{ObjectName.class});
-        infoFactory.addOperation("saveState");
+        infoFactory.addOperation("loadGBeans", new Class[]{});
         infoFactory.addOperation("loadGBeans", new Class[]{ManageableAttributeStore.class});
         infoFactory.addOperation("startRecursiveGBeans");
         infoFactory.addOperation("stopGBeans");
@@ -711,7 +671,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             "gBeanState",
             "Repositories",
             "dependencies",
-            "ConfigurationStore"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

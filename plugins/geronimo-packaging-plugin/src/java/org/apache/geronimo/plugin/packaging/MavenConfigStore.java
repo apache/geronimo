@@ -134,10 +134,6 @@ public class MavenConfigStore implements ConfigurationStore {
         throw new UnsupportedOperationException();
     }
 
-    public void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
-        // we don't store persistent state
-    }
-
     public List listConfigurations() {
         throw new UnsupportedOperationException();
     }

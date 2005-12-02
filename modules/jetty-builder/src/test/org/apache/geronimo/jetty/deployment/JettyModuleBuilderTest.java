@@ -382,10 +382,6 @@ public class JettyModuleBuilderTest extends TestCase {
             return true;
         }
 
-        public void updateConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, Exception {
-
-        }
-
         public String getObjectName() {
             return null;
         }
