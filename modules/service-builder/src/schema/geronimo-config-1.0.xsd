@@ -164,5 +164,13 @@
             <xs:element name="gbean-name" type="xs:string"/>
         </xs:choice>
     </xs:group>
+    
+    <xs:element name="service" type="sys:serviceType"/>
+
+    <xs:complexType name="serviceType">
+        <xs:sequence>
+            <xs:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
 </xs:schema>
