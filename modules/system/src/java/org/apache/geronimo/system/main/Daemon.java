@@ -53,6 +53,7 @@ import org.apache.geronimo.system.serverinfo.DirectoryUtils;
  */
 public class Daemon {
     private final static String ARGUMENT_NO_PROGRESS = "-quiet";
+    private final static String ARGUMENT_LONG_PROGRESS = "--long";
     private final static String ARGUMENT_VERBOSE = "-v";
     private final static String ARGUMENT_MORE_VERBOSE = "-vv";
     private final static String ARGUMENT_CONFIG_OVERRIDE = "-override";
@@ -61,7 +62,8 @@ public class Daemon {
     private StartupMonitor monitor;
     private List configs = new ArrayList();
     private String verboseArg = null;
-    private String progressArg = null;
+    private String noProgressArg = null;
+    private String longProgressArg = null;
 
     private Daemon(String[] args) {
         // Very first startup tasks
@@ -80,6 +82,7 @@ public class Daemon {
             doStartup();
         } else {
             System.exit(1);
+            throw new AssertionError();
         }
     }
 
@@ -92,6 +95,12 @@ public class Daemon {
         out.println("             Suppress the normal startup progress bar.  This is typically\n" +
                     "             used when redirecting console output to a file, or starting\n" +
                     "             the server from an IDE or other tool.");
+        out.println("  "+ARGUMENT_LONG_PROGRESS);
+        out.println("             Write startup progress to the console in a format that is\n" +
+                    "             suitable for redirecting console output to a file, or starting\n" +
+                    "             the server from an IDE or other tool (doesn't use linefeeds to\n" +
+                    "             update the progress information that is used by default if you\n" +
+                    "             don't specify " +ARGUMENT_NO_PROGRESS +" or "+ARGUMENT_LONG_PROGRESS+").\n");
         out.println("  "+ARGUMENT_VERBOSE);
         out.println("             Reduces the console log level to INFO, resulting in more\n" +
                     "             console output than is normally present.");
@@ -127,11 +136,13 @@ public class Daemon {
                 } catch (URISyntaxException e) {
                     System.err.println("Invalid configuration-id: " + args[i]);
                     e.printStackTrace();
-                    System.exit(2);
+                    System.exit(1);
                     throw new AssertionError();
                 }
             } else if (args[i].equals(ARGUMENT_NO_PROGRESS)) {
-                progressArg = ARGUMENT_NO_PROGRESS;
+                noProgressArg = ARGUMENT_NO_PROGRESS;
+            } else if (args[i].equals(ARGUMENT_LONG_PROGRESS)) {
+                longProgressArg = ARGUMENT_LONG_PROGRESS;
             } else if (args[i].equals(ARGUMENT_VERBOSE)) {
                 if (verboseArg == null) {
                     verboseArg = ARGUMENT_VERBOSE;
@@ -168,10 +179,13 @@ public class Daemon {
             log = LogFactory.getLog(Daemon.class.getName());
         }
 
-        if (verboseArg != null || progressArg != null) {
+        if (verboseArg != null || noProgressArg != null) {
             monitor = new SilentStartupMonitor();
         } else {
-            monitor = new ProgressBarStartupMonitor();
+            if (longProgressArg != null)
+                monitor = new LongStartupMonitor();
+            else
+                monitor = new ProgressBarStartupMonitor();
         }
     }
 
@@ -181,7 +195,7 @@ public class Daemon {
             File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
             if (geronimoInstallDirectory == null) {
                 System.err.println("Could not determine geronimo installation directory");
-                System.exit(3);
+                System.exit(1);
                 throw new AssertionError();
             }
 
@@ -226,7 +240,7 @@ public class Daemon {
                 kernel.boot();
             } catch (Exception e) {
                 e.printStackTrace();
-                System.exit(4);
+                System.exit(1);
                 throw new AssertionError();
             }
 
@@ -235,7 +249,7 @@ public class Daemon {
             kernel.startGBean(configName);
 
             // add our shutdown hook
-            Runtime.getRuntime().addShutdownHook(new Thread("Shutdown Thread") {
+            Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
                 public void run() {
                     log.info("Server shutdown begun");
                     System.out.println("\rServer shutdown begun              ");
@@ -260,7 +274,7 @@ public class Daemon {
             GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
 
             if (configs.isEmpty()) {
-                // nothing explicit, see what was running before
+                // -override wasn't used (nothing explicit), see what was running before
                 Set configLists = kernel.listGBeans(query);
                 for (Iterator i = configLists.iterator(); i.hasNext();) {
                     ObjectName configListName = (ObjectName) i.next();
@@ -270,7 +284,7 @@ public class Daemon {
                         System.err.println("Unable to restore last known configurations");
                         e.printStackTrace();
                         kernel.shutdown();
-                        System.exit(5);
+                        System.exit(1);
                         throw new AssertionError();
                     }
                 }
@@ -307,7 +321,7 @@ public class Daemon {
                     System.err.println("Exception caught during kernel shutdown");
                     e1.printStackTrace();
                 }
-                System.exit(6);
+                System.exit(1);
                 throw new AssertionError();
             }
 
@@ -338,7 +352,7 @@ public class Daemon {
                 monitor.serverStartFailed(e);
             }
             e.printStackTrace();
-            System.exit(7);
+            System.exit(1);
             throw new AssertionError();
         }
     }

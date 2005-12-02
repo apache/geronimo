@@ -18,9 +18,13 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * A startup monitor that shows the progress of loading and starting
- * configurations using a text based progress bar and the use of line
- * feeds to update the progress display, therefore minimizing the 
- * number of lines output to the terminal.
+ * configurations, outputing a new line for each configuration started
+ * showing the time taken to start the configuration along with the
+ * configId.
+ *
+ * This startup monitor produces more lines of output than the
+ * ProgressBarStartupMonitor but its output is suitable for redirection
+ * to a file or for when Geronimo is running under an IDE or other tool.
  *
  * A summary will also be produced containing a list of ports
  * Geronimo is listening on, the configIds of application modules
@@ -28,25 +32,24 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Revision: 1.0$
  */
-public class ProgressBarStartupMonitor implements StartupMonitor {
-    private final static Log log = LogFactory.getLog(ProgressBarStartupMonitor.class.getName());
-    private final static char STATUS_NOT_READY=' ';
-    private final static char STATUS_LOADING='-';
-    private final static char STATUS_LOADED='>';
-    private final static char STATUS_STARTED='*';
-    private final static char STATUS_FAILED='x';
-    private final static int MAX_WIDTH=70;
+public class LongStartupMonitor implements StartupMonitor {
+    private final static Log log = LogFactory.getLog(LongStartupMonitor.class.getName());
+    /** Minimum width of the time (padded with leading spaces) in configuration start messages */
+    private final static int MIN_TIME_WIDTH=3;
+    /** PrintStream */
     private PrintStream out;
-    private String currentOperation;
-    private URI[] configurations;
-    private char[] configStatus = new char[0];
+    /** Number of configurations to start */
+    private int numConfigs;
+    /** Number of digits in number of configurations to start */
+    private int numConfigsDigits;
+    /** Number of configuration currently being started */
+    private int configNum;
+    /** Time Geronimo was started */
     private long started;
-    private int percent = 0;
+    /** Time the current configuration being processed was started */
+    private long configStarted;
+    /** The Kernel of the system being started */
     private Kernel kernel;
-    private int operationLimit = 50;
-    private boolean finished = false;
-    private List exceptions = new ArrayList();
-    private UpdateThread thread;
 
     public void systemStarting(long startTime) {
         out = System.out;
@@ -54,98 +57,54 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     }
 
     public void systemStarted(Kernel kernel) {
-        out.println("Starting Geronimo Application Server");
         this.kernel = kernel;
-        currentOperation = "Loading";
     }
 
     public synchronized void foundConfigurations(URI[] configurations) {
-        this.configurations = configurations;
-        configStatus = new char[configurations.length];
-        for (int i = 0; i < configStatus.length; i++) {
-            configStatus[i] = STATUS_NOT_READY;
-        }
-        operationLimit = MAX_WIDTH
-            - 5 // two brackets, start and stop tokens, space afterward
-            - configurations.length // configuration tokens
-            - 4 // 2 digits of percent plus % plus space afterward
-            - 5;// 3 digits of time plus s plus space afterward
-        repaint();
-        thread = new UpdateThread();
-        thread.start();
-    }
-
-    public void calculatePercent() {
-        if(finished) {
-            this.percent = 100;
-            return;
-        }
-        int percent = 0;
-        if(kernel != null) percent += 5;
-        int total = configStatus.length*2;
-        int progress = 0;
-        for (int i = 0; i < configStatus.length; i++) {
-            char c = configStatus[i];
-            switch(c) {
-                case STATUS_LOADED:
-                    progress +=1;
-                    break;
-                case STATUS_STARTED:
-                case STATUS_FAILED:
-                    progress +=2;
-                    break;
-            }
-        }
-        percent += Math.round(90f*(float)progress/(float)total);
-        this.percent = percent;
+        numConfigs = configurations.length;
+        numConfigsDigits = Integer.toString(numConfigs).length();
+        
     }
 
     public synchronized void configurationLoading(URI configuration) {
-        currentOperation = " Loading "+configuration;
-        for (int i = 0; i < configurations.length; i++) {
-            if(configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_LOADING;
-            }
-        }
-        repaint();
+        configNum++;
     }
 
     public synchronized void configurationLoaded(URI configuration) {
-        for (int i = 0; i < configurations.length; i++) {
-            if(configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_LOADED;
-            }
-        }
-        calculatePercent();
-        repaint();
     }
 
     public synchronized void configurationStarting(URI configuration) {
-        currentOperation = "Starting "+configuration;
+        configStarted = System.currentTimeMillis();        
     }
 
     public synchronized void configurationStarted(URI configuration) {
-        for (int i = 0; i < configurations.length; i++) {
-            if(configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_STARTED;
-            }
+        int time = Math.round((float)(System.currentTimeMillis() - configStarted)/1000f);
+        StringBuffer buf = new StringBuffer();
+        buf.append("Started configuration ");
+        // pad config index
+        int configIndexDigits = Integer.toString(configNum).length();
+        for(; configIndexDigits < numConfigsDigits; configIndexDigits++) {
+            buf.append(' ');
         }
-        calculatePercent();
-        repaint();
+        // pad configuration startup time
+        buf.append(configNum).append('/').append(numConfigs).append(' ');
+        int timeDigits = Integer.toString(time).length();
+        for(; timeDigits < MIN_TIME_WIDTH; timeDigits++) {
+            buf.append(' ');
+        }
+        buf.append(time+"s "+configuration);
+        out.println(buf.toString());
     }
 
     public synchronized void startupFinished() {
-        finished = true;
-        currentOperation = "Startup complete";
-        calculatePercent();
-        thread.done = true;
-        thread.interrupt();
+        int time = Math.round((float)(System.currentTimeMillis() - started)/1000f);
+        
+        out.println("Startup completed in "+time+" seconds");
+        wrapUp();
     }
 
+    // TODO - We should probably share the wrapUp() code in ProgressBarStartupMonitor
     private void wrapUp() {
-        repaint();
-        out.println();
-
         List apps = new ArrayList();  // type = String (message)
         List webs = new ArrayList();  // type = WebAppInfo
         List ports = new ArrayList(); // type = AddressHolder
@@ -326,64 +285,27 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         out.flush();
     }
 
+    // TODO Review - Currently loadFailed is not called by Daemon
     public synchronized void loadFailed(String configuration, Exception problem) {
-        for (int i = 0; i < configurations.length; i++) {
-            if(configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_FAILED;
-            }
-        }
-        if(problem != null) exceptions.add(problem);
-    }
-
-    public synchronized void serverStartFailed(Exception problem) {
-        currentOperation = "Startup failed";
-        repaint();
+        out.println("Failed to load configuration "+configuration);
         out.println();
         problem.printStackTrace(out);
     }
 
-    public synchronized void startFailed(String configuration, Exception problem) {
-        for (int i = 0; i < configurations.length; i++) {
-            if(configurations[i].equals(configuration)) {
-                configStatus[i] = STATUS_FAILED;
-            }
-        }
-        if(problem != null) exceptions.add(problem);
+    public synchronized void serverStartFailed(Exception problem) {
+        out.println("Server Startup failed");
+        out.println();
+        problem.printStackTrace(out);
     }
 
-    private synchronized void repaint() {
-        StringBuffer buf = new StringBuffer();
-        buf.append("\r[");
-        buf.append(kernel == null ? STATUS_NOT_READY : STATUS_STARTED);
-        for (int i = 0; i < configStatus.length; i++) {
-            buf.append(configStatus[i]);
-        }
-        buf.append(finished ? STATUS_STARTED : STATUS_NOT_READY);
-        buf.append("] ");
-        if(percent < 10) {
-            buf.append(' ');
-        }
-        buf.append(percent).append("% ");
-        int time = Math.round((float)(System.currentTimeMillis() - started)/1000f);
-        if(time < 10) {
-            buf.append(' ');
-        }
-        if(time < 100) {
-            buf.append(' ');
-        }
-        buf.append(time).append("s ");
-        if(currentOperation.length() > operationLimit) { // "Foo BarBarBar" limit 9 = "Foo ...ar" = 13 - 9 + 3 + 1 + 3
-            int space = currentOperation.indexOf(' ');
-            buf.append(currentOperation.substring(0, space+1));
-            buf.append("...").append(currentOperation.substring(currentOperation.length()-operationLimit+space+4));
-        } else {
-            buf.append(currentOperation);
-            for(int i=currentOperation.length(); i<operationLimit; i++) {
-                buf.append(' ');
-            }
-        }
-        out.print(buf.toString());
-        out.flush();
+    // TODO Review - Currently startFailed is not called by Daemon
+    public synchronized void startFailed(String configuration, Exception problem) {
+        out.println("Failed to start configuration "+configuration);
+        // We print the stack track now (rather than defering the printing of it)
+        // since other problems that may occur during the start of a configuration 
+        // (e.g. an individual GBean not being able to start) produce 
+        // errors in the log (and therefore standard output) immediately.
+        problem.printStackTrace(out);
     }
 
     private static boolean isApplicationModule(ObjectName on) {
@@ -463,27 +385,6 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
             AddressHolder other = (AddressHolder) o;
             int value = address.getPort() - other.address.getPort();
             return value == 0 ? address.getAddress().toString().compareTo(other.address.getAddress().toString()) : value;
-        }
-    }
-
-    private class UpdateThread extends Thread {
-        private volatile boolean done = false;
-
-        public UpdateThread() {
-            super("Progress Display Update Thread");
-            setDaemon(true);
-        }
-
-        public void run() {
-            while(!done) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    continue;
-                }
-                repaint();
-            }
-            wrapUp();
         }
     }
 
