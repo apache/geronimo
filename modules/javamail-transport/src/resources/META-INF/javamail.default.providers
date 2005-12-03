@@ -6,4 +6,4 @@
 #
 # $Rev$ $Date$
 #
-protocol=smtp; type=transport; class=org.apache.geronimo.mail.smtp.SMTPTransport; vendor=Apache Software Foundation; version=1.0
+protocol=smtp; type=transport; class=org.apache.geronimo.javamail.transport.smtp.SMTPTransport; vendor=Apache Software Foundation; version=1.0
