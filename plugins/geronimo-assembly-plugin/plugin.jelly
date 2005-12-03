@@ -156,7 +156,7 @@ ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension
                         targetConfigStore="config-store"
                         targetRepository="repository"
                         sourceRepository="${maven.repo.local}"
-                        artifact="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        artifact="${dependency.getGroupId()}/${dependency.getArtifactId()}/${dependency.getVersion()}/${dependency.getType()}"/>
                 </j:if>
 
                 <!-- handle executable configs -->
@@ -212,7 +212,7 @@ ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension
     </goal>
 
     <!-- Maven artifict tags are broken so we must copy by hand -->
-    <goal name="assemble:install" description="Deploy a binary distribution" prereqs="assemble:package-assembly">
+    <goal name="assemble:install" description="Deploy a binary distribution" prereqs="clean,assemble:package-assembly">
         <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
             <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
             <ant:copy file="${maven.build.dir}/${maven.final.name}.tar.gz"
