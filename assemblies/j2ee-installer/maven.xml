@@ -21,6 +21,16 @@
 
 <project default="default"
     >
-    <goal name="default" prereqs="geronimo:assemble-to-repo"/>
+    <goal name="default" prereqs="assemble:install"/>
+
+    <!-- replace the assemble:install goal with jelly code to build the installer -->
+    <goal name="assemble:install">
+        <attainGoal name="assemble:assemble-to-repo"/>
+        <!-- build the izpack installer here -->
+    </goal>
+
+    <preGoal name="assemble:install">
+        <attainGoal name="clean"/>
+    </preGoal>
 
 </project>
