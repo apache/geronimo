@@ -15,62 +15,52 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.mail.smtp;
+package org.apache.geronimo.javamail.transport.smtp;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.URLName;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.internet.MimeBodyPart;
-
-import org.apache.geronimo.mail.AbstractTransport;
-
-import java.net.Socket;
-import java.net.InetSocketAddress;
-import java.net.SocketException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Properties;
-import java.util.Date;
+import javax.mail.Transport;
 
 /**
- *  Simple implementation of SMTP transport.  Just does plain RFC821-ish
- *  delivery.
- *
- *  Supported properties :
- *
- *  <ul>
- *  <li> mail.host : to set the server to deliver to.  Default = localhost</li>
- *  <li> mail.smtp.port : to set the port.  Default = 25</li>
- *  <li> mail.smtp.locahost : name to use for HELO/EHLO - default getHostName()</li>
- *  </ul>
- *
- *  There is no way to indicate failure for a given recipient (it's possible to have a
- *  recipient address rejected).  The sun impl throws exceptions even if others successful),
- *  but maybe we do a different way...
- *
- *  TODO : lots.  ESMTP, user/pass, indicate failure, etc...
+ * Simple implementation of SMTP transport.  Just does plain RFC821-ish
+ * delivery.
+ * <p/>
+ * Supported properties :
+ * <p/>
+ * <ul>
+ * <li> mail.host : to set the server to deliver to.  Default = localhost</li>
+ * <li> mail.smtp.port : to set the port.  Default = 25</li>
+ * <li> mail.smtp.locahost : name to use for HELO/EHLO - default getHostName()</li>
+ * </ul>
+ * <p/>
+ * There is no way to indicate failure for a given recipient (it's possible to have a
+ * recipient address rejected).  The sun impl throws exceptions even if others successful),
+ * but maybe we do a different way...
+ * <p/>
+ * TODO : lots.  ESMTP, user/pass, indicate failure, etc...
  *
  * @version $Rev$ $Date$
  */
-public class SMTPTransport extends AbstractTransport {
-
+public class SMTPTransport extends Transport {
     /**
-     *  constants for EOL termination
+     * constants for EOL termination
      */
     private static final char CR = 0x0D;
     private static final char LF = 0x0A;
 
     /**
-     *  property key for SMTP server to talk to
+     * property key for SMTP server to talk to
      */
     private static final String MAIL_HOST = "mail.host";
     private static final String MAIL_SMTP_LOCALHOST = "mail.smtp.localhost";
@@ -88,26 +78,14 @@ public class SMTPTransport extends AbstractTransport {
         super(session, name);
     }
 
-    /* (non-Javadoc)
-     * @see javax.mail.Transport#sendMessage(javax.mail.Message, javax.mail.Address[])
-     */
-    public void sendMessage(Message message, Address[] addresses)
-        throws MessagingException {
-
-        /*
-         * do it and ignore the return
-         */
+    public void sendMessage(Message message, Address[] addresses) throws MessagingException {
+        // do it and ignore the return
         sendMessage(addresses, message);
     }
 
-    public SendStatus[] sendMessage(Address[] addresses, Message message)
-        throws MessagingException {
-
-        /*
-         * don't bother me w/ null messages or no addreses
-         */
-
-        if (message == null ) {
+    public SendStatus[] sendMessage(Address[] addresses, Message message) throws MessagingException {
+        // don't bother me w/ null messages or no addreses
+        if (message == null) {
             throw new MessagingException("Null message");
         }
 
@@ -120,90 +98,62 @@ public class SMTPTransport extends AbstractTransport {
 
         try {
 
-            /*
-             * create socket and connect to server.
-             */
-
+            // create socket and connect to server.
             Socket s = getConnectedSocket();
 
-            /*
-             *  receive welcoming message
-             */
+            // receive welcoming message
             if (!getWelcome(s)) {
                 throw new MessagingException("Error in getting welcome msg");
             }
 
-            /*
-             * say hello
-             */
+            // say hello
             if (!sendHelo(s)) {
                 throw new MessagingException("Error in saying HELO to server");
             }
 
-            /*
-             * send sender
-             */
+
+            // send sender
             if (!sendMailFrom(s, message.getFrom())) {
                 throw new MessagingException("Error in setting the MAIL FROM");
             }
 
-            /*
-             * send recipients.  Only send if not null or "", and just ignore
-             * (but log) any errors
-             */
-
-            for (int i=0; i < addresses.length; i++) {
+            // send recipients.  Only send if not null or "", and just ignore (but log) any errors
+            for (int i = 0; i < addresses.length; i++) {
                 String to = addresses[i].toString();
 
                 int status = SendStatus.SUCCESS;
 
                 if (to != null && !"".equals(to)) {
                     if (!sendRcptTo(s, to)) {
-
-                        // this means it didn't like our recipient.  I say we keep
-                        // going
-
+                        // this means it didn't like our recipient.  I say we keep going
                         if (this.session.getDebug()) {
                             this.session.getDebugOut().println("ERROR setting recipient " + to);
                         }
 
                         status = SendStatus.FAIL;
                     }
-                }
-                else {
+                } else {
                     status = SendStatus.FAIL;
                 }
 
                 stat[i] = new SendStatus(status, to);
             }
 
-            /*
-             * send data
-             */
+            // send data
             if (!sendData(s, message)) {
                 throw new MessagingException("Error sending data");
             }
 
-            /*
-             * say goodbye
-             */
-
+            // say goodbye
             sendQuit(s);
 
             try {
                 s.close();
+            } catch (IOException ignored) {
             }
-            catch (IOException e) {
-                //
-                // TODO - should we just eat this?  We have delivered the msg...
-                //
-                e.printStackTrace();
-            }
-        }
-        catch (SMTPTransportException e) {
+        } catch (SMTPTransportException e) {
             throw new MessagingException("error", e);
-        }
-        catch (MalformedSMTPReplyException e) {
+        } catch (MalformedSMTPReplyException e) {
             throw new MessagingException("error", e);
         }
 
@@ -214,23 +164,13 @@ public class SMTPTransport extends AbstractTransport {
      * Sends the data in the message down the socket.  This presumes the
      * server is in the right place and ready for getting the DATA message
      * and the data right place in the sequence
-     *
-     * @param s
-     * @param msg
-     * @return
-     * @throws SMTPTransportException
-     * @throws MalformedSMTPReplyException
      */
-    protected boolean sendData(Socket s, Message msg)
-        throws SMTPTransportException, MalformedSMTPReplyException {
-
+    protected boolean sendData(Socket s, Message msg) throws SMTPTransportException, MalformedSMTPReplyException {
         if (msg == null) {
             throw new SMTPTransportException("invalid message");
         }
 
-        /*
-         * send the DATA command
-         */
+        // send the DATA command
         sendLine(s, "DATA");
 
         SMTPReply line = new SMTPReply(receiveLine(s, 5 * MIN_MILLIS));
@@ -243,10 +183,7 @@ public class SMTPTransport extends AbstractTransport {
             return false;
         }
 
-        /*
-         * now the data...  I could look at the type, but
-         */
-
+        // now the data...  I could look at the type, but
         try {
             OutputStream os = s.getOutputStream();
 
@@ -255,17 +192,13 @@ public class SMTPTransport extends AbstractTransport {
 
             msg.writeTo(os);
             os.flush();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new SMTPTransportException(e);
-        }
-        catch(MessagingException e) {
+        } catch (MessagingException e) {
             throw new SMTPTransportException(e);
         }
 
-        /*
-         * now to finish
-         */
+        // now to finish
         sendLine(s, "");
         sendLine(s, ".");
 
@@ -275,16 +208,9 @@ public class SMTPTransport extends AbstractTransport {
     }
 
     /**
-     *  Sends the QUIT message and receieves the response
-     *
-     * @param s
-     * @return
-     * @throws SMTPTransportException
-     * @throws MalformedSMTPReplyException
+     * Sends the QUIT message and receieves the response
      */
-    protected boolean sendQuit(Socket s)
-        throws SMTPTransportException, MalformedSMTPReplyException {
-
+    protected boolean sendQuit(Socket s) throws SMTPTransportException, MalformedSMTPReplyException {
         sendLine(s, "QUIT");
 
         SMTPReply line = new SMTPReply(receiveLine(s, 5 * MIN_MILLIS));
@@ -294,16 +220,8 @@ public class SMTPTransport extends AbstractTransport {
 
     /**
      * Sets a receiver address for the current message
-     *
-     * @param s
-     * @param addr
-     * @return
-     * @throws SMTPTransportException
-     * @throws MalformedSMTPReplyException
      */
-    protected boolean sendRcptTo(Socket s, String addr)
-        throws SMTPTransportException, MalformedSMTPReplyException {
-
+    protected boolean sendRcptTo(Socket s, String addr) throws SMTPTransportException, MalformedSMTPReplyException {
         if (addr == null || "".equals(addr)) {
             throw new SMTPTransportException("invalid address");
         }
@@ -319,23 +237,13 @@ public class SMTPTransport extends AbstractTransport {
 
     /**
      * Set the sender for this mail.
-     * @param s
-     * @param from
-     * @return
-     * @throws SMTPTransportException
-     * @throws MalformedSMTPReplyException
      */
-    protected boolean sendMailFrom(Socket s, Address[] from)
-            throws SMTPTransportException, MalformedSMTPReplyException {
-
+    protected boolean sendMailFrom(Socket s, Address[] from) throws SMTPTransportException, MalformedSMTPReplyException {
         if (from == null || from.length == 0) {
             throw new SMTPTransportException("no FROM address");
         }
 
-        /*
-         * TODO - what do we do w/ more than one from???
-         */
-
+        // TODO - what do we do w/ more than one from???
         String msg = "MAIL FROM: " + fixEmailAddress(from[0].toString());
 
         sendLine(s, msg);
@@ -346,25 +254,19 @@ public class SMTPTransport extends AbstractTransport {
     }
 
     /**
-     *  Sends the initiating "HELO" message.  We're keeping it simple, just
+     * Sends the initiating "HELO" message.  We're keeping it simple, just
      * identifying ourselves as we dont' require service extensions, and
-     *  want to keep it simple for now
+     * want to keep it simple for now
      *
      * @param s socket we are talking on.  It's assumed to be open and in
-     *    right state for this message
-     * @return
-     * @throws SMTPTransportException
-     * @throws MalformedSMTPReplyException
+     * right state for this message
      */
-    protected boolean sendHelo(Socket s)
-        throws SMTPTransportException, MalformedSMTPReplyException {
-
+    protected boolean sendHelo(Socket s) throws SMTPTransportException, MalformedSMTPReplyException {
         String fqdm = null;
 
         try {
             fqdm = InetAddress.getLocalHost().getHostName();
-        }
-        catch (UnknownHostException e) {
+        } catch (UnknownHostException e) {
             // fine, we're misconfigured - ignore
         }
 
@@ -385,32 +287,18 @@ public class SMTPTransport extends AbstractTransport {
     }
 
     /**
-     *  Get the servers welcome blob from the wire....
-     *
-     * @param s
-     * @return
-     * @throws SMTPTransportException
-     * @throws MalformedSMTPReplyException
+     * Get the servers welcome blob from the wire....
      */
-    protected boolean getWelcome(Socket s)
-        throws SMTPTransportException, MalformedSMTPReplyException {
-
+    protected boolean getWelcome(Socket s) throws SMTPTransportException, MalformedSMTPReplyException {
         SMTPReply line = new SMTPReply(receiveLine(s, 5 * MIN_MILLIS));
-
         return !line.isError();
     }
 
     /**
-     *  Sends a  message down the socket and terminates with the
-     *  appropriate CRLF
-     *
-     * @param s
-     * @param data
-     * @throws SMTPTransportException
+     * Sends a  message down the socket and terminates with the
+     * appropriate CRLF
      */
-    protected void sendLine(Socket s, String data)
-        throws SMTPTransportException {
-
+    protected void sendLine(Socket s, String data) throws SMTPTransportException {
         if (s == null) {
             throw new SMTPTransportException("bonehead...");
         }
@@ -430,22 +318,19 @@ public class SMTPTransport extends AbstractTransport {
             if (this.session.getDebug()) {
                 this.session.getDebugOut().println("sent: " + data);
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new SMTPTransportException(e);
         }
     }
 
     /**
-     *  Receives one line from the server.  A line is a sequence of bytes
-     *  terminated by a CRLF
+     * Receives one line from the server.  A line is a sequence of bytes
+     * terminated by a CRLF
      *
      * @param s socket to receive from
      * @return the line from the server as String
      */
-    protected String receiveLine(Socket s, int delayMillis)
-        throws SMTPTransportException {
-
+    protected String receiveLine(Socket s, int delayMillis) throws SMTPTransportException {
         if (s == null) {
             throw new SMTPTransportException("bonehead...");
         }
@@ -457,11 +342,7 @@ public class SMTPTransport extends AbstractTransport {
         int timeout = 0;
 
         try {
-
-            /*
-             * for now, read byte for byte, looking for a CRLF
-             */
-
+            // for now, read byte for byte, looking for a CRLF
             timeout = s.getSoTimeout();
 
             s.setSoTimeout(delayMillis);
@@ -469,11 +350,11 @@ public class SMTPTransport extends AbstractTransport {
             InputStream is = s.getInputStream();
 
             StringBuffer buff = new StringBuffer();
-            
+
             int c;
             boolean crFound = false, lfFound = false;
 
-            while((c = is.read()) != -1  && crFound == false && lfFound == false) {
+            while ((c = is.read()) != -1 && crFound == false && lfFound == false) {
                 buff.append((char) c);
 
                 if (c == CR) {
@@ -489,18 +370,14 @@ public class SMTPTransport extends AbstractTransport {
             }
 
             return buff.toString();
-        }
-        catch (SocketException e) {
+        } catch (SocketException e) {
             throw new SMTPTransportException(e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new SMTPTransportException(e);
-        }
-        finally {
+        } finally {
             try {
                 s.setSoTimeout(timeout);
-            }
-            catch(SocketException e) {
+            } catch (SocketException e) {
                 // ignore - was just trying to do the decent thing...
             }
         }
@@ -508,14 +385,9 @@ public class SMTPTransport extends AbstractTransport {
 
 
     /**
-     *  Creates and returns a connected socket
-     *
-     * @return
-     * @throws MessagingException
+     * Creates and returns a connected socket
      */
-    protected Socket getConnectedSocket()
-        throws MessagingException {
-
+    protected Socket getConnectedSocket() throws MessagingException {
         Socket s = new Socket();
 
         String mail_host = this.session.getProperty(MAIL_HOST);
@@ -532,14 +404,12 @@ public class SMTPTransport extends AbstractTransport {
 
             try {
                 port = Integer.parseInt(portString);
-            }
-            catch (NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 // ignore - we don't care, leave as default
             }
         }
 
         try {
-
             if (this.session.getDebug()) {
                 this.session.getDebugOut().println("connecting to " + mail_host);
             }
@@ -549,9 +419,7 @@ public class SMTPTransport extends AbstractTransport {
             if (this.session.getDebug()) {
                 this.session.getDebugOut().println("connected to " + mail_host);
             }
-        }
-        catch (IOException e) {
-
+        } catch (IOException e) {
             if (this.session.getDebug()) {
                 this.session.getDebugOut().println("error connecting to " + mail_host);
             }
@@ -562,79 +430,16 @@ public class SMTPTransport extends AbstractTransport {
         return s;
     }
 
-    private String fixEmailAddress(String mail)
-    {
+    private String fixEmailAddress(String mail) {
         if (mail.charAt(0) == '<') {
             return mail;
         }
         return "<" + mail + ">";
     }
 
-    public static void main(String[] args)
-        throws Exception {
-
-        Properties props = new Properties();
-        props.setProperty("mail.host", "localhost");
-        props.setProperty("mail.transport.protocol", "smtp");
-//      props.setProperty("mail.smtp.class", "org.apache.geronimo.mail.SMTPTransport");
-
-        Session session = Session.getInstance(props);
-
-        session.setDebug(true);
-
-        Transport t = session.getTransport("smtp");
-
-        MimeMessage msg = new MimeMessage(session);
-
-        msg.setFrom(new InternetAddress("chris@email.com"));
-        msg.addRecipients(Message.RecipientType.TO, "rickmcg@gmail.com");
-        msg.setSubject("From SMTPTransport : this is the second subject");
-        msg.setText("This is the second content (via SMTPTransport)");
-        try {
-
-            t.connect();
-            t.sendMessage(msg, new Address[] {new InternetAddress("rick@us.ibm.com")});
-        } catch (Throwable e) {
-            System.out.println("Exception received: " + e);
-            e.printStackTrace();
-        }
-
-/*
-        MimeMultipart mmpt = new MimeMultipart();
-        MimeBodyPart b1 = new MimeBodyPart();
-        b1.setContent("body 1", "text/plain");
-
-        mmpt.addBodyPart(b1);
-
-        b1 = new MimeBodyPart();
-        b1.setContent("body2", "text/plain");
-        mmpt.addBodyPart(b1);
-
-        Address[] list = new Address[1];
-        list[0] =  new InternetAddress("rick@us.ibm.com");
-//        list[1] =  new InternetAddress("jeremy@boynes.com");
-
-        msg.setSubject("From SMTPTransport : this is the subject");
-        msg.setFrom(new InternetAddress("rickmcg@gmail.com"));
-        msg.setContent("This is the content (via SMTPTransport)", "text/plain");
-        msg.setRecipients(Message.RecipientType.TO, list);
-//        msg.setContent(mmpt);
-
-        msg.setSentDate(new Date());
-
-        try {
-            t.sendMessage(msg, list);
-        } catch (Throwable e) {
-            System.out.println("Exception received: " + e);
-            e.printStackTrace();
-        }
-        */
-    }
-
     /**
-     *  Simple holder class for the address/send status duple, as we can
-     *  have mixed success for a set of addresses and a message
-     *
+     * Simple holder class for the address/send status duple, as we can
+     * have mixed success for a set of addresses and a message
      */
     public class SendStatus {
         public final static int SUCCESS = 0;

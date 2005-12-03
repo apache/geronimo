@@ -15,26 +15,20 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.mail.smtp;
+package org.apache.geronimo.javamail.transport.smtp;
 
 /**
  * Util class to represent a reply from a SMTP server
  *
- * @version $Id: $
+ * @version $Rev$ $Date$
  */
 class SMTPReply {
-
     private final int code;
     private final String message;
     private final char firstChar;
 
-    SMTPReply(String s)
-        throws MalformedSMTPReplyException{
-
-        /*
-         * first three must be the return code
-         */
-
+    SMTPReply(String s) throws MalformedSMTPReplyException {
+        // first three must be the return code
         if (s == null || s.length() < 3) {
             throw new MalformedSMTPReplyException("Too Short! : " + s);
         }
@@ -43,17 +37,13 @@ class SMTPReply {
             firstChar = s.charAt(0);
             code = Integer.parseInt(s.substring(0, 3));
 
-            /*
-             * message should be separated by a space
-             */
+            // message should be separated by a space
             if (s.length() > 4) {
                 message = s.substring(4);
-            }
-            else {
+            } else {
                 message = "";
             }
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new MalformedSMTPReplyException("error in parsing code", e);
         }
     }
@@ -67,9 +57,7 @@ class SMTPReply {
     }
 
     /**
-     *  Indicates if reply is an error condition
-     *
-     * @return
+     * Indicates if reply is an error condition
      */
     boolean isError() {
         if (firstChar == '5' || firstChar == '4') {

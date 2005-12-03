@@ -15,28 +15,23 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.mail.smtp;
+package org.apache.geronimo.javamail.transport.smtp;
 
 /**
- *  General purpose Exception
- *
- * @version $Id: $
+ * Exception for when a SMTP reply string has a problem
+ * 
+ * @version $Rev$ $Date$
  */
-class SMTPTransportException extends Exception {
-
-    SMTPTransportException() {
+class MalformedSMTPReplyException  extends Exception {
+    MalformedSMTPReplyException() {
         super();
     }
 
-    SMTPTransportException(String s) {
-        super(s);
+    MalformedSMTPReplyException(String msg) {
+        super(msg);
     }
 
-    SMTPTransportException(String s, Throwable t) {
-        super(s,t);
-    }
-
-    SMTPTransportException(Throwable t) {
-        super(t);
+    MalformedSMTPReplyException(String msg, Throwable t) {
+        super(msg, t);
     }
 }

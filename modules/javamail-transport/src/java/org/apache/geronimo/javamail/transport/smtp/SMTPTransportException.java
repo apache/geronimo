@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,14 +15,28 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.mail.imap;
-
-import junit.framework.TestCase;
+package org.apache.geronimo.javamail.transport.smtp;
 
 /**
- * @version $Rev$ $Date$
+ *  General purpose Exception
+ *
+ * @version $Id: $
  */
-public class IMAPFolderTest extends TestCase {
-    public void testSomethingPlease() {
+class SMTPTransportException extends Exception {
+
+    SMTPTransportException() {
+        super();
+    }
+
+    SMTPTransportException(String s) {
+        super(s);
+    }
+
+    SMTPTransportException(String s, Throwable t) {
+        super(s,t);
+    }
+
+    SMTPTransportException(Throwable t) {
+        super(t);
     }
 }

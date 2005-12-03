@@ -1,0 +1,9 @@
+# This file configures the default behaviour of JavaMail. DO NOT EDIT.
+# Create a new file /META-INF/javamail.providers and put
+# the same format lines in there.
+#
+# Note that you can't override these defaults, merely add to them.
+#
+# $Rev$ $Date$
+#
+protocol=smtp; type=transport; class=org.apache.geronimo.mail.smtp.SMTPTransport; vendor=Apache Software Foundation; version=1.0
