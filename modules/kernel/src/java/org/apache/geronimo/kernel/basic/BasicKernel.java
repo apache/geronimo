@@ -284,7 +284,7 @@ public class BasicKernel implements Kernel {
         for (Iterator it = all.iterator(); it.hasNext();) {
             ObjectName name = (ObjectName) it.next();
             try {
-                GBeanInfo info = getGBeanData(name).getGBeanInfo();
+                GBeanInfo info = getGBeanInfo(name);
                 Set intfs = info.getInterfaces();
                 for (int i = 0; i < interfaces.length; i++) {
                     String candidate = interfaces[i];
