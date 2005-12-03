@@ -21,6 +21,7 @@ import java.io.ObjectInputStream;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collections;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -110,6 +111,8 @@ public class CommandLine {
         URI configurationId = (URI) configuration.getAttribute("id");
         ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
         configuration.setName(configName);
+        // todo: JNB for now we clear out the dependency list but we really need a way to resolve them
+        configuration.setAttribute("dependencies", Collections.EMPTY_LIST);
         configuration.setAttribute("baseURL", classLoader.getResource("/"));
 
         // boot the kernel
