@@ -150,6 +150,10 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
     }
 
     public void copyToRepository(InputStream source, URI destination, FileWriteMonitor monitor) throws IOException {
+        if (!rootFile.canWrite()) {
+            throw new IllegalStateException("This repository is not writable: " + rootFile.getAbsolutePath() + ")");
+        }
+
         File dest = new File(resolve(destination));
         if (dest.exists()) {
             throw new IllegalArgumentException("Destination " + dest.getAbsolutePath() + " already exists!");
@@ -199,8 +203,8 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
                 throw new IllegalStateException("FileSystemRepository must have a root that's a local directory (not " + rootURI + ")");
             }
             rootFile = new File(rootURI);
-            if (!rootFile.exists() || !rootFile.isDirectory() || !rootFile.canRead() || !rootFile.canWrite()) {
-                throw new IllegalStateException("FileSystemRepository must have a root that's a valid writable directory (not " + rootFile.getAbsolutePath() + ")");
+            if (!rootFile.exists() || !rootFile.isDirectory() || !rootFile.canRead()) {
+                throw new IllegalStateException("FileSystemRepository must have a root that's a valid readable directory (not " + rootFile.getAbsolutePath() + ")");
             }
         }
         log.debug("Repository root is " + rootFile.getAbsolutePath());
