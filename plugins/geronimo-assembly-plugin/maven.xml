@@ -17,11 +17,18 @@
 -->
 
 
-<!-- $Rev: 158417 $ $Date: 2005-03-20 23:25:45 -0800 (Sun, 20 Mar 2005) $ -->
+<!-- $Rev: 351514 $ $Date: 2005-12-01 15:12:20 -0800 (Thu, 01 Dec 2005) $ -->
 
 <project default="plugin:install">
     <goal name="default">
         <attainGoal name="plugin:install-now"/>
         <attainGoal name="plugin:repository-install"/>
     </goal>
+
+    <postGoal name="plugin:install">
+        <attainGoal name="plugin:install-now"/>
+        <attainGoal name="plugin:repository-install"/>
+    </postGoal>
+
+
 </project>

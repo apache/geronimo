@@ -29,55 +29,48 @@
 
 
     <goal name="new0">
-        <j:set var="maven.multiproject.includes" value="tranql/tranql/project.xml"/>
-        <j:set var="maven.multiproject.excludes" value=""/>
-        <attainGoal name="multiproject:install"/>
+        <maven:reactor basedir="${basedir}" includes="tranql/tranql/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="tranql" ignoreFailures="false" />
     </goal>
 
     <goal name="new00">
-        <j:set var="maven.multiproject.includes" value="tranql/connector/project.xml,tranql/vendor/*/project.xml"/>
-        <j:set var="maven.multiproject.excludes" value=""/>
-        <attainGoal name="multiproject:install"/>
+        <maven:reactor basedir="${basedir}" includes="tranql/connector/project.xml,tranql/vendor/*/*/project.xml,tranql/derby/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="tranql-connector" ignoreFailures="false" />
     </goal>
 
     <goal name="new1">
-        <j:set var="maven.multiproject.includes" value="modules/*/project.xml,plugins/*/project.xml"/>
-        <j:set var="maven.multiproject.excludes" value="modules/assembly/project.xml"/>
-        <attainGoal name="multiproject:install"/>
+        <maven:reactor basedir="${basedir}" includes="modules/*/project.xml,plugins/*/project.xml"
+            excludes="modules/assembly/project.xml" goals="multiproject:install-callback" banner="geronimo and geronimo-plugins" ignoreFailures="false" />
     </goal>
 
     <goal name="new2">
-        <j:set var="maven.multiproject.includes" value="openejb/modules/core/project.xml,openejb/modules/pkgen-builder/project.xml,openejb/modules/openejb-builder/project.xml"/>
-        <j:set var="maven.multiproject.excludes" value=""/>
-        <attainGoal name="multiproject:install"/>
+        <maven:reactor basedir="${basedir}" includes="openejb/modules/core/project.xml,openejb/modules/pkgen-builder/project.xml,openejb/modules/openejb-builder/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="openejb" ignoreFailures="false" />
     </goal>
 
     <goal name="new3">
-        <j:set var="maven.multiproject.includes" value="applications/*/project.xml"/>
-        <j:set var="maven.multiproject.excludes" value=""/>
-        <attainGoal name="multiproject:install"/>
+        <maven:reactor basedir="${basedir}" includes="applications/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="applications" ignoreFailures="false" />
     </goal>
 
     <goal name="new4">
-        <j:set var="maven.multiproject.includes" value="configs/*/project.xml"/>
-        <j:set var="maven.multiproject.excludes" value=""/>
-        <attainGoal name="multiproject:install"/>
+        <maven:reactor basedir="${basedir}" includes="configs/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="configurations" ignoreFailures="false" />
     </goal>
 
     <goal name="new5">
-        <j:set var="maven.multiproject.includes" value="assemblies/*/project.xml"/>
-        <j:set var="maven.multiproject.excludes" value=""/>
-        <attainGoal name="multiproject:install"/>
+        <maven:reactor basedir="${basedir}" includes="assemblies/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="tranql-connector" ignoreFailures="false" />
     </goal>
 
     <goal name="new">
-        <!-- this really doesn't work -->
         <attainGoal name="new0"/>
         <attainGoal name="new00"/>
         <attainGoal name="new1"/>
         <attainGoal name="new2"/>
         <attainGoal name="new3"/>
         <attainGoal name="new4"/>
+        <attainGoal name="new5"/>
     </goal>
 
     <!-- ============= -->
