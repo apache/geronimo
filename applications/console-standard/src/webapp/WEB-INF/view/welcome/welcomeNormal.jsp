@@ -10,7 +10,7 @@
         <td width="90%" align="left" valign="top">
             <p><font face="Verdana" size="+1"><center><b>Welcome to the Apache Geronimo&#8482;<BR>Administration Console!</b></center></font></p>
 
-            <p>The administration console provides a convenient, user friendly way to administer many aspects of the Geronimo Server and will continue to evolve over time.  The navigation panel on the lefthand side of the screen provides easy access to the individual tasks.  It is always present and allows easy transition from task to task.</p>
+            <p>The administration console provides a convenient, user friendly way to administer many aspects of the Geronimo Server.  It is currently a work in progress, and will continue to evolve over time.  The navigation panel on the lefthand side of the screen provides easy access to the individual tasks.  It is always present and allows easy transition from task to task.</p>
 
             <p>This space is the main content area where the real work happens.  Each view contains one or more portlets (self contained view fragments) that typically include a link for help in the header.  Look at the top of this portlet for an example and try it out.</p>
 
@@ -19,8 +19,12 @@
             <p>Mailing lists are available to get involved in the development of Apache Geronimo or to ask questions of the community:</p>
 
            <ul>
-               <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b> for general questions related to configuring and using Geronimo</li>
-               <li><b><a href="mailto:dev-subscribe@geronimo.apache.org">dev@geronimo.apache.org</a></b> for developers working on Geronimo</li>
+               <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b>
+                   (<a href="http://marc.theaimsgroup.com/?l=geronimo-user&r=1&w=2">archives</a>)
+                   for general questions related to configuring and using Geronimo</li>
+               <li><b><a href="mailto:dev-subscribe@geronimo.apache.org">dev@geronimo.apache.org</a></b>
+                   (<a href="http://marc.theaimsgroup.com/?l=geronimo-dev&r=1&w=2">archives</a>)
+                   for developers working on Geronimo</li>
            </ul>
 
             <p>So share your experiences with us and let us know how we can make Geronimo even better.</p>
@@ -44,12 +48,16 @@
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
-                        <img src="../images/ico_db_16x16.gif" /><a href="services/services_jdbc">Database Pools</a><br />
-                        <img src="../images/ico_lock_16x16.gif" /><a href="Security/Security_realms">Security Realms</a><br />
-                        <img src="../images/ico_beanjar_16x16.gif" /><a href="services/services_jms">JMS Resources</a><br />
-                        <img src="../images/ico_list_16x16.gif" /><a href="apps/apps_all">Deploy Applications</a><br />
-                        <img src="../images/ico_servcomp_16x16.gif" /><a href="server/server_web">Web Server Ports</a><br />
-                        <img src="../images/ico_look_16x16.gif" /><a href="server/server_info">Memory &amp; Uptime</a><br />
+                        <%-- Is there any way to not hardcode /console?  The problem is, this
+                             code runs from /console-standard, so the context root is not correct.
+                             Perhaps there's some tag to point to a different portlet, but what
+                             about the images?  --%>
+                        <img src="/console/images/ico_db_16x16.gif" /><a href="/console/portal/services/services_jdbc">Database Pools</a><br />
+                        <img src="/console/images/ico_lock_16x16.gif" /><a href="/console/portal/Security/Security_realms">Security Realms</a><br />
+                        <img src="/console/images/ico_beanjar_16x16.gif" /><a href="/console/portal/services/services_jms">JMS Resources</a><br />
+                        <img src="/console/images/ico_list_16x16.gif" /><a href="/console/portal/apps/apps_all">Deploy Applications</a><br />
+                        <img src="/console/images/ico_servcomp_16x16.gif" /><a href="/console/portal/server/server_web">Web Server Ports</a><br />
+                        <img src="/console/images/ico_look_16x16.gif" /><a href="/console/portal/server/server_info">Memory &amp; Uptime</a><br />
                         &nbsp;<br />
                     </td>
                 </tr>
@@ -103,7 +111,7 @@
 
             <p align="right"><font size=-1>
 <!--   Bring this line in and add the powered by icon when available
-            <img src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif"/>
+            <img src="/console/images/ico_geronimo_16x16.gif"/>
 -->
             </font><br />
             &nbsp;
