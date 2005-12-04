@@ -21,14 +21,15 @@
 
 <project default="plugin:install">
     <goal name="default">
-        <attainGoal name="plugin:install-now"/>
-        <attainGoal name="plugin:repository-install"/>
+        <attainGoal name="plugin:install"/>
     </goal>
 
-    <postGoal name="plugin:install">
+    <goal name="plugin:install" prereqs="plugin:plugin">
         <attainGoal name="plugin:install-now"/>
         <attainGoal name="plugin:repository-install"/>
-    </postGoal>
+        <copy file="${maven.build.dir}/${maven.final.name}.jar"
+          todir="${maven.plugin.dir}" />
+     </goal>
 
 
 </project>
