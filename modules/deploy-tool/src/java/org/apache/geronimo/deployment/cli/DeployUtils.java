@@ -49,7 +49,6 @@ public class DeployUtils {
      * @param endCol The maximum width of the entire line in characters,
      *               including indent (indent 10 with endCol 70 results
      *               in 60 "usable" characters).
-     * @return
      */
     public static String reformat(String source, int indent, int endCol) {
         if(endCol-indent < 10) {
@@ -173,13 +172,15 @@ public class DeployUtils {
      * for a Geronimo deployment plan in the usual place, and if one is found,
      * retrieve the configId from the Geronimo deployment plan.
      *
+     * todo: Handle Spring and other weird deployment types?
+     *
      * @param module A Jar file or directory representing a J2EE module
      * @return The configId in the Geronimo deployment plan for this module,
      *         or null if no Geronimo deployment plan was identified.
      */
     public static String extractModuleIdFromArchive(File module) throws IOException, DeploymentException {
         if(!module.canRead()) {
-            throw new IllegalArgumentException("Not a readable file");
+            throw new DeploymentException("Not a readable file ("+module.getAbsolutePath()+")");
         }
         if(module.isDirectory()) {
             File target = null;
@@ -200,7 +201,7 @@ public class DeployUtils {
             }
         } else {
             if(!isJarFile(module)) {
-                throw new IllegalArgumentException(module.getAbsolutePath()+" is neither a JAR file nor a directory!");
+                throw new DeploymentException(module.getAbsolutePath()+" is neither a JAR file nor a directory!");
             }
             JarFile input = new JarFile(module);
             //todo: instead of looking for specific file names here, do something generic.

@@ -300,6 +300,11 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         public CommandContext() {
         }
 
+        public CommandContext(boolean logErrors, boolean verbose) {
+            this.logErrors = logErrors;
+            this.verbose = verbose;
+        }
+
         public boolean isLogErrors() {
             return logErrors;
         }

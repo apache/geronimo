@@ -22,6 +22,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
@@ -46,7 +47,12 @@ import java.util.Iterator;
  * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
  */
 public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //todo: write unit tests
-    private static final Log log = LogFactory.getLog(DirectoryHotDeployer.class);
+    private static final Log log = LogFactory.getLog("org.apache.geronimo.deployment.hot.Hot Deployer");
+    // Try to make this stand out as the user is likely to get a ton of errors if this comes up
+    private static final String BAD_LAYOUT_MESSAGE = "CANNOT DEPLOY: It looks like you unpacked an application or module "+
+                   "directly into the hot deployment directory.  THIS DOES NOT WORK.  You need to unpack into a "+
+                   "subdirectory directly under the hot deploy directory.  For example, if the hot deploy directory "+
+                   "is 'deploy/' and your file is 'webapp.war' then you could unpack it into a directory 'deploy/webapp.war/'";
     private DirectoryMonitor monitor;
     private String path;
     private ServerInfo serverInfo;
@@ -129,14 +135,12 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
         }
         DeploymentManager mgr = null;
         try {
-            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
+            mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             startupModules = mgr.getAvailableModules(null, targets);
             mgr.release();
             mgr = null;
             monitor = new DirectoryMonitor(dir, this, pollIntervalMillis);
-            monitor.initialize();
-            startupModules = null;
             log.debug("Hot deploy scanner intialized; starting main loop.");
             Thread t = new Thread(monitor, "Geronimo hot deploy scanner");
             t.setDaemon(true);
@@ -188,18 +192,37 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
         return file.lastModified(); //todo: how can we find out when a module was deployed?
     }
 
-    public boolean fileAdded(File file) {
+    public void started() {
+        startupModules = null;
+        log.debug("Initialization complete; directory scanner entering normal scan mode");
+    }
+
+    public boolean validateFile(File file, String configId) {
+        //todo: some more detailed evaluation
+        if(file.isDirectory() && (file.getName().equals("WEB-INF") || file.getName().equals("META-INF"))) {
+            log.error("("+file.getName()+") "+BAD_LAYOUT_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
+    public String fileAdded(File file) {
+        log.info("Deploying "+file.getName());
         DeploymentManager mgr = null;
+        TargetModuleID[] modules = null;
+        boolean completed = false;
         try {
-            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
+            mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             ProgressObject po = mgr.distribute(targets, file, null);
             waitForProgress(po);
             if(po.getDeploymentStatus().isCompleted()) {
-                TargetModuleID[] modules = po.getResultTargetModuleIDs();
+                modules = po.getResultTargetModuleIDs();
                 po = mgr.start(modules);
                 waitForProgress(po);
-                if(!po.getDeploymentStatus().isCompleted()) {
+                if(po.getDeploymentStatus().isCompleted()) {
+                    completed = true;
+                } else {
                     log.warn("Unable to start some modules for "+file.getAbsolutePath());
                 }
                 modules = po.getResultTargetModuleIDs();
@@ -214,22 +237,41 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
                     }
                 }
             } else {
-                log.error("Unable to deploy: "+po.getDeploymentStatus().getMessage(), new DeploymentException());
-                return false;
+                log.error("Unable to deploy: "+po.getDeploymentStatus().getMessage());
+                return null;
             }
         } catch (DeploymentManagerCreationException e) {
             log.error("Unable to open deployer", e);
-            return false;
+            return null;
         } finally {
             if(mgr != null) mgr.release();
         }
-        return true;
+        if(completed && modules != null) {
+            if(modules.length == 1) {
+                return modules[0].getModuleID();
+            } else {
+                return "";
+            }
+        } else if(modules != null) { //distribute completed but not start or something like that
+            return "";
+        } else {
+            return null;
+        }
+    }
+
+    private DeploymentManager getDeploymentManager() throws DeploymentManagerCreationException {
+        DeploymentManager manager = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
+        if(manager instanceof JMXDeploymentManager) {
+            ((JMXDeploymentManager)manager).setCommandContext(new JMXDeploymentManager.CommandContext(false, true));
+        }
+        return manager;
     }
 
     public boolean fileRemoved(File file, String configId) {
+        log.info("Undeploying "+file.getName());
         DeploymentManager mgr = null;
         try {
-            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
+            mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
@@ -258,9 +300,10 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     }
 
     public void fileUpdated(File file, String configId) {
+        log.info("Redeploying "+file.getName());
         DeploymentManager mgr = null;
         try {
-            mgr = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
+            mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);

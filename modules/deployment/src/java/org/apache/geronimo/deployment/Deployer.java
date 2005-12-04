@@ -132,9 +132,9 @@ public class Deployer {
                 }
             }
             if (builder == null) {
-                throw new DeploymentException("Syntax error in deployment plan or no deployer service available (currently I can't tell the difference):" +
-                        (planFile == null ? "" : " planFile=" + planFile.getAbsolutePath()) +
-                        (moduleFile == null ? "" : ", moduleFile" + moduleFile.getAbsolutePath()));
+                throw new DeploymentException("Cannot deploy the requested application module (" +
+                        (planFile == null ? "" : "planFile=" + planFile.getAbsolutePath()) +
+                        (moduleFile == null ? "" : (planFile == null ? "" : ", ")+"moduleFile=" + moduleFile.getAbsolutePath())+")");
             }
 
             // Make sure this configuration doesn't already exist

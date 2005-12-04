@@ -66,13 +66,13 @@ public abstract class AbstractDeployCommand extends CommandSupport {
                  "This usually indicates a serious problem with the configuration of " +
                  "your running Geronimo server.  If " +
                  "the deployer is present but not started, the workaround is to run " +
-                 "a deploy command like 'start org/apache/geronimo/RuntimeDeployer'.  " +
+                 "a deploy command like 'start geronimo/runtime-deployer/1.0/car'.  " +
                  "If the deployer service is not present at all (it was undeployed) then " +
                  "you need to either re-install Geronimo or get a deployment plan for the " +
                  "runtime deployer and distribute it while the server is not running and " +
                  "then start the server with a command like the above.  For help on this, " +
                  "write to user@geronimo.apache.org and include the contents of your " +
-                 "config-store/index.properties and var/config/config.list files.");
+                 "config-store/index.properties and var/config/config.xml files.");
             return null;
         }
         Iterator j = deployers.iterator();

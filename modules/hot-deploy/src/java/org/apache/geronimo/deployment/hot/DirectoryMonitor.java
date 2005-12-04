@@ -19,14 +19,14 @@ package org.apache.geronimo.deployment.hot;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 import org.apache.geronimo.deployment.cli.DeployUtils;
-import org.apache.geronimo.common.DeploymentException;
 import java.io.File;
 import java.io.Serializable;
-import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Meant to be run as a Thread that tracks the contents of a directory.
@@ -66,10 +66,30 @@ public class DirectoryMonitor implements Runnable {
         long getDeploymentTime(File file, String configId);
 
         /**
-         * @return true if the addition was processed successfully.  If not
-         *         the file will be added again next time it changes.
+         * Called to indicate that the monitor has fully initialized
+         * and will be doing normal deployment operations from now on.
          */
-        boolean fileAdded(File file);
+        void started();
+
+        /**
+         * Called to check whether a file passes the smell test before
+         * attempting to deploy it.
+         *
+         * @return true if there's nothing obviously wrong with this file.
+         *         false if there is (for example, it's clearly not
+         *         deployable).
+         */
+        boolean validateFile(File file, String configId);
+
+        /**
+         * @return A configId for the deployment if the addition was processed
+         *         successfully (or an empty String if the addition was OK but
+         *         the configId could not be determined).  null if the addition
+         *         failed, in which case the file will be added again next time
+         *         it changes.
+         */
+        String fileAdded(File file);
+
         /**
          * @return true if the removal was processed successfully.  If not
          *         the file will be removed again on the next pass.
@@ -132,14 +152,26 @@ public class DirectoryMonitor implements Runnable {
     }
 
     public void run() {
+        boolean serverStarted = false, initialized = false;
         while(!done) {
             try {
                 Thread.sleep(pollIntervalMillis);
             } catch (InterruptedException e) {
                 continue;
             }
-            if(listener != null && listener.isServerRunning()) {
-                scanDirectory();
+            if(listener != null) {
+                if(!serverStarted && listener.isServerRunning()) {
+                    serverStarted = true;
+                }
+                if(serverStarted) {
+                    if(!initialized) {
+                        initialized = true;
+                        initialize();
+                        listener.started();
+                    } else {
+                        scanDirectory();
+                    }
+                }
             }
         }
     }
@@ -163,7 +195,7 @@ public class DirectoryMonitor implements Runnable {
                     files.put(now.getPath(), now);
                 }
             } catch (Exception e) {
-                log.error("Unable to scan file "+child.getAbsolutePath()+" during initialization");
+                log.error("Unable to scan file "+child.getAbsolutePath()+" during initialization", e);
             }
         }
     }
@@ -180,6 +212,7 @@ public class DirectoryMonitor implements Runnable {
             return;
         }
         HashSet oldList = new HashSet(files.keySet());
+        List actions = new LinkedList();
         for (int i = 0; i < children.length; i++) {
             File child = children[i];
             if(!child.canRead()) {
@@ -195,21 +228,14 @@ public class DirectoryMonitor implements Runnable {
                 oldList.remove(then.getPath());
                 if(now.isSame(then)) { // File is the same as the last time we scanned it
                     if(then.isChanging()) {
-                        try {
-                            log.debug("File finished changing: "+now.getPath());
-                            // Used to be changing, now in (hopefully) its final state
-                            if(then.isNewFile()) {
-                                then.setConfigId(calculateModuleId(child));
-                                if(listener == null || listener.fileAdded(child)) {
-                                    then.setNewFile(false);
-                                }
-                            } else {
-                                if(listener != null) listener.fileUpdated(child, then.getConfigId());
-                            }
-                            then.setChanging(false);
-                        } catch (Exception e) {
-                            log.error("Unable to deploy file "+child.getAbsolutePath(), e);
+                        log.debug("File finished changing: "+now.getPath());
+                        // Used to be changing, now in (hopefully) its final state
+                        if(then.isNewFile()) {
+                            actions.add(new FileAction(FileAction.NEW_FILE, child, then));
+                        } else {
+                            actions.add(new FileAction(FileAction.UPDATED_FILE, child, then));
                         }
+                        then.setChanging(false);
                     } // else it's just totally unchanged and we ignore it this pass
                 } else {
                     // The two records are different -- record the latest as a file that's changing
@@ -226,14 +252,66 @@ public class DirectoryMonitor implements Runnable {
             String name = (String) it.next();
             FileInfo info = (FileInfo) files.get(name);
             log.debug("File removed: "+name);
-            if(info.isNewFile() || listener == null || listener.fileRemoved(new File(name), info.getConfigId())) {
+            if(info.isNewFile()) { // Was never added, just whack it
                 files.remove(name);
+            } else {
+                actions.add(new FileAction(FileAction.REMOVED_FILE, new File(name), info));
+            }
+        }
+        if(listener != null) {
+            // First pass: validate all changed files, so any obvious errors come out first
+            for (Iterator it = actions.iterator(); it.hasNext();) {
+                FileAction action = (FileAction) it.next();
+                if(!listener.validateFile(action.child, action.info.getConfigId())) {
+                    resolveFile(action);
+                    it.remove();
+                }
+            }
+            // Second pass: do what we're meant to do
+            for (Iterator it = actions.iterator(); it.hasNext();) {
+                FileAction action = (FileAction) it.next();
+                try {
+                    if(action.action == FileAction.REMOVED_FILE) {
+                        if(listener.fileRemoved(action.child, action.info.getConfigId())) {
+                            files.remove(action.child.getPath());
+                        }
+                    } else if(action.action == FileAction.NEW_FILE) {
+                        String result = listener.fileAdded(action.child);
+                        if(result != null) {
+                            if(!result.equals("")) {
+                                action.info.setConfigId(result);
+                            } else {
+                                action.info.setConfigId(calculateModuleId(action.child));
+                            }
+                            action.info.setNewFile(false);
+                        }
+                    } else if(action.action == FileAction.UPDATED_FILE) {
+                        listener.fileUpdated(action.child, action.info.getConfigId());
+                    }
+                } catch (Exception e) {
+                    log.error("Unable to "+action.getActionName()+" file "+action.child.getAbsolutePath(), e);
+                } finally {
+                    resolveFile(action);
+                }
             }
         }
     }
 
-    private static String calculateModuleId(File module) throws IOException, DeploymentException {
-        String moduleId = DeployUtils.extractModuleIdFromArchive(module);
+    private void resolveFile(FileAction action) {
+        if(action.action == FileAction.REMOVED_FILE) {
+            files.remove(action.child.getPath());
+        } else {
+            action.info.setChanging(false);
+        }
+    }
+
+    private static String calculateModuleId(File module) {
+        String moduleId = null;
+        try {
+            moduleId = DeployUtils.extractModuleIdFromArchive(module);
+        } catch (Exception e) {
+            log.warn("Unable to calculate module ID for module "+module.getAbsolutePath()+" ["+e.getMessage()+"]");
+        }
         if(moduleId == null) {
             int pos = module.getName().lastIndexOf('.');
             moduleId = pos > -1 ? module.getName().substring(0, pos) : module.getName();
@@ -281,6 +359,24 @@ public class DirectoryMonitor implements Runnable {
         return info;
     }
 
+    private static class FileAction {
+        private static int NEW_FILE = 1;
+        private static int UPDATED_FILE = 2;
+        private static int REMOVED_FILE = 3;
+        private int action;
+        private File child;
+        private FileInfo info;
+
+        public FileAction(int action, File child, FileInfo info) {
+            this.action = action;
+            this.child = child;
+            this.info = info;
+        }
+
+        public String getActionName() {
+            return action == NEW_FILE ? "deploy" : action == UPDATED_FILE ? "redeploy" : "undeploy";
+        }
+    }
 
     private static class FileInfo implements Serializable {
         private String path;
