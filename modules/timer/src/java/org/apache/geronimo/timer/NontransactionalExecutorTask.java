@@ -48,12 +48,12 @@ public class NontransactionalExecutorTask implements ExecutorTask {
             try {
                 userTask.run();
             } catch (Exception e) {
-                log.info(e);
+                log.warn("Exception running task", e);
             }
             try {
                 threadPooledTimer.workPerformed(workInfo);
             } catch (PersistenceException e) {
-                log.info(e);
+                log.warn("Exception completing task", e);
             }
             if (workInfo.isOneTime()) {
                 threadPooledTimer.removeWorkInfo(workInfo);

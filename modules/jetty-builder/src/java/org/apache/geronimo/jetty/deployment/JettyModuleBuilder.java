@@ -510,6 +510,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 ParamValueType contextParam = contextParamArray[i];
                 contextParams.put(contextParam.getParamName().getStringValue().trim(), contextParam.getParamValue().getStringValue().trim());
             }
+            contextParams.put("org.mortbay.jetty.servlet.Context.LogSink", "foo");
             webModuleData.setAttribute("contextParamMap", contextParams);
 
             ListenerType[] listenerArray = webApp.getListenerArray();

@@ -120,13 +120,13 @@ public class JMXConnector implements GBeanLifecycle {
         filter.enableType(JMXConnectionNotification.FAILED);
         server.addNotificationListener(authenticator, filter, null);
         server.start();
-        log.info("Started JMXConnector " + server.getAddress());
+        log.debug("Started JMXConnector " + server.getAddress());
     }
 
     public void doStop() throws Exception {
         server.stop();
         server = null;
-        log.info("Stopped JMXConnector " + url);
+        log.debug("Stopped JMXConnector " + url);
     }
 
     public void doFail() {

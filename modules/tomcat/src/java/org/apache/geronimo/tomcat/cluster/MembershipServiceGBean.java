@@ -60,15 +60,15 @@ public class MembershipServiceGBean extends BaseGBean implements
     }
 
     public void doFail() {
-        log.info("Failed");
+        log.warn("Failed");
     }
 
     public void doStart() throws Exception {
-        log.info("Started membership service gbean.");
+        log.debug("Started membership service gbean.");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped MembershipService gbean.");
+        log.debug("Stopped MembershipService gbean.");
     }
 
     public static final GBeanInfo GBEAN_INFO;

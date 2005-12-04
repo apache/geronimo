@@ -716,15 +716,15 @@ public class SMTPTransportGBean extends ProtocolGBean {
     }
 
     public void doStart() throws Exception {
-        log.info("Started " + getObjectName());
+        log.debug("Started " + getObjectName());
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped " + getObjectName());
+        log.debug("Stopped " + getObjectName());
     }
 
     public void doFail() {
-        log.info("Failed " + getObjectName());
+        log.warn("Failed " + getObjectName());
     }
 
     public static final GBeanInfo GBEAN_INFO;

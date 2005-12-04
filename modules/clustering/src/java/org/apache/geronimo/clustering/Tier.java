@@ -28,115 +28,110 @@ import org.apache.commons.logging.LogFactory;
  * Tier abstracts code common to different Tier impls
  * into the same abstract base.
  *
- *
  * @version $Rev$ $Date$
  */
-public abstract class
-  Tier
-  extends NamedMBeanImpl
-{
-  protected Log    _log=LogFactory.getLog(Tier.class);
-  protected Data   _data;
-  protected Map    _tiers;
-  protected Object _tier;
+public abstract class Tier extends NamedMBeanImpl {
+    protected Log _log = LogFactory.getLog(Tier.class);
+    protected Data _data;
+    protected Map _tiers;
+    protected Object _tier;
 
 
-  /**
-   * Makes an ObjectName for a Tier MBean with the given parameters.
-   *
-   * @param clusterName a <code>String</code> value
-   * @param nodeName a <code>String</code> value
-   * @param tierName a <code>String</code> value
-   * @return an <code>ObjectName</code> value
-   * @exception Exception if an error occurs
-   */
-  public static ObjectName
-    makeObjectName(String clusterName, String nodeName, String tierName)
-    throws Exception
-  {
-    return new ObjectName("geronimo.clustering:role=Tier,name="+tierName+",node="+nodeName+",cluster="+clusterName);
-  }
-
-  //----------------------------------------
-  // Tier
-  //----------------------------------------
-
-  protected Node   _node;
-  public Node getNode(){return _node;}
-
-  public ObjectName getNodeObjectName(){return _node==null?null:_node.getObjectName();}
-
-  public String getClusterName(){return _objectName.getKeyProperty("cluster");}
-  public String getNodeName(){return _objectName.getKeyProperty("node");}
-
-  protected abstract Object alloc();
-  public abstract Object registerData(String uid, Object data);
-  public abstract Object deregisterData(String uid);
-
-  //----------------------------------------
-  // GeronimoMBeanTarget
-  //----------------------------------------
-
-  public boolean
-    canStart()
-  {
-    if (!super.canStart()) return false;
-
-    if (_objectName.getKeyProperty("cluster")==null)
-    {
-      _log.warn("Tier MBean name must contain a 'cluster' property");
-      return false;
+    /**
+     * Makes an ObjectName for a Tier MBean with the given parameters.
+     *
+     * @param clusterName a <code>String</code> value
+     * @param nodeName    a <code>String</code> value
+     * @param tierName    a <code>String</code> value
+     * @return an <code>ObjectName</code> value
+     * @throws Exception if an error occurs
+     */
+    public static ObjectName makeObjectName(String clusterName, String nodeName, String tierName) throws Exception {
+        return new ObjectName("geronimo.clustering:role=Tier,name=" + tierName + ",node=" + nodeName + ",cluster=" + clusterName);
     }
 
-    if (_objectName.getKeyProperty("node")==null)
-    {
-      _log.warn("Tier MBean name must contain a 'node' property");
-      return false;
+    //----------------------------------------
+    // Tier
+    //----------------------------------------
+
+    protected Node _node;
+
+    public Node getNode() {
+        return _node;
     }
 
-    try
-    {
-      _node=(Node)_server.getAttribute(Node.makeObjectName(getClusterName(), getNodeName()), "Reference");
-      _log.debug("Node: "+_node);
-    }
-    catch (Exception e)
-    {
-      _log.error("could not find Node", e);
-      return false;
+    public ObjectName getNodeObjectName() {
+        return _node == null ? null : _node.getObjectName();
     }
 
-    return true;
-  }
-
-  public synchronized void
-    doStart()
-  {
-    _log.info("starting");
-
-    // register our session map with it's Data object
-    Data data=_node.getData();
-    _tiers=data.getTiers(); // immutable, so doesn't need synchronisation
-    _tier=null;
-    synchronized (_tiers)
-    {
-      _tier=_tiers.get(getName());
-      if (_tier==null)
-      {
-	_tier=alloc();
-	_tiers.put(getName(), _tier);
-      }
-      // tier storage now initialised...
+    public String getClusterName() {
+        return _objectName.getKeyProperty("cluster");
     }
-    _log.info("Node Data:"+data);
-  }
-  /*
-  public void
-    setMBeanContext(GeronimoMBeanContext context)
-  {
-    super.setMBeanContext(context);
-    _log=LogFactory.getLog(getClass().getName()+"#"+getClusterName()+"/"+getNodeName()+"/"+getName());
-  }
-  */
+
+    public String getNodeName() {
+        return _objectName.getKeyProperty("node");
+    }
+
+    protected abstract Object alloc();
+
+    public abstract Object registerData(String uid, Object data);
+
+    public abstract Object deregisterData(String uid);
+
+    //----------------------------------------
+    // GeronimoMBeanTarget
+    //----------------------------------------
+
+    public boolean canStart() {
+        if (!super.canStart()) return false;
+
+        if (_objectName.getKeyProperty("cluster") == null) {
+            _log.warn("Tier MBean name must contain a 'cluster' property");
+            return false;
+        }
+
+        if (_objectName.getKeyProperty("node") == null) {
+            _log.warn("Tier MBean name must contain a 'node' property");
+            return false;
+        }
+
+        try {
+            _node = (Node) _server.getAttribute(Node.makeObjectName(getClusterName(), getNodeName()), "Reference");
+            _log.debug("Node: " + _node);
+        }
+        catch (Exception e) {
+            _log.error("could not find Node", e);
+            return false;
+        }
+
+        return true;
+    }
+
+    public synchronized void doStart() {
+        _log.debug("starting");
+
+        // register our session map with it's Data object
+        Data data = _node.getData();
+        _tiers = data.getTiers(); // immutable, so doesn't need synchronisation
+        _tier = null;
+        synchronized (_tiers) {
+            _tier = _tiers.get(getName());
+            if (_tier == null) {
+                _tier = alloc();
+                _tiers.put(getName(), _tier);
+            }
+            // tier storage now initialised...
+        }
+        _log.debug("Node Data:" + data);
+    }
+    /*
+    public void
+      setMBeanContext(GeronimoMBeanContext context)
+    {
+      super.setMBeanContext(context);
+      _log=LogFactory.getLog(getClass().getName()+"#"+getClusterName()+"/"+getNodeName()+"/"+getName());
+    }
+    */
     /*
   public static GeronimoMBeanInfo
     getGeronimoMBeanInfo()

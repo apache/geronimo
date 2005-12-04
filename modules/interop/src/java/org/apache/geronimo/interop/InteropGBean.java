@@ -104,15 +104,15 @@ public class InteropGBean implements GBeanLifecycle {
      */
 
     public void doStart() throws Exception {
-        log.info("Started " + getName());
+        log.debug("Started " + getName());
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped " + getName());
+        log.debug("Stopped " + getName());
     }
 
     public void doFail() {
-        log.info("Failed " + getName());
+        log.warn("Failed " + getName());
     }
 
     /*

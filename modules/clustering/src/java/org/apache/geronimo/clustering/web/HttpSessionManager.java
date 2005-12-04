@@ -33,107 +33,130 @@ import org.apache.geronimo.clustering.Tier;
  *
  * @version $Rev$ $Date$
  */
-public class
-  HttpSessionManager
-  extends MBeanImpl
-{
-  protected Log _log=LogFactory.getLog(HttpSessionManager.class);
-  //----------------------------------------
-  // HttpSessionManager
-  //----------------------------------------
+public class HttpSessionManager extends MBeanImpl {
+    protected Log _log = LogFactory.getLog(HttpSessionManager.class);
+    //----------------------------------------
+    // HttpSessionManager
+    //----------------------------------------
 
-  protected Map _sessions=new HashMap();
+    protected Map _sessions = new HashMap();
 
-  public int getSize(){return _sessions.size();}
-
-  protected Tier _tier;
-  public Tier getTier(){return _tier;}
-
-  public ObjectName getTierObjectName() {return _tier==null?null:_tier.getObjectName();}
-
-  protected String _clusterName;
-  public String getClusterName(){return _clusterName;}
-  public void setClusterName(String clusterName){_clusterName=clusterName;}
-
-  protected String _nodeName;
-  public String getNodeName(){return _nodeName;}
-  public void setNodeName(String nodeName){_nodeName=nodeName;}
-
-  protected String _tierName="web";
-  public String getTierName(){return _tierName;}
-  public void setTierName(String tierName){_tierName=tierName;}
-
-  protected String _contextPath;
-  public String getContextPath(){return _contextPath;}
-  public void setContextPath(String contextPath){_contextPath=contextPath;}
-
-  protected String _uid;
-  public String getUID(){return _uid;}
-
-  //----------------------------------------
-  // GeronimoMBeanTarget
-  //----------------------------------------
-
-  public boolean
-    canStart()
-  {
-    if (!super.canStart()) return false;
-
-    try
-    {
-      // find our tier
-      _tier=(Tier)_server.getAttribute(Tier.makeObjectName(getClusterName(), getNodeName(), getTierName()), "Reference");
-      _log.debug("Tier: "+_tier);
-    }
-    catch (Exception e)
-    {
-      _log.error("could not find Tier", e);
-      return false;
+    public int getSize() {
+        return _sessions.size();
     }
 
-    return true;
-  }
+    protected Tier _tier;
 
-  public void
-    doStart()
-  {
-    _uid=_contextPath;		// TODO - what does Greg say ?
-    _log=LogFactory.getLog(getClass().getName()+"#"+getUID());
-    _log.info("starting");
-    _tier.registerData(getUID(),_sessions);
-    _log.info("sessions registered: "+getUID());
+    public Tier getTier() {
+        return _tier;
+    }
 
-      // test stuff
-    _sessions.put("aaa", new Object());
-    _sessions.put("bbb", new Object());
-    _sessions.put("ccc", new Object());
-  }
+    public ObjectName getTierObjectName() {
+        return _tier == null ? null : _tier.getObjectName();
+    }
 
-  public void
-    doStop()
-  {
-    _log.info("stopping");
+    protected String _clusterName;
 
-    _tier.deregisterData(getUID());
-    // TODO - leave cluster
-  }
-  /*
-  public static GeronimoMBeanInfo
-    getGeronimoMBeanInfo()
-  {
-    GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
-    mbeanInfo.setTargetClass(HttpSessionManager.class);
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Size",           true, false, "number of extant HttpSessions within this webapp"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UID",            true, false, "unique identity for this webapp within this vm"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierObjectName", true, false, "ObjectName of Tier to which this webapp is attached"));
+    public String getClusterName() {
+        return _clusterName;
+    }
 
-    // TODO - these should probably become RO...
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName",    true, true, "name of Cluster upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",       true, true, "name of Cluster Node upon which this webapp is deployed"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierName",       true, true, "name of Tier to which this webapp is attached"));
-    mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContextPath",    true, true, "context path at which this webapp is deployed"));
+    public void setClusterName(String clusterName) {
+        _clusterName = clusterName;
+    }
 
-    return mbeanInfo;
-  }
-  */
+    protected String _nodeName;
+
+    public String getNodeName() {
+        return _nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
+        _nodeName = nodeName;
+    }
+
+    protected String _tierName = "web";
+
+    public String getTierName() {
+        return _tierName;
+    }
+
+    public void setTierName(String tierName) {
+        _tierName = tierName;
+    }
+
+    protected String _contextPath;
+
+    public String getContextPath() {
+        return _contextPath;
+    }
+
+    public void setContextPath(String contextPath) {
+        _contextPath = contextPath;
+    }
+
+    protected String _uid;
+
+    public String getUID() {
+        return _uid;
+    }
+
+    //----------------------------------------
+    // GeronimoMBeanTarget
+    //----------------------------------------
+
+    public boolean canStart() {
+        if (!super.canStart()) return false;
+
+        try {
+            // find our tier
+            _tier = (Tier) _server.getAttribute(Tier.makeObjectName(getClusterName(), getNodeName(), getTierName()), "Reference");
+            _log.debug("Tier: " + _tier);
+        }
+        catch (Exception e) {
+            _log.error("could not find Tier", e);
+            return false;
+        }
+
+        return true;
+    }
+
+    public void doStart() {
+        _uid = _contextPath;        // TODO - what does Greg say ?
+        _log = LogFactory.getLog(getClass().getName() + "#" + getUID());
+        _log.debug("starting");
+        _tier.registerData(getUID(), _sessions);
+        _log.debug("sessions registered: " + getUID());
+
+        // test stuff
+        _sessions.put("aaa", new Object());
+        _sessions.put("bbb", new Object());
+        _sessions.put("ccc", new Object());
+    }
+
+    public void doStop() {
+        _log.debug("stopping");
+
+        _tier.deregisterData(getUID());
+        // TODO - leave cluster
+    }
+    /*
+    public static GeronimoMBeanInfo
+      getGeronimoMBeanInfo()
+    {
+      GeronimoMBeanInfo mbeanInfo=MBeanImpl.getGeronimoMBeanInfo();
+      mbeanInfo.setTargetClass(HttpSessionManager.class);
+      mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("Size",           true, false, "number of extant HttpSessions within this webapp"));
+      mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("UID",            true, false, "unique identity for this webapp within this vm"));
+      mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierObjectName", true, false, "ObjectName of Tier to which this webapp is attached"));
+
+      // TODO - these should probably become RO...
+      mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ClusterName",    true, true, "name of Cluster upon which this webapp is deployed"));
+      mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("NodeName",       true, true, "name of Cluster Node upon which this webapp is deployed"));
+      mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("TierName",       true, true, "name of Tier to which this webapp is attached"));
+      mbeanInfo.addAttributeInfo(new GeronimoAttributeInfo("ContextPath",    true, true, "context path at which this webapp is deployed"));
+
+      return mbeanInfo;
+    }
+    */
 }

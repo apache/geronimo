@@ -52,7 +52,7 @@ public class JMSConnectionFactoryBean implements GBeanLifecycle {
         connectionFactory = (ConnectionFactory) managedConnectionFactoryWrapper
                 .$getResource();
 
-        log.info("JMSConnection started");
+        log.debug("JMSConnection started");
 
     }
 

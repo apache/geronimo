@@ -50,7 +50,7 @@ public class ExecutorFeedingTimerTask extends TimerTask {
         try {
             threadPooledTimer.getExecutor().execute(workInfo.getExecutorTask());
         } catch (InterruptedException e) {
-            log.warn(e);
+            log.warn("Exception running task", e);
         }
     }
 
@@ -59,10 +59,10 @@ public class ExecutorFeedingTimerTask extends TimerTask {
         try {
             threadPooledTimer.registerSynchronization(new CancelSynchronization(this));
         } catch (RollbackException e) {
-            log.info(e);
+            log.warn("Exception canceling task", e);
             throw (IllegalStateException) new IllegalStateException("RollbackException when trying to register Cancel Synchronization").initCause(e);
         } catch (SystemException e) {
-            log.info(e);
+            log.warn("Exception canceling task", e);
             throw (IllegalStateException) new IllegalStateException("SystemException when trying to register Cancel Synchronization").initCause(e);
         }
         // One cancels the task at this specific time. If the transaction is
@@ -81,7 +81,7 @@ public class ExecutorFeedingTimerTask extends TimerTask {
             // in the scope of a committed transactions.
             threadPooledTimer.getWorkerPersistence().cancel(workInfo.getId());
         } catch (PersistenceException e) {
-            log.warn(e);
+            log.warn("Exception canceling task", e);
         }
     }
 

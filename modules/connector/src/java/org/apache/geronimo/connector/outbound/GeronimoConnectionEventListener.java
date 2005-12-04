@@ -36,8 +36,7 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version 1.0
  */
-public class GeronimoConnectionEventListener
-        implements ConnectionEventListener {
+public class GeronimoConnectionEventListener implements ConnectionEventListener {
 
     private static Log log = LogFactory.getLog(GeronimoConnectionEventListener.class.getName());
 
@@ -76,7 +75,7 @@ public class GeronimoConnectionEventListener
                     + ", actual "
                     + connectionEvent.getSource());
         }
-        log.info("connectionErrorOccurred called with " + connectionEvent.getConnectionHandle(), connectionEvent.getException());
+        log.warn("connectionErrorOccurred called with " + connectionEvent.getConnectionHandle(), connectionEvent.getException());
         ConnectionInfo ci = new ConnectionInfo(managedConnectionInfo);
         ci.setConnectionHandle(connectionEvent.getConnectionHandle());
         stack.returnConnection(ci, ConnectionReturnAction.DESTROY);

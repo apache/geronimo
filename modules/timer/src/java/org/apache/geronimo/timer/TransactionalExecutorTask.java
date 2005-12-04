@@ -49,19 +49,19 @@ public class TransactionalExecutorTask implements ExecutorTask {
             try {
                 transactionContext = transactionContextManager.newContainerTransactionContext();
             } catch (Exception e) {
-                log.info("Exception occured while starting container transaction", e);
+                log.warn("Exception occured while starting container transaction", e);
                 break;
             }
             try {
                 try {
                     userTask.run();
                 } catch (Exception e) {
-                    log.info("Exception occured while running user task", e);
+                    log.warn("Exception occured while running user task", e);
                 }
                 try {
                     threadPooledTimer.workPerformed(workInfo);
                 } catch (PersistenceException e) {
-                    log.info("Exception occured while updating timer persistent state", e);
+                    log.warn("Exception occured while updating timer persistent state", e);
                 }
             } finally {
                 try {
@@ -74,7 +74,7 @@ public class TransactionalExecutorTask implements ExecutorTask {
                         return;
                     }
                 } catch (Exception e) {
-                    log.info("Exception occured while completing container transaction", e);
+                    log.warn("Exception occured while completing container transaction", e);
                 }
             }
         }

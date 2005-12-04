@@ -27,22 +27,22 @@ public class CorbaAdapter extends Adapter {
 
     private final Log log = LogFactory.getLog(CorbaAdapter.class);
 
-    private ClassLoader     classLoader;
+    private ClassLoader classLoader;
 
-    private NameService     nameService = NameService.getInstance();
+    private NameService nameService = NameService.getInstance();
 
-    private String          bindNames[];
-    private String          ids[];
-    private String          remoteClassName;
-    private String          remoteInterfaceClassName;
+    private String bindNames[];
+    private String ids[];
+    private String remoteClassName;
+    private String remoteInterfaceClassName;
 
-    private Class           remoteClassClass;
-    private Class           remoteInterfaceClass;
+    private Class remoteClassClass;
+    private Class remoteInterfaceClass;
     private RemoteInterface remoteInterfaceObject;
-    private Object          remoteClassObject;
+    private Object remoteClassObject;
 
-    public CorbaAdapter( String[] bindNames, String[] ids, String remoteClassName,
-                         String remoteInterfaceName, ClassLoader classLoader ) {
+    public CorbaAdapter(String[] bindNames, String[] ids, String remoteClassName,
+                        String remoteInterfaceName, ClassLoader classLoader) {
         this.bindNames = bindNames;
         this.ids = ids;
         this.remoteClassName = remoteClassName;
@@ -55,8 +55,7 @@ public class CorbaAdapter extends Adapter {
         loadRemoteObject();
     }
 
-    public Object getAdapterID()
-    {
+    public Object getAdapterID() {
         return "CorbaAdapter";
     }
 
@@ -99,20 +98,17 @@ public class CorbaAdapter extends Adapter {
         }
     }
 
-    public void start()
-    {
-        log.info( "Starting CorbaAdapter: " );
-        nameService.bindAdapter( this );
+    public void start() {
+        log.debug("Starting CorbaAdapter: ");
+        nameService.bindAdapter(this);
     }
 
-    public void stop()
-    {
-        log.info( "Stopping CorbaAdapter: " );
-        nameService.unbindAdapter( this );
+    public void stop() {
+        log.debug("Stopping CorbaAdapter: ");
+        nameService.unbindAdapter(this);
     }
 
-    public ObjectRef getObjectRef()
-    {
+    public ObjectRef getObjectRef() {
         return remoteInterfaceObject.getObjectRef();
         //org.apache.geronimo.interop.rmi.iiop.ObjectRef or = new ObjectRef();
         //or.$setID("RMI:org.apache.geronimo.interop.CosNaming.NamingContext:0000000000000000");
@@ -120,15 +116,13 @@ public class CorbaAdapter extends Adapter {
         //return or;
     }
 
-    protected void loadRemoteInterface()
-    {
-        remoteInterfaceClass = loadClass( remoteInterfaceClassName, classLoader );
+    protected void loadRemoteInterface() {
+        remoteInterfaceClass = loadClass(remoteInterfaceClassName, classLoader);
 
-        if (remoteInterfaceClass != null)
-        {
+        if (remoteInterfaceClass != null) {
             remoteInterfaceObject = null;
             try {
-                remoteInterfaceObject = (RemoteInterface)remoteInterfaceClass.newInstance();
+                remoteInterfaceObject = (RemoteInterface) remoteInterfaceClass.newInstance();
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InstantiationException e) {
@@ -137,12 +131,10 @@ public class CorbaAdapter extends Adapter {
         }
     }
 
-    protected void loadRemoteObject()
-    {
-        remoteClassClass = loadClass( remoteClassName, classLoader );
+    protected void loadRemoteObject() {
+        remoteClassClass = loadClass(remoteClassName, classLoader);
 
-        if (remoteClassClass != null)
-        {
+        if (remoteClassClass != null) {
             remoteClassObject = null;
             try {
                 remoteClassObject = remoteClassClass.newInstance();
@@ -154,18 +146,15 @@ public class CorbaAdapter extends Adapter {
         }
     }
 
-    public Object getServant()
-    {
+    public Object getServant() {
         return remoteClassObject;
     }
 
-    public Object getEJBContainer()
-    {
+    public Object getEJBContainer() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public Object getEJBHome()
-    {
+    public Object getEJBHome() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

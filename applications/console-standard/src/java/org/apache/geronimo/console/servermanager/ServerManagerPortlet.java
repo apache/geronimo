@@ -49,8 +49,7 @@ public class ServerManagerPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         if (actionRequest.getParameter("reboot") != null) {
-            log.info("Reboot initiated by user request: "
-                    + actionRequest.getUserPrincipal());
+            log.info("Reboot initiated by user request: " + actionRequest.getUserPrincipal());
             new Thread() {
                 public void run() {
                     try {
@@ -67,8 +66,7 @@ public class ServerManagerPortlet extends BasePortlet {
     protected void doView(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
         if (request.getParameter("shutdown") != null) {
-            log.info("Shutting down by user request: "
-                    + request.getUserPrincipal());
+            log.info("Shutting down by user request: " + request.getUserPrincipal());
             shutdownView.include(request, response);
             response.flushBuffer();
             kernel.shutdown();

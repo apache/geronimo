@@ -133,7 +133,7 @@ public class TopicBrowserGBean implements GBeanLifecycle, Runnable {
     public void doStart() throws WaitingException, Exception {
         t = new Thread(this);
         t.start();
-        log.info("Subscribed to topic.");
+        log.debug("Subscribed to topic.");
     }
 
     /**
@@ -143,7 +143,7 @@ public class TopicBrowserGBean implements GBeanLifecycle, Runnable {
      */
     public void doStop() throws WaitingException, Exception {
         stop = true;
-        log.info("Unsubscribed to topic.");
+        log.debug("Unsubscribed to topic.");
     }
 
     public void doFail() {
@@ -179,8 +179,7 @@ public class TopicBrowserGBean implements GBeanLifecycle, Runnable {
             tSubscriber.close();
             if (tSession != null) {
                 tSession.unsubscribe(subscriberName);
-                log.info(subscriberName + " unsubscribed from Topic "
-                        + topic.getTopicName() + ".");
+                log.debug(subscriberName + " unsubscribed from Topic " + topic.getTopicName() + ".");
             }
         }
     }

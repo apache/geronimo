@@ -59,15 +59,15 @@ public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, 
     }
 
     public void doFail() {
-        log.info("Failed: "+ deployer.getClass().getName());
+        log.warn("Failed: "+ deployer.getClass().getName());
     }
 
     public void doStart() throws Exception {
-        log.info("Started "+ deployer.getClass().getName() +" gbean.");
+        log.debug("Started "+ deployer.getClass().getName() +" gbean.");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped " + deployer.getClass().getName() + " gbean.");
+        log.debug("Stopped " + deployer.getClass().getName() + " gbean.");
     }
 
     public static final GBeanInfo GBEAN_INFO;

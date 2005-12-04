@@ -75,7 +75,9 @@ public final class GeronimoLog implements Log {
     }
 
     public void info(Object message) {
-        log.info(message);
+        if(!name.startsWith("/")) { //todo: temporary fix to work around Jetty logging issue
+            log.info(message);
+        }
     }
 
     public void info(Object message, Throwable throwable) {

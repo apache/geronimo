@@ -60,15 +60,15 @@ public class SenderGBean extends BaseGBean implements
     }
 
     public void doFail() {
-        log.info("Failed");
+        log.warn("Failed");
     }
 
     public void doStart() throws Exception {
-        log.info("Started Sender service gbean.");
+        log.debug("Started Sender service gbean.");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped Sender gbean.");
+        log.debug("Stopped Sender gbean.");
     }
 
     public static final GBeanInfo GBEAN_INFO;

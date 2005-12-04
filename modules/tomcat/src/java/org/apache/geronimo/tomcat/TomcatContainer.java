@@ -265,7 +265,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
                         realm = new TomcatJAASRealm();
                     }
 
-                    log.info("The security-realm-name '" + securityRealmName +
+                    log.debug("The security-realm-name '" + securityRealmName +
                             "' was specified and a parent (Engine/Host) is not named the same or no RealmGBean was configured for this context. " +
                             "Creating a default " + realm.getClass().getName() +
                             " adapter for this context.");

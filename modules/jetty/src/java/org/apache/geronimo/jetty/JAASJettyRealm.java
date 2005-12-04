@@ -103,7 +103,7 @@ public class JAASJettyRealm implements UserRealm {
 
             return userPrincipal;
         } catch (LoginException e) {
-            log.info("problem", e);
+            log.warn("Login Failed", e);
             return null;
         }
     }

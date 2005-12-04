@@ -247,15 +247,13 @@ public class HomeAdapter extends Adapter {
 //        return c;
 //    }
 
-    public void start()
-    {
-        log.info( "Starting HomeAdapter: " + ejbContainer.getEJBName() + " - " + getAdapterID() );
+    public void start() {
+        log.debug( "Starting HomeAdapter: " + ejbContainer.getEJBName() + " - " + getAdapterID() );
         nameService.bindAdapter( this );
     }
 
-    public void stop()
-    {
-        log.info( "Stopping HomeAdapter: " + ejbContainer.getEJBName() + " - " + getAdapterID() );
+    public void stop() {
+        log.debug( "Stopping HomeAdapter: " + ejbContainer.getEJBName() + " - " + getAdapterID() );
         nameService.unbindAdapter( this );
     }
 

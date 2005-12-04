@@ -60,15 +60,15 @@ public class ReceiverGBean  extends BaseGBean implements
     }
 
     public void doFail() {
-        log.info("Failed");
+        log.warn("Failed");
     }
 
     public void doStart() throws Exception {
-        log.info("Started Receiver service gbean.");
+        log.debug("Started Receiver service gbean.");
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped Receiver gbean.");
+        log.debug("Stopped Receiver gbean.");
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -272,7 +272,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
                     getTimer().schedule(worker, time);
                 } catch (IllegalStateException e) {
                     //TODO consider again if catching this exception is appropriate
-                    log.info("Couldn't schedule worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
+                    log.warn("Couldn't schedule worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
                 }
             }
         }
@@ -302,7 +302,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
                 try {
                     getTimer().schedule(worker, time, period);
                 } catch (Exception e) {
-                    log.info("Couldn't schedule/period worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
+                    log.warn("Couldn't schedule/period worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
                 }
             }
         }
@@ -332,7 +332,7 @@ public class ThreadPooledTimer implements PersistentTimer, GBeanLifecycle {
                 try {
                     getTimer().scheduleAtFixedRate(worker, time, period);
                 } catch (Exception e) {
-                    log.info("Couldn't scheduleAtFixedRate worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
+                    log.warn("Couldn't scheduleAtFixedRate worker " + e.getMessage() + "at (now) " + System.currentTimeMillis() + " for " + time.getTime());
                 }
             }
         }

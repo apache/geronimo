@@ -264,9 +264,9 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                     SOAPArrayType soapArrayType = wsdlArrayType.getWSDLArrayType();
                     if (soapArrayType != null) {
                         componentType = soapArrayType.getQName();
-                        log.info("extracted componentType " + componentType + " from schemaType " + schemaType);
+                        log.debug("extracted componentType " + componentType + " from schemaType " + schemaType);
                     } else {
-                    log.info("no SOAPArrayType for component from schemaType " + schemaType);
+                        log.info("no SOAPArrayType for component from schemaType " + schemaType);
                     }
                 } else {
                     log.warn("No soap array info for schematype: " + schemaType);
@@ -289,7 +289,7 @@ public class HeavyweightTypeInfoBuilder implements TypeInfoBuilder {
                             throw new DeploymentException("more than one element inside array definition: " + schemaType);
                         }
                         componentType = properties[0].getType().getName();
-                        log.info("determined component type from element type");
+                        log.debug("determined component type from element type");
                     }
 
                 }

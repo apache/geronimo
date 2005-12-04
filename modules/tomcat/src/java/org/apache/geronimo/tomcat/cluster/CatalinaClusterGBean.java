@@ -111,15 +111,15 @@ public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, O
    }
 
    public void doFail() {
-       log.info("Failed");
+       log.warn("Failed");
    }
 
    public void doStart() throws Exception {
-       log.info("Started cluster gbean.");
+       log.debug("Started cluster gbean.");
    }
 
    public void doStop() throws Exception {
-       log.info("Stopped cluster gbean.");
+       log.debug("Stopped cluster gbean.");
    }
 
    public static final GBeanInfo GBEAN_INFO;

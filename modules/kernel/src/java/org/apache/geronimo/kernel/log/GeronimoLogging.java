@@ -67,7 +67,10 @@ public class GeronimoLogging {
 
             initialized = true;
         }
+    }
 
+    public static void setDefaultLogLevel(GeronimoLogging level) {
+        defaultLevel = level;
     }
 
     public static GeronimoLogging getDefaultLevel() {

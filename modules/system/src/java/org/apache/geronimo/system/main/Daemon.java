@@ -78,8 +78,6 @@ public class Daemon {
             // Initialization tasks that must run before anything else
             initializeSystem();
 
-            // Now logging is available and
-            log.info("Server startup begun");
             monitor.systemStarting(start);
             doStartup();
         } else {
@@ -179,7 +177,10 @@ public class Daemon {
             GeronimoEnvironment.init();
 
             // This MUST be done before the first log is acquired (WHICH THE STARTUP MONITOR 5 LINES LATER DOES!)
-            GeronimoLogging.initialize(verboseArg == null ? GeronimoLogging.WARN : verboseArg.equals(ARGUMENT_VERBOSE) ? GeronimoLogging.INFO : GeronimoLogging.DEBUG);
+            // Generally we want to suppress anything but WARN until the log GBean starts up
+            GeronimoLogging.initialize(verboseArg == null || verboseArg.equals(ARGUMENT_VERBOSE) ? GeronimoLogging.WARN : GeronimoLogging.DEBUG);
+            // The following will be used once the log GBean starts up
+            GeronimoLogging.setConsoleLogLevel(verboseArg == null ? GeronimoLogging.INFO : verboseArg.equals(ARGUMENT_VERBOSE) ? GeronimoLogging.DEBUG : GeronimoLogging.TRACE);
             log = LogFactory.getLog(Daemon.class.getName());
         }
 
@@ -267,10 +268,8 @@ public class Daemon {
             // add our shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
                 public void run() {
-                    log.info("Server shutdown begun");
                     System.out.println("\rServer shutdown begun              ");
                     kernel.shutdown();
-                    log.info("Server shutdown completed");
                     System.out.println("Server shutdown completed");
                 }
             });
@@ -351,7 +350,6 @@ public class Daemon {
             // Startup sequence is finished
             monitor.startupFinished();
             monitor = null;
-            log.info("Server startup completed");
 
             // capture this thread until the kernel is ready to exit
             while (kernel.isRunning()) {

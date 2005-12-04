@@ -215,7 +215,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         try {
             save();
         } catch (IOException e) {
-            log.info("Couldn't save while adding " + configName, e);
+            log.warn("Couldn't save while adding " + configName, e);
         }
     }
 
@@ -223,7 +223,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         try {
             save();
         } catch (IOException e) {
-            log.info("Couldnt save while removing " + configName, e);
+            log.warn("Couldnt save while removing " + configName, e);
         }
     }
 

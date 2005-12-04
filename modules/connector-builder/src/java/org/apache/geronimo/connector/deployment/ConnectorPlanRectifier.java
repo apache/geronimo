@@ -76,7 +76,7 @@ public class ConnectorPlanRectifier {
             }
         }
         if (updated) {
-            log.info("Your connector plan has obsolete elements or attributes in it.  Please remove version attributes, global-jndi-name elements, and credential-interface elements");
+            log.warn("Your connector plan has obsolete elements or attributes in it.  Please remove version attributes, global-jndi-name elements, and credential-interface elements");
         }
     }
 

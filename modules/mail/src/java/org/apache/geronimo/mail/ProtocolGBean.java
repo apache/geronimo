@@ -151,15 +151,15 @@ public class ProtocolGBean implements GBeanLifecycle {
     }
 
     public void doStart() throws Exception {
-        log.info("Started " + objectName);
+        log.debug("Started " + objectName);
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped " + objectName);
+        log.debug("Stopped " + objectName);
     }
 
     public void doFail() {
-        log.info("Failed " + objectName);
+        log.warn("Failed " + objectName);
     }
 
     public static final GBeanInfo GBEAN_INFO;

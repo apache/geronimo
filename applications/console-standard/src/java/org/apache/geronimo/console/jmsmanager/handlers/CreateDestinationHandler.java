@@ -160,7 +160,6 @@ public class CreateDestinationHandler extends AbstractJMSManager implements
             configurationManager.start(configId);
 
         } catch (Exception e) {
-            log.info("problem", e);
             log.error("problem", e);
         }
         response.setRenderParameter("processAction", "viewDestinations");

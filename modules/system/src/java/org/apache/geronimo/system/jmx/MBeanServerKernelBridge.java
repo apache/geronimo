@@ -95,7 +95,7 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
             } catch (InstanceAlreadyExistsException e) {
                 // ignore - gbean already has an mbean shadow object
             } catch (Exception e) {
-                log.info("Unable to register MBean shadow object for GBean", unwrapJMException(e));
+                log.warn("Unable to register MBean shadow object for GBean", unwrapJMException(e));
             }
         }
     }
@@ -138,7 +138,7 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
         } catch (InstanceAlreadyExistsException e) {
             // ignore - gbean already has an mbean shadow object
         } catch (Exception e) {
-            log.info("Unable to register MBean shadow object for GBean", unwrapJMException(e));
+            log.warn("Unable to register MBean shadow object for GBean", unwrapJMException(e));
         }
     }
 
@@ -155,7 +155,7 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
             // ignore - something else may have unregistered us
             // if there truely is no GBean then we will catch it below whwn we call the superclass
         } catch (Exception e) {
-            log.info("Unable to unregister MBean shadow object for GBean", unwrapJMException(e));
+            log.warn("Unable to unregister MBean shadow object for GBean", unwrapJMException(e));
         }
     }
 

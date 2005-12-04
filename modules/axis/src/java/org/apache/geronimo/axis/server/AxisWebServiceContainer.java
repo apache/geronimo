@@ -162,7 +162,7 @@ public class AxisWebServiceContainer implements WebServiceContainer {
                         getSOAPConstants());
                 responseMessage.writeTo(res.getOutputStream());
             } catch (Exception e) {
-                log.info(Messages.getMessage("exception00"), e);
+                log.warn(Messages.getMessage("exception00"), e);
             }
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -175,13 +175,13 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         responseMessage = context.getResponseMessage();
         res.setStatusCode(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         Message responseMsg = responseMessage;
-        log.info(Messages.getMessage("exception00"), e);
+        log.warn(Messages.getMessage("exception00"), e);
         if (responseMsg == null) {
             AxisFault fault = AxisFault.makeFault(e);
             //log the fault
             Element runtimeException = fault.lookupFaultDetail(Constants.QNAME_FAULTDETAIL_RUNTIMEEXCEPTION);
             if (runtimeException != null) {
-                log.info(Messages.getMessage("axisFault00"), fault);
+                log.debug(Messages.getMessage("axisFault00"), fault);
                 //strip runtime details
                 fault.removeFaultDetail(Constants.QNAME_FAULTDETAIL_RUNTIMEEXCEPTION);
             }
@@ -197,12 +197,10 @@ public class AxisWebServiceContainer implements WebServiceContainer {
         Message responseMessage;
         Element runtimeException = fault.lookupFaultDetail(Constants.QNAME_FAULTDETAIL_RUNTIMEEXCEPTION);
 
+        log.warn(Messages.getMessage("axisFault00"), fault);
         if (runtimeException != null) {
-            log.info(Messages.getMessage("axisFault00"), fault);
             //strip runtime details
             fault.removeFaultDetail(Constants.QNAME_FAULTDETAIL_RUNTIMEEXCEPTION);
-        } else if (log.isDebugEnabled()) {
-            log.debug(Messages.getMessage("axisFault00"), fault);
         }
 
         int status = fault.getFaultCode().getLocalPart().startsWith("Server.Unauth")

@@ -273,9 +273,13 @@ public class SchemaInfoBuilder {
                 boolean wasError = false;
                 for (Iterator iterator = errors.iterator(); iterator.hasNext();) {
                     XmlError xmlError = (XmlError) iterator.next();
-                    log.info("Severity: " + errorNames[xmlError.getSeverity()] + ", message: " + xmlError);
-                    if (xmlError.getSeverity() == XmlError.SEVERITY_ERROR) {
+                    if(xmlError.getSeverity() == XmlError.SEVERITY_ERROR) {
+                        log.error(xmlError);
                         wasError = true;
+                    } else if(xmlError.getSeverity() == XmlError.SEVERITY_WARNING) {
+                        log.warn(xmlError);
+                    } else if(xmlError.getSeverity() == XmlError.SEVERITY_INFO) {
+                        log.debug(xmlError);
                     }
                 }
                 if (wasError) {

@@ -61,12 +61,12 @@ public class ClockPool implements GBeanLifecycle {
                 return t;
             }
         });
-        log.info("Clock pool " + poolName + " started");
+        log.debug("Clock pool " + poolName + " started");
     }
 
     public void doStop() throws Exception {
         clockDaemon.shutDown();
-        log.info("Clock pool " + poolName + " stopped");
+        log.debug("Clock pool " + poolName + " stopped");
     }
 
     public void doFail() {

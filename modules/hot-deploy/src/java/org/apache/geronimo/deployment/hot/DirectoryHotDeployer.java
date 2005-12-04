@@ -161,7 +161,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             DeployUtils.identifyTargetModuleIDs(startupModules, configId).toArray(new TargetModuleID[0]);
             return true;
         } catch (DeploymentException e) {
-            log.info("Found new file in deploy directory on startup with ID "+configId);
+            log.debug("Found new file in deploy directory on startup with ID "+configId);
             return false;
         }
     }

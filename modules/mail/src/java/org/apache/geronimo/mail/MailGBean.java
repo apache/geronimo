@@ -324,7 +324,7 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
     }
 
     public void doStart() throws Exception {
-        log.info("Started " + objectName + " - will return "
+        log.debug("Started " + objectName + " - will return "
                  + (Boolean.TRUE.equals(useDefault) ? "default" : "new")
                  + " JavaMail Session "
                  + (authenticator == null ? "without" : "with")
@@ -332,11 +332,11 @@ public class MailGBean implements GBeanLifecycle, JavaMailResource {
     }
 
     public void doStop() throws Exception {
-        log.info("Stopped " + objectName);
+        log.debug("Stopped " + objectName);
     }
 
     public void doFail() {
-        log.info("Failed " + objectName);
+        log.warn("Failed " + objectName);
     }
 
     /**

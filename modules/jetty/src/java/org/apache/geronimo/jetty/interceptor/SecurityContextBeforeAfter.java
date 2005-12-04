@@ -112,7 +112,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
 
         this.realm = realm;
-//        log.info("JettyWebAppJACCContext started with JACC policy '" + policyContextID + "'");
+//        log.debug("JettyWebAppJACCContext started with JACC policy '" + policyContextID + "'");
     }
 
     public void stop() {

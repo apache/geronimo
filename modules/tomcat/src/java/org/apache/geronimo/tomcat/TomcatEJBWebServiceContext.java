@@ -63,7 +63,7 @@ public class TomcatEJBWebServiceContext extends StandardContext{
         this.setParentClassLoader(classLoader);
         this.setDelegate(true);
 
-        log.info("EJB Webservice Context = " + contextPath);
+        log.debug("EJB Webservice Context = " + contextPath);
         if (securityRealmName != null) {
 
             TomcatEJBWSGeronimoRealm realm = new TomcatEJBWSGeronimoRealm();

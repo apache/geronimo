@@ -393,7 +393,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // Is it necessary - doesn't Tomcat Embedded take care of it?
         // super.start();
 
-        log.info("TomcatWebAppContext started for " + path);
+        log.debug("TomcatWebAppContext started for " + path);
     }
 
     public void doStop() throws Exception {
@@ -402,7 +402,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
         LogFactory.release(webClassLoader);
 
-        log.info("TomcatWebAppContext stopped");
+        log.debug("TomcatWebAppContext stopped");
     }
 
     public void doFail() {
@@ -411,7 +411,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
         LogFactory.release(webClassLoader);
 
-        log.info("TomcatWebAppContext failed");
+        log.warn("TomcatWebAppContext failed");
     }
 
     public static final GBeanInfo GBEAN_INFO;
