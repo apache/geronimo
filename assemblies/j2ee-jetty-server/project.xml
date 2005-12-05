@@ -226,6 +226,17 @@
             </properties>
         </dependency>
 
+        <!-- unpack --> 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-scripts</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>unpack</geronimo.assemble>
+            </properties>
+        </dependency>
+
+
         <!-- lib dependencies -->
         <dependency>
             <groupId>cglib</groupId>

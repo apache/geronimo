@@ -101,8 +101,7 @@
                 <j:set var="hasRepo" value="false"/>
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
-                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assem
-ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
+                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assemble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                         <j:set var="hasRepo" value="true"/>
                     </j:if>
@@ -112,6 +111,25 @@ ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension
                 </j:if>
             </ant:fileset>
         </ant:copy>
+    </goal>
+
+    <goal name="assemble:assemble-unpack">
+        <ant:mkdir dir="${geronimo.assembly.dest}"/>
+        <ant:unjar dest="${geronimo.assembly.dest}">
+             <ant:fileset dir="${maven.repo.local}">
+                <j:set var="hasUnpack" value="false"/>
+                <j:forEach var="artifact" items="${pom.artifacts}">
+                    <j:set var="dependency" value="${artifact.dependency}"/>
+                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'unpack'}">
+                        <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
+                        <j:set var="hasUnpack" value="true"/>
+                    </j:if>
+                </j:forEach>
+                <j:if test="${hasUnpack == 'false'}">
+                    <ant:exclude name="**/*"/>
+                </j:if>
+            </ant:fileset>
+        </ant:unjar>
     </goal>
 
     <!-- todo automatically add libraries listed in an executable's MCP in the right place, relative to it -->
@@ -172,6 +190,7 @@ ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension
     <goal name="assemble:assemble" prereqs="assemble:assemble-prepare" description="Assemble a Geronimo installation">
         <attainGoal name="assemble:assemble-repository"/>
         <attainGoal name="assemble:assemble-lib"/>
+        <attainGoal name="assemble:assemble-unpack"/>
         <attainGoal name="assemble:assemble-configurations"/>
     </goal>
 
