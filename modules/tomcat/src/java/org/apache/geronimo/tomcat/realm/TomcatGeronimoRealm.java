@@ -279,7 +279,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
         }
 
         Request request = (Request) currentRequest.get();
-        if (currentRequest == null) {
+        if (request == null) {
             log.error("No currentRequest found.");
             return false;
         }
