@@ -95,6 +95,7 @@
     <configuration name="geronimo/tomcat-runtime-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/welcome-${PlanWebServerNameLC}/${pom.currentVersion}/car"/>
     <configuration name="geronimo/console-${PlanWebServerNameLC}/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/remote-deploy/${pom.currentVersion}/car"/>
     <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car">
         <gbean name="HotDeployer">
             <attribute name="path">deploy</attribute>

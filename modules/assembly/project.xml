@@ -232,6 +232,15 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-remote-deploy-lib</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <repository>true</repository>
+            </properties>
+        </dependency>
+
 <!--
         <dependency>
             <groupId>geronimo-spec</groupId>
@@ -589,6 +598,16 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-welcome</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>war</type>
+            <properties>
+                <installer>true</installer>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-remote-deploy</artifactId>
             <version>${pom.currentVersion}</version>
             <type>war</type>
             <properties>

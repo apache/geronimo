@@ -640,6 +640,13 @@
                 password="manager"
                 module="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
 
+            <!-- Remote Deploy -->
+            <deploy:distribute
+                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                username="system"
+                password="manager"
+                module="${maven.repo.local}/geronimo/wars/geronimo-remote-deploy-${pom.currentVersion}.war"/>
+
             <!-- UDDI -->
             <deploy:distribute
                 uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"

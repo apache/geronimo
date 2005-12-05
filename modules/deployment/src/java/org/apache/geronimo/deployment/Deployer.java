@@ -17,24 +17,13 @@
 
 package org.apache.geronimo.deployment;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -43,6 +32,23 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.main.CommandLineManifest;
+
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 /**
  * GBean that knows how to deploy modules (by consulting available module builders)
@@ -91,6 +97,78 @@ public class Deployer {
                 DeploymentUtil.recursiveDelete(tmpDir);
             }
         }
+    }
+
+    /**
+     * Gets a URL that a remote deploy client can use to upload files to the
+     * server. Looks up a remote deploy web application by searching for a
+     * particular GBean and figuring out a reference to the web application
+     * based on that.  Then constructs a URL pointing to that web application
+     * based on available connectors for the web container and the context
+     * root for the web application.
+     *
+     * @return The URL that clients should use for deployment file uploads.
+     */
+    public String getRemoteDeployUploadURL() {
+        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.deployment.remote.RemoteDeployToken"));
+        if(set.size() == 0) {
+            return null;
+        }
+        ObjectName token = (ObjectName) set.iterator().next();
+        set = kernel.getDependencyManager().getParents(token);
+        if(set.size() == 0) {
+            log.error("Unable to find configuration for remote deployer GBean");
+            return null;
+        }
+        ObjectName config = (ObjectName) set.iterator().next();
+        Hashtable hash = new Hashtable();
+        hash.put("J2EEApplication", token.getKeyProperty("J2EEApplication"));
+        hash.put("J2EEServer", token.getKeyProperty("J2EEServer"));
+        hash.put("j2eeType", "WebModule");
+        try {
+            hash.put("name", Configuration.getConfigurationID(config).toString());
+            ObjectName module = new ObjectName(token.getDomain(), hash);
+
+            String containerName = (String) kernel.getAttribute(module, "containerName");
+            String contextPath = (String) kernel.getAttribute(module, "contextPath");
+            String urlPrefix = getURLFor(containerName);
+            return urlPrefix+contextPath+"/upload";
+        } catch (Exception e) {
+            log.error("Unable to look up remote deploy upload URL", e);
+            return null;
+        }
+    }
+
+    /**
+     * Given a web container ObjectName, constructs a URL to point to it.
+     * Currently favors HTTP then HTTPS and ignores AJP (since AJP
+     * means it goes through a web server listening on an unknown port).
+     */
+    private String getURLFor(String containerName) throws Exception {
+        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.management.geronimo.WebManager"));
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName mgrName = (ObjectName) it.next();
+            String[] cntNames = (String[]) kernel.getAttribute(mgrName, "containers");
+            for (int i = 0; i < cntNames.length; i++) {
+                String cntName = cntNames[i];
+                if(cntName.equals(containerName)) {
+                    String[] cncNames = (String[]) kernel.invoke(mgrName, "getConnectorsForContainer", new Object[]{cntName}, new String[]{"java.lang.String"});
+                    Map map = new HashMap();
+                    for (int j = 0; j < cncNames.length; j++) {
+                        ObjectName cncName = ObjectName.getInstance(cncNames[j]);
+                        String protocol = (String) kernel.getAttribute(cncName, "protocol");
+                        String url = (String) kernel.getAttribute(cncName, "connectUrl");
+                        map.put(protocol, url);
+                    }
+                    String urlPrefix = null;
+                    if((urlPrefix = (String) map.get("HTTP")) == null) {
+                        urlPrefix = (String) map.get("HTTPS");
+                    }
+                    return urlPrefix;
+                }
+            }
+        }
+        return null;
     }
 
     public List deploy(File planFile, File moduleFile, File targetFile, boolean install, String mainClass, String classPath, String endorsedDirs, String extensionDirs) throws DeploymentException {
@@ -228,6 +306,7 @@ public class Deployer {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Deployer.class, DEPLOYER);
 
         infoFactory.addAttribute("kernel", Kernel.class, false);
+        infoFactory.addAttribute("remoteDeployUploadURL", String.class, false);
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class});
         infoFactory.addOperation("deploy", new Class[]{File.class, File.class, File.class, boolean.class, String.class, String.class, String.class, String.class});
 
