@@ -71,8 +71,8 @@
             <ant:arg value="--offline"/>
             <ant:arg value="distribute"/>
             <ant:arg value="${maven.build.dir}/plan/consumerwebsite1.0.1.ear-plan.xml"/>
-            <ant:arg value="${ab.home}/project/apps/consumerwebsite/build/consumerwebsite.ear"/>
-            <!-- ant:arg value="${ab.home}/consumerwebsite.ear"/-->
+            <!--ant:arg value="${ab.home}/project/apps/consumerwebsite/build/consumerwebsite.ear"/-->
+            <ant:arg value="${ab.home}/consumerwebsite.ear"/>
         </ant:java>
 
         <ant:echo>Creating Adventure Builder Database Schema</ant:echo>
