@@ -196,6 +196,8 @@
             </properties>
         </dependency>
 
+
+        <!-- TODO why are these here rather than in system-database??? -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-derby</artifactId>

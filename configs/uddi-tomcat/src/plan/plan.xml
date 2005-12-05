@@ -17,16 +17,64 @@
 -->
 
 <!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
 
-<web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-    >
+    <ext-module>
+        <web>uddi-jetty</web>
+        <external-path>geronimo/geronimo-uddi-server/${pom.currentVersion}/war</external-path>
+        <web-app
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
+                       configId="juddi-server"
+            >
 
-    <context-root>/juddi</context-root>
-    <context-priority-classloader>false</context-priority-classloader>
-    <resource-ref>
-        <ref-name>jdbc/juddiDB</ref-name>
-        <resource-link>SystemDatasource</resource-link>
-    </resource-ref>
-</web-app>
+            <context-root>/juddi</context-root>
+            <context-priority-classloader>false</context-priority-classloader>
+            <gbean name="UDDIResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
+                <!-- copies uddi derby db files into specified location -->
+                <attribute name="prefix">META-INF/geronimo-uddi-db</attribute>
+                <attribute name="path">var/derby</attribute>
+                <reference name="ServerInfo">
+                    <application>null</application>
+                    <moduleType>J2EEModule</moduleType>
+                    <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
+                    <name>ServerInfo</name>
+                </reference>
+            </gbean>
+        </web-app>
+    </ext-module>
+
+    <ext-module>
+        <connector>uddi-db</connector>
+        <external-path>tranql/tranql-connector-derby-embed-local/${tranql_vendors_version}/rar</external-path>
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+                       configId="uddi-db"
+                  >
+            <resourceadapter>
+                <outbound-resourceadapter>
+                    <connection-definition>
+                        <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                        <connectiondefinition-instance>
+                            <name>jdbc/juddiDB</name>
+                            <config-property-setting name="UserName"></config-property-setting>
+                            <config-property-setting name="Password"></config-property-setting>
+                            <config-property-setting name="DatabaseName">UddiDatabase</config-property-setting>
+                            <config-property-setting name="CreateDatabase">false</config-property-setting>
+                            <connectionmanager>
+                                <local-transaction/>
+                                <single-pool>
+                                    <max-size>100</max-size>
+                                    <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                                    <match-one/>
+                                </single-pool>
+                            </connectionmanager>
+                        </connectiondefinition-instance>
+                    </connection-definition>
+                </outbound-resourceadapter>
+            </resourceadapter>
+
+
+        </connector>
+    </ext-module>
+
+</application>

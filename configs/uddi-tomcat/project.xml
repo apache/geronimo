@@ -51,7 +51,7 @@
             <type>car</type>
         </dependency>
 
-        <!-- parent config -->
+        <!-- parent config should be j2ee-server?-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>system-database</artifactId>
@@ -70,7 +70,31 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-uddi-db</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
 
+        <!-- needed??? -->
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>${derby_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-local</artifactId>
+            <version>${tranql_vendors_version}</version>
+            <type>rar</type>
+        </dependency>
 <!-- should be transitive deps -->
         <dependency>
             <groupId>geronimo</groupId>

@@ -55,6 +55,34 @@
                  <geronimo.import>true</geronimo.import>
             </properties>
          </dependency>
+
+
+        <!--TODO these are also in j2ee-server config.   why ?? -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-derby</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>${derby_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbynet</artifactId>
+            <version>${derby_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

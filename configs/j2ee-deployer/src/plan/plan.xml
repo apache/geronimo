@@ -31,6 +31,7 @@
         <attribute name="connectionTrackerObjectName">*:name=ConnectionTracker,*</attribute>
         <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
         <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
+        <attribute name="corbaGBeanObjectName">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/server-corba/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=CORBABean,name=Server</attribute>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
@@ -98,6 +99,7 @@
         <attribute name="defaultServerParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
         <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
+        <attribute name="corbaGBeanObjectName">geronimo.client:J2EEApplication=null,J2EEModule=geronimo/client-corba/${pom.currentVersion}/car,J2EEServer=client,j2eeType=CORBABean,name=Server</attribute>
         <reference name="EJBReferenceBuilder">
             <name>ClientEJBReferenceBuilder</name>
         </reference>

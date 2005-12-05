@@ -14,7 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.tomcat.util;
+package org.apache.geronimo.system.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,7 +30,6 @@ import java.util.jar.JarFile;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -39,13 +38,17 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class DirectoryInitializationGBean {
 
 
-    public DirectoryInitializationGBean(String path, ServerInfo serverInfo, ClassLoader classLoader) throws IOException {
+    public DirectoryInitializationGBean(String prefix, String path, ServerInfo serverInfo, ClassLoader classLoader) throws IOException {
 
-        if (!path.equals("/")) {
+        if (!prefix.endsWith("/")) {
+            prefix = prefix + "/";
+        }
+        int prefixLength = prefix.length();
+        if (!path.endsWith("/")) {
             path = path + "/";
         }
 
-        URL sourceURL = classLoader.getResource("META-INF/" + path);
+        URL sourceURL = classLoader.getResource(prefix + path);
         URLConnection conn = sourceURL.openConnection();
         JarURLConnection jarConn = (JarURLConnection) conn;
         JarFile jarFile = jarConn.getJarFile();
@@ -55,7 +58,7 @@ public class DirectoryInitializationGBean {
             JarEntry entry = (JarEntry) entries.nextElement();
             if (entry.getName().startsWith(sourceEntry.getName())) {
                 String entryName = entry.getName();
-                String entryPath = entryName.substring("META-INF/".length());
+                String entryPath = entryName.substring(prefixLength);
                 File targetPath = serverInfo.resolve(entryPath);
                 if (!targetPath.exists()) {
                     if (entry.isDirectory()) {
@@ -86,12 +89,13 @@ public class DirectoryInitializationGBean {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(DirectoryInitializationGBean.class, NameFactory.GERONIMO_SERVICE);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(DirectoryInitializationGBean.class, "GBean");
+        infoBuilder.addAttribute("prefix", String.class, true);
         infoBuilder.addAttribute("path", String.class, true);
-        infoBuilder.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
+        infoBuilder.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
-        infoBuilder.setConstructor(new String[]{"path", "ServerInfo", "classLoader"});
+        infoBuilder.setConstructor(new String[]{"prefix", "path", "ServerInfo", "classLoader"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

@@ -70,6 +70,14 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-uddi-db</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
 
 <!-- should be transitive deps -->
         <dependency>
