@@ -94,11 +94,12 @@ Configuration for Tomcat server.
         <uri>commons-el/commons-el/${commons_el_version}/jar</uri>
     </dependency>
 
-    <gbean name="TomcatResources" class="org.apache.geronimo.tomcat.util.DirectoryInitializationGBean">
+    <gbean name="TomcatResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
         <!-- copies tomcat initialization files into specified location -->
+        <attribute name="prefix">META-INF/geronimo-tomcat</attribute>
         <attribute name="path">var/catalina</attribute>
         <reference name="ServerInfo">
-            <module>geronimo/system/${pom.currentVersion}/car</module>
+            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
