@@ -84,6 +84,24 @@
                     </td>
                 </tr>
             </table>
+            
+            <br />
+            <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
+                <tr>                                
+                    <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
+                        <font face="Verdana" size="+1"><i>Geronimo Examples</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                    </td>
+                </tr>
+                <tr>
+                    <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
+                        <a href="/servlets-examples/">Servlet Examples </a><br />
+                        <a href="/jsp-examples/">JSP Examples </a><br />
+                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Samples+for+Apache+Geronimo">Download Additional Examples</a><br />
+                        &nbsp;
+                        
+                    </td>
+                </tr>
+            </table>  
         </td>
 
         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
