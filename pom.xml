@@ -272,7 +272,7 @@
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-spec-jsp</artifactId>
-        <version>${geronimoSpecJspVersiona}</version>
+        <version>${geronimoSpecJspVersion}</version>
       </dependency>                                          
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
