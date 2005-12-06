@@ -196,6 +196,10 @@
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
+            <properties>
+                <!-- TODO: this is only needed for deserializing exceptions on the client and should be removed -->
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
         </dependency>
         <dependency>
             <groupId>openejb</groupId>
