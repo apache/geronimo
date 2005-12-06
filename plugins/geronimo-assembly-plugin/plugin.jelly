@@ -116,7 +116,7 @@
     <goal name="assemble:assemble-unpack">
         <ant:mkdir dir="${geronimo.assembly.dest}"/>
         <ant:unjar dest="${geronimo.assembly.dest}">
-             <ant:fileset dir="${maven.repo.local}">
+            <ant:fileset dir="${maven.repo.local}">
                 <j:set var="hasUnpack" value="false"/>
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
@@ -132,10 +132,33 @@
         </ant:unjar>
     </goal>
 
+    <goal name="assemble:assemble-schemas">
+        <!-- this is not ideal-->
+        <ant:mkdir dir="${geronimo.assembly.dest}/schema"/>
+        <ant:mkdir dir="${maven.build.dir}/schema"/>
+        <ant:unjar dest="${maven.build.dir}/schema">
+            <ant:patternset>
+                <ant:include name="schemaorg_apache_xmlbeans/src/**/*.xsd"/>
+            </ant:patternset>
+            <ant:fileset dir="${geronimo.assembly.dest}/repository">
+                <ant:include name="*/jars/*-builder-*.jar"/>
+                <ant:include name="geronimo/jars/geronimo-j2ee-schema-*.jar"/>
+            </ant:fileset>
+        </ant:unjar>
+        <ant:copy todir="${geronimo.assembly.dest}/schema" flatten="true">
+            <ant:fileset dir="${maven.build.dir}/schema">
+                <ant:include name="**/*.xsd"/>
+                <ant:include name="**/*.dtd"/>
+            </ant:fileset>
+        </ant:copy>
+    </goal>
+
+
+
     <!-- todo automatically add libraries listed in an executable's MCP in the right place, relative to it -->
     <goal name="assemble:assemble-configurations">
         <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
-<!--        <ant:delete dir="${configStoreDir}"/>-->
+        <!--        <ant:delete dir="${configStoreDir}"/>-->
         <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
@@ -162,7 +185,7 @@
 
     <goal name="assemble:assemble-configurations-to-repo">
         <j:set var="configStoreDir" value="${geronimo.assembly.dest}/config-store"/>
-<!--        <ant:delete dir="${configStoreDir}"/>-->
+        <!--        <ant:delete dir="${configStoreDir}"/>-->
         <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/repository"/>
         <j:forEach var="artifact" items="${pom.artifacts}">
@@ -192,6 +215,7 @@
         <attainGoal name="assemble:assemble-lib"/>
         <attainGoal name="assemble:assemble-unpack"/>
         <attainGoal name="assemble:assemble-configurations"/>
+        <attainGoal name="assemble:assemble-schemas"/>
     </goal>
 
     <goal name="assemble:assemble-to-repo" prereqs="assemble:assemble-prepare" description="Assemble a Geronimo installation">
@@ -236,20 +260,20 @@
             <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
             <ant:copy file="${maven.build.dir}/${maven.final.name}.tar.gz"
                 todir="${maven.repo.local}/${pom.groupId}/distributions"/>
-<!--            <artifact:install-->
-<!--                artifact="${maven.build.dir}/${maven.final.name}.tar.gz"-->
-<!--                type="distribution-targz"-->
-<!--                project="${pom}"-->
+            <!--            <artifact:install-->
+            <!--                artifact="${maven.build.dir}/${maven.final.name}.tar.gz"-->
+            <!--                type="distribution-targz"-->
+            <!--                project="${pom}"-->
         </j:if>
 
         <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">
             <ant:mkdir dir="${maven.repo.local}/${pom.groupId}/distributions"/>
             <ant:copy file="${maven.build.dir}/${maven.final.name}.zip"
                 todir="${maven.repo.local}/${pom.groupId}/distributions"/>
-<!--            <artifact:install-->
-<!--                artifact="${maven.build.dir}/${maven.final.name}.zip"-->
-<!--                type="distribution-zip"-->
-<!--                project="${pom}"-->
+            <!--            <artifact:install-->
+            <!--                artifact="${maven.build.dir}/${maven.final.name}.zip"-->
+            <!--                type="distribution-zip"-->
+            <!--                project="${pom}"-->
         </j:if>
     </goal>
 
@@ -257,27 +281,27 @@
     <!-- D E P L O Y   D I S T R I B U T I O N                              -->
     <!-- ================================================================== -->
 
-<!--    <goal name="geronimo:deploy-assembly" description="Deploy a binary distribution" prereqs="geronimo:package-assembly">-->
-<!--        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">-->
-<!--            <artifact:deploy-->
-<!--                artifact="${maven.build.dir}/${maven.final.name}.tar.gz"-->
-<!--                type="distribution-targz"-->
-<!--                project="${pom}"-->
-<!--                typeHandler="${distTypeHandler}"/>-->
-<!--        </j:if>-->
-<!---->
-<!--        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">-->
-<!--            <artifact:deploy-->
-<!--                artifact="${maven.build.dir}/${maven.final.name}.zip"-->
-<!--                type="distribution-zip"-->
-<!--                project="${pom}"-->
-<!--                typeHandler="${distTypeHandler}"/>-->
-<!--        </j:if>-->
-<!--    </goal>-->
+    <!--    <goal name="geronimo:deploy-assembly" description="Deploy a binary distribution" prereqs="geronimo:package-assembly">-->
+    <!--        <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">-->
+    <!--            <artifact:deploy-->
+    <!--                artifact="${maven.build.dir}/${maven.final.name}.tar.gz"-->
+    <!--                type="distribution-targz"-->
+    <!--                project="${pom}"-->
+    <!--                typeHandler="${distTypeHandler}"/>-->
+    <!--        </j:if>-->
+    <!---->
+    <!--        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">-->
+    <!--            <artifact:deploy-->
+    <!--                artifact="${maven.build.dir}/${maven.final.name}.zip"-->
+    <!--                type="distribution-zip"-->
+    <!--                project="${pom}"-->
+    <!--                typeHandler="${distTypeHandler}"/>-->
+    <!--        </j:if>-->
+    <!--    </goal>-->
 
-<!--    <goal name="geronimo:install-assembly" prereqs="geronimo:jar-assembly" description="Install an assembled Geronimo installation into the local repository">-->
-<!--        <artifact:install artifact="${maven.build.dir}/${maven.final.name}.jar" project="${pom}"/>-->
-<!--    </goal>-->
+    <!--    <goal name="geronimo:install-assembly" prereqs="geronimo:jar-assembly" description="Install an assembled Geronimo installation into the local repository">-->
+    <!--        <artifact:install artifact="${maven.build.dir}/${maven.final.name}.jar" project="${pom}"/>-->
+    <!--    </goal>-->
 
     <!--
         <goal name="geronimo:deploy-assembly" prereqs="geronimo:assemble" description="Deploy an assembled Geronimo installation into the remote repository">
