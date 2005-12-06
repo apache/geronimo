@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 158417 $ $Date: 2005-03-20 23:25:45 -0800 (Sun, 20 Mar 2005) $ -->
+
+<project
+    xmlns:j="jelly:core"
+    xmlns:artifact="artifact"
+    xmlns:ant="jelly:ant"
+    xmlns:define="jelly:define"
+    xmlns:m="jelly:maven"
+    xmlns:velocity="jelly:velocity"
+    xmlns:assemble="geronimo:assembly"
+    >
+    <!-- ================= -->
+    <!-- Global Properties -->
+    <!-- ================= -->
+
+    <!-- Determine what the top-level project root is -->
+    <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
+
+    <!--
+    <define:taglib uri="geronimo:assembly">
+        <define:jellybean name="installConfig" className="org.apache.geronimo.plugin.assembly.LocalConfigInstaller" method="execute"/>
+        <define:jellybean name="installConfigToRepo" className="org.apache.geronimo.plugin.assembly.RepoConfigInstaller" method="execute"/>
+    </define:taglib>
+    -->
+    <goal name="assemble:izpack-prepare">
+	<echo>izpack-prepare is running</echo>
+
+        <fileScanner var="installFiles">
+            <fileset dir="${geronimo.assembly.dest}/izpack">
+                <include name="*.xml"/>
+            </fileset>
+        </fileScanner>
+        <j:set var="GeronimoVersion" value="${geronimo_version}"/>
+        <j:set var="InstallSource" value="${geronimo.assembly.dest}"/>
+        <j:set var="ReleaseNotesVersion" value="1.0-M5"/>
+        <j:forEach var="installer" items="${installFiles.iterator()}">
+            <j:set var="installerName" value="${installer.name}"/>
+            <echo>Processing installer file ${installerName}</echo>
+            <velocity:merge
+                basedir="${geronimo.assembly.dest}/izpack"
+                template="${installerName}"
+                name="${geronimo.assembly.dest}/${installerName}"/>
+        </j:forEach>
+
+        <!-- Add all txt fines and the status file to the binary -->
+        <ant:copy todir="${geronimo.assembly.dest}">
+            <fileset dir="${project.root}" includes="*.txt,STATUS"/>
+            <ant:fileset dir="${project.root}">
+                <ant:include name="*.txt"/>
+                <ant:include name="STATUS"/>
+            </ant:fileset>
+        </ant:copy>
+
+        <!-- Add XML schemas -->
+        <ant:mkdir dir="${geronimo.assembly.dest}/schema"/>
+        <ant:copy todir="${geronimo.assembly.dest}/schema" flatten="true">
+            <ant:fileset dir="${project.root}/modules/j2ee-schema">
+                <ant:include name="src/j2ee_1_4schema/*.xsd"/>
+		<ant:include name="src/j2ee_1_3dtd/*.dtd"/>
+		<ant:include name="src/j2ee_1_2dtd/*.dtd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/deployment">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/j2ee-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/web-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/jetty-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/tomcat-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/connector-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/naming-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/security-builder">
+                <ant:include name="src/schema/geronimo*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/service-builder">
+                <ant:include name="src/schema/geronimo*.xsd"/>
+            </ant:fileset>
+            <ant:fileset dir="${project.root}/modules/client-builder">
+                <ant:include name="src/schema/*.xsd"/>
+            </ant:fileset>
+            <!--ant:fileset dir="src/etc"/-->
+        </ant:copy>
+
+        <!-- extract XML schemas from OpenEJB jars -->
+        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-pkgen-builder-${openejb_version}.jar"
+            dest="${geronimo.assembly.dest}">
+            <ant:patternset>
+                <ant:include name="META-INF/schema/openejb-pkgen*.xsd"/>
+            </ant:patternset>
+        </ant:unzip>
+        <ant:unzip src="${maven.repo.local}/openejb/jars/openejb-builder-${openejb_version}.jar"
+            dest="${geronimo.assembly.dir}">
+            <ant:patternset>
+                <ant:include name="META-INF/schema/openejb-jar*.xsd"/>
+                <ant:include name="META-INF/schema/corba-css-config*.xsd"/>
+                <ant:include name="META-INF/schema/corba-tss-config*.xsd"/>
+            </ant:patternset>
+        </ant:unzip>
+        <ant:move todir="${geronimo.assembly.dest}/schema">
+            <ant:fileset dir="${geronimo.assembly.dest}/META-INF/schema">
+                <ant:include name="*.xsd"/>
+            </ant:fileset>
+        </ant:move>
+        <ant:delete dir="${geronimo.assembly.dest}/META-INF"/>
+
+        <!-- Write out a copy of config.xml with substitution variables intact -->
+        <!--
+        <velocity:merge basedir="${basedir}/src/var/config"
+            template="config.xml"
+            name="${geronimo.assembly.dest}/var/config/config.xml"/>
+
+        <ant:echo file="${geronimo.assembly.dest}/var/security/users.properties" message="$${SecurityDefaultUser}=$${SecurityDefaultPassword}"/>
+        <ant:echo file="${geronimo.assembly.dest}/var/security/groups.properties" message="admin=$${SecurityDefaultUser}"/>
+        -->
+    </goal>
+
+
+    <goal name="assemble:izpack-installer-build" prereqs="assemble:izpack-prepare" >
+        <echo>IZPack installer build is running.</echo>
+        <echo>IZPack Version is ${izpack_version}</echo>
+        <ant:java jar="${maven.repo.local}/izpack/jars/standalone-compiler-${izpack_version}.jar"
+              fork="true" >
+           <arg value="${geronimo.assembly.dest}/geronimo-izpack.xml" />
+           <arg value="-o" />
+           <arg value="${geronimo.assembly.dest}/geronimo-installer.jar" />
+        </ant:java>
+
+    </goal>
+</project>

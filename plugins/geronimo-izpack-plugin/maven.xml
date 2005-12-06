@@ -17,21 +17,21 @@
 -->
 
 
-<!-- $Rev: 158417 $ $Date: 2005-03-20 23:25:45 -0800 (Sun, 20 Mar 2005) $ -->
+<!-- $Rev: 351514 $ $Date: 2005-12-01 15:12:20 -0800 (Thu, 01 Dec 2005) $ -->
 
-<project default="default"
-    >
-    <goal name="default" prereqs="assemble:install"/>
-
-    <!-- replace the assemble:install goal with jelly code to build the installer -->
-    <goal name="assemble:install">
-        <attainGoal name="assemble:assemble-to-repo"/>
-        <!-- build the izpack installer here -->
-        <attainGoal name="assemble:izpack-installer-build"/>
+<project default="plugin:install">
+    <goal name="default">
+        <attainGoal name="plugin:install"/>
     </goal>
 
-    <preGoal name="assemble:install">
-        <attainGoal name="clean"/>
-    </preGoal>
+    <goal name="plugin:install" prereqs="plugin:plugin">
+        <attainGoal name="plugin:install-now"/>
+        <attainGoal name="plugin:repository-install"/>
+        <!--
+        <copy file="${maven.build.dir}/${maven.final.name}.jar"
+          todir="${maven.plugin.dir}" />
+        -->
+     </goal>
+
 
 </project>
