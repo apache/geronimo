@@ -27,8 +27,10 @@
     <goal name="plugin:install" prereqs="plugin:plugin">
         <attainGoal name="plugin:install-now"/>
         <attainGoal name="plugin:repository-install"/>
+	<!--
         <copy file="${maven.build.dir}/${maven.final.name}.jar"
           todir="${maven.plugin.dir}" />
+	-->
      </goal>
 
 
