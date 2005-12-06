@@ -79,6 +79,20 @@
              </properties>
         </dependency>
 
+
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-local</artifactId>
+            <version>${tranql_vendors_version}</version>
+            <type>rar</type>
+<!--
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+-->
+        </dependency>
+
+
 <!-- should be transitive deps -->
         <dependency>
             <groupId>geronimo</groupId>
