@@ -24,7 +24,7 @@
 
 
     <!-- Deployer used to process modules and plans -->
-    <gbean gbeanName="geronimo.maven:name=Deployer,j2eeType=Deployer,J2EEModule=${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car" class="org.apache.geronimo.deployment.Deployer">
+    <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <references name="Store">
             <!--gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name-->
             <pattern><gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name></pattern>
