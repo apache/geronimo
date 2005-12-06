@@ -16,24 +16,24 @@
  */
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.List;
-import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.deployment.plugin.TargetImpl;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
+
+import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.List;
 
 /**
  * @version $Rev$ $Date$
@@ -53,7 +53,6 @@ public class RedeployCommand extends AbstractDeployCommand {
     }
 
     public void run() {
-        ObjectName deployer = getDeployerName();
         if (deployer == null) {
             return;
         }
@@ -104,7 +103,7 @@ public class RedeployCommand extends AbstractDeployCommand {
                     kernel.invoke(storeName, "uninstall", new Object[]{configID}, UNINSTALL_SIG);
                     updateStatus("Uninstalled "+configID);
 
-                    doDeploy(deployer, module.getTarget(), false);
+                    doDeploy(module.getTarget(), false);
                     updateStatus("Deployed "+configID);
 
                     List list = configurationManager.loadRecursive(configID);

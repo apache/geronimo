@@ -96,7 +96,7 @@
         <ant:echo message="Waiting for server at: ${maven.build.dir}/geronimo-${geronimo_version}"/>
         <u:sleep millis="60000"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             maxtries="125"
@@ -106,7 +106,7 @@
     </goal>
     <goal name="deployAppSSL" prereqs="ear">
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${basedir}/target/magicGball-${geronimo_version}.ear"
@@ -114,21 +114,21 @@
     </goal>
     <goal name="startAppSSL">
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorba"/>
     </goal>
     <goal name="stopAppSSL">
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorba"/>
     </goal>
     <goal name="undeployAppSSL">
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorba"/>
@@ -152,7 +152,7 @@
 
     <goal name="deployAppNoSec" prereqs="ear">
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${basedir}/target/magicGball-${geronimo_version}.ear"
@@ -160,21 +160,21 @@
     </goal>
     <goal name="startAppNoSec">
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorbaNoSec"/>
     </goal>
     <goal name="stopAppNoSec">
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorbaNoSec"/>
     </goal>
     <goal name="undeployAppNoSec">
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/MagicGBallCorbaNoSec"/>

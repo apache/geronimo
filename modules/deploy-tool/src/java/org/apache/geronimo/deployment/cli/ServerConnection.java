@@ -17,18 +17,6 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.jar.JarFile;
-import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
@@ -36,6 +24,25 @@ import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
 import org.apache.geronimo.system.main.CommandLine;
 import org.apache.geronimo.system.main.CommandLineManifest;
 import org.apache.geronimo.util.SimpleEncryption;
+
+import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import javax.management.ObjectName;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.jar.JarFile;
 
 /**
  * Supports two types of connections to the server.  One, via JSR-88, is valid
@@ -46,13 +53,16 @@ import org.apache.geronimo.util.SimpleEncryption;
  * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
  */
 public class ServerConnection {
-    private final static Map OPTION_HELP = new LinkedHashMap(4);
+    private final static Map OPTION_HELP = new LinkedHashMap(9);
     static {
-        OPTION_HELP.put("--uri", "A URI to contact the server.  The server must be running for this " +
-                "to work.  If not specified, the deployer defaults to operating on a " +
-                "Geronimo server running on the standard port on localhost.\n" +
+        OPTION_HELP.put("--uri", "A URI to contact the server.  If not specified, the deployer defaults to " +
+                "operating on a Geronimo server running on the standard port on localhost.\n" +
                 "A URI to connect to Geronimo (including optional host and port parameters) has the form: " +
-                "deployer:geronimo:jmx:rmi:///jndi/rmi:[//host[:port]]/JMXConnector");
+                "deployer:geronimo:jmx[://host[:port]] (though you could also just use --host and --port instead).");
+        OPTION_HELP.put("--host", "The host name of a Geronimo server to deploy to.  This option is " +
+                "not compatible with --uri, but is often used with --port.");
+        OPTION_HELP.put("--port", "The RMI listen port of a Geronimo server to deploy to.  This option is " +
+                "not compatible with --uri, but is often used with --host.  The default port is 1099.");
         OPTION_HELP.put("--offline", "Indicates that you don't want the deployer to try to connect to " +
                 "a Geronimo server over the network.  If you're running on the same machine as the " +
                 "Geronimo installation, using this option means that you're asserting that the" +
@@ -95,25 +105,24 @@ public class ServerConnection {
             return false;
         }
         String last = (String) args.get(args.size()-1);
-        if(last.equals("--uri") || last.equals("--url") || last.equals("--driver") || last.equals("--user") ||
-                last.equals("--password")) {
-            return true;
-        }
-        return false;
+        return last.equals("--uri") || last.equals("--url") || last.equals("--driver") || last.equals("--user") ||
+                last.equals("--password") || last.equals("--host") || last.equals("--port");
     }
 
-    private final static String DEFAULT_URI = "deployer:geronimo:jmx:rmi:///jndi/rmi://localhost:1099/JMXConnector";
+    private final static String DEFAULT_URI = "deployer:geronimo:jmx";
     
     private DeploymentManager manager;
     private KernelWrapper kernel;
     private PrintWriter out;
     private BufferedReader in;
     private SavedAuthentication auth;
+    private boolean logToSysErr;
+    private boolean verboseMessages;
 
     public ServerConnection(String[] args, boolean forceLocal, PrintWriter out, BufferedReader in) throws DeploymentException {
-        String uri = null, driver = null, user = null, password = null;
+        String uri = null, driver = null, user = null, password = null, host = null;
+        Integer port = null;
         boolean offline = false;
-        JMXDeploymentManager.CommandContext commandContext = new JMXDeploymentManager.CommandContext();
         this.out = out;
         this.in = in;
         for(int i = 0; i < args.length; i++) {
@@ -122,12 +131,39 @@ public class ServerConnection {
                 if(uri != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one URI");
                 } else if(i >= args.length-1) {
-                    throw new DeploymentSyntaxException("Must specify a URI (--uri deployer:...)");
+                    throw new DeploymentSyntaxException("Must specify a URI (e.g. --uri deployer:...)");
                 }
                 if(offline) {
                     throw new DeploymentSyntaxException("Cannot specify a URI in offline mode");
                 }
+                if(host != null || port != null) {
+                    throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
+                }
                 uri = args[++i];
+            } else if(arg.equals("--host")) {
+                if(host != null) {
+                    throw new DeploymentSyntaxException("Cannot specify more than one host");
+                } else if(i >= args.length-1) {
+                    throw new DeploymentSyntaxException("Must specify a hostname (e.g. --host localhost)");
+                }
+                if(uri != null) {
+                    throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
+                }
+                host = args[++i];
+            } else if(arg.equals("--port")) {
+                if(port != null) {
+                    throw new DeploymentSyntaxException("Cannot specify more than one port");
+                } else if(i >= args.length-1) {
+                    throw new DeploymentSyntaxException("Must specify a port (e.g. --port 1099)");
+                }
+                if(uri != null) {
+                    throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
+                }
+                try {
+                    port = new Integer(args[++i]);
+                } catch (NumberFormatException e) {
+                    throw new DeploymentSyntaxException("Port must be a number ("+e.getMessage()+")");
+                }
             } else if(arg.equals("--driver")) {
                 if(driver != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one driver");
@@ -173,9 +209,9 @@ public class ServerConnection {
                 }
                 password = args[++i];
             } else if (arg.equals("--verbose")) {
-                commandContext.setVerbose(true);
+                verboseMessages = true;
             } else if (arg.equals("--syserr")) {
-                commandContext.setLogErrors(true);
+                logToSysErr = true;
             } else {
                 throw new DeploymentException("Invalid option "+arg);
             }
@@ -186,13 +222,16 @@ public class ServerConnection {
         if(forceLocal && !offline) {
             throw new DeploymentSyntaxException("This command may only be run offline.  Make sure the server is not running and use the --offline option.");
         }
-        if(forceLocal && (uri != null || driver != null || user != null || password != null)) {
+        if(forceLocal && (uri != null || driver != null || user != null || password != null || host != null || port != null)) {
             throw new DeploymentSyntaxException("This command does not use normal server connectivity.  No standard options are allowed.");
+        }
+        if(host != null || port != null) {
+            uri = DEFAULT_URI+"://"+(host == null ? "" : host)+(port == null ? "" : ":"+port);
         }
         if(forceLocal || offline) {
             initializeKernel();
         } else {
-            tryToConnect(uri, commandContext, driver, user, password, true);
+            tryToConnect(uri, driver, user, password, true);
             if(manager == null) {
                 throw new DeploymentException("Unexpected error; connection failed.");
             }
@@ -224,7 +263,7 @@ public class ServerConnection {
         return auth.uri;
     }
 
-    private void tryToConnect(String argURI, JMXDeploymentManager.CommandContext commandContext, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
+    private void tryToConnect(String argURI, String driver, String user, String password, boolean authPrompt) throws DeploymentException {
         DeploymentFactoryManager mgr = DeploymentFactoryManager.getInstance();
         if(driver != null) {
             loadDriver(driver, mgr);
@@ -265,7 +304,7 @@ public class ServerConnection {
 
         if(authPrompt && !useURI.equals(DEFAULT_URI) && user == null && password == null) {
             // Non-standard URI, but no authentication information
-            doAuthPromptAndRetry(useURI, commandContext, user, password);
+            doAuthPromptAndRetry(useURI, user, password);
             return;
         } else { // Standard URI with no auth, Non-standard URI with auth, or else this is the 2nd try already
             try {
@@ -273,7 +312,7 @@ public class ServerConnection {
                 auth = new SavedAuthentication(useURI, user, password.toCharArray());
             } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
                 if(authPrompt) {
-                    doAuthPromptAndRetry(useURI, commandContext, user, password);
+                    doAuthPromptAndRetry(useURI, user, password);
                     return;
                 } else {
                     throw new DeploymentException("Login Failed");
@@ -285,7 +324,7 @@ public class ServerConnection {
 
         if (manager instanceof JMXDeploymentManager) {
             JMXDeploymentManager deploymentManager = (JMXDeploymentManager) manager;
-            deploymentManager.setCommandContext(commandContext);
+            deploymentManager.setLogConfiguration(logToSysErr, verboseMessages);
         }
     }
 
@@ -311,7 +350,7 @@ public class ServerConnection {
         }
     }
 
-    private void doAuthPromptAndRetry(String uri, JMXDeploymentManager.CommandContext commandContext, String user, String password) throws DeploymentException {
+    private void doAuthPromptAndRetry(String uri, String user, String password) throws DeploymentException {
         try {
             if(user == null) {
                 out.print("Username: ");
@@ -324,7 +363,7 @@ public class ServerConnection {
         } catch(IOException e) {
             throw new DeploymentException("Unable to prompt for login", e);
         }
-        tryToConnect(uri, commandContext, null, user, password, false);
+        tryToConnect(uri, null, user, password, false);
     }
 
     public DeploymentManager getDeploymentManager() {

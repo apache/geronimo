@@ -17,13 +17,17 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.util.*;
-import java.io.StringWriter;
-import java.io.PrintWriter;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
+import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.shared.StateType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
 import javax.enterprise.deploy.spi.status.ClientConfiguration;
@@ -31,15 +35,19 @@ import javax.enterprise.deploy.spi.status.DeploymentStatus;
 import javax.enterprise.deploy.spi.status.ProgressEvent;
 import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-
-import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager.CommandContext;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.gbean.GBeanQuery;
+import javax.management.ObjectName;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -51,7 +59,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
     private String message;
     private final Set listeners = new HashSet();
     private final List moduleIDs = new ArrayList();
-    private CommandContext commandContext = new CommandContext();
+    private CommandContext commandContext = null; //todo: this is pretty bad; should add it into constructor
 
     private ProgressEvent event = null;
 
@@ -113,7 +121,7 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         listeners.remove(pol);
     }
 
-    protected final void fail(String message) {
+    public final void fail(String message) {
         sendEvent(message, StateType.FAILED);
     }
 
@@ -121,11 +129,11 @@ public abstract class CommandSupport implements ProgressObject, Runnable {
         sendEvent(message, StateType.COMPLETED);
     }
 
-    protected final void updateStatus(String message) {
+    public final void updateStatus(String message) {
         sendEvent(message, state);
     }
 
-    protected void doFail(Exception e) {
+    public void doFail(Exception e) {
         if (e instanceof InternalKernelException) {
             Exception test = (Exception)((InternalKernelException)e).getCause();
             if(test != null) {

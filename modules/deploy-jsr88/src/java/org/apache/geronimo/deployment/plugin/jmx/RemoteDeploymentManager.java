@@ -16,24 +16,63 @@
  */
 package org.apache.geronimo.deployment.plugin.jmx;
 
-import java.io.IOException;
-import javax.management.remote.JMXConnector;
-import javax.management.MBeanServerConnection;
 import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
+import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
+
+import javax.management.MBeanServerConnection;
+import javax.management.remote.JMXConnector;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import java.io.IOException;
+import java.io.File;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 /**
- * Connects to a Kernel in a remote VM.
+ * Connects to a Kernel in a remote VM (may or many not be on the same machine).
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
 public class RemoteDeploymentManager extends JMXDeploymentManager {
     private JMXConnector jmxConnector;
-    private MBeanServerConnection mbServerConnection;
+    private boolean isSameMachine;
 
-    public RemoteDeploymentManager(JMXConnector jmxConnector) throws IOException {
+    public RemoteDeploymentManager(JMXConnector jmxConnector, String hostname) throws IOException {
         this.jmxConnector = jmxConnector;
-        mbServerConnection = jmxConnector.getMBeanServerConnection();
+        MBeanServerConnection mbServerConnection = jmxConnector.getMBeanServerConnection();
         initialize(new KernelDelegate(mbServerConnection));
+        checkSameMachine(hostname);
+    }
+
+    public boolean isSameMachine() {
+        return isSameMachine;
+    }
+
+    private void checkSameMachine(String hostname) {
+        isSameMachine = false;
+        if(hostname.equals("localhost") || hostname.equals("127.0.0.1")) {
+            isSameMachine = true;
+            return;
+        }
+        try {
+            InetAddress dest = InetAddress.getByName(hostname);
+            Enumeration en = NetworkInterface.getNetworkInterfaces();
+            while(en.hasMoreElements()) {
+                NetworkInterface iface = (NetworkInterface) en.nextElement();
+                Enumeration ine = iface.getInetAddresses();
+                while (ine.hasMoreElements()) {
+                    InetAddress address = (InetAddress) ine.nextElement();
+                    if(address.equals(dest)) {
+                        isSameMachine = true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Unable to look up host name '"+hostname+"'; assuming it is a different machine, but this may not get very far.  ("+e.getMessage()+")");
+        }
     }
 
     public void release() {
@@ -43,8 +82,38 @@ public class RemoteDeploymentManager extends JMXDeploymentManager {
             jmxConnector = null;
         } catch (IOException e) {
             throw (IllegalStateException) new IllegalStateException("Unable to close connection").initCause(e);
-        } finally {
-            mbServerConnection = null;
+        }
+    }
+
+    protected DistributeCommand createDistributeCommand(Target[] targetList, File moduleArchive, File deploymentPlan) {
+        if(isSameMachine) {
+            return super.createDistributeCommand(targetList, moduleArchive, deploymentPlan);
+        } else {
+            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        }
+    }
+
+    protected DistributeCommand createDistributeCommand(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) {
+        if(isSameMachine) {
+            return super.createDistributeCommand(targetList, moduleArchive, deploymentPlan);
+        } else {
+            return new org.apache.geronimo.deployment.plugin.remote.DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        }
+    }
+
+    protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
+        if(isSameMachine) {
+            return super.createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
+        } else {
+            return new org.apache.geronimo.deployment.plugin.remote.RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+        }
+    }
+
+    protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
+        if(isSameMachine) {
+            return super.createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
+        } else {
+            return new org.apache.geronimo.deployment.plugin.remote.RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
         }
     }
 }

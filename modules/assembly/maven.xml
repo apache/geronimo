@@ -477,7 +477,7 @@
                 configs="geronimo/security/${pom.currentVersion}/car geronimo/runtime-deployer/${pom.currentVersion}/car geronimo/jetty-runtime-deployer/${pom.currentVersion}/car geronimo/tomcat-runtime-deployer/${pom.currentVersion}/car"/>
             <ant:echo message="Waiting for server at: ${geronimo.assembly.dir}"/>
             <deploy:waitForStarted
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="jmx:rmi:///jndi/rmi://localhost:1099/JMXConnector"
                 maxtries="125"
                 username="system"
                 password="manager"
@@ -487,13 +487,13 @@
             <echo message="server has started"/>
 
             <!--            <deploy:distribute-->
-            <!--                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"-->
+            <!--                uri="deployer:geronimo:jmx"-->
             <!--                username="system"-->
             <!--                password="manager"-->
             <!--                plan="${basedir}/target/plan/j2ee-jetty-plan.xml"-->
             <!--            />-->
             <!--            <deploy:distribute-->
-            <!--                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"-->
+            <!--                uri="deployer:geronimo:jmx"-->
             <!--                username="system"-->
             <!--                password="manager"-->
             <!--                plan="${basedir}/target/plan/j2ee-tomcat-plan.xml"-->
@@ -501,20 +501,20 @@
 
             <!-- building server corba configuration-->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/j2ee-server-corba-plan.xml"
                 />
             <!-- building app client corba configuration-->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/j2ee-client-corba-plan.xml"
                 />
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/j2ee-client-security-plan.xml"
@@ -523,7 +523,7 @@
 
             <!-- building tranql connector default database configuration-->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/default-database-plan.xml"
@@ -532,7 +532,7 @@
             <!-- building system database configuration-->
             <ant:echo>Building system database configuration</ant:echo>
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/system-database-plan.xml"
@@ -540,7 +540,7 @@
 
             <!-- building system activemq configuration-->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/system-activemq-plan.xml"
@@ -548,7 +548,7 @@
 
             <!-- building system jms configuration-->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/system-jms-plan.xml"
@@ -557,7 +557,7 @@
 
             <!-- build the spring runtime configuration -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/spring-runtime-plan.xml"
@@ -565,7 +565,7 @@
 
             <!-- build the spring deployer configuration -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/spring-deployer-plan.xml"
@@ -574,7 +574,7 @@
             <!-- build the J2EEServer secure configuration -->
 <!--
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/j2ee-secure-plan.xml"
@@ -583,7 +583,7 @@
 
             <!-- build the J2EE client configuration -->
             <!--            <deploy:distribute-->
-            <!--                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"-->
+            <!--                uri="deployer:geronimo:jmx"-->
             <!--                username="system"-->
             <!--                password="manager"-->
             <!--                plan="${basedir}/target/plan/j2ee-client-plan.xml"-->
@@ -591,14 +591,14 @@
 
             <!-- build the directory server configuration -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/directory-server-plan.xml"/>
 
             <!-- build the Demo configuration -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 module="${maven.repo.local}/geronimo/wars/geronimo-demo-${pom.currentVersion}.war"
@@ -607,13 +607,13 @@
             <!-- build the Welcome site configuration -->
             <ant:echo>Building welcome website configuration</ant:echo>
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/welcome-jetty-plan.xml"
                 module="${maven.repo.local}/geronimo/wars/geronimo-welcome-${pom.currentVersion}.war"/>
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/welcome-tomcat-plan.xml"
@@ -621,13 +621,13 @@
 
             <!-- Management console -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/webconsole-jetty-plan.xml"
                 module="${maven.repo.local}/geronimo/ears/geronimo-console-${pom.currentVersion}.ear"/>
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/webconsole-tomcat-plan.xml"
@@ -635,34 +635,34 @@
 
             <!-- Debug Tool -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 module="${maven.repo.local}/geronimo/wars/geronimo-jmxdebug-${pom.currentVersion}.war"/>
 
             <!-- Remote Deploy -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 module="${maven.repo.local}/geronimo/wars/geronimo-remote-deploy-${pom.currentVersion}.war"/>
 
             <!-- UDDI -->
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/uddi-server-jetty-plan.xml"
                 module="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/uddi-server-tomcat-plan.xml"
                 module="${maven.repo.local}/geronimo/wars/geronimo-uddi-server-${pom.currentVersion}.war"/>
 
             <deploy:distribute
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="deployer:geronimo:jmx"
                 username="system"
                 password="manager"
                 plan="${basedir}/target/plan/j2ee-hot-deploy-plan.xml" />
@@ -671,7 +671,7 @@
             <!--            <attainGoal name="init-database"/>-->
 
             <deploy:stopRemoteServer
-                uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+                uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
                 username="system"
                 password="manager"/>
             <echo message="server has stopped"/>

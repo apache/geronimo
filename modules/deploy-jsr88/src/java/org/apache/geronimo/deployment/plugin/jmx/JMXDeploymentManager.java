@@ -16,9 +16,24 @@
  */
 package org.apache.geronimo.deployment.plugin.jmx;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.*;
+import org.apache.geronimo.connector.deployment.RARConfigurer;
+import org.apache.geronimo.deployment.plugin.TargetImpl;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.deployment.plugin.local.CommandSupport;
+import org.apache.geronimo.deployment.plugin.local.DistributeCommand;
+import org.apache.geronimo.deployment.plugin.local.RedeployCommand;
+import org.apache.geronimo.deployment.plugin.local.StartCommand;
+import org.apache.geronimo.deployment.plugin.local.StopCommand;
+import org.apache.geronimo.deployment.plugin.local.UndeployCommand;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.web.deployment.WARConfigurer;
+
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.DConfigBeanVersionType;
 import javax.enterprise.deploy.shared.ModuleType;
@@ -30,36 +45,32 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
-import org.apache.geronimo.deployment.plugin.TargetImpl;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
-import org.apache.geronimo.deployment.plugin.local.*;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.connector.deployment.RARConfigurer;
-import org.apache.geronimo.web.deployment.WARConfigurer;
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class JMXDeploymentManager implements DeploymentManager {
-    private Kernel kernel;
+    protected Kernel kernel;
     private ConfigurationManager configurationManager;
     private CommandContext commandContext;
 
     protected void initialize(Kernel kernel) {
         this.kernel = kernel;
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        commandContext = new CommandContext();
-        commandContext.setLogErrors(true);
-        commandContext.setVerbose(true);
+        commandContext = new CommandContext(true, true, null, null);
+    }
+
+    public void setAuthentication(String username, String password) {
+        commandContext.setUsername(username);
+        commandContext.setPassword(password);
     }
 
     public void release() {
@@ -125,7 +136,6 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-
         try {
             ArrayList result = new ArrayList();
             for (int i = 0; i < targetList.length; i++) {
@@ -164,7 +174,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        DistributeCommand command = createDistributeCommand(targetList, moduleArchive, deploymentPlan);
         command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
@@ -174,7 +184,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        DistributeCommand command = new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+        DistributeCommand command = createDistributeCommand(targetList, moduleArchive, deploymentPlan);
         command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
@@ -218,7 +228,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        RedeployCommand command = new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+        RedeployCommand command = createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
         command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
@@ -228,7 +238,7 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         if (kernel == null) {
             throw new IllegalStateException("Disconnected");
         }
-        RedeployCommand command = new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+        RedeployCommand command = createRedeployCommand(moduleIDList, moduleArchive, deploymentPlan);
         command.setCommandContext(commandContext);
         new Thread(command).start();
         return command;
@@ -289,20 +299,38 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
         throw new InvalidModuleException("Not supported");
     }
 
-    public void setCommandContext(CommandContext commandContext) {
-        this.commandContext = commandContext;
+    protected DistributeCommand createDistributeCommand(Target[] targetList, File moduleArchive, File deploymentPlan) {
+        return new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+    }
+
+    protected DistributeCommand createDistributeCommand(Target[] targetList, InputStream moduleArchive, InputStream deploymentPlan) {
+        return new DistributeCommand(kernel, targetList, moduleArchive, deploymentPlan);
+    }
+
+    protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {
+        return new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+    }
+
+    protected RedeployCommand createRedeployCommand(TargetModuleID[] moduleIDList, InputStream moduleArchive, InputStream deploymentPlan) {
+        return new RedeployCommand(kernel, moduleIDList, moduleArchive, deploymentPlan);
+    }
+
+    public void setLogConfiguration(boolean shouldLog, boolean verboseStatus) {
+        commandContext.setLogErrors(shouldLog);
+        commandContext.setVerbose(verboseStatus);
     }
 
     public static class CommandContext {
         private boolean logErrors;
         private boolean verbose;
+        private String username;
+        private String password;
 
-        public CommandContext() {
-        }
-
-        public CommandContext(boolean logErrors, boolean verbose) {
+        private CommandContext(boolean logErrors, boolean verbose, String username, String password) {
             this.logErrors = logErrors;
             this.verbose = verbose;
+            this.username = username;
+            this.password = password;
         }
 
         public boolean isLogErrors() {
@@ -319,6 +347,22 @@ public abstract class JMXDeploymentManager implements DeploymentManager {
 
         public void setVerbose(boolean verbose) {
             this.verbose = verbose;
+        }
+
+        private void setUsername(String username) {
+            this.username = username;
+        }
+
+        private void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
         }
     }
 }

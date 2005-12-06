@@ -16,22 +16,21 @@
  */
 package org.apache.geronimo.deployment.mavenplugin;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.InternalKernelException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.jmx.KernelDelegate;
+import org.apache.geronimo.kernel.management.State;
+
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import org.apache.geronimo.kernel.jmx.KernelDelegate;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WaitForStarted extends AbstractModuleCommand {
 
@@ -59,9 +58,9 @@ public class WaitForStarted extends AbstractModuleCommand {
     }
 
     public void execute() throws Exception {
-        String uri = getUri().substring(DeploymentFactoryImpl.URI_PREFIX.length());
+        String uri = getUri();
         if (!uri.startsWith("jmx")) {
-            throw new Exception("bad uri");
+            throw new Exception("Bad JMX URI ("+uri+")");
         }
 
         Map environment = new HashMap();

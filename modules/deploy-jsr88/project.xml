@@ -96,6 +96,12 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+
         <!-- only until we move out various DConfigBean trees -->
         <dependency>
             <groupId>geronimo</groupId>

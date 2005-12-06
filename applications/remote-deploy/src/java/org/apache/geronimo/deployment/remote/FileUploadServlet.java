@@ -76,6 +76,7 @@ public class FileUploadServlet extends HttpServlet {
         for (int i = 0; i < names.length; i++) {
             out.writeUTF(names[i]);
         }
+        out.flush();
         out.close();
     }
 
@@ -88,12 +89,15 @@ public class FileUploadServlet extends HttpServlet {
             while((read = in.read(buf, 0, Math.min(buf.length, length - total))) > -1) {
                 out.write(buf, 0, read);
                 total += read;
+                if(total == length) {
+                    break;
+                }
             }
         } finally {
             try {out.flush();} catch (IOException e) {}
             out.close();
         }
-        if(total != read) {
+        if(total != length) {
             throw new IOException("Unable to read entire upload file ("+total+"b expecting "+length+"b)");
         }
     }

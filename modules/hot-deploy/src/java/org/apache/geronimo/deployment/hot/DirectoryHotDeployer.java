@@ -262,7 +262,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     private DeploymentManager getDeploymentManager() throws DeploymentManagerCreationException {
         DeploymentManager manager = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
         if(manager instanceof JMXDeploymentManager) {
-            ((JMXDeploymentManager)manager).setCommandContext(new JMXDeploymentManager.CommandContext(false, true));
+            ((JMXDeploymentManager)manager).setLogConfiguration(false, true);
         }
         return manager;
     }

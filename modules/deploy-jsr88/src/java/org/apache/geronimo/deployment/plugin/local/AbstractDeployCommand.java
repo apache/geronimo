@@ -16,24 +16,24 @@
  */
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.util.Set;
-import java.util.Iterator;
-import java.util.List;
-import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
-import javax.enterprise.deploy.shared.CommandType;
-import javax.enterprise.deploy.shared.ModuleType;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.Target;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
+
+import javax.enterprise.deploy.shared.CommandType;
+import javax.enterprise.deploy.shared.ModuleType;
+import javax.enterprise.deploy.spi.Target;
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @version $Rev: 190584 $ $Date$
@@ -48,6 +48,7 @@ public abstract class AbstractDeployCommand extends CommandSupport {
     protected File deploymentPlan;
     protected InputStream moduleStream;
     protected InputStream deploymentStream;
+    protected ObjectName deployer;
 
     public AbstractDeployCommand(CommandType command, Kernel kernel, File moduleArchive, File deploymentPlan, InputStream moduleStream, InputStream deploymentStream, boolean spool) {
         super(command);
@@ -57,9 +58,10 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         this.moduleStream = moduleStream;
         this.deploymentStream = deploymentStream;
         this.spool = spool;
+        deployer = getDeployerName();
     }
 
-    protected ObjectName getDeployerName() {
+    private ObjectName getDeployerName() {
         Set deployers = kernel.listGBeans(JMXUtil.getObjectName(DEPLOYER_NAME));
         if (deployers.isEmpty()) {
             fail("No Deployer GBean present in running Geronimo server. " +
@@ -98,8 +100,9 @@ public abstract class AbstractDeployCommand extends CommandSupport {
         }
     }
 
-    protected void doDeploy(ObjectName deployer, Target target, boolean finished) throws Exception {
-        Object[] args = {moduleArchive, deploymentPlan};
+    protected void doDeploy(Target target, boolean finished) throws Exception {
+        File[] args = {moduleArchive, deploymentPlan};
+        massageFileNames(args);
         List objectNames = (List) kernel.invoke(deployer, "deploy", args, DEPLOY_SIG);
         if (objectNames == null || objectNames.isEmpty()) {
             throw new DeploymentException("Server didn't deploy anything");
@@ -127,5 +130,12 @@ public abstract class AbstractDeployCommand extends CommandSupport {
             addWebURLs(kernel);
             complete("Completed with id " + parentName);
         }
+    }
+
+    protected void massageFileNames(File[] inputs) {
+    }
+
+    public URL getRemoteDeployUploadURL() throws Exception {
+       return new URL((String)kernel.getAttribute(deployer, "remoteDeployUploadURL"));
     }
 }
