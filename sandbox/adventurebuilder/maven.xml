@@ -96,7 +96,7 @@
 	    configs="org/apache/geronimo/AdventureBuilder1.0.1"/>
         <ant:echo message="Waiting for server at: ${instDir}"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/Adventure1.0.1"/>
@@ -105,7 +105,7 @@
 
     <goal name="ab:stop" description="Stop Adventure Builder">
         <deploy:stopRemoteServer
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"/>
         <echo message="server has stopped"/>

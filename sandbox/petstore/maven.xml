@@ -140,27 +140,27 @@
 	    configs="org/apache/geronimo/PetStore1.3.2 org/apache/geronimo/Supplier1.3.2 org/apache/geronimo/PetStoreSecurity1.3.2 org/apache/geronimo/OPC1.3.2 org/apache/geronimo/PetStoreAdmin1.3.2 org/apache/geronimo/RuntimeDeployer"/>
         <ant:echo message="Waiting for server at: ${instDir}"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/PetStore1.3.2"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/Supplier1.3.2"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/PetStoreSecurity1.3.2"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/OPC1.3.2"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/PetStoreAdmin1.3.2"/>
@@ -169,7 +169,7 @@
 
     <goal name="petstore:stop" description="Stop PetStore">
         <deploy:stopRemoteServer
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"/>
         <echo message="server has stopped"/>

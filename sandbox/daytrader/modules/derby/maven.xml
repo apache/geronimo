@@ -66,7 +66,7 @@
         <ant:echo message="Waiting for server at: ${maven.build.dir}/geronimo-${geronimo_version}"/>
         <u:sleep millis="60000"/>
         <deploy:waitForStarted
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             maxtries="125"
@@ -76,7 +76,7 @@
     </goal>
     <goal name="deployDaytrader">
         <deploy:distribute
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             module="${maven.repo.local}/daytrader/ears/daytrader-ear-${geronimo_version}.ear"
@@ -84,28 +84,28 @@
     </goal>
     <goal name="startDaytrader">
         <deploy:start
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"/>
     </goal>
     <goal name="stopDaytrader">
         <deploy:stop
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"/>
     </goal>
     <goal name="undeployDaytrader">
         <deploy:undeploy
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="${pom.groupId}/cars/${pom.artifactId}-${pom.currentVersion}.car"/>
     </goal>
     <goal name="stopServer">  
         <deploy:stopRemoteServer
-            uri="deployer:geronimo:jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"/>
     </goal>
