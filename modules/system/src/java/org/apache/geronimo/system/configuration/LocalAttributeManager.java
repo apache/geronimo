@@ -266,6 +266,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             }
         }
         gbean.setReferencePatterns(reference.getName(), patterns);
+        attributeChanged();
     }
 
     public synchronized void setShouldLoad(String configurationName, ObjectName gbeanName, boolean load) {
@@ -396,6 +397,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
     public synchronized void addConfiguration(String configurationName) {
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, true);
         configuration.setLoad(true);
+        attributeChanged();
     }
 
     public synchronized void removeConfiguration(String configName) {
@@ -408,6 +410,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             } else {
                 configuration.setLoad(false);
             }
+            attributeChanged();
         }
     }
 
