@@ -17,17 +17,20 @@
 
 package org.apache.geronimo.console.repository;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
 
-import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
@@ -37,18 +40,19 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class RepositoryViewPortlet extends BasePortlet {
 
-    private static final String REPO_OBJ_NAME = "geronimo.server:name=Repository,J2EEServer=geronimo,J2EEApplication=null,j2eeType=GBean,J2EEModule=org/apache/geronimo/System";
+    private final static Log log = LogFactory.getLog(RepositoryViewPortlet.class);
 
     private Kernel kernel;
 
@@ -58,8 +62,6 @@ public class RepositoryViewPortlet extends BasePortlet {
 
     private PortletRequestDispatcher helpView;
 
-    private URL rootURL;
-
     public void init(PortletConfig portletConfig) throws PortletException {
         super.init(portletConfig);
         kernel = KernelRegistry.getSingleKernel();
@@ -68,65 +70,65 @@ public class RepositoryViewPortlet extends BasePortlet {
                 .getRequestDispatcher("/WEB-INF/view/repository/normal.jsp");
         helpView = ctx
                 .getRequestDispatcher("/WEB-INF/view/repository/help.jsp");
-
-        URI uri = null;
-
-        try {
-            ObjectName reponame = new ObjectName(REPO_OBJ_NAME);
-            uri = new URI(".");
-            rootURL = (URL) kernel.invoke(reponame, "getURL",
-                    new Object[] {uri}, new String[] {"java.net.URI"});
-            uri = new URI(rootURL.toString());
-            rootURL.getFile();
-        } catch (Exception e) {
-            throw new PortletException(e);
-        }
-
-        if (!uri.getScheme().equals("file")) {
-            throw new PortletException("unsupported scheme: repositoryURL = "
-                    + rootURL.toString());
-        }
     }
 
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         try {
 
-            File rootDir = new File(rootURL.getFile() + File.separatorChar
-                    + "upload" + File.separatorChar + "jars");
 
-            if (!rootDir.exists()) {
-                rootDir.mkdirs();
-            }
 
-            PortletFileUpload uploader = new PortletFileUpload(
-                    new DiskFileItemFactory(10240, rootDir));
+            List list = new ArrayList();
+            WriteableRepository repo = PortletManager.getWritableRepositories(actionRequest)[0];
 
             File uploadFile = null;
+            File file = null;
+            String name = null;
+            String basename = null;
+            String fileType = null;
+            String artifact = null;
+            String version = null;
+            String group = null;
 
+            PortletFileUpload uploader = new PortletFileUpload(new DiskFileItemFactory());
             try {
-
                 List items = uploader.parseRequest(actionRequest);
                 for (Iterator i = items.iterator(); i.hasNext();) {
                     FileItem item = (FileItem) i.next();
                     if (!item.isFormField()) {
                         String fieldName = item.getFieldName().trim();
-                        String name = item.getName().trim();
-                        File file;
+                        name = item.getName().trim();
 
                         if (name.length() == 0) {
                             file = null;
                         } else {
-                            // Firefox sends basename, IE sends full path
-                            int index = name.lastIndexOf('\\');
-                            if (index != -1) {
-                                name = name.substring(index + 1);
+                            // IE sends full path while Firefox sends just basename
+                            // in the case of "FullName" we may be able to infer the group
+                            // Note, we can't use File.separatorChar because the file separator
+                            // is dependent upon the client and not the server.
+                            String fileChar = "\\";
+                            int fileNameIndex = name.lastIndexOf(fileChar);
+                            if (fileNameIndex == -1) {
+                               fileChar = "/";
+                               fileNameIndex = name.lastIndexOf(fileChar);
                             }
-                            file = new File(rootDir, name);
+                            if (fileNameIndex != -1) {
+                               basename = name.substring(fileNameIndex + 1);
+                            }
+                            else {
+                               basename = name;
+                            }
+
+                            // Create the temporary file to be used for import to the server
+                            file = File.createTempFile("geronimo-import", "");
+                            file.deleteOnExit();
+                            log.debug("Writing repository import file to "+file.getAbsolutePath());
                         }
+
                         if ("local".equals(fieldName)) {
                             uploadFile = file;
                         }
+
                         if (file != null) {
                             try {
                                 item.write(file);
@@ -134,10 +136,40 @@ public class RepositoryViewPortlet extends BasePortlet {
                                 throw new PortletException(e);
                             }
                         }
+                    // This is not the file itself, but one of the form fields for the URI
+                    } else {
+                        String fieldName = item.getFieldName().trim();
+                        if ("group".equals(fieldName)) {
+                            group = item.getString().trim();
+                        } else if ("artifact".equals(fieldName)) {
+                            artifact = item.getString().trim();
+                        } else if ("version".equals(fieldName)) {
+                            version = item.getString().trim();
+                        } else if ("fileType".equals(fieldName)) {
+                            fileType = item.getString().trim();
+                        }
                     }
                 }
+
+                String uri = group + "/" + artifact + "/" + version + "/" + fileType;
+
+                repo.copyToRepository(file, new URI(uri), new FileWriteMonitor() {
+                    public void writeStarted(String fileDescription) {
+                        System.out.print("Copying into repository "+fileDescription+"...");
+                        System.out.flush();
+                    }
+
+                    public void writeProgress(int bytes) {
+                    }
+
+                    public void writeComplete(int bytes) {
+                        System.out.println(" Finished.");
+                    }
+                });
             } catch (FileUploadException e) {
                 throw new PortletException(e);
+            } catch (URISyntaxException e) {
+                throw new IOException("Unable to save to repository URI: "+e.getMessage());
             }
         } catch (PortletException e) {
             throw e;
@@ -152,13 +184,24 @@ public class RepositoryViewPortlet extends BasePortlet {
         }
 
         try {
-            File f = new File(new URI(rootURL.toString()));
-            List ls = listing(f, f.getCanonicalPath());
-            Collections.sort(ls);
+            List list = new ArrayList();
+            ListableRepository[] repos = PortletManager.getListableRepositories(request);
+            for (int i = 0; i < repos.length; i++) {
+                ListableRepository repo = repos[i];
+                try {
+                    final URI[] uris = repo.listURIs();
+                    for (int j = 0; j < uris.length; j++) {
+                        String fileName = uris[j].toString();
+                        list.add(fileName);
+                    }
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+            }
+            Collections.sort(list);
 
-            request.setAttribute("org.apache.geronimo.console.repo.root",
-                    rootURL.toString());
-            request.setAttribute("org.apache.geronimo.console.repo.list", ls);
+            request.setAttribute("org.apache.geronimo.console.repo.list", list);
+
         } catch (Exception e) {
             throw new PortletException(e);
         }
