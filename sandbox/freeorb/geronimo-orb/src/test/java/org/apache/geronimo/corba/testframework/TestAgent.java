@@ -140,6 +140,8 @@ class TestAgent {
         String driverName = args[4];
         String fork = args[5];
 
+        System.setProperty("java.rmi.server.RMIClassLoaderSpi", RMIClassLoaderImpl.class.getName());
+        
         Registry reg = LocateRegistry.getRegistry(registryHost, registryPort);
 
         Class c = Class.forName(testClassName);
