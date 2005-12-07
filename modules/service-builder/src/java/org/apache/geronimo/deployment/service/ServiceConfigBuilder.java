@@ -255,11 +255,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         for (int i = 0; i < includes.length; i++) {
             DependencyType include = includes[i];
             URI uri = getDependencyURI(include, repository);
-            String name = uri.toString();
-            int idx = name.lastIndexOf('/');
-            if (idx != -1) {
-                name = name.substring(idx + 1);
-            }
+            String name = getDependencyFileName(include);
             URI path;
             try {
                 path = new URI(name);
@@ -429,6 +425,20 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             }
         }
         return uri;
+    }
+    
+    private static String getDependencyFileName(DependencyType dep) throws DeploymentException {
+        String name;
+        if (dep.isSetUri()) {
+        	name = dep.getUri().trim();
+        } else {
+            String groupId = dep.getGroupId().trim();
+            String type = dep.isSetType() ? dep.getType().trim() : "jar";
+            String artifactId = dep.getArtifactId().trim();
+            String version = dep.getVersion().trim();
+            name = artifactId + "-" + version + "." + type;
+        }
+        return name;
     }
 
     public static final GBeanInfo GBEAN_INFO;
