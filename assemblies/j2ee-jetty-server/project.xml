@@ -424,6 +424,16 @@
             </properties>
         </dependency>
 
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>shutdown</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.assemble.executable>bin/shutdown.jar</geronimo.assemble.executable>
+            </properties>
+        </dependency>
 
 
         <!-- packages we include for others to use, mostly rars -->
