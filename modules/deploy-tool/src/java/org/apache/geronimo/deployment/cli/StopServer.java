@@ -125,7 +125,7 @@ public class StopServer {
 	private boolean argumentHasValue(int i) {
 		return i + 1 < args.length && !args[i + 1].startsWith("--");
 	}
-
+             
 	private boolean setParam(int i) {
 		if (argumentHasValue(i)) {
 			if (args[i].equals("--user")) {

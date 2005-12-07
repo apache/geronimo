@@ -43,9 +43,6 @@ public class CommandListModules extends AbstractCommand {
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        if(!connection.isOnline()) {
-            throw new DeploymentException("This command cannot be run unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
-        }
         List targets = new ArrayList();
         Boolean started = null;
         for (int i = 0; i < args.length; i++) {

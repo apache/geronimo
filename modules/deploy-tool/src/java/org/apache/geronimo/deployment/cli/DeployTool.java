@@ -70,7 +70,6 @@ public class DeployTool {
         registerCommand(new CommandDistribute());
         registerCommand(new CommandListModules());
         registerCommand(new CommandListTargets());
-        registerCommand(new CommandPackage());
         registerCommand(new CommandRedeploy());
         registerCommand(new CommandStart());
         registerCommand(new CommandStop());
@@ -151,7 +150,7 @@ public class DeployTool {
             } else {
                 try {
                     if(con == null) {
-                        con = new ServerConnection(generalArgs, dc.isLocalOnly(), out, in);
+                        con = new ServerConnection(generalArgs, out, in);
                     }
                     try {
                         dc.execute(out, con, commandArgs);

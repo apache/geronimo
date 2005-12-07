@@ -58,9 +58,6 @@ public class CommandLogin extends AbstractCommand {
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        if(!connection.isOnline()) {
-            throw new DeploymentException("This command cannot be run unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
-        }
         try {
             File authFile = new File(System.getProperty("user.home"), ".geronimo-deployer");
             if(!authFile.exists()) {

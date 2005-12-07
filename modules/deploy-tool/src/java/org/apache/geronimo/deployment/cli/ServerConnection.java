@@ -17,19 +17,6 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
-import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
-import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
-import org.apache.geronimo.system.main.CommandLine;
-import org.apache.geronimo.system.main.CommandLineManifest;
-import org.apache.geronimo.util.SimpleEncryption;
-
-import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
-import javax.management.ObjectName;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,12 +30,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.jar.JarFile;
+import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.plugin.factories.AuthenticationFailedException;
+import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
+import org.apache.geronimo.deployment.plugin.jmx.JMXDeploymentManager;
+import org.apache.geronimo.util.SimpleEncryption;
 
 /**
- * Supports two types of connections to the server.  One, via JSR-88, is valid
- * whenever the server is online, for any command except "package".  The other,
- * via direct Kernel invocation, is valid when the server is not running for
- * only the commands "distribute" and "package".
+ * Supports online connections to the server, via JSR-88, valid only
+ * when the server is online.
  *
  * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
  */
@@ -63,13 +58,6 @@ public class ServerConnection {
                 "not compatible with --uri, but is often used with --port.");
         OPTION_HELP.put("--port", "The RMI listen port of a Geronimo server to deploy to.  This option is " +
                 "not compatible with --uri, but is often used with --host.  The default port is 1099.");
-        OPTION_HELP.put("--offline", "Indicates that you don't want the deployer to try to connect to " +
-                "a Geronimo server over the network.  If you're running on the same machine as the " +
-                "Geronimo installation, using this option means that you're asserting that the" +
-                "Geronimo server is not running.  WARNING: do not use this option if there's a Geronimo " +
-                "server running out of the same Geronimo installation as the deploy tool is from --" +
-                "the results may be unexpected.  Further, only a small number of commands may be" +
-                "run in offline mode.");
         OPTION_HELP.put("--driver", "If you want to use this tool with a server other than Geronimo, " +
                 "then you must provide the path to its driver JAR.  Currently, manifest " +
                 "Class-Path entries in that JAR are ignored.");
@@ -88,9 +76,8 @@ public class ServerConnection {
     /**
      * Checks whether the stated command-line argument is a general argument (which
      * may be the general argument itself, or a required parameter after the general
-     * argument).  For example, if the arguments were "--user bob --offline foo" then
-     * this should return true for "--user" "bob" and "--offline" and false for "foo"
-     * (since --offline does not expect a parameter).
+     * argument).  For example, if the arguments were "--user bob foo" then
+     * this should return true for "--user" and "bob" and false for "foo".
      *
      * @param args The previous arguments on the command line
      * @param option The argument we're checking at the moment
@@ -110,19 +97,17 @@ public class ServerConnection {
     }
 
     private final static String DEFAULT_URI = "deployer:geronimo:jmx";
-    
+
     private DeploymentManager manager;
-    private KernelWrapper kernel;
     private PrintWriter out;
     private BufferedReader in;
     private SavedAuthentication auth;
     private boolean logToSysErr;
     private boolean verboseMessages;
 
-    public ServerConnection(String[] args, boolean forceLocal, PrintWriter out, BufferedReader in) throws DeploymentException {
+    public ServerConnection(String[] args, PrintWriter out, BufferedReader in) throws DeploymentException {
         String uri = null, driver = null, user = null, password = null, host = null;
         Integer port = null;
-        boolean offline = false;
         this.out = out;
         this.in = in;
         for(int i = 0; i < args.length; i++) {
@@ -132,9 +117,6 @@ public class ServerConnection {
                     throw new DeploymentSyntaxException("Cannot specify more than one URI");
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a URI (e.g. --uri deployer:...)");
-                }
-                if(offline) {
-                    throw new DeploymentSyntaxException("Cannot specify a URI in offline mode");
                 }
                 if(host != null || port != null) {
                     throw new DeploymentSyntaxException("Cannot specify a URI as well as a host/port");
@@ -170,32 +152,14 @@ public class ServerConnection {
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a driver JAR (--driver jarfile)");
                 }
-                if(offline) {
-                    throw new DeploymentSyntaxException("Cannot specify a driver in offline mode");
-                }
                 driver = args[++i];
             } else if(arg.equals("--offline")) {
-                if(uri != null) {
-                    throw new DeploymentSyntaxException("Cannot specify a URI in offline mode");
-                }
-                if(driver != null) {
-                    throw new DeploymentSyntaxException("Cannot specify a driver in offline mode");
-                }
-                if(user != null) {
-                    throw new DeploymentSyntaxException("Cannot specify a username in offline mode");
-                }
-                if(password != null) {
-                    throw new DeploymentSyntaxException("Cannot specify a password in offline mode");
-                }
-                offline = true;
+                throw new DeploymentSyntaxException("This tool no longer handles offline deployment");
             } else if(arg.equals("--user")) {
                 if(user != null) {
                     throw new DeploymentSyntaxException("Cannot specify more than one user name");
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a username (--user username)");
-                }
-                if(offline) {
-                    throw new DeploymentSyntaxException("Cannot specify a username in offline mode");
                 }
                 user = args[++i];
             } else if(arg.equals("--password")) {
@@ -203,9 +167,6 @@ public class ServerConnection {
                     throw new DeploymentSyntaxException("Cannot specify more than one password");
                 } else if(i >= args.length-1) {
                     throw new DeploymentSyntaxException("Must specify a password (--password password)");
-                }
-                if(offline) {
-                    throw new DeploymentSyntaxException("Cannot specify a password in offline mode");
                 }
                 password = args[++i];
             } else if (arg.equals("--verbose")) {
@@ -219,39 +180,18 @@ public class ServerConnection {
         if((driver != null) && uri == null) {
             throw new DeploymentSyntaxException("A custom driver requires a custom URI");
         }
-        if(forceLocal && !offline) {
-            throw new DeploymentSyntaxException("This command may only be run offline.  Make sure the server is not running and use the --offline option.");
-        }
-        if(forceLocal && (uri != null || driver != null || user != null || password != null || host != null || port != null)) {
-            throw new DeploymentSyntaxException("This command does not use normal server connectivity.  No standard options are allowed.");
-        }
         if(host != null || port != null) {
             uri = DEFAULT_URI+"://"+(host == null ? "" : host)+(port == null ? "" : ":"+port);
         }
-        if(forceLocal || offline) {
-            initializeKernel();
-        } else {
-            tryToConnect(uri, driver, user, password, true);
-            if(manager == null) {
-                throw new DeploymentException("Unexpected error; connection failed.");
-            }
+        tryToConnect(uri, driver, user, password, true);
+        if(manager == null) {
+            throw new DeploymentException("Unexpected error; connection failed.");
         }
-    }
-
-    private void initializeKernel() throws DeploymentException {
-        if(kernel != null) {
-            throw new IllegalStateException("Kernel is already running!");
-        }
-        kernel = new KernelWrapper();
-        kernel.start();
     }
 
     public void close() throws DeploymentException {
         if(manager != null) {
             manager.release();
-        }
-        if(kernel != null) {
-            kernel.stop();
         }
     }
 
@@ -309,7 +249,7 @@ public class ServerConnection {
         } else { // Standard URI with no auth, Non-standard URI with auth, or else this is the 2nd try already
             try {
                 manager = mgr.getDeploymentManager(useURI, user, password);
-                auth = new SavedAuthentication(useURI, user, password.toCharArray());
+                auth = new SavedAuthentication(useURI, user, password == null ? null : password.toCharArray());
             } catch(AuthenticationFailedException e) { // server's there, you just can't talk to it
                 if(authPrompt) {
                     doAuthPromptAndRetry(useURI, user, password);
@@ -370,57 +310,10 @@ public class ServerConnection {
         return manager;
     }
 
-    public boolean isOnline() {
-        return manager != null;
-    }
-
     public boolean isGeronimo() {
-        return isOnline() && manager.getClass().getName().startsWith("org.apache.geronimo.");
+        return manager.getClass().getName().startsWith("org.apache.geronimo.");
     }
 
-    public Object invokeOfflineDeployer(Object[] args, String[] argTypes) throws DeploymentException {
-        if(kernel == null) {
-            throw new IllegalStateException("Cannot attempt to package when no local kernel is available");
-        }
-        return kernel.invoke(args, argTypes);
-    }
-
-    private static class KernelWrapper extends CommandLine {
-        private ObjectName mainGbean;
-        private String mainMethod;
-        private List configurations;
-
-        public KernelWrapper() {
-            CommandLineManifest entries = CommandLineManifest.getManifestEntries();
-            configurations = entries.getConfigurations();
-            mainGbean = entries.getMainGBean();
-            mainMethod = entries.getMainMethod();
-        }
-
-        public Object invoke(Object[] args, String[] argTypes) throws DeploymentException {
-            try {
-                return getKernel().invoke(mainGbean, mainMethod, args, argTypes);
-            } catch(Exception e) {
-                throw new DeploymentException("Unable to connect to local deployer service", e);
-            }
-        }
-
-        public void start() throws DeploymentException {
-            try {
-                super.startKernel(configurations);
-            } catch(Exception e) {
-                throw new DeploymentException("Unable to start local kernel", e);
-            }
-        }
-
-        public void stop() throws DeploymentException {
-            try {
-                super.stopKernel();
-            } catch(Exception e) {
-                throw new DeploymentException("Unable to stop local kernel", e);
-            }
-        }
-    }
 
     /**
      * Prompts for and grabs a password, trying to suppress any console output

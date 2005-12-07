@@ -19,8 +19,8 @@ package org.apache.geronimo.deployment.cli;
 
 import org.apache.geronimo.common.DeploymentException;
 
-import java.io.PrintWriter;
 import javax.enterprise.deploy.spi.Target;
+import java.io.PrintWriter;
 
 /**
  * The CLI deployer logic to list targets.
@@ -36,9 +36,6 @@ public class CommandListTargets extends AbstractCommand {
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        if(!connection.isOnline()) {
-            throw new DeploymentException("This command cannot be run unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
-        }
         Target[] list = connection.getDeploymentManager().getTargets();
         out.println("Available Targets:");
         for(int i = 0; i < list.length; i++) {

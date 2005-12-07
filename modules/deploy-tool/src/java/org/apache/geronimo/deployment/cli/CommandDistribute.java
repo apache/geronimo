@@ -17,18 +17,17 @@
 
 package org.apache.geronimo.deployment.cli;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
+import org.apache.geronimo.common.DeploymentException;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-
-import org.apache.geronimo.common.DeploymentException;
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * The CLI deployer logic to distribute.
@@ -70,9 +69,6 @@ public class CommandDistribute extends AbstractCommand {
         }
         List targets = new ArrayList();
         args = processTargets(args, targets);
-        if(targets.size() > 0 && !connection.isOnline()) {
-            throw new DeploymentSyntaxException("Cannot specify targets unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
-        }
         if(args.length > 2) {
             throw new DeploymentSyntaxException("Too many arguments");
         }
@@ -112,19 +108,7 @@ public class CommandDistribute extends AbstractCommand {
         if(plan != null) {
             plan = plan.getAbsoluteFile();
         }
-        if(connection.isOnline()) {
-            executeOnline(connection, targets, out, module, plan);
-        } else {
-            executeOffline(connection, out, module, plan);
-        }
-    }
-
-    private void executeOffline(ServerConnection connection, PrintWriter out, File module, File plan) throws DeploymentException {
-        List list = (List)connection.invokeOfflineDeployer(new Object[]{module, plan},
-                        new String[]{File.class.getName(), File.class.getName()});
-        for(Iterator it = list.iterator(); it.hasNext();) {
-            out.println(getAction()+" "+it.next());
-        }
+        executeOnline(connection, targets, out, module, plan);
     }
 
     private void executeOnline(ServerConnection connection, List targets, PrintWriter out, File module, File plan) throws DeploymentException {

@@ -41,17 +41,6 @@
     <!-- ============ -->
 
     <dependencies>
-        <dependency>
-            <groupId>xmlbeans</groupId>
-            <artifactId>xbean</artifactId>
-            <version>${xmlbeans_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>stax</groupId>
-            <artifactId>stax-api</artifactId>
-            <version>${stax_api_version}</version>
-        </dependency>
 
         <dependency>
             <groupId>mx4j</groupId>
@@ -65,12 +54,25 @@
             <version>${mx4j_version}</version>
         </dependency>
 
+ <!--   plugin bootstrap only -->
+         <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+            <version>${xmlbeans_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
+        </dependency>
+
         <!-- Module Dependencies -->
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.currentVersion}</version>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
         </dependency>
 
         <dependency>
@@ -103,23 +105,19 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
+        <!-- for pluginBootstrap only -->
+                <dependency>
+                    <groupId>geronimo</groupId>
+                    <artifactId>geronimo-kernel</artifactId>
+                    <version>${pom.currentVersion}</version>
+                </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-j2ee</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>${geronimo_spec_j2ee_deployment_version}</version>
-        </dependency>
 
     </dependencies>
 

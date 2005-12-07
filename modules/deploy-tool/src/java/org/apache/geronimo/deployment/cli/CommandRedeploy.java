@@ -18,14 +18,17 @@
 package org.apache.geronimo.deployment.cli;
 
 import org.apache.geronimo.common.DeploymentException;
-import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
+
 import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The CLI deployer logic to redeploy.
@@ -55,9 +58,6 @@ public class CommandRedeploy extends AbstractCommand {
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
         setOut(out);
-        if(!connection.isOnline()) {
-            throw new DeploymentException("This command cannot be run unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
-        }
         if(args.length == 0) {
             throw new DeploymentSyntaxException("Must specify a module or plan (or both) and optionally module IDs to replace");
         }

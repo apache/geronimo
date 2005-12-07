@@ -19,14 +19,14 @@ package org.apache.geronimo.deployment.cli;
 
 import org.apache.geronimo.common.DeploymentException;
 
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.exceptions.TargetException;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.exceptions.TargetException;
-import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
  * The CLI deployer logic to start.
@@ -50,9 +50,6 @@ public class CommandStart extends AbstractCommand {
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        if(!connection.isOnline()) {
-            throw new DeploymentException("This command cannot be run unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
-        }
         if(args.length == 0) {
             throw new DeploymentSyntaxException("Must specify at least one module name or TargetModuleID");
         }

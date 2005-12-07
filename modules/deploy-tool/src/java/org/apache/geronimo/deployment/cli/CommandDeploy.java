@@ -19,12 +19,11 @@ package org.apache.geronimo.deployment.cli;
 
 import org.apache.geronimo.common.DeploymentException;
 
-import javax.enterprise.deploy.spi.status.ProgressObject;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import java.io.PrintWriter;
+import javax.enterprise.deploy.spi.status.ProgressObject;
 import java.io.File;
+import java.io.PrintWriter;
 
 /**
  * The CLI deployer logic to deploy (distribute plus start).
@@ -60,9 +59,6 @@ public class CommandDeploy extends CommandDistribute {
     }
 
     public void execute(PrintWriter out, ServerConnection connection, String[] args) throws DeploymentException {
-        if(!connection.isOnline()) {
-            throw new DeploymentException("This command cannot be run unless connecting to a running server.  Specify --url if server is not running on the default port on localhost.");
-        }
         super.execute(out, connection, args);
     }
 }
