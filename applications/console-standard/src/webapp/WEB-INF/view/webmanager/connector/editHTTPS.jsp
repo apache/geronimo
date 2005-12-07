@@ -138,6 +138,51 @@
       the keystore type.  There is normally no reason not to use the default (<tt>JKS</tt>).</td>
   </tr>
 
+<!-- Trust material (Tomcat only) -->
+<c:if test="${server eq 'tomcat'}">
+<!-- Truststore File Field -->
+  <tr>
+    <td><div align="right">Truststore File: </div></td>
+    <td>
+      <input name="truststoreFile" type="text" size="30" value="${truststoreFile}">
+    </td>
+  </tr>
+  <tr>
+    <td><div align="right"></div></td>
+    <td>The file that holds the truststore (relative to the Geronimo install dir)</td>
+  </tr>
+
+<!-- Truststore Password Field -->
+  <tr>
+    <td><div align="right"><c:if test="${mode eq 'save'}">Change </c:if>Truststore Password: </div></td>
+    <td>
+      <input name="truststorePassword" type="password" size="10">
+    </td>
+  </tr>
+  <tr>
+    <td><div align="right"></div></td>
+    <td><c:choose><c:when test="${mode eq 'save'}">Change</c:when><c:otherwise>Set</c:otherwise></c:choose>
+      the password used to verify the truststore file.<c:if test="${mode eq 'save'}">  Leave
+      this empty if you don't want to change the current password.</c:if></td>
+  </tr>
+
+<!-- Truststore Type Field -->
+  <tr>
+    <td><div align="right">Truststore Type: </div></td>
+    <td>
+      <select name="truststoreType">
+        <option<c:if test="${truststoreType eq 'JKS' || logLevel eq ''}"> selected</c:if>>JKS</option>
+        <option<c:if test="${truststoreType eq 'PKCS12'}"> selected</c:if>>PKCS12</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td><div align="right"></div></td>
+    <td><c:choose><c:when test="${mode eq 'save'}">Change</c:when><c:otherwise>Set</c:otherwise></c:choose>
+      the truststore type.  There is normally no reason not to use the default (<tt>JKS</tt>).</td>
+  </tr>
+</c:if>
+
 <!-- Algorithm Field -->
   <tr>
     <td><div align="right">HTTPS Algorithm: </div></td>
@@ -180,9 +225,17 @@
   </tr>
   <tr>
     <td><div align="right"></div></td>
-    <td>If set, then clients connecting through this connector must supply a valid client certificate.  By default, the
-      validity is based on the CA certificates in the server keystore (<i>need to confirm not the JVM default
-      trust keystore</i>).</td>
+    <td>If set, then clients connecting through this connector must supply a valid client certificate.  The
+        validity is checked using the CA certificates stored in the first of these to be found:
+        <ol>
+          <c:if test="${server eq 'tomcat'}">
+            <li>The trust store configured above</li>
+          </c:if>
+            <li>A keystore file specified by the <tt>javax.net.ssl.trustStore</tt> system property</li>
+            <li><i>java-home</i><tt>/lib/security/jssecacerts</tt></li>
+            <li><i>java-home</i><tt>/lib/security/cacerts</tt></li>
+        </ol>
+    </td>
   </tr>
 
 

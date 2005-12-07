@@ -107,6 +107,9 @@ public class ConnectorPortlet extends BasePortlet {
                 String keystorePass = actionRequest.getParameter("keystorePassword");
                 String secureProtocol = actionRequest.getParameter("secureProtocol");
                 String algorithm = actionRequest.getParameter("algorithm");
+                String truststoreType = actionRequest.getParameter("truststoreType");
+                String truststoreFile = actionRequest.getParameter("truststoreFile");
+                String truststorePass = actionRequest.getParameter("truststorePassword");
                 boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
                 SecureConnector secure = (SecureConnector) connector;
                 if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
@@ -119,7 +122,9 @@ public class ConnectorPortlet extends BasePortlet {
                     if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
                 }
                 else if (server.equals(WEB_SERVER_TOMCAT)) {
-                    //todo:   Any Tomcat specific processing?
+                    if(isValid(truststoreType)) {setProperty(secure, "truststoreType", truststoreType);}
+                    if(isValid(truststoreFile)) {setProperty(secure, "truststoreFileName", truststoreFile);}
+                    if(isValid(truststorePass)) {setProperty(secure, "truststorePassword", truststorePass);}
                 }
                 else {
                     //todo:   Handle "should not occur" condition
@@ -172,6 +177,9 @@ public class ConnectorPortlet extends BasePortlet {
                     String keystorePass = actionRequest.getParameter("keystorePassword");
                     String secureProtocol = actionRequest.getParameter("secureProtocol");
                     String algorithm = actionRequest.getParameter("algorithm");
+                    String truststoreType = actionRequest.getParameter("truststoreType");
+                    String truststoreFile = actionRequest.getParameter("truststoreFile");
+                    String truststorePass = actionRequest.getParameter("truststorePassword");
                     boolean clientAuth = isValid(actionRequest.getParameter("clientAuth"));
                     SecureConnector secure = (SecureConnector) connector;
                     if(isValid(keystoreType)) {secure.setKeystoreType(keystoreType);}
@@ -184,7 +192,9 @@ public class ConnectorPortlet extends BasePortlet {
                         if(isValid(privateKeyPass)) {setProperty(secure, "keyPassword", privateKeyPass);}
                     }
                     else if (server.equals(WEB_SERVER_TOMCAT)) {
-                        //todo:   Any Tomcat specific processing?
+                        if(isValid(truststoreType)) {setProperty(secure, "truststoreType", truststoreType);}
+                        if(isValid(truststorePass)) {setProperty(secure, "truststorePassword", truststorePass);}
+                        if(isValid(truststoreFile)) {setProperty(secure, "truststoreFileName", truststoreFile);}
                     }
                     else {
                         //todo:   Handle "should not occur" condition
@@ -342,6 +352,12 @@ public class ConnectorPortlet extends BasePortlet {
                         renderRequest.setAttribute("secureProtocol",secure.getSecureProtocol());
                         if(secure.isClientAuthRequired()) {
                             renderRequest.setAttribute("clientAuth", Boolean.TRUE);
+                        }
+                        if(server.equals(WEB_SERVER_TOMCAT)) {
+                            String truststoreFile = (String)getProperty(secure, "truststoreFileName");
+                            String truststoreType = (String)getProperty(secure, "truststoreType");
+                            renderRequest.setAttribute("truststoreFile", truststoreFile);
+                            renderRequest.setAttribute("truststoreType", truststoreType);
                         }
                     }
 
