@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.geronimo.kernel.Kernel;
@@ -64,6 +65,8 @@ public interface TomcatContext {
     public List getValveChain();    
     
     public CatalinaCluster getCluster();
+    
+    public Manager getManager();
     
     public boolean isCrossContext();
     

@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.cluster.CatalinaCluster;
@@ -168,6 +169,10 @@ public class GeronimoStandardContext extends StandardContext {
         CatalinaCluster cluster = ctx.getCluster();
         if (cluster != null)
             this.setCluster(cluster);
+        
+        Manager manager = ctx.getManager();
+        if (manager != null)
+            this.setManager(manager);
 
         pipelineInitialized = true;
         this.webServiceMap = ctx.getWebServices();

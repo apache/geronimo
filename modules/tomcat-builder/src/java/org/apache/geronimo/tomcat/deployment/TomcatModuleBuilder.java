@@ -80,6 +80,7 @@ import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
+import org.apache.geronimo.tomcat.ManagerGBean;
 import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatClassLoader;
 import org.apache.geronimo.tomcat.TomcatWebAppContext;
@@ -475,6 +476,11 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 webModuleData.setReferencePattern("Cluster", clusterName);
             }
 
+            if (tomcatWebApp.isSetManager()) {
+                String manager = tomcatWebApp.getManager().trim();
+                ObjectName managerName = NameFactory.getComponentName(null, null, null, null, manager, ManagerGBean.J2EE_TYPE, moduleJ2eeContext);
+                webModuleData.setReferencePattern("Manager", managerName);
+            }
             Map portMap = webModule.getPortMap();
 
             //Handle the role permissions and webservices on the servlets.

@@ -954,6 +954,20 @@
             <url>http://jakarta.apache.org/tomcat/</url>
         </dependency>
 
+        <!-- WADI -->
+        <dependency>
+            <groupId>wadi</groupId>
+            <artifactId>wadi-core</artifactId>
+            <version>${wadi_version}</version>
+            <url>http://wadi.codehaus.org/</url>
+        </dependency>
+        <dependency>
+            <groupId>wadi</groupId>
+            <artifactId>wadi-tomcat55</artifactId>
+            <version>${wadi_version}</version>
+            <url>http://wadi.codehaus.org/</url>
+        </dependency>
+
 <!-- jasper -->
         <dependency>
             <groupId>tomcat</groupId>

@@ -93,6 +93,12 @@ Configuration for Tomcat server.
     <dependency>
         <uri>commons-el/commons-el/${commons_el_version}/jar</uri>
     </dependency>
+    <dependency>
+        <uri>wadi/wadi-core/${wadi_version}/jar</uri>
+    </dependency>
+    <dependency>
+        <uri>wadi/wadi-tomcat55/${wadi_version}/jar</uri>
+    </dependency>
 
     <gbean name="TomcatResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
         <!-- copies tomcat initialization files into specified location -->

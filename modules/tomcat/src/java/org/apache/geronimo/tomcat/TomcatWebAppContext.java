@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.management.ObjectName;
 
 import org.apache.catalina.Context;
+import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.cluster.CatalinaCluster;
@@ -79,6 +80,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     private final List valveChain;
     
     private final CatalinaCluster catalinaCluster;
+    
+    private final Manager manager;
 
     private final boolean crossContext;
 
@@ -129,6 +132,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
             CatalinaClusterGBean cluster,
+            ManagerGBean manager,
             boolean crossContext,
             Map webServices,
             J2EEServer server,
@@ -199,6 +203,12 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
            catalinaCluster = (CatalinaCluster)cluster.getInternalObject(); 
         else
             catalinaCluster = null;
+
+        //Add the manaer
+        if (manager != null)
+           this.manager = (Manager)manager.getInternalObject(); 
+        else
+            this.manager = null;
 
         this.crossContext = crossContext;
 
@@ -326,6 +336,10 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return catalinaCluster;
     }
     
+    public Manager getManager() {
+        return manager;
+    }
+    
     public boolean isCrossContext() {
         return crossContext;
     }
@@ -443,6 +457,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class);
+        infoBuilder.addReference("Manager", ManagerGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
@@ -472,6 +487,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "TomcatRealm",
                 "TomcatValveChain",
                 "Cluster",
+                "Manager",
                 "crossContext",
                 "webServices",
                 "J2EEServer",

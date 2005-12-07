@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.catalina.Cluster;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
+import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
 import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardEngine;
@@ -53,7 +54,8 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             Collection hosts,
             ObjectRetriever realmGBean,
             ValveGBean tomcatValveChain,
-            CatalinaClusterGBean clusterGBean) throws Exception {
+            CatalinaClusterGBean clusterGBean,
+            ManagerGBean manager) throws Exception {
         super(); // TODO: make it an attribute
 
         if (className == null){
@@ -82,6 +84,9 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         if (realmGBean != null){
             engine.setRealm((Realm)realmGBean.getInternalObject());
         }
+        
+        if (manager != null)
+            engine.setManager((Manager)manager.getInternalObject());
 
         //Add the valve list
         if (engine instanceof StandardEngine){
@@ -164,6 +169,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
         infoFactory.addReference("CatalinaCluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
+        infoFactory.addReference("Manager", ManagerGBean.class, ManagerGBean.J2EE_TYPE);
         infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] { 
                 "className", 
@@ -171,7 +177,8 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
                 "Hosts", 
                 "RealmGBean", 
                 "TomcatValveChain",
-                "CatalinaCluster" });
+                "CatalinaCluster",
+                "Manager"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
