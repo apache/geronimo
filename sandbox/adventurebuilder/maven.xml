@@ -52,6 +52,15 @@
                 name="${maven.build.dir}/plan/${planName}"/>
         </j:forEach>
 
+        <ant:echo>Building JMS Configuration</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--offline"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${maven.build.dir}/plan/adventure1.0.3-jms-ra-plan.xml"/>
+            <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
+        </ant:java>
+
         <ant:echo>Distributing Database Configuration</ant:echo>
         <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
             <ant:jvmarg value="-ea"/>
@@ -75,6 +84,24 @@
             <ant:arg value="${ab.home}/consumerwebsite.ear"/>
         </ant:java>
 
+        <ant:echo>Distributing Adventure Builder Activity Supplier Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--offline"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${maven.build.dir}/plan/activitysupplier1.0.3.ear-plan.xml"/>
+            <ant:arg value="${ab.home}/activitysupplier.ear"/>
+        </ant:java>
+
+        <ant:echo>Distributing Adventure Builder OPC Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--offline"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${maven.build.dir}/plan/opc1.0.3.ear-plan.xml"/>
+            <ant:arg value="${ab.home}/opc.ear"/>
+        </ant:java>
+
         <ant:echo>Creating Adventure Builder Database Schema</ant:echo>
         <j:invokeStatic className="java.lang.System" method="setProperty">
             <j:arg type="java.lang.String" value="derby.system.home"/>
@@ -93,13 +120,23 @@
         <deploy:startRemoteServer
             geronimoTarget="${instDir}"
             debugPort="8000"
-	    configs="org/apache/geronimo/AdventureBuilder1.0.1"/>
+	    configs="org/apache/geronimo/AdventureBuilder1.0.1 org/apache/geronimo/ActivitySupplier1.0.3 org/apache/geronimo/OPC1.0.3 org/apache/geronimo/RuntimeDeployer"/>
         <ant:echo message="Waiting for server at: ${instDir}"/>
         <deploy:waitForStarted
             uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
             id="org/apache/geronimo/Adventure1.0.1"/>
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/ActivitySupplier1.0.3"/>
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/OPC1.0.3"/>
         <echo message="PetStore has started"/>
     </goal>
 
