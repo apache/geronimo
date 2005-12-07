@@ -105,7 +105,7 @@ Configuration for Tomcat server.
         <attribute name="prefix">META-INF/geronimo-tomcat</attribute>
         <attribute name="path">var/catalina</attribute>
         <reference name="ServerInfo">
-            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
+            <module>geronimo/system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
     </gbean>
