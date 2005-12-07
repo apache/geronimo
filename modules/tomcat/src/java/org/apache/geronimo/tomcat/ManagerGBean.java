@@ -31,18 +31,19 @@ public class ManagerGBean extends BaseGBean implements GBeanLifecycle, ObjectRet
     
     public static final String J2EE_TYPE = "Manager";
     
-    private final Manager manager;
+    protected final Manager manager;
 
+    protected ManagerGBean(String className) throws Exception{
+       super();     
+       manager = (Manager)Class.forName(className).newInstance();
+    }
+    
     public ManagerGBean(String className, 
             Map initParams) throws Exception {
         super(); // TODO: make it an attribute
         //Validate
         if (className == null){
             className = "org.apache.catalina.core.StandardHost";
-        }
-        
-        if (initParams == null){
-            throw new IllegalArgumentException("Must have a 'name' value in initParams.");
         }
         
         //Create the Manager object

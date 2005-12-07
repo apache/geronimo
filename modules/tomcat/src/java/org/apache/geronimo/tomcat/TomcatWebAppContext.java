@@ -47,6 +47,7 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
+import org.apache.geronimo.tomcat.cluster.WADIGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
@@ -132,7 +133,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
             CatalinaClusterGBean cluster,
-            ManagerGBean manager,
+            WADIGBean manager,
             boolean crossContext,
             Map webServices,
             J2EEServer server,
@@ -204,7 +205,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         else
             catalinaCluster = null;
 
-        //Add the manaer
+        //Add the manager
         if (manager != null)
            this.manager = (Manager)manager.getInternalObject(); 
         else
@@ -457,7 +458,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class);
-        infoBuilder.addReference("Manager", ManagerGBean.class);
+        infoBuilder.addReference("Manager", WADIGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);

@@ -20,24 +20,25 @@ import java.util.Map;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.tomcat.ManagerGBean;
+import org.apache.geronimo.tomcat.ObjectRetriever;
+import org.codehaus.wadi.tomcat55.TomcatManager;
 
-public class WADIGBean extends ManagerGBean {
+public class WADIGBean extends ManagerGBean implements GBeanLifecycle, ObjectRetriever{
     
     public WADIGBean() throws Exception{
-        super("org.codehaus.wadi.tomcat55.TomcatManager", null);
+        
+        //super("org.codehaus.wadi.tomcat55.TomcatManager", null);
+        super("org.codehaus.wadi.tomcat55.TomcatManager");
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatManager", WADIGBean.class, J2EE_TYPE);
-        infoFactory.addAttribute("className", String.class, true);
-        infoFactory.addAttribute("initParams", Map.class, true);
-        infoFactory.addOperation("getInternalObject");
-        infoFactory.setConstructor(new String[] { 
-                "className", 
-                "initParams"});
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatManager", WADIGBean.class, ManagerGBean.GBEAN_INFO);
+        //infoFactory.addOperation("getInternalObject");
+        infoFactory.setConstructor(new String[0]);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 
