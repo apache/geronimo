@@ -41,6 +41,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-remote-deploy-lib</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
     </dependencies>
 </project>
