@@ -355,16 +355,6 @@
             </properties>
         </dependency>
 
-        <!-- what is this doing here?? --> 
-        <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
-            <version>${geronimo_spec_j2ee_deployment_version}</version>
-            <properties>
-                <geronimo.assemble>library</geronimo.assemble>
-            </properties>
-        </dependency>
-
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -412,6 +402,55 @@
             </properties>
         </dependency>
 
+
+
+<!--tools -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>online-deployer</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.assemble.executable>bin/deployer.jar</geronimo.assemble.executable>
+            </properties>
+        </dependency>
+
+        <!--dependencies for online-deployer --> 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <version>${geronimo_spec_j2ee_deployment_version}</version>
+            <properties>
+                <geronimo.assemble>library</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-jsr88</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>library</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-tool</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>library</geronimo.assemble>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-util</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>library</geronimo.assemble>
+            </properties>
+        </dependency>
 
 
         <!-- packages we include for others to use, mostly rars -->
