@@ -25,7 +25,6 @@
     xmlns:define="jelly:define"
     xmlns:m="jelly:maven"
     xmlns:velocity="jelly:velocity"
-    xmlns:assemble="geronimo:assembly"
     >
     <!-- ================= -->
     <!-- Global Properties -->
@@ -34,13 +33,7 @@
     <!-- Determine what the top-level project root is -->
     <j:set var="project.root" value="${pom.parentBasedir().getParentFile().getCanonicalFile()}"/>
 
-    <!--
-    <define:taglib uri="geronimo:assembly">
-        <define:jellybean name="installConfig" className="org.apache.geronimo.plugin.assembly.LocalConfigInstaller" method="execute"/>
-        <define:jellybean name="installConfigToRepo" className="org.apache.geronimo.plugin.assembly.RepoConfigInstaller" method="execute"/>
-    </define:taglib>
-    -->
-    <goal name="assemble:izpack-prepare">
+    <goal name="izpack:izpack-prepare">
 	<echo>izpack-prepare is running</echo>
 
         <fileScanner var="installFiles">
@@ -144,7 +137,7 @@
     </goal>
 
 
-    <goal name="assemble:izpack-installer-build" prereqs="assemble:izpack-prepare" >
+    <goal name="izpack:izpack-installer-build" prereqs="izpack:izpack-prepare" >
         <echo>IZPack installer build is running.</echo>
         <echo>IZPack Version is ${izpack_version}</echo>
         <ant:java jar="${maven.repo.local}/izpack/jars/standalone-compiler-${izpack_version}.jar"

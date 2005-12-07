@@ -27,7 +27,7 @@
     <goal name="assemble:install">
         <attainGoal name="assemble:assemble-to-repo"/>
         <!-- build the izpack installer here -->
-        <attainGoal name="assemble:izpack-installer-build"/>
+        <attainGoal name="izpack:izpack-installer-build"/>
     </goal>
 
     <preGoal name="assemble:install">
