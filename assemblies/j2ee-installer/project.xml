@@ -73,6 +73,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>j2ee-corba</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>jetty</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
