@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <processing>
     <!-- J2EE Features -->
+    <job name="Success!">
+	    <executefile name="$JAVA_HOME/bin/java">
+		    <arg>-classpath</arg>
+		    <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
+		    <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
+		    <arg>$INSTALL_PATH/var/config/config.list</arg>
+		    <arg>org/apache/geronimo/RMINaming</arg>
+	    </executefile>
+	    <executeForPack name="J2EE Features"/>
+    </job>
+    <!-- old processing
     <job name="Activating RMI naming configuration">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -52,7 +63,7 @@
         <executeForPack name="J2EE Features"/>
     </job>
 
-    <!-- corba -->
+    <xx !-- corba --xx>
     <job name="Activating base J2EE configuration">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -64,7 +75,7 @@
         <executeForPack name="CORBA Features"/>
     </job>
 
-    <!-- jms -->
+    <xx!-- jms --xx>
     <job name="Activating JMS broker">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -86,7 +97,7 @@
         <executeForPack name="JMS Features"/>
     </job>
 
-    <!-- Jetty -->
+    <xx!-- Jetty --xx>
     <job name="Activating Jetty Web Container">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -108,7 +119,7 @@
         <executeForPack name="Jetty Web Container"/>
     </job>
 
-    <!-- Jetty Welcome app -->
+    <xx!-- Jetty Welcome app --xx>
     <job name="Activating Jetty Welcome Application">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -120,7 +131,7 @@
         <executeForPack name="Jetty Welcome Application"/>
     </job>
 
-     <!-- Jetty Web Management Console -->
+     <xx!-- Jetty Web Management Console --xx>
     <job name="Activating Jetty Web management console">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -132,7 +143,7 @@
         <executeForPack name="Jetty Web Management Console"/>
     </job>
 
-    <!-- Jetty UDDI Server -->
+    <xx!-- Jetty UDDI Server --xx>
     <job name="Activating Jetty UDDI server">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -144,7 +155,7 @@
         <executeForPack name="Jetty UDDI Server"/>
     </job>
 
-    <!-- Tomcat -->
+    <xx!-- Tomcat --xx>
     <job name="Activating Tomcat Web Container">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -166,7 +177,7 @@
         <executeForPack name="Tomcat Web Container"/>
     </job>
 
-    <!-- Tomcat Welcome app -->
+    <xx!-- Tomcat Welcome app --xx>
     <job name="Activating Tomcat Welcome Application">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -178,7 +189,7 @@
         <executeForPack name="Tomcat Welcome Application"/>
     </job>
 
-     <!-- Tomcat Web Management Console -->
+     <xx!-- Tomcat Web Management Console --xx>
     <job name="Activating Tomcat Web management console">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -190,7 +201,7 @@
         <executeForPack name="Tomcat Web Management Console"/>
     </job>
 
-    <!-- Tomcat UDDI Server -->
+    <xx!-- Tomcat UDDI Server --xx>
     <job name="Activating Tomcat UDDI server">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -202,7 +213,7 @@
         <executeForPack name="Tomcat UDDI Server"/>
     </job>
 
-    <!-- LDAP Server -->
+    <xx!-- LDAP Server --xx>
     <job name="Activating LDAP server">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -214,7 +225,7 @@
         <executeForPack name="LDAP Server"/>
     </job>
 
-    <!-- Sample Database Pool -->
+    <xx!-- Sample Database Pool --xx>
     <job name="Activating sample database pool">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -226,7 +237,7 @@
         <executeForPack name="Sample Database Pool"/>
     </job>
 
-    <!-- Spring Integration -->
+    <xx!-- Spring Integration --xx>
     <job name="Activating Spring integration">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -249,7 +260,7 @@
         <executeForPack name="Spring Integration"/>
     </job>
 
-    <!-- JMX Debug Web Application -->
+    <xx!-- JMX Debug Web Application --xx>
     <job name="Activating JMX debug application">
         <executefile name="$JAVA_HOME/bin/java">
             <arg>-classpath</arg>
@@ -260,6 +271,7 @@
         </executefile>
         <executeForPack name="JMX Debug Web Application"/>
     </job>
+    -->
 
     <!-- Demo Web Application -->
 <!--    <job name="Activating sample security realm">-->

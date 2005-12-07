@@ -170,6 +170,24 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
+	<dependency>
+		<groupId>geronimo</groupId>
+		<artifactId>servlets-examples-jetty</artifactId>
+		<type>car</type>
+		<version>${pom.currentVersion}</version>
+		<properties>
+			<geronimo.assemble>install</geronimo.assemble>
+		</properties>
+	</dependency>
+	<dependency>
+		<groupId>geronimo</groupId>
+		<artifactId>jsp-examples-jetty</artifactId>
+		<type>car</type>
+		<version>${pom.currentVersion}</version>
+		<properties>
+			<geronimo.assemble>install</geronimo.assemble>
+		</properties>
+	</dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>webconsole-jetty</artifactId>

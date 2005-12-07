@@ -25,7 +25,10 @@
 
     <!-- replace the assemble:install goal with jelly code to build the installer -->
     <goal name="assemble:install">
-        <attainGoal name="assemble:assemble-to-repo"/>
+<!-- this will assemble but put the cars in the repository instead of the config-store-->
+        <!--attainGoal name="assemble:assemble-to-repo"/-->
+<!-- for now we just assemble a normal geronimo server with the cars installed into the config-store -->
+        <attainGoal name="assemble:assemble"/>
         <!-- build the izpack installer here -->
         <attainGoal name="izpack:izpack-installer-build"/>
     </goal>

@@ -221,7 +221,9 @@
     <goal name="assemble:assemble-to-repo" prereqs="assemble:assemble-prepare" description="Assemble a Geronimo installation">
         <attainGoal name="assemble:assemble-repository"/>
         <attainGoal name="assemble:assemble-lib"/>
+        <attainGoal name="assemble:assemble-unpack"/>
         <attainGoal name="assemble:assemble-configurations-to-repo"/>
+        <attainGoal name="assemble:assemble-schemas"/>
     </goal>
 
     <goal name="assemble:jar-assembly" prereqs="assemble:assemble">
