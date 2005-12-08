@@ -70,6 +70,16 @@ Configuration for Jetty server.
         <attribute name="minThreads">10</attribute>
     </gbean>
 
+    <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty.connector.AJP13Connector">
+        <attribute name="host">${PlanServerHostname}</attribute>
+        <attribute name="port">${PlanAJPPort2}</attribute>
+        <reference name="JettyContainer">
+            <name>JettyWebContainer</name>
+        </reference>
+        <attribute name="maxThreads">50</attribute>
+        <attribute name="minThreads">10</attribute>
+    </gbean>
+
     <gbean name="JettySSLConnector" class="org.apache.geronimo.jetty.connector.HTTPSConnector">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanHTTPSPort}</attribute>
