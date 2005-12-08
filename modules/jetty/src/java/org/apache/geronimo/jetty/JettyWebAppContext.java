@@ -283,13 +283,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         if (getSessionManager()!=null) {
         	Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
           Object o = clazz.newInstance();
-
-        	System.out.println("created object class="+getSessionManager());
-System.out.println (o.getClass().getName());
-        		Class[] ifs = o.getClass().getInterfaces();
-        		for (int i=0;i<ifs.length;i++)
-        			System.out.println ("implements: "+ifs[i].getName());
-
         	getServletHandler().setSessionManager((SessionManager)o);
         }
 
