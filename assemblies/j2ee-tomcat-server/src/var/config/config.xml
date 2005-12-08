@@ -17,7 +17,7 @@
         </gbean>
     </configuration>
     <configuration name="geronimo/j2ee-server/${pom.currentVersion}/car">
-        <gbean name="openejb:type=NetworkService,name=EJB">
+        <gbean name="geronimo:name=EJB,type=NetworkService">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanOpenEJBPort}</attribute>
         </gbean>
