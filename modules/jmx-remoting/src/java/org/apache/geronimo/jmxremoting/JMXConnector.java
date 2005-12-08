@@ -124,9 +124,18 @@ public class JMXConnector implements GBeanLifecycle {
     }
 
     public void doStop() throws Exception {
-        server.stop();
-        server = null;
-        log.debug("Stopped JMXConnector " + url);
+        try {
+        	  server.stop();
+        } catch (java.io.IOException e) {
+        	  // java.io.IOException is expected.
+        } catch (Exception e) {
+        	  // Otherwise, something bad happened.  Rethrow the exception.
+        	  throw e;
+        }
+        finally {
+          server = null;
+          log.debug("Stopped JMXConnector " + url);
+        }
     }
 
     public void doFail() {
