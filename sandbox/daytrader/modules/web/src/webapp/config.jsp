@@ -148,9 +148,9 @@ for (int i = 0; i < names.length; i++) {
 			</TD>
 			<TD>
 			<BR>
-			Access Mode determines the protocol used by the Trade Web application
+			Access Mode determines the protocol used by the DayTrader Web application
 			to access server side services. The Standard mode uses the default
-			Java RMI protocol. The Web Services mode uses the WebSpheres
+			Java RMI protocol. The Web Services mode uses the Axis 
 			implementation of Web Services including SOAP, WSDL and UDDI. <BR>
 			For the Web Services Access mode, set the Web Services Endpoint URL
 			to point to the host and port which is running the Trade Application
@@ -300,11 +300,8 @@ for (int i = 0; i < names.length; i++) {
 				color="#ffffff"><B>Trade</B></FONT></TD>
 		</TR>
 		<TR>
-			<TD colspan="2" align="center">Created&nbsp;with&nbsp;IBM WebSphere
-			Application Server and WebSphere Studio Application Developer<BR>
-
-
-			Copyright 2000, IBM Corporation</TD>
+            <TD colspan="2" align="center">Apache Geronimo Performance Benchmark Sample DayTrader<BR>
+Copyright 2005, Apache Software Foundation</TD>
 		</TR>
 	</TBODY>
 </TABLE>

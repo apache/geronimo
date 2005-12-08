@@ -116,10 +116,8 @@ String results =   (String) request.getAttribute ( "results" );
 			<TD align="center" bgcolor="#ffffff" width="100" height="10"><IMG src="images/tradeLogo.gif" border="0" width="45" height="19"></TD>
 		</TR>
         <TR>
-            <TD colspan="2" align="center"> Created&nbsp;with&nbsp;IBM WebSphere Application Server and WebSphere Studio Application Developer<BR>
-
- 
-Copyright 2000, IBM Corporation</TD>
+            <TD colspan="2" align="center">Apache Geronimo Performance Benchmark Sample DayTrader<BR>
+Copyright 2005, Apache Software Foundation</TD>
         </TR>
     </TBODY>
 </TABLE>

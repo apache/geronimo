@@ -1,7 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<META name="GENERATOR" content="IBM WebSphere Page Designer V3.5.1 for Windows">
 <META http-equiv="Content-Style-Type" content="text/css">
 <TITLE>Trade Portfolio</TITLE>
 <LINK rel="stylesheet" href="style.css" type="text/css" />
@@ -214,10 +213,8 @@ catch (Exception e)
             <TD align="center" bgcolor="#000000" width="100" height="10"><FONT color="#ffffff"><B>Trade</B></FONT></TD>
         </TR>
         <TR>
-            <TD colspan="2" align="center"> Created&nbsp;with&nbsp;IBM WebSphere Application Server and WebSphere Studio Application Developer<BR>
-
- 
-Copyright 2000, IBM Corporation</TD>
+            <TD colspan="2" align="center">Apache Geronimo Performance Benchmark Sample DayTrader<BR>
+Copyright 2005, Apache Software Foundation</TD>
         </TR>
     </TBODY>
 </TABLE>
