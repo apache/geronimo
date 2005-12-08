@@ -71,6 +71,7 @@ import org.mortbay.jetty.servlet.Dispatcher;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.JSR154Filter;
 import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.servlet.SessionManager;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 
@@ -104,6 +105,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     private final String objectName;
 
+    private String sessionManager;
+
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
@@ -122,13 +125,14 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         securityInterceptor = null;
         welcomeFiles = null;
         objectName = null;
-
+        sessionManager = null;
     }
 
     public JettyWebAppContext(String objectName,
                               String originalSpecDD,
                               URI uri,
                               String[] virtualHosts,
+                              String sessionManager,
                               Map componentContext,
                               OnlineUserTransaction userTransaction,
                               ClassLoader classLoader,
@@ -209,6 +213,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setClassLoader(this.webClassLoader);
 
         setHosts(virtualHosts);
+        this.sessionManager = sessionManager;
         handler = new WebApplicationHandler();
         addHandler(handler);
 
@@ -273,6 +278,21 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
         handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR);
+
+        //setup a SessionManager
+        if (getSessionManager()!=null) {
+        	Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
+          Object o = clazz.newInstance();
+
+        	System.out.println("created object class="+getSessionManager());
+System.out.println (o.getClass().getName());
+        		Class[] ifs = o.getClass().getInterfaces();
+        		for (int i=0;i<ifs.length;i++)
+        			System.out.println ("implements: "+ifs[i].getName());
+
+        	getServletHandler().setSessionManager((SessionManager)o);
+        }
+
     }
 
     public String getObjectName() {
@@ -468,6 +488,12 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         }
     }
 
+
+    public String getSessionManager(){
+    	return this.sessionManager;
+    }
+
+
     /**
      * ObjectName must match this pattern:
      * <p/>
@@ -523,6 +549,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
 
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -547,6 +574,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoBuilder.addAttribute("uri", URI.class, true);
         infoBuilder.addAttribute("virtualHosts", String[].class, true);
+        infoBuilder.addAttribute("sessionManager", String.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
@@ -589,6 +617,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             "deploymentDescriptor",
             "uri",
             "virtualHosts",
+            "sessionManager",
             "componentContext",
             "userTransaction",
             "classLoader",

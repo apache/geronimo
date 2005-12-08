@@ -479,6 +479,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
             webModuleData.setAttribute("virtualHosts", hosts);
 
+            //session manager
+            webModuleData.setAttribute("sessionManager", jettyWebApp.getSessionManager());
+            
             //Add dependencies on managed connection factories and ejbs in this app
             //This is overkill, but allows for people not using java:comp context (even though we don't support it)
             //and sidesteps the problem of circular references between ejbs.
