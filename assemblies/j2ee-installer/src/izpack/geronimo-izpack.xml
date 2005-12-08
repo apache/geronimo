@@ -22,7 +22,7 @@
         <res id="LicencePanel.licence" src="${InstallSource}/LICENSE.txt"/>
 	<res id="InfoPanel.info" src="${InstallSource}/RELEASE-NOTES-${ReleaseNotesVersion}.txt"/>
 	<res id="userInputSpec.xml" src="${InstallSource}/izpack-user-input.xml" />
-	<res id="ProcessPanel.Spec.xml" src="${InstallSource}/izpack-process.xml" />
+<!--	<res id="ProcessPanel.Spec.xml" src="${InstallSource}/izpack-process.xml" /> -->
 	<res id="ImgPacksPanel.img.0" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
 	<res id="ImgPacksPanel.img.1" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
 	<res id="ImgPacksPanel.img.2" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
@@ -60,7 +60,7 @@
         <panel classname="UserInputPanel"/>
 	<panel classname="UserInputPanel"/>
         <panel classname="InstallPanel"/>
-        <panel classname="ProcessPanel"/>
+<!--        <panel classname="ProcessPanel"/> -->
         <panel classname="InfoPanel"/>
         <panel classname="FinishPanel"/>
     </panels>

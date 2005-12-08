@@ -72,8 +72,10 @@
               fork="true" >
            <arg value="${geronimo.assembly.dest}/geronimo-izpack.xml" />
            <arg value="-o" />
-           <arg value="${geronimo.assembly.dest}/geronimo-installer.jar" />
+           <arg value="${maven.build.dir}/geronimo-installer-${pom.currentVersion}.jar" />
         </ant:java>
-
+        <ant:copy file="${maven.build.dir}/geronimo-installer-${pom.currentVersion}.jar" todir="${maven.repo.local}/${pom.groupId}/distributions" />
+        <checksum file="${maven.repo.local}/${pom.groupId}/distributions/geronimo-installer-${pom.currentVersion}.jar" algorithm="MD5" />
+        <checksum file="${maven.repo.local}/${pom.groupId}/distributions/geronimo-installer-${pom.currentVersion}.jar" algorithm="SHA" />
     </goal>
 </project>
