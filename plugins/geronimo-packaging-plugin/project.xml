@@ -75,6 +75,15 @@
             </properties>
          </dependency>
 
+        <dependency>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-qname</artifactId>
+            <version>1.1-rc4</version>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
+        </dependency>
+
         <!-- dependency addition -->
         <dependency>
             <groupId>geronimo</groupId>
