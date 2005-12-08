@@ -139,6 +139,8 @@
         <ant:unjar dest="${maven.build.dir}/schema">
             <ant:patternset>
                 <ant:include name="schemaorg_apache_xmlbeans/src/**/*.xsd"/>
+                <!-- we put the dtds in, not xmlbeans -->
+                <ant:include name="schemaorg_apache_xmlbeans/src/**/*.dtd"/>
             </ant:patternset>
             <ant:fileset dir="${geronimo.assembly.dest}/repository">
                 <ant:include name="*/jars/*-builder-*.jar"/>

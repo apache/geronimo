@@ -63,7 +63,22 @@
 
     </dependencies>
 
-    <!--build>
-        <sourceDirectory>${basedir}/src</sourceDirectory>
-    </build-->
+<!--
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/j2ee_1_2dtd</directory>
+                <includes>
+                    <include>**/*.dtd</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/j2ee_1_3dtd</directory>
+                <includes>
+                    <include>**/*.dtd</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+-->
 </project>
