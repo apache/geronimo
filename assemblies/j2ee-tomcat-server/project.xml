@@ -504,6 +504,22 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbyclient</artifactId>
+            <version>${derby_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derbytools</artifactId>
+            <version>${derby_version}</version>
+            <properties>
+                <geronimo.assemble>repository</geronimo.assemble>
+            </properties>
+        </dependency>
 
         <!-- all our specs.  These should be all included via transitive dependencies but most arent -->
         <dependency>
