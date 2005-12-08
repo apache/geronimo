@@ -82,10 +82,10 @@
     <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</attribute>
+            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</attribute>
         </gbean>
         <gbean name="EJBBuilder">
-            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Jetty,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
+            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/tomcat/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=TomcatWebContainer</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car"/>
