@@ -25,10 +25,16 @@
     <description>An assembly of Geronimo for the IZPack installer</description>
 
     <dependencies>
-        <!-- plugin we use --> 
+        <!-- plugin we use -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-assembly-plugin</artifactId>
+            <type>plugin</type>
+            <version>${pom.currentVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-izpack-plugin</artifactId>
             <type>plugin</type>
             <version>${pom.currentVersion}</version>
         </dependency>
@@ -289,7 +295,7 @@
             </properties>
         </dependency>
 
-        <!-- unpack --> 
+        <!-- unpack -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-scripts</artifactId>
@@ -354,7 +360,7 @@
                 <geronimo.assemble>library</geronimo.assemble>
             </properties>
         </dependency>
- 
+
        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
@@ -363,7 +369,7 @@
                 <geronimo.assemble>library</geronimo.assemble>
             </properties>
         </dependency>
- 
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
@@ -443,7 +449,7 @@
             </properties>
         </dependency>
 
-        <!--dependencies for online-deployer --> 
+        <!--dependencies for online-deployer -->
         <dependency>
             <groupId>geronimo-spec</groupId>
             <artifactId>geronimo-spec-j2ee-deployment</artifactId>
@@ -712,14 +718,14 @@
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
-            <version>${antlr_version}</version>                                                         
+            <version>${antlr_version}</version>
         </dependency>
 
         <dependency>
             <!--what is using this? -->
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
-            <version>${asm_version}</version>                                                         
+            <version>${asm_version}</version>
         </dependency>
 
         <dependency>

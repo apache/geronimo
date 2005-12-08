@@ -98,12 +98,12 @@
             <version>${geronimo_version}</version>
         </dependency>
         <!-- dependency on deployer -->
-<!--        <dependency>-->
-<!--            <groupId>geronimo</groupId>-->
-<!--            <artifactId>geronimo-packaging-plugin</artifactId>-->
-<!--            <version>${geronimo_version}</version>-->
-<!--            <type>plugin</type>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_version}</version>
+            <type>plugin</type>
+        </dependency>
 
     </dependencies>
 </project>
