@@ -289,7 +289,7 @@ public class Daemon {
             GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
 
             if (configs.isEmpty()) {
-                // -override wasn't used (nothing explicit), see what was running before
+                // --override wasn't used (nothing explicit), see what was running before
                 Set configLists = kernel.listGBeans(query);
                 for (Iterator i = configLists.iterator(); i.hasNext();) {
                     ObjectName configListName = (ObjectName) i.next();

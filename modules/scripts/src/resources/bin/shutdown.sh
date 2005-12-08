@@ -15,44 +15,46 @@
 #   limitations under the License.
 
 # --------------------------------------------------------------------
+# Shutdown script file for Geronimo.
+#
+# This script calls the geronimo.sh script passing "stop" as the
+# first argument followed by the arguments supplied by the caller.
+#
+# Refer to the documentation in the geronimo.sh file for information
+# on environment variables etc.
+#
+# This script is based upon Tomcat's shutdown.sh file to enable
+# those familiar with Tomcat to easily stop Geronimo.
+# 
+# Alternatively you can use the more comprehensive geronimo.sh file 
+# directly.
+#
+# Usage:  shutdown.sh [geronimo_args ...]
+#
 # $Rev$ $Date$
 # --------------------------------------------------------------------
 
-ARGS=
-
-if [ -z "$JAVA_HOME" ]; then
-    JAVA=`which java`
-    if [ -z "$JAVA" ]; then
-        echo "Unable to locate Java binary. Please add it to the PATH."
-        exit 1
-    fi
-    JAVA_BIN=`dirname $JAVA`
-    JAVA_HOME=$JAVA_BIN/..
-fi
-
-JAVA=$JAVA_HOME/bin/java
-if [ ! -f "$JAVA" ]; then 
-    echo "Unable to locate Java"
-    exit 1
-fi
-
+# resolve links - $0 may be a softlink
 PRG="$0"
+
 while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '.*/.*' > /dev/null; then
-        PRG="$link"
-    else
-        PRG=`dirname "$PRG"`/"$link"
-    fi
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '.*/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
 done
-
+ 
 PRGDIR=`dirname "$PRG"`
-SHUTDOWN_JAR=$PRGDIR/shutdown.jar
+EXECUTABLE=geronimo.sh
 
-if [ ! -f "$SHUTDOWN_JAR" ]; then 
-    echo "Unable to locate the $SHUTDOWN_JAR jar"
-    exit 1
+# Check that target executable exists
+if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
+  echo "Cannot find $PRGDIR/$EXECUTABLE"
+  echo "This file is needed to run this program"
+  exit 1
 fi
 
-$JAVA $ARGS -jar $SHUTDOWN_JAR "$@"
+exec "$PRGDIR"/"$EXECUTABLE" stop "$@"

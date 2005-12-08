@@ -15,44 +15,60 @@
 #   limitations under the License.
 
 # --------------------------------------------------------------------
+# Startup script file for Geronimo that starts Geronimo in the background.
+#
+# This script calls the geronimo.sh script passing "start" as the
+# first argument followed by the arguments supplied by the caller.
+#
+# Refer to the documentation in the geronimo.sh file for information
+# on environment variables etc.
+#
+# This script is based upon Tomcat's startup.sh file to enable
+# those familiar with Tomcat to quickly get started with Geronimo.
+# 
+# Alternatively you can use the more comprehensive geronimo.sh file 
+# directly.
+#
+# Usage:  startup.sh [geronimo.sh_args] [geronimo_args ...]
+#
 # $Rev$ $Date$
 # --------------------------------------------------------------------
 
-ARGS=
+os400=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+OS400*) os400=true;;
+esac
 
-if [ -z "$JAVA_HOME" ]; then
-    JAVA=`which java`
-    if [ -z "$JAVA" ]; then
-        echo "Unable to locate Java binary. Please add it to the PATH."
-        exit 1
-    fi
-    JAVA_BIN=`dirname $JAVA`
-    JAVA_HOME=$JAVA_BIN/..
-fi
-
-JAVA=$JAVA_HOME/bin/java
-if [ ! -f "$JAVA" ]; then 
-    echo "Unable to locate Java"
-    exit 1
-fi
-
+# resolve links - $0 may be a softlink
 PRG="$0"
+
 while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '.*/.*' > /dev/null; then
-        PRG="$link"
-    else
-        PRG=`dirname "$PRG"`/"$link"
-    fi
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '.*/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG=`dirname "$PRG"`/"$link"
+  fi
 done
-
+ 
 PRGDIR=`dirname "$PRG"`
-SERVER_JAR=$PRGDIR/server.jar
+EXECUTABLE=geronimo.sh
 
-if [ ! -f "$SERVER_JAR" ]; then 
-    echo "Unable to locate the $SERVER_JAR jar"
+# Check that target executable exists
+if $os400; then
+  # -x will Only work on the os400 if the files are: 
+  # 1. owned by the user
+  # 2. owned by the PRIMARY group of the user
+  # this will not work if the user belongs in secondary groups
+  eval
+else
+  if [ ! -x "$PRGDIR"/"$EXECUTABLE" ]; then
+    echo "Cannot find $PRGDIR/$EXECUTABLE"
+    echo "This file is needed to run this program"
     exit 1
-fi
+  fi
+fi 
 
-$JAVA $ARGS -jar $SERVER_JAR "$@" 
+exec "$PRGDIR"/"$EXECUTABLE" start "$@"
