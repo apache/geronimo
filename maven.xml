@@ -285,7 +285,7 @@
     <goal name="m:checkout">
         <!--gscm:checkout module="activemq" root="${geronimo.activemq.cvs.access}@cvs.activemq.codehaus.org:/home/projects/activemq/scm"/-->
         <!--gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/-->
-        <gscm:checkout module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm"/>
+        <gscm:checkout-tag module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm" tag="v2_0"/>
 <!--
         <mkdir dir="${basedir}/tranql"/>
         <gscm:checkout module="tranql" dest="${basedir}/tranql" root="${geronimo.tranql.cvs.access}@cvs.tranql.codehaus.org:/home/projects/tranql/scm"/>
