@@ -115,6 +115,14 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
         return https.getNeedClientAuth();
     }
 
+    public void setClientAuthRequested(boolean wantClientAuth) {
+        https.setWantClientAuth(wantClientAuth);
+    }
+
+    public boolean isClientAuthRequested() {
+        return https.getWantClientAuth();
+    }
+
     public void doStart() throws Exception {
         https.setKeystore(serverInfo.resolvePath(keystore));
         super.doStart();
@@ -131,6 +139,7 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
         infoFactory.addAttribute("secureProtocol", String.class, true, true);
         infoFactory.addAttribute("keystoreType", String.class, true, true);
         infoFactory.addAttribute("clientAuthRequired", boolean.class, true, true);
+        infoFactory.addAttribute("clientAuthRequested", boolean.class, true, true);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addInterface(JettySecureConnector.class);
         infoFactory.setConstructor(new String[]{"JettyContainer", "ServerInfo"});
