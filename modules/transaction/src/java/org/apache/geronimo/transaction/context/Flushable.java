@@ -14,10 +14,11 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
 package org.apache.geronimo.transaction.context;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface Flushable {
     void flush() throws Exception;

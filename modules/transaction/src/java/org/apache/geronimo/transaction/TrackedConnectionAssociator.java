@@ -24,7 +24,7 @@ import javax.resource.ResourceException;
  *
  * @version $Rev$ $Date$
  *
- * */
+ */
 public interface TrackedConnectionAssociator {
 
     InstanceContext enter(InstanceContext newInstanceContext)

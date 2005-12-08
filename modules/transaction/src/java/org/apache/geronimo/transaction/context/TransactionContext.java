@@ -28,7 +28,6 @@ import javax.transaction.xa.XAResource;
 import org.apache.geronimo.transaction.ConnectionReleaser;
 import org.apache.geronimo.transaction.InstanceContext;
 
-
 /**
  * @version $Rev$ $Date$
  */
