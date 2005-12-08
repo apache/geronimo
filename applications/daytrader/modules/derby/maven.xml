@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Rev: 45928 $ $Date: 2004-09-11 17:03:39 -0700 (Sat, 11 Sep 2004) $ -->
+<!-- $Rev$ $Date$ -->
 
 <project default="default"
     xmlns:j="jelly:core"
