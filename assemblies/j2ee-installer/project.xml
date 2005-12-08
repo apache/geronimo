@@ -1101,21 +1101,14 @@
             <version>${xfire_version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-spring</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-spring-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
+        <!-- for service mix and wadi -->
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring</artifactId>
             <version>${spring_version}</version>
         </dependency>
+
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-console-core</artifactId>

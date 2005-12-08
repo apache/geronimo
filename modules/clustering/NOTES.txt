@@ -1,6 +1,0 @@
-
-It might be important (for Object identity) to use the same
-outputstream for all attributes of the same session - consider...
-
-When a tier registers data with a node, we need to raise a DataDelta
-
