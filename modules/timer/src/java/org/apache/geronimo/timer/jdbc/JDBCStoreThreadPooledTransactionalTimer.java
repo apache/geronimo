@@ -38,7 +38,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  *
  * @version $Rev$ $Date$
  *
- * */
+ */
 public class JDBCStoreThreadPooledTransactionalTimer extends ThreadPooledTimer {
 
     public JDBCStoreThreadPooledTransactionalTimer(int repeatCount,
