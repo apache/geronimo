@@ -1,0 +1,6 @@
+----------------------------------------------------------------
+2005-09-19 00:48:12.271 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.1.1.0 - (208786): instance c013800d-0106-6bda-2cde-000000105770
+on database directory /home/hogstrom/geronimo/dayTrader/maven/derby/tradedb 
+
+Database Class Loader started - derby.database.classpath=''

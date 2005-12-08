@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <extend>../../project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <id>daytrader-ejb</id>
+  <name>DayTrader EJBs</name>
+  <package>org.apache.geronimo.samples.daytrader.ejb</package>
+  <description>Day Trader EJBs</description>
+  <dependencies>
+    <dependency>
+      <groupId>daytrader</groupId>
+      <artifactId>daytrader-core</artifactId>
+      <version>${pom.currentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>daytrader</groupId>
+      <artifactId>daytrader-wsappclient</artifactId>
+      <version>${pom.currentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee</artifactId>
+      <version>1.4-rc4</version>
+    </dependency>
+     <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.3</version>
+      <properties>
+        <ejb.bundle>true</ejb.bundle>
+      </properties>
+    </dependency>
+    
+  </dependencies>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/NaughtyTest.java</exclude>
+      </excludes>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>META-INF/ejb-jar.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>
