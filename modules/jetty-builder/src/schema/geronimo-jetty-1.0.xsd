@@ -45,6 +45,7 @@
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>
             <xs:element name="virtual-host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="session-manager" type="xs:string" minOccurs="0"/>
 
             <xs:group ref="naming:jndiEnvironmentRefsGroup"/>
             <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>

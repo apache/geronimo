@@ -29,6 +29,7 @@
     <xs:complexType name="jetty-configType">
         <xs:sequence>
             <xs:element name="virtual-host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="session-manager" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
