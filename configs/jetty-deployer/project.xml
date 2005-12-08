@@ -20,10 +20,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-<!-- hack to get all the dependencies from j2ee-deployer in the classpath -->
-<!-- if we can avoid having the Forehead CL as parent this might not be necessary -->
-    <extend>../j2ee-deployer/project.xml</extend>
-<!--    <extend>../../etc/project.xml</extend>-->
+    <extend>../../etc/project.xml</extend>
     <id>jetty-deployer</id>
     <name>Jetty Deployer Configuration for the J2EE Server</name>
 

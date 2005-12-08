@@ -20,8 +20,7 @@
 
 <project>
     <pomVersion>3</pomVersion>
-    <extend>../j2ee-server/project.xml</extend>
-<!--    <extend>../../etc/project.xml</extend>-->
+    <extend>../../etc/project.xml</extend>
     <id>j2ee-deployer</id>
     <name>Configuration for performing J2EE deployments</name>
 
