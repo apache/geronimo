@@ -95,7 +95,7 @@
     </gbean>
 
     <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
-        <attribute name="defaultClientParentId">org/apache/geronimo/Client</attribute>
+        <attribute name="defaultClientParentId">${pom.groupId}/client/${pom.currentVersion}/car</attribute>
         <attribute name="defaultServerParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
         <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
