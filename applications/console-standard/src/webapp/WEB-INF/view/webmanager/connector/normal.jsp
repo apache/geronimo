@@ -75,6 +75,7 @@
            <portlet:param name="protocol" value="${protocol}" />
            <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
            <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
+           <portlet:param name="containerDisplayName" value="${container.name}" />
          </portlet:actionURL>">Add new ${protocol} listener for ${container.name}</a>
 </c:forEach>
 

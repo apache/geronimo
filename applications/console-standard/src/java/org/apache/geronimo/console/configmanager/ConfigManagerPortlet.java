@@ -17,12 +17,18 @@
 
 package org.apache.geronimo.console.configmanager;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.SecurityConstants;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.management.State;
 
 import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
@@ -33,21 +39,12 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.ObjectNameConstants;
-import org.apache.geronimo.console.util.SecurityConstants;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.management.State;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
@@ -100,11 +97,12 @@ public class ConfigManagerPortlet extends BasePortlet {
             URI configID = URI.create(config);
 
             if (START_ACTION.equals(action)) {
-                if (!configurationManager.isLoaded(configID)) {
-                    configurationManager.load(configID);
+                List list = configurationManager.loadRecursive(configID);
+                for (Iterator it = list.iterator(); it.hasNext();) {
+                    URI uri = (URI) it.next();
+                    configurationManager.loadGBeans(uri);
+                    configurationManager.start(uri);
                 }
-                configurationManager.loadGBeans(configID);
-                configurationManager.start(configID);
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {
                 configurationManager.stop(configID);

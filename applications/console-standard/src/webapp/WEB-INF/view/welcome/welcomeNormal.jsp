@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@ page import="org.apache.geronimo.console.util.PortletManager" %>
 <portlet:defineObjects/>
 
 
@@ -48,16 +49,13 @@
                 <tr>
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
-                        <%-- Is there any way to not hardcode /console?  The problem is, this
-                             code runs from /console-standard, so the context root is not correct.
-                             Perhaps there's some tag to point to a different portlet, but what
-                             about the images?  --%>
-                        <img src="/console/images/ico_db_16x16.gif" /><a href="/console/portal/services/services_jdbc">Database Pools</a><br />
-                        <img src="/console/images/ico_lock_16x16.gif" /><a href="/console/portal/Security/Security_realms">Security Realms</a><br />
-                        <img src="/console/images/ico_beanjar_16x16.gif" /><a href="/console/portal/services/services_jms">JMS Resources</a><br />
-                        <img src="/console/images/ico_list_16x16.gif" /><a href="/console/portal/apps/apps_all">Deploy Applications</a><br />
-                        <img src="/console/images/ico_servcomp_16x16.gif" /><a href="/console/portal/server/server_web">Web Server Ports</a><br />
-                        <img src="/console/images/ico_look_16x16.gif" /><a href="/console/portal/server/server_info">Memory &amp; Uptime</a><br />
+	                    <% String consoleServletPath = PortletManager.getConsoleFrameworkServletPath(request); %>
+                        <img src="<%=consoleServletPath%>/../images/ico_db_16x16.gif" /><a href="<%=consoleServletPath%>/services/services_jdbc">Database Pools</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_lock_16x16.gif" /><a href="<%=consoleServletPath%>/Security/Security_realms">Security Realms</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_beanjar_16x16.gif" /><a href="<%=consoleServletPath%>/services/services_jms">JMS Resources</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_list_16x16.gif" /><a href="<%=consoleServletPath%>/apps/apps_all">Deploy Applications</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_servcomp_16x16.gif" /><a href="<%=consoleServletPath%>/server/server_web">Web Server Ports</a><br />
+                        <img src="<%=consoleServletPath%>/../images/ico_look_16x16.gif" /><a href="<%=consoleServletPath%>/server/server_info">Memory &amp; Uptime</a><br />
                         &nbsp;<br />
                     </td>
                 </tr>

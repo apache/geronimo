@@ -48,7 +48,6 @@ function <portlet:namespace/>validateForm(){
 }
 </script>
 
-<c:set var="increment" value="10"/>
 <table>
 <tr>
 <td>

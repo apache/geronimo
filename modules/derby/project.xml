@@ -51,6 +51,11 @@
             <artifactId>geronimo-system</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.derby</groupId>

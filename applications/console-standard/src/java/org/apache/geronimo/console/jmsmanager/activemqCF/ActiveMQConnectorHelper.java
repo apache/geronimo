@@ -17,39 +17,38 @@
 
 package org.apache.geronimo.console.jmsmanager.activemqCF;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.console.util.ObjectNameConstants;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+
+import javax.portlet.PortletRequest;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class ActiveMQConnectorHelper {
+    //todo: this class is horrible and needs to be burned!
+    private final static Log log = LogFactory.getLog(ActiveMQConnectorHelper.class);
 
-    private final static File REPO_FOLDER;
+    private static String MODULE_FILE;
 
-    private final static String PLAN_FILE;
-
-    private final static String MODULE_FILE;
-
-    private final static String ACTIVEMQ_RA = "/activemq/activemq-ra/3.2/rar";
-
-    private final static String PLAN_XML = "/activemq/rars/amqconnectorPlan.xml";
+    private final static String ACTIVEMQ_RAR = "repository/activemq/rars/activemq-ra-3.2.1.rar";
 
     private static final String LINE_SEP = System.getProperty("line.separator");
 
@@ -60,44 +59,12 @@ public class ActiveMQConnectorHelper {
 
     private static final String DEPLOY_METHOD = "deploy";
 
-    private static final String[] REPO_ARGS = { URI.class.getName() };
-
-    private static final String GETURL_METHOD = "getURL";
-
-    static {
-        // Initialize static vars
-        REPO_FOLDER = getRepositoryFile();
-        MODULE_FILE = REPO_FOLDER.getAbsolutePath() + ACTIVEMQ_RA;
-        PLAN_FILE = REPO_FOLDER.getAbsolutePath() + PLAN_XML;
-    }
-
-    private static File getRepositoryFile() {
-        File repoFile = null;
-
-        try {
-            Kernel kernel = KernelRegistry.getSingleKernel();
-            URI uri = new URI(".");
-            URL rootURL = (URL) kernel.invoke(ObjectNameConstants.REPO_OBJECT_NAME, GETURL_METHOD,
-                    new Object[] {uri}, REPO_ARGS);
-            uri = new URI(rootURL.toString());
-            repoFile = new File(uri);
-        } catch (URISyntaxException e) {
-            System.out.println("ERROR: Invalid repository URL");
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.out.println("ERROR: Problem getting repository location");
-            e.printStackTrace();
-        }
-
-        return repoFile;
-    }
-
     private static String getPlanTemplate() {
         StringBuffer sb = new StringBuffer();
         sb.append("<?xml version=\"1.0\"?>\n");
         sb
                 .append("<connector xmlns=\"http://geronimo.apache.org/xml/ns/j2ee/connector-1.0\"\n");
-        sb.append("    version=\"1.5\" configId=\"{0}\" parentId=\"{1}\">\n");
+        sb.append("    configId=\"{0}\" parentId=\"{1}\">\n");
         sb.append("  <resourceadapter>\n");
         sb.append("    <resourceadapter-instance>\n");
         sb.append("      <resourceadapter-name>{2}</resourceadapter-name>\n");
@@ -131,8 +98,6 @@ public class ActiveMQConnectorHelper {
         sb.append("              <match-one/>\n");
         sb.append("            </single-pool>\n");
         sb.append("          </connectionmanager>\n");
-        sb
-                .append("          <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>\n");
         sb.append("        </connectiondefinition-instance>\n");
         sb.append("      </connection-definition>\n");
         sb.append("    </outbound-resourceadapter>\n");
@@ -142,12 +107,11 @@ public class ActiveMQConnectorHelper {
         return sb.toString();
     }
 
-    private void savePlan(String filename, Object[] args) {
+    private void savePlan(File f, Object[] args) {
         MessageFormat mf = new MessageFormat(PLAN_TEMPLATE);
         String plan = mf.format(args);
 
         try {
-            File f = new File(filename);
             f.createNewFile();
             FileOutputStream fos = new FileOutputStream(f);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
@@ -163,9 +127,18 @@ public class ActiveMQConnectorHelper {
         }
     }
 
-    public void deployPlan(Object[] args) {
-        savePlan(PLAN_FILE, args);
-        deployPlan(new File(MODULE_FILE), new File(PLAN_FILE));
+    public void deployPlan(PortletRequest request, Object[] args) {
+        try {
+            File file = File.createTempFile("console-jms-connector-plan-", ".xml");
+            file.deleteOnExit();
+            savePlan(file, args);
+            if(MODULE_FILE == null) {
+                MODULE_FILE = PortletManager.getServerInfo(request).resolvePath(ACTIVEMQ_RAR);
+            }
+            deployPlan(new File(MODULE_FILE), file);
+        } catch (IOException e) {
+            log.error("Unable to write deployment plan", e);
+        }
     }
 
     public void deployPlan(File moduleFile, File planFile) {
@@ -206,48 +179,22 @@ public class ActiveMQConnectorHelper {
         }
     }
 
-    public List getDependencies() {
-        List dependencies = null;
-
-        try {
-            dependencies = getListing(REPO_FOLDER, REPO_FOLDER
-                    .getCanonicalPath());
-            Collections.sort(dependencies);
-        } catch (Exception e) {
-            System.out.println("ERROR: Problem getting dependencies");
-            e.printStackTrace();
+    public List getDependencies(PortletRequest request) {
+        ListableRepository[] repo = PortletManager.getListableRepositories(request);
+        List dependencies = new ArrayList();
+        for (int i = 0; i < repo.length; i++) {
+            ListableRepository repository = repo[i];
+            try {
+                URI[] uris = repository.listURIs();
+                for (int j = 0; j < uris.length; j++) {
+                    URI uri = uris[j];
+                    dependencies.add(uri.toString());
+                }
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
         }
 
         return dependencies;
     }
-
-    private List getListing(File dir, String basepath)
-            throws java.io.IOException {
-        if (dir == null) {
-            throw new IllegalArgumentException("directory argument is null");
-        }
-
-        if (!dir.isDirectory()) {
-            throw new IllegalArgumentException("directory argument expected");
-        }
-
-        List listing = new ArrayList();
-
-        List ls = Arrays.asList(dir.listFiles());
-        Iterator iter = ls.iterator();
-
-        while (iter.hasNext()) {
-            File f = (File) iter.next();
-
-            if (f.isDirectory()) {
-                List listing1 = getListing(f, basepath);
-                listing.addAll(listing1);
-            } else {
-                listing.add(f.getCanonicalPath().substring(
-                        basepath.length() + 1).replace('\\', '/'));
-            }
-        }
-        return listing;
-    }
-
 }
