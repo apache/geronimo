@@ -60,7 +60,7 @@
 
     <goal name="new5">
         <maven:reactor basedir="${basedir}" includes="assemblies/*/project.xml"
-            excludes="" goals="multiproject:install-callback" banner="tranql-connector" ignoreFailures="false" />
+            excludes="" goals="multiproject:install-callback" banner="assemblies" ignoreFailures="false" />
     </goal>
 
     <goal name="new">
