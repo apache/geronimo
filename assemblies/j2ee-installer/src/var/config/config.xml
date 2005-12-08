@@ -73,21 +73,11 @@
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/welcome-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
-        <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</attribute>
-        </gbean>
-        <gbean name="EJBBuilder">
-            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/Jetty,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
-        </gbean>
-    </configuration>
     <configuration name="geronimo/tomcat/${pom.currentVersion}/car" load="false">
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
@@ -105,11 +95,21 @@
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/welcome-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/servlets-examples-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car" load="false"/>
+    <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
+        <gbean name="WebBuilder">
+            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</attribute>
+        </gbean>
+        <gbean name="EJBBuilder">
+            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
+        </gbean>
+    </configuration>
+    <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car" load="false"/>
 
 </attributes>
