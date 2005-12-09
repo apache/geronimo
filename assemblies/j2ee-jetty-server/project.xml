@@ -239,6 +239,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>jmxdebug-jetty</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>uddi-jetty</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>

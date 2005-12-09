@@ -696,4 +696,7 @@ public class DeploymentContext {
         return config;
     }
 
+    public Object getAttribute(ObjectName name, String property) throws Exception {
+        return kernel.getAttribute(name, property);
+    }
 }

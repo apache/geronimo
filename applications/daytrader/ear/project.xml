@@ -8,6 +8,16 @@
   <package>org.apache.geronimo.samples.daytrader.ejb</package>
   <description>Day Trader Enterprise Archive</description>
   <dependencies>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons_logging_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j_version}</version>
+        </dependency>
     <dependency>
       <groupId>geronimo</groupId>
       <artifactId>daytrader-core</artifactId>

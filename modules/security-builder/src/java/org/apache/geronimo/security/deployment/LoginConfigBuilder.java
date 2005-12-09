@@ -16,15 +16,6 @@
  */
 package org.apache.geronimo.security.deployment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.Set;
-import java.util.List;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
@@ -43,6 +34,16 @@ import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -65,6 +66,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
         }
         XmlCursor xmlCursor = loginConfig.newCursor();
         List uses = new ArrayList();
+        Set loginModuleNames = new HashSet();
         try {
             boolean atStart = true;
             while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling())) {
@@ -90,6 +92,16 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                     } catch (MalformedObjectNameException e) {
                         throw new DeploymentException("cannot construct login module name from parts,", e);
                     }
+                    try {
+                        String loginDomain = (String) context.getAttribute(loginModuleName, "loginDomainName");
+                        if(!loginModuleNames.add(loginDomain)) {
+                            throw new DeploymentException("Security realm contains two login domains called '"+loginDomain+"'");
+                        }
+                    } catch(DeploymentException e) {
+                        throw e;
+                    } catch(Exception e) {
+                        throw new DeploymentException("Unable to create reference to login module "+name, e);
+                    }
                 } else if (abstractLoginModule instanceof GerLoginModuleType) {
                     //create the LoginModuleGBean also
                     name = null;
@@ -97,6 +109,9 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
 
                     GerLoginModuleType loginModule = (GerLoginModuleType) abstractLoginModule;
                     name = trim(loginModule.getLoginDomainName());
+                    if(!loginModuleNames.add(name)) {
+                        throw new DeploymentException("Security realm contains two login domains called '"+name+"'");
+                    }
                     String className = trim(loginModule.getLoginModuleClass());
                     boolean serverSide = loginModule.getServerSide();
                     Properties options = new Properties();
