@@ -35,6 +35,15 @@
         </dependency>
 
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <properties>
+                <packaging.classpath>true</packaging.classpath>
+            </properties>
+        </dependency>
+
+        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>2.1_2</version>
