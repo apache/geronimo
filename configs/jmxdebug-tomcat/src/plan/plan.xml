@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    >
+
+    <dependency>
+        <uri>commons-collections/commons-collections/${commons_collections_version}/jar</uri>
+    </dependency>
+
+    <context-root>/debug-tool</context-root>
+    <context-priority-classloader>false</context-priority-classloader>
+</web-app>

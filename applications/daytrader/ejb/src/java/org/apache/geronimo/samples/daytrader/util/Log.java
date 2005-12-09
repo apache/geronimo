@@ -19,20 +19,16 @@ package org.apache.geronimo.samples.daytrader.util;
 
 import java.util.Collection;
 import java.util.Iterator;
+import org.apache.commons.logging.*;
 import org.apache.geronimo.samples.daytrader.*;
 
 public class Log {
-	
+	private final static org.apache.commons.logging.Log log = LogFactory.getLog(Log.class);
 //A general purpose, high performance logging, tracing, statistic service
-    private static void logInternal(String message)
-    {
-    	System.out.println(message);
-    }
-    
+
 	public static void log(String message)
 	{
-		logInternal("TradeLog:" + new java.util.Date() + "------\n\t ");
-		logInternal(message);
+		log.debug(message);
 	}
 	public static void log(String msg1, String msg2)
 	{
@@ -46,7 +42,7 @@ public class Log {
 	public static void error(String message)
 	{
 		message = "Error: " + message;
-		log(message);
+		log.error(message);
 	}
 	public static void error(String message, Throwable e)
 	{
@@ -78,7 +74,7 @@ public class Log {
 	
 	public static void trace(String message)
 	{
-		log(message + " threadID="+ Thread.currentThread());
+		log.trace(message + " threadID="+ Thread.currentThread());
 	}
 
 	public static void trace(String message, Object parm1)
@@ -115,11 +111,11 @@ public class Log {
 	}
 	public static void traceEnter(String message)
 	{
-		log("Method enter --" + message);
+		log.trace("Method enter --" + message);
 	}
 	public static void traceExit(String message)
 	{
-		log("Method exit  --" + message);
+		log.trace("Method exit  --" + message);
 	}
 	
 	
@@ -130,12 +126,12 @@ public class Log {
 
 	public static void debug(String message)
 	{
-		log(message);
+		log.debug(message);
 	}
 
 	public static void print(String message)
 	{
-		logInternal(message);
+		log(message);
 	}
 	
 	public static void printObject(Object o)
@@ -149,7 +145,7 @@ public class Log {
 		Iterator it = c.iterator();
 		while ( it.hasNext() )
 		{
-			logInternal("\t\t"+it.next().toString());
+			log("\t\t"+it.next().toString());
 		}
 		log("\t---Log.printCollection -- complete");		
 	}
