@@ -1,66 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 355318 $ $Date: 2005-12-08 18:18:07 -0800 (Thu, 08 Dec 2005) $ -->
 
 <project>
-  <!-- the version of maven's project object model -->
-
   <pomVersion>3</pomVersion>
-  <!-- a unique name for this project -->
+  <extend>../../etc/project.xml</extend>
 
-  <id>daytrader</id>
-  <groupId>daytrader</groupId>
-  <!-- a short but descriptive name for the project -->
-
-  <name>Apache Geronimo Day Trader Performance Benchmark Sample</name>
-  <!-- The version of the project under development, e.g.
-       1.1, 1.2, 2.0-SNAPSHOT -->
-
-  <currentVersion>1.0</currentVersion>
-  <!-- details about the organization that 'owns' the project -->
-
-  <organization>
-    <name>Apache Software Foundation</name>
-    <url>http://www.apache.org/</url>
-    <logo>http://maven.apache.org/images/jakarta-logo-blue.gif</logo>
-  </organization>
-  <!-- the year the project started -->
-
-  <inceptionYear>2002</inceptionYear>
-  <package>org.apache.geronimo.samples.daytrader</package>
-  <logo>http://maven.apache.org/images/maven.jpg</logo>
+  <name>Geronimo :: Day Trader Performance Benchmark Sample</name>
+  <artifactId>daytrader</artifactId>
   <description>This is an example of an application with a complex architecture that uses XDoclet, EJB, EAR and servlets that can be used as a basis for your applications.</description>
-
-  <!-- a short description of what the project does -->
-  <shortDescription>How to use maven in different situations</shortDescription>
-
-  <!-- the project home page -->
-  <url>http://maven.apache.org/reference/plugins/examples/</url>
-
-  <issueTrackingUrl>http://nagoya.apache.org/scarab/servlet/scarab/</issueTrackingUrl>
-  <siteAddress>jakarta.apache.org</siteAddress>
-  <siteDirectory>/www/maven.apache.org/reference/plugins/examples/</siteDirectory>
-  <distributionDirectory>/www/maven.apache.org/builds/</distributionDirectory>
-  <!-- the version control repository and http url for online access
-       the connection element has the form:
-       scm:<system>:<system specific connection string> -->
-
-  <repository>
-    <connection>scm:cvs:pserver:anoncvs@cvs.apache.org:/home/cvspublic:maven-plugins/examples</connection>
-    <url>http://cvs.apache.org/viewcvs/maven-plugins/examples/</url>
-  </repository>
-  <!-- any mailing lists for the project -->
-
-  <mailingLists/>
-  <!-- who the developers are for the project -->
-
-  <developers/>
-  <!-- jar files the project is dependent on -->
-
-  <dependencies/>
-  <!-- build information for the project -->
-
-  <reports>
-    <report>maven-changelog-plugin</report>
-    <report>maven-developer-activity-plugin</report>
-    <report>maven-file-activity-plugin</report>
-  </reports>
 </project>

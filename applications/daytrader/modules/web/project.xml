@@ -3,13 +3,13 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>daytrader-web</id>
+  <artifactId>daytrader-web</artifactId>
   <name>Web Application</name>
   <package>org.apache.geronimo.samples.daytrader.web</package>
   <description>This is the web application.</description>
   <dependencies>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-ejb</artifactId>
       <version>${pom.currentVersion}</version>
       <type>ejb</type>

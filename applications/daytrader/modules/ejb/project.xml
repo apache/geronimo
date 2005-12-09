@@ -3,18 +3,18 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>daytrader-ejb</id>
+  <artifactId>daytrader-ejb</artifactId>
   <name>DayTrader EJBs</name>
   <package>org.apache.geronimo.samples.daytrader.ejb</package>
   <description>Day Trader EJBs</description>
   <dependencies>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-core</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-wsappclient</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>

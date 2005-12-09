@@ -3,7 +3,7 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>daytrader-streamer</id>
+  <artifactId>daytrader-streamer</artifactId>
   <name>streamer</name>
   <package>org.apache.geronimo.samples.daytrader.client</package>
   <description>Streamer Application for Day Trader</description>
@@ -14,7 +14,7 @@
     </dependency>
     
      <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-ejb</artifactId>
       <version>${pom.currentVersion}</version>
      <type>ejb</type>

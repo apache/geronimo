@@ -3,13 +3,13 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>daytrader-ear</id>
+  <artifactId>daytrader-ear</artifactId>
   <name>DayTrader Enterprise Application</name>
   <package>org.apache.geronimo.samples.daytrader.ejb</package>
   <description>Day Trader Enterprise Archive</description>
   <dependencies>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-core</artifactId>
       <version>${pom.currentVersion}</version>
       <properties>
@@ -17,7 +17,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-wsappclient</artifactId>
       <version>${pom.currentVersion}</version>
       <properties>
@@ -25,7 +25,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-web</artifactId>
       <version>${pom.currentVersion}</version>
       <type>war</type>
@@ -35,7 +35,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-ejb</artifactId>
       <version>${pom.currentVersion}</version>
       <type>ejb</type>
@@ -44,7 +44,7 @@
       </properties>
     </dependency>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-streamer</artifactId>
       <version>${pom.currentVersion}</version>
       <properties>
