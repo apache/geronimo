@@ -133,6 +133,9 @@ public class MavenConfigStore implements ConfigurationStore {
         URI configId = configurationData.getId();
         URL targetURL = repository.getURL(configId);
         File targetFile = new File(targetURL.getPath());
+        File parentFile = targetFile.getParentFile();
+        parentFile.mkdirs();
+        targetFile.createNewFile();
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, source, targetFile);
     }
 
