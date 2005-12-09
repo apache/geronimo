@@ -1,19 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <extend>../../project.xml</extend>
+  <extend>../../../etc/project.xml</extend>
   <pomVersion>3</pomVersion>
-  <artifactId>daytrader-wsappclient</artifactId>
-  <name>daytrader-wsappclient</name>
-  <package>org.apache.geronimo.samples.daytrader</package>
-  <description>Common files for day Trader</description>
+  <artifactId>daytrader-ejb</artifactId>
+  <name>DayTrader EJBs</name>
+  <package>org.apache.geronimo.samples.daytrader.ejb</package>
+  <description>Day Trader EJBs</description>
   <dependencies>
-     <dependency>
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>daytrader-core</artifactId>
+      <version>${pom.currentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>geronimo</groupId>
+      <artifactId>daytrader-wsappclient</artifactId>
+      <version>${pom.currentVersion}</version>
+    </dependency>
+    <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-j2ee</artifactId>
       <version>1.4-rc4</version>
     </dependency>
-    
      <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
@@ -22,8 +31,8 @@
         <ejb.bundle>true</ejb.bundle>
       </properties>
     </dependency>
+    
   </dependencies>
-
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
@@ -36,14 +45,12 @@
       </excludes>
     </unitTest>
     <resources>
-        <resource>
-            <directory>src/client</directory>
-            <includes>
-                <include>META-INF/application-client.xml</include>
-                <include>META-INF/wsdl/TradeServices.wsdl</include>
-                <include>META-INF/TradeServices_mapping.xml</include>
-            </includes>
-        </resource>
+      <resource>
+        <directory>src</directory>
+        <includes>
+          <include>META-INF/ejb-jar.xml</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 </project>

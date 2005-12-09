@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <extend>../../project.xml</extend>
+  <extend>../../../etc/project.xml</extend>
   <pomVersion>3</pomVersion>
-  <artifactId>daytrader-ejb</artifactId>
-  <name>DayTrader EJBs</name>
-  <package>org.apache.geronimo.samples.daytrader.ejb</package>
-  <description>Day Trader EJBs</description>
+  <artifactId>daytrader-streamer</artifactId>
+  <name>streamer</name>
+  <package>org.apache.geronimo.samples.daytrader.client</package>
+  <description>Streamer Application for Day Trader</description>
   <dependencies>
     <dependency>
-      <groupId>geronimo</groupId>
-      <artifactId>daytrader-core</artifactId>
-      <version>${pom.currentVersion}</version>
+      <id>junit</id>
+      <version>3.8.1</version>
     </dependency>
-    <dependency>
+    
+     <dependency>
       <groupId>geronimo</groupId>
-      <artifactId>daytrader-wsappclient</artifactId>
+      <artifactId>daytrader-ejb</artifactId>
       <version>${pom.currentVersion}</version>
+     <type>ejb</type>
     </dependency>
-    <dependency>
+    
+     <dependency>
       <groupId>geronimo-spec</groupId>
       <artifactId>geronimo-spec-j2ee</artifactId>
       <version>1.4-rc4</version>
     </dependency>
+    
      <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.3</version>
-      <properties>
-        <ejb.bundle>true</ejb.bundle>
-      </properties>
     </dependency>
-    
   </dependencies>
+
   <build>
     <sourceDirectory>src/java</sourceDirectory>
     <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
@@ -46,10 +46,10 @@
     </unitTest>
     <resources>
       <resource>
-        <directory>src</directory>
-        <includes>
-          <include>META-INF/ejb-jar.xml</include>
-        </includes>
+          <directory>src/client</directory>
+          <includes>
+              <include>META-INF/application-client.xml</include>
+          </includes>
       </resource>
     </resources>
   </build>

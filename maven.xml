@@ -49,8 +49,8 @@
     </goal>
 
     <goal name="new3">
-        <maven:reactor basedir="${basedir}" includes="applications/*/project.xml,applications/daytrader/modules/*/project.xml"
-            excludes="applications/daytrader/project.xml" goals="multiproject:install-callback" banner="applications" ignoreFailures="false" />
+        <maven:reactor basedir="${basedir}" includes="applications/*/project.xml,applications/daytrader/*/project.xml"
+            excludes="" goals="multiproject:install-callback" banner="applications" ignoreFailures="false" />
     </goal>
 
     <goal name="new4">
