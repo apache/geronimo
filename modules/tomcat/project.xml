@@ -181,6 +181,14 @@
             </properties>
         </dependency>
         <dependency>
+            <groupId>activecluster</groupId>
+            <artifactId>activecluster</artifactId>
+            <version>${wadi_activecluster_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring</artifactId>
             <version>${wadi_spring_version}</version>
