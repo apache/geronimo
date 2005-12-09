@@ -31,13 +31,16 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected static final ObjectName MANAGED_CONNECTION_FACTORY_PATTERN;
+    private static final ObjectName ADMIN_OBJECT_PATTERN;
     protected static final ObjectName STATELESS_SESSION_BEAN_PATTERN;
     protected static final ObjectName STATEFUL_SESSION_BEAN_PATTERN;
     protected static final ObjectName ENTITY_BEAN_PATTERN;
 
+
     static {
         try {
             MANAGED_CONNECTION_FACTORY_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.JCA_MANAGED_CONNECTION_FACTORY +  ",*");
+            ADMIN_OBJECT_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.JCA_ADMIN_OBJECT +  ",*");
             STATELESS_SESSION_BEAN_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.STATELESS_SESSION_BEAN +  ",*");
             STATEFUL_SESSION_BEAN_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.STATEFUL_SESSION_BEAN +  ",*");
             ENTITY_BEAN_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.ENTITY_BEAN +  ",*");
@@ -50,6 +53,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected Set findGBeanDependencies(EARContext earContext) {
         Set dependencies = new HashSet();
         dependencies.addAll(earContext.listGBeans(MANAGED_CONNECTION_FACTORY_PATTERN));
+        dependencies.addAll(earContext.listGBeans(ADMIN_OBJECT_PATTERN));
         dependencies.addAll(earContext.listGBeans(STATELESS_SESSION_BEAN_PATTERN));
         dependencies.addAll(earContext.listGBeans(STATEFUL_SESSION_BEAN_PATTERN));
         dependencies.addAll(earContext.listGBeans(ENTITY_BEAN_PATTERN));
