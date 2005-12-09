@@ -14,10 +14,10 @@ and then press [enter].
 
 To build Geronimo running all of the unit test cases, compiling 
 all the Geronimo sources and installing them in your local maven
-repository, simply type maven in the root of the Geronimo source
-tree:
+repository, simply type maven new in the root of the Geronimo
+source tree:
 
-        $> maven
+        $> maven new
 
 That command will compile Geronimo, using recent binary builds of
 OpenEJB and TranQL.  In some cases synchronized changes are made
@@ -26,32 +26,25 @@ building the HEAD code of Geronimo against the older binaries of
 OpenEJB of TranQL.  In that case, you can run:
 
 	$> maven m:co
-	$> maven m:rebuild-all
+	$> maven m:clean m:clean-repo new
 
 The first command checks out the latest OpenEJB and TranQL code,
 while the second cleans and previous build output and rebuilds
 Geronimo, OpenEJB, and TranQL from scratch.
 
-To build and run the server, change into the assembly directory and
-type:
+To run the server, change into one of the assemblies directory
+and start the server using a command like this:
 	
-        $> cd modules/assembly
-        $> maven
-        $> cd target/geronimo-1.0-SNAPSHOT
-        $> java -jar bin/server.jar org/apache/geronimo/Server
+        $> cd assemblies/j2ee-jetty-server
+        $> cd target/geronimo-1.0
+        $> java -jar bin/server.jar
 
-To stop the server use ctrl-C or an equivalent; a proper shutdown
-command will be made available in a future release.  
+To stop the server use ctrl-C or use the shutdown JAR.
 (See http://wiki.apache.org/geronimo/Running for more information).
 
 To do a clean rebuild of Geronimo type
 
-        $> maven rebuild
-
-         -or (a slower option)-
-
-        $> maven clean
-        $> maven
+        $> maven m:clean m:clean-repo new
 
 To only build select modules (assumes that depends are installed
 already):
@@ -68,7 +61,3 @@ NOTE: You need to build the server first for this to work due to
 To removal all build generated files:
 
         $> maven clobber
-
-For the HTML website:
-
-        $> maven site
