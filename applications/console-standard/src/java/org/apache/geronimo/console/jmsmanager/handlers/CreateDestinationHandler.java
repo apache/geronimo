@@ -17,21 +17,6 @@
 
 package org.apache.geronimo.console.jmsmanager.handlers;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-import java.util.Arrays;
-
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.management.ObjectName;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletException;
-
-import org.activemq.message.ActiveMQQueue;
-import org.activemq.message.ActiveMQTopic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.AdminObjectWrapper;
@@ -48,13 +33,23 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
-public class CreateDestinationHandler extends AbstractJMSManager implements
-        PortletResponseHandler {
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.management.ObjectName;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
+public class CreateDestinationHandler extends AbstractJMSManager implements PortletResponseHandler {
     protected static Log log = LogFactory
             .getLog(CreateDestinationHandler.class);
 
-    private static final List parentId = Arrays.asList(new URI[] {URI.create("org/apache/geronimo/Console")});
+    private static final List parentId = Arrays.asList(new URI[] {URI.create("geronimo/activemq-broker/1.0/car")});
 
     static final GBeanInfo QUEUE_INFO;
 
@@ -91,16 +86,12 @@ public class CreateDestinationHandler extends AbstractJMSManager implements
             GBeanData adminObjectData;
             if (Topic.class.getName().equals(destinationType)) {
                 adminObjectData = new GBeanData(adminObjectName, TOPIC_INFO);
-                adminObjectData.setAttribute("adminObjectInterface",
-                        Topic.class.getName());
-                adminObjectData.setAttribute("adminObjectClass",
-                        ActiveMQTopic.class.getName());
+                adminObjectData.setAttribute("adminObjectInterface", "javax.jms.Topic");
+                adminObjectData.setAttribute("adminObjectClass", "org.activemq.message.ActiveMQTopic");
             } else if (Queue.class.getName().equals(destinationType)) {
                 adminObjectData = new GBeanData(adminObjectName, QUEUE_INFO);
-                adminObjectData.setAttribute("adminObjectInterface",
-                        Queue.class.getName());
-                adminObjectData.setAttribute("adminObjectClass",
-                        ActiveMQQueue.class.getName());
+                adminObjectData.setAttribute("adminObjectInterface", "javax.jms.Queue");
+                adminObjectData.setAttribute("adminObjectClass", "org.activemq.message.ActiveMQQueue.class");
             } else {
                 throw new PortletException(
                         "Invalid choice destination, must be FQCL of Topic or Queue, not "

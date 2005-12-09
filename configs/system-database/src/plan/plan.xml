@@ -56,6 +56,9 @@
         <attribute name="host">localhost</attribute>
         <attribute name="port">1527</attribute>
     </gbean>
+    <gbean name="DerbyLog" class="org.apache.geronimo.derby.DerbyLogGBean">
+        <reference name="DerbySystem"><moduleType>J2EEModule</moduleType><name>DerbySystem</name></reference>
+    </gbean>
 
     <gbean name="TransactionalThreadPooledTimer" class="org.apache.geronimo.timer.jdbc.JDBCStoreThreadPooledTransactionalTimer">
         <attribute name="repeatCount">5</attribute>

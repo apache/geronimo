@@ -17,18 +17,23 @@
 
 package org.apache.geronimo.console.derbylogmanager;
 
-import java.io.IOException;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.derby.DerbyLog;
 
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletSession;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-
-import org.apache.geronimo.console.BasePortlet;
+import javax.portlet.WindowState;
+import java.io.IOException;
+import java.io.Serializable;
 
 public class DerbyLogViewerPortlet extends BasePortlet {
+    private final static String CRITERIA_KEY = "org.apache.geronimo.console.derby.log.CRITERIA";
 
     protected PortletRequestDispatcher normalView;
 
@@ -41,28 +46,57 @@ public class DerbyLogViewerPortlet extends BasePortlet {
     }
 
     protected void doHelp(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
         helpView.include(renderRequest, renderResponse);
     }
 
     protected void doView(RenderRequest renderRequest,
-            RenderResponse renderResponse) throws PortletException, IOException {
+                          RenderResponse renderResponse) throws PortletException, IOException {
+        if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
+            return;
+        }
         String action = renderRequest.getParameter("action");
+
+        DerbyLog log = (DerbyLog) PortletManager.getManagedBeans(renderRequest, DerbyLog.class)[0];//todo: what if it's not there?
+        Criteria criteria;
         if ("refresh".equals(action)) {
-            DerbyLogHelper.refresh();
+            criteria = (Criteria) renderRequest.getPortletSession(true).getAttribute(CRITERIA_KEY, PortletSession.PORTLET_SCOPE);
+        } else {
+            String startPos = renderRequest.getParameter("startPos");
+            String endPos = renderRequest.getParameter("endPos");
+            String maxRows = renderRequest.getParameter("maxRows");
+            String searchString = renderRequest.getParameter("searchString");
+            if(maxRows == null || maxRows.equals("")) {
+                maxRows = "10";
+            }
+            criteria = new Criteria();
+            criteria.max = new Integer(maxRows);
+            criteria.start = startPos == null || startPos.equals("") ? null : new Integer(startPos);
+            criteria.stop = endPos == null || endPos.equals("") ? null : new Integer(endPos);
+            criteria.text = searchString == null || searchString.equals("") ? null : searchString;
+            renderRequest.getPortletSession(true).setAttribute(CRITERIA_KEY, criteria, PortletSession.PORTLET_SCOPE);
         }
-        try {
-            renderRequest.setAttribute("logs", DerbyLogHelper.getLogs());
-            renderRequest.setAttribute("lines", new Integer(DerbyLogHelper
-                    .getLineCount()));
-            normalView.include(renderRequest, renderResponse);
-        } catch (Exception e) {
-            renderResponse.setContentType("text/html");
-            renderResponse.getWriter().println(
-                    "<b>Could not load portlet: " + e.getMessage()
-                            + "</b></br>");
-            throw new PortletException(e);
+
+        DerbyLog.SearchResults results = log.searchLog(criteria.start, criteria.stop,
+                         criteria.max, criteria.text);
+        renderRequest.setAttribute("searchResults", results.getResults());
+        renderRequest.setAttribute("lineCount", new Integer(results.getLineCount()));
+        renderRequest.setAttribute("startPos", criteria.start);
+        renderRequest.setAttribute("endPos", criteria.stop);
+        renderRequest.setAttribute("searchString", criteria.text);
+        renderRequest.setAttribute("maxRows", criteria.max);
+        if(results.isCapped()) {
+            renderRequest.setAttribute("capped", Boolean.TRUE);
         }
+
+        normalView.include(renderRequest, renderResponse);
+    }
+
+    private static class Criteria implements Serializable {
+        Integer max;
+        Integer start;
+        Integer stop;
+        String text;
     }
 
     public void init(PortletConfig portletConfig) throws PortletException {

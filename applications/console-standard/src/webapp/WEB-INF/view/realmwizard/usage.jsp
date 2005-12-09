@@ -69,7 +69,7 @@ should be members of each <tt>security-role</tt> listed in <tt>web.xml</tt>.</p>
     xmlns="http://geronimo.apache.org/xml/ns/web"
     xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
     configId="MyConfigName"
-    parentId="geronimo/j2ee-server/1.0-SNAPSHOT/car"&gt;
+    parentId="geronimo/j2ee-server/1.0/car"&gt;
 
     &lt;context-root&gt;/MyWebApp&lt;/context-root&gt;
     &lt;context-priority-classloader&gt;true&lt;/context-priority-classloader&gt;

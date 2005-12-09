@@ -16,66 +16,69 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.security.auth.spi.LoginModule;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.NameCallback;
-
-import org.apache.geronimo.management.J2EEDomain;
-import org.apache.geronimo.management.J2EEDeployedObject;
-import org.apache.geronimo.management.AppClientModule;
-import org.apache.geronimo.management.WebModule;
-import org.apache.geronimo.management.EJBModule;
-import org.apache.geronimo.management.J2EEResource;
-import org.apache.geronimo.management.JCAResource;
-import org.apache.geronimo.management.JDBCResource;
-import org.apache.geronimo.management.JMSResource;
-import org.apache.geronimo.management.J2EEModule;
-import org.apache.geronimo.management.EJB;
-import org.apache.geronimo.management.Servlet;
-import org.apache.geronimo.management.ResourceAdapter;
-import org.apache.geronimo.management.JDBCDataSource;
-import org.apache.geronimo.management.JDBCDriver;
-import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.J2EEApplication;
-import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.EJBManager;
-import org.apache.geronimo.management.geronimo.EJBConnector;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.management.geronimo.JMSConnector;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
-import org.apache.geronimo.system.logging.SystemLog;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.pool.GeronimoExecutor;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
-import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.management.AppClientModule;
+import org.apache.geronimo.management.EJB;
+import org.apache.geronimo.management.EJBModule;
+import org.apache.geronimo.management.J2EEDeployedObject;
+import org.apache.geronimo.management.J2EEDomain;
+import org.apache.geronimo.management.J2EEModule;
+import org.apache.geronimo.management.J2EEResource;
+import org.apache.geronimo.management.JCAConnectionFactory;
+import org.apache.geronimo.management.JCAResource;
+import org.apache.geronimo.management.JDBCDataSource;
+import org.apache.geronimo.management.JDBCDriver;
+import org.apache.geronimo.management.JDBCResource;
+import org.apache.geronimo.management.JMSResource;
+import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.Servlet;
+import org.apache.geronimo.management.WebModule;
+import org.apache.geronimo.management.geronimo.EJBConnector;
+import org.apache.geronimo.management.geronimo.EJBManager;
+import org.apache.geronimo.management.geronimo.J2EEApplication;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
+import org.apache.geronimo.security.realm.SecurityRealm;
+import org.apache.geronimo.system.logging.SystemLog;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
@@ -953,6 +956,17 @@ public class KernelManagementHelper implements ManagementHelper {
             module.abort();
         }
         return null;
+    }
+
+    public Object[] findByInterface(Class iface) {
+        Set set = kernel.listGBeans(new GBeanQuery(null, iface.getName()));
+        Object[] result = new Object[set.size()];
+        int i=0;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            result[i++] = kernel.getProxyManager().createProxy(name, iface.getClassLoader());
+        }
+        return result;
     }
 
     /**

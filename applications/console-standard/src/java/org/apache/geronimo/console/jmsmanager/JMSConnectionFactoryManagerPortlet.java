@@ -17,15 +17,14 @@
 
 package org.apache.geronimo.console.jmsmanager;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.databasemanager.DataSourceInfo;
+import org.apache.geronimo.console.jmsmanager.activemqCF.ActiveMQConnectorHelper;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.jmx.JMXUtil;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -40,21 +39,21 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.databasemanager.DataSourceInfo;
-import org.apache.geronimo.console.jmsmanager.activemqCF.ActiveMQConnectorHelper;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.KernelRegistry;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
 
     private final static ActiveMQConnectorHelper helper = new ActiveMQConnectorHelper();
 
-    private final static String PARENT_ID = "org/apache/geronimo/SystemJMS";
+    private final static String PARENT_ID = "geronimo/activemq-broker/1.0/car";
 
     private final static String ADD_MODE = "addACF";
 
@@ -126,7 +125,7 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
                         trimStr(acfName), trimStr(serverURL),
                         trimStr(userName), pword, trimStr(acfName),
                         trimStr(poolMaxSize), trimStr(blocking) };
-                helper.deployPlan(args);
+                helper.deployPlan(actionRequest, args);
                 // Set mode to list after creating the new ConnectionFactories
                 actionResponse.setRenderParameter("mode", "list");
             }
@@ -146,7 +145,7 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
             return;
         }
 
-        List dependencies = helper.getDependencies();
+        List dependencies = helper.getDependencies(renderRequest);
         // pass them to the render request
         renderRequest.setAttribute("dependencies", (String[]) dependencies
                 .toArray(new String[dependencies.size()]));

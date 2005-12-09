@@ -24,7 +24,7 @@
   <artifactId>geronimo</artifactId>
   <packaging>pom</packaging>
   <name>Geronimo</name>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <description>Geronimo parent</description>
   <url>http://geronimo.apache.org</url>
 
@@ -103,7 +103,7 @@
      | Geronimo module versions
      |
      -->
-    <geronimoVersion>1.0-SNAPSHOT</geronimoVersion>
+    <geronimoVersion>1.0</geronimoVersion>
     
     <!--
      |
@@ -161,7 +161,7 @@
     <dom4jVersion>1.4</dom4jVersion>
     <dwrVersion>1.0</dwrVersion>
     <eclipseCompilerVersion>3.0.1</eclipseCompilerVersion>
-    <geronimoVersion>1.0-SNAPSHOT</geronimoVersion>
+    <geronimoVersion>1.0</geronimoVersion>
     <howlVersion>0.1.11</howlVersion>
     <hsqldbVersion>1.7.2.2</hsqldbVersion>
     <jasperVersion>5.5.9</jasperVersion>
@@ -180,7 +180,7 @@
     <minaVersion>0.7.3</minaVersion>
     <mockobjectsVersion>0.09</mockobjectsVersion>
     <mx4jVersion>3.0.1</mx4jVersion>
-    <openejbVersion>2.0-SNAPSHOT</openejbVersion>
+    <openejbVersion>2.0</openejbVersion>
     <oroVersion>2.0.8</oroVersion>
     <p2psocketsVersion>1.1.2</p2psocketsVersion>
     <plutoVersion>1.0.1</plutoVersion>

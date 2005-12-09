@@ -18,7 +18,10 @@
 package org.apache.geronimo.derby;
 
 /**
+ * Management interface for the Derby system GBean
+ *
  * @version $Rev$ $Date$
  */
 public interface DerbySystem {
+    public String getDerbyHome();
 }

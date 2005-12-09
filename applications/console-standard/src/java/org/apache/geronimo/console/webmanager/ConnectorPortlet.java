@@ -17,30 +17,31 @@
 
 package org.apache.geronimo.console.webmanager;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.management.geronimo.SecureConnector;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
+import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
-import javax.portlet.PortletContext;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.SecureConnector;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A portlet that lets you list, add, remove, start, stop, and edit web
@@ -68,14 +69,21 @@ public class ConnectorPortlet extends BasePortlet {
         if(managerName != null) actionResponse.setRenderParameter("managerObjectName", managerName);
         if(containerName != null) actionResponse.setRenderParameter("containerObjectName", containerName);
 
-        WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
-        String server = getWebServerType(container.getClass());
+        String server = null;
+        if(containerName != null) {
+            WebContainer container = PortletManager.getWebContainer(actionRequest, containerName);
+            server = getWebServerType(container.getClass());
+        } else {
+            server = "unknown";
+        }
         actionResponse.setRenderParameter("server", server);
         if(mode.equals("new")) {
             // User selected to add a new connector, need to show criteria portlet
             actionResponse.setRenderParameter("mode", "new");
             String protocol = actionRequest.getParameter("protocol");
+            String containerDisplayName = actionRequest.getParameter("containerDisplayName");
             actionResponse.setRenderParameter("protocol", protocol);
+            actionResponse.setRenderParameter("containerDisplayName", containerDisplayName);
         } else if(mode.equals("add")) { // User just submitted the form to add a new connector
             // Get submitted values
             //todo: lots of validation
@@ -295,6 +303,7 @@ public class ConnectorPortlet extends BasePortlet {
 
             if(mode.equals("new")) {
                 String protocol = renderRequest.getParameter("protocol");
+                String containerDisplayName = renderRequest.getParameter("containerDisplayName");
                 renderRequest.setAttribute("maxThreads", "50");
                 if(server.equals(WEB_SERVER_JETTY)) {
                     renderRequest.setAttribute("minThreads", "10");
@@ -307,6 +316,7 @@ public class ConnectorPortlet extends BasePortlet {
                 }
                 renderRequest.setAttribute("protocol", protocol);
                 renderRequest.setAttribute("mode", "add");
+                renderRequest.setAttribute("containerDisplayName", containerDisplayName);
                 if(protocol.equals(WebManager.PROTOCOL_HTTPS)) {
                     editHttpsView.include(renderRequest, renderResponse);
                 } else {
@@ -327,6 +337,14 @@ public class ConnectorPortlet extends BasePortlet {
                 if(connector == null) {
                     doList(renderRequest, renderResponse);
                 } else {
+                    String displayName = PortletManager.getGBeanDescription(renderRequest, objectName);
+                    try {
+                        ObjectName realName = ObjectName.getInstance(objectName);
+                        displayName = realName.getKeyProperty("name");
+                    } catch (MalformedObjectNameException e) {
+                        log.error("Bad object name for web connector", e);
+                    }
+                    renderRequest.setAttribute("name", displayName);
                     renderRequest.setAttribute("objectName", objectName);
                     renderRequest.setAttribute("port", new Integer(connector.getPort()));
                     renderRequest.setAttribute("host", connector.getHost());

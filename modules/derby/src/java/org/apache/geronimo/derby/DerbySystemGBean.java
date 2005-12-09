@@ -17,15 +17,15 @@
 
 package org.apache.geronimo.derby;
 
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 /**
  * A GBean that represents an instance of an Apache Derby system (a system being
@@ -40,15 +40,20 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
 
     private final ServerInfo serverInfo;
     private final String systemHome;
+    private String actualHome;
 
     public DerbySystemGBean(ServerInfo serverInfo, String derbySystemHome) {
         this.serverInfo = serverInfo;
         this.systemHome = derbySystemHome;
     }
 
+    public String getDerbyHome() {
+        return actualHome;
+    }
+
     public void doStart() throws Exception {
         // set up the system property for the database home
-        String actualHome = System.getProperty(SYSTEM_HOME);
+        actualHome = System.getProperty(SYSTEM_HOME);
         if (actualHome == null) {
             actualHome = serverInfo.resolvePath(systemHome);
         }
@@ -92,6 +97,7 @@ public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DerbySystemGBean.class);
         infoFactory.addAttribute("derbySystemHome", String.class, true);
+        infoFactory.addAttribute("derbyHome", String.class, false);
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.setConstructor(new String[]{"ServerInfo", "derbySystemHome"});
         GBEAN_INFO = infoFactory.getBeanInfo();

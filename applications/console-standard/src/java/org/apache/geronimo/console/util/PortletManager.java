@@ -16,19 +16,6 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletSession;
-import javax.servlet.http.HttpSession;
-import javax.security.auth.spi.LoginModule;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.Subject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
@@ -52,9 +39,25 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.security.realm.SecurityRealm;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderResponse;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
@@ -370,8 +373,37 @@ public class PortletManager {
         return log;
     }
 
+    public static GeronimoManagedBean[] getManagedBeans(PortletRequest request, Class intrface) {
+        ManagementHelper helper = getManagementHelper(request);
+        Object[] obs = helper.findByInterface(intrface);
+        GeronimoManagedBean[] results = new GeronimoManagedBean[obs.length];
+        for (int i = 0; i < results.length; i++) {
+            results[i] = (GeronimoManagedBean) obs[i];
+        }
+        return results;
+    }
+
     public static GeronimoManagedBean getManagedBean(PortletRequest request, String name) {
         ManagementHelper helper = getManagementHelper(request);
         return (GeronimoManagedBean) helper.getObject(name);
+    }
+
+    /**
+     * Looks up the context prefix used by the portal, even if the thing running
+     * is in one of the portlets.  We're kind of hacking our way there, but hey,
+     * it beats hardcoding.
+     */
+    public static String getConsoleFrameworkServletPath (HttpServletRequest request) {
+        String contextPath = "";
+        Object o = request.getAttribute("javax.portlet.response");
+        if (o!=null && o instanceof RenderResponse) { // request came from a portlet
+            RenderResponse renderResponse = (RenderResponse)o;
+            contextPath = renderResponse.createRenderURL().toString();
+            int index = contextPath.indexOf(request.getPathInfo());
+            contextPath = contextPath.substring(0,index);
+        } else { // request did not come from a portlet
+            contextPath = request.getContextPath();
+        }
+        return contextPath;
     }
 }

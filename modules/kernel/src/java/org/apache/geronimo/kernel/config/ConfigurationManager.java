@@ -16,11 +16,10 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
-import java.util.Collection;
-import javax.management.ObjectName;
 
 /**
  * Encapsulates logic for dealing with configurations.
@@ -63,10 +62,12 @@ public interface ConfigurationManager {
 
     /**
      * Load the specified configuration and all parent configurations into the kernel. This does not
-     * start any configuration gbeans or load any gbeans from the configurations loaded.
+     * start any configuration gbeans or load any gbeans from the configurations loaded.  It does
+     * not hurt to call this even if some or all of the GBeans are already loaded -- though only
+     * configurations actually loaded by this call will be returned.
      *
      * @param configID the id of the configuration
-     * @return a list of names of configurations loaded into the kernel
+     * @return a list of URIs (names of configurations that were actually loaded)
      * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
      * @throws IOException if there is a problem loading te configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt

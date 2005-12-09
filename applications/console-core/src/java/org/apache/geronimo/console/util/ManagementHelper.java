@@ -16,10 +16,6 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.util.Map;
-import javax.security.auth.spi.LoginModule;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
@@ -52,10 +48,15 @@ import org.apache.geronimo.management.geronimo.WebConnector;
 import org.apache.geronimo.management.geronimo.WebContainer;
 import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
+import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.security.realm.SecurityRealm;
-import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import java.util.Map;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -151,6 +152,7 @@ public interface ManagementHelper {
     String getGBeanDescription(String objectName);
 
     // Misc
-   void testLoginModule(J2EEServer server, LoginModule module, Map options);
-   Subject testLoginModule(J2EEServer server, LoginModule module, Map options, String username, String password) throws LoginException;
+    void testLoginModule(J2EEServer server, LoginModule module, Map options);
+    Subject testLoginModule(J2EEServer server, LoginModule module, Map options, String username, String password) throws LoginException;
+    Object[] findByInterface(Class iface);
 }

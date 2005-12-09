@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.management.geronimo;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -24,13 +23,7 @@ import java.util.Date;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public interface WebAccessLog {
-    /**
-     * The most search lines that will ever be returned, no matter what you
-     * ask for.  This is to conserve memory and transfer bandwidth.
-     */
-    public final static int MAX_SEARCH_RESULTS = 1000;
-
+public interface WebAccessLog extends Log {
     /**
      * Gets the name of all logs used by this system.  Typically there
      * is only one, but specialized cases may use more.
@@ -62,45 +55,4 @@ public interface WebAccessLog {
                                    String uri, Date startDate, Date endDate,
                                    Integer skipResults, Integer maxResults);
 
-    public static class LogMessage implements Serializable {
-        private final int lineNumber;
-        private final String lineContent;
-
-        public LogMessage(int lineNumber, String lineContent) {
-            this.lineNumber = lineNumber;
-            this.lineContent = lineContent;
-        }
-
-        public int getLineNumber() {
-            return lineNumber;
-        }
-
-        public String getLineContent() {
-            return lineContent;
-        }
-    }
-
-    public static class SearchResults implements Serializable {
-        private final int lineCount; // total lines in log file
-        private final LogMessage[] results;
-        private final boolean capped; // whether there were more matched than are returned here
-
-        public SearchResults(int lineCount, LogMessage[] results, boolean capped) {
-            this.lineCount = lineCount;
-            this.results = results;
-            this.capped = capped;
-        }
-
-        public int getLineCount() {
-            return lineCount;
-        }
-
-        public LogMessage[] getResults() {
-            return results;
-        }
-
-        public boolean isCapped() {
-            return capped;
-        }
-    }
 }

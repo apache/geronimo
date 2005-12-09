@@ -17,17 +17,6 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -36,8 +25,19 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.kernel.management.State;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * The standard non-editable ConfigurationManager implementation.  That is,
@@ -168,6 +168,16 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         LinkedList ancestors = new LinkedList();
         Set preloaded = kernel.listGBeans(CONFIGURATION_NAME_QUERY);
+        for (Iterator it = preloaded.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            try {
+                if(kernel.getGBeanState(name) != State.RUNNING_INDEX) {
+                    it.remove();
+                }
+            } catch (GBeanNotFoundException e) {
+                it.remove();
+            }
+        }
         loadRecursive(configID, ancestors, preloaded);
         return ancestors;
     }

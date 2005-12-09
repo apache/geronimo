@@ -69,6 +69,7 @@ public class CommandStart extends AbstractCommand {
         boolean multiple = isMultipleTargets(ids);
         ProgressObject po = runCommand(out, mgr, ids);
         TargetModuleID[] done = po.getResultTargetModuleIDs();
+        out.println();
         for(int i = 0; i < done.length; i++) {
             TargetModuleID id = done[i];
             out.print(DeployUtils.reformat(getAction()+" "+id.getModuleID()+(multiple ? " on "+id.getTarget().getName() : "")+(id.getWebURL() == null || !getAction().equals("Started") ? "" : " @ "+id.getWebURL()),4, 72));

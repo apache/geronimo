@@ -17,36 +17,8 @@
 
 package org.apache.geronimo.deployment;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
@@ -62,8 +34,36 @@ import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * @version $Rev$ $Date$
@@ -646,10 +646,12 @@ public class DeploymentContext {
                 Collections.reverse(loadedAncestors);
                 for (Iterator iterator = loadedAncestors.iterator(); iterator.hasNext();) {
                     URI configID = (URI) iterator.next();
-                    try {
-                        configurationManager.unload(configID);
-                    } catch (NoSuchConfigException e) {
-                        throw new DeploymentException("Could not find a configuration we previously loaded! " + configID, e);
+                    if(configurationManager.isLoaded(configID)) {
+                        try {
+                            configurationManager.unload(configID);
+                        } catch (NoSuchConfigException e) {
+                            throw new DeploymentException("Could not find a configuration we previously loaded! " + configID, e);
+                        }
                     }
                 }
                 loadedAncestors.clear();

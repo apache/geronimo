@@ -12,6 +12,16 @@
 </c:if>
 <table width="100%%"  border="0">
 
+<!-- Current Task -->
+<c:choose>
+  <c:when test="${mode eq 'add'}">
+    <tr><th colspan="2" align="left">Add new ${protocol} listener for ${containerDisplayName}</th></tr>
+  </c:when>
+  <c:otherwise>
+    <tr><th colspan="2" align="left">Edit connector ${name}</th></tr>
+  </c:otherwise>
+</c:choose>
+
 <!-- Name Field -->
 <c:if test="${mode eq 'add'}">
   <tr>

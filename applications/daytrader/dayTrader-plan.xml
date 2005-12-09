@@ -3,7 +3,7 @@
     configId="Trade">
 
     <module>
-        <web>daytrader-web-1.0-SNAPSHOT.war</web>
+        <web>daytrader-web-1.0.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/web"
             configId="Web" parentId="Trade">
             <context-priority-classloader>false</context-priority-classloader>
@@ -30,7 +30,7 @@
     ##
     -->
     <module>
-        <ejb>daytrader-ejb-1.0-SNAPSHOT.jar</ejb>     <!--  Note this must match the -->
+        <ejb>daytrader-ejb-1.0.jar</ejb>     <!--  Note this must match the -->
         <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
                      configId="TradeEJBs"
                      parentId="Web">
@@ -513,7 +513,7 @@
 
 
     <module>
-        <java>daytrader-streamer-1.0-SNAPSHOT.jar</java>
+        <java>daytrader-streamer-1.0.jar</java>
         <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client"
             configId="foo"
             clientConfigId="tradeStreamerAppclient">
@@ -571,7 +571,7 @@
     </module>
     <ext-module>
         <connector>TradeDataSource</connector>
-        <external-path>tranql/tranql-connector-derby-embed-xa/1.1-SNAPSHOT/rar</external-path>
+        <external-path>tranql/tranql-connector-derby-embed-xa/1.1/rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             configId="TradeDataSource"
