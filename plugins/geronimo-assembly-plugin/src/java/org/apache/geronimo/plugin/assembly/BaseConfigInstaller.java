@@ -131,9 +131,11 @@ public class BaseConfigInstaller {
             }
         }
         URI[] parentId = (URI[]) config.getAttribute("parentId");
-        for (int i = 0; i < parentId.length; i++) {
-            URI parent = parentId[i];
-            execute(parent, installAdapter, sourceRepo, targetRepo);
+        if (parentId != null) {
+            for (int i = 0; i < parentId.length; i++) {
+                URI parent = parentId[i];
+                execute(parent, installAdapter, sourceRepo, targetRepo);
+            }
         }
     }
 
