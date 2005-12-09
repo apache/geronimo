@@ -37,7 +37,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
             <properties>
                 <packaging.classpath>true</packaging.classpath>
             </properties>
