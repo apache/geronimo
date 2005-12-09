@@ -17,14 +17,11 @@
 
 package org.apache.geronimo.plugin.assembly;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.List;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -62,18 +59,17 @@ public class RepoConfigInstaller extends BaseConfigInstaller {
             this.targetRepo = targetRepo;
         }
 
-        public List install(Repository sourceRepo, String artifactPath) throws IOException, InvalidConfigException {
-            URI destination = URI.create(artifactPath);
-            URL sourceURL = sourceRepo.getURL(destination);
+        public GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException {
+            URL sourceURL = sourceRepo.getURL(configId);
             InputStream in = sourceURL.openStream();
             try {
-                if (!targetRepo.hasURI(destination)) {
-                    targetRepo.copyToRepository(in, destination, new StartFileWriteMonitor());
+                if (!targetRepo.hasURI(configId)) {
+                    targetRepo.copyToRepository(in, configId, new StartFileWriteMonitor());
                 }
             } finally {
                 in.close();
             }
-            URL targetURL = targetRepo.getURL(destination);
+            URL targetURL = targetRepo.getURL(configId);
             GBeanData config = new GBeanData();
             URL baseURL = new URL("jar:" + targetURL.toString() + "!/");
             InputStream jis = null;
@@ -83,14 +79,13 @@ public class RepoConfigInstaller extends BaseConfigInstaller {
                 ObjectInputStream ois = new ObjectInputStream(jis);
                 config.readExternal(ois);
             } catch (ClassNotFoundException e) {
-                throw new InvalidConfigException("Unable to load class from config: " + destination, e);
+                throw new InvalidConfigException("Unable to load class from config: " + configId, e);
             } finally {
                 if (jis != null) {
                     jis.close();
                 }
             }
-            List dependencies = (List) config.getAttribute("dependencies");
-            return dependencies;
+            return config;
         }
     }
 
