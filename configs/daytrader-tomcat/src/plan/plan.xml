@@ -579,8 +579,8 @@
                             <name>jdbc/TradeDataSource</name>
                             <config-property-setting name="UserName"></config-property-setting>
                             <config-property-setting name="Password"></config-property-setting>
-                            <config-property-setting name="DatabaseName">tradedb</config-property-setting>
-                            <config-property-setting name="CreateDatabase">true</config-property-setting>
+                            <config-property-setting name="DatabaseName">DaytraderDatabase</config-property-setting>
+                            <config-property-setting name="CreateDatabase">false</config-property-setting>
                             <connectionmanager>
                                 <xa-transaction>
                                     <transaction-caching/>
@@ -684,4 +684,15 @@
 
         </connector>
     </ext-module>
+            <gbean name="DaytraderResources" class="org.apache.geronimo.system.util.DirectoryInitializationGBean">
+                <!-- copies daytrader derby db files into specified location -->
+                <attribute name="prefix">META-INF/geronimo-daytrader-derby-db</attribute>
+                <attribute name="path">var/derby</attribute>
+                <reference name="ServerInfo">
+                    <application>null</application>
+                    <moduleType>J2EEModule</moduleType>
+                    <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
+                    <name>ServerInfo</name>
+                </reference>
+            </gbean>
 </application>
