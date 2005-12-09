@@ -88,4 +88,5 @@
     <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car"/>
 </attributes>

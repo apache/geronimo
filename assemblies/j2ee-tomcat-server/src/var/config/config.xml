@@ -94,4 +94,5 @@
     <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/daytrader-derby-tomcat/${pom.currentVersion}/car"/>
 </attributes>
