@@ -9,7 +9,7 @@
   <description>This is the web application.</description>
   <dependencies>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-ejb</artifactId>
       <version>${pom.currentVersion}</version>
       <type>ejb</type>

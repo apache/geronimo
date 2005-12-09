@@ -9,12 +9,12 @@
   <description>Day Trader EJBs</description>
   <dependencies>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-core</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>
     <dependency>
-      <groupId>daytrader</groupId>
+      <groupId>geronimo</groupId>
       <artifactId>daytrader-wsappclient</artifactId>
       <version>${pom.currentVersion}</version>
     </dependency>
