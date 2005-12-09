@@ -20,17 +20,19 @@ import java.io.File;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.log4j.BasicConfigurator;
 
 /**
@@ -89,6 +91,9 @@ public class PackageBuilder {
         }
     }
 
+    private String repositoryClass;
+    private String configurationStoreClass;
+
     private File repository;
     private String deploymentConfigString;
     private URI[] deploymentConfig;
@@ -101,6 +106,23 @@ public class PackageBuilder {
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
+
+    public String getRepositoryClass() {
+        return repositoryClass;
+    }
+
+    public void setRepositoryClass(String repositoryClass) {
+        this.repositoryClass = repositoryClass;
+    }
+
+    public String getConfigurationStoreClass() {
+        return configurationStoreClass;
+    }
+
+    public void setConfigurationStoreClass(String configurationStoreClass) {
+        this.configurationStoreClass = configurationStoreClass;
+    }
+
 
     public File getRepository() {
         return repository;
@@ -228,7 +250,7 @@ public class PackageBuilder {
     }
 
     public void execute() throws Exception {
-        Kernel kernel = createKernel(repository);
+        Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass);
 
         // start the Configuration we're going to use for this deployment
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -260,7 +282,7 @@ public class PackageBuilder {
     /**
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
-    private static synchronized Kernel createKernel(File repository) throws Exception {
+    private static synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass) throws Exception {
         // first return our cached version
         if (kernel != null) {
             return kernel;
@@ -271,13 +293,13 @@ public class PackageBuilder {
         if (kernel != null) {
             return kernel;
         }
-        
+
         BasicConfigurator.configure();
         // boot one ourselves
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();
 
-        bootDeployerSystem(kernel, repository);
+        bootDeployerSystem(kernel, repository, repoClass, configStoreClass);
 
         return kernel;
     }
@@ -287,15 +309,24 @@ public class PackageBuilder {
      * This contains Repository and ConfigurationStore GBeans that map to
      * the local maven installation.
      */
-    private static void bootDeployerSystem(Kernel kernel, File repository) throws Exception {
+    private static void bootDeployerSystem(Kernel kernel, File repository, String repoClass, String configStoreClass) throws Exception {
         ClassLoader cl = PackageBuilder.class.getClassLoader();
-        GBeanData repoGBean = new GBeanData(REPOSITORY_NAME, MavenRepository.GBEAN_INFO);
+        GBeanInfo repoInfo = GBeanInfo.getGBeanInfo(repoClass, cl);
+        GBeanData repoGBean = new GBeanData(REPOSITORY_NAME, repoInfo);
         repoGBean.setAttribute("root", repository);
         kernel.loadGBean(repoGBean, cl);
         kernel.startGBean(REPOSITORY_NAME);
 
-        GBeanData storeGBean = new GBeanData(CONFIGSTORE_NAME, MavenConfigStore.GBEAN_INFO);
-        storeGBean.setReferencePattern("Repository", REPOSITORY_NAME);
+        GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configStoreClass, cl);
+        GBeanData storeGBean = new GBeanData(CONFIGSTORE_NAME, configStoreInfo);
+        Set refs = configStoreInfo.getReferences();
+        for (Iterator iterator = refs.iterator(); iterator.hasNext();) {
+            GReferenceInfo refInfo = (GReferenceInfo) iterator.next();
+            if ("Repository".equals(refInfo.getName())) {
+                storeGBean.setReferencePattern("Repository", REPOSITORY_NAME);
+                break;
+            }
+        }
         kernel.loadGBean(storeGBean, cl);
         kernel.startGBean(CONFIGSTORE_NAME);
 

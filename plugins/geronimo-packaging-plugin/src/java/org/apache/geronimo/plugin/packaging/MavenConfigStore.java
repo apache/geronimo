@@ -37,6 +37,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 
 /**
  * Implementation of ConfigurationStore that loads Configurations from a repository.
@@ -126,7 +127,13 @@ public class MavenConfigStore implements ConfigurationStore {
     }
 
     public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
-        throw new UnsupportedOperationException();
+        if (!source.isDirectory()) {
+            throw new InvalidConfigException("Source must be a directory: source=" + source);
+        }
+        URI configId = configurationData.getId();
+        URL targetURL = repository.getURL(configId);
+        File targetFile = new File(targetURL.getPath());
+        ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, source, targetFile);
     }
 
     public void uninstall(URI configID) throws NoSuchConfigException, IOException {

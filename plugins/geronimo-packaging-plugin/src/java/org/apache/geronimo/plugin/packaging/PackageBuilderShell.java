@@ -211,6 +211,8 @@ public class PackageBuilderShell {
         set("setPackageFile", packageFile, File.class, packageBuilder);
         set("setPlanFile", planFile, File.class, packageBuilder);
         set("setRepository", repository, File.class, packageBuilder);
+        set("setRepositoryClass", MavenRepository.class.getName(), String.class, packageBuilder);
+        set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
 
         Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});
         m.invoke(packageBuilder, new Object[]{});
