@@ -222,7 +222,7 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
+            <groupId>geronimo-samples</groupId>
             <artifactId>geronimo-jsp-examples-tomcat</artifactId>
             <version>${tomcat_examples_version}</version>
             <type>war</type>
