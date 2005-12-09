@@ -3,7 +3,7 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>daytrader-wsappclient</id>
+  <artifactId>daytrader-wsappclient</artifactId>
   <name>daytrader-wsappclient</name>
   <package>org.apache.geronimo.samples.daytrader</package>
   <description>Common files for day Trader</description>

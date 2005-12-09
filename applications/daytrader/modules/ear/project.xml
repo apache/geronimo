@@ -3,7 +3,7 @@
 <project>
   <extend>../../project.xml</extend>
   <pomVersion>3</pomVersion>
-  <id>daytrader-ear</id>
+  <artifactId>daytrader-ear</artifactId>
   <name>DayTrader Enterprise Application</name>
   <package>org.apache.geronimo.samples.daytrader.ejb</package>
   <description>Day Trader Enterprise Archive</description>

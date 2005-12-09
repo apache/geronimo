@@ -23,6 +23,6 @@
   <extend>../../etc/project.xml</extend>
 
   <name>Geronimo :: Day Trader Performance Benchmark Sample</name>
-  <id>daytrader</id>
+  <artifactId>daytrader</artifactId>
   <description>This is an example of an application with a complex architecture that uses XDoclet, EJB, EAR and servlets that can be used as a basis for your applications.</description>
 </project>
