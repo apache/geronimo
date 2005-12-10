@@ -234,12 +234,18 @@
     </goal>
 
     <goal name="assemble:package-assembly" prereqs="assemble:assemble" description="Build the binary distribution.">
-        <!-- Create a tar.gz file -->
+        <!-- Create a tar.gz file 
+             Explicitly set execute permission on script files so builds on windows are consistent with unix -->
+
         <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
             <ant:tar longfile="gnu" compression="gzip" tarfile="${maven.build.dir}/${maven.final.name}.tar.gz">
                 <ant:tarfileset dir="${geronimo.assembly.dest}/..">
                     <ant:include name="${geronimo.assembly.name}/**"/>
                     <ant:exclude name="${geronimo.assembly.name}/var/log/*.log"/>
+                    <ant:exclude name="${geronimo.assembly.name}/bin/*.sh"/>
+                </ant:tarfileset>
+                <ant:tarfileset dir="${geronimo.assembly.dest}/.." mode="755">
+                    <ant:include name="${geronimo.assembly.name}/bin/*.sh"/>
                 </ant:tarfileset>
             </ant:tar>
             <checksum file="${maven.build.dir}/${maven.final.name}.tar.gz" algorithm="MD5" fileext=".md5"/>
