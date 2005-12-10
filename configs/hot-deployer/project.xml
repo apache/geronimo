@@ -72,8 +72,8 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-deployment</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
@@ -95,8 +95,8 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <version>${geronimo_spec_j2ee_version}</version>
         </dependency>
 

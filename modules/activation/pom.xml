@@ -11,11 +11,11 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-spec-activation</artifactId>
+      <artifactId>geronimo-activation_1.0.2_spec</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-spec-javamail</artifactId>
+      <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
     </dependency>    
   </dependencies>
 </project>

@@ -227,7 +227,7 @@
     <goal name="interop:stub:generate-compile">
       <ant:exec dir="${maven.basedir}" executable="java">
           <ant:arg value="-cp"/>
-          <ant:arg path="${maven.build.dest};${maven.repo.local}\geronimo-spec\jars\geronimo-spec-ejb-2.1-rc3.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
+          <ant:arg path="${maven.build.dest};${maven.repo.local}\org.apache.geronimo.specs\jars\geronimo-ejb_2.1_spec-1.0.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
           <ant:arg value="org.apache.geronimo.interop.rmi.iiop.compiler.StubCompiler"/>
           <ant:arg value="-g"/>
           <ant:arg value="-c"/>
@@ -247,7 +247,7 @@
     <goal name="interop:skel:generate-compile">
       <ant:exec dir="${maven.basedir}" executable="java">
           <ant:arg value="-cp"/>
-          <ant:arg path="${maven.build.dest};${maven.repo.local}\geronimo-spec\jars\geronimo-spec-ejb-2.1-rc3.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
+          <ant:arg path="${maven.build.dest};${maven.repo.local}\org.apache.geronimo.specs\jars\geronimo-ejb_2.1_spec1.0.jar;${maven.repo.local}\commons-logging\jars\commons-logging-1.0.4.jar"/>
           <ant:arg value="org.apache.geronimo.interop.rmi.iiop.compiler.SkelCompiler"/>
           <ant:arg value="-g"/>
           <ant:arg value="-c"/>
