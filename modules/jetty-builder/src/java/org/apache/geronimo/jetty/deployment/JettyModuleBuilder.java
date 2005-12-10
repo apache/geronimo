@@ -17,40 +17,6 @@
 
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.servlet.Servlet;
-import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -88,8 +54,8 @@ import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
-import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
+import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppDocument;
 import org.apache.geronimo.xbeans.geronimo.web.jetty.JettyWebAppType;
@@ -126,6 +92,40 @@ import org.mortbay.http.BasicAuthenticator;
 import org.mortbay.http.ClientCertAuthenticator;
 import org.mortbay.http.DigestAuthenticator;
 import org.mortbay.jetty.servlet.FormAuthenticator;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
+import javax.servlet.Servlet;
+import javax.transaction.UserTransaction;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 
 /**
@@ -271,7 +271,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
      *
      * @param webApp
      * @param contextRoot
-     * @return
      */
     private Map buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
         contextRoot = "/" + contextRoot;
@@ -513,7 +512,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 ParamValueType contextParam = contextParamArray[i];
                 contextParams.put(contextParam.getParamName().getStringValue().trim(), contextParam.getParamValue().getStringValue().trim());
             }
-            contextParams.put("org.mortbay.jetty.servlet.Context.LogSink", "foo");
             webModuleData.setAttribute("contextParamMap", contextParams);
 
             ListenerType[] listenerArray = webApp.getListenerArray();
@@ -624,6 +622,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
             earContext.addGBean(webModuleData);
 
+            // Make sure that servlet mappings point to available servlets
+            ServletType[] servletTypes = webApp.getServletArray();
+            Set knownServlets = new HashSet();
+            for (int i = 0; i < servletTypes.length; i++) {
+                ServletType type = servletTypes[i];
+                knownServlets.add(type.getServletName().getStringValue().trim());
+            }
             //never add a duplicate pattern.
             Set knownServletMappings = new HashSet();
 
@@ -632,6 +637,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             for (int i = 0; i < servletMappingArray.length; i++) {
                 ServletMappingType servletMappingType = servletMappingArray[i];
                 String servletName = servletMappingType.getServletName().getStringValue().trim();
+                if(!knownServlets.contains(servletName)) {
+                    throw new DeploymentException("Servlet mapping refers to servlet '"+servletName+"' but no such servlet was found!");
+                }
                 String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
                 if (!knownServletMappings.contains(urlPattern)) {
                     knownServletMappings.add(urlPattern);
@@ -788,7 +796,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
 
             //set up servlet gbeans.
-            ServletType[] servletTypes = webApp.getServletArray();
             Map portMap = webModule.getPortMap();
 
             addServlets(webModuleName, webModule.getModuleFile(), servletTypes, servletMappings, securityRoles, rolePermissions, portMap, webClassLoader, moduleJ2eeContext, earContext);
