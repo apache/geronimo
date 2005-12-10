@@ -115,6 +115,6 @@
     </configuration>
     <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/hot-deployer/1.0-SNAPSHOT/car" />
+    <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car" />
 
 </attributes>
