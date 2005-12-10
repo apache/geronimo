@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ArrayList;
 import java.util.Set;
 import javax.management.ObjectName;
 
@@ -48,6 +49,10 @@ import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.app.MockWebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainer;
+
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
 
 
 /**
@@ -113,7 +118,7 @@ public class ContainerTest extends TestCase {
         tearDownWeb();
     }
 
-    public void XtestSecureWebServiceHandler() throws Exception {
+    public void testSecureWebServiceHandler() throws Exception {
 
         setUpWeb();
 
@@ -216,7 +221,7 @@ public class ContainerTest extends TestCase {
         propertiesRealmGBean.setReferencePattern("LoginModuleConfiguration", testUseName);
         propertiesRealmGBean.setReferencePattern("LoginService", loginServiceName);
         PrincipalInfo.PrincipalEditor principalEditor = new PrincipalInfo.PrincipalEditor();
-        principalEditor.setAsText("metro=org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal");
+        principalEditor.setAsText("metro,org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal,false");
         propertiesRealmGBean.setAttribute("defaultPrincipal", principalEditor.getValue());
 
         start(loginConfigurationGBean);
@@ -267,8 +272,8 @@ public class ContainerTest extends TestCase {
         start(host);
 
         //Default Engine
-//       ReferenceCollection hosts = new TestReferenceCollection();
-//       hosts.add(host);
+        ReferenceCollection hosts = new TestReferenceCollection();
+        hosts.add(host);
 
         initParams.clear();
         initParams.put("name", "Geronimo");
@@ -301,8 +306,8 @@ public class ContainerTest extends TestCase {
         stop(serverInfoName);
         kernel.shutdown();
     }
-/*
-   private static class TestReferenceCollection extends ArrayList implements ReferenceCollection {
+
+   private class TestReferenceCollection extends ArrayList implements ReferenceCollection {
 
        ReferenceCollectionListener referenceCollectionListener;
 
@@ -330,6 +335,15 @@ public class ContainerTest extends TestCase {
            return result;
        }
 
+        public ObjectName[] getMemberObjectNames() {
+            ObjectName names[] = new ObjectName[this.size()];
+            for(int i=0; i < this.size(); i++){
+                GBeanData data = (GBeanData)this.get(i);
+                names[i] = data.getName();
+            }
+            return names;
+    }
+
    }
-*/
+
 }
