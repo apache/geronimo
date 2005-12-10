@@ -29,6 +29,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.repository.FileSystemRepository;
+import org.apache.geronimo.gbean.GBeanData;
 
 /**
  * @version $Rev:  $ $Date:  $
@@ -107,7 +108,13 @@ public class BaseConfigInstaller {
     }
 
     protected void execute(InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
-        List dependencies = installAdapter.install(sourceRepo, artifact);
+        URI configId = URI.create(artifact);
+        execute(configId, installAdapter, sourceRepo,  targetRepo);
+    }
+
+    protected void execute(URI configId, InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
+        GBeanData config = installAdapter.install(sourceRepo, configId);
+        List dependencies = (List) config.getAttribute("dependencies");
         System.out.println("Installed configuration " + artifact);
 
         FileWriteMonitor monitor = new StartFileWriteMonitor();
@@ -123,11 +130,18 @@ public class BaseConfigInstaller {
                 targetRepo.copyToRepository(in, dependency, monitor);
             }
         }
+        URI[] parentId = (URI[]) config.getAttribute("parentId");
+        if (parentId != null) {
+            for (int i = 0; i < parentId.length; i++) {
+                URI parent = parentId[i];
+                execute(parent, installAdapter, sourceRepo, targetRepo);
+            }
+        }
     }
 
     protected interface InstallAdapter {
 
-        List install(Repository sourceRepo, String artifactPath) throws IOException, InvalidConfigException;
+        GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException;
 
     }
 

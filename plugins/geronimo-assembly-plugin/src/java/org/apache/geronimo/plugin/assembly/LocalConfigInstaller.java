@@ -43,11 +43,10 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
         store.doStart();
         InstallAdapter installAdapter = new InstallAdapter() {
 
-            public List install(Repository sourceRepo, String artifactPath) throws IOException, InvalidConfigException {
-                URL artifact = sourceRepo.getURL(URI.create(artifactPath));
+            public GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException {
+                URL artifact = sourceRepo.getURL(configId);
                 GBeanData config = store.install2(artifact);
-                List dependencies = (List) config.getAttribute("dependencies");
-                return dependencies;
+                return config;
             }
         };
         Repository sourceRepo = new InnerRepository();
