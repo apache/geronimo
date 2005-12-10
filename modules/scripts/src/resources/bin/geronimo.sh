@@ -43,7 +43,7 @@
 #                   Defaults to $GERONIMO_BASE/var/log/geronimo.out
 #
 #   GERONIMO_PID    (Optional) Path of the file which should contains the pid
-#                   of catalina startup java process, when start (fork) is used
+#                   of the Geronimo java process, when start (fork) is used
 #
 #   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
 #                   the JVM should use (java.io.tmpdir).
