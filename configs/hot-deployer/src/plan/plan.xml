@@ -45,6 +45,7 @@ Child of the geronimo/j2ee-server/${pom.currentVersion}/car configuration that i
 		<attribute name="path">deploy/</attribute>
         <attribute name="pollIntervalMillis">2000</attribute>
         <dependency>
+            <domain>geronimo.maven</domain>
             <module>geronimo/j2ee-deployer/${pom.currentVersion}/car</module>
             <type>ConfigBuilder</type>
             <name>EARBuilder</name>

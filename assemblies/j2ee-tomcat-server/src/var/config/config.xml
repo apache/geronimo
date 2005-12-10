@@ -96,4 +96,5 @@
     <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jmxdebug-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/daytrader-derby-tomcat/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/hot-deployer/1.0-SNAPSHOT/car" />
 </attributes>
