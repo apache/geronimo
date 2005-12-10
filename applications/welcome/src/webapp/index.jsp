@@ -53,7 +53,7 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
-                        <font face="Verdana" size="+1"><i>Documentation</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                        <font face="Verdana" size="+1">Documentation&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
                     </td>
                 </tr>
                 <tr>
@@ -61,16 +61,16 @@
                         <a href="http://geronimo.apache.org/faq.html">FAQ</a><br />
                         <a href="http://wiki.apache.org/geronimo">Wiki</a><br />
                         <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
-                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Home">Additional Documentation</a><br />
+<%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Home">Additional Documentation</a><br />--%>
                         &nbsp;
                     </td>
                 </tr>
             </table>
             <br />
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
-                <tr>                                
+                <tr>
                     <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
-                        <font face="Verdana" size="+1"><i>Geronimo Online</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                        <font face="Verdana" size="+1">Geronimo Online&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
                     </td>
                 </tr>
                 <tr>
@@ -84,24 +84,24 @@
                     </td>
                 </tr>
             </table>
-            
+
             <br />
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
-                <tr>                                
+                <tr>
                     <td bgcolor="#5FA3D6" bordercolor="#000000" align="left" nowrap>
-                        <font face="Verdana" size="+1"><i>Geronimo Examples</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+                        <font face="Verdana" size="+1">Geronimo Examples&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
                     </td>
                 </tr>
                 <tr>
                     <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
                         <a href="/servlets-examples/">Servlet Examples </a><br />
                         <a href="/jsp-examples/">JSP Examples </a><br />
-                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Samples+for+Apache+Geronimo">Download Additional Examples</a><br />
+<%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Samples+for+Apache+Geronimo">Download Additional Examples</a><br />--%>
                         &nbsp;
-                        
+
                     </td>
                 </tr>
-            </table>  
+            </table>
         </td>
 
         <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -111,7 +111,38 @@
             <p><center><b>If you're seeing this page via a web browser, it means you've setup<br />
             Apache Geronimo&#8482; successfully. Congratulations!</b></center></p>
 
-            <p>As you may have guessed by now, this is the default home page for Geronimo. If you're seeing this page, and you don't think you should be, then either you're either a user who has arrived at new installation of Geronimo, or you're an administrator who hasn't got his/her setup quite right. Providing the latter is the case, please refer to the <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a> for more detailed setup and administration information.</p>
+            <p>As you may have guessed by now, this is the default home page for Geronimo. If you're seeing this page,
+                and you don't think you should be, then either you're either a user who has arrived at new installation
+                of Geronimo, or you're an administrator who hasn't got his/her setup quite right.  If you need help
+                setting up or administering Geronimo, see the
+                <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a>.</p>
+
+            <p>If you'd like to get started configuring Geronimo and the applications and services available
+              in Geronimo, you might want to start with the Geronimo
+              <a href="/console">Admin Console</a> (if this is your first time using Geronimo, the admin username
+              is probably "system" with password "manager", though if you used the installer you got to choose
+              your own during the installation).</p>
+
+            <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
+                <p><b>Would you like your application to appear at this URL?</b><br />
+                To set the context root for a web application, you can write a Geronimo deployment
+                plan that uses the <tt>context-root</tt> element to specify the URL prefix used to
+                reach that application.  If you specify a context root of <tt>/</tt> then the
+                application will appear at this URL.  However, you'll need to stop this small
+                Welcome application first!</p>
+                <p>Your web deployment plan should look like this, and you can either pack it into
+                the WAR at <tt>WEB-INF/geronimo-web.xml</tt> or provide it as a separate argument
+                to the deploy tool.</p>
+<pre>&lt;web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
+         configId="MyApplication"&gt;
+    &lt;context-root&gt;/&lt;/context-root&gt;
+    &lt;context-priority-classloader&gt;false&lt;/context-priority-classloader&gt;
+&lt;/web-app&gt;</pre>
+                <p>Then you can stop this application and deploy yours with a command like this:</p>
+                <% boolean jetty = application.getServerInfo().toLowerCase().indexOf("jetty") > -1; %>
+<pre>java -jar bin/deployer.jar stop geronimo/welcome-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car
+java -jar bin/deployer.jar deploy MyWebApp.war</pre>
+            </div>
 
             <p>Geronimo mailing lists are available at the Geronimo project web site:</p>
 
@@ -123,6 +154,7 @@
             <p>Thanks for using Geronimo!</p>
 
             <p align="right"><font size=-1>
+            <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif"/>
 <!--   Bring this line in and add the powered by icon when available
             <img src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif"/>
 -->
@@ -139,4 +171,4 @@
 </table>
 
 </body>
-<ohtml>
+</html>
