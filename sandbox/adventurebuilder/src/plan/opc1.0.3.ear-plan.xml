@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 <!-- $Rev$ $Date$ -->
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application" 
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     parentId="org/apache/geronimo/AdventureDataSource1.0.1"
     configId="org/apache/geronimo/OPC1.0.3">
     <import>
@@ -79,7 +79,7 @@
                     </ejb-local-ref>
                     <ejb-local-ref>
                         <ref-name>ejb/local/purchaseorder/PurchaseOrder</ref-name>
-                        <name>PurchaseOrderBean</name>   
+                        <name>PurchaseOrderBean</name>
                     </ejb-local-ref>
                     <web-service-address>http://localhost:8080/webservice/OtEndpointBean</web-service-address>
                 </session>
@@ -87,7 +87,7 @@
                     <ejb-name>WorkFlowManagerBean</ejb-name>
                     <resource-adapter>
                         <resource-link>Adventure Builder JMS Resources</resource-link>
-                    </resource-adapter>    
+                    </resource-adapter>
                     <activation-config>
                         <activation-config-property>
                             <activation-config-property-name>destination</activation-config-property-name>
@@ -125,7 +125,7 @@
                     <ejb-name>OrderFillerBean</ejb-name>
                     <resource-adapter>
                         <resource-link>Adventure Builder JMS Resources</resource-link>
-                    </resource-adapter>          
+                    </resource-adapter>
                     <activation-config>
                         <activation-config-property>
                             <activation-config-property-name>destination</activation-config-property-name>
@@ -149,7 +149,7 @@
                     <ejb-name>BrokerRequestorBean</ejb-name>
                     <resource-adapter>
                         <resource-link>Adventure Builder JMS Resources</resource-link>
-                    </resource-adapter>    
+                    </resource-adapter>
                     <activation-config>
                         <activation-config-property>
                             <activation-config-property-name>destination</activation-config-property-name>
@@ -197,7 +197,7 @@
                 </message-driven>
                 <entity>
                     <ejb-name>AddressBean</ejb-name>
-                    <jndi-name>com.sun.j2ee.blueprints.opc.purchaseorder.ejb.AddressLocalHome</jndi-name>
+                    <jndi-name>AddressLocalHome</jndi-name>
                     <table-name>Address</table-name>
                     <cmp-field-mapping>
                         <cmp-field-name>streetName1</cmp-field-name>
@@ -244,7 +244,7 @@
                 </entity>
                 <entity>
                     <ejb-name>ContactInfoBean</ejb-name>
-                    <jndi-name>com.sun.j2ee.blueprints.opc.purchaseorder.ejb.ContactInfoLocalHome</jndi-name>
+                    <jndi-name>ContactInfoLocalHome</jndi-name>
                     <table-name>ContactInfo</table-name>
                     <cmp-field-mapping>
                         <cmp-field-name>phone</cmp-field-name>
@@ -287,7 +287,7 @@
                 </entity>
                 <entity>
                     <ejb-name>LodgingBean</ejb-name>
-                    <jndi-name>com.sun.j2ee.blueprints.opc.purchaseorder.ejb.LodgingLocalHome</jndi-name>
+                    <jndi-name>LodgingLocalHome</jndi-name>
                     <table-name>Lodging_Bean</table-name>
                     <cmp-field-mapping>
                         <cmp-field-name>startDate</cmp-field-name>
@@ -342,7 +342,7 @@
                 </entity>
                 <entity>
                     <ejb-name>CreditCardBean</ejb-name>
-                    <jndi-name>com.sun.j2ee.blueprints.opc.purchaseorder.ejb.CreditCardLocalHome</jndi-name>
+                    <jndi-name>CreditCardLocalHome</jndi-name>
                     <table-name>CreditCard</table-name>
                     <cmp-field-mapping>
                         <cmp-field-name>cardNumber</cmp-field-name>
@@ -377,7 +377,7 @@
                 </entity>
                 <entity>
                     <ejb-name>PurchaseOrderBean</ejb-name>
-                    <jndi-name>com.sun.j2ee.blueprints.opc.purchaseorder.ejb.PurchaseOrderLocalHome</jndi-name>
+                    <jndi-name>PurchaseOrderLocalHome</jndi-name>
                     <table-name>PurchaseOrder</table-name>
                     <cmp-field-mapping>
                         <cmp-field-name>locale</cmp-field-name>
@@ -446,7 +446,7 @@
                 </entity>
                 <entity>
                     <ejb-name>TransportationBean</ejb-name>
-                    <jndi-name>com.sun.j2ee.blueprints.opc.purchaseorder.ejb.TransportationLocalHome</jndi-name>
+                    <jndi-name>TransportationLocalHome</jndi-name>
                     <table-name>Transportation_Bean</table-name>
                     <cmp-field-mapping>
                         <cmp-field-name>transportationId</cmp-field-name>
@@ -505,7 +505,7 @@
                 </entity>
                 <entity>
                     <ejb-name>ActivityBean</ejb-name>
-                    <jndi-name>com.sun.j2ee.blueprints.opc.purchaseorder.ejb.ActivityLocalHome</jndi-name>
+                    <jndi-name>ActivityLocalHome</jndi-name>
                     <table-name>Activity_Bean</table-name>
                     <cmp-field-mapping>
                         <cmp-field-name>activityId</cmp-field-name>
@@ -555,10 +555,10 @@
                     </resource-ref>
                 </entity>
                 <message-driven>
-                    <ejb-name>CRMBean</ejb-name>     
+                    <ejb-name>CRMBean</ejb-name>
                     <resource-adapter>
                         <resource-link>Adventure Builder JMS Resources</resource-link>
-                    </resource-adapter>    
+                    </resource-adapter>
                     <activation-config>
                         <activation-config-property>
                             <activation-config-property-name>destination</activation-config-property-name>
@@ -576,7 +576,7 @@
                 </message-driven>
             </enterprise-beans>
             <relationships>
-                <ejb-relation> 
+                <ejb-relation>
                     <ejb-relation-name>ContactAddressRelations</ejb-relation-name>
                     <ejb-relationship-role>
                         <ejb-relationship-role-name>ContactInfoBean</ejb-relationship-role-name>
@@ -592,10 +592,10 @@
                                 <key-column>AddressBean_upk</key-column>
                                 <foreign-key-column>address</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
-                <ejb-relation>  
+                <ejb-relation>
                     <ejb-relation-name>PurchaseTransportationRelations</ejb-relation-name>
                     <ejb-relationship-role>
                         <ejb-relationship-role-name>PurchaseOrderBean</ejb-relationship-role-name>
@@ -611,10 +611,10 @@
                                 <key-column>TransportationBean_upk</key-column>
                                 <foreign-key-column>returnFlightInfo</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
-                <ejb-relation>  
+                <ejb-relation>
                     <ejb-relation-name>PurchaseLodgingRelations</ejb-relation-name>
                     <ejb-relationship-role>
                         <ejb-relationship-role-name>PurchaseOrderBean</ejb-relationship-role-name>
@@ -630,10 +630,10 @@
                                 <key-column>LodgingBean_upk</key-column>
                                 <foreign-key-column>lodging</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
-                <ejb-relation>  
+                <ejb-relation>
                     <ejb-relation-name>PurchaseActivityRelations</ejb-relation-name>
                     <ejb-relationship-role>
                         <ejb-relationship-role-name>PurchaseOrderBean</ejb-relationship-role-name>
@@ -648,10 +648,10 @@
                                 <key-column>poId</key-column>
                                 <foreign-key-column>PurchaseOrderBean_activities</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
-                <ejb-relation> 
+                <ejb-relation>
                     <ejb-relation-name>PurchaseTransportationRelations1</ejb-relation-name>
                     <ejb-relationship-role>
                         <ejb-relationship-role-name>PurchaseOrderBean</ejb-relationship-role-name>
@@ -667,7 +667,7 @@
                                 <key-column>TransportationBean_upk</key-column>
                                 <foreign-key-column>departureFlightInfo</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
                 <ejb-relation>
@@ -686,10 +686,10 @@
                                 <key-column>ContactInfoBean_upk</key-column>
                                 <foreign-key-column>billingInfo</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
-                <ejb-relation>  
+                <ejb-relation>
                     <ejb-relation-name>PurchaseContactRelations1</ejb-relation-name>
                     <ejb-relationship-role>
                         <ejb-relationship-role-name>PurchaseOrderBean</ejb-relationship-role-name>
@@ -705,10 +705,10 @@
                                 <key-column>ContactInfoBean_upk</key-column>
                                 <foreign-key-column>shippingInfo</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
-                <ejb-relation> 
+                <ejb-relation>
                     <ejb-relation-name>PurchaseCreditRelations</ejb-relation-name>
                     <ejb-relationship-role>
                         <ejb-relationship-role-name>PurchaseOrderBean</ejb-relationship-role-name>
@@ -724,10 +724,73 @@
                                 <key-column>CreditCardBean_upk</key-column>
                                 <foreign-key-column>creditCard</foreign-key-column>
                             </cmr-field-mapping>
-                        </role-mapping>       
+                        </role-mapping>
                     </ejb-relationship-role>
                 </ejb-relation>
             </relationships>
+        </openejb-jar>
+    </module>
+    <module>
+        <ejb>processmanager-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar" 
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming" 
+            xmlns:sys="http://geronimo.apache.org/xml/ns/deployment"
+            configId="NOT_USED">
+            <cmp-connection-factory>
+                <resource-link>AdventureDataSource</resource-link>
+            </cmp-connection-factory>
+            <enterprise-beans>
+                <session>
+                    <ejb-name>ProcessManagerBean</ejb-name>
+                    <jndi-name>com.sun.j2ee.blueprints.processmanager.ejb.ProcessManagerLocalHome</jndi-name>
+                    <local-jndi-name>ProcessManagerLocalHome</local-jndi-name>
+                    <ejb-local-ref>
+                        <ref-name>ejb/local/processmanager/Manager</ref-name>
+                        <name>ManagerBean</name>
+                    </ejb-local-ref>
+                </session>
+                <entity>
+                    <ejb-name>ManagerBean</ejb-name>
+                    <jndi-name>ManagerLocalHome</jndi-name>
+                    <local-jndi-name>ManagerLocalHome</local-jndi-name>
+                    <table-name>Manager</table-name>
+                    <cmp-field-mapping>
+                        <cmp-field-name>lodgingOrderStatus</cmp-field-name>
+                        <cmp-field-class>String</cmp-field-class>
+                        <table-column>lodgingOrderStatus</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>orderError</cmp-field-name>
+                        <cmp-field-class>boolean</cmp-field-class>
+                        <table-column>orderError</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>orderId</cmp-field-name>
+                        <cmp-field-class>String</cmp-field-class>
+                        <table-column>orderId</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>status</cmp-field-name>
+                        <cmp-field-class>String</cmp-field-class>
+                        <table-column>status</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>activityOrderStatus</cmp-field-name>
+                        <cmp-field-class>String</cmp-field-class>
+                        <table-column>activityOrderStatus</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>airlineOrderStatus</cmp-field-name>
+                        <cmp-field-class>String</cmp-field-class>
+                        <table-column>airlineOrderStatus</table-column>
+                    </cmp-field-mapping>
+                    <primkey-field>orderId</primkey-field>
+                    <resource-ref>
+                        <ref-name>jdbc/adventure/AdventureDB</ref-name>
+                        <resource-link>MysqlDataSource</resource-link>
+                    </resource-ref>
+                </entity>
+            </enterprise-beans>
         </openejb-jar>
     </module>
     <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean"/>

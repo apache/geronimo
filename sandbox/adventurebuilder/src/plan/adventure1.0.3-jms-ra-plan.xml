@@ -19,7 +19,6 @@
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
     parentId="geronimo/system-jms/1.0-SNAPSHOT/car" 
     configId="org/apache/geronimo/AdventureBuilderJMS">
-
     <resourceadapter>
         <resourceadapter-instance>
           <resourceadapter-name>Adventure Builder JMS Resources</resourceadapter-name>
@@ -108,4 +107,20 @@
             <config-property-setting name="PhysicalName">jms/opc/WebServiceBrokerQueue</config-property-setting>
         </adminobject-instance>
     </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>jms/airline/AirlineQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/airline/AirlineQueue</config-property-setting>
+        </adminobject-instance>
+    </adminobject>    
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.codehaus.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>jms/lodging/LodgingQueue</message-destination-name>
+            <config-property-setting name="PhysicalName">jms/lodging/LodgingQueue</config-property-setting>
+        </adminobject-instance>
+    </adminobject>    
 </connector>

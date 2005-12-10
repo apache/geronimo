@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- $Rev$ $Date$ -->
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application" 
+    parentId="org/apache/geronimo/AdventureDataSource1.0.1"
+    configId="org/apache/geronimo/LodgingSupplier1.0.3">
+    <import>
+        <uri>org/apache/geronimo/AdventureBuilderJMS</uri>
+    </import>
+    <module>
+        <ejb>lodgingsupplier-ejb.jar</ejb>
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming" 
+            xmlns:sys="http://geronimo.apache.org/xml/ns/deployment" 
+            configId="NOT_USED">
+            <cmp-connection-factory>
+                <resource-link>AdventureDataSource</resource-link>
+            </cmp-connection-factory>
+            <enterprise-beans>
+                <entity>
+                    <ejb-name>LodgingOrderBean</ejb-name>
+                    <jndi-name>LodgingOrderLocalHome</jndi-name>
+                    <table-name>LodgingOrder</table-name>
+                    <cmp-field-mapping>
+                        <cmp-field-name>orderId</cmp-field-name>
+                        <table-column>orderId</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>lodgingId</cmp-field-name>
+                        <table-column>lodgingId</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>startDate</cmp-field-name>
+                        <table-column>startDate</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>endDate</cmp-field-name>
+                        <table-column>endDate</table-column>
+                    </cmp-field-mapping>
+                    <cmp-field-mapping>
+                        <cmp-field-name>headCount</cmp-field-name>
+                        <table-column>headCount</table-column>
+                    </cmp-field-mapping>
+                </entity>
+                <session>
+                    <ejb-name>LodgingPOEndpointBean</ejb-name>
+                    <jndi-name>LodgingPOEndpointBean</jndi-name>
+                    <resource-ref>
+                        <ref-name>jms/lodging/QueueConnectionFactory</ref-name>
+                        <resource-link>AdventureBuilderConnectionFactory</resource-link>
+                    </resource-ref>
+                    <naming:resource-env-ref>
+                        <naming:ref-name>jms/lodging/LodgingQueue</naming:ref-name>
+                        <naming:message-destination-link>jms/lodging/LodgingQueue</naming:message-destination-link>
+                    </naming:resource-env-ref>
+                    <web-service-address>http://localhost:8080/webservice/LodgingPOService</web-service-address>
+                </session>
+                <message-driven>
+                    <ejb-name>LodgingMessageEJB</ejb-name>
+                    <resource-adapter>
+                        <resource-link>Adventure Builder JMS Resources</resource-link>
+                    </resource-adapter>
+                    <activation-config>
+                        <activation-config-property>
+                            <activation-config-property-name>destination</activation-config-property-name>
+                            <activation-config-property-value>jms/lodging/LodgingQueue</activation-config-property-value>
+                        </activation-config-property>
+                        <activation-config-property>
+                            <activation-config-property-name>destinationType</activation-config-property-name>
+                            <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+                        </activation-config-property>
+                    </activation-config>
+                    <naming:service-ref>
+                        <naming:service-ref-name>service/WebServiceBroker</naming:service-ref-name>
+                        <naming:port>
+                            <naming:port-name>BrokerServiceIntfPort</naming:port-name>
+                            <naming:protocol>http</naming:protocol>
+                            <naming:host>localhost</naming:host>
+                            <naming:port>8080</naming:port>
+                            <naming:uri>/activity/foo/as</naming:uri>
+                        </naming:port>
+                    </naming:service-ref>
+                </message-driven>
+            </enterprise-beans>
+        </openejb-jar>
+    </module>
+</application>

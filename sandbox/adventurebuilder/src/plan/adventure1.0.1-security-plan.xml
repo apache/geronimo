@@ -20,7 +20,7 @@
 
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    parentId="org/apache/geronimo/Security"
+    parentId="geronimo/client-security/1.0-SNAPSHOT/car"
     configId="org/apache/geronimo/AdventureSecurity1.0.1"
     >
     <gbean name="adventure-realm"

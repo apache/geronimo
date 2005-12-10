@@ -18,7 +18,7 @@
 <!-- $Rev$ $Date$ -->
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
     parentId="org/apache/geronimo/AdventureDataSource1.0.1" 
-    configId="org/apache/geronimo/AdventureBuilder1.0.1">
+    configId="org/apache/geronimo/Adventure1.0.1">
 
     <module>
         <web>adventure.war</web>

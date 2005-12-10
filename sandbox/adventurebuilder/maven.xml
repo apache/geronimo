@@ -102,6 +102,33 @@
             <ant:arg value="${ab.home}/opc.ear"/>
         </ant:java>
 
+        <ant:echo>Distributing Adventure Builder Airline Supplier Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--offline"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${maven.build.dir}/plan/airlinesupplier1.0.3.ear-plan.xml"/>
+            <ant:arg value="${ab.home}/airlinesupplier.ear"/>
+        </ant:java>
+
+        <ant:echo>Distributing Adventure Builder Bank Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--offline"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${maven.build.dir}/plan/bank1.0.3.ear-plan.xml"/>
+            <ant:arg value="${ab.home}/bank.ear"/>
+        </ant:java>
+
+        <ant:echo>Distributing Adventure Lodging Supplier Application</ant:echo>
+        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
+            <ant:jvmarg value="-ea"/>
+            <ant:arg value="--offline"/>
+            <ant:arg value="distribute"/>
+            <ant:arg value="${maven.build.dir}/plan/lodgingsupplier1.0.3.ear-plan.xml"/>
+            <ant:arg value="${ab.home}/lodgingsupplier.ear"/>
+        </ant:java>
+
         <ant:echo>Creating Adventure Builder Database Schema</ant:echo>
         <j:invokeStatic className="java.lang.System" method="setProperty">
             <j:arg type="java.lang.String" value="derby.system.home"/>
@@ -120,7 +147,7 @@
         <deploy:startRemoteServer
             geronimoTarget="${instDir}"
             debugPort="8000"
-	    configs="org/apache/geronimo/AdventureBuilder1.0.1 org/apache/geronimo/ActivitySupplier1.0.3 org/apache/geronimo/OPC1.0.3 org/apache/geronimo/RuntimeDeployer"/>
+            configs="geronimo/console-jetty/1.0-SNAPSHOT/car geronimo/debug-console/1.0-SNAPSHOT/car geronimo/runtime-deployer/1.0-SNAPSHOT/car  geronimo/uddi-jetty/1.0-SNAPSHOT/car geronimo/jetty-runtime-deployer/1.0-SNAPSHOT/car org/apache/geronimo/Adventure1.0.1 org/apache/geronimo/AirlineSupplier1.0.3 org/apache/geronimo/ActivitySupplier1.0.3 org/apache/geronimo/Bank1.0.3 org/apache/geronimo/LodgingSupplier1.0.3 org/apache/geronimo/OPC1.0.3"/>
         <ant:echo message="Waiting for server at: ${instDir}"/>
         <deploy:waitForStarted
             uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
@@ -131,13 +158,28 @@
             uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
+            id="org/apache/geronimo/AirlineSupplier1.0.3"/>
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
             id="org/apache/geronimo/ActivitySupplier1.0.3"/>
         <deploy:waitForStarted
             uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"
+            id="org/apache/geronimo/Bank1.0.3"/>
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            id="org/apache/geronimo/LodgingSupplier1.0.3"/>
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
             id="org/apache/geronimo/OPC1.0.3"/>
-        <echo message="PetStore has started"/>
+        <echo message="Adventure Builder has started"/>
     </goal>
 
     <goal name="ab:stop" description="Stop Adventure Builder">
@@ -145,7 +187,7 @@
             uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"
             password="manager"/>
-        <echo message="server has stopped"/>
+        <echo message="Adventure Builder has stopped"/>
     </goal>
 
 </project>
