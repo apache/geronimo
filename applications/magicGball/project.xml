@@ -36,9 +36,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee</artifactId>
-            <version>1.4-rc4</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
+            <version>${geronimo_spec_j2ee_version}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

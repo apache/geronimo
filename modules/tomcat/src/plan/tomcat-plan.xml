@@ -34,7 +34,7 @@ Configuration for the Apache Tomcat web container
         <uri>geronimo/jars/geronimo-system-1.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc3.jar</uri>
+        <uri>org.apache.geronimo.specs/jars/geronimo-j2ee_1.4_spec-1.0.jar</uri>
     </dependency>
     <dependency>
         <uri>tomcat/jars/catalina-${tomcat_version}.jar</uri>

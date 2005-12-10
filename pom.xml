@@ -110,23 +110,23 @@
      | Geronimo specification versions
      |
      -->
-    <geronimoSpecActivationVersion>1.0-SNAPSHOT</geronimoSpecActivationVersion>
-    <geronimoSpecCorbaVersion>1.0-SNAPSHOT</geronimoSpecCorbaVersion>
-    <geronimoSpecEjbVersion>1.0-SNAPSHOT</geronimoSpecEjbVersion>
-    <geronimoSpecJ2eeVersion>1.0-SNAPSHOT</geronimoSpecJ2eeVersion>
-    <geronimoSpecJ2eeConnectorVersion>1.0-SNAPSHOT</geronimoSpecJ2eeConnectorVersion>
-    <geronimoSpecJ2eeDeploymentVersion>1.0-SNAPSHOT</geronimoSpecJ2eeDeploymentVersion>
-    <geronimoSpecJ2eeJaccVersion>1.0-SNAPSHOT</geronimoSpecJ2eeJaccVersion>
-    <geronimoSpecJ2eeManagementVersion>1.0-SNAPSHOT</geronimoSpecJ2eeManagementVersion>
-    <geronimoSpecJavamailVersion>1.0-SNAPSHOT</geronimoSpecJavamailVersion>
-    <geronimoSpecJaxrVersion>1.0-SNAPSHOT</geronimoSpecJaxrVersion>
-    <geronimoSpecJaxrpcVersion>1.0-SNAPSHOT</geronimoSpecJaxrpcVersion>
-    <geronimoSpecJmsVersion>1.0-SNAPSHOT</geronimoSpecJmsVersion>
-    <geronimoSpecJspVersion>1.0-SNAPSHOT</geronimoSpecJspVersion>
-    <geronimoSpecJtaVersion>1.0-SNAPSHOT</geronimoSpecJtaVersion>
-    <geronimoSpecQnameVersion>1.0-SNAPSHOT</geronimoSpecQnameVersion>
-    <geronimoSpecSaajVersion>1.0-SNAPSHOT</geronimoSpecSaajVersion>
-    <geronimoSpecServletVersion>1.0-SNAPSHOT</geronimoSpecServletVersion>
+    <geronimoSpecActivationVersion>1.0</geronimoSpecActivationVersion>
+    <geronimoSpecCorbaVersion>1.0</geronimoSpecCorbaVersion>
+    <geronimoSpecEjbVersion>1.0</geronimoSpecEjbVersion>
+    <geronimoSpecJ2eeVersion>1.0</geronimoSpecJ2eeVersion>
+    <geronimoSpecJ2eeConnectorVersion>1.0</geronimoSpecJ2eeConnectorVersion>
+    <geronimoSpecJ2eeDeploymentVersion>1.0</geronimoSpecJ2eeDeploymentVersion>
+    <geronimoSpecJ2eeJaccVersion>1.0</geronimoSpecJ2eeJaccVersion>
+    <geronimoSpecJ2eeManagementVersion>1.0</geronimoSpecJ2eeManagementVersion>
+    <geronimoSpecJavamailVersion>1.0</geronimoSpecJavamailVersion>
+    <geronimoSpecJaxrVersion>1.0</geronimoSpecJaxrVersion>
+    <geronimoSpecJaxrpcVersion>1.0</geronimoSpecJaxrpcVersion>
+    <geronimoSpecJmsVersion>1.0</geronimoSpecJmsVersion>
+    <geronimoSpecJspVersion>1.0</geronimoSpecJspVersion>
+    <geronimoSpecJtaVersion>1.0</geronimoSpecJtaVersion>
+    <geronimoSpecQnameVersion>1.0</geronimoSpecQnameVersion>
+    <geronimoSpecSaajVersion>1.0</geronimoSpecSaajVersion>
+    <geronimoSpecServletVersion>1.0</geronimoSpecServletVersion>
     <!--
      |
      | External dependency versions

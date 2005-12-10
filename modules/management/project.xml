@@ -40,8 +40,8 @@
     <dependencies>
         <!-- Module Dependencies -->
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-j2ee-management</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
             <version>${geronimo_spec_j2ee_management_version}</version>
         </dependency>
     </dependencies>

@@ -110,8 +110,8 @@
              </properties>
         </dependency>
         <dependency>
-            <groupId>geronimo-spec</groupId>
-            <artifactId>geronimo-spec-qname</artifactId>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-qname_1.1_spec</artifactId>
             <version>${geronimo_spec_qname_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>

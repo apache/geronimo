@@ -93,7 +93,7 @@
        |    Same as m:clean m:default
        |
        | m:rebuild-all
-       |    Same as m:clean m:clean-repo m:default and it includes geronimo-spec modules
+       |    Same as m:clean m:clean-repo m:default and it includes geronimo spec modules
        |
        | m:checkout or m:co
        |    Checks out ActiveMQ, OpenEJB, and TranQL
@@ -147,16 +147,10 @@
         </j:forEach>
     </goal>
 
-    <goal name="m:-all">
-        <!-- only include geronimo-spec when doeing a -all -->
-        <j:set var="maven.multiproject.includes" value="${maven.multiproject.includes},specs/*/project.xml"/>
-        <j:set var="geronimo.all" value="true"/>
-    </goal>
-
-    <goal name="m:rebuild-all" prereqs="m:-all,m:clean,m:clean-repo,m:default"/>
+    <goal name="m:rebuild-all" prereqs="m:clean,m:clean-repo,m:default"/>
     <goal name="m:rebuild" prereqs="m:clean,m:default"/>
 
-    <goal name="m:build-all" prereqs="m:-all,m:default"/>
+    <goal name="m:build-all" prereqs="m:default"/>
     <goal name="m:build" prereqs="m:default"/>
     <goal name="m:default" prereqs="m:init">
         <!-- don't run the active mq tests they take way too long and don't complete successfully -->
@@ -168,7 +162,7 @@
         <attainGoal name="multiproject:goal"/>
     </goal>
 
-    <goal name="m:clean-all" prereqs="m:-all,m:clean"/>
+    <goal name="m:clean-all" prereqs="m:clean"/>
     <goal name="m:clean" prereqs="m:init">
         <u:tokenize var="directories" delim=",">${modules.directories}</u:tokenize>
         <j:forEach var="directory" items="${directories}">
@@ -204,7 +198,7 @@
         <!--<delete dir="${maven.repo.local}/tranql"/>-->
         <!-- AMM: specs are no longer in main tree
         <j:if test="${context.getVariable('geronimo.all') == 'true'}">
-            <delete dir="${maven.repo.local}/geronimo-spec"/>
+            <delete dir="${maven.repo.local}/org.apache.geronimo.specs"/>
         </j:if>
         -->
     </goal>
