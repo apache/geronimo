@@ -63,6 +63,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     private transient Kernel kernel;
     private transient DeploymentFactory factory;
     private transient TargetModuleID[] startupModules = null;
+    private transient boolean serverRunning = false;
 
     public DirectoryHotDeployer(String path, int pollIntervalMillis, ServerInfo serverInfo, Kernel kernel) {
         this.path = path;
@@ -171,6 +172,10 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     }
 
     public boolean isServerRunning() {
+        if (serverRunning) {
+            return true;
+        }
+
         // a bit of a hack, but the PersistentConfigurationList is the only thing that knows whether the server is full started!
         GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());
         Set configLists = kernel.listGBeans(query);
@@ -185,6 +190,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
                 log.warn("Hot deployer unable to determine whether kernel is started", e);
             }
         }
+        serverRunning = true;
         return true;
     }
 
