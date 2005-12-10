@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -132,7 +133,17 @@ public class MavenConfigStore implements ConfigurationStore {
         }
         URI configId = configurationData.getId();
         URL targetURL = repository.getURL(configId);
-        File targetFile = new File(targetURL.getPath());
+        File targetFile;
+        if (targetURL.getProtocol().equalsIgnoreCase("file")) {
+            try {
+                targetFile = new File(URLDecoder.decode(targetURL.getFile(), "UTF-8"));
+            } catch (IOException e) {
+                throw new InvalidConfigException("Could not construct File for car location", e);
+            }
+        } else {
+            URI targetURI = URI.create(targetURL.toString());
+            targetFile = new File(targetURI);
+        }
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, source, targetFile);
     }
 
