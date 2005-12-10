@@ -212,6 +212,15 @@
 <!--applications-->
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-ldap-demo-tomcat</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>welcome-tomcat</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
