@@ -644,7 +644,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxr1.0_spec</artifactId>
+            <artifactId>geronimo-jaxr_1.0_spec</artifactId>
             <version>${geronimo_spec_jaxr_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>

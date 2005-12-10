@@ -40,7 +40,7 @@
 
     <goal name="new1">
         <maven:reactor basedir="${basedir}" includes="modules/*/project.xml,plugins/*/project.xml"
-            excludes="modules/assembly/project.xml" goals="multiproject:install-callback" banner="geronimo and geronimo-plugins" ignoreFailures="false" />
+            excludes="modules/interop/project.xml" goals="multiproject:install-callback" banner="geronimo and geronimo-plugins" ignoreFailures="false" />
     </goal>
 
     <goal name="new2">
