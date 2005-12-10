@@ -100,6 +100,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>ldap-realm</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>system-database</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
