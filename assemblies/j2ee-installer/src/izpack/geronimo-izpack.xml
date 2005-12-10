@@ -86,9 +86,11 @@
             <parsable targetfile="$INSTALL_PATH/var/security/users.properties" type="javaprop"/>
             <parsable targetfile="$INSTALL_PATH/var/security/groups.properties" type="javaprop"/>
             <parsable targetfile="$INSTALL_PATH/var/config/config.xml" type="xml"/>
-            <executable targetfile="$INSTALL_PATH/bin/startup.sh" type="bin" stage="never" />
-            <executable targetfile="$INSTALL_PATH/bin/shutdown.sh" type="bin" stage="never" />
             <executable targetfile="$INSTALL_PATH/bin/deploy.sh" type="bin" stage="never" />
+            <executable targetfile="$INSTALL_PATH/bin/geronimo.sh" type="bin" stage="never" />
+            <executable targetfile="$INSTALL_PATH/bin/setjavaenv.sh" type="bin" stage="never" />
+            <executable targetfile="$INSTALL_PATH/bin/shutdown.sh" type="bin" stage="never" />
+            <executable targetfile="$INSTALL_PATH/bin/startup.sh" type="bin" stage="never" />
         </pack>
         <pack name="J2EE Features" required="no" preselected="yes">
             <!-- o/o/g/RMINaming -->
