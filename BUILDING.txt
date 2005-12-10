@@ -14,16 +14,17 @@ and then press [enter].
 
 To build Geronimo running all of the unit test cases, compiling 
 all the Geronimo sources and installing them in your local maven
-repository, simply type maven new in the root of the Geronimo
+repository, simply type "maven" in the root of the Geronimo
 source tree:
 
-        $> maven new
+        $> maven 
 
-That command will compile Geronimo, using recent binary builds of
-OpenEJB and TranQL.  In some cases synchronized changes are made
-to several of the projects at once, and you may have trouble
-building the HEAD code of Geronimo against the older binaries of
-OpenEJB of TranQL.  In that case, you can run:
+That command will run the default "new" target and compile 
+Geronimo, using recent binary builds of OpenEJB and TranQL.  In 
+some cases synchronized changes are made to several of the 
+projects at once, and you may have trouble building the HEAD code 
+of Geronimo against the older binaries of OpenEJB of TranQL.  
+In that case, you can run:
 
 	$> maven m:co
 	$> maven m:clean m:clean-repo new

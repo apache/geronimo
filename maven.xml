@@ -18,7 +18,7 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project default="m:build-all"
+<project default="new"
     xmlns:j="jelly:core"
     xmlns:u="jelly:util"
     xmlns:ant="jelly:ant"
