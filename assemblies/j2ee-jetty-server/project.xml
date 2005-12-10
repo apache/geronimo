@@ -257,6 +257,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>remote-deploy-jetty</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>uddi-jetty</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>

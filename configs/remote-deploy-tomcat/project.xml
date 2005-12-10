@@ -23,7 +23,7 @@
     <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: Remote Deploy Tomcat Application</name>
-    <id>geronimo-remote-deploy-tomcat</id>
+    <id>remote-deploy-tomcat</id>
     <shortDescription>Geronimo Remote Deploy Tomcat Application</shortDescription>
     <description>
         This application is essentially a servlet that accepts file upload

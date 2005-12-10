@@ -257,6 +257,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>remote-deploy-tomcat</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>uddi-tomcat</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>

@@ -23,7 +23,7 @@
     <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: Remote Deploy Jetty Application</name>
-    <id>geronimo-remote-deploy-jetty</id>
+    <id>remote-deploy-jetty</id>
     <shortDescription>Geronimo Remote Deploy Jetty Application</shortDescription>
     <description>
         This application is essentially a servlet that accepts file upload
