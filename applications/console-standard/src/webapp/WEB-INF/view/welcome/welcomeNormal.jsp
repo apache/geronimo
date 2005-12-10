@@ -11,13 +11,20 @@
         <td width="90%" align="left" valign="top">
             <p><font face="Verdana" size="+1"><center><b>Welcome to the Apache Geronimo&#8482;<BR>Administration Console!</b></center></font></p>
 
-            <p>The administration console provides a convenient, user friendly way to administer many aspects of the Geronimo Server.  It is currently a work in progress, and will continue to evolve over time.  The navigation panel on the lefthand side of the screen provides easy access to the individual tasks.  It is always present and allows easy transition from task to task.</p>
+            <p>The administration console provides a convenient, user friendly way to administer many aspects of the
+                Geronimo Server.  It is currently a work in progress, and will continue to evolve over time.  The
+                navigation panel on the left-hand side of the screen provides easy access to the individual tasks
+                available in the console.</p>
 
-            <p>This space is the main content area where the real work happens.  Each view contains one or more portlets (self contained view fragments) that typically include a link for help in the header.  Look at the top of this portlet for an example and try it out.</p>
+            <p>This space is the main content area where the real work happens.  Each view contains one or more
+                portlets (self contained view fragments) that typically include a link for help in the header.  Look
+                at the top of this portlet for an example and try it out.</p>
 
-            <p>The references on the right are provided so that you can learn more about Apache Geronimo, its capabilities, and what might be coming in future releases.</p>
+            <p>The references on the right are provided so that you can learn more about Apache Geronimo, its
+                capabilities, and what might be coming in future releases.</p>
 
-            <p>Mailing lists are available to get involved in the development of Apache Geronimo or to ask questions of the community:</p>
+            <p>Mailing lists are available to get involved in the development of Apache Geronimo or to ask questions
+                of the community:</p>
 
            <ul>
                <li><b><a href="mailto:user-subscribe@geronimo.apache.org">user@geronimo.apache.org</a></b>
@@ -30,7 +37,7 @@
 
             <p>So share your experiences with us and let us know how we can make Geronimo even better.</p>
 
-            <p><CENTER><B>Thanks for using Geronimo!</B></CENTER></p>
+            <p style="text-align: center"><b>Thanks for using Geronimo!</b></p>
 
 
         </td>
@@ -43,7 +50,7 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1"><i>Common Console Actions</i></font>
+                        <font face="Verdana" size="+1">Common Console Actions</font>
                     </td>
                 </tr>
                 <tr>
@@ -67,7 +74,7 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1"><i>Geronimo Online</i></font>
+                        <font face="Verdana" size="+1">Geronimo Online</font>
                     </td>
                 </tr>
                 <tr>
@@ -89,7 +96,7 @@
             <table width="100%" border="1" cellspacing="0" cellpadding="3" bordercolor="#000000">
                 <tr>
                     <td class="DarkBackground" align="left" nowrap>
-                        <font face="Verdana" size="+1"><i>Geronimo Documentation</i>&nbsp;&nbsp;&nbsp;</font>
+                        <font face="Verdana" size="+1">Geronimo Documentation&nbsp;&nbsp;&nbsp;</font>
                     </td>
                 </tr>
                 <tr>
@@ -98,7 +105,7 @@
                         <a href="http://geronimo.apache.org/faq.html">FAQ</a><br />
                         <a href="http://wiki.apache.org/geronimo">Wiki</a><br />
                         <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
-                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Home">Additional Documentation</a><br />
+<%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Home">Additional Documentation</a><br />--%>
                         &nbsp;<br />
                     </td>
                 </tr>
@@ -108,9 +115,7 @@
             <br />
 
             <p align="right"><font size=-1>
-<!--   Bring this line in and add the powered by icon when available
-            <img src="/console/images/ico_geronimo_16x16.gif"/>
--->
+            <img src="/console/images/powered_by_100x30.gif"/>
             </font><br />
             &nbsp;
             <font size=-1>Copyright &copy; 1999-2005 Apache Software Foundation</font><br />
