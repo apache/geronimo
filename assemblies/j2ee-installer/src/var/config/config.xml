@@ -78,6 +78,7 @@
     <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/tomcat/${pom.currentVersion}/car" load="false">
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
@@ -100,6 +101,7 @@
     <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car" load="false"/>
+    <configuration name="geronimo/jmxdebug-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
         <gbean name="WebBuilder">
@@ -111,5 +113,6 @@
     </configuration>
     <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car" load="false"/>
+    <configuration name="geronimo/hot-deployer/1.0-SNAPSHOT/car" />
 
 </attributes>
