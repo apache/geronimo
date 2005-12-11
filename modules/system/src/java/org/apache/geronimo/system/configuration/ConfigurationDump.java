@@ -56,7 +56,7 @@ public class ConfigurationDump {
 
     public static void main(String[] args) throws Exception {
         File geronimoBaseDir = new File(args[0]);
-        System.setProperty("geronimo.base.dir", geronimoBaseDir.getAbsolutePath());
+        System.setProperty("org.apache.geronimo.base.dir", geronimoBaseDir.getAbsolutePath());
 
         // create the kernel
         Kernel kernel = KernelFactory.newInstance().createKernel("geronimo");
