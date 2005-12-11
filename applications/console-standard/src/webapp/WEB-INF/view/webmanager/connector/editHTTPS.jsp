@@ -198,7 +198,8 @@
     <td><div align="right">HTTPS Algorithm: </div></td>
     <td>
       <select name="algorithm">
-        <option value="SunX509"<c:if test="${algorithm eq 'SunX509' || logLevel eq ''}"> selected</c:if>>Sun</option>
+        <option value="Default"<c:if test="${algorithm eq 'Default' || algorithm eq ''}"> selected</c:if>>JVM Default</option>
+        <option value="SunX509"<c:if test="${algorithm eq 'SunX509' eq ''}"> selected</c:if>>Sun</option>
         <option value="IbmX509"<c:if test="${algorithm eq 'IbmX509'}"> selected</c:if>>IBM</option>
       </select>
 	</td>
@@ -214,7 +215,7 @@
     <td><div align="right">HTTPS Protocol: </div></td>
     <td>
       <select name="secureProtocol">
-        <option<c:if test="${secureProtocol eq 'TLS' || logLevel eq ''}"> selected</c:if>>TLS</option>
+        <option<c:if test="${secureProtocol eq 'TLS' || secureProtocol eq ''}"> selected</c:if>>TLS</option>
         <option<c:if test="${secureProtocol eq 'SSL'}"> selected</c:if>>SSL</option>
       </select>
 	</td>
