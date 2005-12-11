@@ -17,7 +17,7 @@
 <TABLE width="617" height="30">
   <TBODY>
         <TR>
-      <TD><IMG src="images/WEBSPHERE_18P_UNIX.GIF" width="113" height="18" border="0"></TD>
+      <TD><IMG src="images/GLogo_450x50.gif" width="150" height="21" border="0"></TD>
       <TD><FONT color="#ff0033"><FONT color="#ff0033"><FONT color="#ff0033"><% String results;
 results = (String) request.getAttribute("results");
 if ( results != null )out.print(results);
@@ -88,7 +88,8 @@ if ( results != null )out.print(results);
             </TD>
         </TR>
         <TR>
-			<TD colspan="2" align="center"><IMG src="images/WEBSPHERE_18P_UNIX.GIF" width="113" height="18" border="0"><BR>
+			<TD colspan="2" align="center"><IMG src="images/GLogo_450x50.gif" width="150" height="21" border="0"><BR>
+
 			<BR>
 			<IMG src="images/ticker-anim.gif" width="385" height="22" border="0" align="middle"></TD>
 		</TR>
