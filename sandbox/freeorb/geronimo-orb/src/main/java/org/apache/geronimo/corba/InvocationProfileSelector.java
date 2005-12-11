@@ -47,12 +47,12 @@ public class InvocationProfileSelector {
         return orb;
     }
 
-    public OutputStreamBase setupRequest(String operation, boolean responseExpected)
-            throws org.omg.PortableInterceptor.ForwardRequest
+    public OutputStreamBase setupRequest(String operation, boolean responseExpected, Policies policies)
+            throws LocationForwardException
     {
         while (true) {
             ClientInvocation invocation = createClientInvcation(operation,
-                                                                responseExpected);
+                                                                responseExpected, policies);
 
             try {
 
@@ -63,10 +63,6 @@ public class InvocationProfileSelector {
                 return out;
 
             }
-            catch (org.omg.PortableInterceptor.ForwardRequest ex) {
-                throw ex;
-
-            }
             catch (RuntimeException ex) {
 
                 currentProfile++;
@@ -75,13 +71,14 @@ public class InvocationProfileSelector {
                     throw ex;
                 }
 
-            }
+			}
         }
 
     }
 
     private ClientInvocation createClientInvcation(String operation,
-                                                   boolean responseExpected)
+                                                   boolean responseExpected,
+                                                   Policies policies)
     {
 
         if (currentProfile >= profiles.length) {
@@ -90,7 +87,7 @@ public class InvocationProfileSelector {
 
         InvocationProfile profile = profiles[currentProfile];
 
-        return new ClientInvocation(this, operation, responseExpected, profile);
+        return new ClientInvocation(orb, this, operation, responseExpected, profile, policies);
     }
 
     public ClientDelegate getDelegate() {

@@ -58,4 +58,9 @@ public class InternalServiceContext extends TaggedValue {
 		
 	}
 
+	public ServiceContext asServiceContext() {
+		// TODO: ensure encoded
+		return ctx;
+	}
+
 }

@@ -16,6 +16,31 @@
  */
 package org.apache.geronimo.corba;
 
+import java.util.List;
+
+import org.apache.geronimo.corba.ior.InternalServiceContextList;
+
 public interface Invocation {
+
+	static public final byte SYNC_NONE = 0;
+	static public final byte SYNC_WITH_TRANSPORT = 1;
+	static public final byte SYNC_WITH_SERVER = 2;
+	static public final byte SYNC_WITH_TARGET = 3;
+
+	public abstract int getRequestID();
+
+	public abstract String getOperation();
+
+	public abstract short getSyncScope();
+
+	public abstract boolean isResponseExpected();
+
+	public abstract InternalServiceContextList getResponseServiceContextList(boolean create);
+
+	public abstract InternalServiceContextList getRequestServiceContextList(boolean create);
+
+	public abstract ORB getORB();
+
+	public abstract Policies getPolicies();
 
 }

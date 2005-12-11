@@ -45,7 +45,7 @@ public class ClientDelegate extends Delegate {
 
 	private final ORB orb;
 
-	private InternalIOR ior;
+	private InternalIOR effective_ior;
 
 	private InvocationProfileSelector profileManager;
 
@@ -63,13 +63,15 @@ public class ClientDelegate extends Delegate {
 
 	private ThreadLocal retryState;
 
+	private Policies effective_policies;
+	
 	/* @deprecated */
 	public ClientDelegate(InternalIOR ior) {
 		this(ior, null);
 	}
 
 	public ClientDelegate(InternalIOR ior, Policy[] policies) {
-		this.ior = ior;
+		this.effective_ior = ior;
 		this.policies = policies;
 		this.orb = (ORB) ior.orb;
 	}
@@ -125,9 +127,9 @@ public class ClientDelegate extends Delegate {
 
                 } catch (LocationForwardException lex) {
 
-                        ior = lex.getIor ();
+                        effective_ior = lex.getIor ();
                         if (lex.isPermanent ()) {
-                            orig_ior = ior;
+                            orig_ior = effective_ior;
                         }
                         
                         profileManager.reset();
@@ -175,7 +177,7 @@ public class ClientDelegate extends Delegate {
 				// RequestHeader to output stream.
 
 				OutputStreamBase result = manager.setupRequest(operation,
-						responseExpected);
+						responseExpected, effective_policies);
 
 				if (result.getClientInvocation() == null) {
 					throw new INTERNAL();
@@ -183,10 +185,14 @@ public class ClientDelegate extends Delegate {
 
 				return result;
 
-			} catch (org.omg.PortableInterceptor.ForwardRequest ex) {
+			} catch (LocationForwardException ex) {
 
-				setIOR(InternalIOR.extract(ex.forward));
-
+				if (ex.isPermanent()) {
+					setOrigIOR(ex.getIor());
+				}
+				
+				setIOR(ex.getIor());
+				
 				continue;
 
 			}
@@ -194,8 +200,14 @@ public class ClientDelegate extends Delegate {
 		}
 	}
 
+	private void setOrigIOR(InternalIOR ior2) {
+		this.orig_ior = ior2;
+		this.effective_ior = ior2;
+		this.profileManager = null;
+	}
+
 	private void setIOR(InternalIOR ior) {
-		this.ior = ior;
+		this.effective_ior = ior;
 		this.profileManager = null;
 	}
 
@@ -226,7 +238,18 @@ public class ClientDelegate extends Delegate {
 
 		InputStream in = inv.invoke(this, out);
 
-		inv.checkException();
+		try {
+			inv.checkException();
+		} catch (LocationForwardException e) {
+			
+			if (e.isPermanent()) {
+				setOrigIOR(e.getIor());
+			} else {
+				setIOR(e.getIor());
+			}
+
+			throw new RemarshalException();
+		}
 
 		return in;
 	}
@@ -405,7 +428,7 @@ public class ClientDelegate extends Delegate {
 	}
 
 	public InternalIOR getInternalIOR() {
-		return ior;
+		return effective_ior;
 	}
 
 	public ORB getORB() {
@@ -413,7 +436,7 @@ public class ClientDelegate extends Delegate {
 	}
 
 	public InternalIOR getIOR() {
-		return ior;
+		return effective_ior;
 	}
 
     private synchronized void setRetry (boolean value)
@@ -445,6 +468,10 @@ public class ClientDelegate extends Delegate {
             setRetry (value);
         return result;
     }
+
+	public InternalIOR getOrigIOR() {
+		return orig_ior;
+	}
 
 	
 }

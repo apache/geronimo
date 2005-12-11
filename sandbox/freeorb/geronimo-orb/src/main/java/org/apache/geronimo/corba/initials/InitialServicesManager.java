@@ -14,28 +14,40 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.corba.server;
+package org.apache.geronimo.corba.initials;
 
-import org.apache.geronimo.corba.LocationForwardException;
+import java.util.Properties;
+
 import org.apache.geronimo.corba.ORB;
-import org.apache.geronimo.corba.ServerManager;
-import org.apache.geronimo.corba.ior.InternalIOR;
-import org.omg.CORBA.Policy;
+import org.omg.CORBA.Object;
+import org.omg.CORBA.ORBPackage.InvalidName;
 
-/** The ServerManager owns the RootPOA and manages the tree of POAs */
-public class DefaultServerManager implements ServerManager {
+public class InitialServicesManager {
 
 	private final ORB orb;
 
-	public DefaultServerManager(ORB orb) {
+	public InitialServicesManager(ORB orb) {
 		this.orb = orb;
 	}
 
-	/** if IOR represents a local object (managed by a POA in this server), yield a ServantObject */
-	public ServantObject getServantObject(InternalIOR ior, Policy[] policies)
-			throws LocationForwardException {
+	public String[] list_initial_services() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public Object resolve_initial_references(String object_name) throws InvalidName {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void register_initial_reference(String id, Object obj) throws InvalidName {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void init(String[] args, Properties props) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

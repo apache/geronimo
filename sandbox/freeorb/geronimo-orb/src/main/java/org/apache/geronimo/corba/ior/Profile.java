@@ -21,56 +21,70 @@ import org.omg.CORBA.portable.OutputStream;
 import org.omg.IOP.TAG_INTERNET_IOP;
 import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import org.omg.IOP.TaggedComponent;
+import org.omg.IOP.TaggedProfile;
 
 import org.apache.geronimo.corba.AbstractORB;
+import org.apache.geronimo.corba.ORB;
+import org.apache.geronimo.corba.io.EncapsulationOutputStream;
+import org.apache.geronimo.corba.io.GIOPVersion;
 import org.apache.geronimo.corba.io.OutputStreamBase;
-
 
 public abstract class Profile extends TaggedValue {
 
-    public Profile() {
-    }
+	public Profile() {
+	}
 
-    public void write_encapsulated_content(OutputStreamBase out) {
-    		byte[] bytes = get_encapsulation_bytes();
-    		if (bytes == null) {
-    			super.write_encapsulated_content(out);
-    		} else {
-    			out.write_octet_array(bytes, 0, bytes.length);
-    		}
-    }
-    
-    /**
-     * write content including tag
-     */
-    public void write(OutputStream out) {
-        out.write_long(tag());
-        OctetSeqHelper.write(out, get_encapsulation_bytes());
-    }
+	public void write_encapsulated_content(OutputStreamBase out) {
+		byte[] bytes = get_encapsulation_bytes();
+		if (bytes == null) {
+			super.write_encapsulated_content(out);
+		} else {
+			out.write_octet_array(bytes, 0, bytes.length);
+		}
+	}
 
-    protected abstract byte[] get_encapsulation_bytes();
+	/**
+	 * write content including tag
+	 */
+	public void write(OutputStream out) {
+		out.write_long(tag());
+		OctetSeqHelper.write(out, get_encapsulation_bytes());
+	}
 
-    public static Profile read(AbstractORB orb, int tag, byte[] data) {
+	abstract protected byte[] get_encapsulation_bytes();
 
-        switch (tag) {
-            case TAG_INTERNET_IOP.value:
-                return IIOPProfile.read(orb, data);
+	public static Profile read(AbstractORB orb, int tag, byte[] data) {
 
-            case TAG_MULTIPLE_COMPONENTS.value:
-                return MultiComponentProfile.read(orb, data);
+		switch (tag) {
+		case TAG_INTERNET_IOP.value:
+			return IIOPProfile.read(orb, data);
 
-            default:
-                return new UnknownProfile(tag, data);
-        }
-    }
+		case TAG_MULTIPLE_COMPONENTS.value:
+			return MultiComponentProfile.read(orb, data);
 
+		default:
+			return new UnknownProfile(tag, data);
+		}
+	}
 
-    abstract int getComponentCount();
+	public abstract int getComponentCount();
 
-    public abstract int getTag(int idx);
+	public abstract int getTag(int idx);
 
-    public abstract TaggedComponent getTaggedComponent(int idx);
+	public abstract TaggedComponent getTaggedComponent(int idx);
 
-    public abstract Component getComponent(int idx);
+	public abstract Component getComponent(int idx);
+
+	public TaggedProfile asTaggedProfile(ORB orb) {
+		byte[] bytes = get_encapsulation_bytes();
+		if (bytes == null) {
+			EncapsulationOutputStream eos = new EncapsulationOutputStream(
+					orb, GIOPVersion.V1_0);
+			super.write_encapsulated_content(eos);
+			bytes = eos.getBytes();
+		}
+		TaggedProfile tp = new TaggedProfile(tag(), bytes);
+		return tp;
+	}
 
 }

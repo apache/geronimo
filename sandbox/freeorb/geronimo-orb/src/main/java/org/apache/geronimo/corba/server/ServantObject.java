@@ -18,7 +18,7 @@
 
 package org.apache.geronimo.corba.server;
 
-
+/** Implementation of ServantObject passed back to the local-case in a stub */
 public class ServantObject
     extends org.omg.CORBA.portable.ServantObject
 {

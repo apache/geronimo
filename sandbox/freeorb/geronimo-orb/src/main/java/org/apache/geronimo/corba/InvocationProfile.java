@@ -19,6 +19,7 @@ package org.apache.geronimo.corba;
 import org.apache.geronimo.corba.giop.GIOPOutputStream;
 import org.apache.geronimo.corba.io.InputStreamBase;
 import org.apache.geronimo.corba.io.OutputStreamBase;
+import org.apache.geronimo.corba.ior.Profile;
 import org.omg.CORBA.portable.InputStream;
 
 public interface InvocationProfile {
@@ -29,5 +30,7 @@ public interface InvocationProfile {
 			OutputStreamBase out);
 
 	void releaseReply(InputStreamBase in);
+
+	Profile getProfile();
 
 }

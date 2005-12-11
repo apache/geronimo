@@ -41,7 +41,7 @@ public class MultiComponentProfile extends Profile {
 
 
     public static Profile read(AbstractORB orb, byte[] data) {
-
+    	
         EncapsulationInputStream ein2 = new EncapsulationInputStream(orb, data);
         MultiComponentProfile result = new MultiComponentProfile(orb, data);
         result.tagged_components = TaggedComponentSeqHelper.read(ein2);
@@ -52,7 +52,7 @@ public class MultiComponentProfile extends Profile {
         return TAG_MULTIPLE_COMPONENTS.value;
     }
 
-    int getComponentCount() {
+    public int getComponentCount() {
         if (tagged_components == null) {
             return 0;
         } else {

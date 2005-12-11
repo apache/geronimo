@@ -39,6 +39,7 @@ public class InternalExceptionDetailMessage extends InternalServiceContext {
 
 	public static InternalExceptionDetailMessage get(InternalServiceContextList lst)
 	{
+		if (lst == null) return null;
 		InternalServiceContext context = lst.getContextWithID(VALUE);
 		return (InternalExceptionDetailMessage) context;
 	}

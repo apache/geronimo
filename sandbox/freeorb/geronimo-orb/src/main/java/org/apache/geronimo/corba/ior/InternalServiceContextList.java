@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.geronimo.corba.io.InputStreamBase;
 import org.apache.geronimo.corba.io.OutputStreamBase;
+import org.omg.IOP.ServiceContext;
 
 
 public class InternalServiceContextList {
@@ -49,5 +50,20 @@ public class InternalServiceContextList {
 		
 		return null;
 	}
+
+	public void add(InternalServiceContext service_context, boolean replace) {
+		
+		if (replace) {
+			for (int i = 0; i < scl.size(); i++) {
+				InternalServiceContext sc = (InternalServiceContext) scl.get(i);
+				if (sc.tag() == service_context.tag()) {
+					scl.set(i, service_context);
+				}
+			}
+		}
+
+		scl.add(service_context);
+	}
+
 
 }

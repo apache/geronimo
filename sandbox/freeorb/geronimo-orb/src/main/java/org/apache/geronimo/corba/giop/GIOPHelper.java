@@ -28,6 +28,7 @@ import org.apache.geronimo.corba.ior.InternalServiceContextList;
 import org.apache.geronimo.corba.util.StringUtil;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA.UserException;
 import org.omg.CORBA_2_3.portable.InputStream;
 
 public class GIOPHelper {
@@ -37,7 +38,7 @@ public class GIOPHelper {
 	static SystemException unmarshalSystemException(
 			InternalServiceContextList scl, InputStream in) {
 
-		InternalExceptionDetailMessage msg = InternalExceptionDetailMessage
+		InternalExceptionDetailMessage msg = scl == null ? null : InternalExceptionDetailMessage
 				.get(scl);
 
 		String id = in.read_string();
@@ -226,6 +227,67 @@ public class GIOPHelper {
 
 		for (int i = 0; i < words.length; i++) {
 			keyWords.add(words[i]);
+		}
+	}
+
+	public static void insertException(org.omg.CORBA.Any any, Exception ex) {
+		try {
+			Class exClass = ex.getClass();
+			String helper = exClass.getName() + "Helper";
+			Class c = classForName(helper);
+			final Class[] paramTypes = { org.omg.CORBA.Any.class, exClass };
+			java.lang.reflect.Method m = c.getMethod("insert", paramTypes);
+			final java.lang.Object[] args = { any, ex };
+			m.invoke(null, args);
+		} catch (ClassNotFoundException e) {
+		} catch (NoSuchMethodException e) {
+			throw new org.omg.CORBA.INTERNAL();
+		} catch (IllegalAccessException e) {
+			throw new org.omg.CORBA.INTERNAL();
+		} catch (IllegalArgumentException e) {
+			throw new org.omg.CORBA.INTERNAL();
+		} catch (java.lang.reflect.InvocationTargetException e) {
+			throw new org.omg.CORBA.INTERNAL();
+		} catch (SecurityException e) {
+		}
+	}
+
+	public static String getExceptionID(Exception ex) {
+		if (ex instanceof SystemException) {
+			String exName = ex.getClass().getName();
+			if (exName.startsWith("org.omg.CORBA")) {
+				return "IDL:omg.org/" + exName.substring(8).replace('.', '/')
+						+ ":1.0";
+			} else {
+				return "IDL:omg.org/CORBA/UNKNOWN:1.0";
+			}
+		} else if (ex instanceof UserException) {
+			Class exClass = ex.getClass();
+			String exName = exClass.getName();
+			String id = null;
+			try {
+				Class c = classForName(exName + "Helper");
+				java.lang.reflect.Method m = c.getMethod("id", null);
+				id = (String) m.invoke(null, null);
+			} catch (ClassNotFoundException e) {
+			} catch (NoSuchMethodException e) {
+				throw new org.omg.CORBA.INTERNAL();
+			} catch (IllegalAccessException e) {
+				throw new org.omg.CORBA.INTERNAL();
+			} catch (IllegalArgumentException e) {
+				throw new org.omg.CORBA.INTERNAL();
+			} catch (java.lang.reflect.InvocationTargetException e) {
+				throw new org.omg.CORBA.INTERNAL();
+			} catch (SecurityException e) {
+			}
+
+			if (id == null) {
+				return "IDL:omg.org/CORBA/UserException:1.0";
+			} else {
+				return id;
+			}
+		} else {
+			throw new org.omg.CORBA.INTERNAL("unknown exception");
 		}
 	}
 

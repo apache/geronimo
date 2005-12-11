@@ -32,9 +32,11 @@ public class EncapsulationOutputStream extends OutputStreamBase {
     private final AbstractORB orb;
     private ByteArrayOutputStream barr;
     private DataOutputStream dout;
+	private GIOPVersion giop_version;
 
-    public EncapsulationOutputStream(AbstractORB orb) {
+    public EncapsulationOutputStream(AbstractORB orb, GIOPVersion version) {
         this.orb = orb;
+        this.giop_version = version;
         this.barr = new java.io.ByteArrayOutputStream();
         this.dout = new java.io.DataOutputStream(barr);
 
@@ -138,8 +140,12 @@ public class EncapsulationOutputStream extends OutputStreamBase {
 		throw new NO_IMPLEMENT();
 	}
 
-	protected GIOPVersion getGIOPVersion() {
-		return GIOPVersion.V1_0;
+	public GIOPVersion getGIOPVersion() {
+		return giop_version;
+	}
+
+	public byte[] getBytes() {
+		return barr.toByteArray();
 	}
 
 }

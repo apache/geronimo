@@ -29,6 +29,7 @@ import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.GIOP.ReplyStatusType_1_2Helper;
 
 import org.apache.geronimo.corba.ClientInvocation;
+import org.apache.geronimo.corba.Invocation;
 import org.apache.geronimo.corba.ORB;
 import org.apache.geronimo.corba.channel.InputHandler;
 import org.apache.geronimo.corba.channel.OutputChannel;
@@ -39,14 +40,6 @@ import org.apache.geronimo.corba.ior.InternalServiceContextList;
 import org.apache.geronimo.corba.ior.InternalTargetAddress;
 
 public class GIOPMessageTransport implements InputHandler {
-
-	static public final byte SYNC_NONE = 0;
-
-	static final byte SYNC_WITH_TRANSPORT = 1;
-
-	static public final byte SYNC_WITH_SERVER = 2;
-
-	static public final byte SYNC_WITH_TARGET = 3;
 
 	public boolean isAssignedHere(RequestID id) {
 		return id.isAssignedHere(isClient);
@@ -278,8 +271,7 @@ public class GIOPMessageTransport implements InputHandler {
 			InternalTargetAddress targetAddress, ClientInvocation inv,
 			byte[] principal) throws IOException {
 		InternalServiceContextList contextList = inv
-				.getRequestServiceContextList();
-		byte response_flags = inv.getResponseFlags();
+				.getRequestServiceContextList(true);
 		String operation = inv.getOperation();
 
 		RequestID requestID = getNextRequestID();
@@ -306,16 +298,7 @@ public class GIOPMessageTransport implements InputHandler {
 		{
 			contextList.write(out);
 			out.write_long(requestID.value());
-			switch (response_flags) {
-			case SYNC_NONE:
-			case SYNC_WITH_TRANSPORT:
-				out.write_boolean(false);
-				break;
-			case SYNC_WITH_SERVER:
-			case SYNC_WITH_TARGET:
-				out.write_boolean(true);
-				break;
-			}
+			out.write_boolean(inv.isResponseExpected());
 			out.skip(3);
 			targetAddress.writeObjectKey(out);
 			if (principal == null) {
@@ -330,7 +313,18 @@ public class GIOPMessageTransport implements InputHandler {
 		// Write RequestHeader_1_2
 		{
 			out.write_long(requestID.value());
-			out.write_octet(response_flags);
+			switch(inv.getSyncScope()) {
+			case Invocation.SYNC_NONE:
+			case Invocation.SYNC_WITH_TRANSPORT:
+				out.write_octet((byte)0);
+				break;
+			case Invocation.SYNC_WITH_SERVER:
+				out.write_octet((byte)1);
+				break;
+			case Invocation.SYNC_WITH_TARGET:
+				out.write_octet((byte)3);
+			}
+
 			out.skip(3); // can be dropped, target address aligns anyway
 			targetAddress.write(out);
 			out.write_string(operation);
@@ -366,7 +360,7 @@ public class GIOPMessageTransport implements InputHandler {
 	public GIOPInputStream waitForResponse(ClientInvocation inv) {
 
 		MessageHeader header = (MessageHeader) transport.waitForResponse(inv
-				.getRequestID());
+				.getRequestIDObject());
 
 		GIOPInputStream in = new GIOPInputStream(orb, header.getGIOPVersion(), header, transport
 				.getInputChannel());
@@ -381,7 +375,7 @@ public class GIOPMessageTransport implements InputHandler {
 		case 2:
 
 			// read reply (for GIOP 1.2 we have already read the request id)
-			int request_id = inv.getRequestID().id;
+			int request_id = inv.getRequestID();
 
 			ReplyStatusType_1_2 reply_status = ReplyStatusType_1_2Helper
 					.read(in);
@@ -390,7 +384,7 @@ public class GIOPMessageTransport implements InputHandler {
 			InternalServiceContextList scl = new InternalServiceContextList();
 			scl.read(in);
 
-			inv.setResposeServiceContextList(scl);
+			inv.setResponseServiceContextList(scl);
 
 			break;
 		default:
@@ -410,7 +404,7 @@ public class GIOPMessageTransport implements InputHandler {
 			return null;
 			
 		case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
-			sex = GIOPHelper.unmarshalSystemException(inv.getReplyServiceContextList(), in);
+			sex = GIOPHelper.unmarshalSystemException(inv.getResponseServiceContextList(false), in);
 			inv.setSystemException(sex);
 			return null;
 

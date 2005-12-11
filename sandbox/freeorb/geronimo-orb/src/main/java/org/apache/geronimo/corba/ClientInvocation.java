@@ -18,19 +18,23 @@ package org.apache.geronimo.corba;
 
 import java.util.List;
 
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.PortableInterceptor.ForwardRequest;
 
-import org.apache.geronimo.corba.giop.GIOPMessageTransport;
 import org.apache.geronimo.corba.giop.GIOPOutputStream;
 import org.apache.geronimo.corba.giop.RequestID;
+import org.apache.geronimo.corba.interceptor.ClientRequestInfoImpl;
+import org.apache.geronimo.corba.interceptor.InterceptorManager;
 import org.apache.geronimo.corba.io.GIOPVersion;
 import org.apache.geronimo.corba.io.InputStreamBase;
 import org.apache.geronimo.corba.io.OutputStreamBase;
+import org.apache.geronimo.corba.ior.InternalIOR;
 import org.apache.geronimo.corba.ior.InternalServiceContextList;
+import org.apache.geronimo.corba.ior.Profile;
 
 
 public class ClientInvocation implements Invocation {
@@ -48,17 +52,26 @@ public class ClientInvocation implements Invocation {
 	private ReplyStatusType_1_2 reply_status;
 	private SystemException systemException;
 	private ApplicationException userException;
+	private final Policies policies;
+	private InterceptorManager im;
+	private ClientRequestInfoImpl ir;
+	private ORB orb;
 
-    public ClientInvocation(InvocationProfileSelector manager,
+    public ClientInvocation(ORB orb,
+    						  InvocationProfileSelector manager,
                             String operation,
                             boolean responseExpected,
-                            InvocationProfile profile
+                            InvocationProfile profile,
+                            Policies policies
     )
     {
+    		this.orb = orb;
+    		this.im = orb.getInterceptorManager();
         this.manager = manager;
         this.operation = operation;
         this.responseExpected = responseExpected;
         this.profile = profile;
+		this.policies = policies;
         this.iscl = new InternalServiceContextList();
     }
 
@@ -67,21 +80,26 @@ public class ClientInvocation implements Invocation {
     }
 
 
-    public GIOPOutputStream startRequest()
-            throws ForwardRequest
+    public OutputStreamBase startRequest()
+            throws LocationForwardException
     {
-        return profile.startRequest(this);
+    		if (im != null) {
+    			ir = im.clientSendRequest(this);
+    		}
+    	 
+		return profile.startRequest(this);
     }
 
 	public String getOperation() {
 		return operation;
 	}
 
-	public byte getResponseFlags() {
+	public short getSyncScope() {
+		// TODO: in the future we may provide a way to set this
 		if (responseExpected) {
-			return GIOPMessageTransport.SYNC_WITH_TARGET;
+			return Invocation.SYNC_WITH_SERVER;
 		} else {
-			return GIOPMessageTransport.SYNC_NONE;
+			return Invocation.SYNC_NONE;
 		}
 	}
 
@@ -94,30 +112,69 @@ public class ClientInvocation implements Invocation {
 	}
 
 	public boolean isResponseExpected() {
-		// TODO Auto-generated method stub
-		return true;
+		return responseExpected;
 	}
 
 	public void setRequestID(RequestID requestID) {
 		this.requestID = requestID;		
 	}
 
-	public InternalServiceContextList getRequestServiceContextList() {
+	public InternalServiceContextList getRequestServiceContextList(boolean create) {
+		if (create && iscl == null) {
+			iscl = new InternalServiceContextList();
+		}
 		return iscl;
 	}
 
-	public RequestID getRequestID() {
+	public int getRequestID() {
+		return requestID.value();
+	}
+
+	public RequestID getRequestIDObject() {
 		return requestID;
 	}
 
 	public void releaseReply(InputStreamBase in) {
-		profile.releaseReply(in);
+		try {
+			//
+			// This is effectively what flushes the message
+			// to the underlying transport
+			//
+			profile.releaseReply(in);
+		} catch (SystemException ex) {
+			
+			setSystemException(ex);
+			try {
+				checkException();
+			} catch (ApplicationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (LocationForwardException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		
+		/** this is where we handle the "normal" case for client interceptors */
+		if (im != null && ir != null && userException == null && systemException == null) {
+			im.clientReceiveReply(ir);
+		}
 	}
 
-	public void setResposeServiceContextList (InternalServiceContextList scl) {
+	public void setResponseServiceContextList (InternalServiceContextList scl) {
 		this.respose_scl = scl;
 	}
 
+	public InternalServiceContextList getResponseServiceContextList(boolean create) {
+		if ( create && this.respose_scl  == null) {
+			respose_scl = new InternalServiceContextList();
+		}
+		
+		return respose_scl;
+	}
+	
 	public void setReplyStatus(ReplyStatusType_1_2 reply_status) {
 		this.reply_status = reply_status;
 	}
@@ -136,19 +193,46 @@ public class ClientInvocation implements Invocation {
 		this.reply_status = ReplyStatusType_1_2.USER_EXCEPTION;
 	}
 
-	public void checkException() throws ApplicationException {
-		if (this.systemException != null) {
+	public void checkException() throws ApplicationException, LocationForwardException {
+		
+		if (systemException != null) {
+			
+			if (im != null) {
+				im.clientReceiveException(ir, true, systemException, systemException.getClass().getName());
+			}
+			
 			throw systemException;
 		}
 		
 		if (userException != null) {
+
+			if (im != null) {
+				im.clientReceiveException(ir, false, userException, userException.getClass().getName());
+			}
+			
 			throw userException;
 		}
 		
 	}
 
-	public InternalServiceContextList getReplyServiceContextList() {
-		return respose_scl;
+	
+	public InternalIOR getEffectiveIOR() {
+		return getDelegate().getIOR();
 	}
 
+	public InternalIOR getOrigIOR() {
+		return getDelegate().getOrigIOR();
+	}
+
+	public Policies getPolicies() {
+		return policies;
+	}
+
+	public Profile getProfile() {
+		return profile.getProfile();
+	}
+
+	public ORB getORB() {
+		return orb;
+	}
 }

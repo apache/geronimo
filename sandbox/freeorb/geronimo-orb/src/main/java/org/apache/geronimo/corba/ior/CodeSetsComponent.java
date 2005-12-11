@@ -47,4 +47,20 @@ public class CodeSetsComponent extends Component {
         CodeSetComponentInfoHelper.write(eo, info);
     }
 
+    public int getNativeCharCS() {
+    		return info.ForCharData.native_code_set;
+	}
+
+	public int[] getCharConversionCS() {
+		return info.ForCharData.conversion_code_sets;
+	}
+
+	public int[] getWCharConversionCS() {
+		return info.ForWcharData.conversion_code_sets;
+	}
+
+	public int getNativeWCharCS() {
+		return info.ForWcharData.native_code_set;
+	}
+
 }

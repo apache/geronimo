@@ -14,30 +14,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.corba;
 
-import org.omg.CORBA_2_3.portable.ObjectImpl;
+package org.apache.geronimo.corba.policy;
 
-/** PlainObject is a simple ObjectImpl with implementations for set/get delegate 
- * 
- * @see org.omg.CORBA_2_3.portable.ObjectImpl
- * */
-public class PlainObject extends ObjectImpl {
+import org.apache.geronimo.corba.ORB;
+import org.omg.PortableInterceptor.PolicyFactory;
 
-	public PlainObject() {
+public class PolicyFactoryManager {
+
+	public PolicyFactoryManager(ORB orb) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public void register_policy_factory(int type, PolicyFactory policy_factory) {
+		// TODO Auto-generated method stub
 		
 	}
-	
-    public PlainObject(ClientDelegate delegate) {
-    		_set_delegate(delegate);
-	}
-
-    /*package*/ ClientDelegate __get_delegate() {
-        return (ClientDelegate) _get_delegate();
-    }
-
-    public String[] _ids() {
-        return new String[]{ __get_delegate().getIOR().getType() };
-    }
 
 }

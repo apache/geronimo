@@ -20,9 +20,8 @@ import java.util.NoSuchElementException;
 
 
 /**
- * @author Kresten Krab Thorup (krab@trifork.com)
+ * @version $Revision: $ $Date: $
  */
-
 public class IntegerToObjectHashMap implements IntegerToObjectMap {
 
     public static final Object NO_VALUE = null;

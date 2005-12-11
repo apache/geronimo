@@ -28,6 +28,7 @@ import org.apache.geronimo.corba.giop.RequestID;
 import org.apache.geronimo.corba.ior.IIOPProfile;
 import org.apache.geronimo.corba.ior.InternalServiceContextList;
 import org.apache.geronimo.corba.ior.InternalTargetAddress;
+import org.apache.geronimo.corba.ior.Profile;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.TRANSIENT;
@@ -82,7 +83,7 @@ public class IIOPInvocationProfile implements InvocationProfile {
 		GIOPOutputStream gout = (GIOPOutputStream) out;
 
 		if (invocation.isResponseExpected()) {
-			mt.registerResponse(invocation.getRequestID());
+			mt.registerResponse(invocation.getRequestIDObject());
 		}
 
 		// push message
@@ -100,6 +101,10 @@ public class IIOPInvocationProfile implements InvocationProfile {
 	public void releaseReply(InputStreamBase in) {
 		GIOPInputStream gin = (GIOPInputStream) in;
 		gin.finishGIOPMessage();		
+	}
+
+	public Profile getProfile() {
+		return profile;
 	}
 
 }

@@ -18,6 +18,8 @@ package org.apache.geronimo.corba;
 
 import org.apache.geronimo.corba.ior.InternalIOR;
 
+/** LocationForwardException is used internally in the Geronimo ORB to handle redirects. */
+
 public class LocationForwardException extends Exception {
 
 	private final InternalIOR ior;

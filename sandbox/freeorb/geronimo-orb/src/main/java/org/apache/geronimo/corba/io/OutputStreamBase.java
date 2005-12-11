@@ -40,8 +40,7 @@ import org.apache.geronimo.corba.codeset.CharConverter;
 
 
 public abstract class OutputStreamBase extends OutputStream implements
-                                                            org.omg.CORBA.DataOutputStream
-{
+                                                            org.omg.CORBA.DataOutputStream {
 
     private CharConverter char_writer;
 
@@ -93,7 +92,7 @@ public abstract class OutputStreamBase extends OutputStream implements
         return wchar_writer;
     }
 
-    protected abstract GIOPVersion getGIOPVersion();
+    public abstract GIOPVersion getGIOPVersion();
 
     public void write(int value) throws IOException {
         try {
@@ -279,8 +278,7 @@ public abstract class OutputStreamBase extends OutputStream implements
     }
 
     public void write_value(java.io.Serializable value,
-                            org.omg.CORBA.portable.BoxedValueHelper helper)
-    {
+                            org.omg.CORBA.portable.BoxedValueHelper helper) {
         getValueWriter().writeValue(value, helper);
     }
 
@@ -344,7 +342,8 @@ public abstract class OutputStreamBase extends OutputStream implements
     }
 
     public EncapsulationOutputStream __open_encapsulation() {
-        return new EncapsulationOutputStream(__orb());
+        EncapsulationOutputStream eos = new EncapsulationOutputStream(__orb(), getGIOPVersion());
+        return eos;
     }
 
     public void __close_encapsulation(EncapsulationOutputStream eout) {
@@ -355,18 +354,18 @@ public abstract class OutputStreamBase extends OutputStream implements
             throw translate_exception(e);
         }
     }
-    
-    protected abstract OutputChannelMarker mark(MarkHandler handler);
-    
-	private ClientInvocation clientInvocation;
 
-	public ClientInvocation getClientInvocation() {
-		return clientInvocation;
-	}
-	
-	public void setClientInvocation(ClientInvocation inv) {
-		this.clientInvocation = inv;
-	}
+    protected abstract OutputChannelMarker mark(MarkHandler handler);
+
+    private ClientInvocation clientInvocation;
+
+    public ClientInvocation getClientInvocation() {
+        return clientInvocation;
+    }
+
+    public void setClientInvocation(ClientInvocation inv) {
+        this.clientInvocation = inv;
+    }
 
 
 }

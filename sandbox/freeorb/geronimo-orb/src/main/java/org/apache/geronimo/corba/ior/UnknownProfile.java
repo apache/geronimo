@@ -35,7 +35,7 @@ public class UnknownProfile extends Profile {
         return tag;
     }
 
-    int getComponentCount() {
+    public int getComponentCount() {
         return 0;
     }
 

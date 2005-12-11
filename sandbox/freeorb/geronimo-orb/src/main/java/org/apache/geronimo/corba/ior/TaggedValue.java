@@ -42,7 +42,7 @@ public abstract class TaggedValue {
     			return;
     		}
     		
-        EncapsulationOutputStream eo = new EncapsulationOutputStream(out.__orb());
+        EncapsulationOutputStream eo = new EncapsulationOutputStream(out.__orb(), out.getGIOPVersion());
         write_content(eo);
         try {
         	   out.write_long(eo.__stream_position());

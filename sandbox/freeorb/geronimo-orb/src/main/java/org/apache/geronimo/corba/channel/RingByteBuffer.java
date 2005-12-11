@@ -38,8 +38,7 @@ import org.apache.geronimo.corba.util.HexUtil;
 
 
 /**
- * @author Jeppe Sommer (jso@trifork.com)
- * @author Kresten Krab Thorup (krab@trifotk.com)
+ * @version $Revision: $ $Date: $
  */
 public abstract class RingByteBuffer extends RingBuffer {
 

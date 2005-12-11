@@ -17,7 +17,7 @@
 package org.apache.geronimo.corba.util;
 
 /**
- * @author Kresten Krab Thorup (krab@trifork.com)
+ * @version $Revision: $ $Date: $
  */
 public interface IntegerToObjectMap {
 

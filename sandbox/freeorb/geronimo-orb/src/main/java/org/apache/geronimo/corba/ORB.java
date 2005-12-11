@@ -23,13 +23,15 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.corba.dii.NVListImpl;
+import org.apache.geronimo.corba.initials.InitialServicesManager;
+import org.apache.geronimo.corba.interceptor.InterceptorManager;
 import org.apache.geronimo.corba.io.DefaultConnectionManager;
 import org.apache.geronimo.corba.io.EncapsulationInputStream;
 import org.apache.geronimo.corba.io.InputStreamBase;
 import org.apache.geronimo.corba.ior.InternalIOR;
 import org.apache.geronimo.corba.ior.URLManager;
+import org.apache.geronimo.corba.policy.PolicyFactoryManager;
 import org.apache.geronimo.corba.server.DefaultServerManager;
-import org.apache.geronimo.corba.server.ServantObject;
 import org.omg.CORBA.Context;
 import org.omg.CORBA.ContextList;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -41,6 +43,7 @@ import org.omg.CORBA.TRANSIENT;
 import org.omg.CORBA.WrongTransaction;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.portable.OutputStream;
+import org.omg.PortableInterceptor.ORBInitInfoOperations;
 
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadedExecutor;
@@ -57,6 +60,12 @@ public class ORB extends AbstractORB {
 
 	private ServerManager sm;
 
+	private InitialServicesManager ism;
+
+	private PolicyFactoryManager pfm;
+	
+	private InterceptorManager im;
+
 	protected void set_parameters(String[] args, Properties props) {
 		sm = new DefaultServerManager(this);
 
@@ -70,22 +79,32 @@ public class ORB extends AbstractORB {
 				throw t;
 			}
 		}
+		
+		ism = new InitialServicesManager(this);
+		ism.init(args, props);
+
+		pfm = new PolicyFactoryManager(this);
+
+		im = new InterceptorManager(this, ism);
+		im.init(args, props);
 	}
 
 	protected void set_parameters(Applet app, Properties props) {
 		// TODO Auto-generated method stub
-
+		throw new NO_IMPLEMENT();
 	}
 
 	public String[] list_initial_services() {
-		// TODO Auto-generated method stub
-		return null;
+		return getInitialServicesManager().list_initial_services();
+	}
+
+	private InitialServicesManager getInitialServicesManager() {
+		return ism;
 	}
 
 	public Object resolve_initial_references(String object_name)
 			throws InvalidName {
-		// TODO Auto-generated method stub
-		return null;
+		return getInitialServicesManager().resolve_initial_references(object_name);
 	}
 
 	public String object_to_string(Object obj) {
@@ -177,4 +196,17 @@ public class ORB extends AbstractORB {
 		return sm;
 	}
 
+	public Object createObject(InternalIOR forward_ior) {
+		PlainObject po = new PlainObject();
+		po._set_delegate(new ClientDelegate(forward_ior));
+		return po;
+	}
+
+	public PolicyFactoryManager getPolicyFactoryManager() {
+		return pfm;
+	}
+
+	public InterceptorManager getInterceptorManager() {
+		return im;
+	}
 }

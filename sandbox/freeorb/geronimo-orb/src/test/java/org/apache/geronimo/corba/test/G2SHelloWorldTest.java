@@ -30,7 +30,7 @@ public class G2SHelloWorldTest extends HelloWorldTest {
 			
 			props.setProperty(ORBClassKey, "org.apache.geronimo.corba.ORB");
 			props.setProperty(ORBSingletonClassKey, "org.apache.geronimo.corba.SingletonORB");
-			
+			props.setProperty("org.omg.PortableInterceptor.ORBInitializerClass." + ClientInterceptorInitializer.class.getName(), "42");
 		}
 		return props;
 	}

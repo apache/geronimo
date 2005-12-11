@@ -68,6 +68,7 @@ public class GIOPInputStream extends InputStreamBase {
     private void check(int size) {
         if (position + size > limit) {
             size_of_previous_fragments += limit - message_start;
+            // who is responsible for skipping to end-of-message?
             controller.getNextFragment(this);
         }
     }
