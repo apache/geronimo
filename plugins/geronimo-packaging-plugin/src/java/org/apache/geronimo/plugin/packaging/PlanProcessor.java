@@ -24,6 +24,8 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.jelly.tags.velocity.JellyContextAdapter;
 import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
 import org.apache.velocity.Template;
@@ -38,6 +40,8 @@ import org.apache.xmlbeans.XmlOptions;
  * @version $Rev$ $Date$
  */
 public class PlanProcessor {
+    private static Log log = LogFactory.getLog(PlanProcessor.class);
+
     private static final String IMPORT_PROPERTY = "geronimo.import";
     private static final QName IMPORT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.0", "import");
     private static final String INCLUDE_PROPERTY = "geronimo.include";
@@ -97,55 +101,60 @@ public class PlanProcessor {
     }
 
     public void execute() throws Exception, XmlException {
-        if (artifacts == null) {
-            throw new RuntimeException("Artifacts not supplied");
-        }
-        if (targetDir == null) {
-            throw new RuntimeException("No target directory supplied");
-        }
-        if (planFile == null) {
-            throw new RuntimeException("No source plan supplied");
-        }
-        if (targetFile == null) {
-            throw new RuntimeException("No target plan supplied");
-        }
-
-        File sourceD = new File(sourceDir);
-        VelocityEngine velocity = new VelocityEngine();
-        velocity.setProperty(VelocityEngine.FILE_RESOURCE_LOADER_PATH, sourceD.getAbsolutePath());
-        velocity.init();
-        Template template = velocity.getTemplate(planFile);
-        StringWriter writer = new StringWriter();
-        template.merge(context, writer);
-
-        String plan = writer.toString();
-
-        XmlObject doc = XmlObject.Factory.parse(plan);
-        XmlCursor xmlCursor = doc.newCursor();
         try {
-
-            xmlCursor.toFirstContentToken();
-            xmlCursor.toFirstChild();
-
-
-            insertPlanElements(xmlCursor, IMPORT_PROPERTY, IMPORT_QNAME);
-            insertPlanElements(xmlCursor, INCLUDE_PROPERTY, INCLUDE_QNAME);
-            insertPlanElements(xmlCursor, DEPENDENCY_PROPERTY, DEPENDENCY_QNAME);
-
-            File targetDir = new File(this.targetDir);
-            if (targetDir.exists()) {
-                if (!targetDir.isDirectory()) {
-                    throw new RuntimeException("TargetDir: " + this.targetDir + " exists and is not a directory");
-                }
-            } else {
-                targetDir.mkdirs();
+            if (artifacts == null) {
+                throw new RuntimeException("Artifacts not supplied");
             }
-            File output = new File(targetFile);
-            XmlOptions xmlOptions = new XmlOptions();
-            xmlOptions.setSavePrettyPrint();
-            doc.save(output, xmlOptions);
-        } finally {
-            xmlCursor.dispose();
+            if (targetDir == null) {
+                throw new RuntimeException("No target directory supplied");
+            }
+            if (planFile == null) {
+                throw new RuntimeException("No source plan supplied");
+            }
+            if (targetFile == null) {
+                throw new RuntimeException("No target plan supplied");
+            }
+
+            File sourceD = new File(sourceDir);
+            VelocityEngine velocity = new VelocityEngine();
+            velocity.setProperty(VelocityEngine.FILE_RESOURCE_LOADER_PATH, sourceD.getAbsolutePath());
+            velocity.init();
+            Template template = velocity.getTemplate(planFile);
+            StringWriter writer = new StringWriter();
+            template.merge(context, writer);
+
+            String plan = writer.toString();
+
+            XmlObject doc = XmlObject.Factory.parse(plan);
+            XmlCursor xmlCursor = doc.newCursor();
+            try {
+
+                xmlCursor.toFirstContentToken();
+                xmlCursor.toFirstChild();
+
+
+                insertPlanElements(xmlCursor, IMPORT_PROPERTY, IMPORT_QNAME);
+                insertPlanElements(xmlCursor, INCLUDE_PROPERTY, INCLUDE_QNAME);
+                insertPlanElements(xmlCursor, DEPENDENCY_PROPERTY, DEPENDENCY_QNAME);
+
+                File targetDir = new File(this.targetDir);
+                if (targetDir.exists()) {
+                    if (!targetDir.isDirectory()) {
+                        throw new RuntimeException("TargetDir: " + this.targetDir + " exists and is not a directory");
+                    }
+                } else {
+                    targetDir.mkdirs();
+                }
+                File output = new File(targetFile);
+                XmlOptions xmlOptions = new XmlOptions();
+                xmlOptions.setSavePrettyPrint();
+                doc.save(output, xmlOptions);
+            } finally {
+                xmlCursor.dispose();
+            }
+        } catch (Exception e) {
+            log.error(e.getClass().getName()+": "+e.getMessage(), e);
+            throw e;
         }
     }
 

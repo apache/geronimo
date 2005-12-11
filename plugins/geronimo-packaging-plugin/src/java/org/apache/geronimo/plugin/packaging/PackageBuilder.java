@@ -34,14 +34,19 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.log4j.BasicConfigurator;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
  * infrastructure.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 355876 $ $Date$
  */
 public class PackageBuilder {
+
+    private static Log log = LogFactory.getLog(PackageBuilder.class);
+
     private static final String KERNEL_NAME = "geronimo.maven";
     /**
      * The name of the GBean that will load dependencies from the Maven repository.
@@ -250,33 +255,38 @@ public class PackageBuilder {
     }
 
     public void execute() throws Exception {
-        Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass);
-
-        // start the Configuration we're going to use for this deployment
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {
-            for (int i = 0; i < deploymentConfig.length; i++) {
-                URI configName = deploymentConfig[i];
-                if (!configurationManager.isLoaded(configName)) {
-                    List configs = configurationManager.loadRecursive(configName);
-                    for (Iterator iterator = configs.iterator(); iterator.hasNext(); ) {
-                        URI ancestorConfigName = (URI) iterator.next();
-                        try {
-                            configurationManager.loadGBeans(ancestorConfigName);
-                        } catch (Throwable e) {
-                            throw new RuntimeException("Could not start configuration: " + configName, e);
-                        }
-                    }
-                    configurationManager.start(configName);
-                }
-            }
-        } finally {
-            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-        }
+            Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass);
 
-        ObjectName deployer = locateDeployer(kernel);
-        invokeDeployer(kernel, deployer);
-        System.out.println("Generated package " + packageFile);
+            // start the Configuration we're going to use for this deployment
+            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+            try {
+                for (int i = 0; i < deploymentConfig.length; i++) {
+                    URI configName = deploymentConfig[i];
+                    if (!configurationManager.isLoaded(configName)) {
+                        List configs = configurationManager.loadRecursive(configName);
+                        for (Iterator iterator = configs.iterator(); iterator.hasNext(); ) {
+                            URI ancestorConfigName = (URI) iterator.next();
+                            try {
+                                configurationManager.loadGBeans(ancestorConfigName);
+                            } catch (Throwable e) {
+                                throw new RuntimeException("Could not start configuration: " + configName, e);
+                            }
+                        }
+                        configurationManager.start(configName);
+                    }
+                }
+            } finally {
+                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+            }
+
+            ObjectName deployer = locateDeployer(kernel);
+            invokeDeployer(kernel, deployer);
+            System.out.println("Generated package " + packageFile);
+        } catch (Exception e) {
+            log.error(e.getClass().getName()+": "+e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**

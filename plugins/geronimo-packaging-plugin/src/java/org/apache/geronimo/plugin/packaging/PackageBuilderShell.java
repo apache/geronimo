@@ -29,6 +29,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.maven.jelly.MavenJellyContext;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
@@ -40,6 +42,7 @@ import org.apache.maven.repository.Artifact;
  * @version $Rev$ $Date$
  */
 public class PackageBuilderShell {
+    private static Log log = LogFactory.getLog(PlanProcessor.class);
 
     private List artifacts;
     private List pluginArtifacts;
@@ -200,22 +203,27 @@ public class PackageBuilderShell {
     }
 
     public void execute() throws Exception {
-        Object packageBuilder = getPackageBuilder();
-        set("setClassPath", classPath, String.class, packageBuilder);
-        set("setDeployerName", deployerName, String.class, packageBuilder);
-        set("setDeploymentConfig", deploymentConfigString, String.class, packageBuilder);
-        set("setEndorsedDirs", endorsedDirs, String.class, packageBuilder);
-        set("setExtensionDirs", extensionDirs, String.class, packageBuilder);
-        set("setMainClass", mainClass, String.class, packageBuilder);
-        set("setModuleFile", moduleFile, File.class, packageBuilder);
-        set("setPackageFile", packageFile, File.class, packageBuilder);
-        set("setPlanFile", planFile, File.class, packageBuilder);
-        set("setRepository", repository, File.class, packageBuilder);
-        set("setRepositoryClass", MavenRepository.class.getName(), String.class, packageBuilder);
-        set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
+        try {
+            Object packageBuilder = getPackageBuilder();
+            set("setClassPath", classPath, String.class, packageBuilder);
+            set("setDeployerName", deployerName, String.class, packageBuilder);
+            set("setDeploymentConfig", deploymentConfigString, String.class, packageBuilder);
+            set("setEndorsedDirs", endorsedDirs, String.class, packageBuilder);
+            set("setExtensionDirs", extensionDirs, String.class, packageBuilder);
+            set("setMainClass", mainClass, String.class, packageBuilder);
+            set("setModuleFile", moduleFile, File.class, packageBuilder);
+            set("setPackageFile", packageFile, File.class, packageBuilder);
+            set("setPlanFile", planFile, File.class, packageBuilder);
+            set("setRepository", repository, File.class, packageBuilder);
+            set("setRepositoryClass", MavenRepository.class.getName(), String.class, packageBuilder);
+            set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
 
-        Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});
-        m.invoke(packageBuilder, new Object[]{});
+            Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});
+            m.invoke(packageBuilder, new Object[]{});
+        } catch (Exception e) {
+            log.error(e.getClass().getName()+": "+e.getMessage(), e);
+            throw e;
+        }
     }
 
     private void set(String methodName, Object value, Class type, Object packageBuilder) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
