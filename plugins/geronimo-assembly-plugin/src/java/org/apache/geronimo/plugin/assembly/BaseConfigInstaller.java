@@ -114,7 +114,7 @@ public class BaseConfigInstaller {
 
     protected void execute(URI configId, InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
         if (installAdapter.containsConfiguration(configId)) {
-            System.out.println("Configuration " + configId + " already present in repository");
+            System.out.println("Configuration " + configId + " already present in configuration store");
             return;
         }
         GBeanData config = installAdapter.install(sourceRepo, configId);
