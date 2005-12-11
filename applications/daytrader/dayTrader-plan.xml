@@ -571,7 +571,7 @@
     </module>
     <ext-module>
         <connector>TradeDataSource</connector>
-        <external-path>tranql/tranql-connector-derby-embed-xa/1.1-SNAPSHOT/rar</external-path>
+        <external-path>tranql/tranql-connector-derby-embed-xa/1.1/rar</external-path>
         <connector
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
             configId="TradeDataSource"
