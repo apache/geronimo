@@ -21,7 +21,7 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <artifactId>geronimo-ldap-demo-jetty</artifactId>
+    <artifactId>ldap-demo-jetty</artifactId>
     <name>LDAP Demo for Jetty</name>
 
     <dependencies>

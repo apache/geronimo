@@ -91,6 +91,7 @@
     </configuration>
     <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/welcome-tomcat/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/ldap-demo-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/servlets-examples-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car"/>

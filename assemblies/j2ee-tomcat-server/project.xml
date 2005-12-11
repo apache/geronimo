@@ -212,7 +212,7 @@
 <!--applications-->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-ldap-demo-tomcat</artifactId>
+            <artifactId>ldap-demo-tomcat</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>

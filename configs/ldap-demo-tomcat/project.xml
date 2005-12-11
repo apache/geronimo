@@ -21,7 +21,7 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>geronimo-ldap-demo-tomcat</id>
+    <id>ldap-demo-tomcat</id>
     <name>LDAP Demo for Tomcat</name>
 
     <dependencies>

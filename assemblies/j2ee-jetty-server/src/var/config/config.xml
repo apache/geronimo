@@ -85,6 +85,7 @@
     </configuration>
     <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/welcome-jetty/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/ldap-demo-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
