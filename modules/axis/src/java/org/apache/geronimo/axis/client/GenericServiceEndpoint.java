@@ -25,7 +25,7 @@ import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class GenericServiceEndpoint extends org.apache.axis.client.Stub {
 

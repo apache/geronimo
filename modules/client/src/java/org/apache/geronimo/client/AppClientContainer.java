@@ -37,7 +37,7 @@ import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.security.ContextManager;
 
 /**
- * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public final class AppClientContainer {
     private static final Class[] MAIN_ARGS = {String[].class};

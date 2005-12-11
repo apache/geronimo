@@ -22,7 +22,7 @@ import java.lang.reflect.Modifier;
 import net.sf.cglib.proxy.CallbackFilter;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class NoOverrideCallbackFilter implements CallbackFilter {
     private Class superClass;

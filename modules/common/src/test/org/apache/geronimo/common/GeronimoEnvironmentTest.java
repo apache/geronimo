@@ -22,7 +22,7 @@ import java.net.URLConnection;
 import junit.framework.TestCase;
 
 /**
- * @version $Rev: 109898 $ $Date: 2004-12-06 05:21:47 +1100 (Mon, 06 Dec 2004) $
+ * @version $Rev$ $Date$
  */
 public class GeronimoEnvironmentTest extends TestCase {
     

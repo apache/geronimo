@@ -24,7 +24,7 @@ import javax.xml.rpc.ServiceException;
 import javax.xml.rpc.handler.HandlerChain;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface SEIFactory {
 

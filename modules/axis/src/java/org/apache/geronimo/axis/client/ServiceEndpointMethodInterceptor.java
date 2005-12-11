@@ -36,7 +36,7 @@ import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ServiceEndpointMethodInterceptor implements MethodInterceptor {
 

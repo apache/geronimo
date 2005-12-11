@@ -29,7 +29,7 @@ import org.apache.axis.AxisFault;
 import net.sf.cglib.core.Signature;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class OperationInfo implements Serializable {
 

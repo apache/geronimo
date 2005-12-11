@@ -27,7 +27,7 @@ import org.apache.axis.NoEndPointException;
 
 /**
  * this gets enhanced to be the proxy.
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class GenericServiceEndpointWrapper implements Stub, Serializable {
     private final GenericServiceEndpoint genericServiceEndpoint;

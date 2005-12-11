@@ -23,7 +23,7 @@ import java.io.IOException;
 
 /**
  * Used to perform common initialization tasks for Geronimo server, deploy, and client environments.
- * @version $Rev: 332947 $ $Date: 2005-11-13 03:10:19 -0500 (Sun, 13 Nov 2005) $
+ * @version $Rev$ $Date$
  */
 public class GeronimoEnvironment {
 
