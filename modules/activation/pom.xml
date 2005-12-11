@@ -18,4 +18,8 @@
       <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
     </dependency>    
   </dependencies>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
+  </build>
 </project>

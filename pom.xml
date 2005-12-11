@@ -373,9 +373,6 @@
   </distributionManagement>
 
   <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <testSourceDirectory>src/test</testSourceDirectory>
-
     <plugins>
       <plugin>
         <artifactId>maven-one-plugin</artifactId>
