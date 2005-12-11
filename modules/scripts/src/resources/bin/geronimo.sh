@@ -245,7 +245,7 @@ if [ "$1" = "debug" ] ; then
     shift
     exec "$_RUNJDB" $JAVA_OPTS $GERONIMO_OPTS \
       -sourcepath "$JDB_SRCPATH" \
-      -Dgeronimo.base.dir="$GERONIMO_BASE" \
+      -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
       -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
       -classpath "$GERONIMO_HOME"/bin/server.jar \
       org.apache.geronimo.system.main.Daemon $LONG_OPT "$@" 
@@ -256,7 +256,7 @@ elif [ "$1" = "run" ]; then
   shift
   exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
-    -Dgeronimo.base.dir="$GERONIMO_BASE" \
+    -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" 
 
@@ -266,7 +266,7 @@ elif [ "$1" = "start" ] ; then
   touch $GERONIMO_OUT
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
-    -Dgeronimo.base.dir="$GERONIMO_BASE" \
+    -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
     >> $GERONIMO_OUT 2>&1 &
@@ -287,7 +287,7 @@ elif [ "$1" = "stop" ] ; then
   fi
 
   "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    -Dgeronimo.base.dir="$GERONIMO_BASE" \
+    -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/shutdown.jar "$@"
 

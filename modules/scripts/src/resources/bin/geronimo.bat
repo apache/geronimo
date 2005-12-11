@@ -250,15 +250,15 @@ goto setArgs
 @REM Execute Java with the applicable properties
 if not "%JDB%" == "" goto doJDB
 if not "%JPDA%" == "" goto doJpda
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dgeronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :doJDB
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Dgeronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -sourcepath "%JDB_SRCPATH%" -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -classpath %_JARFILE% %MAINCLASS% %CMD_LINE_ARGS%
 goto end
 
 :doJpda
-%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Xdebug -Xrunjdwp:transport=%JPDA_TRANSPORT%,address=%JPDA_ADDRESS%,server=y,suspend=n %DEBUG_OPTS% -Dgeronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
+%_EXECJAVA% %JAVA_OPTS% %GERONIMO_OPTS% -Xdebug -Xrunjdwp:transport=%JPDA_TRANSPORT%,address=%JPDA_ADDRESS%,server=y,suspend=n %DEBUG_OPTS% -Dorg.apache.geronimo.base.dir="%GERONIMO_BASE%" -Djava.io.tmpdir="%GERONIMO_TMPDIR%" -jar %_JARFILE% %_LONG_OPT% %CMD_LINE_ARGS%
 goto end
 
 :end

@@ -49,7 +49,7 @@ public class BasicServerInfo implements ServerInfo {
         // Before we try the persistent value, we always check the
         // system properties first.  This lets an admin override this
         // on the command line.
-        baseDirectory = System.getProperty("geronimo.base.dir", baseDirectory);
+        baseDirectory = System.getProperty("org.apache.geronimo.base.dir", baseDirectory);
         if (baseDirectory == null || baseDirectory.length() == 0) {
             base = DirectoryUtils.getGeronimoInstallDirectory();
             if (base == null) {
@@ -64,7 +64,7 @@ public class BasicServerInfo implements ServerInfo {
         }
 
         baseURI = base.toURI();
-        System.setProperty("geronimo.base.dir", base.getAbsolutePath());
+        System.setProperty("org.apache.geronimo.base.dir", base.getAbsolutePath());
     }
 
     /**

@@ -87,7 +87,7 @@ public class StartServer {
     }
 
     public void execute() throws Exception {
-        System.setProperty("geronimo.base.dir", getGeronimoHome());
+        System.setProperty("org.apache.geronimo.base.dir", getGeronimoHome());
         List configList = new ArrayList();
         for (StringTokenizer st = new StringTokenizer(configs); st.hasMoreTokens();) {
             configList.add(new URI(st.nextToken()));
