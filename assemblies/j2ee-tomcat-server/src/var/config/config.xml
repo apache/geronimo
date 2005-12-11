@@ -62,6 +62,7 @@
             <attribute name="port">${PlanLdapPort}</attribute>
         </gbean>
     </configuration>
+    <configuration name="geronimo/ldap-realm/${pom.currentVersion}/car"/>
     <configuration name="geronimo/tomcat/${pom.currentVersion}/car">
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
@@ -90,6 +91,7 @@
     </configuration>
     <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/welcome-tomcat/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/ldap-demo-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/servlets-examples-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car"/>

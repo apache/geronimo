@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security"
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    >
+    <context-root>/ldap-demo</context-root>
+    <context-priority-classloader>false</context-priority-classloader>
+    <security-realm-name>ldap-realm</security-realm-name>
+    <security>
+        <default-principal realm-name="ldap-realm">
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="system"/>
+        </default-principal>
+        <role-mappings>
+            <role role-name="content-administrator">
+                <realm realm-name="ldap-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="admin" designated-run-as="true"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="system"/>
+                </realm>
+            </role>
+            <role role-name="guest">
+                <realm realm-name="ldap-realm">
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" name="guest" designated-run-as="true"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="user1"/>
+                    <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" name="user2"/>
+                </realm>
+            </role>
+        </role-mappings>
+    </security>
+</web-app>

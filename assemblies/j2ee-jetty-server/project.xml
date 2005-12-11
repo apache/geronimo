@@ -100,6 +100,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>ldap-realm</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>system-database</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
@@ -201,6 +210,15 @@
             </properties>
         </dependency>
 <!-- applications -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>ldap-demo-jetty</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>welcome-jetty</artifactId>
@@ -1110,11 +1128,11 @@
             <version>${xfire_version}</version>
         </dependency>
 
-        <!-- for service mix and wadi -->
+        <!-- for wadi -->
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring</artifactId>
-            <version>${spring_version}</version>
+            <version>${wadi_spring_version}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -1267,16 +1285,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-servicemix</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-servicemix-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>

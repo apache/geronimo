@@ -1160,11 +1160,11 @@
             <version>${xfire_version}</version>
         </dependency>
 
-        <!-- for service mix and wadi -->
+        <!-- for wadi -->
         <dependency>
             <groupId>springframework</groupId>
             <artifactId>spring</artifactId>
-            <version>${spring_version}</version>
+            <version>${wadi_spring_version}</version>
         </dependency>
 
 
@@ -1313,16 +1313,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-servicemix</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-servicemix-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>

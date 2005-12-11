@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration
+    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    >
+
+   <gbean name="ldap-login"
+        class="org.apache.geronimo.security.jaas.LoginModuleGBean">
+        <attribute name="loginModuleClass">org.apache.geronimo.security.realm.providers.LDAPLoginModule</attribute>
+        <attribute name="serverSide">true</attribute>
+        <attribute name="options">
+		initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory
+		connectionURL=ldap://localhost:1389
+		connectionUsername=uid=admin,ou=system
+		connectionPassword=secret
+		connectionProtocol=
+		authentication=simple
+		userBase=ou=users,ou=system
+		userSearchMatching=uid={0}
+		userSearchSubtree=false
+		roleBase=ou=groups,ou=system
+		roleName=cn
+		roleSearchMatching=(uniqueMember={0})
+		roleSearchSubtree=false
+		userRoleName=
+	  </attribute>
+        <attribute name="loginDomainName">ldap-realm</attribute>
+    </gbean>
+
+    <gbean name="ldap-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm">
+        <attribute name="realmName">ldap-realm</attribute>
+        <reference name="LoginModuleConfiguration">
+            	<name>ldap-login</name>
+        </reference> 
+        <reference name="ServerInfo">
+            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
+            <name>ServerInfo</name>
+        </reference>
+        <!-- Add -->
+        <reference name="LoginService">
+            <module>geronimo/j2ee-security/${pom.currentVersion}/car</module>
+            <name>JaasLoginService</name>
+         </reference>
+    </gbean>
+
+    <gbean name="ldap-login" class="org.apache.geronimo.security.jaas.JaasLoginModuleUse">
+        <attribute name="controlFlag">REQUIRED</attribute>
+        <reference name="LoginModule">
+            <name>ldap-login</name>
+        </reference>
+    </gbean>
+    
+     <gbean name="ldaptest"
+        class="org.apache.geronimo.security.jaas.ServerRealmConfigurationEntry">
+        <attribute name="applicationConfigName">ldaptest</attribute>
+        <attribute name="realmName">ldap-realm</attribute>
+        <reference name="LoginService">
+            <module>geronimo/j2ee-security/${pom.currentVersion}/car</module>
+            <name>JaasLoginService</name>
+         </reference>
+    </gbean>
+
+
+</configuration>

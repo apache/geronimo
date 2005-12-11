@@ -62,6 +62,7 @@
             <attribute name="port">${PlanLdapPort}</attribute>
         </gbean>
     </configuration>
+    <configuration name="geronimo/ldap-realm/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jetty/${pom.currentVersion}/car">
         <gbean name="JettyWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -84,6 +85,7 @@
     </configuration>
     <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
     <configuration name="geronimo/welcome-jetty/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/ldap-demo-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>

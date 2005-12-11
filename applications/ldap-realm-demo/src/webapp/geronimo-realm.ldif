@@ -1,0 +1,74 @@
+# User: system
+
+dn: uid=system,ou=users,ou=system
+cn: John Doe
+sn: Doe
+givenname: John
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Human Resources
+ou: People
+l: Las Vegas
+uid: system
+mail: system@apachecon.comm
+telephonenumber: +1 408 555 5555
+facsimiletelephonenumber: +1 408 555 5556
+roomnumber: 4613
+userPassword: manager
+
+# User: user1
+
+dn: uid=user1,ou=users,ou=system
+cn: User
+sn: One
+givenname: User1
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Human Resources
+ou: People
+l: Las Vegas
+uid: user1
+mail: user1@apachecon.comm
+telephonenumber: +1 408 555 5555
+facsimiletelephonenumber: +1 408 555 5556
+roomnumber: 4613
+userPassword: p1
+
+# User: user2
+
+dn: uid=user2,ou=users,ou=system
+cn: User
+sn: Two
+givenname: User2
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+ou: Human Resources
+ou: People
+l: Las Vegas
+uid: user2
+mail: user2@apachecon.comm
+telephonenumber: +1 408 555 5555
+facsimiletelephonenumber: +1 408 555 5556
+roomnumber: 4613
+userPassword: p2
+
+# Group: admin
+
+dn: cn=admin,ou=groups,ou=system
+objectClass: groupOfUniqueNames
+uniqueMember: uid=system,ou=users,ou=system
+cn: admin
+
+# Group: guest
+
+dn: cn=guest,ou=groups,ou=system
+objectClass: groupOfUniqueNames
+uniqueMember: uid=user1,ou=users,ou=system
+uniqueMember: uid=user2,ou=users,ou=system
+cn: guest
