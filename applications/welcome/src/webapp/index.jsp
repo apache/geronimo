@@ -97,8 +97,7 @@
                         <a href="/servlets-examples/">Servlet Examples </a><br />
                         <a href="/jsp-examples/">JSP Examples </a><br />
 <%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Samples+for+Apache+Geronimo">Download Additional Examples</a><br />--%>
-                        &nbsp;
-
+                        <a href="/ldap-demo/">LDAP Demo</a></br />
                     </td>
                 </tr>
             </table>
