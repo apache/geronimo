@@ -17,6 +17,47 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.UnresolvedReferenceException;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.j2ee.deployment.EARContext;
+import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.NamingContext;
+import org.apache.geronimo.j2ee.deployment.RefContext;
+import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.ClassLoading;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.xbeans.geronimo.naming.GerCssType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
+import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
+import org.apache.geronimo.xbeans.j2ee.EjbRefType;
+import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
+import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
+import org.apache.geronimo.xbeans.j2ee.ParamValueType;
+import org.apache.geronimo.xbeans.j2ee.PortComponentRefType;
+import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
+import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
+import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
+import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
+import org.apache.geronimo.xbeans.j2ee.XsdStringType;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.transaction.UserTransaction;
+import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,48 +69,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.transaction.UserTransaction;
-import javax.xml.namespace.QName;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.common.UnresolvedReferenceException;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.j2ee.deployment.EARContext;
-import org.apache.geronimo.j2ee.deployment.Module;
-import org.apache.geronimo.j2ee.deployment.RefContext;
-import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.deployment.NamingContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.ClassLoading;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.naming.java.ComponentContextBuilder;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerCssType;
-import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
-import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
-import org.apache.geronimo.xbeans.j2ee.EjbRefType;
-import org.apache.geronimo.xbeans.j2ee.EnvEntryType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
-import org.apache.geronimo.xbeans.j2ee.ParamValueType;
-import org.apache.geronimo.xbeans.j2ee.PortComponentRefType;
-import org.apache.geronimo.xbeans.j2ee.ResourceEnvRefType;
-import org.apache.geronimo.xbeans.j2ee.ResourceRefType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
-import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
-import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
-import org.apache.geronimo.xbeans.j2ee.XsdStringType;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 
 /**
  * @version $Rev$ $Date$
@@ -383,10 +382,18 @@ public class ENCConfigBuilder {
             String ejbRefName = getStringValue(ejbRef.getEjbRefName());
 
             String remote = getStringValue(ejbRef.getRemote());
-            assureEJBObjectInterface(remote, cl);
+            try {
+                assureEJBObjectInterface(remote, cl);
+            } catch (DeploymentException e) {
+                throw new DeploymentException("Error processing 'remote' element for EJB Reference '"+ejbRefName+"' for module '"+moduleURI+"': "+e.getMessage());
+            }
 
             String home = getStringValue(ejbRef.getHome());
-            assureEJBHomeInterface(home, cl);
+            try {
+                assureEJBHomeInterface(home, cl);
+            } catch (DeploymentException e) {
+                throw new DeploymentException("Error processing 'home' element for EJB Reference '"+ejbRefName+"' for module '"+moduleURI+"': "+e.getMessage());
+            }
 
             Reference ejbReference;
             boolean isSession = "Session".equals(getStringValue(ejbRef.getEjbRefType()));
@@ -472,10 +479,18 @@ public class ENCConfigBuilder {
             String ejbRefName = getStringValue(ejbLocalRef.getEjbRefName());
 
             String local = getStringValue(ejbLocalRef.getLocal());
-            assureEJBLocalObjectInterface(local, cl);
+            try {
+                assureEJBLocalObjectInterface(local, cl);
+            } catch (DeploymentException e) {
+                throw new DeploymentException("Error processing 'local' element for EJB Local Reference '"+ejbRefName+"' for module '"+moduleURI+"': "+e.getMessage());
+            }
 
             String localHome = getStringValue(ejbLocalRef.getLocalHome());
-            assureEJBLocalHomeInterface(localHome, cl);
+            try {
+                assureEJBLocalHomeInterface(localHome, cl);
+            } catch (DeploymentException e) {
+                throw new DeploymentException("Error processing 'local-home' element for EJB Local Reference '"+ejbRefName+"' for module '"+moduleURI+"': "+e.getMessage());
+            }
 
             boolean isSession = "Session".equals(getStringValue(ejbLocalRef.getEjbRefType()));
 
@@ -641,6 +656,9 @@ public class ENCConfigBuilder {
     }
 
     public static Class assureInterface(String interfaceName, String superInterfaceName, String interfaceType, ClassLoader cl) throws DeploymentException {
+        if(interfaceName == null || interfaceName.equals("")) {
+            throw new DeploymentException("interface name cannot be blank");
+        }
         Class clazz = null;
         try {
             clazz = cl.loadClass(interfaceName);
