@@ -258,7 +258,7 @@ while (it.hasNext()) {
         <TR>
 			<TD colspan="4" align="center"> Derived from Original Work Trade 6, Copyright IBM, 2000, Contributed by IBM<BR>
 			Copyright 2005, Apache Software Foundation, Geronimo<BR>
-			<IMG src="images/WEBSPHERE_18P_UNIX.GIF" width="113" height="18" border="0"><BR>
+			<IMG src="images/GLogo_450x50.gif" width="150" height="21" border="0"><BR>
 			<BR>
 			<IMG src="images/ticker-anim.gif" width="385" height="22" border="0" align="middle"></TD>
 		</TR>

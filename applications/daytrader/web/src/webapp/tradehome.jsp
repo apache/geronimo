@@ -2,7 +2,7 @@
 <HTML>
 <HEAD>
 <META http-equiv="Content-Style-Type" content="text/css">
-<TITLE>Welcome to Trade</TITLE>
+<TITLE>Welcome to DayTrader</TITLE>
 <LINK rel="stylesheet" href="style.css" type="text/css" />
 </HEAD>
 <BODY bgcolor="#ffffff" link="#000099" vlink="#000099">
@@ -13,8 +13,8 @@
 <TABLE height="54">
   <TBODY>
     <TR>
-            <TD bgcolor="#8080c0" align="left" width="500" height="10" colspan="5"><FONT color="#ffffff"><B>Trade Home</B></FONT></TD>
-            <TD align="center" bgcolor="#000000" width="100" height="10"><FONT color="#ffffff"><B>Trade</B></FONT></TD>
+            <TD bgcolor="#8080c0" align="left" width="500" height="10" colspan="5"><FONT color="#ffffff"><B>DayTrader Home</B></FONT></TD>
+            <TD align="center" bgcolor="#000000" width="100" height="10"><FONT color="#ffffff"><B>DayTrader</B></FONT></TD>
         </TR>
         <TR align="center">
             <TD><B><A href="app?action=home">Home</A></B><B> </B></TD>
@@ -187,8 +187,8 @@ if ( (closedOrders != null) && (closedOrders.size()>0) )
             </TD>
         </TR>
         <TR>
-            <TD bgcolor="#8080c0" align="left" width="500" height="10"><B><FONT color="#ffffff">Trade Home</FONT></B></TD>
-            <TD align="center" bgcolor="#000000" width="100" height="10"><FONT color="#ffffff"><B>Trade</B></FONT></TD>
+            <TD bgcolor="#8080c0" align="left" width="500" height="10"><B><FONT color="#ffffff">DayTrader Home</FONT></B></TD>
+            <TD align="center" bgcolor="#000000" width="100" height="10"><FONT color="#ffffff"><B>DayTrader</B></FONT></TD>
         </TR>
         <TR>
             <TD colspan="2" align="center">Apache Geronimo Performance Benchmark Sample DayTrader<BR>
