@@ -93,5 +93,5 @@
     <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/hot-deployer/1.0-SNAPSHOT/car" />
+    <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car" />
 </attributes>

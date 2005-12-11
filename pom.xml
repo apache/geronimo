@@ -187,8 +187,6 @@
     <portletApiVersion>1.0</portletApiVersion>
     <regexpVersion>1.3</regexpVersion>
     <scoutVersion>0.5</scoutVersion>
-    <servicemixSpringVersion>1.2.2-dev-2</servicemixSpringVersion>
-    <servicemixVersion>1.0.1</servicemixVersion>
     <slf4jVersion>1.0-beta7</slf4jVersion>
     <springVersion>1.1.3</springVersion>
     <standardTaglibsVersion>1.1.1</standardTaglibsVersion>
