@@ -65,7 +65,7 @@ action="<portlet:actionURL><portlet:param name="action" value="generate-key-pair
 --%>
 </table>
 <br/>
-<input type="submit" name="submit" value="submit" onclick="return <portlet:namespace/>validateForm()"/>
+<input type="submit" name="submit" value="Submit" onclick="return <portlet:namespace/>validateForm()"/>
 <input type="reset"/>
-<input type="submit" name="submit" value="cancel"/>
+<input type="submit" name="submit" value="Cancel"/>
 </form>
