@@ -113,9 +113,13 @@ public class BaseConfigInstaller {
     }
 
     protected void execute(URI configId, InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
+        if (installAdapter.containsConfiguration(configId)) {
+            System.out.println("Configuration " + configId + " already present in configuration store");
+            return;
+        }
         GBeanData config = installAdapter.install(sourceRepo, configId);
         List dependencies = (List) config.getAttribute("dependencies");
-        System.out.println("Installed configuration " + artifact);
+        System.out.println("Installed configuration " + configId);
 
         FileWriteMonitor monitor = new StartFileWriteMonitor();
 
@@ -143,6 +147,7 @@ public class BaseConfigInstaller {
 
         GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException;
 
+        boolean containsConfiguration(URI configID);
     }
 
     protected static class StartFileWriteMonitor implements FileWriteMonitor {

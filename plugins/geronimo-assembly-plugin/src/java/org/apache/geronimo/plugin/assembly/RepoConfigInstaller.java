@@ -87,6 +87,10 @@ public class RepoConfigInstaller extends BaseConfigInstaller {
             }
             return config;
         }
+
+        public boolean containsConfiguration(URI configID) {
+            return targetRepo.hasURI(configID);
+        }
     }
 
 }
