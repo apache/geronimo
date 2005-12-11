@@ -45,7 +45,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-dependency-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_dependency_plugin_version}</version>
             <type>plugin</type>
         </dependency>
 

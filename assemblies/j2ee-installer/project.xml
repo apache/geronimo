@@ -30,7 +30,7 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-assembly-plugin</artifactId>
             <type>plugin</type>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_assembly_plugin_version}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>

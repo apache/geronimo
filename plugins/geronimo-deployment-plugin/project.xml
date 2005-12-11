@@ -32,37 +32,37 @@
     <package>org.apache.geronimo</package>
     <logo></logo>
 
-    <currentVersion>${geronimo_version}</currentVersion>
+    <currentVersion>1.0.0</currentVersion>
 
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_version}</version>
         </dependency>
 
         <dependency>
