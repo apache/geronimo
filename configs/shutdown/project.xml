@@ -29,7 +29,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-packaging-plugin</artifactId>
-            <version>${geronimo_version}</version>
+            <version>${geronimo_packaging_plugin_version}</version>
             <type>plugin</type>
         </dependency>
 
