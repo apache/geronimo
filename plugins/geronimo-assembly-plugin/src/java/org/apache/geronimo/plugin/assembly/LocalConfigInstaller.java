@@ -48,6 +48,10 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
                 GBeanData config = store.install2(artifact);
                 return config;
             }
+
+            public boolean containsConfiguration(URI configID) {
+                return store.containsConfiguration(configID);
+            }
         };
         Repository sourceRepo = new InnerRepository();
         URI rootURI = targetRoot.toURI().resolve(targetRepository);
