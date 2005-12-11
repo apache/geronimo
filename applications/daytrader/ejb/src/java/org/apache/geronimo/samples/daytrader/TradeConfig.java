@@ -39,7 +39,7 @@ public class TradeConfig {
 	public static String[] runTimeModeNames = { "EJB", "Direct" };
 	public static final int EJB = 0;
 	public static final int DIRECT = 1;
-	public static int runTimeMode = EJB;
+	public static int runTimeMode = DIRECT;
 
 	public static String[] orderProcessingModeNames =
 		{ "Synchronous", "Asynchronous_1-Phase", "Asynchronous_2-Phase" };

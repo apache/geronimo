@@ -86,7 +86,7 @@ for (int i = 0; i < names.length; i++) {
 			Run Time Mode determines server implementation of the TradeServices
 			to use in the Trade application Enterprise Java Beans including
 			Session, Entity and Message beans or Direct mode which uses direct
-			database and JMS access. See <A href="docs/tradeFAQ.html">Trade FAQ</A>
+			database and JMS access. See <A href="docs/tradeFAQ.html">DayTrader FAQ</A>
 			for details.<BR>
 			</TD>
 		</TR>
@@ -207,7 +207,7 @@ for (int i = 0; i < names.length; i++) {
 			technology used, JSPs or JSPs with static images and GIFs.
 			</TD>
 		</TR>
-		<TR>
+<!--		<TR>
 			<TD align="left">
 			<B>Caching Type</B>
 			<P align="left"><%configParm = "CachingType";
@@ -230,7 +230,7 @@ for (int i = 0; i < names.length; i++) {
 			This setting determines the caching technology used for data caching
 			, DistributedMap, Command Caching or No Caching.
 			</TD>
-		</TR>	
+		</TR>-->	
 		<TR>
 			<TD colspan="2" align="center">
 				<B>Miscellaneous Settings</B>
