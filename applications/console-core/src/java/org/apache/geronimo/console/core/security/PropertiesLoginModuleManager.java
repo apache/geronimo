@@ -17,6 +17,13 @@
 
 package org.apache.geronimo.console.core.security;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.UnknownServiceException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -102,8 +109,7 @@ public class PropertiesLoginModuleManager {
             refreshUsers();
             users.setProperty((String) properties.get("UserName"),
                     (String) properties.get("Password"));
-            users.store(serverInfo.resolve(getUsersURI()).toURL()
-                    .openConnection().getOutputStream(), null);
+            store(users, serverInfo.resolve(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
                     + e.getMessage());
@@ -115,8 +121,7 @@ public class PropertiesLoginModuleManager {
         try {
             refreshUsers();
             users.remove(userPrincipal);
-            users.store(serverInfo.resolve(getUsersURI()).toURL()
-                    .openConnection().getOutputStream(), null);
+            store(users, serverInfo.resolve(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot remove user principal "
                     + userPrincipal + ": " + e.getMessage());
@@ -130,8 +135,7 @@ public class PropertiesLoginModuleManager {
             refreshUsers();
             users.setProperty((String) properties.get("UserName"),
                     (String) properties.get("Password"));
-            users.store(serverInfo.resolve(getUsersURI()).toURL()
-                    .openConnection().getOutputStream(), null);
+            store(users, serverInfo.resolve(getUsersURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add user principal: "
                     + e.getMessage());
@@ -148,8 +152,7 @@ public class PropertiesLoginModuleManager {
         try {
             groups.setProperty((String) properties.get("GroupName"),
                     (String) properties.get("Members"));
-            groups.store(serverInfo.resolve(getGroupsURI()).toURL()
-                    .openConnection().getOutputStream(), null);
+            store(groups, serverInfo.resolve(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add group principal: "
                     + e.getMessage());
@@ -161,8 +164,7 @@ public class PropertiesLoginModuleManager {
         refreshGroups();
         try {
             groups.remove(groupPrincipal);
-            groups.store(serverInfo.resolve(getGroupsURI()).toURL()
-                    .openConnection().getOutputStream(), null);
+            store(groups, serverInfo.resolve(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException(
                     "Cannot remove group principal: " + e.getMessage());
@@ -176,8 +178,7 @@ public class PropertiesLoginModuleManager {
         try {
             groups.setProperty((String) properties.get("GroupName"),
                     (String) properties.get("Members"));
-            groups.store(serverInfo.resolve(getGroupsURI()).toURL()
-                    .openConnection().getOutputStream(), null);
+            store(groups, serverInfo.resolve(getGroupsURI()).toURL());
         } catch (Exception e) {
             throw new GeronimoSecurityException("Cannot add group principal: "
                     + e.getMessage());
@@ -269,4 +270,24 @@ public class PropertiesLoginModuleManager {
         return GBEAN_INFO;
     }
 
+    private void store(Properties props, URL url) throws Exception{
+        OutputStream out = null;
+        try {
+            URLConnection con = url.openConnection();
+            con.setDoOutput(true);
+            out = con.getOutputStream();
+        } catch(Exception e){
+            if("file".equalsIgnoreCase(url.getProtocol()) && e instanceof UnknownServiceException) {
+                out = new FileOutputStream(new File(url.getFile()));
+            } else {
+                throw e;
+            }
+        }
+        props.store(out, null);
+        try {
+            out.close();
+        } catch(IOException ie) {
+            // Ignore
+        }
+    }
 }

@@ -124,7 +124,7 @@ public class SEGroupsPortlet extends AbstractSecurityManagerPortlet {
                     SERealmGroupHelper.addGroup(group, users);
                 } catch (Exception e) {
                     actionResponse.setRenderParameter("message",
-                            "ERROR: Group already exists");
+                            "ERROR: Error in SEGroupsPortlet while adding group "+group+". Cause:"+e.getMessage());
                 }
             } else if ("new".equals(action)) {
                 currAction = "new";
@@ -136,8 +136,8 @@ public class SEGroupsPortlet extends AbstractSecurityManagerPortlet {
                 actionResponse.setRenderParameter("group", group);
             }
         } catch (Exception e) {
-            actionResponse.setRenderParameter("errorMessage",
-                    "Error encountered in DerbyGroupsPortlet: "
+            actionResponse.setRenderParameter("message",
+                    "Error encountered in SEGroupsPortlet. Cause: "
                             + e.getMessage());
         }
     }

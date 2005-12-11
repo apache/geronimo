@@ -123,7 +123,7 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                     SERealmUserHelper.addUser(user, password);
                 } catch (Exception e) {
                     actionResponse.setRenderParameter("message",
-                            "ERROR: User already exists");
+                            "ERROR: Error in SEUsersPortlet while adding user "+user+". Cause: "+e.getMessage());
                 }
             } else if ("new".equals(action)) {
                 currAction = "new";
@@ -135,8 +135,8 @@ public class SEUsersPortlet extends AbstractSecurityManagerPortlet {
                 actionResponse.setRenderParameter("user", user);
             }
         } catch (Exception e) {
-            actionResponse.setRenderParameter("errorMessage",
-                    "Error encountered in DerbyGroupsPortlet: "
+            actionResponse.setRenderParameter("message",
+                    "Error encountered in SEUsersPortlet. Cause: "
                             + e.getMessage());
         }
     }
