@@ -84,11 +84,6 @@
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-servicemix</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
             <version>${openejb_version}</version>

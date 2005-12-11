@@ -16,9 +16,6 @@
     limitations under the License.
 -->
 
-<!--
-               parentId="${pom.groupId}/geronimo-gbean-deployer/${pom.currentVersion}/car"
--->
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
         >
@@ -117,17 +114,6 @@
             <pattern><gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name></pattern>
             <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationStore,name=Local</gbean-name></pattern>
         </references>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
-        </reference>
-    </gbean>
-
-    <gbean name="JBIBuilder" class="org.apache.geronimo.servicemix.deployment.ServiceMixConfigBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
-        <attribute name="deploymentDependencies">
-            servicemix/jars/spring-${servicemix_spring_version}.jar,
-            servicemix/jars/servicemix-${servicemix_version}.jar
-        </attribute>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>

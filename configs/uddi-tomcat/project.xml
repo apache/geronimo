@@ -200,11 +200,6 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-servicemix</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
