@@ -223,6 +223,14 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
         </dependency>
+
+        <!-- The WAR has to be built first -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-ldap-demo</artifactId>
+            <version>${geronimo_version}</version>
+            <type>war</type>
+        </dependency>
     </dependencies>
 </project>
 
