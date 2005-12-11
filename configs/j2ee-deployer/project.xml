@@ -321,15 +321,6 @@
              </properties>
         </dependency>
 
-        <!-- JBI using ServiceMix -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-servicemix-builder</artifactId>
-            <version>${geronimo_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
     </dependencies>
 </project>
 
