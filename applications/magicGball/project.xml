@@ -43,7 +43,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment-plugin</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_deployment_plugin_version}</version>
             <type>plugin</type>
         </dependency>
     </dependencies>

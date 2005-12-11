@@ -23,7 +23,7 @@
     <id>geronimo-dependency-plugin</id>
     <name>Geronimo :: Maven Dependency Plugin</name>
     <description>A plugin used to construct a geronimo-service.xml dependency list for a Geronimo module</description>
-    <currentVersion>1.0-SNAPSHOT</currentVersion>
+    <currentVersion>1.1.0</currentVersion>
 
     <dependencies>
         <dependency>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.currentVersion}</version>
+            <version>${geronimo_version}</version>
         </dependency>
     </dependencies>
 
