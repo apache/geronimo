@@ -38,8 +38,6 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
     }
 
     public void addGBeanToConfiguration(URI configID, GBeanData gbean, boolean start) throws InvalidConfigException {
-        //todo: when able to, save new GBean data in attribute store rather than in serialized state
-        //that is, replace the code below with only calls to the attribute store
         try {
             ObjectName name = Configuration.getConfigurationObjectName(configID);
             kernel.invoke(name, "addGBean", new Object[]{gbean, start ? Boolean.TRUE : Boolean.FALSE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
