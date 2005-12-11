@@ -21,7 +21,7 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>geronimo-ldap-demo-jetty</id>
+    <artifactId>geronimo-ldap-demo-jetty</artifactId>
     <name>LDAP Demo for Jetty</name>
 
     <dependencies>
@@ -54,9 +54,12 @@
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>j2ee-server</artifactId>
+            <artifactId>ldap-realm</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
+            <properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
         </dependency>
 
         <dependency>

@@ -23,7 +23,7 @@
     <extend>../../etc/project.xml</extend>
 
     <name>Geronimo :: LDAP Demo Application</name>
-    <id>geronimo-ldap-demo</id>
+    <artifactId>geronimo-ldap-demo</artifactId>
     <shortDescription>Geronimo LDAP Demo Application</shortDescription>
     <description>
         This is a very simple application that is intended to demonstrate the ldap
