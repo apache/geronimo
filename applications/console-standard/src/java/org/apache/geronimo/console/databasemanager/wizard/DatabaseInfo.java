@@ -30,9 +30,9 @@ public class DatabaseInfo {
     /**
      * todo: EVIL!!!  Should be replaced with something, somehow!
      */
-    private final static String TRANQL_RAR_NAME = "tranql/tranql-connector/1.1-SNAPSHOT/rar";
-    private final static String DERBY_EMBEDDED_RAR_NAME = "tranql/tranql-connector-derby-embed-xa/1.1-SNAPSHOT/rar";
-    private final static String DERBY_NETWORK_RAR_NAME = "tranql/tranql-connector-derby-client-xa/1.1-SNAPSHOT/rar";
+    private final static String TRANQL_RAR_NAME = "tranql/tranql-connector/1.1/rar";
+    private final static String DERBY_EMBEDDED_RAR_NAME = "tranql/tranql-connector-derby-embed-xa/1.1/rar";
+    private final static String DERBY_NETWORK_RAR_NAME = "tranql/tranql-connector-derby-client-xa/1.1/rar";
 
     //todo: Load this from a config file or something
     public static final DatabaseInfo[] ALL_DATABASES = new DatabaseInfo[]{
