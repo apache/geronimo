@@ -171,7 +171,10 @@ public class SQLLoginModule implements LoginModule {
             try {
                 PreparedStatement statement = conn.prepareStatement(userSelect);
                 try {
-                    statement.setObject(1, cbUsername);
+                    int count = countParameters(userSelect);
+                    for(int i=0; i<count; i++) {
+                        statement.setObject(i+1, cbUsername);
+                    }
                     ResultSet result = statement.executeQuery();
 
                     try {
@@ -198,7 +201,10 @@ public class SQLLoginModule implements LoginModule {
 
                 statement = conn.prepareStatement(groupSelect);
                 try {
-                    statement.setObject(1, cbUsername);
+                    int count = countParameters(groupSelect);
+                    for(int i=0; i<count; i++) {
+                        statement.setObject(i+1, cbUsername);
+                    }
                     ResultSet result = statement.executeQuery();
 
                     try {
@@ -249,5 +255,14 @@ public class SQLLoginModule implements LoginModule {
         cbPassword = null;
         //todo: should remove principals put in by commit
         return true;
+    }
+
+    private static int countParameters(String sql) {
+        int count = 0;
+        int pos = -1;
+        while((pos = sql.indexOf('?', pos+1)) != -1) {
+            ++count;
+        }
+        return count;
     }
 }
