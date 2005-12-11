@@ -23,7 +23,7 @@ import java.io.ObjectInputStream;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class DeserializingReference extends SimpleAwareReference {
 

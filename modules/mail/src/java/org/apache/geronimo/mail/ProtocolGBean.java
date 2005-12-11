@@ -31,7 +31,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * Values that are set in the individual member variables will override any of
  * the corresponding values that have been set in the properties set.
  *
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class ProtocolGBean implements GBeanLifecycle {
 

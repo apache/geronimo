@@ -38,7 +38,7 @@ import java.net.URL;
  * Reads information out of the WebLogic domain directory.
  * Needs access to the WebLogic JARs in the weblogic81/server/lib directory.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class Weblogic81Utils {
     private final static Pattern ENCRYPTED_STRING = Pattern.compile("\\\"\\{\\S+\\}\\S+?\\\"");

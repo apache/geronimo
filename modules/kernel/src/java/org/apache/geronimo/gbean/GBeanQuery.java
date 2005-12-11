@@ -22,7 +22,7 @@ import java.io.Serializable;
  * Criteria for querying for a list of GBeans.  Currently all criteria are
  * "ORed" (a GBean meeting any of them matches).
  *
- * @version $Rev: 209177 $ $Date: 2005-07-04 21:42:14 -0400 (Mon, 04 Jul 2005) $
+ * @version $Rev$ $Date$
  */
 public class GBeanQuery implements Serializable {
     private String[] gbeanNames;

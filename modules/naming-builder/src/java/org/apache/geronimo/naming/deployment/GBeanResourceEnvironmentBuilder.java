@@ -21,7 +21,7 @@ import java.util.Set;
 import org.apache.geronimo.gbean.GBeanData;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/25 21:35:11 $
+ * @version $Revision$ $Date$
  */
 public class GBeanResourceEnvironmentBuilder implements ResourceEnvironmentBuilder {
 

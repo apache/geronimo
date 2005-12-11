@@ -39,7 +39,7 @@ import org.apache.geronimo.management.JavaMailResource;
  * are common to all JavaMail Sessions are provided via member variables of this
  * class.
  *
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  * @see ProtocolGBean
  * @see SMTPTransportGBean
  * @see POP3StoreGBean

@@ -26,7 +26,7 @@ import java.io.InputStream;
  * A version of the redeploy command that works on a server different
  * than the application server.
  *
- * @version $Rev: 190584 $ $Date: 2005-12-04 12:07:10 -0500 (Sun, 04 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class RedeployCommand extends org.apache.geronimo.deployment.plugin.local.RedeployCommand {
     public RedeployCommand(Kernel kernel, TargetModuleID[] moduleIDList, File moduleArchive, File deploymentPlan) {

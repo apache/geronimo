@@ -113,7 +113,7 @@ import org.apache.xmlbeans.XmlObject;
 
 
 /**
- * @version $Rev: 161588 $ $Date: 2005-04-16 12:06:59 -0600 (Sat, 16 Apr 2005) $
+ * @version $Rev$ $Date$
  */
 public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 

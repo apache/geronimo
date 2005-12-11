@@ -33,7 +33,7 @@ import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 
 /**
- * @version $Rev: 71492 $ $Date: 2004-11-14 21:31:50 -0800 (Sun, 14 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public class BasicLifecycleMonitor implements LifecycleMonitor {
     private static final Log log = LogFactory.getLog(BasicLifecycleMonitor.class);

@@ -39,7 +39,7 @@ import java.text.ParseException;
 /**
  * Tomcat implementation of the WebAccessLog management interface.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class TomcatLogManagerImpl implements TomcatLogManager {
     private final static Log log = LogFactory.getLog(TomcatLogManagerImpl.class);

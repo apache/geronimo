@@ -19,7 +19,7 @@ package org.apache.geronimo.management.geronimo;
 /**
  * Geronimo extension to the standard JSR-77 WebModule type.
  *
- * @version $Rev: 231345 $ $Date: 2005-08-10 18:40:39 -0400 (Wed, 10 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public interface WebModule extends org.apache.geronimo.management.WebModule {
     /**

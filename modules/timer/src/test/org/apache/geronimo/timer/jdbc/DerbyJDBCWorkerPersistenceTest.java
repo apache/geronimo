@@ -26,7 +26,7 @@ import java.sql.DriverManager;
 import org.apache.derby.jdbc.EmbeddedDataSource;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class DerbyJDBCWorkerPersistenceTest extends JDBCWorkerPersistenceTestAbstract {
     private static final String SYSTEM_HOME = "derby.system.home";

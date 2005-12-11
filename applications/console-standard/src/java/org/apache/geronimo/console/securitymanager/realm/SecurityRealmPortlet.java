@@ -92,7 +92,7 @@ import org.apache.xmlbeans.XmlOptions;
 /**
  * A portlet that lists, creates, and edits security realms.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class SecurityRealmPortlet extends BasePortlet {
     private final static Log log = LogFactory.getLog(SecurityRealmPortlet.class);

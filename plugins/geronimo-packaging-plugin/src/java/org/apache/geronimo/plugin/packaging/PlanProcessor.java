@@ -35,7 +35,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class PlanProcessor {
     private static final String IMPORT_PROPERTY = "geronimo.import";

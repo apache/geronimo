@@ -85,7 +85,7 @@ import java.util.Set;
  * kernel. That may be an in-VM kernel or a remote kernel, we don't really
  * care.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class KernelManagementHelper implements ManagementHelper {
     private final static Log log = LogFactory.getLog(KernelManagementHelper.class);

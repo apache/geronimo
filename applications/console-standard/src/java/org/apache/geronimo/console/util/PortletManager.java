@@ -60,7 +60,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class PortletManager {
     private final static Log log = LogFactory.getLog(PortletManager.class);

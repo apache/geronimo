@@ -23,7 +23,7 @@ import java.util.Map;
 import java.net.URL;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface WebServiceBuilder {
 

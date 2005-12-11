@@ -26,7 +26,7 @@ import org.apache.mina.registry.SimpleServiceRegistry;
 /**
  * A {@link StartupConfiguration} that starts up ApacheDS with network layer support.
  *
- * @version $Rev: 233391 $ $Date: 2005-08-18 16:38:47 -0600 (Thu, 18 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public class ServerStartupConfiguration extends StartupConfiguration
 {

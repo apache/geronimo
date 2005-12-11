@@ -43,7 +43,7 @@ import org.apache.geronimo.kernel.DependencyManager;
  * The DependencyManager uses the nomenclature of parent-child where a child is dependent on a parent.
  * The names parent and child have no other meaning are just a convience to make the code readable.
  *
- * @version $Rev: 124822 $ $Date: 2005-01-10 11:01:13 -0800 (Mon, 10 Jan 2005) $
+ * @version $Rev$ $Date$
  */
 public class BasicDependencyManager implements DependencyManager {
     /**

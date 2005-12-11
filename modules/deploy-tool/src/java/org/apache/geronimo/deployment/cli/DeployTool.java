@@ -33,7 +33,7 @@ import java.io.*;
  * Returns 0 normally, or 1 of any exceptions or error messages were generated
  * (whether for syntax or other failure).
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class DeployTool {
     private final static Map commands = new HashMap();

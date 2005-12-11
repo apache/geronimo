@@ -42,5 +42,5 @@
  * Copyright 2000 (C) Cees de Groot. All Rights Reserved.
  * Contributions are Copyright (C) 2000 by their associated contributors.
  *
- * $Id: LICENSE.txt,v 1.1 2000/05/05 23:59:52 boisvert Exp $
+ * $Id$
  */

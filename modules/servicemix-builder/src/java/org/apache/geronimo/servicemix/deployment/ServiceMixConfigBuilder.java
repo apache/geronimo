@@ -49,7 +49,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.servicemix.ServiceMixDeployment;
 
 /**
- * @version $Rev: 169154 $ $Date: 2005-05-08 15:35:23 -0400 (Sun, 08 May 2005) $
+ * @version $Rev$ $Date$
  */
 public class ServiceMixConfigBuilder implements ConfigurationBuilder {
     private static final Log log = LogFactory.getLog(ServiceMixConfigBuilder.class);

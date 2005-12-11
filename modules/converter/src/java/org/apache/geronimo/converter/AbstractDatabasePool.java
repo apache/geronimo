@@ -21,7 +21,7 @@ import java.io.Serializable;
 /**
  * A common intermediate format for a database connection pool
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractDatabasePool implements Serializable {
     public final static String VENDOR_ORACLE = "Oracle";

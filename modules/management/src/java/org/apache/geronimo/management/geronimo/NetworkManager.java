@@ -24,7 +24,7 @@ package org.apache.geronimo.management.geronimo;
  * would be the services that expose those containers over the network, via
  * HTTP, RMI, TCP, etc.
  *
- * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface NetworkManager {
     /**

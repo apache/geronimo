@@ -29,7 +29,7 @@ import javax.resource.spi.XATerminator;
 /**
  * Used to provide the GBean metadata for the TransactionContextManager class
  *
- * @version $Rev: 156292 $ $Date: 2005-03-05 21:48:02 -0500 (Sat, 05 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class TransactionContextManagerGBean {
 

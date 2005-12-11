@@ -25,7 +25,7 @@ import java.io.IOException;
 /**
  * Returns a 404 no matter what the request URL was.
  *
- * @version $Rev: 240228 $ $Date: 2005-08-26 08:55:00 -0400 (Fri, 26 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public class BarfServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

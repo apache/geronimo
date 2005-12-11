@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * The CLI deployer logic to list modules.
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class CommandListModules extends AbstractCommand {
     public CommandListModules() {

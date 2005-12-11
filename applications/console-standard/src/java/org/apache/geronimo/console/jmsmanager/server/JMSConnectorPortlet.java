@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * List, edit, add, remove JMS network connectors
  *
- * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class JMSConnectorPortlet extends BaseJMSPortlet {
     private final static Log log = LogFactory.getLog(JMSConnectorPortlet.class);

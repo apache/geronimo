@@ -23,7 +23,7 @@ import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
  * A Geronimo-specific DeploymentManagerCreationException indicating that
  * there was a login failure.
  * 
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class AuthenticationFailedException extends DeploymentManagerCreationException {
     public AuthenticationFailedException(String s) {

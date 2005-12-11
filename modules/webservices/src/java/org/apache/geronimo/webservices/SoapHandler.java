@@ -17,7 +17,7 @@
 package org.apache.geronimo.webservices;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface SoapHandler {
 

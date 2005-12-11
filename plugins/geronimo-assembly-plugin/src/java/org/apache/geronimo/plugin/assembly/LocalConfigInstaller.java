@@ -34,7 +34,7 @@ import org.apache.geronimo.system.repository.FileSystemRepository;
  * JellyBean that installs configuration artifacts into a LocalConfigurationStore,  It also copies all
  * configuration dependencies into the repository
  *
- * @version $Rev: 156292 $ $Date: 2005-03-05 18:48:02 -0800 (Sat, 05 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class LocalConfigInstaller extends BaseConfigInstaller {
 

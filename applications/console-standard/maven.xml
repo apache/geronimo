@@ -11,15 +11,15 @@
     </preGoal>
 
     <!-- Output folder for compiled jsps. -->
-    <j:set var="outDir"  value="${basedir}/target/${pom.artifactId}/WEB-INF/work"/>     
-    
-    <!-- pre compile jsps -->   
+    <j:set var="outDir"  value="${basedir}/target/${pom.artifactId}/WEB-INF/work"/>
+
+    <!-- pre compile jsps -->
     <goal name="default">
     	<ant:echo>${commons_fileupload_version}</ant:echo>
-        <ant:mkdir dir="${outDir}"/>         
+        <ant:mkdir dir="${outDir}"/>
         <attainGoal name="war:install"/>
     </goal>
-    
+
     <!-- ==================================================== -->
     <!-- Pre compile JSPs                                     -->
     <!-- ==================================================== -->
@@ -35,7 +35,7 @@
             <arg value="-webapp"/>
             <arg value="${basedir}/src/webapp"/>
         </ant:java>
-        <ant:echo>Compiling generated Java files in ${outDir}.</ant:echo>               
+        <ant:echo>Compiling generated Java files in ${outDir}.</ant:echo>
         <ant:javac
             srcdir="${outDir}"
             destdir="${outDir}"
@@ -43,6 +43,6 @@
             deprecation="${maven.compile.deprecation}"
             optimize="${maven.compile.optimize}"
             classpathref="jspc.classpath"/>
-    </goal>  
+    </goal>
 
 </project>

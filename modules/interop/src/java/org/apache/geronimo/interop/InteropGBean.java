@@ -30,7 +30,7 @@ import org.omg.IOP.IOR;
 /**
  * A GBean that provides an example interop
  *
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class InteropGBean implements GBeanLifecycle {
 

@@ -19,7 +19,7 @@ package org.apache.geronimo.kernel.repository;
 /**
  * An interface for getting notifications on the progress of file writes.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface FileWriteMonitor {
     public void writeStarted(String fileDescription);

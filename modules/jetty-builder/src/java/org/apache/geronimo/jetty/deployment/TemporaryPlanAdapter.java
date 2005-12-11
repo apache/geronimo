@@ -29,7 +29,7 @@ import org.apache.commons.logging.LogFactory;
  * plan syntax by converting it to the new unified web deployment plan
  * syntax.  This should be removed as soon as possible.
  *
- * @version $Rev: 159325 $ $Date: 2005-03-28 17:53:03 -0500 (Mon, 28 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class TemporaryPlanAdapter {
     private final static Log log = LogFactory.getLog(TemporaryPlanAdapter.class);

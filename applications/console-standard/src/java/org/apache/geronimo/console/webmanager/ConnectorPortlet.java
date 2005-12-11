@@ -47,7 +47,7 @@ import java.util.List;
  * A portlet that lets you list, add, remove, start, stop, and edit web
  * connectors (currently, either Tomcat or Jetty).
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ConnectorPortlet extends BasePortlet {
     private final static Log log = LogFactory.getLog(ConnectorPortlet.class);

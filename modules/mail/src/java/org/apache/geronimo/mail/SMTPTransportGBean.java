@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * individual member variables will override any of the corresponding values
  * that have been set in the properties set.
  *
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  * @see MailGBean
  */
 public class SMTPTransportGBean extends ProtocolGBean {

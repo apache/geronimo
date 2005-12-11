@@ -21,7 +21,7 @@ package org.apache.geronimo.kernel;
  * test GBeans declaring interfaces and generating proxies based on
  * those interfaces.
  *
- * @version $Rev: 220236 $ $Date: 2005-07-22 00:34:39 -0400 (Fri, 22 Jul 2005) $
+ * @version $Rev$ $Date$
  */
 public interface MockParentInterface2 {
     public String getValue();

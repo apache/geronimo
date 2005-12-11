@@ -19,7 +19,7 @@ package org.apache.geronimo.connector.outbound;
 import java.util.Timer;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class PoolIdleReleaserTimer {
 

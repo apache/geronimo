@@ -20,7 +20,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.common.DeploymentException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface XmlAttributeBuilder {
 

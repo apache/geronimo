@@ -30,7 +30,7 @@ import org.apache.geronimo.management.geronimo.JVM;
 /**
  * Looks up JSR-77 statistics in response to AJAX calls from portlets.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class Jsr77Lookup {
     public DynamicServerInfo getJavaVMStatistics() {

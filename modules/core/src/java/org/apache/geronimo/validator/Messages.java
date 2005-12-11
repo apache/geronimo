@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
 /**
  *
  *
- * @version $Revision: 1.1 $ $Date: 2004/03/01 07:14:43 $
+ * @version $Revision$ $Date$
  */
 public class Messages {
 	static private Hashtable bundles = new Hashtable();

@@ -42,7 +42,7 @@ import org.apache.geronimo.web.deployment.WARConfigurer;
  * Implementation of a disconnected JSR88 DeploymentManager.
  *
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DisconnectedDeploymentManager implements DeploymentManager {
     public DeploymentConfiguration createConfiguration(DeployableObject dObj) throws InvalidModuleException {

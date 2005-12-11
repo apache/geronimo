@@ -62,7 +62,7 @@ import java.util.Map;
  * A helper interface to navigate between management objects.  This is not
  * complete; it will be expanded as necessary.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface ManagementHelper {
     // root properties

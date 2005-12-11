@@ -21,7 +21,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.XmlCursor;
 
 /**
- * @version $Rev: 345353 $ $Date: 2005-11-17 14:40:43 -0800 (Thu, 17 Nov 2005) $
+ * @version $Rev$ $Date$
  */
 public class QNameConverter implements ElementConverter {
 

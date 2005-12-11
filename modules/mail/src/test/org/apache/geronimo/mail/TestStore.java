@@ -24,7 +24,7 @@ import javax.mail.URLName;
 
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class TestStore extends Store {
 

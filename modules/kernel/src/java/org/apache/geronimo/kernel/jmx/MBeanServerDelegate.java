@@ -49,7 +49,7 @@ import org.apache.geronimo.kernel.Kernel;
  
 /**
  * A MBeanServerImplementation that delegates to a Kernel.
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MBeanServerDelegate implements MBeanServer {
     private final Kernel kernel;

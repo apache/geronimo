@@ -25,7 +25,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
  * A specialized ConfigurationManager that can change the set of GBeans
  * included in the configuration at runtime.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface EditableConfigurationManager extends ConfigurationManager {
     /**

@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- $Rev: 155800 $ $Date$ -->
+<!-- $Rev$ $Date$ -->
 <project>
   <pomVersion>3</pomVersion>
   <extend>../../etc/project.xml</extend>

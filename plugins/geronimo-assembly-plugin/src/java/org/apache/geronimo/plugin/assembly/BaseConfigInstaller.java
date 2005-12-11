@@ -32,7 +32,7 @@ import org.apache.geronimo.system.repository.FileSystemRepository;
 import org.apache.geronimo.gbean.GBeanData;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class BaseConfigInstaller {
     /**

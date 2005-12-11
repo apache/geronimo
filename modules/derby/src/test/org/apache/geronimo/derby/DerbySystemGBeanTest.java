@@ -29,7 +29,7 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 /**
- * @version $Rev: 47413 $ $Date: 2004-09-28 11:46:39 -0700 (Tue, 28 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DerbySystemGBeanTest extends TestCase {
     private File systemDir;

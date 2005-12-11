@@ -30,7 +30,7 @@ import org.apache.catalina.Context;
  * is handled by the web container but authorization is handled by the ejb container.
  * This class "separates" the concerns by always authorizing everything.
  * 
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class TomcatEJBWSGeronimoRealm extends TomcatGeronimoRealm {
 

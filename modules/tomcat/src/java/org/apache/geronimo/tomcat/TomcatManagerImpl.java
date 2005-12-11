@@ -45,7 +45,7 @@ import org.apache.commons.logging.LogFactory;
  * Tomcat implementation of the WebManager management API.  Knows how to
  * manipulate other Tomcat objects for management purposes.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class TomcatManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(TomcatManagerImpl.class);

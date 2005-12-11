@@ -34,7 +34,7 @@ import java.util.Properties;
 /**
  * The CLI deployer logic to start.
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class CommandLogin extends AbstractCommand {
     public CommandLogin() {

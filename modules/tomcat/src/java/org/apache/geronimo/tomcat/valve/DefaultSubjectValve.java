@@ -27,7 +27,7 @@ import org.apache.catalina.connector.Response;
 import org.apache.geronimo.security.ContextManager;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class DefaultSubjectValve extends ValveBase {
 

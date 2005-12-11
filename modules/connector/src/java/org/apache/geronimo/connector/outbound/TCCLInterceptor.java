@@ -19,7 +19,7 @@ package org.apache.geronimo.connector.outbound;
 import javax.resource.ResourceException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class TCCLInterceptor implements ConnectionInterceptor{
     private final ConnectionInterceptor next;

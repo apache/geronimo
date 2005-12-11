@@ -25,7 +25,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.FilterChain;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class Filter2 implements Filter {
 

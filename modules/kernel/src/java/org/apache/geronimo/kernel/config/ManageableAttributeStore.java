@@ -31,7 +31,7 @@ import java.util.Set;
  * repository that is more accessible to an end user (compared to the
  * serialized data in the ConfigStore).
  *
- * @version $Rev: 169154 $ $Date: 2005-05-08 15:35:23 -0400 (Sun, 08 May 2005) $
+ * @version $Rev$ $Date$
  */
 public interface ManageableAttributeStore {
 

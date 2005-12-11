@@ -37,7 +37,7 @@ import org.apache.maven.repository.Artifact;
  * JellyBean that builds a Geronimo Configuration using the local Mavem
  * infrastructure.
  *
- * @version $Rev: 330620 $ $Date: 2005-11-03 12:07:18 -0800 (Thu, 03 Nov 2005) $
+ * @version $Rev$ $Date$
  */
 public class PackageBuilderShell {
 

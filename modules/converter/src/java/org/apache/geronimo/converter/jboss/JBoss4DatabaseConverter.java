@@ -38,7 +38,7 @@ import org.xml.sax.SAXException;
 /**
  * Converts database pools from JBoss 4 to Geronimo
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class JBoss4DatabaseConverter extends DOMUtils {
     public static DatabaseConversionStatus convert(Reader dsXml) throws IOException {

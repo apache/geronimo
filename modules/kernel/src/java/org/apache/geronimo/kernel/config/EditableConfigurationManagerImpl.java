@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 /**
  * Standard implementation of an editable ConfigurationManager.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl implements EditableConfigurationManager {
     public EditableConfigurationManagerImpl(Kernel kernel, Collection stores, ManageableAttributeStore attributeStore,

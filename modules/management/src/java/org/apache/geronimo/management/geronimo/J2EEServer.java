@@ -20,7 +20,7 @@ package org.apache.geronimo.management.geronimo;
  * Geronimo-specific extensions to the standard J2EE server management
  * interface.
  *
- * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface J2EEServer extends org.apache.geronimo.management.J2EEServer {
     /**

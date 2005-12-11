@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @version $Rev: 190584 $ $Date$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractDeployCommand extends CommandSupport {
     private final static String DEPLOYER_NAME = "*:name=Deployer,j2eeType=Deployer,*";

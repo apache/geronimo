@@ -64,7 +64,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
  * 
  * TODO: Describe the order of method invocation (e.g. if loadGbean may be before boot)
  *
- * @version $Rev: 154947 $ $Date: 2005-02-22 20:10:45 -0800 (Tue, 22 Feb 2005) $
+ * @version $Rev$ $Date$
  */
 public class BasicKernel implements Kernel {
     /**

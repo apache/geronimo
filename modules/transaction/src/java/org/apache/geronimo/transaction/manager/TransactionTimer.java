@@ -20,7 +20,7 @@ package org.apache.geronimo.transaction.manager;
 /**
  * TODO improve shutdown
  *
- * @version $Revision:  $ $Date:  $
+ * @version $Revision$ $Date$
  */
 public class TransactionTimer {
     private static volatile long currentTime;

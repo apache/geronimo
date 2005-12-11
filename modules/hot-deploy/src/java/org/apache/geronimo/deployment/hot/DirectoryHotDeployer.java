@@ -44,7 +44,7 @@ import java.util.Iterator;
 /**
  * A directory-scanning hot deployer
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //todo: write unit tests
     private static final Log log = LogFactory.getLog("org.apache.geronimo.deployment.hot.Hot Deployer");

@@ -19,7 +19,7 @@ package org.acme;
 /**
  * Local Home interface for Enterprise Bean: MagicGBall
  * 
- * @version $Rev: 46301 $ $Date: 2004-09-18 13:03:59 -0700 (Sat, 18 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface MagicGBallLocalHome extends javax.ejb.EJBLocalHome {
 	/**
