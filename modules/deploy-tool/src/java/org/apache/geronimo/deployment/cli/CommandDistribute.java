@@ -46,9 +46,7 @@ public class CommandDistribute extends AbstractCommand {
                 "not need to be provided.\n" +
                 "If no targets are provided, the module is distributed to all available " +
                 "targets.  Geronimo only provides one target (ever), so this is primarily " +
-                "useful when using a different driver.\n" +
-                "If the server is not running when this command is invoked, no targets may be " +
-                "specified.");
+                "useful when using a different driver.");
     }
 
     protected CommandDistribute(String command, String group, String helpArgumentList, String helpText) {

@@ -44,13 +44,13 @@ public class CommandLogin extends AbstractCommand {
                 "Future connections to the same server will try to use this "+
                 "saved authentication information instead of prompting where " +
                 "possible.  This information is saved separately per connection " +
-                "URL, so you can specify --url on the command line to save a" +
-                "login to a different server.\n" +
+                "URL, so you can specify --url or --host and/or --port on the command " +
+                "line to save a login to a different server.\n" +
                 "WARNING: while the login information is not saved in " +
                 "clear text, it is not secure either.  If you want to " +
                 "save the authentication securely, you should change the " +
-                ".geronimo-deployer file so that nobody else can read or " +
-                "write it.");
+                ".geronimo-deployer file in your home directory so that nobody " +
+                "else can read or write it.");
     }
 
     public CommandLogin(String command, String group, String helpArgumentList, String helpText) {
