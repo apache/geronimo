@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -63,11 +64,15 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     private static final String INDEX_NAME = "index.properties";
     private static final String BACKUP_NAME = "index.backup";
+    private static final String DELETE_NAME = "index.delete";
+    private final int REAPER_INTERVAL = 60 * 1000;
     private final Kernel kernel;
     private final ObjectName objectName;
     private final URI root;
     private final ServerInfo serverInfo;
     private final Properties index = new Properties();
+    private final Properties pendingDeletionIndex = new Properties();
+    private ConfigStoreReaper reaper;
     private final Log log;
     private File rootDir;
     private int maxId;
@@ -120,12 +125,32 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         } catch (FileNotFoundException e) {
             maxId = 0;
         }
+
+        // See if there are old directories which we should clean up...
+        File pendingDeletionFile = new File(rootDir, DELETE_NAME);
+        try {
+            pendingDeletionIndex.load(new BufferedInputStream(new FileInputStream(pendingDeletionFile)));
+        } catch (FileNotFoundException e) {
+            // may not be one...
+        }
+        
+        // Create and start the reaper...
+        reaper = new ConfigStoreReaper(REAPER_INTERVAL);
+        Thread t = new Thread(reaper, "Geronimo Config Store Reaper");
+        t.setDaemon(true);
+        t.start();
     }
 
     public void doStop() {
+        if (reaper !=null) {
+            reaper.close();
+        }
     }
 
     public void doFail() {
+        if (reaper !=null) {
+            reaper.close();
+        }
     }
 
     private void saveIndex() throws IOException {
@@ -149,6 +174,23 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             }
             indexFile.delete();
             backupFile.renameTo(indexFile);
+            throw e;
+        }
+    }
+
+    private void saveDeleteIndex() throws IOException {
+        File deleteFile = new File(rootDir, DELETE_NAME);
+
+        FileOutputStream fos = new FileOutputStream(deleteFile);
+        try {
+            BufferedOutputStream os = new BufferedOutputStream(fos);
+            pendingDeletionIndex.store(os, null);
+            os.close();
+            fos = null;
+        } catch (IOException e) {
+            if (fos != null) {
+                fos.close();
+            }
             throw e;
         }
     }
@@ -228,21 +270,31 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     public void uninstall(URI configID) throws NoSuchConfigException, IOException {
         String id = configID.toString();
         File configDir;
+        String storeID;
         synchronized(this) {
-            String storeID = index.getProperty(id);
+            storeID = index.getProperty(id);
             if (storeID == null) {
                 throw new NoSuchConfigException();
             }
             configDir = new File(rootDir, storeID);
-            File tempDir = new File(rootDir, storeID + ".tmp");
-            if (configDir.renameTo(tempDir)) {
-                configDir = tempDir;
-            }
             index.remove(id);
             saveIndex();
         }
-        log.debug("Uninstalled configuration " + configID);
+
         delete(configDir);
+        
+        // On windoze, any open file descriptor (e.g. a MultiParentClassLoader) will prevent
+        // the directory/files from being deleted. If we're unable to delete, save the directory
+        // to the pendingDeletionIndex. ConfigStoreReaper will delete when the classloader has been GC'ed.
+        if (!configDir.exists()) {
+            log.debug("Uninstalled configuration " + configID);
+        } else {
+            log.debug("Uninstalled configuration, but could not delete ConfigStore directory for " + configID);
+            synchronized (pendingDeletionIndex) {
+                pendingDeletionIndex.setProperty(configDir.toString(), id);
+                saveDeleteIndex();
+            }
+        }
     }
 
     public synchronized ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -378,10 +430,9 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             File file = files[i];
             if (file.isDirectory()) {
                 delete(file);
-            } else {
-                if (!file.delete()) {
-                    file.deleteOnExit();
-                };
+            }
+            else {
+                file.delete();
             }
         }
         root.delete();
@@ -405,5 +456,74 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
+    }
+
+    /**
+     * Thread to cleanup unused Config Store entries.
+     * On Windows, open files can't be deleted. Until MultiParentClassLoaders
+     * are GC'ed, we won't be able to delete Config Store directories/files.
+     */
+    class ConfigStoreReaper implements Runnable {
+        private final int reaperInterval;
+        private volatile boolean done = false;
+
+        public ConfigStoreReaper(int reaperInterval) {
+            this.reaperInterval = reaperInterval;
+        }
+
+        public void close() {
+            this.done = true;
+        }
+
+        public void run() {
+            log.debug("ConfigStoreReaper started");
+            while(!done) {
+                try {
+                    Thread.sleep(reaperInterval);
+                } catch (InterruptedException e) {
+                    continue;
+                }
+                reap();
+            }
+        }
+
+        /**
+         * For every directory in the pendingDeletionIndex, attempt to delete all 
+         * sub-directories and files.
+         */
+        public void reap() {
+            // return, if there's nothing to do
+            if (pendingDeletionIndex.size() == 0)
+                return;
+            // Otherwise, attempt to delete all of the directories
+            Enumeration list = pendingDeletionIndex.propertyNames();
+            boolean dirDeleted = false;
+            while (list.hasMoreElements()) {
+                String dirName = (String)list.nextElement();
+                File deleteFile = new File(dirName);
+                try {
+                    delete(deleteFile);
+                }
+                catch (IOException ioe) { // ignore errors
+                }
+                if (!deleteFile.exists()) {
+                    String configName = pendingDeletionIndex.getProperty(dirName);
+                    pendingDeletionIndex.remove(dirName);
+                    dirDeleted = true; 
+                    log.debug("Reaped configuration " + configName + " in directory " + dirName);
+                }
+            }
+            // If we deleted any directories, persist the list of directories to disk...
+            if (dirDeleted) {
+                try {
+                    synchronized (pendingDeletionIndex) {
+                        saveDeleteIndex();
+                    }
+                }
+                catch (IOException ioe) {
+                    log.warn("Error saving " + DELETE_NAME + " file.", ioe);
+                }
+            }
+        }
     }
 }
