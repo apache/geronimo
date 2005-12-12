@@ -45,6 +45,7 @@
 
     <xsd:complexType name="abstract-login-moduleType" abstract="true">
         <xsd:attribute name="control-flag" type="geronimo:control-flagType" use="required"/>
+        <xsd:attribute name="wrap-principals" type="xsd:boolean"/>
     </xsd:complexType>
 
     <xsd:complexType name="login-module-refType">
