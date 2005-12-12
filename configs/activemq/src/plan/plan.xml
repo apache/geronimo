@@ -24,7 +24,7 @@
     <resourceadapter>
         <resourceadapter-instance>
             <resourceadapter-name>ActiveMQ RA</resourceadapter-name>
-            <config-property-setting name="ServerUrl">tcp://localhost:61616${PlanActiveMQPort}</config-property-setting>
+            <config-property-setting name="ServerUrl">tcp://${PlanServerHostname}:${PlanActiveMQPort}</config-property-setting>
             <config-property-setting name="UserName">geronimo</config-property-setting>
             <config-property-setting name="Password">geronimo</config-property-setting>
             <workmanager>

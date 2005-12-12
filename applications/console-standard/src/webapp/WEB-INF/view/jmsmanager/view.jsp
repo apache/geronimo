@@ -4,9 +4,11 @@
 
 <br>
 <table>
+<!--
 <tr>
 <td align=LEFT colspan="3"> <a href="<portlet:renderURL portletMode="view"><portlet:param name="processAction" value="createDestination"/></portlet:renderURL>">Add Queue/Topic </a> </td>
 </tr>
+-->
 <c:if test="${!destinationsMsg}">
 
    <tr>

@@ -36,7 +36,7 @@ import org.apache.geronimo.system.main.Daemon;
 
 public class ServerManagerPortlet extends BasePortlet {
 
-    private static final Log log = LogFactory.getLog("ServerManager");
+    private static final Log log = LogFactory.getLog(ServerManagerPortlet.class);
 
     private PortletRequestDispatcher normalView;
 
@@ -49,7 +49,7 @@ public class ServerManagerPortlet extends BasePortlet {
     public void processAction(ActionRequest actionRequest,
             ActionResponse actionResponse) throws PortletException, IOException {
         if (actionRequest.getParameter("reboot") != null) {
-            log.info("Reboot initiated by user request: " + actionRequest.getUserPrincipal());
+            log.info("Reboot initiated by user request: " + actionRequest.getUserPrincipal().getName());
             new Thread() {
                 public void run() {
                     try {
@@ -66,7 +66,7 @@ public class ServerManagerPortlet extends BasePortlet {
     protected void doView(RenderRequest request, RenderResponse response)
             throws PortletException, IOException {
         if (request.getParameter("shutdown") != null) {
-            log.info("Shutting down by user request: " + request.getUserPrincipal());
+            log.info("Shutting down by user request: " + request.getUserPrincipal().getName());
             shutdownView.include(request, response);
             response.flushBuffer();
             kernel.shutdown();

@@ -40,6 +40,10 @@ Configuration for Jetty server.
                 <gbean-name>geronimo.server:name=JettyRequestLog,*</gbean-name>
             </pattern>
         </references>
+        <reference name="ServerInfo">
+            <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
+            <name>ServerInfo</name>
+        </reference>
     </gbean>
 
 
