@@ -44,6 +44,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
     private long idleTimeoutMilliseconds;
     private IdleReleaser idleReleaser;
     protected Timer timer = PoolIdleReleaserTimer.getTimer();
+    protected int maxSize = 0;
     protected int minSize = 0;
     protected int shrinkLater = 0;
     protected volatile boolean destroyed = false;
@@ -54,6 +55,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                                                    int blockingTimeoutMilliseconds,
                                                    int idleTimeoutMinutes) {
         this.next = next;
+        this.maxSize = maxSize;
         this.minSize = minSize;
         this.blockingTimeoutMilliseconds = blockingTimeoutMilliseconds;
         setIdleTimeoutMinutes(idleTimeoutMinutes);
@@ -131,24 +133,24 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
 
     // Cancel the IdleReleaser TimerTask (fixes memory leak) and clean up the pool
     public void destroy() {
-        destroyed = true; 
+        destroyed = true;
         if (idleReleaser != null)
             idleReleaser.cancel();
         internalDestroy();
         next.destroy();
     }
-    
+
     public int getPartitionCount() {
         return 1;
     }
 
     public abstract int getPartitionMaxSize();
 
-    public void setPartitionMaxSize(int maxSize) throws InterruptedException {
-        if (maxSize <= 0) {
-            throw new IllegalArgumentException("Max size must be positive, not " + maxSize);
+    public void setPartitionMaxSize(int newMaxSize) throws InterruptedException {
+        if (newMaxSize <= 0) {
+            throw new IllegalArgumentException("Max size must be positive, not " + newMaxSize);
         }
-        if (maxSize != getPartitionMaxSize()) {
+        if (newMaxSize != getPartitionMaxSize()) {
             resizeLock.writeLock().acquire();
             try {
                 //example: old maxsize 40, permits 20, connection count 20
@@ -158,25 +160,27 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
                 //2nd example: old maxsize 30, permits 10, connection count 10
                 //new maxSize 40
                 //shrinkLater and shrinkNow are 0.
-                int checkedOut = (int) permits.permits();
-                shrinkLater = checkedOut - maxSize;
+                int checkedOut = this.maxSize - (int) permits.permits();
+                shrinkLater = checkedOut - newMaxSize;
                 if (shrinkLater < 0) {
                     shrinkLater = 0;
                 }
-                int shrinkNow = checkedOut + connectionCount - maxSize - shrinkLater;
+                int shrinkNow = checkedOut + connectionCount - newMaxSize - shrinkLater;
                 if (shrinkNow < 0) {
                     shrinkNow = 0;
                 }
 
-                permits = new FIFOSemaphore(maxSize);
+                permits = new FIFOSemaphore(newMaxSize);
                 //1st example: acquire 10 (all)
                 //2nd example: acquire 10 (same as in old semaphore)
+
+                //pre-acquire permits for the existing checked out connections that will not be closed when they are returned.
                 for (int i = 0; i < checkedOut - shrinkLater; i++) {
                     permits.acquire();
                 }
                 //1st example: copy 0 (none)
                 //2nd example: copy 10 (all)
-                transferConnections(maxSize, shrinkNow);
+                transferConnections(newMaxSize, shrinkNow);
             } finally {
                 resizeLock.writeLock().release();
             }
@@ -244,16 +248,16 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         private IdleReleaser(AbstractSinglePoolConnectionInterceptor parent) {
             this.parent = parent;
         }
-     
+
         public boolean cancel() {
             this.parent = null;
             return super.cancel();
         }
-        
+
         public void run() {
             // protect against interceptor being set to null mid-execution
             AbstractSinglePoolConnectionInterceptor interceptor = parent;
-            if (interceptor == null) 
+            if (interceptor == null)
                 return;
             try {
                 interceptor.resizeLock.readLock().acquire();
@@ -277,8 +281,8 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
 
     }
 
-    // Currently only a short-lived (10 millisecond) task. 
-    // So, FillTask, unlike IdleReleaser, shouldn't cause GC problems.     
+    // Currently only a short-lived (10 millisecond) task.
+    // So, FillTask, unlike IdleReleaser, shouldn't cause GC problems.
     protected class FillTask extends TimerTask {
         private final ManagedConnectionFactory managedConnectionFactory;
         private final Subject subject;
