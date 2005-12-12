@@ -263,7 +263,7 @@ elif [ "$1" = "run" ]; then
 elif [ "$1" = "start" ] ; then
 
   shift
-  touch $GERONIMO_OUT
+  touch "$GERONIMO_OUT"
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
     -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
