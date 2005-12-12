@@ -55,7 +55,7 @@ public final class DeploymentUtil {
 
     // be careful to clean up the temp directory
     public static File createTempDir() throws IOException {
-        File tempDir = File.createTempFile("geronimo-deployment-", ".tmp");
+        File tempDir = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
         tempDir.delete();
         tempDir.mkdirs();
         return tempDir;
@@ -64,7 +64,7 @@ public final class DeploymentUtil {
     // be careful to clean up the temp file... we tell the vm to delete this on exit
     // but VMs can't be trusted to acutally delete the file
     public static File createTempFile() throws IOException {
-        File tempFile = File.createTempFile("geronimo-deployment-", "tmp");
+        File tempFile = File.createTempFile("geronimo-deploymentUtil", ".tmpdir");
         tempFile.deleteOnExit();
         return tempFile;
     }
@@ -220,9 +220,9 @@ public final class DeploymentUtil {
         }
     }
 
-    public static void recursiveDelete(File root) {
+    public static boolean recursiveDelete(File root) {
         if (root == null) {
-            return;
+            return true;
         }
 
         if (root.isDirectory()) {
@@ -238,7 +238,7 @@ public final class DeploymentUtil {
                 }
             }
         }
-        root.delete();
+        return root.delete();
     }
 
     public static Collection listRecursiveFiles(File file) {
