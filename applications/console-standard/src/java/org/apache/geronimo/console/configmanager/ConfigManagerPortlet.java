@@ -45,6 +45,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Collections;
 
 public class ConfigManagerPortlet extends BasePortlet {
 
@@ -223,6 +226,13 @@ public class ConfigManagerPortlet extends BasePortlet {
                 // in the unlikely event it does, just continue
             }
         }
+        Collections.sort(configInfo, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                ConfigurationInfo ci1 = (ConfigurationInfo) o1;
+                ConfigurationInfo ci2 = (ConfigurationInfo) o2;
+                return ci1.getConfigID().toString().compareTo(ci2.getConfigID().toString());
+            }
+        });
         renderRequest.setAttribute("configurations", configInfo);
         messageInstalled = configInfo.size() == 0 ? "No modules found of this type<br /><br />"
                 : "";
