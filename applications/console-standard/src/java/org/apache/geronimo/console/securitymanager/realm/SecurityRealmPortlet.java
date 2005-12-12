@@ -355,6 +355,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             module.setServerSide(details.isServerSide());
             module.setLoginDomainName(details.getLoginDomainName());
             module.setLoginModuleClass(details.getClassName());
+            module.setWrapPrincipals(details.isWrapPrincipals());
             for (Iterator it = details.getOptions().entrySet().iterator(); it.hasNext();) {
                 Map.Entry entry = (Map.Entry) it.next();
                 GerOptionType option = module.addNewOption();
@@ -474,6 +475,7 @@ public class SecurityRealmPortlet extends BasePortlet {
                 LoginModuleSettings module = (LoginModuleSettings) PortletManager.getManagedBean(request, node.getLoginModuleName());
                 module.setOptions(details.getOptions());
                 module.setServerSide(details.isServerSide());
+                module.setWrapPrincipals(details.isWrapPrincipals());
                 module.setLoginModuleClass(details.getClassName());
             }
         }
@@ -777,9 +779,12 @@ public class SecurityRealmPortlet extends BasePortlet {
                 String flag = request.getParameter("module-control-"+index);
                 if(flag == null || flag.equals("")) continue;
                 details.setControlFlag(flag);
+                String wrap = request.getParameter("module-wrap-"+index);
+                if(wrap == null || wrap.equals("")) continue;
+                details.setWrapPrincipals(Boolean.valueOf(wrap).booleanValue());
                 String server = request.getParameter("module-server-"+index);
                 if(server == null || server.equals("")) continue;
-                details.setServerSide(new Boolean(server).booleanValue());
+                details.setServerSide(Boolean.valueOf(server).booleanValue());
                 String options = request.getParameter("module-options-"+index);
                 if(options != null && !options.equals("")) {
                     BufferedReader in = new BufferedReader(new StringReader(options));
@@ -841,7 +846,8 @@ public class SecurityRealmPortlet extends BasePortlet {
                     if(module.getLoginDomainName() != null) response.setRenderParameter("module-domain-"+i, module.getLoginDomainName());
                     if(module.getClassName() != null) response.setRenderParameter("module-class-"+i, module.getClassName());
                     if(module.getControlFlag() != null) response.setRenderParameter("module-control-"+i, module.getControlFlag());
-                    response.setRenderParameter("module-server-"+i, module.isServerSide() ? "true" : "false");
+                    response.setRenderParameter("module-wrap-"+i, Boolean.toString(module.isWrapPrincipals()));
+                    response.setRenderParameter("module-server-"+i, Boolean.toString(module.isServerSide()));
                     if(module.getOptions().size() > 0) response.setRenderParameter("module-options-"+i, module.getOptionString());
                 }
             }
@@ -909,6 +915,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         private String className;
         private String controlFlag;
         private boolean serverSide = true;
+        private boolean wrapPrincipals = false;
         private Properties options = new Properties();
 
         public String getLoginDomainName() {
@@ -949,6 +956,14 @@ public class SecurityRealmPortlet extends BasePortlet {
 
         public void setOptions(Properties options) {
             this.options = options;
+        }
+
+        public boolean isWrapPrincipals() {
+            return wrapPrincipals;
+        }
+
+        public void setWrapPrincipals(boolean wrapPrincipals) {
+            this.wrapPrincipals = wrapPrincipals;
         }
 
         public String getOptionString() {

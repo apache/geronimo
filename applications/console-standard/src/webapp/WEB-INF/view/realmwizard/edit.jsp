@@ -120,6 +120,23 @@ just leave the extra ones blank.</p>
           of the client OS.</td>
       </tr>
       <tr>
+        <th><div align="right">Support Advanced Mapping:</div></th>
+        <td>
+          <select name="module-wrap-${status.index}">
+            <option value="true"<c:if test="${module.wrapPrincipals}"> selected</c:if>>Yes</option>
+            <option value="false"<c:if test="${!module.wrapPrincipals}"> selected</c:if>>No</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>Normally Geronimo can't distinguish between two different principals that have the same name
+          and same principal class but were produced by two different login modules.  If this option is
+          enabled, Geronimo will "wrap" principals to track which login module and realm each
+          principal came from.  This lets you use the "realm-principal" and "login-domain-principal"
+          elements in your security mapping in Geronimo deployment plans.</td>
+      </tr>
+      <tr>
         <th><div align="right">Configuration Options:</div></th>
         <td><textarea name="module-options-${status.index}" rows="5" cols="60">${module.optionString}</textarea></td>
       </tr>
