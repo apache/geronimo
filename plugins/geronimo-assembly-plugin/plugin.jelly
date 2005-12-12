@@ -102,7 +102,8 @@
                 <j:set var="hasRepo" value="false"/>
                 <j:forEach var="artifact" items="${pom.artifacts}">
                     <j:set var="dependency" value="${artifact.dependency}"/>
-                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'install' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assemble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
+                    <j:if test="${dependency.getProperty('geronimo.assemble') == 'repository' || dependency.getProperty('geronimo.assemble') == 'library' || dependency.getProperty('geronimo.assem
+ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension'}">
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                         <j:set var="hasRepo" value="true"/>
                     </j:if>
