@@ -21,19 +21,27 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 /**
- * 
+ *
  * @version $Revision$
  */
 public class AbstractConnectionManagerGBean {
-    
+
     protected static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AbstractConnectionManagerGBean.class, AbstractConnectionManager.class, NameFactory.JCA_CONNECTION_MANAGER);
 
         infoBuilder.addInterface(ConnectionManagerContainer.class);
-        //these attributes are persisted via the pooling state.
-        infoBuilder.addInterface(PoolingAttributes.class);
+
+        infoBuilder.addInterface(PoolingAttributes.class,
+                new String[]{"partitionMaxSize",
+                             "partitionMinSize",
+                             "blockingTimeoutMilliseconds",
+                             "idleTimeoutMinutes"},
+                new String[]{"partitionMaxSize",
+                             "partitionMinSize",
+                             "blockingTimeoutMilliseconds",
+                             "idleTimeoutMinutes"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

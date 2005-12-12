@@ -26,7 +26,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
 /**
- *
  * @version $Revision$
  */
 public class GenericConnectionManagerGBean extends GenericConnectionManager implements GBeanLifecycle {
@@ -37,15 +36,15 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
     }
 
     public GenericConnectionManagerGBean(TransactionSupport transactionSupport,
-                                    PoolingSupport pooling,
-                                    boolean containerManagedSecurity,
-                                    ConnectionTracker connectionTracker,
-                                    TransactionContextManager transactionContextManager,
-                                    String objectName,
-                                    ClassLoader classLoader) {
+                                         PoolingSupport pooling,
+                                         boolean containerManagedSecurity,
+                                         ConnectionTracker connectionTracker,
+                                         TransactionContextManager transactionContextManager,
+                                         String objectName,
+                                         ClassLoader classLoader) {
         super(transactionSupport, pooling, containerManagedSecurity, connectionTracker, transactionContextManager, objectName, classLoader);
     }
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -60,6 +59,7 @@ public class GenericConnectionManagerGBean extends GenericConnectionManager impl
 
         infoBuilder.addReference("ConnectionTracker", ConnectionTracker.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
+
 
         infoBuilder.setConstructor(new String[]{
             "transactionSupport",
