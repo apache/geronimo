@@ -1,0 +1,826 @@
+<html>
+    <head>
+        <title>Geronimo : JBoss to Geronimo - EJB-Session Beans Migration</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Geronimo : JBoss to Geronimo - EJB-Session Beans Migration
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 09, 2005 by <font color="#0050B2">system</font>.
+				    </div>
+
+				    <p><a name="JBosstoGeronimo-EJB-SessionBeansMigration-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:hisidro@exist.com" title="Send mail to Henry Isidro">Henry Isidro</a>, <a href="mailto:lenflour@comcast.net" title="Send mail to Leonard Flournoy">Leonard Flournoy</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<h1><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Overview"></a>Overview</h1>
+<p>A typical J2EE application may contain Enterprise JavaBeans or EJBs. These beans contain the application's business logic and live business data. Although it is possible to use standard Java objects to contain your business logic and business data, using EJBs addresses many of the issues of using simple Java objects, such as scalability, lifecycle management and state management.</p>
+
+<p>This document discusses one type of EJB, the Session EJB. This type of EJB is useful for mapping business process flow (or equivalent application concepts). There are two types of Session EJB, stateless and stateful.</p>
+
+<p>EJBs hold conversations with clients. A conversation is basically an interaction between the EJB and the client and these interactions are composed of method calls by the clients to the EJBs. Stateful session beans retain state on behalf of a client. This means that if the state of the bean changes during a client's method call, this state is retained for subsequent calls by the same client. A stateless session bean on the other hand retains no conversational state from method to method. In other words, it is expected to hold its conversational state for only a single method call.</p>
+
+<p>This article is organized in the following sections:</p>
+
+<ul>
+	<li><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-implementation" title="implementation on JBoss to Geronimo - EJB-Session Beans Migration">Session Beans implementation analysis</a></li>
+	<li><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-sampleApp" title="sampleApp on JBoss to Geronimo - EJB-Session Beans Migration">Sample application</a></li>
+	<li><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-JBoss" title="JBoss on JBoss to Geronimo - EJB-Session Beans Migration">The JBoss environment</a></li>
+	<li><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-Geronimo" title="Geronimo on JBoss to Geronimo - EJB-Session Beans Migration">The Geronimo environment</a></li>
+	<li><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-migration" title="migration on JBoss to Geronimo - EJB-Session Beans Migration">Step-by-step migration</a></li>
+	<li><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-summary" title="summary on JBoss to Geronimo - EJB-Session Beans Migration">Summary</a></li>
+</ul>
+
+
+
+<h1><a name="JBosstoGeronimo-EJB-SessionBeansMigration-EJBimplementationanalysis"></a>EJB implementation analysis <a name="JBosstoGeronimo-EJB-SessionBeansMigration-implementation"></a></h1>
+<p>EJB implementation may vary from one vendor to another. The purpose of this section is to provide a session bean specific feature-to-feature comparison between JBoss and Apache Geronimo so you can clearly identify the differences and plan accordingly before migration.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Feature</th>
+<th class='confluenceTh'>JBoss v4</th>
+<th class='confluenceTh'>Apache Geronimo (OpenEJB)</th>
+</tr>
+<tr>
+<td class='confluenceTd'>Stateful and stateless Session Beans</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>BMP (Bean Managed Persistence) Entity Beans</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>CMP (Container Managed Persistence) Entity Beans</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Message driven beans (MDBs)</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Interoperability using RMI-IIOP or JAXRPC</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Ability to expose stateless session beans and MDBs as Web Services</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Support for sending and receiving messages via Web Services</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Easy provisioning and hot deployment of EJB and JMX-based Web Services</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Access to EJBs from external CORBA objects</td>
+<td class='confluenceTd'>supported</td>
+<td class='confluenceTd'>supported</td>
+</tr>
+</tbody></table>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Sampleapplication"></a>Sample application <a name="JBosstoGeronimo-EJB-SessionBeansMigration-sampleApp"></a></h1>
+<p>This <a href="http://localhost:8080/download/attachments/49/session.zip?version=3" title="session.zip attached to JBoss to Geronimo - EJB-Session Beans Migration">Session Bean Sample Application</a> shows how session beans are used and deployed in a container. There are two clients, one for stateless session beans and another for stateful session beans. Both client applications use the same database which contains a table that stores loan application details. An entity bean is used to connect to and operate on the loan details table. A session bean is then used by the client application to get specific details from the database using the entity bean. The first client creates a stateless session bean and displays a list of denied loan applications via a method defined in that EJB. The second client creates a stateful session bean and adds loan applications to the database.</p>
+
+<p>The following figure illustrates the application flow:</p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/Session_flow.jpg" align="absmiddle" border="0" /></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-ApplicationBeans"></a>Application Beans</h2>
+<p>The session bean sample application consists of the following packages:</p>
+
+<ul>
+	<li>com.ibm.demo.entity
+	<ul>
+		<li>CustomerBean - contains the methods that connect to the database and operations to manipulate the data.</li>
+		<li>CustomerHomeRemote - the remote interface for the EJB.</li>
+		<li>CustomerHomeRemote - EJBHome Interface.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<ul>
+	<li>com.ibm.demo.session.stateful
+	<ul>
+		<li>StatefulLoanManagerBean - it has the submitLoanApplication() method that saves new customer loan applications to the database as well as the getSubmitCount() method that returns the number of loans submitted; since this bean is a stateful session bean, it can remember connection details from a session so the loan application submit count is retained for every call to the submitLoanApplication() method.</li>
+		<li>StatefulLoanManagerRemote - the remote interface for the EJB.</li>
+		<li>StatefulLoanManagerHomeRemote - EJBHome Interface.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<ul>
+	<li>com.ibm.demo.session.stateless
+	<ul>
+		<li>LoanManagerBean -it has the deniedLoans() method that is used to get a list of all customers whose loan applications are denied based on the condition that their Annual Salary to Loan Amount ratio is less than 0.1</li>
+		<li>LoanManagerRemote - the remote interface for the EJB.</li>
+		<li>LoanManagerHomeRemote - EJBHome Interface.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Toolsused"></a>Tools used</h2>
+<p>The tools used for developing and building all the applications are:</p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-EclipsewithJBossIDE"></a>Eclipse with JBoss IDE</h3>
+<p>The Eclipse with JBoss IDE plug-ins was used for development of Java-source code of the sample applications. Eclipse is a very powerful and popular open source development tool. Eclipse can be downloaded from the following URL:</p>
+
+<p><a href="http://www.eclipse.org" title="Visit page outside Confluence">&#104;ttp://www.eclipse.org</a></p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-ApacheMaven"></a>Apache Maven</h3>
+<p>Maven is a software project management and comprehension tool. Based on the concept of a project object model (<a href="http://maven.apache.org/reference/glossary.html#POM" title="Visit page outside Confluence">POM</a>). Maven can manage a project's build, reporting and documentation from a central piece of information.</p>
+
+<p>For this migration example Maven 1.0.2 was used. Maven can be downloaded from the followinf URL:</p>
+
+<p><a href="http://maven.apache.org" title="Visit page outside Confluence">&#104;ttp://maven.apache.org</a></p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Sampledatabase"></a>Sample database</h2>
+<p>The sample database for the MDB sample application has only one table. This is an in-memory table. The <b>MEMORY</b> storage engine creates tables with contents that are stored in just in memory. These were formerly known as HEAP tables.</p>
+
+<p>The following table describes the fields of the <b>CUSTOMER</b> table.</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Field</th>
+<th class='confluenceTh'>data type</th>
+</tr>
+<tr>
+<td class='confluenceTd'>id</td>
+<td class='confluenceTd'>INTEGER</td>
+</tr>
+<tr>
+<td class='confluenceTd'>name</td>
+<td class='confluenceTd'>VARCHAR(45)</td>
+</tr>
+<tr>
+<td class='confluenceTd'>birthdate</td>
+<td class='confluenceTd'>DATE</td>
+</tr>
+<tr>
+<td class='confluenceTd'>sss_no</td>
+<td class='confluenceTd'>VARCHAR(25)</td>
+</tr>
+<tr>
+<td class='confluenceTd'>address</td>
+<td class='confluenceTd'>VARCHAR(60)</td>
+</tr>
+<tr>
+<td class='confluenceTd'>annual_salary</td>
+<td class='confluenceTd'>DOUBLE</td>
+</tr>
+<tr>
+<td class='confluenceTd'>loan_amount</td>
+<td class='confluenceTd'>DOUBLE</td>
+</tr>
+</tbody></table>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-EJB-SessionBeansMigration-TheJBossenvironment"></a>The JBoss environment <a name="JBosstoGeronimo-EJB-SessionBeansMigration-JBoss"></a></h1>
+<p>This section shows you how and where the sample JBoss reference environment was installed so you can map this scenario to your own implementation. Note that for this migration example JBoss v4.0.2 was used.</p>
+
+<p>Detailed instructions for installing, configuring, and managing JBoss are provided in the product documentation. Check the product Web site for the most updated documents.</p>
+
+<p>The following list highlights the general tasks you will need to complete to install and configure the initial environment as the starting point for deploying the sample application.</p>
+
+<ol>
+	<li>Download and install JBoss v4 as explained in the product documentation guides. From now on the installation directory will be referred as <b>&lt;jboss_home&gt;</b></li>
+	<li>Create a copy of the default JBoss v4 application server. Copy recursively <b>&lt;jboss_home&gt;\server\default</b> to <b>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;</b></li>
+	<li>Start the new server by running the <tt>run.sh -c &lt;your_server_name&gt;</tt> command from the <b>&lt;jboss_home&gt;\bin</b> directory.</li>
+	<li>Once the server is started, you can verify that it is running by opening a Web browser and pointing it to this URL: <a href="http://localhost:8080" title="Visit page outside Confluence">&#104;ttp://localhost:8080</a>. You should see the JBoss Welcome window and be able to access the JBoss console.</li>
+	<li>Once the application server is up and running, the next step is to install and configure all the remaining prerequisite software required by the sample application. This step is described in the following section.</li>
+</ol>
+
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Installandconfigureprerequisitesoftware"></a>Install and configure prerequisite software</h2>
+<p>In order to build and run the Session Bean sample application included in this article, you need to install and configure the build tool and the database that is used by the application. </p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Modifydatabasesettings"></a>Modify database settings</h3>
+<p>This application is using the HSQL database that comes as part of the JBoss bundle. You need to modify the script for creating the database. Edit the <b>localDB.script</b> file located in the following directory:</p>
+
+<p>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;\data\hypersonic</p>
+
+<p>Add at the top of the <b>localDB.script</b> file the content of the following example in order to create the sample HSQL database.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Make sure JBoss is not running at the time of modifying this file.</b></td></tr></table>
+
+<p><tt>CREATE MEMORY TABLE CUSTOMER(ID INTEGER NOT NULL PRIMARY KEY,NAME VARCHAR(45),BIRTHDATE DATE,SSS_NO VARCHAR(25),ADDRESS VARCHAR(60),ANNUAL_SALARY DOUBLE,LOAN_AMOUNT DOUBLE)</tt></p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-ConfigureMaven"></a>Configure Maven</h3>
+<p>As mentioned before, Apache Maven is used to build the binaries for the Session Bean sample application. If you do not have Maven installed this is a good time for doing it.</p>
+
+<p>Apache Maven can be downloaded from the following URL:</p>
+
+<p><a href="http://maven.apache.org" title="Visit page outside Confluence">&#104;ttp://maven.apache.org</a></p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Downloadthesampleapplication"></a>Download the sample application</h3>
+<p>Download the Session Bean sample application from the following link:</p>
+
+<p><a href="http://localhost:8080/download/attachments/49/session.zip?version=3" title="session.zip attached to JBoss to Geronimo - EJB-Session Beans Migration">Session Bean Sample</a></p>
+
+<p>After extracting the zip file, a <b>session</b> directory will be created. From now on, this directory will be referred as &lt;session_home&gt;.</p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-SettheJNDIproperties"></a>Set the JNDI properties</h3>
+<p>Open the <b>jndi.properties</b> file located in the &lt;session_home&gt;/jndi directory. Make sure that every property under the <b>JBoss Settings</b> section are uncommented and every property under the <b>Geronimo Settings</b> are commented out.</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>jndi.properties</b></div><div class="preformattedContent">
+<pre>####################################################################
+### JBoss Settings
+####################################################################
+java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
+java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces
+java.naming.provider.url=localhost
+
+
+####################################################################
+### Geronimo Settings
+####################################################################
+#java.naming.factory.initial=org.openejb.client.RemoteInitialContextFactory
+#java.naming.provider.url=localhost:4201
+#java.naming.security.principal=username
+#java.naming.security.credentials=passwd</pre>
+</div></div>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-VerifytheWARfiles"></a>Verify the WAR files</h3>
+<p>Open the <b>web.xml</b> file located in the &lt;session_home&gt;/src/webapp/WEB-INF directory and make sure the following taglib element is not commented out.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>Excerpt from the web.xml file</b></div><div class="codeContent">
+<pre class="code-xml">...
+	 <span class="code-tag">&lt;taglib&gt;</span>
+	 	<span class="code-tag">&lt;taglib-uri&gt;</span>http://java.sun.com/jstl/core<span class="code-tag">&lt;/taglib-uri&gt;</span>
+		<span class="code-tag">&lt;taglib-location&gt;</span>/WEB-INF/tld/c.tld<span class="code-tag">&lt;/taglib-location&gt;</span>
+	<span class="code-tag">&lt;/taglib&gt;</span>
+...</pre>
+</div></div>
+
+<p>Open the two jsp files, <b>stateless.jsp</b> and <b>stateful.jsp</b> located in the &lt;session_home&gt;/src/webapp directory and make sure the following line is present:</p>
+
+<p><b><tt>&lt;%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %&gt;</tt></b></p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Buildthesampleapplication"></a>Build the sample application</h2>
+<p>In order to build the Session Bean sample application a Maven build script has been provided. Open a command line and change directory to &lt;session_home&gt;, in that directory open the <b>project.properties</b> file. Edit the maven.jboss.home property to match your environment.</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>build.properties</b></div><div class="preformattedContent">
+<pre>maven.ejb.includes=com/ibm/demo/entity/**, com/ibm/demo/session/**
+maven.ejb.excludes=com/ibm/demo/client/**
+maven.ejb.src=dd
+
+maven.jboss.home=&lt;jboss_home&gt;
+maven.geronimo.home=&lt;geronimo_home&gt;</pre>
+</div></div>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>This sample application requires some jars provided by Geronimo, if you do not have Geronimo installed, refer to <a href="#JBosstoGeronimo-EJB-SessionBeansMigration-Geronimo" title="Geronimo on JBoss to Geronimo - EJB-Session Beans Migration">The Geronimo environment</a> section for installation guidance.</td></tr></table>
+
+<p>From a command prompt or shell go to the &lt;session_home&gt; directory and run the following command:</p>
+
+<p><b><tt>maven ejb war</tt></b></p>
+
+<p>This will compile the source files and package the EJB jar file. You can see the results in the &lt;session_home&gt;/target directory. The following list shows the dependency jars needed in building and running the Session Bean sample application.</p>
+
+<ul>
+	<li>geronimo-spec-ejb-2.1-rc4.jar - the EJB spec; needed for compiling source.</li>
+	<li>openejb-core-2.0-G1M5.jar - needed by Geronimo during runtime.</li>
+	<li>geronimo-spec-j2ee-1.4-rc4.jar - needed by Geronimo during runtime.</li>
+	<li>geronimo-security-1.0-M5.jar - needed by Geronimo during runtime.</li>
+</ul>
+
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Note that JBoss doesn't need the last three jars to run the application.</td></tr></table>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Deploythesampleapplication"></a>Deploy the sample application</h3>
+<p>To deploy the Session Bean sample application you just built with Maven, copy the <b>session-ejb-SNAPSHOT.jar</b> and <b>session-ejb.war</b> files from the &lt;session_home&gt;/target directory to the following directory:</p>
+
+<p>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;\deploy</p>
+
+<p>If JBoss is already started, it will automatically deploy and start the applications; otherwise, the applications will be deployed and started at the next startup.</p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Testthesampleapplication"></a>Test the sample application</h2>
+<p>To test the Session Bean sample application run the following commands from the &lt;session_home&gt; directory:</p>
+
+<p><tt>maven run:stateless</tt> - for the stateless client<br/>
+<tt>maven run:stateful</tt> - for the stateful client</p>
+
+<p>The following example shows the results of the stateless session client.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\session&gt;maven run:stateless
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
+
+build:start:
+
+run:stateless:
+    [java] Customers with denied loan applications:
+BUILD SUCCESSFUL
+Total time: 4 seconds
+Finished at: Wed Nov 02 10:08:29 EST 2005</pre>
+</div></div></font></p>
+
+<p>The following example shows the results of the stateful session client.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\session&gt;maven run:stateful
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
+
+build:start:
+
+run:stateful:
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 1
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 2
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 3
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 4
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 5
+    [java] 5 loan applications were submitted.
+BUILD SUCCESSFUL
+Total time: 2 seconds
+Finished at: Wed Nov 02 10:11:51 EST 2005</pre>
+</div></div></font></p>
+
+<p>If you run the stateless client again you will see now some customers with a denied loan application.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\session&gt;maven run:stateless
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
+
+build:start:
+
+run:stateless:
+    [java] Customers with denied loan applications:
+    [java] - Customer1
+BUILD SUCCESSFUL
+Total time: 2 seconds
+Finished at: Wed Nov 02 10:12:21 EST 2005</pre>
+</div></div></font></p>
+
+<p>You can also run the webapp client by opening a browser window and going to the following URL:</p>
+
+<p><a href="http://localhost:8080/session" title="Visit page outside Confluence">&#104;ttp://localhost:8080/session</a></p>
+
+<p>The following figures illustrate the home page for the Web Application as well as the testing for the stateless and stateful beans depending on your selection on the Web Application home page.</p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test1.jpg" align="absmiddle" border="0" /></p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test2.jpg" align="absmiddle" border="0" /></p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test3.jpg" align="absmiddle" border="0" /></p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-EJB-SessionBeansMigration-TheGeronimoenvironment"></a>The Geronimo environment <a name="JBosstoGeronimo-EJB-SessionBeansMigration-Geronimo"></a></h1>
+<p>Download and install Geronimo from the following URL:</p>
+
+<p><a href="http://geronimo.apache.org/downloads.html" title="Visit page outside Confluence">&#104;ttp://geronimo.apache.org/downloads.html</a></p>
+
+<p>The release notes available there provide clear instructions on system requirements and how to install and start Geronimo.  Throughout the rest of this article we will refer to the Geronimo installation directory as <b>&lt;geronimo_home&gt;</b>.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='warningMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b class="strong">TCP/IP ports conflict</b><br />If you are planning to run JBoss and Geronimo on the same machine consider to change the default service ports on, at least, one of these servers.</td></tr></table>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Configureresources"></a>Configure resources</h2>
+<p>For this scenario the Session Bean application will use directly the SystemDatabase from Geronimo. In this case there is no need to set up a new connector for the SystemDatabase since it is already configured as the DefaultDatasource.</p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-StarttheGeronimoserver"></a>Start the Geronimo server</h3>
+<p>Ensure that Geronimo is up and running. If the server has not been started yet, do so by typing the following command:</p>
+
+<p><tt>&lt;geronimo_home&gt;/bin/startup.sh</tt></p>
+
+<p>Once the server is started you should see a screen similar as the one illustrated in the following example:</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\geronimo\bin&gt;startup
+Booting Geronimo Kernel (in Java 1.4.2_09)...
+Starting Geronimo Application Server
+[*************] 100%  32s Startup complete
+  Listening on Ports:
+    1099 0.0.0.0 RMI Naming
+    1527 0.0.0.0 Derby Connector
+    4201 0.0.0.0 ActiveIO Connector EJB
+    4242 0.0.0.0 Remote Login Listener
+    8019 0.0.0.0 Tomcat Connector AJP
+    8080 0.0.0.0 Jetty Connector HTTP
+    8090 0.0.0.0 Tomcat Connector HTTP
+    8443 0.0.0.0 Jetty Connector HTTPS
+    8453 0.0.0.0 Tomcat Connector HTTPS
+   61616 0.0.0.0 ActiveMQ Message Broker Connector
+  Started Application Modules:
+    EAR: org/apache/geronimo/Console
+    WAR: org/apache/geronimo/applications/Welcome
+  Web Applications:
+    http://hcunico:8080/
+    http://hcunico:8080/console
+    http://hcunico:8080/console-standard
+Geronimo Application Server started</pre>
+</div></div></font></p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h3><a name="JBosstoGeronimo-EJB-SessionBeansMigration-ConfiguredatabaseviaGeronimoConsole"></a>Configure database via Geronimo Console</h3>
+<p>Access the Geronimo Console by pointing your Web browser to the following URL:</p>
+
+<p><a href="http://localhost:8080/console" title="Visit page outside Confluence">&#104;ttp://localhost:8080/console</a></p>
+
+<p>Enter <b>system</b> as the username and <b>manager</b> as the password, click <b>Login</b>.</p>
+
+<p>Once logged in, on the bottom left corner from the left navigation panel click on <b>DB Manager</b>. In the text area labeled <b>SQL Command/s</b> enter the following SQL statement and click <b>Run SQL</b>; this will create the table used by the Session Bean.</p>
+
+<p><tt>CREATE TABLE CUSTOMER(ID INTEGER NOT NULL PRIMARY KEY,NAME VARCHAR(45),BIRTHDATE DATE,SSS_NO VARCHAR(25),ADDRESS VARCHAR(60),ANNUAL_SALARY DOUBLE,LOAN_AMOUNT DOUBLE)</tt></p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/BMP-console-DB.jpg" align="absmiddle" border="0" /></p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Stepbystepmigration"></a>Step-by-step migration <a name="JBosstoGeronimo-EJB-SessionBeansMigration-migration"></a></h1>
+<p>When you built the Session Bean sample application, Maven packaged the deployment descriptors for both JBoss <b>jboss.xml</b> and Geronimo <b>openejb-jar.xml</b> as they were already provided by the sample application. These files are located in the &lt;session_home&gt;/dd/META-INF directory.</p>
+
+<p>The following example shows the JBoss deployment descriptor.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>jboss.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span>?&gt;</span>
+
+<span class="code-tag">&lt;jboss&gt;</span>
+	<span class="code-tag">&lt;container-configurations&gt;</span>
+		<span class="code-tag">&lt;container-configuration&gt;</span>
+			<span class="code-tag">&lt;container-name&gt;</span>Standard BMP EntityBean<span class="code-tag">&lt;/container-name&gt;</span>
+			<span class="code-tag">&lt;commit-option&gt;</span>A<span class="code-tag">&lt;/commit-option&gt;</span>
+  		<span class="code-tag">&lt;/container-configuration&gt;</span>
+	<span class="code-tag">&lt;/container-configurations&gt;</span>
+	<span class="code-tag">&lt;enterprise-beans&gt;</span>
+		<span class="code-tag">&lt;entity&gt;</span>
+			<span class="code-tag">&lt;ejb-name&gt;</span>CustomerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+			<span class="code-tag">&lt;jndi-name&gt;</span>CustomerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+			<span class="code-tag">&lt;resource-ref&gt;</span>
+				<span class="code-tag">&lt;res-ref-name&gt;</span>jdbc/ibm-demo<span class="code-tag">&lt;/res-ref-name&gt;</span>
+				<span class="code-tag">&lt;jndi-name&gt;</span>java:/DefaultDS<span class="code-tag">&lt;/jndi-name&gt;</span>
+			<span class="code-tag">&lt;/resource-ref&gt;</span>
+      		<span class="code-tag">&lt;configuration-name&gt;</span>Standard BMP EntityBean<span class="code-tag">&lt;/configuration-name&gt;</span>
+		<span class="code-tag">&lt;/entity&gt;</span>
+		<span class="code-tag">&lt;session&gt;</span>
+			<span class="code-tag">&lt;ejb-name&gt;</span>LoanManagerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+			<span class="code-tag">&lt;jndi-name&gt;</span>LoanManagerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+			<span class="code-tag">&lt;ejb-ref&gt;</span>
+				<span class="code-tag">&lt;ejb-ref-name&gt;</span>ejb/CustomerHomeRemote<span class="code-tag">&lt;/ejb-ref-name&gt;</span>
+				<span class="code-tag">&lt;jndi-name&gt;</span>CustomerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+			<span class="code-tag">&lt;/ejb-ref&gt;</span>
+		<span class="code-tag">&lt;/session&gt;</span>
+		<span class="code-tag">&lt;session&gt;</span>
+			<span class="code-tag">&lt;ejb-name&gt;</span>StatefulLoanManagerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+			<span class="code-tag">&lt;jndi-name&gt;</span>StatefulLoanManagerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+			<span class="code-tag">&lt;ejb-ref&gt;</span>
+				<span class="code-tag">&lt;ejb-ref-name&gt;</span>ejb/CustomerHomeRemote<span class="code-tag">&lt;/ejb-ref-name&gt;</span>
+				<span class="code-tag">&lt;jndi-name&gt;</span>CustomerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+			<span class="code-tag">&lt;/ejb-ref&gt;</span>
+		<span class="code-tag">&lt;/session&gt;</span>
+	<span class="code-tag">&lt;/enterprise-beans&gt;</span>
+<span class="code-tag">&lt;/jboss&gt;</span></pre>
+</div></div>
+
+<p>Compare it with the contents of the Geronimo deployment plan shown in the following example.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>openejb-jar.xml</b></div><div class="codeContent">
+<pre class="code-xml">&lt;openejb-jar
+    xmlns=<span class="code-quote">"http://www.openejb.org/xml/ns/openejb-jar"</span>
+    <span class="code-keyword">xmlns:naming</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/naming"</span>
+    <span class="code-keyword">xmlns:security</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/security"</span>
+    <span class="code-keyword">xmlns:sys</span>=<span class="code-quote">"http://geronimo.apache.org/xml/ns/deployment"</span>
+    configId=<span class="code-quote">"SessionBeanDemo"</span>
+    parentId=<span class="code-quote">"org/apache/geronimo/Server"</span>&gt;
+ <span class="code-tag">&lt;enterprise-beans&gt;</span>
+ 	
+    <span class="code-tag">&lt;entity&gt;</span>
+        <span class="code-tag">&lt;ejb-name&gt;</span>CustomerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>CustomerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+        <span class="code-tag">&lt;local-jndi-name&gt;</span><span class="code-tag">&lt;/local-jndi-name&gt;</span>
+        <span class="code-tag">&lt;resource-ref&gt;</span>
+            <span class="code-tag">&lt;ref-name&gt;</span>jdbc/ibm-demo<span class="code-tag">&lt;/ref-name&gt;</span>
+            <span class="code-tag">&lt;resource-link&gt;</span>SystemDatasource<span class="code-tag">&lt;/resource-link&gt;</span>
+        <span class="code-tag">&lt;/resource-ref&gt;</span>
+    <span class="code-tag">&lt;/entity&gt;</span>
+    
+    <span class="code-tag">&lt;session&gt;</span>
+        <span class="code-tag">&lt;ejb-name&gt;</span>LoanManagerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>LoanManagerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+        <span class="code-tag">&lt;ejb-ref&gt;</span>
+            <span class="code-tag">&lt;ref-name&gt;</span>ejb/CustomerHomeRemote<span class="code-tag">&lt;/ref-name&gt;</span>
+            <span class="code-tag">&lt;ejb-link&gt;</span>CustomerEJB<span class="code-tag">&lt;/ejb-link&gt;</span>
+        <span class="code-tag">&lt;/ejb-ref&gt;</span>        
+   <span class="code-tag">&lt;/session&gt;</span>
+ 	
+ 	<span class="code-tag">&lt;session&gt;</span>
+        <span class="code-tag">&lt;ejb-name&gt;</span>StatefulLoanManagerEJB<span class="code-tag">&lt;/ejb-name&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>StatefulLoanManagerHomeRemote<span class="code-tag">&lt;/jndi-name&gt;</span>
+        <span class="code-tag">&lt;ejb-ref&gt;</span>
+            <span class="code-tag">&lt;ref-name&gt;</span>ejb/CustomerHomeRemote<span class="code-tag">&lt;/ref-name&gt;</span>
+            <span class="code-tag">&lt;ejb-link&gt;</span>CustomerEJB<span class="code-tag">&lt;/ejb-link&gt;</span>
+        <span class="code-tag">&lt;/ejb-ref&gt;</span>        
+   <span class="code-tag">&lt;/session&gt;</span>
+   
+ <span class="code-tag">&lt;/enterprise-beans&gt;</span>
+    
+<span class="code-tag">&lt;/openejb-jar&gt;</span></pre>
+</div></div>
+
+<p>As with all Geronimo deployment plans, this configuration requires a parent configuration. In this case, it is <b>org/apache/geronimo/Server</b>, then follows the definition of the EJBs.</p>
+
+<p>The entity element defines an entity bean. The resource-ref element defines the data source that this EJB will be using. Then the session beans are defined in the session element as well as their jndi references in the ejb-ref elements. Here is a detailed listing of the elements:</p>
+
+<ul>
+	<li>ejb-name - identifies the EJB that these settings apply to; this should match the ejb-name for the EJB in ejb-jar.xml</li>
+	<li>jndi-name - the Home interface for the EJB is registered in JNDI at the address specified here; this global JNDI name is used by application clients to connect to this EJB (while it can be used by other server-side components, EJB references are the recommended approach); it is only meaningful if the EJB has a (remote) Home interface.</li>
+	<li>local-jndi-name - the LocalHome interface for the EJB is registered in JNDI at the address specified here; this global JNDI name can be used by other server-side components that want to use this EJB, though the recommended approach is to define and use a local EJB reference instead; it is only meaningful if the EJB has a LocalHome interface.</li>
+	<li>tssGroup - this is a set of elements that contains CORBA security settings, for EJBs exposed as CORBA objects; it is not necessary if the EJB will not be accessed via CORBA.</li>
+	<li>openejb-jndiEnvironmentRefsGroup - a set of elements that handle resolving references declared by the current Session bean (including EJB references, Resource references, and Web Service references).</li>
+</ul>
+
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-SettheJNDIproperties"></a>Set the JNDI properties</h2>
+<p>Edit the <b>jndi.properties</b> file located in in the &lt;session_home&gt;/jndi directory as shown in the following example:</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>jndi.properties</b></div><div class="preformattedContent">
+<pre>####################################################################
+### JBoss Settings
+####################################################################
+#java.naming.factory.initial=org.jnp.interfaces.NamingContextFactory
+#java.naming.factory.url.pkgs=org.jboss.naming:org.jnp.interfaces
+#java.naming.provider.url=localhost
+
+
+####################################################################
+### Geronimo Settings
+####################################################################
+java.naming.factory.initial=org.openejb.client.RemoteInitialContextFactory
+java.naming.provider.url=localhost:4201
+java.naming.security.principal=username
+java.naming.security.credentials=passwd</pre>
+</div></div>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-ModifytheWARfiles"></a>Modify the WAR files</h2>
+<p>Open the <b>web.xml</b> file located in the &lt;session_home&gt;/src/webapp/WEB-INF directory and comment out the following taglib element:</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>Excerpt from the web.xml file</b></div><div class="codeContent">
+<pre class="code-xml">...
+<span class="code-tag">&lt;!--	 &lt;taglib&gt;</span>
+	 	<span class="code-tag">&lt;taglib-uri&gt;</span>http://java.sun.com/jstl/core<span class="code-tag">&lt;/taglib-uri&gt;</span>
+		<span class="code-tag">&lt;taglib-location&gt;</span>/WEB-INF/tld/c.tld<span class="code-tag">&lt;/taglib-location&gt;</span>
+	<span class="code-tag">&lt;/taglib&gt;</span> --&gt;
+...</pre>
+</div></div>
+
+<p>Open the two jsp files, <b>stateless.jsp</b> and <b>stateful.jsp</b> located in the &lt;session_home&gt;/src/webapp directory and make sure you replace the following line:</p>
+
+<p><b><tt>&lt;%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %&gt;</tt></b>  - this is used for JBoss.</p>
+
+<p>with this other:</p>
+
+<p><b><tt>&lt;%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %&gt;</tt></b>  - this is used for Apache Geronimo.</p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Buildthesampleapplication"></a>Build the sample application</h2>
+<p>Build the migrated Session Bean sample application by running the following command from the &lt;session_home&gt; directory:</p>
+
+<p><b><tt>maven ejb war</tt></b></p>
+
+<p>This command will create the <b>session-ejb-SNAPSHOT.jar</b> and <b>session-ejb.war</b> files in the &lt;session_home&gt;/target directory.</p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Deploythemigratedapplication"></a>Deploy the migrated application</h2>
+<p>In order to deploy the application make sure the Geronimo server is up and running. From a command line change directory to &lt;session_home&gt; and type the following command:</p>
+
+<p><b><tt>maven geronimo:deploy</tt></b></p>
+
+<p>Once the application is deployed and started you can verify its status by typing the following command from the &lt;geronimo_home&gt;/bin directory:</p>
+
+<p><tt>java -jar deployer.jar --user system --password manager list-modules</tt></p>
+
+<p>Look for the <b>SessionBeanDemo</b> and <b>SessionWebApp</b> entries.</p>
+
+<p>To test the migrated Session Bean application run the following commands from the &lt;session_home&gt; directory:</p>
+
+<p><tt>maven run-g:stateless</tt> - for the stateless client<br/>
+<tt>maven run-g:stateful</tt> - for the stateful client</p>
+
+<p>The following example shows the results of the stateless session client.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\session&gt;maven run-g:stateless
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
+
+build:start:
+
+run-g:stateless:
+    [java] Customers with denied loan applications:
+BUILD SUCCESSFUL
+Total time: 3 seconds
+Finished at: Wed Nov 02 13:08:03 EST 2005</pre>
+</div></div></font></p>
+
+<p>The following example shows the results of the stateful session client.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\session&gt;maven run-g:stateful
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
+
+build:start:
+
+run-g:stateful:
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 1
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 2
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 3
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 4
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 5
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 6
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 7
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 8
+    [java] Submitting new loan application...
+    [java] -&gt; submit count is now = 9
+    [java] 9 loan applications were submitted.
+BUILD SUCCESSFUL
+Total time: 3 seconds
+Finished at: Wed Nov 02 13:10:36 EST 2005</pre>
+</div></div></font></p>
+
+<p>If you run the stateless client again you will see now some customers with a denied loan application.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\session&gt;maven run-g:stateless
+ __  __
+|  \/  |__ _Apache__ ___
+| |\/| / _` \ V / -_) ' \  ~ intelligent projects ~
+|_|  |_\__,_|\_/\___|_||_|  v. 1.0.2
+
+build:start:
+
+run-g:stateless:
+    [java] Customers with denied loan applications:
+    [java] - Customer1
+    [java] - Customer6
+BUILD SUCCESSFUL
+Total time: 3 seconds
+Finished at: Wed Nov 02 13:11:39 EST 2005</pre>
+</div></div></font></p>
+
+<p>As with JBoss, you can also run the Web Application client by pointing a Web browser to the following URL:</p>
+
+<p><a href="http://localhost:8080/session" title="Visit page outside Confluence">&#104;ttp://localhost:8080/session</a></p>
+
+<p>As with JBoss, the following figures illustrate the home page for the Web Application as well as the testing for the stateless and stateful beans depending on your selection on the Web Application home page.</p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test1.jpg" align="absmiddle" border="0" /></p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test2.jpg" align="absmiddle" border="0" /></p>
+
+<p><img src="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test3.jpg" align="absmiddle" border="0" /></p>
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-EJB-SessionBeansMigration-Summary"></a>Summary <a name="JBosstoGeronimo-EJB-SessionBeansMigration-summary"></a></h1>
+<p>This article has shown how to migrate a sample application that uses Session Beans, from JBoss v4.0.2 to Apache Geronimo. This article provided step-by-step instructions to build the application, deploy and run it, and then migrate it to the Geronimo environment. </p>
+
+<p>The following list summarizes the major differences found during this sample application migration.</p>
+
+<ul>
+	<li>In order to deploy an EJB jar file in JBoss you need to just copy the configuration file to the deploy directory but in Geronimo you need to use the deployer tool.</li>
+	<li>Geronimo needs three additional jars to run this application.</li>
+	<li>The contents of the deployment plans for EJB jar files in JBoss and in Geronimo are almost similar except for the name of the elements and the need for the Geronimo deployment plan to have a configId and a parentId.</li>
+</ul>
+
+
+<p><a href="#JBosstoGeronimo-EJB-SessionBeansMigration-top" title="top on JBoss to Geronimo - EJB-Session Beans Migration">Back to Top</a></p>
+
+				    					    <br/>
+                        <div class="tabletitle">
+                            <a name="attachments">Attachments:</a>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session.zip">session.zip</a> (application/x-zip-compressed)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session.zip">session.zip</a> (application/x-zip-compressed)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session.zip">session.zip</a> (application/x-zip-compressed)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/Session_flow.jpg">Session_flow.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/Session_flow.jpg">Session_flow.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/Session_flow.jpg">Session_flow.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/Session_flow.jpg">Session_flow.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test1.jpg">session_test1.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test1.jpg">session_test1.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test2.jpg">session_test2.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test2.jpg">session_test2.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test3.jpg">session_test3.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/session_test3.jpg">session_test3.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - EJB-Session Beans Migration_attachments/BMP-console-DB.jpg">BMP-console-DB.jpg</a> (image/pjpeg)
+                                <br/>
+                                                    </div>
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 09, 2005 22:10</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

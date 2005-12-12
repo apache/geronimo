@@ -1,0 +1,219 @@
+<html>
+    <head>
+        <title>Geronimo : Deployer tool</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Geronimo : Deployer tool
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Nov 18, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    
+<p><a name="Deployertool-top"></a></p>
+
+<p><em><b>Article donated by:</b> <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>The deployer application is a Java application that manages J2EE artifacts and GBean components in the Geronimo server. If the server is running, it will connect to the server and perform its action through the server's deployment service. If it cannot find a running server, it will manage the configuration it finds in its own installation directory. </p>
+
+<p>The deployment tool is started by using the <b>java -jar</b> to invoke the main class in &lt;geronimo_home&gt;/bin/deployer.jar.</p>
+
+<p>Typically, the deployment tool is started using the <b>deploy</b> script, but you can also run the application by starting a Java virtual machine using the following syntax:</p>
+
+<p><b><tt>java -jar deployer.jar &lt;general_options&gt; &lt;command&gt; &lt;command_options&gt;</tt></b></p>
+
+<p>where <b>&lt;general_options&gt;</b> specify common options that apply to all commands and control how the application behaves, <b>&lt;command&gt;</b> is a command name that specifies the action to be performed, and <b>&lt;command_options&gt;</b> are options unique to the command specified. </p>
+
+<h2><a name="Deployertool-Generaloptions"></a>General options</h2>
+<p>This section lists all the available general options for the Geronimo deployer tool.</p>
+<ul>
+	<li>--uri &lt;identifier&gt;<br/>
+Where &lt;identifier&gt; is a Universal Resource Identifier (URI) that specifies how the deployer is to contact the server. If this flag is not specified, the deployer will attempt to contact the server using the standard port on localhost. The identifier must have the following form:<br/>
+deployer:geronimo:jmx:rmi:///jndi/rmi:[//host[:port]]/JMXConnector<br/>
+where &lt;host&gt; is replaced with the host name or TCP/IP address of the system where the server is running and &lt;port&gt; is replaced with the port number where the server is listening. If unspecified, localhost and the default port will be used. </li>
+	<li>--driver &lt;driver_path&gt;<br/>
+Where &lt;driver_path&gt; is the path to the driver JAR if you want to use this tool with a server other than Geronimo. Currently, manifest Class-Path entries in that JAR are ignored.</li>
+	<li>--user &lt;username&gt;<br/>
+Where &lt;username&gt; is a user name authorized to be an administrator on the server. If the command requires authorization, you must use this option.</li>
+	<li>--password &lt;password&gt;<br/>
+Where &lt;password&gt; is a the password required to authenticate the user name. If this flag is not specified, the deployer will attempt to perform the command with no password, but if that fails, it will prompt you to enter a password.</li>
+	<li>--syserr &lt;select&gt;<br/>
+Where &lt;select&gt; can be either true or false. If this flag is unspecified. false is assumed. Specify true when you want errors to be logged to the syserr device. </li>
+	<li>--verbose &lt;select&gt;<br/>
+Where &lt;select&gt; can be either true or false. If this flag is unspecified. false is assumed. Specify true when you need more messages to determine the cause of an error.</li>
+</ul>
+
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h2><a name="Deployertool-Commands"></a>Commands</h2>
+<p>The available commands for the Geronimo deployer tool are listed below:</p>
+<ul>
+	<li>Common commands
+	<ul>
+		<li><a href="#Deployertool-deploy" title="deploy on Deployer tool">deploy</a></li>
+		<li><a href="#Deployertool-redeploy" title="redeploy on Deployer tool">redeploy</a></li>
+		<li><a href="#Deployertool-start" title="start on Deployer tool">start</a></li>
+		<li><a href="#Deployertool-stop" title="stop on Deployer tool">stop</a></li>
+		<li><a href="#Deployertool-undeploy" title="undeploy on Deployer tool">undeploy</a></li>
+	</ul>
+	</li>
+	<li>Other commands
+	<ul>
+		<li><a href="#Deployertool-distribute" title="distribute on Deployer tool">distribute</a></li>
+		<li><a href="#Deployertool-listmodules" title="list-modules on Deployer tool">list\-modules</a></li>
+		<li><a href="#Deployertool-listtargets" title="list-targets on Deployer tool">list\-targets</a></li>
+		<li><a href="#Deployertool-package" title="package on Deployer tool">package</a></li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>Additionally, you can type <b>help</b> for further details on a given command, the syntax is as follows:</p>
+
+<p><b><tt>java -jar deployer.jar help &lt;commands&gt;</tt></b></p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Deploy"></a>Deploy <a name="Deployertool-deploy"></a></h3>
+<p>Use the <b>deploy</b> command to add and start a new module. The deploy command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>deploy</b> &lt;module&gt; &lt;deployment_plan&gt;</tt></p>
+
+<p>The most common &lt;general_options&gt; would be --user and --password.<br/>
+The &lt;module&gt; specifies the application file name and location. The &lt;deployment_plan&gt; specifies the file name and location of the XML with the deployment plan. Sometimes the application module already has included in the package a deployment plan or the application is so simple that does not require any deployment plan, in these cases this parameter can be omited.</p>
+
+<p>A module file can be one of the following:</p>
+
+<ul>
+	<li>J2EE Enterprise Application Archive (EAR) file</li>
+	<li>J2EE Web Application Archive (WAR) file</li>
+	<li>J2EE Enterprise JavaBean Archive (JAR) file</li>
+	<li>J2EE Java Resource Archive (RAR) file</li>
+</ul>
+
+
+<p>If the server is not currently running at the time of deploying the application, the module will be marked to start next time the server is started.</p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Redeploy"></a>Redeploy <a name="Deployertool-redeploy"></a></h3>
+<p>Use the <b>redeploy</b> command to stop, replace and restart a module that has been deployed before. The redeploy command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>redeploy</b> &lt;module&gt; &lt;deployment_plan&gt;</tt></p>
+
+<p>Just like the <a href="#Deployertool-deploy" title="deploy on Deployer tool">deploy command</a>, the redeploy command accepts the following modules file types:</p>
+
+<ul>
+	<li>J2EE Enterprise Application Archive (EAR) file</li>
+	<li>J2EE Web Application Archive (WAR) file</li>
+	<li>J2EE Enterprise JavaBean Archive (JAR) file</li>
+	<li>J2EE Java Resource Archive (RAR) file</li>
+</ul>
+
+
+<p>Typically, both a module and a plan are specified. If the module contains a plan or if a default plan can be used, the plan can be omitted. However, if a plan is specified in this case, it overrides the other plans. If the plan references a server component already deployed in the server's environment, the module is omitted.</p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Start"></a>Start <a name="Deployertool-start"></a></h3>
+<p>Use the <b>start</b> command to start a previously deployed module. The start command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>start</b> &lt;moduleIDs&gt;</tt></p>
+
+<p>Where &lt;moduleIDs&gt; is a list of one or more modules (configID) separated by blank space. The module identification (or ConfigID) is defined at deployment time in the respective deployment plan for each module previously deployed.</p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Stop"></a>Stop <a name="Deployertool-stop"></a></h3>
+<p>Use the <b>stop</b> command to stop a running module. The stop command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>stop</b> &lt;moduleIDs&gt;</tt></p>
+
+<p>Where &lt;moduleIDs&gt; is a list of one or more modules (configID) separated by blank space. The module identification (or ConfigID) is defined at deployment time in the respective deployment plan for each module previously deployed.</p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Undeploy"></a>Undeploy <a name="Deployertool-undeploy"></a></h3>
+<p>Use the <b>undeploy</b> command to stop and remove a module (running or not) and its deployment information from the server. The undeploy command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>undeploy</b> &lt;moduleIDs&gt;</tt></p>
+
+<p>Where &lt;moduleIDs&gt; is a list of one or more modules (configID) separated by blank space. The module identification (or ConfigID) is defined at deployment time in the respective deployment plan for each module previously deployed.</p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Distribute"></a>Distribute <a name="Deployertool-distribute"></a></h3>
+<p>Use the <b>distribute</b> command to add a new module to the server. This command does not start the module nor mark it to be started in the future. The distribute command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>distribute</b> &lt;module&gt; &lt;deployment_plan&gt;</tt></p>
+
+<p>Just like with the deploy command, &lt;module&gt; specifies the application file name and location. The &lt;deployment_plan&gt; specifies the file name and location of the XML with the deployment plan. Sometimes the application module already has included in the package a deployment plan or the application is so simple that does not require any deployment plan, in these cases this parameter can be omited.</p>
+
+<p>A module file can be one of the following:</p>
+
+<ul>
+	<li>J2EE Enterprise Application Archive (EAR) file</li>
+	<li>J2EE Web Application Archive (WAR) file</li>
+	<li>J2EE Enterprise JavaBean Archive (JAR) file</li>
+	<li>J2EE Java Resource Archive (RAR) file</li>
+</ul>
+
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Listmodules"></a>List-modules <a name="Deployertool-listmodules"></a></h3>
+<p>Use the <b>list-modules</b> command to list all available modules on the server, note that for running this command the server must be runnning. The list-modules command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>list-modues</b> [&#45;&#45;all|&#45;&#45;stated|&#45;&#45;stopped]</tt></p>
+
+<ul>
+	<li>&#45;&#45;all : is used by default when no other option is specified. It will list all the available modules.</li>
+	<li>&#45;&#45;started : this option will list only the modules that are running.</li>
+	<li>&#45;&#45;stopped : this option will list only the modules that are not running.</li>
+</ul>
+
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Listtargets"></a>List-targets <a name="Deployertool-listtargets"></a></h3>
+<p>Use the <b>list-targets</b> command to lists the targets known to the server you have connected to. The list-targets command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>list-targets</b></tt></p>
+
+<p>In the case of Geronimo, each configuration store is a separate target.  Geronimo does not yet support clusters as targets.</p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+<h3><a name="Deployertool-Package"></a>Package <a name="Deployertool-package"></a></h3>
+<p>Use the <b>package</b> command to create a configuration JAR file rather than installing into the server environment. The package command has the following syntax:</p>
+
+<p><tt>java -jar deployer.jar &lt;general_options&gt; <b>package</b> [&#45;&#45;classPath path] [&#45;&#45;mainClass class] [&#45;&#45;install] &lt;module&gt; &lt;deployment_plan&gt; fileName</tt></p>
+
+<p>The optional &#45;&#45;classPath argument specifies a Class-Path to include in the JAR manifest.  The optional &#45;&#45;mainClass argument specifies the Main-Class to include in the JAR manifest.  The &#45;&#45;install option specifies that the configuration should be build into a JAR and also installed into the server configuration (otherwise it is packaged but not installed). The fileName argument specifies the JAR to create.</p>
+
+<p><a href="#Deployertool-top" title="top on Deployer tool">Back to top</a></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 09, 2005 22:10</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

@@ -1,0 +1,175 @@
+<html>
+    <head>
+        <title>Geronimo : Available login modules</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Geronimo : Available login modules
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Nov 28, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    
+<p><a name="Availableloginmodules-top"></a></p>
+
+<p><em><b>Article donated by:</b> <a href="mailto:simon@godik.com" title="Send mail to Simon Godik">Simon Godik</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>In Apache Geronimo, all login modules are in the package <b>org.apache.geronimo.security.realm.providers</b>. The following list shows the available login modules:</p>
+
+<ul>
+	<li>org.apache.geronimo.security.realm.providers.<a href="#Availableloginmodules-PropertiesFileLoginModule" title="PropertiesFileLoginModule on Available login modules">PropertiesFileLoginModule</a></li>
+	<li>org.apache.geronimo.security.realm.providers.<a href="#Availableloginmodules-SQLLoginModule" title="SQLLoginModule on Available login modules">SQLLoginModule</a></li>
+	<li>org.apache.geronimo.security.realm.providers.<a href="#Availableloginmodules-LDAPLoginModule" title="LDAPLoginModule on Available login modules">LDAPLoginModule</a></li>
+	<li>org.apache.geronimo.security.realm.providers.<a href="#Availableloginmodules-CertificateChainLoginModule" title="CertificateChainLoginModule on Available login modules">CertificateChainLoginModule</a></li>
+	<li>org.apache.geronimo.security.realm.providers.<a href="#Availableloginmodules-CertificatePropertiesFileLoginModule" title="CertificatePropertiesFileLoginModule on Available login modules">CertificatePropertiesFileLoginModule</a></li>
+	<li>org.apache.geronimo.security.realm.providers.<a href="#Availableloginmodules-FileAuditLoginModule" title="FileAuditLoginModule on Available login modules">FileAuditLoginModule</a></li>
+</ul>
+
+
+<h1><a name="Availableloginmodules-PropertiesFileLoginModule"></a>PropertiesFileLoginModule</h1>
+<p>The <b>PropertiesFileLoginModule</b> module keeps user and group databases in property file format.</p>
+
+<p>class = org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule;<br/>
+Options:</p>
+<ul>
+	<li>usersURI - URI for the users properties file. The content of the file is user=password entries.</li>
+	<li>groupsURI - URI for the groups properties file; The content of the file is group=</li>
+</ul>
+
+
+<p>These URIs are server-relative and resolved by the Geronimo components.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;gbean name=<span class="code-quote">"properties-login"</span> class=<span class="code-quote">"org.apache.geronimo.security.jaas.LoginModuleGBean"</span>&gt;</span>
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"loginModuleClass"</span>&gt;</span>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule<span class="code-tag">&lt;/attribute&gt;</span>
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"serverSide"</span>&gt;</span>true<span class="code-tag">&lt;/attribute&gt;</span>
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"options"</span>&gt;</span>
+            usersURI=var/security/users.properties
+            groupsURI=var/security/groups.properties
+        <span class="code-tag">&lt;/attribute&gt;</span>
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"loginDomainName"</span>&gt;</span>geronimo-properties-realm<span class="code-tag">&lt;/attribute&gt;</span>
+<span class="code-tag">&lt;/gbean&gt;</span></pre>
+</div></div>
+
+<p><a href="#Availableloginmodules-top" title="top on Available login modules">Back to Top</a></p>
+
+<h1><a name="Availableloginmodules-SQLLoginModule"></a>SQLLoginModule</h1>
+<p>This login module authenticates a user against relational database.</p>
+
+<p>class = org.apache.geronimo.security.realm.providers.SQLLoginModule<br/>
+Options:</p>
+<ul>
+	<li>userSelect - prepared SQL statement to select a user. This query must return 2 columns: user and password. Parameter to the query is user name.</li>
+	<li>groupSelect - prepared SQL statement to select a group. This query must return 2 columns: user and group. Parameter to the query is user name.</li>
+	<li>jdbcURL - JDBC connection URL</li>
+	<li>jdbcUser - JDBC user id; used by the login module to log into the database</li>
+	<li>jdbcPassword - JDBC password; used by the login module to log into the database</li>
+	<li>jdbcDriver - JDBC drive class name</li>
+	<li>dataSourceName - data source name, for example: SystemDatabase. If dataSourceName is specified, it will take precedence over other connection-related parameters.</li>
+	<li>dataSourceApplication - application module in which data source is deployed. This is the value of the configurationId for the deployment module. For the system-wide data source use the value of <b>null</b>.</li>
+</ul>
+
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>SQL Login configuration example</b></div><div class="codeContent">
+<pre class="code-xml">&lt;gbean name=<span class="code-quote">"sql-login"</span>
+	class=<span class="code-quote">"org.apache.geronimo.security.jaas.LoginModuleGBean"</span>&gt;
+	<span class="code-tag">&lt;attribute name=<span class="code-quote">"loginModuleClass"</span>&gt;</span>org.apache.geronimo.security.realm.providers.SQLLoginModule<span class="code-tag">&lt;/attribute&gt;</span>
+	<span class="code-tag">&lt;attribute name=<span class="code-quote">"serverSide"</span>&gt;</span>true<span class="code-tag">&lt;/attribute&gt;</span>
+	<span class="code-tag">&lt;attribute name=<span class="code-quote">"options"</span>&gt;</span>
+		dataSourceName=SystemDatasource
+		dataSourceApplication=null
+		userSelect=select user, password from user where user=?
+		groupSelect=select user, group from groups where user=?
+	<span class="code-tag">&lt;/attribute&gt;</span>
+<span class="code-tag">&lt;/gbean&gt;</span></pre>
+</div></div>
+
+<p><a href="#Availableloginmodules-top" title="top on Available login modules">Back to Top</a></p>
+
+<h1><a name="Availableloginmodules-LDAPLoginModule"></a>LDAPLoginModule</h1>
+<p>This module keeps user and group information in the LDAP directory. See the <a href="Configuring LDAP.html" title="Configuring LDAP">Configuring LDAP</a> article for the complete LDAP deployment working example.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='infoMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/information.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b>Tip:</b> The key to working with the LDAP module is: KNOW YOUR LDAP SCHEMA.</td></tr></table>
+
+<p>class = org.apache.geronimo.security.realm.providers.LDAPLoginModule<br/>
+Options:</p>
+<ul>
+	<li>initialContextFactory - the class name of the initial context factory. Usually <tt>com.sun.jndi.ldap.LdapCtxFactory</tt>.</li>
+	<li>connectionURL - LDAP connection URL, such as ldap://localhost:1389 . Note that usual LDAP port is <b>389</b>.</li>
+	<li>connectionUsername - this is the DN used by the login module itself for authentication to the directory server.</li>
+	<li>connectionPassword - this is credential (password) that is used by the login module to authenticate itself to the directory server</li>
+	<li>connectionProtocol - security protocol to use. This value is determined by the service provider. An example would be <b>SSL</b>.</li>
+	<li>authentication - security level to use. Its value is one of the following strings: "none", "simple", "strong". If this property is unspecified, the behavior is determined by the service provider.</li>
+	<li>userBase - the base DN for the user search.</li>
+	<li>userSearchMatching - filter specification how to search for the user object. RFC 2254 filters are allowed. In addition you can pass parameter to the search filter instead of the literal value. For example: this is RFC 2254 filter spec: (cn=Babs Jensen). If you want to parameterize the value of the CN attribute type, specify (cn = {0}&#41;. This integer refers to the parameter number. Parameter value is the user name. This query must return exactly one object.</li>
+	<li>userSearchSubtree - Defines directory search scope for the user. If set to true, directory search scope is SUBTREE, if set to false, directory search scope is ONE-LEVEL.</li>
+	<li>roleBase - the base DN for the group membership search.</li>
+	<li>roleName - LDAP attribute type that identifies group name attribute in the object returned from the group membership query. Note that group membership query is defined by the <tt>roleSearchMatching</tt> parameter. Often group name parameter is <b>cn</b>.</li>
+	<li>roleSearchMatching - filter specification how to search for the role object. RFC 2254 filters are allowed. In addition you can pass parameter to the search filter instead of the literal value. For example: (uniqueMember = {0}&#41;. This integer refers to the parameter number. This parameter is the DN of the authenticated user. Note that if role membership for the user is defined in the member-of-like attribute (see <tt><b>userRoleName</b></tt> parameter) you may not need to search for group membership with the query.</li>
+	<li>roleSearchSubtree - Defines directory search scope for the role. If set to true, directory search scope is SUBTREE, if set to false, directory search scope is ONE-LEVEL.</li>
+	<li>userRoleName - LDAP attribute type for the user group membership. Different LDAP schemas represent user group membership in different ways. Examples are: memberOf, isMemberOf, member, etc. Values of these attributes are identifiers of groups that a user is a member of. For example, if you have: memberOf: cn=admin,ou=groups,dc=foo, specify <b>memberOf</b> as the value for the <tt>userRoleName</tt> attribute. Be aware of the relationship between this parameter and group membership query. Sometimes (often) they will return the same data.</li>
+</ul>
+
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>LDAP GBean configuration example</b></div><div class="codeContent">
+<pre class="code-xml">&lt;gbean name=<span class="code-quote">"ldap-login"</span>
+        class=<span class="code-quote">"org.apache.geronimo.security.jaas.LoginModuleGBean"</span>&gt;
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"loginModuleClass"</span>&gt;</span>org.apache.geronimo.security.realm.providers.LDAPLoginModule<span class="code-tag">&lt;/attribute&gt;</span>
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"serverSide"</span>&gt;</span>true<span class="code-tag">&lt;/attribute&gt;</span>
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"options"</span>&gt;</span>
+		initialContextFactory=com.sun.jndi.ldap.LdapCtxFactory
+		connectionURL=ldap://localhost:1389
+		connectionUsername=uid=admin,ou=system
+		connectionPassword=secret
+		connectionProtocol=
+		authentication=simple
+		userBase=ou=users,ou=system
+		userSearchMatching=uid={0}
+		userSearchSubtree=false
+		roleBase=ou=groups,ou=system
+		roleName=cn
+		roleSearchMatching=(uniqueMember={0})
+		roleSearchSubtree=false
+		userRoleName=
+        <span class="code-tag">&lt;/attribute&gt;</span>
+        <span class="code-tag">&lt;attribute name=<span class="code-quote">"loginDomainName"</span>&gt;</span>ldap-realm<span class="code-tag">&lt;/attribute&gt;</span>
+<span class="code-tag">&lt;/gbean&gt;</span></pre>
+</div></div>
+
+<p><a href="#Availableloginmodules-top" title="top on Available login modules">Back to Top</a></p>
+
+<h1><a name="Availableloginmodules-CertificateChainLoginModule"></a>CertificateChainLoginModule</h1>
+
+<p><a href="#Availableloginmodules-top" title="top on Available login modules">Back to Top</a></p>
+
+<h1><a name="Availableloginmodules-CertificatePropertiesFileLoginModule"></a>CertificatePropertiesFileLoginModule</h1>
+
+<p><a href="#Availableloginmodules-top" title="top on Available login modules">Back to Top</a></p>
+
+<h1><a name="Availableloginmodules-FileAuditLoginModule"></a>FileAuditLoginModule</h1>
+
+<p><a href="#Availableloginmodules-top" title="top on Available login modules">Back to Top</a></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 09, 2005 22:10</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

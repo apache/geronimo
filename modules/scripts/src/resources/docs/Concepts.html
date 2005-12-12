@@ -1,0 +1,88 @@
+<html>
+    <head>
+        <title>Geronimo : Concepts</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Geronimo : Concepts
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Nov 15, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    
+<p><a name="Concepts-top"></a></p>
+
+<p><em><b>Article donated by:</b> <a href="mailto:simon@godik.com" title="Send mail to Simon Godik">Simon Godik</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>This article explains some basic the rational and working of the Apache Geronimo security system. JAAC implementation will not be addressed in this article. The basic concepts on which Geronimo security architecture is build are: <b>Login Domain</b> and <b>Security Realm</b>. These concepts are integrated into the JAAS architecture for use by the container.</p>
+
+<p>A lot of the security terms are overloaded, and you may find many definitions of principals, roles, etc. This article tries to stay with the established frameworks where possible such as <a href="http://www.oasis-open.org/committees/security" title="Visit page outside Confluence">OASIS SAML reference model</a>.</p>
+
+<h1><a name="Concepts-LoginDomain"></a>Login Domain</h1>
+<p>According to the <a href="http://www.oasis-open.org/committees/security" title="Visit page outside Confluence">SAML specification</a> a <b>principal</b> is a system entity whose identity can be authenticated. An <b>Identity Provider</b> is a service provider that creates, maintains, and manages identity information for principals and provides principal authentication to other service providers.</p>
+
+<p>A principal can have any number of <b>attributes</b>, identity is just one of them, Other attributes are groups or locations for example. Logically these values are  asserted by the <b>Attribute Authority</b> based on the identity. In practice, the <b>Identity Provider</b> and the <b>Attribute Authority</b> are usually collocated - although in complex SOA models providers can form a federation for identities and attributes.</p>
+
+<p>Note that the reliance on <b>Identity Provider</b> and <b>Attribute Provider</b> implies certain level of trust between the Geronimo server and service providers. How trust is established is out of scope here, but it could be implicit, by agreement, by assertion, etc.</p>
+
+<p>What is described here as the Identity Provider and Attribute Authority together with the established trust relationship Geronimo calls <b>Login Domain</b>. JAAS login modules (that abstract login domains) query for the identity and group attributes of a principal and believe that they are authentic.</p>
+
+<p>One example of <b>Login Domain</b> is <b>LDAP directory server</b>, it combines maintenance of identity information and other attributes (such as groups). <b>Relational databases</b> with tables for users and groups is another.</p>
+
+<p><a href="#Concepts-top" title="top on Concepts">Back to Top</a></p>
+
+<h1><a name="Concepts-SecurityRealm"></a>Security Realm</h1>
+<p><b>Security realm</b> configures and enforces <b>application-specific authentication policy</b> and is the entry point into login domains. Security realm implements pluggable authentication framework allowing for a combination of authentication protocols with different properties and different trust relationships that match application requirements.</p>
+
+<p>Authentication policy for the security realm is expressed as a statement over authentication outcome of configured login domains.</p>
+
+<p>For example, you can configure security realm with two login domains, for example kerberos and active directory, and require that both of them succeed for the authentication to succeed. Or you can configure a security realm with the LDAP directory login domain without any regard for the authentication outcome from it (maybe because you do not trust it). The point here is that you express an authentication policy and you have a <b>security realm</b> enforce it.</p>
+
+<p>Of course, security realm authentication policy emulates JAAS login module combination semantics. In fact, security realm implementation is wired with the JAAS login modules that are configured with the familiar attributes such as control flag and options. The authentication procedure is driven by the Login Module JAAS API and the authentication result is computed over control flag values and authentication outcomes of individual login modules.</p>
+
+<p><a href="#Concepts-top" title="top on Concepts">Back to Top</a></p>
+
+<h1><a name="Concepts-Authenticationandprincipals"></a>Authentication and principals</h1>
+<p>As authentication proceeds each login domain (implemented by the login module), it creates it's own principals that implement java.security.Principal interface. There are several implementations of the java.security.Principal interface in Geronimoas illustrated in the following table:</p>
+
+<ul>
+	<li>org.apache.geronimo.security.RealmPrincipal</li>
+	<li>org.apache.geronimo.secuirty.PrimaryRealmPrincipal</li>
+	<li>org.apache.geronimo.security.DomainPrincipal</li>
+	<li>org.apache.geronimo.security.IdentificationPrincipal</li>
+	<li>org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal</li>
+	<li>org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal</li>
+</ul>
+
+
+<p>Principals are created by the login domains, so ideally a principal must be associated with the login domain. To that end, org.apache.geronimo.security.DomainPrincipal will wrap every principal created by the login module (<b>login domain</b>) and in turn it will be wrapped by the org.apache.geronimo.security.RealmPrincipal if security realm is configured to wrap login modules.</p>
+
+<p>Despite it's name, the org.apache.geronimo.security.realm.providers.GeronimoCallerPrincipal interface is just a marker and is implemented by the org.apache.geronimo.security.providers.GeronimoUserPrincipal. This type of principal is added to the set of principals of the <b>Subject</b> within login modules distributed with Geronimo. There is no interface that would assure GeronimoUserPrincipal is indeed included, so do not forget about it if you write your own login module. In fact, some of the Geronimo login modules do not include this type of principal (for example FileAuditLoginModule).</p>
+
+<p>There are some special types of Principal's that are created after authentication procedure succeeds and used by Geronimo to track authenticated subject through it's lifetime in the container.</p>
+
+<p><a href="#Concepts-top" title="top on Concepts">Back to Top</a></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 09, 2005 22:10</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

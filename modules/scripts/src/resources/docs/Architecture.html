@@ -1,0 +1,113 @@
+<html>
+    <head>
+        <title>Geronimo : Architecture</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Geronimo : Architecture
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 09, 2005 by <font color="#0050B2">system</font>.
+				    </div>
+
+				    <p><a name="Architecture-top"></a><br/>
+<b><em>Article donated by:</em></b> <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></p>
+
+<h1><a name="Architecture-ApacheGeronimooverview"></a>Apache Geronimo overview</h1>
+
+<p>Apache Geronimo is a full blown, fully compliant, J2EE 1.4 application server. Geronimo integrates a number of other open source projects as described in the following list:</p>
+<ul>
+	<li><b>Jetty</b><br/>
+Jetty is a Web application server supporting Java Servlet 2.4 and JavaServer Pages 2.0. More details on Jetty can be found at the following URL:<br/>
+<a href="http://jetty.mortbay.org/" title="Visit page outside Confluence">&#104;ttp://jetty.mortbay.org/</a></li>
+	<li><b>Apache Tomcat</b><br/>
+Tomcat is a Web application server supporting Java Servlet 2.4 and JavaServer Pages 2.0. More details on Tomcat can be found at the following URL:<br/>
+<a href="http://tomcat.apache.org/" title="Visit page outside Confluence">&#104;ttp://tomcat.apache.org/</a></li>
+	<li><b>Apache Derby</b><br/>
+Derby is a small footprint, totally functional, Relational Database Management System (RDBMS) with JDBC support. More details on Derby can be found at the following URL:<br/>
+<a href="http://db.apache.org/derby" title="Visit page outside Confluence">&#104;ttp://db.apache.org/derby</a></li>
+	<li><b>Apache Axis</b><br/>
+Axis is an implementation of the Simple Object Access Protocol (SOAP). Axis provides Web Services and Web Services Interoperability (WS-I) support. More details on Axis can be found at the following URL:<br/>
+<a href="http://ws.apache.org/axis/" title="Visit page outside Confluence">&#104;ttp://ws.apache.org/axis/</a></li>
+	<li><b>ApacheDS</b><br/>
+ApacheDS is an implementation of the Lightweight Directory Access Protocol (LDAP). ApacheDS provides LDAP v3 services, secure authentication methods and extensions for Transport Layer Security (TSL) among others. More details on ApacheDS can be found at the following URL:<br/>
+<a href="http://directory.apache.org/" title="Visit page outside Confluence">&#104;ttp://directory.apache.org/</a></li>
+	<li><b>TranQL</b><br/>
+TranQL is a framework for building persistence engines. More details on TranQL can be found at the following URL:<br/>
+<a href="http://tranql.codehaus.org/" title="Visit page outside Confluence">&#104;ttp://tranql.codehaus.org/</a></li>
+	<li><b>OpenEJB</b><br/>
+OpenEJB is a modular, configurable and extendable open source EJB Container System and EJB Server.<br/>
+<a href="http://www.openejb.org/" title="Visit page outside Confluence">&#104;ttp://www.openejb.org/</a></li>
+	<li><b>MX4J</b><br/>
+MX4J is an implementation of the Java Management Extensions (JMX) and the JMX Remote API (JSR-160). More details on MX4J can be found at the following URL:<br/>
+<a href="http://mx4j.sourceforge.net/" title="Visit page outside Confluence">&#104;ttp://mx4j.sourceforge.net/</a></li>
+	<li><b>ActiveMQ</b><br/>
+ActiveMQ is a Java Messaging Service (JMS) provider and Message Fabric that supports clustering, multicast, XA and persistence among others. More details on ActiveMQ can be found at the following URL:<br/>
+<a href="http://activemq.codehaus.org/" title="Visit page outside Confluence">&#104;ttp://activemq.codehaus.org/</a></li>
+	<li><b>Spring framework</b><br/>
+Spring is a J2EE application framework to help reduce development effort constructing applications from lightweight Inversion of Control (IoC) components. More details on Spring framework can be found at the following URL:<br/>
+<a href="http://www.springframework.org/" title="Visit page outside Confluence">&#104;ttp://www.springframework.org/</a></li>
+</ul>
+
+
+<p><a href="#Architecture-top" title="top on Architecture">Back to Top</a></p>
+
+<h1><a name="Architecture-GBeansoverview"></a>GBeans overview</h1>
+
+<p>For a start, almost everything in Apache Geronimo is a <b>Geronimo Bean</b> or more friendly <b>GBean</b>. Apache Geronimo is built on a lightweight kernel that provides central integration. The purpose of this kernel is to manage these GBeans lifecycle and it's dependencies.</p>
+
+<p>GBeans are the building blocks that Apache Geronimo is made of. As previously stated, almost everything in Geronimo is a GBean, that is containers, applications, connectors, etc, so one GBean can certainly aggregate other GBeans, specially large ones. A Geronimo server instance is basically a collection of GBeans so the Geronimo kernel would essentially be a GBean container.</p>
+
+<p>GBeans can hold states, define dependencies (internal and external) and react to certain life cycle events. This capability can be used to store GBean's current state and recover that state at a later time. GBeans can also be managed through a management interface (command line or Geronimo Console), enabling them to be started, stopped and edited on the fly.</p>
+
+<p>GBeans may register interest on the status of other GBeans with particular characteristics. When a GBean with those characteristics is started, a reference to that GBean is <em>injected</em> into the GBean that registered interest. This process is known as <b>dependency injection</b> and makes GBeans a powerful framework for building loosely coupled systems.</p>
+
+<p>In short, GBeans framework provides:</p>
+<ul>
+	<li>Inversion of Control (IoC) components style model.</li>
+	<li>Logical identity coupled to a classification model.</li>
+	<li>Managed attributes, intended for configuration/instrumentation.</li>
+	<li>Persistent attributes, properties stored when offline.</li>
+	<li>Logical operations that can be remapped.</li>
+	<li>References to and dependencies on other GBeans.</li>
+	<li>Lifecycle model.</li>
+</ul>
+
+
+<p>The following figure illustrates the GBeans lifecycle.<br/>
+<img src="Architecture_attachments/GBean_Lifecycle.jpg" align="absmiddle" border="0" /></p>
+
+<p><a href="#Architecture-top" title="top on Architecture">Back to Top</a></p>
+
+				    					    <br/>
+                        <div class="tabletitle">
+                            <a name="attachments">Attachments:</a>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Architecture_attachments/GBean_Lifecycle.jpg">GBean_Lifecycle.jpg</a> (image/pjpeg)
+                                <br/>
+                                                    </div>
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 09, 2005 22:10</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>
