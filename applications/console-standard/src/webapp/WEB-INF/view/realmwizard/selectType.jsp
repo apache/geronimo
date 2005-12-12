@@ -20,26 +20,31 @@
     <input type="hidden" name="module-domain-0" value="${realm.modules[0].loginDomainName}" />
     <input type="hidden" name="module-class-0" value="${realm.modules[0].className}" />
     <input type="hidden" name="module-control-0" value="${realm.modules[0].controlFlag}" />
+    <input type="hidden" name="module-wrap-0" value="${realm.modules[0].wrapPrincipals}" />
     <input type="hidden" name="module-server-0" value="${realm.modules[0].serverSide}" />
     <input type="hidden" name="module-options-0" value="${realm.modules[0].optionString}" />
     <input type="hidden" name="module-domain-1" value="${realm.modules[1].loginDomainName}" />
     <input type="hidden" name="module-class-1" value="${realm.modules[1].className}" />
     <input type="hidden" name="module-control-1" value="${realm.modules[1].controlFlag}" />
+    <input type="hidden" name="module-wrap-1" value="${realm.modules[1].wrapPrincipals}" />
     <input type="hidden" name="module-server-1" value="${realm.modules[1].serverSide}" />
     <input type="hidden" name="module-options-1" value="${realm.modules[1].optionString}" />
     <input type="hidden" name="module-domain-2" value="${realm.modules[2].loginDomainName}" />
     <input type="hidden" name="module-class-2" value="${realm.modules[2].className}" />
     <input type="hidden" name="module-control-2" value="${realm.modules[2].controlFlag}" />
+    <input type="hidden" name="module-wrap-2" value="${realm.modules[2].wrapPrincipals}" />
     <input type="hidden" name="module-server-2" value="${realm.modules[2].serverSide}" />
     <input type="hidden" name="module-options-2" value="${realm.modules[2].optionString}" />
     <input type="hidden" name="module-domain-3" value="${realm.modules[3].loginDomainName}" />
     <input type="hidden" name="module-class-3" value="${realm.modules[3].className}" />
     <input type="hidden" name="module-control-3" value="${realm.modules[3].controlFlag}" />
+    <input type="hidden" name="module-wrap-3" value="${realm.modules[3].wrapPrincipals}" />
     <input type="hidden" name="module-server-3" value="${realm.modules[3].serverSide}" />
     <input type="hidden" name="module-options-3" value="${realm.modules[3].optionString}" />
     <input type="hidden" name="module-domain-4" value="${realm.modules[4].loginDomainName}" />
     <input type="hidden" name="module-class-4" value="${realm.modules[4].className}" />
     <input type="hidden" name="module-control-4" value="${realm.modules[4].controlFlag}" />
+    <input type="hidden" name="module-wrap-4" value="${realm.modules[4].wrapPrincipals}" />
     <input type="hidden" name="module-server-4" value="${realm.modules[4].serverSide}" />
     <input type="hidden" name="module-options-4" value="${realm.modules[4].optionString}" />
     <table border="0">
