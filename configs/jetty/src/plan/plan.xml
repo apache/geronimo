@@ -70,8 +70,11 @@ Configuration for Jetty server.
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
         </reference>
-        <attribute name="maxThreads">50</attribute>
+        <attribute name="maxThreads">150</attribute>
         <attribute name="minThreads">10</attribute>
+        <attribute name="lowThreads">25</attribute>
+        <attribute name="maxIdleTimeMs">30000</attribute>
+        <attribute name="lowThreadsMaxIdleTimeMs">800</attribute>
     </gbean>
 
     <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty.connector.AJP13Connector">
@@ -94,8 +97,8 @@ Configuration for Jetty server.
         <attribute name="clientAuthRequired">false</attribute>
         <attribute name="algorithm">Default</attribute>
         <attribute name="secureProtocol">TLS</attribute>
-        <attribute name="maxThreads">50</attribute>
-        <attribute name="minThreads">10</attribute>
+        <attribute name="maxThreads">150</attribute>
+        <attribute name="minThreads">25</attribute>
         <reference name="JettyContainer">
             <name>JettyWebContainer</name>
         </reference>
