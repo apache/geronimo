@@ -72,6 +72,9 @@ Configuration for Jetty server.
         </reference>
         <attribute name="maxThreads">150</attribute>
         <attribute name="minThreads">25</attribute>
+        <attribute name="lowThreads">25</attribute>
+        <attribute name="maxIdleTimeMs">30000</attribute>
+        <attribute name="lowThreadsMaxIdleTimeMs">800</attribute>
     </gbean>
 
     <gbean name="JettyAJP13Connector" class="org.apache.geronimo.jetty.connector.AJP13Connector">

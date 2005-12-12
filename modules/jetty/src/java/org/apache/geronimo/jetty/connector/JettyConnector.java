@@ -123,6 +123,36 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
       return ((ThreadedServer)listener).getMaxThreads();
     }
 
+    public void setMaxIdleTimeMs(int max) {
+        ((ThreadedServer)listener).setMaxIdleTimeMs(max);
+    }
+
+    public int getMaxIdleTimeMs() {
+      return ((ThreadedServer)listener).getMaxIdleTimeMs();
+    }
+
+    public void setLowThreadsMaxIdleTimeMs(int max) {
+      if (listener instanceof SocketListener)
+        ((SocketListener)listener).setLowResourcePersistTimeMs(max);
+    }
+
+    public int getLowThreadsMaxIdleTimeMs() {
+      if (listener instanceof SocketListener)
+        return ((SocketListener)listener).getLowResourcePersistTimeMs();
+      return -1;
+    }
+
+    public void setLowThreads(int lowThreads) {
+      if (listener instanceof SocketListener)
+        ((SocketListener)listener).setLowResources(lowThreads);
+    }
+
+    public int getLowThreads() {
+      if (listener instanceof SocketListener)
+        return ((SocketListener)listener).getLowResources();
+      return -1;
+    }
+
     public int getThreads() {
       return ((ThreadedServer)listener).getThreads();
     }
@@ -233,7 +263,7 @@ public abstract class JettyConnector implements GBeanLifecycle, JettyWebConnecto
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Jetty HTTP Connector", JettyConnector.class);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, JettyContainer.class, NameFactory.GERONIMO_SERVICE);
-        infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads","maxThreads","bufferSizeBytes","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","connectUrl",},
+        infoFactory.addInterface(JettyWebConnector.class, new String[]{"host", "port", "minThreads","maxThreads","bufferSizeBytes","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","connectUrl","maxIdleTimeMs","lowThreads","lowThreadsMaxIdleTimeMs",},
                                                           new String[]{"host", "port", "redirectPort"});
         infoFactory.setConstructor(new String[] {"JettyContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();

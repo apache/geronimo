@@ -42,4 +42,16 @@ public interface JettyWebConnector extends WebConnector {
     public int getIdlethreads();
 
     public String getDefaultScheme();
+
+    public void setMaxIdleTimeMs(int max);
+
+    public int getMaxIdleTimeMs();
+
+    public void setLowThreadsMaxIdleTimeMs(int max);
+
+    public int getLowThreadsMaxIdleTimeMs();
+
+    public void setLowThreads(int lowThreads);
+
+    public int getLowThreads();
 }
