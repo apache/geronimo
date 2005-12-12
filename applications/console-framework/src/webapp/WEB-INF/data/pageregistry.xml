@@ -142,7 +142,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+<!--
         <fragment name="ejb" type="page">
             <navigation>
                 <title>EJB Server</title>
@@ -157,7 +157,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+-->
         <fragment name="jmsserver" type="page">
             <navigation>
                 <title>JMS Server</title>
@@ -178,7 +178,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
-
+<!--
         <fragment name="j2ca" type="page">
             <navigation>
                 <title>J2EE Connectors</title>
@@ -223,6 +223,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
+-->
     </fragment>
 
     <fragment name="services" type="page">

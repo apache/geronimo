@@ -31,7 +31,7 @@ import org.apache.geronimo.kernel.KernelRegistry;
 
 public abstract class AbstractJMSManager {
 
-    protected static final String JMS_SERVER_MBEAN_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=org/apache/geronimo/ActiveMQServer,J2EEServer=geronimo,j2eeType=JMSServer,name=ActiveMQl";
+    protected static final String JMS_SERVER_MBEAN_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=geronimo/activemq-broker/1.0/car,J2EEServer=geronimo,j2eeType=JMSServer,name=ActiveMQl";
 
     protected static final String GET_BROKER_ADMIN_FUNCTION = "getBrokerAdmin";
 
@@ -57,7 +57,7 @@ public abstract class AbstractJMSManager {
 
     protected static final String DESTINATION_CONFIG_URI = "destinationConfigURI";
 
-    protected static final String CONNECTION_FACTORY_NAME = "geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemJMS,j2eeType=JCAManagedConnectionFactory,name=DefaultActiveMQConnectionFactory";
+    protected static final String CONNECTION_FACTORY_NAME = "geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/activemq/1.0/car,j2eeType=JCAManagedConnectionFactory,name=DefaultActiveMQConnectionFactory";
 
     protected static Object[] no_args = new Object[0];
 
