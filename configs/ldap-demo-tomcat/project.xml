@@ -67,7 +67,7 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>jetty-deployer</artifactId>
+            <artifactId>ldap-realm</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
@@ -146,11 +146,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
 
