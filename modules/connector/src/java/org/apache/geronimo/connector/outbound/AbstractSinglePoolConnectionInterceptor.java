@@ -99,8 +99,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         if (destroyed) {
             try {
                 connectionInfo.getManagedConnectionInfo().getManagedConnection().destroy();
-            }
-            catch (ResourceException re) {
+            } catch (ResourceException re) {
             }
             return;
         }
@@ -153,38 +152,68 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         if (newMaxSize != getPartitionMaxSize()) {
             resizeLock.writeLock().acquire();
             try {
-                //example: old maxsize 40, permits 20, connection count 20
-                //new maxSize 10
-                //shrinkLater is 10
-                //shrinkNow is 20
-                //2nd example: old maxsize 30, permits 10, connection count 10
-                //new maxSize 40
-                //shrinkLater and shrinkNow are 0.
-                int checkedOut = this.maxSize - (int) permits.permits();
-                shrinkLater = checkedOut - newMaxSize;
-                if (shrinkLater < 0) {
-                    shrinkLater = 0;
-                }
-                int shrinkNow = checkedOut + connectionCount - newMaxSize - shrinkLater;
-                if (shrinkNow < 0) {
-                    shrinkNow = 0;
-                }
+                ResizeInfo resizeInfo = new ResizeInfo(this.minSize, (int)permits.permits(), connectionCount, newMaxSize);
+                this.shrinkLater = resizeInfo.getShrinkLater();
 
                 permits = new FIFOSemaphore(newMaxSize);
-                //1st example: acquire 10 (all)
-                //2nd example: acquire 10 (same as in old semaphore)
-
                 //pre-acquire permits for the existing checked out connections that will not be closed when they are returned.
-                for (int i = 0; i < checkedOut - shrinkLater; i++) {
+                for (int i = 0; i < resizeInfo.getTransferCheckedOut(); i++) {
                     permits.acquire();
                 }
-                //1st example: copy 0 (none)
-                //2nd example: copy 10 (all)
-                transferConnections(newMaxSize, shrinkNow);
+                //transfer connections we are going to keep
+                transferConnections(newMaxSize, resizeInfo.getShrinkNow());
+                this.minSize = resizeInfo.getNewMinSize();
             } finally {
                 resizeLock.writeLock().release();
             }
         }
+    }
+
+
+    static final class ResizeInfo {
+
+        private final int newMinSize;
+        private final int shrinkNow;
+        private final int shrinkLater;
+        private final int transferCheckedOut;
+
+        ResizeInfo(final int oldMinSize, final int oldPermitsAvailable, final int oldConnectionCount, final int newMaxSize) {
+            final int checkedOut = oldConnectionCount - oldPermitsAvailable;
+            int shrinkLater = checkedOut - newMaxSize;
+            if (shrinkLater < 0) {
+                shrinkLater = 0;
+            }
+            this.shrinkLater = shrinkLater;
+            int shrinkNow = oldConnectionCount - newMaxSize - shrinkLater;
+            if (shrinkNow < 0) {
+                shrinkNow = 0;
+            }
+            this.shrinkNow = shrinkNow;
+            if (newMaxSize >= oldMinSize) {
+                newMinSize = oldMinSize;
+            } else {
+                newMinSize = newMaxSize;
+            }
+            this.transferCheckedOut = checkedOut - shrinkLater;
+        }
+
+        public int getNewMinSize() {
+            return newMinSize;
+        }
+
+        public int getShrinkNow() {
+            return shrinkNow;
+        }
+
+        public int getShrinkLater() {
+            return shrinkLater;
+        }
+
+        public int getTransferCheckedOut() {
+            return transferCheckedOut;
+        }
+
+
     }
 
     protected abstract void transferConnections(int maxSize, int shrinkNow);
@@ -226,7 +255,7 @@ public abstract class AbstractSinglePoolConnectionInterceptor implements Connect
         if (idleTimeoutMinutes < 0) {
             throw new IllegalArgumentException("idleTimeoutMinutes must be positive or 0, not " + idleTimeoutMinutes);
         }
-        if (idleReleaser!= null) {
+        if (idleReleaser != null) {
             idleReleaser.cancel();
         }
         if (idleTimeoutMinutes > 0) {
