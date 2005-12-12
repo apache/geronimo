@@ -59,12 +59,12 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
         GBeanInfoBuilder queueInfoBuilder = new GBeanInfoBuilder(
                 AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
         queueInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
-                String.class.getName(), true, false, true, true));
+                String.class.getName(), true, true, true, true));
         QUEUE_INFO = queueInfoBuilder.getBeanInfo();
         GBeanInfoBuilder topicInfoBuilder = new GBeanInfoBuilder(
                 AdminObjectWrapper.class, AdminObjectWrapperGBean.GBEAN_INFO);
         topicInfoBuilder.addAttribute(new DynamicGAttributeInfo("PhysicalName",
-                String.class.getName(), true, false, true, true));
+                String.class.getName(), true, true, true, true));
         TOPIC_INFO = topicInfoBuilder.getBeanInfo();
     }
 

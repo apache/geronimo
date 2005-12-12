@@ -578,7 +578,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
             for (Iterator iterator = getters.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
-                infoBuilder.addAttribute(new DynamicGAttributeInfo((String) entry.getKey(), (String) entry.getValue(), true, false, true, true));
+                infoBuilder.addAttribute(new DynamicGAttributeInfo((String) entry.getKey(), (String) entry.getValue(), true, true, true, true));
             }
 
             GBeanInfo gbeanInfo = infoBuilder.getBeanInfo();
@@ -635,7 +635,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     private GBeanData setUpDynamicGBean(GBeanInfoBuilder infoBuilder, ConfigPropertyType[] configProperties, ClassLoader cl) throws DeploymentException {
         for (int i = 0; i < configProperties.length; i++) {
-            infoBuilder.addAttribute(new DynamicGAttributeInfo(configProperties[i].getConfigPropertyName().getStringValue().trim(), configProperties[i].getConfigPropertyType().getStringValue().trim(), true, false, true, true));
+            infoBuilder.addAttribute(new DynamicGAttributeInfo(configProperties[i].getConfigPropertyName().getStringValue().trim(), configProperties[i].getConfigPropertyType().getStringValue().trim(), true, true, true, true));
         }
 
         GBeanInfo gbeanInfo = infoBuilder.getBeanInfo();

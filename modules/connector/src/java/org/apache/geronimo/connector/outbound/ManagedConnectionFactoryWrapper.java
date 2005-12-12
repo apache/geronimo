@@ -321,7 +321,7 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
             Constructor con = cls.getConstructor(new Class[]{String.class});
             value = con.newInstance(new Object[]{value});
         }
-        delegate.setAttribute(property, value);
+        kernel.setAttribute(ObjectName.getInstance(objectName), property, value);
     }
 
     public Object getConfigProperty(String property) throws Exception {
