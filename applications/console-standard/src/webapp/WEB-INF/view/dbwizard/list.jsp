@@ -2,8 +2,7 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p>This page lists all the available database pools.  Server-wide database pools can be edited, while database
-pools deployed as part of a single application cannot (change the deployment plan in the application instead).</p>
+<p>This page lists all the available database pools.</p>
 
 <c:choose>
   <c:when test="${empty(pools)}"><p><i>There are no database pools defined</i></p></c:when>
@@ -33,7 +32,6 @@ pools deployed as part of a single application cannot (change the deployment pla
     </td>
     <td>${pool.stateName}</td>
     <td>
-    <c:if test="${empty pool.parentName}">
          <%--<c:choose>
                <c:when test="${info.stateName eq 'running'}">
                <a href="<portlet:actionURL portletMode="view">
@@ -68,7 +66,6 @@ pools deployed as part of a single application cannot (change the deployment pla
                  <portlet:param name="managerObjectName" value="${container.managerObjectName}" />
                  <portlet:param name="containerObjectName" value="${container.containerObjectName}" />
                </portlet:actionURL>">delete</a>--%>
-    </c:if>
     </td>
   </tr>
 </c:forEach>
