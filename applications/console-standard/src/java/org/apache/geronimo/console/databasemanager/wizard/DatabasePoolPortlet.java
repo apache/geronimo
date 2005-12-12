@@ -812,7 +812,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
                 connector.setConfigID("user/database-pool"+data.getName() + "/1/car");
-                connector.setParentID("geronimo/j2ee-server/1.0/car");
+                connector.setParentID("geronimo/j2ee-server/1.0-SNAPSHOT/car");
                 if(data.jar1 != null && !data.jar1.equals("")) {
                     Dependency dep = new Dependency();
                     connector.setDependency(new Dependency[]{dep});
@@ -869,11 +869,15 @@ public class DatabasePoolPortlet extends BasePortlet {
                 SinglePool pool = new SinglePool();
                 manager.setPoolSingle(pool);
                 pool.setMatchOne(true);
-                if(data.minSize != null && !data.minSize.equals("")) {
-                    pool.setMinSize(new Integer(data.minSize));
-                }
+                // Max Size needs to be set before the minimum.  This is because 
+                // the connection manager will constrain the minimum based on the 
+                // current maximum value in the pool.  We might consider adding a  
+                // setPoolConstraints method to allow specifying both at the same time.
                 if(data.maxSize != null && !data.maxSize.equals("")) {
                     pool.setMaxSize(new Integer(data.maxSize));
+                }
+                if(data.minSize != null && !data.minSize.equals("")) {
+                    pool.setMinSize(new Integer(data.minSize));
                 }
                 if(data.blockingTimeout != null && !data.blockingTimeout.equals("")) {
                     pool.setBlockingTimeoutMillis(new Integer(data.blockingTimeout));
