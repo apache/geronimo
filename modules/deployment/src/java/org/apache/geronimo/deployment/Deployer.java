@@ -40,11 +40,13 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -57,6 +59,9 @@ import java.util.jar.Manifest;
  */
 public class Deployer {
     private static final Log log = LogFactory.getLog(Deployer.class);
+    private final int REAPER_INTERVAL = 60 * 1000;
+    private final Properties pendingDeletionIndex = new Properties();
+    private DeployerReaper reaper;
     private final Collection builders;
     private final ConfigurationStore store;
     private final Kernel kernel;
@@ -65,6 +70,12 @@ public class Deployer {
         this.builders = builders;
         this.store = store;
         this.kernel = kernel;
+
+        // Create and start the reaper...
+        this.reaper = new DeployerReaper(REAPER_INTERVAL);
+        Thread t = new Thread(reaper, "Geronimo Config Store Reaper");
+        t.setDaemon(true);
+        t.start();
     }
 
     public List deploy(File moduleFile, File planFile) throws DeploymentException {
@@ -73,10 +84,10 @@ public class Deployer {
         if (moduleFile != null && !moduleFile.isDirectory()) {
             // todo jar url handling with Sun's VM on Windows leaves a lock on the module file preventing rebuilds
             // to address this we use a gross hack and copy the file to a temporary directory
-            // unfortunately the lock on the file will prevent that being deleted properly
-            // we need to rewrite deployment so that it does not use jar: urls
+            // the lock on the file will prevent that being deleted properly until the URLJarFile has 
+            // been GC'ed.
             try {
-                tmpDir = File.createTempFile("deployer", ".tmpdir");
+                tmpDir = File.createTempFile("geronimo-deployer", ".tmpdir");
                 tmpDir.delete();
                 tmpDir.mkdir();
                 File tmpFile = new File(tmpDir, moduleFile.getName());
@@ -94,7 +105,9 @@ public class Deployer {
             throw e.cleanse();
         } finally {
             if (tmpDir != null) {
-                DeploymentUtil.recursiveDelete(tmpDir);
+                if (!DeploymentUtil.recursiveDelete(tmpDir)) {
+                    pendingDeletionIndex.setProperty(tmpDir.getName(), new String("delete"));
+                }
             }
         }
     }
@@ -270,7 +283,10 @@ public class Deployer {
                     }
                     return deployedURIs;
                 } else {
-                    DeploymentUtil.recursiveDelete(configurationDir);
+                    if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+                        pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
+                        log.debug("Queued deployment directory to be reaped " + configurationDir);                        
+                    }
                     return Collections.EMPTY_LIST;
                 }
             } catch (InvalidConfigException e) {
@@ -278,7 +294,10 @@ public class Deployer {
                 throw new DeploymentException(e);
             }
         } catch(Throwable e) {
-            DeploymentUtil.recursiveDelete(configurationDir);
+            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+                pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
+                log.debug("Queued deployment directory to be reaped " + configurationDir);                        
+            }
             if (targetFile != null) {
                 targetFile.delete();
             }
@@ -298,6 +317,57 @@ public class Deployer {
         }
     }
 
+    /**
+     * Thread to cleanup unused temporary Deployer directories (and files).
+     * On Windows, open files can't be deleted. Until MultiParentClassLoaders
+     * are GC'ed, we won't be able to delete Config Store directories/files.
+     */
+    class DeployerReaper implements Runnable {
+        private final int reaperInterval;
+        private volatile boolean done = false;
+
+        public DeployerReaper(int reaperInterval) {
+            this.reaperInterval = reaperInterval;
+        }
+
+        public void close() {
+            this.done = true;
+        }
+
+        public void run() {
+            log.debug("ConfigStoreReaper started");
+            while(!done) {
+                try {
+                    Thread.sleep(reaperInterval);
+                } catch (InterruptedException e) {
+                    continue;
+                }
+                reap();
+            }
+        }
+
+        /**
+         * For every directory in the pendingDeletionIndex, attempt to delete all 
+         * sub-directories and files.
+         */
+        public void reap() {
+            // return, if there's nothing to do
+            if (pendingDeletionIndex.size() == 0)
+                return;
+            // Otherwise, attempt to delete all of the directories
+            Enumeration list = pendingDeletionIndex.propertyNames();
+            while (list.hasMoreElements()) {
+                String dirName = (String)list.nextElement();
+                File deleteDir = new File(dirName);
+
+                if (!DeploymentUtil.recursiveDelete(deleteDir)) {
+                    pendingDeletionIndex.remove(deleteDir);
+                    log.debug("Reaped deployment directory " + deleteDir);
+                }
+            }
+        }
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     private static final String DEPLOYER = "Deployer";
