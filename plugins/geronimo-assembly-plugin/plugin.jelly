@@ -237,7 +237,72 @@
         <!-- Create a tar.gz file 
              Explicitly set execute permission on script files so builds on windows are consistent with unix -->
 
+        <!-- Establish patternset used by later fixcrlf processing -->
+        <ant:fileset dir="${geronimo.assembly.dest}" >
+            <!-- Patterns for text based files.  We don't touch *.bat as svn 
+                 should have eol-style set property to CRLF and *.sh we 
+                 force to have LF line endings (handle building on windows).  -->
+            <ant:patternset id="geronimo.fixcrlf.patternset">
+                <ant:include name="**/*.dtd" />
+                <ant:include name="**/*.ent" />
+                <ant:include name="**/*.htm" />
+                <ant:include name="**/*.html" />
+                <ant:include name="**/*.java" />
+                <ant:include name="**/*.js" />
+                <ant:include name="**/*.jsp" />
+                <ant:include name="**/*.properties" />
+                <ant:include name="**/*.sql" />
+                <ant:include name="**/*.txt" />
+                <ant:include name="**/*.wsdl" />
+                <ant:include name="**/*.xml" />
+                <ant:include name="**/*.xsd" />
+                <ant:include name="**/*.xsl" />
+                <ant:include name="STATUS" />
+            </ant:patternset>
+        </ant:fileset>
+
+        <!-- ensure shell scripts have LF end of lines for both the
+             tar.gz and zip file -->
+        <ant:fixcrlf srcdir="${geronimo.assembly.dest}" eol="lf"> 
+            <ant:include name="**/*.sh" />
+        </ant:fixcrlf>
+
+        <!-- Create a zip file --> 
+        <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}"> 
+            <ant:echo>Preparing CRLF line endings in text based files for zip 
+            distribution</ant:echo> 
+            <!-- The zip distribution shall have CRLF line 
+            endings and is targeted at Windows platforms.  Non-Windows platforms 
+            should use the tar distribution, as it contains extra file attributes 
+            such as permissions. Since we cannot assume we are running on a Windows 
+            platform, we fix line endings in the zip distribution to be CRLF's. --> 
+            <ant:fixcrlf  srcdir="${geronimo.assembly.dest}" eol="crlf">
+                <patternset refid="geronimo.fixcrlf.patternset"/> 
+            </ant:fixcrlf>
+
+            <ant:fixcrlf srcdir="${geronimo.assembly.dest}" eol="lf"> 
+                <patternset refid="geronimo.fixcrlf.patternset"/>
+            </ant:fixcrlf>
+
+            <ant:zip zipfile="${maven.build.dir}/${maven.final.name}.zip">
+                <ant:zipfileset dir="${geronimo.assembly.dest}/..">
+                    <ant:include name="${geronimo.assembly.name}/**"/>
+                    <ant:exclude name="${geronimo.assembly.name}/var/log/*.log"/>
+                </ant:zipfileset>
+            </ant:zip>
+            <checksum file="${maven.build.dir}/${maven.final.name}.zip" algorithm="MD5" fileext=".md5"/>
+            <checksum file="${maven.build.dir}/${maven.final.name}.zip" algorithm="SHA" fileext=".sha"/>
+        </j:if>
+
+
         <j:if test="${context.getVariable('geronimo.assembly.tar') == 'true'}">
+            <ant:echo>Preparing LF line endings in text based files for tar.gz distribution</ant:echo>
+
+            <ant:fixcrlf srcdir="${geronimo.assembly.dest}" eol="lf"> 
+                <patternset refid="geronimo.fixcrlf.patternset"/>
+                <ant:include name="**/*.sh"/>
+            </ant:fixcrlf>
+
             <ant:tar longfile="gnu" compression="gzip" tarfile="${maven.build.dir}/${maven.final.name}.tar.gz">
                 <ant:tarfileset dir="${geronimo.assembly.dest}/..">
                     <ant:include name="${geronimo.assembly.name}/**"/>
@@ -252,16 +317,14 @@
             <checksum file="${maven.build.dir}/${maven.final.name}.tar.gz" algorithm="SHA" fileext=".sha"/>
         </j:if>
 
-        <!-- Create a zip file -->
+        <!-- Ensure the files in the assembly directory are left with LF endings 
+             for Geronimo developers who may run Geronimo from there. -->
         <j:if test="${context.getVariable('geronimo.assembly.zip') == 'true'}">
-            <ant:zip zipfile="${maven.build.dir}/${maven.final.name}.zip">
-                <ant:zipfileset dir="${geronimo.assembly.dest}/..">
-                    <ant:include name="${geronimo.assembly.name}/**"/>
-                    <ant:exclude name="${geronimo.assembly.name}/var/log/*.log"/>
-                </ant:zipfileset>
-            </ant:zip>
-            <checksum file="${maven.build.dir}/${maven.final.name}.zip" algorithm="MD5" fileext=".md5"/>
-            <checksum file="${maven.build.dir}/${maven.final.name}.zip" algorithm="SHA" fileext=".sha"/>
+            <j:if test="${context.getVariable('geronimo.assembly.tar') != 'true'}">
+                <ant:fixcrlf srcdir="${geronimo.assembly.dest}" eol="lf"> 
+                    <patternset refid="geronimo.fixcrlf.patternset"/>
+                </ant:fixcrlf>
+            </j:if>
         </j:if>
     </goal>
 
