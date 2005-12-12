@@ -282,7 +282,7 @@ limitations under the License.
             </fragment>
         </fragment>
 
-
+<!--
         <fragment name="mail" type="page">
             <navigation>
                 <title>Java Mail</title>
@@ -297,6 +297,7 @@ limitations under the License.
                 </fragment>
             </fragment>
         </fragment>
+-->
     </fragment>
 
     <fragment name="apps" type="page">
