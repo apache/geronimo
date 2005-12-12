@@ -20,6 +20,7 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.util.EncryptionManager;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -109,7 +110,7 @@ class GBeanOverride {
             Element attribute = (Element) attributes.item(a);
 
             String attributeName = attribute.getAttribute("name");
-            String attributeValue = getContentsAsText(attribute);
+            String attributeValue = (String)EncryptionManager.decrypt(getContentsAsText(attribute));
             setAttribute(attributeName, attributeValue);
         }
 
@@ -222,6 +223,9 @@ class GBeanOverride {
             Map.Entry entry = (Map.Entry) iterator.next();
             String name = (String) entry.getKey();
             String value = (String) entry.getValue();
+            if(name.toLowerCase().indexOf("password") > -1) {
+                value = EncryptionManager.encrypt(value);
+            }
             out.println("      <attribute name=\"" + name + "\">" +  value + "</attribute>");
         }
 
