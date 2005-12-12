@@ -158,6 +158,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                     loginModuleGBeanData.setAttribute("loginModuleClass", className);
                     loginModuleGBeanData.setAttribute("options", options);
                     loginModuleGBeanData.setAttribute("serverSide", new Boolean(serverSide));
+                    loginModuleGBeanData.setAttribute("wrapPrincipals", Boolean.valueOf(wrapPrincipals));
 
                     context.addGBean(loginModuleGBeanData);
                 }
@@ -176,7 +177,6 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                 }
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
                 loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
-                loginModuleUseGBeanData.setAttribute("wrapPrincipals", new Boolean(wrapPrincipals));
                 loginModuleUseGBeanData.setReferencePattern("LoginModule", loginModuleName);
                 uses.add(loginModuleUseGBeanData);
             }
