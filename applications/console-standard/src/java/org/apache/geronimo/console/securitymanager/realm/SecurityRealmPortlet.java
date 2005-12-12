@@ -414,6 +414,7 @@ public class SecurityRealmPortlet extends BasePortlet {
             details.setLoginDomainName(module.getLoginDomainName());
             details.setClassName(module.getLoginModuleClass());
             details.setServerSide(module.isServerSide());
+            details.setWrapPrincipals(module.isWrapPrincipals());
             details.setOptions(module.getOptions());
             list.add(details);
             final String next = node.getNextName();
