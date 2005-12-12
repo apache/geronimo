@@ -131,6 +131,7 @@
                 </j:if>
             </ant:fileset>
         </ant:unjar>
+        <ant:chmod dir="${geronimo.assembly.dest}/bin" perm="ugo+x" includes="*.sh"/>
     </goal>
 
     <goal name="assemble:assemble-schemas">
