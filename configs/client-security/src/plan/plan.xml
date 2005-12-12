@@ -80,13 +80,13 @@ Configuration for the security of a Geronimo app client.
         <attribute name="realmName">client-properties-realm</attribute>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
-                <lc:login-module control-flag="REQUIRED" server-side="true">
+                <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
                     <lc:login-domain-name>client-properties-realm</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>
                     <lc:option name="usersURI">var/security/users.properties</lc:option>
                     <lc:option name="groupsURI">var/security/groups.properties</lc:option>
                 </lc:login-module>
-                <lc:login-module control-flag="REQUIRED" server-side="true">
+                <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
                     <lc:login-domain-name>default</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.jaas.NamedUPCredentialLoginModule</lc:login-module-class>
                     <lc:option name="org.apache.geronimo.jaas.NamedUPCredentialLoginModule.Name">default</lc:option>

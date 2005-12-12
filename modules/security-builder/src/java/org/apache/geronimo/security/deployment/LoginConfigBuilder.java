@@ -16,6 +16,16 @@
  */
 package org.apache.geronimo.security.deployment;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
@@ -35,96 +45,112 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
  */
-public class LoginConfigBuilder implements XmlReferenceBuilder {
+public class LoginConfigBuilder implements XmlReferenceBuilder
+{
     public static final String LOGIN_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/loginconfig-1.0";
 
-    public String getNamespace() {
+    public String getNamespace()
+    {
         return LOGIN_CONFIG_NAMESPACE;
     }
 
-    public Set getReferences(XmlObject xmlObject, DeploymentContext context, J2eeContext j2eeContext, ClassLoader classLoader) throws DeploymentException {
+    public Set getReferences(XmlObject xmlObject, DeploymentContext context, J2eeContext j2eeContext, ClassLoader classLoader) throws DeploymentException
+    {
         GerLoginConfigType loginConfig = (GerLoginConfigType) xmlObject.copy().changeType(GerLoginConfigType.type);
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();
         Collection errors = new ArrayList();
         xmlOptions.setErrorListener(errors);
-        if (!loginConfig.validate(xmlOptions)) {
+        if (!loginConfig.validate(xmlOptions))
+        {
             throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
         }
         XmlCursor xmlCursor = loginConfig.newCursor();
         List uses = new ArrayList();
         Set loginModuleNames = new HashSet();
-        try {
+        try
+        {
             boolean atStart = true;
-            while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling())) {
+            while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling()))
+            {
                 atStart = false;
                 XmlObject child = xmlCursor.getObject();
                 GerAbstractLoginModuleType abstractLoginModule = (GerAbstractLoginModuleType) child;
                 String controlFlag = abstractLoginModule.getControlFlag().toString();
+                boolean wrapPrincipals = (abstractLoginModule.isSetWrapPrincipals() && abstractLoginModule.getWrapPrincipals());
                 ObjectName loginModuleName;
                 String name;
-                if (abstractLoginModule instanceof GerLoginModuleRefType) {
+                if (abstractLoginModule instanceof GerLoginModuleRefType)
+                {
                     GerLoginModuleRefType loginModuleRef = (GerLoginModuleRefType) abstractLoginModule;
                     String domain = trim(loginModuleRef.getDomain());
                     String server = trim(loginModuleRef.getServer());
                     String application = trim(loginModuleRef.getApplication());
                     String module = trim(loginModuleRef.getModule());
                     String type = trim(loginModuleRef.getType());
-                    if (type == null) {
+                    if (type == null)
+                    {
                         type = NameFactory.LOGIN_MODULE;
                     }
                     name = trim(loginModuleRef.getName());
-                    try {
+                    try
+                    {
                         loginModuleName = NameFactory.getComponentName(domain, server, application, module, name, type, j2eeContext);
-                    } catch (MalformedObjectNameException e) {
+                    }
+                    catch (MalformedObjectNameException e)
+                    {
                         throw new DeploymentException("cannot construct login module name from parts,", e);
                     }
-                    try {
+                    try
+                    {
                         String loginDomain = (String) context.getAttribute(loginModuleName, "loginDomainName");
-                        if(!loginModuleNames.add(loginDomain)) {
-                            throw new DeploymentException("Security realm contains two login domains called '"+loginDomain+"'");
+                        if (!loginModuleNames.add(loginDomain))
+                        {
+                            throw new DeploymentException("Security realm contains two login domains called '" + loginDomain + "'");
                         }
-                    } catch(DeploymentException e) {
-                        throw e;
-                    } catch(Exception e) {
-                        throw new DeploymentException("Unable to create reference to login module "+name, e);
                     }
-                } else if (abstractLoginModule instanceof GerLoginModuleType) {
+                    catch (DeploymentException e)
+                    {
+                        throw e;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new DeploymentException("Unable to create reference to login module " + name, e);
+                    }
+                }
+                else if (abstractLoginModule instanceof GerLoginModuleType)
+                {
                     //create the LoginModuleGBean also
                     name = null;
                     loginModuleName = null;
 
                     GerLoginModuleType loginModule = (GerLoginModuleType) abstractLoginModule;
                     name = trim(loginModule.getLoginDomainName());
-                    if(!loginModuleNames.add(name)) {
-                        throw new DeploymentException("Security realm contains two login domains called '"+name+"'");
+                    if (!loginModuleNames.add(name))
+                    {
+                        throw new DeploymentException("Security realm contains two login domains called '" + name + "'");
                     }
                     String className = trim(loginModule.getLoginModuleClass());
                     boolean serverSide = loginModule.getServerSide();
                     Properties options = new Properties();
                     GerOptionType[] optionArray = loginModule.getOptionArray();
-                    for (int j = 0; j < optionArray.length; j++) {
+                    for (int j = 0; j < optionArray.length; j++)
+                    {
                         GerOptionType gerOptionType = optionArray[j];
                         String key = gerOptionType.getName();
                         String value = trim(gerOptionType.getStringValue());
                         options.setProperty(key, value);
                     }
-                    try {
+                    try
+                    {
                         loginModuleName = NameFactory.getComponentName(null, null, null, null, name, NameFactory.LOGIN_MODULE, j2eeContext);
-                    } catch (MalformedObjectNameException e) {
+                    }
+                    catch (MalformedObjectNameException e)
+                    {
                         throw new DeploymentException("cannot construct login module use name from parts,", e);
                     }
                     GBeanData loginModuleGBeanData = new GBeanData(loginModuleName, LoginModuleGBean.GBEAN_INFO);
@@ -134,46 +160,59 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                     loginModuleGBeanData.setAttribute("serverSide", new Boolean(serverSide));
 
                     context.addGBean(loginModuleGBeanData);
-                } else {
+                }
+                else
+                {
                     throw new DeploymentException("Unknown abstract login module type: " + abstractLoginModule.getClass());
                 }
                 ObjectName thisName;
-                try {
+                try
+                {
                     thisName = NameFactory.getComponentName(null, null, null, null, name, "LoginModuleUse", j2eeContext);
-                } catch (MalformedObjectNameException e) {
+                }
+                catch (MalformedObjectNameException e)
+                {
                     throw new DeploymentException("cannot construct login module use name from parts,", e);
                 }
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
                 loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
+                loginModuleUseGBeanData.setAttribute("wrapPrincipals", new Boolean(wrapPrincipals));
                 loginModuleUseGBeanData.setReferencePattern("LoginModule", loginModuleName);
                 uses.add(loginModuleUseGBeanData);
             }
-            for(int i=uses.size()-1; i>=0; i--) {
+            for (int i = uses.size() - 1; i >= 0; i--)
+            {
                 GBeanData data = (GBeanData) uses.get(i);
-                if(i > 0) {
-                    ((GBeanData)uses.get(i-1)).setReferencePattern("Next", data.getName());
+                if (i > 0)
+                {
+                    ((GBeanData) uses.get(i - 1)).setReferencePattern("Next", data.getName());
                 }
                 context.addGBean(data);
             }
-        } finally {
+        }
+        finally
+        {
             xmlCursor.dispose();
         }
-        return uses.size() == 0 ? Collections.EMPTY_SET : Collections.singleton(((GBeanData)uses.get(0)).getName());
+        return uses.size() == 0 ? Collections.EMPTY_SET : Collections.singleton(((GBeanData) uses.get(0)).getName());
     }
 
-    private String trim(String string) {
+    private String trim(String string)
+    {
         return string == null ? null : string.trim();
     }
 
     public static final GBeanInfo GBEAN_INFO;
 
-    static {
+    static
+    {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
         infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 
-    public static GBeanInfo getGBeanInfo() {
+    public static GBeanInfo getGBeanInfo()
+    {
         return GBEAN_INFO;
     }
 }
