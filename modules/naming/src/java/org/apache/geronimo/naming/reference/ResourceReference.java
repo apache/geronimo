@@ -23,7 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.Kernel;
 
 /**
- * @version $Rev: 56169 $ $Date: 2004-10-31 16:05:29 -0800 (Sun, 31 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class ResourceReference extends SimpleAwareReference {
     private final String containerId;

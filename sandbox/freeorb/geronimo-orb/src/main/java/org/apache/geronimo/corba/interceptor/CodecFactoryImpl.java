@@ -28,7 +28,7 @@ import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class CodecFactoryImpl extends LocalObject implements CodecFactory {
 

@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Simple implementation of a transaction manager.
  *
- * @version $Rev: 156292 $ $Date: 2005-03-05 21:48:02 -0500 (Sat, 05 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class TransactionManagerImplGBean extends TransactionManagerImpl {
 

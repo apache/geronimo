@@ -26,7 +26,7 @@ import org.apache.xmlbeans.XmlBeans;
  *
  * //todo: move to service-builder module
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class Dependency extends XmlBeanSupport {
     static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderForClassLoader(DependencyType.class.getClassLoader());

@@ -28,7 +28,7 @@ import org.apache.maven.repository.Artifact;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class GenerateServiceXml {
 

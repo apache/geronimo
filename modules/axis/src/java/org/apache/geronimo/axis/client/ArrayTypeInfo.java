@@ -28,7 +28,7 @@ import org.apache.axis.encoding.ser.ArraySerializerFactory;
 import org.apache.axis.encoding.ser.ArrayDeserializerFactory;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ArrayTypeInfo extends TypeInfo {
 

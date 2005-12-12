@@ -29,7 +29,7 @@ import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 /**
  *
  *
- * @version $Rev: 54013 $ $Date: 2004-10-07 13:49:55 -0700 (Thu, 07 Oct 2004) $
+ * @version $Rev$ $Date$
  *
  */
 public class TransactionContextManagerTest extends TestCase {

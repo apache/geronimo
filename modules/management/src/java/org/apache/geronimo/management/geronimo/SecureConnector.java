@@ -23,7 +23,7 @@ package org.apache.geronimo.management.geronimo;
  * http://jakarta.apache.org/tomcat/tomcat-5.5-doc/ssl-howto.html
  * http://mortbay.org/javadoc/org/mortbay/http/SslListener.html
  * 
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface SecureConnector extends WebConnector {
     public final static String KEYSTORE_TYPE_JKS = "JKS";

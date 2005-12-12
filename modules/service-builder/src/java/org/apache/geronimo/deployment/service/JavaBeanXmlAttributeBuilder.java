@@ -33,7 +33,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class JavaBeanXmlAttributeBuilder implements XmlAttributeBuilder {
 

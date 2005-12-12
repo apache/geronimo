@@ -17,7 +17,7 @@
 package org.apache.geronimo.corba.util;
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public interface IntegerToObjectMap {
 

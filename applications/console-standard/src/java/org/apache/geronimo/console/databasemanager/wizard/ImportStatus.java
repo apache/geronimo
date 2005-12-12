@@ -27,7 +27,7 @@ import org.apache.geronimo.converter.XADatabasePool;
 /**
  * Tracks the progress of a database pool import operation.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ImportStatus implements Serializable {
     private DatabaseConversionStatus original;

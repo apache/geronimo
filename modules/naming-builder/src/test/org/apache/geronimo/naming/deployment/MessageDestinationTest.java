@@ -47,7 +47,7 @@ import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MessageDestinationTest extends TestCase {
     private Kernel kernel = null;

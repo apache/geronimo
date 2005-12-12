@@ -20,7 +20,7 @@ package org.apache.geronimo.interop;
 /**
  * CORBA vendor tag for the Apache Software Foundation
  *
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public interface ApacheVMCID {
 

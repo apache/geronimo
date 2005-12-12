@@ -29,7 +29,7 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 /**
  * Common methods for JMS portlets
  *
- * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class BaseJMSPortlet extends BasePortlet {
     protected static Map getBrokerMap(RenderRequest renderRequest, String managerObjectName) throws PortletException {

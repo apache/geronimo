@@ -45,7 +45,7 @@ import org.apache.geronimo.util.SimpleEncryption;
  * Supports online connections to the server, via JSR-88, valid only
  * when the server is online.
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class ServerConnection {
     private final static Map OPTION_HELP = new LinkedHashMap(9);

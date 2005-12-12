@@ -22,7 +22,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class PackagingCommandLine {
 

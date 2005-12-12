@@ -19,7 +19,7 @@ package org.apache.geronimo.webservices;
 import org.apache.geronimo.core.service.InvocationKey;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public final class MessageContextInvocationKey implements InvocationKey {
 

@@ -22,7 +22,7 @@ import net.sf.cglib.proxy.NoOp;
 
 /**
  * Serializable version of the cglib NoOp.
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class SerializableNoOp implements NoOp, Serializable {
 

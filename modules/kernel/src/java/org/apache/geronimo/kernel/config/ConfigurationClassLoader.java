@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *
- * @version $Rev: 156292 $ $Date: 2005-03-06 13:48:02 +1100 (Sun, 06 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class ConfigurationClassLoader extends URLClassLoader {
     private final URI id;

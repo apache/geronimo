@@ -32,7 +32,7 @@ import org.omg.IOP.CodecPackage.InvalidTypeForEncoding;
 import org.omg.IOP.CodecPackage.TypeMismatch;
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class CodecImpl extends LocalObject implements Codec {
 

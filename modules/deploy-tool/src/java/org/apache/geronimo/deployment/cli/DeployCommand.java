@@ -25,7 +25,7 @@ import java.io.PrintWriter;
  * An abstraction of various CLI deployer commands.  Holds metadata like help
  * text, and also the logic to validate arguments and execute the command.
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public interface DeployCommand {
     String getCommandGroup();

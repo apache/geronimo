@@ -28,7 +28,7 @@ import javax.management.j2ee.statistics.Statistic;
  * available statistics without knowing exactly what kind of class you're
  * looking at.  Not sure when you'd want to do that, but hey.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class StatsImpl implements Stats, Serializable {
     private final Map stats = new HashMap();

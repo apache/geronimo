@@ -26,7 +26,7 @@ import org.apache.geronimo.kernel.Kernel;
 
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class InteropGBeanTest extends TestCase {
 

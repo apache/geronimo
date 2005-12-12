@@ -39,7 +39,7 @@ import org.apache.geronimo.management.geronimo.JVM;
  * Calculates various information about the server to display in the server
  * info portlet view (on of several JSPs depending on the portlet state).
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ServerInfoPortlet extends BasePortlet {
     private static final String NORMALVIEW_JSP = "/WEB-INF/view/infomanager/svrInfoNormal.jsp";

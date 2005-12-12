@@ -29,7 +29,7 @@ import org.apache.geronimo.management.geronimo.WebContainer;
 /**
  * Superclass with some generic functionality for console portlets
  *
- * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class BasePortlet extends GenericPortlet {
     private final static Log log = LogFactory.getLog(BasePortlet.class);

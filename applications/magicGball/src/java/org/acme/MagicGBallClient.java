@@ -24,7 +24,7 @@ import javax.rmi.PortableRemoteObject;
 /**
  * Run this app client from the command line and pass in a question as an argument.
  *
- * @version $Rev: 46301 $ $Date: 2004-09-18 13:03:59 -0700 (Sat, 18 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class MagicGBallClient {
     public static void main(String[] args) throws Exception{

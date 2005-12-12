@@ -19,7 +19,7 @@ package org.apache.geronimo.connector;
 import org.apache.geronimo.management.ResourceAdapter;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ResourceAdapterImpl implements ResourceAdapter {
     private final String objectName;

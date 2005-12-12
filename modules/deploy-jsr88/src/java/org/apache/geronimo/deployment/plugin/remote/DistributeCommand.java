@@ -26,7 +26,7 @@ import java.io.InputStream;
  * A version of the distribute command that works on a server different
  * than the application server.
  *
- * @version $Rev: 190584 $ $Date: 2005-12-04 12:07:10 -0500 (Sun, 04 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class DistributeCommand extends org.apache.geronimo.deployment.plugin.local.DistributeCommand {
     public DistributeCommand(Kernel kernel, Target[] targetList, File moduleArchive, File deploymentPlan) {

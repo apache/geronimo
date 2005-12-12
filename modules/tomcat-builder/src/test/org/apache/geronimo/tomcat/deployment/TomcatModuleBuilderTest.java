@@ -86,7 +86,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 /**
- * @version $Rev: 159325 $ $Date: 2005-03-28 15:53:03 -0700 (Mon, 28 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class TomcatModuleBuilderTest extends TestCase {
 

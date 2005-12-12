@@ -55,7 +55,7 @@ import org.apache.axis.encoding.ser.BaseSerializerFactory;
 import org.apache.axis.encoding.ser.BaseDeserializerFactory;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class SEIFactoryImpl implements SEIFactory, Serializable {
     private static final Class[] SERVICE_ENDPOINT_CONSTRUCTOR_TYPES = new Class[]{GenericServiceEndpoint.class};

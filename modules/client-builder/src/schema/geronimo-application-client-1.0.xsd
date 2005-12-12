@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- @version $Rev: 46019 $ $Date: 2004-09-14 02:56:06 -0700 (Tue, 14 Sep 2004) $ -->
+<!-- @version $Rev$ $Date$ -->
 <xs:schema
     xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"

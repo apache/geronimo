@@ -20,7 +20,7 @@ package org.apache.geronimo.javamail.transport.smtp;
 /**
  *  General purpose Exception
  *
- * @version $Id: $
+ * @version $Id$
  */
 class SMTPTransportException extends Exception {
 

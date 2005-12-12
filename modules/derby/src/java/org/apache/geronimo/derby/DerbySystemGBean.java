@@ -31,7 +31,7 @@ import java.sql.SQLException;
  * A GBean that represents an instance of an Apache Derby system (a system being
  * a collection of different databases).
  *
- * @version $Rev: 47413 $ $Date: 2004-09-28 11:46:39 -0700 (Tue, 28 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DerbySystemGBean implements DerbySystem, GBeanLifecycle {
     private static final Log log = LogFactory.getLog("DerbySystem");

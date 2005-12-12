@@ -31,7 +31,7 @@ import org.apache.axis.encoding.ser.BaseDeserializerFactory;
 import org.apache.axis.encoding.ser.BaseSerializerFactory;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class TypeInfo implements Serializable {
     private final Class clazz;

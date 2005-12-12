@@ -36,7 +36,7 @@ import java.util.LinkedList;
  * every pass, this will wait until it stabilizes before sending an
  * add or update notification (to handle slow uploads, etc.).
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class DirectoryMonitor implements Runnable {
     private static final Log log = LogFactory.getLog(DirectoryMonitor.class);

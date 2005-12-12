@@ -103,7 +103,7 @@ import org.xml.sax.InputSource;
 /**
  * A portlet that lets you configure and deploy JDBC connection pools.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DatabasePoolPortlet extends BasePortlet {
     private final static Log log = LogFactory.getLog(DatabasePoolPortlet.class);

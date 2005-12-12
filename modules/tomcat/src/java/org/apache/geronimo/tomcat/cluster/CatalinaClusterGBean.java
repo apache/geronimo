@@ -35,7 +35,7 @@ import org.apache.geronimo.tomcat.ObjectRetriever;
 import org.apache.geronimo.tomcat.ValveGBean;
 
 /**
-* @version $Rev: 233391 $ $Date: 2005-08-18 16:38:47 -0600 (Thu, 18 Aug 2005) $
+* @version $Rev$ $Date$
 */
 public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, ObjectRetriever {
 

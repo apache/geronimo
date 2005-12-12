@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
  * Base management interface for a network connector used to handle some
  * protocol in order to talk to some part of the Geronimo server.
  *
- * @version $Rev: 46228 $ $Date: 2004-09-16 21:21:04 -0400 (Thu, 16 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface NetworkConnector {
     /**

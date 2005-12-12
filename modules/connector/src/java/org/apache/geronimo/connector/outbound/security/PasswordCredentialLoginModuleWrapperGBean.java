@@ -23,7 +23,7 @@ import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class PasswordCredentialLoginModuleWrapperGBean {
 

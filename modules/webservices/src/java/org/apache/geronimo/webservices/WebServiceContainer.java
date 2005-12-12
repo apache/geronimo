@@ -24,7 +24,7 @@ import java.net.URI;
 import java.util.Map;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public interface WebServiceContainer extends Serializable {
 

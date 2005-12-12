@@ -25,7 +25,7 @@ import javax.mail.URLName;
 
 
 /**
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class TestTransport extends Transport {
 

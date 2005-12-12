@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class ParentIDTest extends TestCase {
 

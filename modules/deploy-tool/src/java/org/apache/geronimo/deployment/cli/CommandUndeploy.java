@@ -25,7 +25,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 /**
  * the CLI deployer logic to undeploy.
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class CommandUndeploy extends CommandStart {
     public CommandUndeploy() {

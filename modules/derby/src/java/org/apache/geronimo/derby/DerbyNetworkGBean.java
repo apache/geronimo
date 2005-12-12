@@ -30,7 +30,7 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
  * A GBean that manages remote network access to the embedded Derby server.
  *
  * todo need to figure out how to configure this without using system properties
- * @version $Rev: 47413 $ $Date: 2004-09-28 11:46:39 -0700 (Tue, 28 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class DerbyNetworkGBean implements GBeanLifecycle {
     private static final Log log = LogFactory.getLog("DerbyNetwork");

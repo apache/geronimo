@@ -42,7 +42,7 @@ import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 
 /**
- * @version $Rev: 106345 $ $Date: 2004-11-23 12:37:03 -0800 (Tue, 23 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public class ProxyMethodInterceptor implements MethodInterceptor {
     /**

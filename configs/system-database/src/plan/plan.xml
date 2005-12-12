@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 47568 $ $Date: 2004-09-30 01:21:54 -0700 (Thu, 30 Sep 2004) $ -->
+<!-- $Rev$ $Date$ -->
 
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
                configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"

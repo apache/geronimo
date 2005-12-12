@@ -27,7 +27,7 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 /**
  * The CLI deployer logic to stop.
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public class CommandStop extends CommandStart {
     public CommandStop() {

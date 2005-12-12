@@ -17,7 +17,7 @@
 -->
 
 
-<!-- $Rev: 351514 $ $Date: 2005-12-01 15:12:20 -0800 (Thu, 01 Dec 2005) $ -->
+<!-- $Rev$ $Date$ -->
 
 <project default="plugin:install">
     <goal name="default">

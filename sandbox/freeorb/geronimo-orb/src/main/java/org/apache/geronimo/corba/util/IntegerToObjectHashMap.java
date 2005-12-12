@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public class IntegerToObjectHashMap implements IntegerToObjectMap {
 

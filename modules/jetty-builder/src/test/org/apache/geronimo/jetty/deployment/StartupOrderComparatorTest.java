@@ -22,7 +22,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.xbeans.j2ee.ServletType;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class StartupOrderComparatorTest extends TestCase {
 

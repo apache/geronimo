@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 160900 $ $Date: 2005-04-11 08:09:38 -0700 (Mon, 11 Apr 2005) $ -->
+<!-- $Rev$ $Date$ -->
 
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
       configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"

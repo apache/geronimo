@@ -33,7 +33,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
  * Represents connection-definition/connectiondefinition-instance in the
  * Geronimo Connector deployment plan.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ConnectionDefinitionInstance extends XmlBeanSupport {
     final XpathListener xpathListener = new XpathListener() {

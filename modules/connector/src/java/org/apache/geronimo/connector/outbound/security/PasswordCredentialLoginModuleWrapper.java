@@ -23,7 +23,7 @@ import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.connector.outbound.ManagedConnectionFactoryWrapper;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class PasswordCredentialLoginModuleWrapper extends LoginModuleGBean {
     public static final String MANAGED_CONNECTION_FACTORY_OPTION = "geronimo.managedconnectionfactory.option";

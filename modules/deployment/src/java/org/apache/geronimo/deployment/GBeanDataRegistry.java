@@ -29,7 +29,7 @@ import org.apache.geronimo.gbean.GBeanName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class GBeanDataRegistry {
     private final Map registry = new HashMap();

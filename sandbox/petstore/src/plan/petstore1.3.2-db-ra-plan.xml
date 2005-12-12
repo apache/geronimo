@@ -15,7 +15,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!-- $Rev: 54661 $ $Date: 2005-07-10 01:59:24 +1000 (Sun, 10 Jul 2005) $ -->
+<!-- $Rev$ $Date$ -->
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
     version="1.5"
     parentId="org/apache/geronimo/PetStoreJMS1.3.2" 

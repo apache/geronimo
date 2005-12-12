@@ -23,7 +23,7 @@ import java.util.Map;
  * A Map that can remove items as they are accessed, which makes it
  * easier to show a list of the remaining items.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class ShrinkingMap extends TreeMap {
     private boolean shrinking = false;

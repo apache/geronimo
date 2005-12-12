@@ -22,7 +22,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 /**
  * Just a placeholder so things can look this up.
  *
- * @version $Rev: 240228 $ $Date: 2005-08-26 08:55:00 -0400 (Fri, 26 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public class RemoteDeployGBean implements RemoteDeployToken {
     public RemoteDeployGBean() {

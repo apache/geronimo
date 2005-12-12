@@ -27,7 +27,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.deployment.GBeanDataRegistry;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class MockNamingContext implements NamingContext {
 

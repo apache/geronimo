@@ -27,7 +27,7 @@ import org.apache.mina.registry.ServiceRegistry;
 /**
  * A mutable version of {@link ServerStartupConfiguration}.
  *
- * @version $Rev: 233391 $ $Date: 2005-08-18 16:38:47 -0600 (Thu, 18 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public class MutableServerStartupConfiguration extends
         ServerStartupConfiguration

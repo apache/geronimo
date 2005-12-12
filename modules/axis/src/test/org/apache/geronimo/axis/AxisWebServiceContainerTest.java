@@ -41,7 +41,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 
 /**
  *
- * @version $Rev: $ $Date: $
+ * @version $Rev$ $Date$
  */
 public class AxisWebServiceContainerTest extends AbstractTestCase {
     public AxisWebServiceContainerTest(String testName) {

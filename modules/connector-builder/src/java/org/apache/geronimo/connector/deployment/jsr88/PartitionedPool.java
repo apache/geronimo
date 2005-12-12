@@ -22,7 +22,7 @@ import org.apache.geronimo.xbeans.geronimo.GerSinglepoolType;
 /**
  * Settings for connectionmanager/partitioned-pool
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public class PartitionedPool extends SinglePool {
     public PartitionedPool() {

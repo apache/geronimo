@@ -30,7 +30,7 @@ import org.apache.geronimo.kernel.management.State;
  * However, it is not explicitly related to JSR-77 as that is not required
  * in order to use the Geronimo kernel.
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface GeronimoManagedBean {
     /**

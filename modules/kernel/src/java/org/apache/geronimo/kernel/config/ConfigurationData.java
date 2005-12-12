@@ -29,7 +29,7 @@ import java.util.Set;
 import org.apache.geronimo.gbean.GBeanData;
 
 /**
- * @version $Rev: 158589 $ $Date: 2005-03-22 02:03:00 -0800 (Tue, 22 Mar 2005) $
+ * @version $Rev$ $Date$
  */
 public class ConfigurationData {
     /**

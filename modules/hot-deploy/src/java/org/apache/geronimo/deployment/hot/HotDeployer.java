@@ -19,7 +19,7 @@ package org.apache.geronimo.deployment.hot;
 /**
  * Management interface for a hot deployer
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public interface HotDeployer extends DirectoryMonitor.Listener {
     public int getPollIntervalMillis();

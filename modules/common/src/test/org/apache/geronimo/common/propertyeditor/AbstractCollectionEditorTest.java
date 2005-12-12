@@ -26,7 +26,7 @@ import junit.framework.TestCase;
  * Abstract superclass for collection editor tests.  Implement the two abstract methods and initialize
  * editor and ordered in the setUp() method.
  *
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractCollectionEditorTest extends TestCase {
     PropertyEditor editor;

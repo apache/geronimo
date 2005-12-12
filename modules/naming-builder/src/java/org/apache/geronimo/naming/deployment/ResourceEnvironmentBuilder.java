@@ -20,7 +20,7 @@ package org.apache.geronimo.naming.deployment;
 import java.util.Set;
 
 /**
- * @version $Revision: 1.1 $ $Date: 2004/06/25 21:35:11 $
+ * @version $Revision$ $Date$
  *
  * */
 public interface ResourceEnvironmentBuilder {

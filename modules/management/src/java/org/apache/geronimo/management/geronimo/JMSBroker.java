@@ -19,7 +19,7 @@ package org.apache.geronimo.management.geronimo;
 /**
  * Represents a JMS broker
  *
- * @version $Rev: 233346 $ $Date: 2005-08-18 14:08:26 -0400 (Thu, 18 Aug 2005) $
+ * @version $Rev$ $Date$
  */
 public interface JMSBroker {
 }

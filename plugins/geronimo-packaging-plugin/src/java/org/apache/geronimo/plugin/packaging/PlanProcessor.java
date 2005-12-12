@@ -37,7 +37,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class PlanProcessor {
     private static Log log = LogFactory.getLog(PlanProcessor.class);

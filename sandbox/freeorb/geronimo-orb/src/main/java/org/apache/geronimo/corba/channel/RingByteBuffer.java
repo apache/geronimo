@@ -38,7 +38,7 @@ import org.apache.geronimo.corba.util.HexUtil;
 
 
 /**
- * @version $Revision: $ $Date: $
+ * @version $Revision$ $Date$
  */
 public abstract class RingByteBuffer extends RingBuffer {
 

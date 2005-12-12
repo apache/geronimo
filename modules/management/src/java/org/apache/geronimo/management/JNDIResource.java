@@ -19,7 +19,7 @@ package org.apache.geronimo.management;
 /**
  * See JSR77.3.29
  *
- * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
+ * @version $Rev$ $Date$
  */
 public interface JNDIResource extends J2EEResource {
 }

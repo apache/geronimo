@@ -16,7 +16,7 @@
     limitations under the License.
 -->
 
-<!-- $Rev: 165344 $ $Date: 2005-04-30 07:19:43 +1000 (Sat, 30 Apr 2005) $ -->
+<!-- $Rev$ $Date$ -->
 
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"

@@ -30,7 +30,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 
 
 /**
- * @version $Rev: 155376 $ $Date: 2005-02-25 15:10:24 -0800 (Fri, 25 Feb 2005) $
+ * @version $Rev$ $Date$
  */
 abstract class AbstractTransactionContext implements TransactionContext {
     protected static final Log log = LogFactory.getLog(AbstractTransactionContext.class);

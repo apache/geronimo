@@ -37,7 +37,7 @@ import java.util.LinkedList;
  * Base class for CLI deployer commands.  Tracks some simple properties and
  * has common utility methods.
  *
- * @version $Rev: 53762 $ $Date: 2004-10-04 18:54:53 -0400 (Mon, 04 Oct 2004) $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractCommand implements DeployCommand {
     private String command;

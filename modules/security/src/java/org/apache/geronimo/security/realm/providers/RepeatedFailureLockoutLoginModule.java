@@ -53,7 +53,7 @@ import javax.security.auth.spi.LoginModule;
  *                                    failurePeriodSecs.</li>
  * </ul>
  *
- * @version $Rev: 345349 $ $Date: 2005-11-17 17:31:33 -0500 (Thu, 17 Nov 2005) $
+ * @version $Rev$ $Date$
  */
 public class RepeatedFailureLockoutLoginModule implements LoginModule {
     public static final String FAILURE_COUNT_OPTION = "failureCount";

@@ -27,7 +27,7 @@ import org.apache.axis.client.AxisClient;
 import org.apache.axis.client.Call;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class GeronimoAxisClient extends AxisClient {
 

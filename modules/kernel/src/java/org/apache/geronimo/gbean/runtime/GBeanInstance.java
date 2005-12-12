@@ -45,7 +45,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
 /**
  * A GBeanInstance is a J2EE Management Managed Object, and is standard base for Geronimo services.
  *
- * @version $Rev: 106387 $ $Date: 2004-11-23 22:16:54 -0800 (Tue, 23 Nov 2004) $
+ * @version $Rev$ $Date$
  */
 public final class GBeanInstance implements StateManageable {
     private static final Log log = LogFactory.getLog(GBeanInstance.class);

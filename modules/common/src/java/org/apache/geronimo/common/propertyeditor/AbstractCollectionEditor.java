@@ -24,7 +24,7 @@ import java.util.StringTokenizer;
  * An abstract collection editor.  Subclasses should provide the correct type of collection from
  * the createCollection method and should override setValue to check the type of the value.
  *
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractCollectionEditor extends PropertyEditorSupport {
 

@@ -35,7 +35,7 @@ import java.util.Iterator;
 /**
  * Knows how to upload files to a server
  *
- * @version $Rev: 190584 $ $Date: 2005-12-04 12:07:10 -0500 (Sun, 04 Dec 2005) $
+ * @version $Rev$ $Date$
  */
 public class RemoteDeployUtil {
     public static void uploadFilesToServer(File[] files, AbstractDeployCommand progress) {

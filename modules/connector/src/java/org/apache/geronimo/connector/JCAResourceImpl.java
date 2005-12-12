@@ -28,7 +28,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.management.JCAResource;
 
 /**
- * @version $Rev:  $ $Date:  $
+ * @version $Rev$ $Date$
  */
 public class JCAResourceImpl implements JCAResource  {
     private final Kernel kernel;

@@ -53,7 +53,7 @@ import org.apache.mina.registry.ServiceRegistry;
  * Adds additional bootstrapping for server socket listeners when firing
  * up the server.
  *
- * @version $Rev: 233391 $ $Date: 2005-08-18 16:38:47 -0600 (Thu, 18 Aug 2005) $
+ * @version $Rev$ $Date$
  * @see javax.naming.spi.InitialContextFactory
  */
 public class ServerContextFactory extends CoreContextFactory {
