@@ -19,6 +19,8 @@
 </table>
 </c:if>
 <c:if test="${!statsOn}">
-Statistics are not currently being collected. <br/>
-<a href="<portlet:actionURL><portlet:param name="stats" value="true"/></portlet:actionURL>">enable</a>
+  ${statsMessage}<br/>
+  <c:if test="${statsSupported}">
+    <a href="<portlet:actionURL><portlet:param name="stats" value="true"/></portlet:actionURL>">enable</a>
+  </c:if>
 </c:if>

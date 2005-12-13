@@ -27,6 +27,11 @@ public class JettyStatisticsHelper implements StatisticsHelper {
             renderRequest.setAttribute("requestsDurationAve", new Long(jetty.getRequestsDurationAve()));
             renderRequest.setAttribute("requestsDurationMax", new Long(jetty.getRequestsDurationMax()));
         }
+        else
+        {
+            renderRequest.setAttribute("statsSupported", Boolean.TRUE);
+            renderRequest.setAttribute("statsMessage", "Statistics are not currently being collected.");
+        }
     }
 
 }

@@ -110,7 +110,8 @@ public class WebManagerPortlet extends BasePortlet {
                     if(server.equals(WEB_SERVER_JETTY)) {
                         helper = new JettyStatisticsHelper();
                     } else if(server.equals(WEB_SERVER_TOMCAT)) {
-                        //todo     - Handle Tomcat logs
+                        renderRequest.setAttribute("statsSupported", Boolean.FALSE);
+                        renderRequest.setAttribute("statsMessage", "Statistics are not currently implemented for this web container.");
                     }
                     else {
                         // todo   - Log error, unknown server
