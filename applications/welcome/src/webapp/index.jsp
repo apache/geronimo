@@ -97,8 +97,7 @@
                         <a href="/servlets-examples/">Servlet Examples </a><br />
                         <a href="/jsp-examples/">JSP Examples </a><br />
 <%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Samples+for+Apache+Geronimo">Download Additional Examples</a><br />--%>
-                        &nbsp;
-
+                        <a href="/ldap-demo/">LDAP Demo</a><br />
                     </td>
                 </tr>
             </table>
@@ -153,11 +152,100 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
 
             <p>Thanks for using Geronimo!</p>
 
+            <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
+                <p><b>Would you like a slimmer Geronimo installation?</b><br />
+                 Geronimo ships with a number of sample applications and demonistration services
+                 running.  The table below lists the default configurations and whether they're
+                 required or optional for a J2EE application server configuration.</p>
+                <p>To disable any option configuration, run a command like this:</p>
+                <pre>java -jar bin/deployer.jar stop <i>configuration-name</i></pre>
+                <table border="1">
+                    <tr><th>Name</th><th>Comments</th></tr>
+                    <tr><th colspan="2">Application EARs (<a href="/console/portal/apps/apps_ear">list</a>)</th></tr>
+                    <tr>
+                        <td>geronimo/daytrader-derby-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><i>Optional</i>; day trader sample application</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/uddi-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><i>Optional</i>; JAXR/UDDI repository</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/webconsole-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><b>Recommended</b>; Web management console</td>
+                    </tr>
+                    <tr><th colspan="2">Web Application WARs (<a href="/console/portal/apps/apps_war">list</a>)</th></tr>
+                    <tr>
+                        <td>geronimo/jmxdebug-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><i>Optional</i>; JMX debugging web application</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/jsp-examples-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><i>Optional</i>; JSP examples</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/ldap-demo-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><i>Optional</i>; Directions and tests for sample LDAP security realm</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/remote-deploy-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><b>Recommended</b>; support for running deployment commands from a remote machine</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/servlets-examples-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><i>Optional</i>; Servlet examples</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/welcome-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car</td>
+                        <td><i>Optional</i>; this welcome site</td>
+                    </tr>
+                    <tr><th colspan="2">J2EE Connector RARs (<a href="/console/portal/apps/apps_rar">list</a>)</th></tr>
+                    <tr>
+                        <td>geronimo/activemq/1.0/car</td>
+                        <td><b>Required</b>; Standard ActiveMQ configuration and connection factories</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/system-database/1.0/car</td>
+                        <td><b>Required</b>; Embedded Derby database supporting key system functions</td>
+                    </tr>
+                    <tr><th colspan="2">Application Client JARs (<a href="/console/portal/apps/apps_client">list</a>)</th></tr>
+                    <tr>
+                        <td>geronimo/daytrader-derby-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>-streamer-client/1.0/car</td>
+                        <td><i>Optional</i>; Client for daytrader sample application</td>
+                    </tr>
+                    <tr><th colspan="2">System Modules (<a href="/console/portal/apps/apps_system">list</a>)</th></tr>
+                    <tr>
+                        <td>geronimo/directory/1.0/car</td>
+                        <td><i>Optional</i>; Embedded Apache Directory LDAP server</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/ldap-realm/1.0/car</td>
+                        <td><i>Optional</i>; Sample security realm using embedded LDAP server</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/hot-deployer/1.0/car</td>
+                        <td><b>Recommended</b>; Supports hot deployment for </td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/j2ee-corba/1.0/car</td>
+                        <td><i>Optional</i>; Support for code in Geronimo acting as a CORBA client or server</td>
+                    </tr>
+                    <tr>
+                        <td>geronimo/javamail/1.0/car</td>
+                        <td><i>Optional</i>; Supports JavaMail resources</td>
+                    </tr>
+                    <tr>
+                        <td><i>Other System Modules</i></td>
+                        <td><b>Do Not Change</b>; The other system configurations that are running should not
+                          be stopped, and the other system configurations that are not running should not be
+                          started.</td>
+                    </tr>
+                </table>
+            </div>
+
+
             <p align="right"><font size=-1>
             <img src="<%=request.getContextPath()%>/images/powered_by_100x30.gif"/>
-<!--   Bring this line in and add the powered by icon when available
-            <img src="<%=request.getContextPath()%>/images/ico_geronimo_16x16.gif"/>
--->
             </font><br />
             &nbsp;
             <font size=-1>Copyright &copy; 1999-2005 Apache Software Foundation</font><br />

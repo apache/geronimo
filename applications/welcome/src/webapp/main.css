@@ -27,6 +27,12 @@ td
 	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
 }
 
+th
+{
+	font-size: 12px;
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+}
+
 a:link, a:visited
 {
 	color: #204486;
