@@ -19,6 +19,7 @@ package org.apache.geronimo.directory;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.directory.InitialDirContext;
@@ -157,6 +158,10 @@ public class DirectoryGBean implements GBeanLifecycle {
         //Insert failure code here
     }
 
+    public InetSocketAddress getListenAddress() {
+        return new InetSocketAddress(getHost(), getPort());
+    }
+
     private void setEnvironment(Properties env){
 
         if (providerURL != null){
@@ -233,7 +238,7 @@ public class DirectoryGBean implements GBeanLifecycle {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("DirectoryGBean", DirectoryGBean.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("Apache Directory LDAP", DirectoryGBean.class);
 
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         
@@ -243,6 +248,7 @@ public class DirectoryGBean implements GBeanLifecycle {
         infoFactory.addAttribute("securityCredentials", String.class, true, true);
         infoFactory.addAttribute("port", int.class, true, true);
         infoFactory.addAttribute("host", String.class, true, true);
+        infoFactory.addAttribute("listenAddress", InetSocketAddress.class, false, false);
         infoFactory.addAttribute("enableNetworking", boolean.class, true, true);
         
         infoFactory.addAttribute("workingDir", String.class, true);
