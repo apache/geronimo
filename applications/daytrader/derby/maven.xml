@@ -48,15 +48,11 @@
 
         <!-- setup the lame system properties that derby needs -->
         <j:invokeStatic className="java.lang.System" method="setProperty">
-            <j:arg type="java.lang.String" value="derby.system.home"/>
-            <j:arg type="java.lang.String" value="${derby.system.home}"/>
-        </j:invokeStatic>
-        <j:invokeStatic className="java.lang.System" method="setProperty">
             <j:arg type="java.lang.String" value="derby.storage.fileSyncTransactionLog"/>
             <j:arg type="java.lang.String" value="true"/>
         </j:invokeStatic>
         <sql driver="org.apache.derby.jdbc.EmbeddedDriver"
-            url="jdbc:derby:DaytraderDatabase;create=true"
+            url="jdbc:derby:${derby.system.home}/DaytraderDatabase;create=true"
             userid="" password=""
             autocommit="true"
             onerror="abort"
