@@ -64,6 +64,7 @@
             mainClass="${geronimo.packaging.mainClass}"
             classPath="${geronimo.packaging.classPath}"
             endorsedDirs="${geronimo.packaging.endorsedDirs}"
+            extensionDirs="${geronimo.packaging.extensionDirs}"
             />
     </goal>
 

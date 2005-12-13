@@ -22,7 +22,7 @@
     <groupId>geronimo</groupId>
     <id>geronimo-packaging-plugin</id>
     <name>Geronimo :: Maven Packaging Plugin</name>
-    <currentVersion>1.1.0</currentVersion>
+    <currentVersion>1.1.1</currentVersion>
 
     <dependencies>
         <dependency>
