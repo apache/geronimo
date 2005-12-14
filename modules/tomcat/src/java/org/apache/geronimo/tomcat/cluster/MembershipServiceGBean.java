@@ -37,6 +37,10 @@ public class MembershipServiceGBean extends BaseGBean implements
 
     private final MembershipService membership;
 
+    public MembershipServiceGBean() {
+        membership=null;
+    }
+    
     public MembershipServiceGBean(String className, Map initParams) throws Exception {
 
         super(); // TODO: make it an attribute
