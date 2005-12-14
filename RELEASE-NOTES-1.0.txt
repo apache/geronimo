@@ -13,35 +13,66 @@ Wiki:          http://wiki.apache.org/geronimo
 
 System Requirements
 -------------------
-You need a platform that supports JDK 1.4 (and some features
-such as CORBA currently depend on Sun implementation classes and
-are known to not work under 1.5, so a Sun 1.4.2_08 JVM would be the
-best bet).
+You need a platform that supports the Sun JDK 1.4.2.  CORBA
+support requires a Sun Java 1.4.2 VM (specifically 1.4.2_08
+or a higher 1.4.2_* release).
 
 Most testing has been done on Linux, Mac OS X, and Windows.
 
 
 Installing & Starting Geronimo
 ------------------------------
-To install, simply unpack the zip or tar file containing Geronimo,
-or run the installer package for a more interactive installation
-process (including the ability to change ports and the default
-administrator account)
+To install, simply unpack the .zip (Windows) or tar.gz (Unix) file 
+containing Geronimo.
 
-To start Geronimo, change to the Geronimo directory and run
+Documentation is included in the docs directory in your unpacked server.
 
-   java -jar bin/server.jar
+If you wish to modify the default ports that 
+Geronimo will use, edit the file var/config/config.xml in your 
+Geronimo directory.
+
+Geronimo comes with batch and script files to control server start 
+and stop functions.  To see usage examples simply type geronimo.bat 
+or geronimo.sh command as appropriate for your platform.  It is 
+necessary to set JAVA_HOME to the copy of your Sun 1.4.2 JDK/JRE 
+prior to executing the command.  Here is an example:
+
+export JAVA_HOME=/directory_to_the_JRE/
+bin/geronimo.sh
+
+The command will display help text instructing you as to how to start 
+and stop the Geronimo server.
+
+If you prefer to start the server without a script file you can simply type: 
+
+java -jar bin/server.jar
+
+Once the server has started, you can access the administration console
+at http://localhost:8080/console/ . The default user name is "system" and
+the default password is "manager".
+
+
+Administration Console Security Configuration
+---------------------------------------------
+The default administration user/password for the admin console and
+deployment is system/manager.  To change this edit the
+var/security/users.properties and var/security/groups.properties
+files.
 
 
 Deploying Applications
-------------------------------
-To deploy a J2EE module or application, start Geronimo and then
-run (for example):
+----------------------
+Geronimo comes with deploy scripts and batch files to deploy J2EE
+modules or applications. Alternatively, to deploy a J2EE module or 
+application, start Geronimo and then run (for example):
 
    java -jar bin/deployer.jar deploy my-web-app.war [deploy plan]
 
 You will need to use the username "system" and password "manager"
-unless you customized those during the install process.
+unless you customized those during the install process.  The
+deployment plan argument is optional -- you can pack a deployment
+plan into the application module, provide it on the command line,
+or in some cases omit it entirely.
 
 For more information on the commands and options supported by the
 deploy tool, run
@@ -49,61 +80,95 @@ deploy tool, run
    java -jar bin/deployer.jar help [command]
 
 
-Current Road Map at a Glance
-----------------------------
-http://wiki.apache.org/geronimo/RoadMap
+Other Deployment Options
+------------------------
+As an alternative to the command-line deployer, you can copy
+application modules into the geronimo/deploy/ directory and the
+hot deployer service will deploy them automatically.  The
+command-line deployer has some advantages, as it will output any
+deployment errors to its own console rather than just the server
+log, but either method will generally work.
 
+Additionally, Geronimo provides a Maven plugin that can deploy
+applications to Geronimo as part of a Maven build.
+
+
+Future Road Map at a Glance
+---------------------------
 http://issues.apache.org/jira/browse/GERONIMO?
       report=com.atlassian.jira.plugin.system.project:roadmap-panel
 
-  (that last must be all on one line)
+  (the above URL must be all on one line)
 
 
 Significant Changes Since the M5 Release
 ----------------------------------------
- * New look and feel to the Administrative Console
- * Added the ability to do Tomcat Clustering for HTTPSessions
- * Hot Deploy by copying your deployment artifact to the deploy directory
- * Ability to do remote deployment
- * Official J2EE Certification
+ * the ConfigID format has been updated in anticipatation of future
+   enhancements.  Application plans that include configIds of
+   configurations included in Geronimo M5 and earlier will require
+   modifications.  See the Wiki at http://wiki.apache.org/geronimo
+   for more information.
+ * More functionality and new look and feel for the Administrative
+   Console (http://localhost:8080/console/)
+ * Added HTTP session clustering to the Tomcat configuration
+   included with Geronimo
+ * Hot Deploy by copying your deployment artifact to the deploy/
+   directory
+ * Ability to run the deploy tool from a machine other than the
+   application server (remote deployment)
+ * Packages that represented experimental, pre-release or obsolete
+   versions were removed.
+ * Clustering
+   - Tomcat support for clustering is available in this release.
+   - WADI has been included as a technology preview for both Jetty
+     and Tomcat.  See http://wadi.codehaus.org for additional
+     information.
+
 
 Choice of Web container
 -----------------------
-You may choose from one of two WebContainers to Geronimo M5 ships with both jetty and tomcat web containers running.
-Most likely you want only one of these. We have provided configuration files
-for jetty-only and tomcat-only configurations.  To change to one of these configurations,
-go to the var/config directory and copy the appropriate files to config.list and config.xml,
-e.g.
-cp config.jetty.list config.list
-cp config.jetty.xml config.xml
+Two versions of the Geronimo binary are available for download.
+There is a version for the Jetty Web container and a version for
+the Tomcat Web container.  Both distributions are fully supported
+by the Geronimo team.  Please download the binary appropriate for
+your installation.
 
 
 Configuration
 -------------
-Most gbean attributes can be configured using the config.xml file.  The attributes most likely
-to be changed are already included in the supplied config.xml file.
-
-
-Significant Missing Features
-----------------------------
- * Fully featured web management console
- * Deployment from a machine other than the server
- * J2EE Application Client that works from a machine other than the server
- * A hot deploy directory (though the deploy tool can hot deploy)
- * JSR-88 support for Geronimo deployment plan configuration
- * Full functionality on non-Sun JVMs (a portable CORBA implementation
-   is not expected for version 1.0)
- * Clustering (also not expected for version 1.0)
+Most configuration attributes can be updated in the
+geronimo/var/config/config.xml file.  The attributes most likely
+to be changed are already included in the supplied config.xml file,
+while others may need to be added manually.
 
 
 Overall Project Status
 ----------------------
-Many of the remaining changes are focused on usability at this time.
-However, Geronimo has also not been extensively performance tested.
-Your help would be appreciated!
+The current version release of 1.0 represents a significant step
+for the Geronimo  project.  After a little over two years of effort
+this distribution is a fully compliant and usable J2EE container
+suitable for everything from development to Enterprise deployments.
 
-Documentation efforts are underway, and freely available documentation
-covers many aspects of the product.
+The next version of Geronimo is focused on several areas, including:
+
+ * continue to enhance the performance and usability of the server
+ * improve cross-platform compatibility
+ * improve integration with third-party development tools and
+   server products
+
+User feedback is critical for future released to be successful!
+The Geronimo team is anxious to gather feedback to ensure we are
+meeting the needs and expectations of the user community.
+
+In addition to the goals mentioned above, several specific changes
+are currently being considered:
+
+ * Make the Geronimo kernel pluggable, to help ease integration of
+   external components. 
+ * Enhance the ability to assemble customized servers (including only
+   the services required by the applications to be run).
+ * Enhance configuration, administration and management tools
+ * Improve clustering support for web containers and ejbs
 
 For more information on specific bugs or features, or to help with
 testing efforts, please visit JIRA, our bug/issue tracking system, at
@@ -112,213 +177,309 @@ http://issues.apache.org/jira/browse/GERONIMO
 
 Certification Status
 --------------------
-Geronimo 1.0 M5 has passed the j2ee certification test suite.  We will
-be filing the appropriate certification paperwork with Sun for official
-J2ee certification.
+Geronimo 1.0 has passed the J2EE(tm) certification test suite.  We
+will be filing the appropriate certification paperwork with Sun for
+official J2EE certification.
 
 
-Specific Issues Addressed in M5 Release
----------------------------------------
-
-** New Feature
-
- * [GERONIMO-938]  Added support to TranQL to support DB2 Syntax Generation
- * [GERONIMO-875]  Eclipse Geronimo Server Adapter
- * [GERONIMO-865]  Management API: Web Container Support
- * [GERONIMO-864]  Management API: Log Support
- * [GERONIMO-863]  Management API: Provide all JSR-77 interfaces
- * [GERONIMO-762]  Improve manageability by adding a web based management console
- * [GERONIMO-719]  external-rar definitions should work for EARs as well as app-clients
- * [GERONIMO-674]  Deployer list-modules command to display state info of configurations
- * [GERONIMO-665]  CMP - Prefetching of CMP and CMR fields
- * [GERONIMO-655]  Logging in Tomcat
- * [GERONIMO-400]  Add/remove gbeans to an exisiting configuration
- * [GERONIMO-140]  Support Database Level Automatic Key Generation under CMP 2.0 with Nova
- * [GERONIMO-310]  Support extension directory
- * [GERONIMO-215]  Tomcat integration for Servlet 2.4 (JSR 154) and JSP 2.0 (JSR 152) support
- * [GERONIMO-213]  J2EE 1.4 Application Client (JSR 151) support
-
-** Improvement
-
- * [GERONIMO-1026]  OpenEJB protocol must have an identifier and version header
- * [GERONIMO-1003]  Make gbean attributes manageable by default
- * [GERONIMO-966]  Find minimal set of parentIds and add the defaultParentIds from each builder
- * [GERONIMO-957]  Add version numbers to Geronimo schemas
- * [GERONIMO-951]  Change assembly module to create both geronimo-tomcat and geronimo-jetty distributions
- * [GERONIMO-943]  Mgmt API: Move add/remove connector code to a WebManager class
- * [GERONIMO-928]  Make installer use ManageableAttributeStore
- * [GERONIMO-905]  CORBA configuration/plan for standard Geronimo build
- * [GERONIMO-893]  remove the geronimo itests, they are pretty worthless
- * [GERONIMO-873]  Decouple the connector module from the kernel module by extracting the GBeanInfo definitions to a new set of GBean classes.
- * [GERONIMO-862]  Remove HTTP/HTTPS manager portlets
- * [GERONIMO-845]  Jetty support for virtual servers
- * [GERONIMO-840]  Require flag to run deploy tool in disconnected mode
- * [GERONIMO-838]  Allow embedded connector deployment for WAR, EJB JAR
- * [GERONIMO-835]  Make clean-repo delete based on file name/version
- * [GERONIMO-830]  cviewer trash???? (or at least I think it's trash)
- * [GERONIMO-827]  Support CMR mapping via ejb-relation-name and ejb-relationship-role-name
- * [GERONIMO-826]  Added support to configure min and max threads to the Jetty Container
- * [GERONIMO-801]  Deployment with missing resource-ref gives an error including an ObjectName query
- * [GERONIMO-794]  List only installed applications that are not part of Geronimo itself
- * [GERONIMO-793]  xmlbeans has taken over the xmlbeans 2 maven plugin.  We should use their copy.
- * [GERONIMO-752]  Unhelpful message when you try to stop a configuration that's already stopped
- * [GERONIMO-748]  Deployer gives nasty stack traces for login failure
- * [GERONIMO-738]  move to xmlbeans v2
- * [GERONIMO-709]  Upgrade to Derby 10.1
- * [GERONIMO-697]  Need guidance for new users upon successful server startup
- * [GERONIMO-694]  Change order of instructions in README
- * [GERONIMO-680]  New users "buy-in" hampered by inability to automatically rebuild sub-assemblies at runtime
- * [GERONIMO-676]  Provide Default For EJB Web Service HTTP Basic Realm Name
- * [GERONIMO-614]  Deployment user error should not vomit stacktraces
- * [GERONIMO-552]  Put the gbeandatas in a deployment context in a queriable container and use queries to resolve links
- * [GERONIMO-494]  Add Login Domains to Deployment Objects
- * [GERONIMO-474]  jetty web app context could use interceptor based design
- * [GERONIMO-425]  PropertiesFilePrincipalMappingUserPasswordRealmBridge
- * [GERONIMO-365]  Need ability to create queue/topic outside RAR
- * [GERONIMO-343]  Switch Derby connector to use DataSource
- * [GERONIMO-145]  [PATCH] White box tests for o.a.g.kernel.log package
+Significant Missing Features
+----------------------------
+ * J2EE Application Client that works from a machine other than the
+   server
+ * Full JSR-88 support for DConfig Beans (the current features are
+   somewhat incomplete)
+ * Offline deployment and assembly tools (expected shortly)
+ * Installer program (expected shortly)
 
 
-** Bug Fixes
+Specific Issues, Features and Improvements for Version 1.0
+----------------------------------------------------------
 
- * [GERONIMO-1036]  Tomcat configurations are not relocatable
- * [GERONIMO-1034]  Use of ejb-link prevents use of corba transport
- * [GERONIMO-1031]  NullPointerException during deploy of Struts App on Tomcat
- * [GERONIMO-1030]  itest failure on OpenEJB... no class def... XMLBeansUtil
- * [GERONIMO-1027]  Provide jetty and tomcat plan schemas so the namespace can determine the builder
- * [GERONIMO-1022]  Axis and commons-discovery need to be initialized with known classloaders
- * [GERONIMO-1020]  Need serialVersionUID for o.a.g.kernel.config.ConfigurationModuleType
- * [GERONIMO-1013]  run-as for servlets in jetty is not implemented
- * [GERONIMO-1012]  Tomcat integration does not set a subject in an unsecured web module in a secured ejb application
- * [GERONIMO-1010]  tm can't commit a tx with only read only resources numbering at least 2
- * [GERONIMO-1009]  CMR One-Many Primitive in Trade is not working correctly.
- * [GERONIMO-1006]  Exception from within WebAccessLogViewer portlet in doView
- * [GERONIMO-1005]  geronimo transaction module should not depend on tranql
- * [GERONIMO-1004]  SequenceTablePrimaryKeyGenerator transaction handling is broken (Tranql)
- * [GERONIMO-1000]  GenericSecurityRealm and ServerRealmConfigurationEntry can have loginService reference null when run on client
- * [GERONIMO-999]  ejb-links including a # to stateful session beans won't get resolved
- * [GERONIMO-989]  client side css-link's get resolved on the server, so they break.
- * [GERONIMO-988]  Avoid NPEs & move check for server type down to BasePortlet for all portlets to use.
- * [GERONIMO-987]  build fixes to work with maven 1.1 beta 2
- * [GERONIMO-985]  CMP FBPK Yields an individual SELECT per column
- * [GERONIMO-984]  Console throws OutOfBoundsexception when app erroneously has a <global-jndi></global-jndi> tag
- * [GERONIMO-982]  After GBean changes some JSR77 objects don't have a statisticsProvider attribute
- * [GERONIMO-981]  NPE in WebManagerPortlet and ConnectorPortlet
- * [GERONIMO-974]  Provide redirect for /console-standard to /console
- * [GERONIMO-972]  SSL keystore attributes should be manageable
- * [GERONIMO-964]  Openejb proxy generation code assumes openejb classes can be loaded by interface's classloader
- * [GERONIMO-963]  Derby classes must be loaded from common classloader
- * [GERONIMO-959]  JaasLoginService object name should not be hard coded
- * [GERONIMO-958]  Error in console data source when using DB2
- * [GERONIMO-954]  Assembly doesn't clean itself every time
- * [GERONIMO-953]  Exception calling getAvailableModules() on deployment manager
- * [GERONIMO-952]  Eliminate digester log output
- * [GERONIMO-949]  Update site
- * [GERONIMO-947]  Configuration should have multiple parents
- * [GERONIMO-946]  Don't initialize all GBean properties to 0/null if not provided
- * [GERONIMO-945]  Need to remove L-GPL licensed JmDNS usage from Geronimo
- * [GERONIMO-942]  geronimo maven deployment plugin doesnt deal with jar overrides or config.xml
- * [GERONIMO-940]  Dual contribution code in Geronimo has pedigree questions.
- * [GERONIMO-939]  Startup with the progress bar gets a NPE
- * [GERONIMO-937]  errors in openejb-jar schema
- * [GERONIMO-934]  TargetModuleID doesn't supply web URL
- * [GERONIMO-932]  Web console is not displayed in progress bar list of applications
- * [GERONIMO-930]  Default host for open sockets (at least web ones) should be default host 0.0.0.0 and not localhost
- * [GERONIMO-929]  Parameterize remote login listen port & add to installer
- * [GERONIMO-925]  separate security gbeans into a separate plan
- * [GERONIMO-924]  PolicyConfigurationFactory should use TCCL to load its implementation
- * [GERONIMO-910]  Default SSL certificate expired on 7/28/05
- * [GERONIMO-904]  Upgrade from commons-jelly-1.0-beta-4 to released 1.0 level
- * [GERONIMO-900]  maven-geronimo-plugin using wrong JAR file dependency versions
- * [GERONIMO-892]  Correctly interpret message-destination elements and provide a geronimo link element to link them to a particular admin object.
- * [GERONIMO-882]  Updated geronimo eclipse tooling drop
- * [GERONIMO-881]  Remove RealmBridge concept and reimplement outbound J2CA container managed security
- * [GERONIMO-880]  Geronimo ships patent-protected bouncycastle IDEA implementation.
- * [GERONIMO-878]  Web deployer ignores manifest class path entries
- * [GERONIMO-876]  build problems
- * [GERONIMO-871]  Need DOS/bat file versions of the startup and deploy shell scripts.
- * [GERONIMO-870]  Invalid sigantures in JavaMail API jar (trunk)
- * [GERONIMO-860]  Update console fully for Pluto 1.0.1-rc4
- * [GERONIMO-859]  Remove SNAPSHOT dependency on Pluto
- * [GERONIMO-857]  Console links are incorrect
- * [GERONIMO-856]  Exception in JMS Connector Factory Portlet & Database Connections Portlet
- * [GERONIMO-853]  rearrange assembly artifact to include root directory
- * [GERONIMO-852]  NullPointerException in during deploy
- * [GERONIMO-848]  Deployer ignores Geronimo URL host/port
- * [GERONIMO-846]  Log Level set on Console is overridden by serverlog properties setting even if the properties setting hasn't changed.
- * [GERONIMO-836]  jmx port should be explicit in the plans and set from the installer
- * [GERONIMO-834]  Add a maven.eclipse.classpath.include to the project.properties for TRANQL
- * [GERONIMO-833]  Eclipse location for XMLBeans updated in project.properties
- * [GERONIMO-832]  Calling isUserInRole from JSP not mapped to a Servlet
- * [GERONIMO-831]  TSSBean with no ssl config produces annoying stack trace on startup
- * [GERONIMO-824]  MdbBuilder sets the Listener Type incorrectly causing NPEs at initialization
- * [GERONIMO-823]  We should accept (and ignore) simple type mappings in a jaxrpc-mapping file
- * [GERONIMO-822]  Need more flexibility in interpreting jaxrpc mappings of ArrayOfFoo elements
- * [GERONIMO-820]  CommandSupport does not adequately synchronize access to "state"
- * [GERONIMO-819]  DeploymentContext doesn't actually keep track of childConfigurations
- * [GERONIMO-813]  ServiceContextInterceptor assumes tcp transport
- * [GERONIMO-812]  TargetModuleId sometimes has quotes and sometimes no quotes around moduleID
- * [GERONIMO-808]  multiline cmp-field-name in openejb-jar cause error
- * [GERONIMO-805]  System Log Viewer portlet has a lot of untapped potential
- * [GERONIMO-800]  TomcatWebAppContext must implement getServlets()
- * [GERONIMO-798]  Server "resource" list incorrect?
- * [GERONIMO-796]  "Web Server Manager" portlet returns error in view mode.
- * [GERONIMO-791]  Remove GBeanInstance support for J2EEManagedObject methods
- * [GERONIMO-787]  tck should use unmodified geronimo plans, with additions
- * [GERONIMO-786]  list of unstarted gbeans is no longer printed on console after server startup
- * [GERONIMO-785]  Web services error on startup
- * [GERONIMO-784]  stax is not needed for xmlbeans2
- * [GERONIMO-782]  ejb ws deployment system does not use gbean builder references
- * [GERONIMO-781]  TomcatModuleBuilderTest busted
- * [GERONIMO-780]  mdb builder needs jms message listener as default
- * [GERONIMO-779]  SchemaInfoBuilder class cannot be loaded due to xmlbeans problems
- * [GERONIMO-775]  geronimo specs javamail tests MimeMessageTest and MimeMultipartTest fail
- * [GERONIMO-769]  TCL not correct when setting connector properties
- * [GERONIMO-768]  doc/lit wrapped ws operation results in NPE if method has no parameters
- * [GERONIMO-767]  message-destination-link elements with path info don't work.
- * [GERONIMO-763]  M4: Provide identical Jetty/Tomcat assembly alternatives
- * [GERONIMO-750]  Configuration failing can result in NPE
- * [GERONIMO-749]  GBeanNotFoundException handling in MBeanServerDelegate.invoke
- * [GERONIMO-736]  security, css, and tss schemas have description element from foreign namespace.  This is incredibly inconvenient
- * [GERONIMO-729]  Startup tries to start failed service?
- * [GERONIMO-727]  Problem determining attribute type in GBeanInstance.getAttribute
- * [GERONIMO-714]  WSDL ports with a http:address need to be disregarded
- * [GERONIMO-712]  web deployment fails silently with missing resource ref
- * [GERONIMO-711]  Missing XML declaration in WSDL documents published by WS
- * [GERONIMO-685]  Too many open files from CORBA compiler
- * [GERONIMO-684]  Wrapped document/literal do not work for empty message parts
- * [GERONIMO-682]  Automatic key generators too restrictive
- * [GERONIMO-681]  WS complex Types Problem
- * [GERONIMO-678]  Bad SOAP response when complexTypes are involved
- * [GERONIMO-677]  Repeated login (after session invalidation) with different credentials results in incorrect role set. LOGIN MODULES ARE BEING REUSED
- * [GERONIMO-675]  CMR / CMP Fields should not be read-only
- * [GERONIMO-673]  java.lang.NoClassDefFoundError: org/apache/geronimo/common/DeploymentException at org/apache/geronimo/J2EEDeployer startup
- * [GERONIMO-668]  Unable to determine username from EJB method
- * [GERONIMO-666]  The addWebservice() call in SoapHandler, JettyContainerImpl needs to support a Virtual Host
- * [GERONIMO-664]  Tomcat need webservices integrated
- * [GERONIMO-656]  Invalid Login in deployer should not print the stack trace
- * [GERONIMO-642]  Cannot deploy war files when geronimo is installed in a path with space in name
- * [GERONIMO-616]  Wrong package statement for DoubleKeyedHashMap
- * [GERONIMO-589]  Standalone war does not have a default context
- * [GERONIMO-582]  redeploy uses wrong JAR file path
- * [GERONIMO-578]  Repeated Deploy Attempts See Old Code
- * [GERONIMO-569]  StackOverflowError when sending error page
- * [GERONIMO-564]  Spelling mistake
- * [GERONIMO-546]  web service client xsd has been modified... change it back
- * [GERONIMO-525]  Exception rethrowing in KernelDelegate is often wrong
- * [GERONIMO-514]  Incorrect Deployment Error
- * [GERONIMO-500]  Excessive error output when deployment of a plan fails due to a validation error
- * [GERONIMO-492]  GBean persistence error on ConfigurationEntryFactory methods
- * [GERONIMO-484]  Repeated Deploys of WAR Generate OOM Exception
- * [GERONIMO-480]  Poor Error Message on Deploy of Existing WebApp
- * [GERONIMO-479]  Root of WebApp Displays WEB-INF and META-INF Directories
- * [GERONIMO-462]  JMX Connector ignores port number
- * [GERONIMO-448]  OpenEJB ITests Fail under Sun JDK 1.5.0 (RMIoverIIOP failure)
- * [GERONIMO-395]  Error for /blojsom/: java.lang.StackOverflowError
- * [GERONIMO-334]  cannot find tools.jar at server startup
- * [GERONIMO-322]  NullPointerException in GeronimoLog
- * [GERONIMO-296]  waitForStarted goal on Windows
- * [GERONIMO-713]  class loader server currently cannot run on Tomcat (requires Jetty)
- * [GERONIMO-706]  Change default-database-plan.xml to use Derby and remove axion from Geronimo assembly
+** Bugs
+    * [GERONIMO-287] - Control-C termination overwrites log files created with log4j.xml
+    * [GERONIMO-386] - openejb cmp attempt to modify identity columns
+    * [GERONIMO-409] - SQLSecurityRealm/SQLLoginModule needs overhaul
+    * [GERONIMO-453] - DerbySystemGBean doesn't call System.gc() in doStop() and soFail() as recommended in the Derby doco
+    * [GERONIMO-477] - Deployer should not auto-connect if not asked to
+    * [GERONIMO-518] - Deploying Struts app fails on Logging ClassCastException
+    * [GERONIMO-626] - Marshall Exception while reading an object array with length 0.
+    * [GERONIMO-629] - Misleading error when ra.xml is included in the RAR jar as well as the RAR
+    * [GERONIMO-637] - LogFactory.release(ClassLoader) can release the parent config's logger.
+    * [GERONIMO-670] - Use of undocumented fields with setAccessible
+    * [GERONIMO-688] - ActiveMQActivationSpec default maxSessions value reset to 0 by Geronimo
+    * [GERONIMO-689] - Cannot set MDB activation config maxSessions property
+    * [GERONIMO-717] - Root configurations should use dependencies not manifest classpath.  Requires built-in repository.
+    * [GERONIMO-751] - wsdl4j version is a private build
+    * [GERONIMO-774] - OpenEJB itests - GBeanInstance should already be stopped before die() is called
+    * [GERONIMO-825] - schemaLocation attribute values in deployment plans contain problematic "schema\" prefix.
+    * [GERONIMO-829] - undeploy of components leaves web-inf\lib directory and jars in config-store
+    * [GERONIMO-858] - Clean up dependencies in console application
+    * [GERONIMO-861] - Investigate warning from Pluto portal
+    * [GERONIMO-872] - Jetty does not verify servlet mapping against the servlets
+    * [GERONIMO-877] - Update TranQL connector jar filename in console properties
+    * [GERONIMO-879] - The console inclusion of a license for JDBM is obsolete.
+    * [GERONIMO-883] - We need a flag to indicate if login modules should have their principals wrapped or not
+    * [GERONIMO-886] - Demo application cannot start using the Geronimo console
+    * [GERONIMO-890] - Role Mapping using Login Domain Name
+    * [GERONIMO-912] - Installer uses wrong port variable for web containers
+    * [GERONIMO-918] - Change service-ref to use single definition of "port"
+    * [GERONIMO-935] - ManagedAttribute injection should work when multiple stores are present
+    * [GERONIMO-936] - Reconfigure plugin .classpath to follow Maven convention
+    * [GERONIMO-950] - JVM portlet shouid display all system property values
+    * [GERONIMO-978] - StackOverflowError shutting down Derby
+    * [GERONIMO-980] - jetty to 5.1.5rc1
+    * [GERONIMO-983] - Memory used by proxies isn't released by dereferencing the proxy (I speculate)
+    * [GERONIMO-990] - Remove external SNAPSHOT dependencies
+    * [GERONIMO-1007] - Deployment exception for Local interface class not found error does not show name of local interface class in log
+    * [GERONIMO-1008] - Leading blank lines in <url-pattern>
+    * [GERONIMO-1011] - HTTPS Connectors fail on IBM JDK
+    * [GERONIMO-1014] - problems getting the UserPrincipal for servlets and struts
+    * [GERONIMO-1017] - Non-persistent attributes shouldn't default to manageable
+    * [GERONIMO-1019] - Exception for bad servlet-mapping
+    * [GERONIMO-1021] - tomcat ejb ws login and authorization doesn't work
+    * [GERONIMO-1024] - Null Pointer exception thrown if message destination specifies an  incorrect module name.
+    * [GERONIMO-1028] - WebLogViewerPortlet does not honor the date in the search
+    * [GERONIMO-1029] - tomcat web log seems to be created with wrong name and isn't found by the web log viewer portlet
+    * [GERONIMO-1031] - NullPointerException during deploy of Struts App on Tomcat
+    * [GERONIMO-1032] - Deploy reports an improper port number for a newly deployed web app
+    * [GERONIMO-1036] - Tomcat configurations are not relocatable
+    * [GERONIMO-1039] - Milestone 5 Corba not running with IBM JDK & SUSE LInux
+    * [GERONIMO-1040] - Tomcat and Jetty config files are missing CORBA GBeans
+    * [GERONIMO-1041] - Portlets updates required to match new ActiveMQ and TranQL versions in trunk
+    * [GERONIMO-1042] - Portlet error in Database Pools
+    * [GERONIMO-1043] - Portlet error in All Realms
+    * [GERONIMO-1044] - LoginModule class must be in o/a/g/Security configuration classloader to work
+    * [GERONIMO-1045] - xml-reference in the gbean declaration located in the geronimo-application.xml does not work
+    * [GERONIMO-1046] - ORA-00920 SQL Exception thrown when testing day trader with Oracle
+    * [GERONIMO-1047] - undeploy using "uninstall" in Applications Management page doesn't do the cleanup properly
+    * [GERONIMO-1049] - Remove unused cts-* plans from tck
+    * [GERONIMO-1051] - CSSGSSUPMechConfigDynamic can't get subject
+    * [GERONIMO-1055] - Geronimo schema validation errors
+    * [GERONIMO-1059] - Petstore application won't build via maven if stand-alone
+    * [GERONIMO-1061] - SampleSecurityRealm's LoginService references are obsolete
+    * [GERONIMO-1062] - OpenEJB client leaks memory on each JNDI lookup.  Get OutOfMemoryException after a few thousand lookups
+    * [GERONIMO-1063] - Viewing server logs results in warning message in command prompt
+    * [GERONIMO-1064] - WebConnector portlet results in CodeGenerationException when G is configured for tomcat
+    * [GERONIMO-1065] - Portlet Exception in JMS Connection Factory portlet
+    * [GERONIMO-1067] - Portlet Error in Console Realm portlets
+    * [GERONIMO-1068] - Web Access log management can only handle one log file.
+    * [GERONIMO-1070] - Network Listeners added through console are lost upon server restart
+    * [GERONIMO-1072] - Better error for bad EJB QL
+    * [GERONIMO-1077] - DeploymentException propagated to deployer are incomplete (stack + nested exceptions)
+    * [GERONIMO-1080] - CMP generates invalid update SQL
+    * [GERONIMO-1083] - daytrader does not work with tomcat
+    * [GERONIMO-1090] - By default, CMP fields of type char should be mapped to the CHAR SQL type.
+    * [GERONIMO-1093] - Creating Tomcat Web Connector fails due to unknown gbean attribute acceptCount
+    * [GERONIMO-1094] - OpenEJB client attempts to close connection even when a connection couldn't be obtained causing "Error closing connection with server: null" message
+    * [GERONIMO-1096] - Incomplete ServerPolicy/ClientPolicy classes causes problems with non-Sun ORBs
+    * [GERONIMO-1098] - Tomcat web connector fails to start due to missing name attribute
+    * [GERONIMO-1099] - Error Uninstalling an application - cannot re-install application or restart server
+    * [GERONIMO-1100] - Java Mail portlet loads the Keystore portlet implementation
+    * [GERONIMO-1104] - org.openejb.proxy.CglibEJBProxyFactory$NoOverrideCallbackFilter should implement equals() and hashcode() methods
+    * [GERONIMO-1105] - org.apache.geronimo.axis.client.NoOverrideCallbackFilter should implement should implement equals() and hashcode() methods
+    * [GERONIMO-1108] - CertManagerPortlet is being loaded for the SecurityRealms portlet
+    * [GERONIMO-1112] - Problem with sending mail using G's JavaMail SMTP transport
+    * [GERONIMO-1114] - gbeans with xml-attribute/reference in j2ee plan need correct namespace
+    * [GERONIMO-1115] - Restart/Reboot of G from console give plethora of exceptions
+    * [GERONIMO-1116] - LocalAttributeManager should allow command line override of its configuration file
+    * [GERONIMO-1117] - [Build break] junit tests in openejb failed.
+    * [GERONIMO-1121] - ConnectionManager leaves several timer tasks running even after gbeans are shutdown -- causes memory leak
+    * [GERONIMO-1124] - bouncycastle/jars/bcprov-jdk14-124.jar not found
+    * [GERONIMO-1125] - AbstractSinglePoolConnectionInterceptor$IdleReleaser keeps MultiParentClassLoaders alive
+    * [GERONIMO-1128] - Derby Log Viewer performance problem
+    * [GERONIMO-1131] - component context not available in tomcat servlet init methods
+    * [GERONIMO-1132] - Undeploy using Deployment Manager fails to undeploy application
+    * [GERONIMO-1136] - Console deployment dies unless separate plan provided
+    * [GERONIMO-1138] - Revise database pool creation portlet to use JSR-88
+    * [GERONIMO-1144] - The deployer does not look for ConfigurationBuilder in other modules
+    * [GERONIMO-1145] - Too many ORBs (or possibly not enough)
+    * [GERONIMO-1146] - imported transactions in mdbs don't work properly
+    * [GERONIMO-1147] - CORBAHandleDelegate does not work with some orbs
+    * [GERONIMO-1148] - Jetty & Tomcat Consoles use conflicting Keystore GBean
+    * [GERONIMO-1150] - NullPointerException when no security element is in plan
+    * [GERONIMO-1151] - Changing EJB port from 4201 to another value in config.xml does not take effect
+    * [GERONIMO-1152] - Connector portlet does not display all WebConnectors
+    * [GERONIMO-1154] - connector and security xsd's need import to xml.xsd
+    * [GERONIMO-1155] - ActiveMQSessions build up during DayTrader execution
+    * [GERONIMO-1157] - Repository list/upload screen should use management API
+    * [GERONIMO-1158] - Need edit screen for new database pool portlet
+    * [GERONIMO-1159] - New L&F for Console: Fix Header
+    * [GERONIMO-1160] - New database pool portlet doesn't edit existing pools
+    * [GERONIMO-1161] - Web Server - Network Listeners - HTTPS Listener edit page updates
+    * [GERONIMO-1162] - GeronimoSchemaUtils security schema upgrade code broken
+    * [GERONIMO-1165] - Changing System DB pool size to 65 causes ActiveMQ to fail to get a connection
+    * [GERONIMO-1171] - GBeanInstance should load reference types from types classloader, not gbeans classloader
+    * [GERONIMO-1172] - SecurityBuilder needs to use configuration classloader to construct principals.
+    * [GERONIMO-1177] - URLJarFile memory leak
+    * [GERONIMO-1181] - Add/Edit Tomcat HTTPS Connector does not address truststore parameters
+    * [GERONIMO-1185] - Updated Web Access Log Viewer doesn't display any log records
+    * [GERONIMO-1186] - Illegal argument exception when returning from add listener to display list in web server page, network listeners portlet
+    * [GERONIMO-1200] - HotDeployer gets IllegalStateExceptions during a non-hot deploy deploy of an app
+    * [GERONIMO-1201] - All our login modules implement login() incorrectly
+    * [GERONIMO-1203] - LoginConfig processing can silently do the wrong thing
+    * [GERONIMO-1205] - Security realms load XML login module definitions in reverse order
+    * [GERONIMO-1206] - SQLSecurityRealm doesn't work with PostgreSQL
+    * [GERONIMO-1207] - Dependency / Lifecycle Woes
+    * [GERONIMO-1208] - LoginConfig XML doesn't support the wrap flag
+    * [GERONIMO-1209] - New security realm portlet doesn't update existing realms
+    * [GERONIMO-1211] - Problems with javamail implementation
+    * [GERONIMO-1218] - deploy command cannot be run when server is stopped as help indicates
+    * [GERONIMO-1219] - EJB Deploy Error
+    * [GERONIMO-1220] - EJB Deploy Error #2
+    * [GERONIMO-1221] - Recent caching changes in cglib broke axis-builder
+    * [GERONIMO-1222] - Principal wrapping changes broke CSSSASITTPrincipalNameDynamic
+    * [GERONIMO-1225] - The recently added "Common Console Actions" on welcome page doesn't work right
+    * [GERONIMO-1226] - Remove broken Reboot option from Console Shutdown/Restart
+    * [GERONIMO-1229] - Schema conversion search for elements should use qname, not just localname.
+    * [GERONIMO-1232] - startup.sh is not executable when built on windows
+    * [GERONIMO-1245] - Backward M5 deployment capability broken
+    * [GERONIMO-1247] - Patch for xml.xsd, geronimo-connector-1.0.xsd and geronimo-security-1.1.xsd
+    * [GERONIMO-1248] - Problem in using a security realm added through geronimo console
+    * [GERONIMO-1249] - Error in deploying a web application through geronimo console
+    * [GERONIMO-1250] - Console Realm Create new user results in error and gives confusing error message.
+    * [GERONIMO-1251] - Unable to add a new realm thru "Security Realms" portlet
+    * [GERONIMO-1252] - Keystore portlet gets exception trying to view generated keypair.
+    * [GERONIMO-1253] - Button labels on Generate Keystore Page dialog not consistent.
+    * [GERONIMO-1256] - deploy:waitForStarted broken
+    * [GERONIMO-1261] - Writes to repository broken
+    * [GERONIMO-1262] - Common Libraries portlet fails with a GBeanNotFoundException
+    * [GERONIMO-1263] - dependency element components need white space trimmed
+    * [GERONIMO-1264] - Link icon in console is the Gluecode Joe logo
+    * [GERONIMO-1266] - Geronimo Izpack installer does not set shell scripts as executable
+    * [GERONIMO-1270] - NoClassDefFound exception in JMS Connection Factory portlet
+    * [GERONIMO-1274] - Cannot install an application on Geronimo using the admin console
+    * [GERONIMO-1276] - Installing an application into Jetty - "started" state not retained after a restart
+    * [GERONIMO-1283] - Demo Application Broken
+    * [GERONIMO-1291] - Document geronimo-config.xsd
+    * [GERONIMO-1292] - Connector Portlet: List connectors in Web Server management page throws exception
+    * [GERONIMO-1295] - Deploy & Undeploy no longer affect config.xml; next startup dies
+    * [GERONIMO-1297] - Scripts in assemblies servers probably don't have right permissions
+    * [GERONIMO-1299] - Refresh servlet-examples and jsp-examples war files
+    * [GERONIMO-1301] - Need to move shutdown jar to "new" servers
+    * [GERONIMO-1304] - assemblies servers need online deployer
+    * [GERONIMO-1305] - Packaging a car with the maven plugin, using the geronimo.include properties on dependencies,  fails
+    * [GERONIMO-1308] - Continued build problems with "new" Maven goals
+    * [GERONIMO-1309] - Shutdown of tomcat configuration noisy and has GBeanInstanceState Errors
+    * [GERONIMO-1310] - Jetty startup noisy and corrupts the startup progress bar output
+    * [GERONIMO-1311] - Geronimo server assemblies do not set execute permission on *.sh scripts
+    * [GERONIMO-1312] - app client builder uses config-store in a way inconsistent with the packaging plugin
+    * [GERONIMO-1313] - openejb builder listener attribute has bad object name
+    * [GERONIMO-1319] - web apps need more dependencies, on admin objects in the same ear
+    * [GERONIMO-1320] - Assembly plugin should install all the parents of a configuration you install
+    * [GERONIMO-1321] - svn:eol-style property not set to native on all *.java *.xml *.html *.txt etc.
+    * [GERONIMO-1325] - server tar.gz files built on windows don't have execute permission set on scripts
+    * [GERONIMO-1331] - QName class escaped from startup classpath
+    * [GERONIMO-1334] - 142 config-store directories are created during a build
+    * [GERONIMO-1337] - Add quotes around variable reference in geronimo.sh
+    * [GERONIMO-1339] - db pool size & connection attributes are not saved in config.xml
+    * [GERONIMO-1340] - Assemblies include all car files in the repository
+    * [GERONIMO-1345] - Connection pool resizing does not calculate what to do correctly
+    * [GERONIMO-1348] - Packaging plugin does not set extension directories
+    * [GERONIMO-1350] - Web Console indicates that web server stats are available for Tomcat when they really are not
+    * [GERONIMODEVTOOLS-2] - Creation of new open-ejb.jar xml requires EnterpriseBeansType element
+    * [GERONIMODEVTOOLS-4] - React to WTP model/API changes in LaunchConfiguration
+
+** New Features
+    * [GERONIMO-419] - Lockout after N failed logins
+    * [GERONIMO-512] - non-reference gbean dependencies
+    * [GERONIMO-513] - jndi refs should result in dependencies, optionally
+    * [GERONIMO-686] - Directory based hot deployment support
+    * [GERONIMO-778] - Geronimo XDoclet 1.2.2 module contribution
+    * [GERONIMO-922] - Provide a simple filter to show or hide Geronimo system applications in the Application views.
+    * [GERONIMO-1087] - Add Tomcat servlets-examples to geronimo
+    * [GERONIMO-1109] - Need class for server shutdown
+    * [GERONIMO-1178] - Reference material for an SMTP provider
+    * [GERONIMO-1193] - Installer should include schema files for components included in the install target
+    * [GERONIMODEVTOOLS-1] - Geronimo Tooling: migrate UI to EMF.edit framework
+
+** Improvements
+    * [GERONIMO-242] - Keep history of running configurations
+    * [GERONIMO-358] - JSR-88 deployer should work remotely
+    * [GERONIMO-406] - Move assembly out of modules
+    * [GERONIMO-417] - Provide an LDAP security realm
+    * [GERONIMO-463] - CLI Deployer doesn't give login prompt for non-Geronimo server
+    * [GERONIMO-640] - Remove dependency on Sun internals code for URL decoding
+    * [GERONIMO-699] - Need welcome page at http://localhost:8080/
+    * [GERONIMO-733] - Ouput configuration startup times in startup console output
+    * [GERONIMO-788] - Improved look & feel for web console
+    * [GERONIMO-804] - Redeploy should calculate ModuleID to replace if not provided
+    * [GERONIMO-839] - Require flag to provide config list on server startup, handle bogus arguments
+    * [GERONIMO-849] - Be able to add configuration dependencies
+    * [GERONIMO-887] - Improve the Keystore portlet
+    * [GERONIMO-1015] - Management API: Web Logging
+    * [GERONIMO-1052] - By default finders and selects should retrieve all CMP fields not mapped to LOB columns
+    * [GERONIMO-1060] - Improvements to attribute management
+    * [GERONIMO-1074] - GeronimoLogFactory should be installed via the service provider mechanism
+    * [GERONIMO-1088] - Add Tomcat jsp-examples to geronimo
+    * [GERONIMO-1091] - Adding a partition to Apache DS with Geronimo
+    * [GERONIMO-1119] - Web apps should know what container they're in
+    * [GERONIMO-1120] - Auto-detect config ID for a deployable archive
+    * [GERONIMO-1122] - Updated view of configurations
+    * [GERONIMO-1123] - generate geronimo-service.xml files from marked dependencies in project.xml
+    * [GERONIMO-1126] - Packaging plugin should add marked dependencies from project.xml
+    * [GERONIMO-1127] - Assembly plugin should analyse config dependencies to fill geronimo repo
+    * [GERONIMO-1139] - Deploy tool should offer host/port options not just URL
+    * [GERONIMO-1143] - Need a capable security realm configuration portlet
+    * [GERONIMO-1149] - Installment 1 of new Epiq provided look and feel
+    * [GERONIMO-1153] - Add New Application should be on its own page from the web console navigation
+    * [GERONIMO-1166] - Enhance Startup scripts to allow process to be launched in background
+    * [GERONIMO-1169] - Highlight links, clean up some colors
+    * [GERONIMO-1170] - Update Geronimo Welcome page to Epiq provided look and feel
+    * [GERONIMO-1188] - Get necessary izpack jars into Maven repository for access during build
+    * [GERONIMO-1189] - Installer should be built from its own module in assemblies.
+    * [GERONIMO-1190] - usability: Install should not display configuration screens for packs not being installed
+    * [GERONIMO-1195] - Present a Welcome Portlet with Geronimo information after login
+    * [GERONIMO-1197] - Geronimo Console Look and Feel installement #2  - icons in navigation, improved images/layout.
+    * [GERONIMO-1202] - SQL Login Module support for server Database Pools
+    * [GERONIMO-1213] - Install tomcat default files using a gbean rather than adding explicit jelly code to assembly
+    * [GERONIMO-1214] - Uniformize the schemas for imports, dependencies, and class lists over all geronimo plan schemas
+    * [GERONIMO-1217] - WARN message in console for JMS Server
+    * [GERONIMO-1223] - Hot Deploy performance improvement Just check directories -patch available
+    * [GERONIMO-1230] - Use abstract non-path maven-like uris for repository and configId
+    * [GERONIMO-1246] - BasicKernel.listGBeansByInterface should get GBeanInfo directly
+    * [GERONIMO-1258] - Introduce Tomcat examples - using new build structure
+    * [GERONIMO-1267] - Startup processing should check that a temp directory configured in java.io.tmpdir exists before starting configurations
+    * [GERONIMO-1268] - Add --long startup option that uses a startup progress output format that is suitable for redirection to a file
+    * [GERONIMO-1269] - Rename -quiet and -override startup options to follow the -short and --long option naming convention
+    * [GERONIMO-1272] - Edit Network Listener portlet should show name of listener being editted.
+    * [GERONIMO-1275] - Security realm configuration file connecting specifically to the Apache Directory Server in Geronimo
+    * [GERONIMO-1279] - Upgrade to Ant 1.6.5 from 1.5
+    * [GERONIMO-1280] - Upgrade from TranQL 1.1 to 1.2
+    * [GERONIMO-1281] - Upgrade TranQL Connector Version 1.1
+    * [GERONIMO-1282] - Upgrade to TranQL Vendor connectors 1.1
+    * [GERONIMO-1284] - Set default console log level to INFO
+    * [GERONIMO-1286] - Have CRLF line endings for zip distribution and LF line endings for tar.gz distribution
+    * [GERONIMO-1288] - Add README.txt file to var/config directory
+    * [GERONIMO-1289] - Include a config.xml.original file in the var/config directory in the distribution
+    * [GERONIMO-1290] - Rename the "geronimo.base.dir" System Property to "org.apache.geronimo.base.dir"
+    * [GERONIMO-1294] - Remove offline deployment capabilities from deployer.jar
+    * [GERONIMO-1298] - Apache Geronimo V1.0 - Documentation Draft
+    * [GERONIMO-1300] - Add the new Geronimo powered by gif to the Welcome Page and the web console welcome portlet
+    * [GERONIMO-1306] - Remove modules/assembly build
+    * [GERONIMO-1318] - HTTP redirects for the geronimo.apache.org site
+    * [GERONIMO-1328] - Remove bad/missing portlets from Console *in 1.0 Branch only*
+    * [GERONIMO-1332] - Allow deployment and use of exploded modules (e.g., EARs, JARs, WARs, etc.)
+    * [GERONIMO-1346] - Encrypt passwords stored in config.xml
+
+** Tests
+    * [GERONIMO-1254] - Changing Axis version from 1.3 to 1.4-SNAPSHOT
+    * [GERONIMO-1255] - Changing ActiveMQ from 3.2 to 3.2.1 in preperation for Geronimo 1.0 Release
+
+** Wish List
+    * [GERONIMO-1227] - please re-allow read-only repositories
+
+** Tasks
+    * [GERONIMO-194] - Date, time and datetime data type support for CMP entitiy beans
+    * [GERONIMO-271] - PetStore deployment
+    * [GERONIMO-320] - Geronimo Realm provider for existing Tomcat Realm implementations
+    * [GERONIMO-627] - Geronimo Incubator Web Page Must Die!
+    * [GERONIMO-744] - Review specs and move them from rc versions to formal versions
+    * [GERONIMO-754] - Move from HOWL version 0.1.8 to HOWL version 0.1.9
+    * [GERONIMO-855] - CORBA configuration in izpack installer is not used and needs to be updated to configure the CORBA support in OpenEJB
+    * [GERONIMO-1106] - Upgrade to CgLib maintenance release 2.1_03
+    * [GERONIMO-1107] - Upgrade HOWL from version 0.1.8 to version 0.1.11
+    * [GERONIMO-1167] - Upgrade to Tomcat 5.5.12
+    * [GERONIMO-1244] - Upgrade to Derby 10.1.2.1
+    * [GERONIMO-1326] - Remove ServiceMix modules / builder from 1.0 branch
 
 
