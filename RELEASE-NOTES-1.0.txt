@@ -14,7 +14,8 @@ Wiki:          http://wiki.apache.org/geronimo
 System Requirements
 -------------------
 You need a platform that supports the Sun JDK 1.4.2.  CORBA
-support should use 1.4.2_08 as a minimum release level.
+support requires a Sun Java 1.4.2 VM (specifically 1.4.2_08
+or a higher 1.4.2_* release).
 
 Most testing has been done on Linux, Mac OS X, and Windows.
 
@@ -47,16 +48,20 @@ If you prefer to start the server without a script file you can simply type:
 java -jar bin/server.jar
 
 Once the server has started, you can access the administration console
-at http://localhost:8080/console. The default user name is "system" and
+at http://localhost:8080/console/ . The default user name is "system" and
 the default password is "manager".
 
-Administration Console security configuration
+
+Administration Console Security Configuration
 ---------------------------------------------
-The default administration user/password for the admin console and deployment is system/manager.
-To change this edit the var/security/users.properties and var/security/groups.properties files.
+The default administration user/password for the admin console and
+deployment is system/manager.  To change this edit the
+var/security/users.properties and var/security/groups.properties
+files.
+
 
 Deploying Applications
-------------------------------
+----------------------
 Geronimo comes with deploy scripts and batch files to deploy J2EE
 modules or applications. Alternatively, to deploy a J2EE module or 
 application, start Geronimo and then run (for example):
@@ -64,7 +69,10 @@ application, start Geronimo and then run (for example):
    java -jar bin/deployer.jar deploy my-web-app.war [deploy plan]
 
 You will need to use the username "system" and password "manager"
-unless you customized those during the install process.
+unless you customized those during the install process.  The
+deployment plan argument is optional -- you can pack a deployment
+plan into the application module, provide it on the command line,
+or in some cases omit it entirely.
 
 For more information on the commands and options supported by the
 deploy tool, run
@@ -72,10 +80,21 @@ deploy tool, run
    java -jar bin/deployer.jar help [command]
 
 
-Current Road Map at a Glance
-----------------------------
-http://wiki.apache.org/geronimo/RoadMap
+Other Deployment Options
+------------------------
+As an alternative to the command-line deployer, you can copy
+application modules into the geronimo/deploy/ directory and the
+hot deployer service will deploy them automatically.  The
+command-line deployer has some advantages, as it will output any
+deployment errors to its own console rather than just the server
+log, but either method will generally work.
 
+Additionally, Geronimo provides a Maven plugin that can deploy
+applications to Geronimo as part of a Maven build.
+
+
+Future Road Map at a Glance
+---------------------------
 http://issues.apache.org/jira/browse/GERONIMO?
       report=com.atlassian.jira.plugin.system.project:roadmap-panel
 
@@ -84,57 +103,72 @@ http://issues.apache.org/jira/browse/GERONIMO?
 
 Significant Changes Since the M5 Release
 ----------------------------------------
- * the ConfigID format has been updated in anticiaptation of future enhancements.  
-   Application plans that include configIds of configurations included in Geronimo M5
-   and earlier will require modifications.
-   See the Wiki at http://geronimo.apache.org for more information.
- * New look and feel to the Administrative Console
- * Added the ability to do Tomcat Clustering for HTTPSessions
- * Hot Deploy by copying your deployment artifact to the deploy directory
- * Ability to do remote deployment
- * Packages that represented experimental, pre-release or obsolete versions were removed.
+ * the ConfigID format has been updated in anticipatation of future
+   enhancements.  Application plans that include configIds of
+   configurations included in Geronimo M5 and earlier will require
+   modifications.  See the Wiki at http://wiki.apache.org/geronimo
+   for more information.
+ * More functionality and new look and feel for the Administrative
+   Console (http://localhost:8080/console/)
+ * Added HTTP session clustering to the Tomcat configuration
+   included with Geronimo
+ * Hot Deploy by copying your deployment artifact to the deploy/
+   directory
+ * Ability to run the deploy tool from a machine other than the
+   application server (remote deployment)
+ * Packages that represented experimental, pre-release or obsolete
+   versions were removed.
  * Clustering
    - Tomcat support for clustering is available in this release.
-   - WADI has been included as a technology preview for both Jetty and Tomcat
-     See http://wadi.codehaus.org for additional information.
+   - WADI has been included as a technology preview for both Jetty
+     and Tomcat.  See http://wadi.codehaus.org for additional
+     information.
+
 
 Choice of Web container
 -----------------------
-Two versions of the Geronimo binary are available for download.  There is a version for the Jetty
-WebContainer and one for the Tomcat WebContainer.  Please download the binary appropriate for your 
-installation.
+Two versions of the Geronimo binary are available for download.
+There is a version for the Jetty Web container and a version for
+the Tomcat Web container.  Both distributions are fully supported
+by the Geronimo team.  Please download the binary appropriate for
+your installation.
+
 
 Configuration
 -------------
-Most gbean attributes can be configured using the config.xml file.  The attributes most likely
-to be changed are already included in the supplied config.xml file.
+Most configuration attributes can be updated in the
+geronimo/var/config/config.xml file.  The attributes most likely
+to be changed are already included in the supplied config.xml file,
+while others may need to be added manually.
 
-Significant Missing Features
-----------------------------
- * J2EE Application Client that works from a machine other than the server
- * JSR-88 support for DConfig Beans (this exists partially)
- * Offline deployment and assembly tools (expected shortly)
- * Installer program (expected shortly)
 
 Overall Project Status
 ----------------------
-The current Version release of 1.0 represents a significant Milestone for the Geronimo 
-project.  After a little over two years of effort this server represents a fully 
-compliant and usable J2EE container suitable for use in the Enterprise.  
+The current version release of 1.0 represents a significant step
+for the Geronimo  project.  After a little over two years of effort
+this distribution is a fully compliant and usable J2EE container
+suitable for everything from development to Enterprise deployments.
 
-Next steps for the project are to enhance the performance and usability characteristics 
-of the server in addition to adding new function.  User feedback is a critical and coveted 
-resource.  The team is anxious to draw upon feedback to ensure we are meeting the needs 
-and expectations of the Geronimo User Community.  
+The next version of Geronimo is focused on several areas, including:
 
-Goals for the next release are currently being considered.  Here is a partial list and as 
-always feedback is welcomed and appreciated.  Here are some of the ideas for the next release:
+ * continue to enhance the performance and usability of the server
+ * improve cross-platform compatibility
+ * improve integration with third-party development tools and
+   server products
 
-* Pluggable Kernel that will ease integration of external components. 
-* Enhanced ability to assemble customized servers including only the services required by the applications to be run. 
-* Enhanced configuration, administration and management.
-* Improved clustering support for web containers and ejbs.
+User feedback is critical for future released to be successful!
+The Geronimo team is anxious to gather feedback to ensure we are
+meeting the needs and expectations of the user community.
 
+In addition to the goals mentioned above, several specific changes
+are currently being considered:
+
+ * Make the Geronimo kernel pluggable, to help ease integration of
+   external components. 
+ * Enhance the ability to assemble customized servers (including only
+   the services required by the applications to be run).
+ * Enhance configuration, administration and management tools
+ * Improve clustering support for web containers and ejbs
 
 For more information on specific bugs or features, or to help with
 testing efforts, please visit JIRA, our bug/issue tracking system, at
@@ -143,15 +177,25 @@ http://issues.apache.org/jira/browse/GERONIMO
 
 Certification Status
 --------------------
-Geronimo 1.0 has passed the J2EEtm certification test suite.  We will
-be filing the appropriate certification paperwork with Sun for official
-J2EE certification.
+Geronimo 1.0 has passed the J2EE(tm) certification test suite.  We
+will be filing the appropriate certification paperwork with Sun for
+official J2EE certification.
+
+
+Significant Missing Features
+----------------------------
+ * J2EE Application Client that works from a machine other than the
+   server
+ * Full JSR-88 support for DConfig Beans (the current features are
+   somewhat incomplete)
+ * Offline deployment and assembly tools (expected shortly)
+ * Installer program (expected shortly)
 
 
 Specific Issues, Features and Improvements for Version 1.0
 ----------------------------------------------------------
 
-** Bug
+** Bugs
     * [GERONIMO-287] - Control-C termination overwrites log files created with log4j.xml
     * [GERONIMO-386] - openejb cmp attempt to modify identity columns
     * [GERONIMO-409] - SQLSecurityRealm/SQLLoginModule needs overhaul
@@ -335,7 +379,7 @@ Specific Issues, Features and Improvements for Version 1.0
     * [GERONIMODEVTOOLS-2] - Creation of new open-ejb.jar xml requires EnterpriseBeansType element
     * [GERONIMODEVTOOLS-4] - React to WTP model/API changes in LaunchConfiguration
 
-** New Feature
+** New Features
     * [GERONIMO-419] - Lockout after N failed logins
     * [GERONIMO-512] - non-reference gbean dependencies
     * [GERONIMO-513] - jndi refs should result in dependencies, optionally
@@ -348,7 +392,7 @@ Specific Issues, Features and Improvements for Version 1.0
     * [GERONIMO-1193] - Installer should include schema files for components included in the install target
     * [GERONIMODEVTOOLS-1] - Geronimo Tooling: migrate UI to EMF.edit framework
 
-** Improvement
+** Improvements
     * [GERONIMO-242] - Keep history of running configurations
     * [GERONIMO-358] - JSR-88 deployer should work remotely
     * [GERONIMO-406] - Move assembly out of modules
@@ -417,14 +461,14 @@ Specific Issues, Features and Improvements for Version 1.0
     * [GERONIMO-1332] - Allow deployment and use of exploded modules (e.g., EARs, JARs, WARs, etc.)
     * [GERONIMO-1346] - Encrypt passwords stored in config.xml
 
-** Test
+** Tests
     * [GERONIMO-1254] - Changing Axis version from 1.3 to 1.4-SNAPSHOT
     * [GERONIMO-1255] - Changing ActiveMQ from 3.2 to 3.2.1 in preperation for Geronimo 1.0 Release
 
-** Wish
+** Wish List
     * [GERONIMO-1227] - please re-allow read-only repositories
 
-** Task
+** Tasks
     * [GERONIMO-194] - Date, time and datetime data type support for CMP entitiy beans
     * [GERONIMO-271] - PetStore deployment
     * [GERONIMO-320] - Geronimo Realm provider for existing Tomcat Realm implementations
