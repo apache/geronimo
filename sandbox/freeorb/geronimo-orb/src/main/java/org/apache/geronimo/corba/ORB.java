@@ -18,6 +18,7 @@ package org.apache.geronimo.corba;
 
 import java.applet.Applet;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -28,10 +29,14 @@ import org.apache.geronimo.corba.interceptor.InterceptorManager;
 import org.apache.geronimo.corba.io.DefaultConnectionManager;
 import org.apache.geronimo.corba.io.EncapsulationInputStream;
 import org.apache.geronimo.corba.io.InputStreamBase;
+import org.apache.geronimo.corba.io.EncapsulationOutputStream;
+import org.apache.geronimo.corba.io.GIOPVersion;
 import org.apache.geronimo.corba.ior.InternalIOR;
 import org.apache.geronimo.corba.ior.URLManager;
 import org.apache.geronimo.corba.policy.PolicyFactoryManager;
 import org.apache.geronimo.corba.server.DefaultServerManager;
+import org.apache.geronimo.corba.util.HexUtil;
+
 import org.omg.CORBA.Context;
 import org.omg.CORBA.ContextList;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -41,6 +46,7 @@ import org.omg.CORBA.Policy;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.TRANSIENT;
 import org.omg.CORBA.WrongTransaction;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.portable.OutputStream;
 import org.omg.PortableInterceptor.ORBInitInfoOperations;
@@ -63,7 +69,7 @@ public class ORB extends AbstractORB {
 	private InitialServicesManager ism;
 
 	private PolicyFactoryManager pfm;
-	
+
 	private InterceptorManager im;
 
 	protected void set_parameters(String[] args, Properties props) {
@@ -79,7 +85,7 @@ public class ORB extends AbstractORB {
 				throw t;
 			}
 		}
-		
+
 		ism = new InitialServicesManager(this);
 		ism.init(args, props);
 
@@ -90,8 +96,7 @@ public class ORB extends AbstractORB {
 	}
 
 	protected void set_parameters(Applet app, Properties props) {
-		// TODO Auto-generated method stub
-		throw new NO_IMPLEMENT();
+            throw new NO_IMPLEMENT("This ORB is currently not designed to be used in an Applet environment");
 	}
 
 	public String[] list_initial_services() {
@@ -108,8 +113,18 @@ public class ORB extends AbstractORB {
 	}
 
 	public String object_to_string(Object obj) {
-		// TODO Auto-generated method stub
-		return null;
+            try {
+                EncapsulationOutputStream os = new EncapsulationOutputStream(this, GIOPVersion.V1_0);
+                os.write_Object(obj);
+                os.flush();
+                byte[] bytes = os.getBytes();
+                return "IOR:" + HexUtil.byteArrayToHex(bytes);
+            } catch (IOException ex) {
+                // should never happen as we are dealing with in-memory streams here
+                final INTERNAL internal = new INTERNAL();
+                internal.initCause(ex);
+                throw internal;
+            }
 	}
 
 	public Object string_to_object(String str) {
