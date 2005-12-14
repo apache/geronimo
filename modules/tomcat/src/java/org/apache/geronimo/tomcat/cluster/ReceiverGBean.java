@@ -36,6 +36,10 @@ public class ReceiverGBean  extends BaseGBean implements
     public static final String J2EE_TYPE = "Receiver";
 
     private final ClusterReceiver receiver;
+    
+    public ReceiverGBean() {
+        receiver = null;
+    }
 
     public ReceiverGBean(String className, Map initParams) throws Exception {
 

@@ -31,6 +31,10 @@ public class FarmWarDeployerGBean extends ClusterDeployerGBean{
 
     private final ServerInfo serverInfo;
 
+    public FarmWarDeployerGBean(){
+       serverInfo = null;     
+    }
+    
     public FarmWarDeployerGBean(String tempDir,
                                 String deployDir,
                                 String watchDir,

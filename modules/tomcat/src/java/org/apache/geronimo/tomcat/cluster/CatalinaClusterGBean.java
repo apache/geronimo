@@ -44,6 +44,10 @@ public class CatalinaClusterGBean extends BaseGBean implements GBeanLifecycle, O
    public static final String J2EE_TYPE = "Cluster";
    
    private final CatalinaCluster cluster;
+   
+   public CatalinaClusterGBean(){
+       cluster=null;
+   }
 
    public CatalinaClusterGBean(String className, 
            Map initParams,            

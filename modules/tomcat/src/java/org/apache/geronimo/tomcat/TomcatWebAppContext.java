@@ -457,7 +457,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("RoleDesignateSource", RoleDesignateSource.class, NameFactory.JACC_MANAGER);
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
-        infoBuilder.addReference("Cluster", CatalinaClusterGBean.class);
+        infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
         infoBuilder.addReference("Manager", WADIGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);

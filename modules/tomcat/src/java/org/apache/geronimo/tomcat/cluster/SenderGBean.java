@@ -36,6 +36,10 @@ public class SenderGBean extends BaseGBean implements
     public static final String J2EE_TYPE = "Sender";
 
     private final ClusterSender sender;
+    
+    public SenderGBean(){
+        sender = null;
+    }
 
     public SenderGBean(String className, Map initParams) throws Exception {
 

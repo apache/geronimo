@@ -36,6 +36,10 @@ public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, 
 
     protected final ClusterDeployer deployer;
 
+    public ClusterDeployerGBean() {
+       deployer = null; 
+    }
+    
     public ClusterDeployerGBean(String className, Map initParams) throws Exception {
 
         super(); // TODO: make it an attribute
