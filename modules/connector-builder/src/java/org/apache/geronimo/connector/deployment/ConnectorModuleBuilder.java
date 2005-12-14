@@ -243,16 +243,16 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         List parentId = ServiceConfigBuilder.getParentID(gerConnector.getParentId(), gerConnector.getImportArray());
+        //suppressing the default parentid is mostly useful for deploying standalone connectors on the app client.
+        //The defaultParentId normally pulls in and tries to start all the base server gbeans.
+        if (!gerConnector.getSuppressDefaultParentId()) {
+            parentId.addAll(defaultParentId);
+        }
         return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
-        //suppressing the default parentid is mostly useful for deploying standalone connectors on the app client.
-        //The defaultParentId normally pulls in and tries to start all the base server gbeans.
-        if (!vendorConnector.getSuppressDefaultParentId()) {
-            earContext.addParentId(defaultParentId);
-        }
         try {
             JarFile moduleFile = module.getModuleFile();
 
