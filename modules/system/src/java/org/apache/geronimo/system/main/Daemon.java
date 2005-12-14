@@ -102,10 +102,10 @@ public class Daemon {
                     "             update the progress information that is used by default if you\n" +
                     "             don't specify " +ARGUMENT_NO_PROGRESS +" or "+ARGUMENT_LONG_PROGRESS+").\n");
         out.println("  "+ARGUMENT_VERBOSE_SHORTFORM +" " +ARGUMENT_VERBOSE);
-        out.println("             Reduces the console log level to INFO, resulting in more\n" +
+        out.println("             Reduces the console log level to DEBUG, resulting in more\n" +
                     "             console output than is normally present.");
         out.println("  "+ARGUMENT_MORE_VERBOSE_SHORTFORM +" " +ARGUMENT_MORE_VERBOSE);
-        out.println("             Reduces the console log level to DEBUG, resulting in still\n" +
+        out.println("             Reduces the console log level to TRACE, resulting in still\n" +
                     "             more console output.");
         out.println();
         out.println("  "+ARGUMENT_CONFIG_OVERRIDE+" [configId] [configId] ...");
