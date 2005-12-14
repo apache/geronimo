@@ -20,7 +20,7 @@
     <resources>
 	<res id="Installer.image" src="${InstallSource}/izpack/geronimo_banner_vert.gif" />
         <res id="LicencePanel.licence" src="${InstallSource}/LICENSE.txt"/>
-	<res id="InfoPanel.info" src="${InstallSource}/RELEASE-NOTES-${ReleaseNotesVersion}.txt"/>
+	<res id="InfoPanel.info" src="${InstallSource}/RELEASE-NOTES-1.0.txt"/>
 	<res id="userInputSpec.xml" src="${InstallSource}/izpack-user-input.xml" />
 <!--	<res id="ProcessPanel.Spec.xml" src="${InstallSource}/izpack-process.xml" /> -->
 	<res id="ImgPacksPanel.img.0" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
@@ -71,11 +71,7 @@
 	    <file src="${InstallSource}/BUILDING.txt" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/LICENSE.txt" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/README.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M1.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M2.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M3.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M4.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M5.txt" targetdir="$INSTALL_PATH"/>
+	    <file src="${InstallSource}/RELEASE-NOTES-1.0.txt" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/bin" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/lib" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/config-store" targetdir="$INSTALL_PATH"/>
