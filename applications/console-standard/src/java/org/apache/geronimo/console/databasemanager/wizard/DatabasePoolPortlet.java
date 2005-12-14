@@ -811,8 +811,8 @@ public class DatabasePoolPortlet extends BasePortlet {
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
-                connector.setConfigID("user/database-pool"+data.getName() + "/1/car");
-                connector.setParentID("geronimo/j2ee-server/1.0-SNAPSHOT/car");
+                connector.setConfigID("user/database-pool-"+data.getName() + "/1/car");
+                // Use a parentId of null to pick up the default
                 if(data.jar1 != null && !data.jar1.equals("")) {
                     Dependency dep = new Dependency();
                     connector.setDependency(new Dependency[]{dep});

@@ -317,7 +317,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         normalize(data);
         ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
         ConfigurationType root = doc.addNewConfiguration();
-        root.setConfigId("SecurityRealm"+data.getName());
+        root.setConfigId("SecurityRealm-"+data.getName());
         // Use a parentId of null to pick up the default
         // Dependencies
         if(data.getJar() != null) {
