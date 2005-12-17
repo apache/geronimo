@@ -184,12 +184,6 @@
 
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
