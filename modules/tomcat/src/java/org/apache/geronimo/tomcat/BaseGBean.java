@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.modeler.util.IntrospectionUtils;
+import org.apache.tomcat.util.IntrospectionUtils;
 
 public abstract class BaseGBean {
 
