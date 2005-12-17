@@ -53,7 +53,7 @@ public class DerbyConnectionUtil {
     private static final String EMPTY_PROPS = "";
 
     private static final ObjectName SYSTEM_DATASOURCE_NAME = JMXUtil
-            .getObjectName("geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=org/apache/geronimo/SystemDatabase,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource");
+            .getObjectName("geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/system-database/1.0/car,j2eeType=JCAManagedConnectionFactory,name=SystemDatasource");
 
     /**
      * Get database connection.
