@@ -144,7 +144,6 @@ Configuration for Tomcat server.
         </reference>
         <references name="LogGBeans">
             <pattern>
-                <!-- This is lame and should be replaced by an interface reference -->
                 <gbean-name>geronimo.server:name=FirstValve,*</gbean-name>
             </pattern>
         </references>
