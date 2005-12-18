@@ -33,7 +33,16 @@
 @REM $Rev$ $Date$
 @REM --------------------------------------------------------------------
 
-if "%OS%" == "Windows_NT" setlocal
+@if "%GERONIMO_BATCH_ECHO%" == "on"  echo on
+@if not "%GERONIMO_BATCH_ECHO%" == "on"  echo off
+
+if "%OS%" == "Windows_NT" goto okOsCheck
+echo Cannot process Geronimo command - you are running an unsupported operating system.
+set ERRORLEVEL=1
+goto end
+
+:okOsCheck
+setlocal
 
 @REM Guess GERONIMO_HOME if not defined
 set CURRENT_DIR=%cd%
