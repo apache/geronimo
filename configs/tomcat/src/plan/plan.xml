@@ -118,8 +118,10 @@ Configuration for Tomcat server.
         <attribute name="className">org.apache.geronimo.tomcat.TomcatEngine</attribute>
         <attribute name="initParams">
             name=Geronimo
-            defaultHost=${PlanServerHostname}
         </attribute>
+        <reference name="DefaultHost">
+            <name>TomcatHost</name>
+        </reference>
         <references name="Hosts">
             <pattern>
                 <gbean-name>geronimo.server:j2eeType=Host,*</gbean-name>

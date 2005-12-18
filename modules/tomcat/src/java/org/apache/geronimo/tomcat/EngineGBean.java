@@ -51,6 +51,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
 
     public EngineGBean(String className,
             Map initParams,
+            HostGBean defaultHost,
             Collection hosts,
             ObjectRetriever realmGBean,
             ValveGBean tomcatValveChain,
@@ -63,23 +64,34 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         }
 
         if (initParams == null){
-            throw new IllegalArgumentException("Must have 'name' and 'defaultHost' values in initParams.");
+            throw new IllegalArgumentException("Must have 'name' value in initParams.");
+        }
+        
+        //Be sure the defaulthost has been declared.
+        if (defaultHost == null){
+            throw new IllegalArgumentException("Must have a 'defaultHost' attribute.");
         }
 
         //Be sure the name has been declared.
         if (!initParams.containsKey(NAME)){
             throw new IllegalArgumentException("Must have a 'name' value initParams.");
         }
-
-        //Be sure the defaulthost has been declared.
-        if (!initParams.containsKey(DEFAULTHOST)){
-            throw new IllegalArgumentException("Must have a 'defaultHost' value initParams.");
+        
+        //Deprecate the defaultHost initParam
+        if (initParams.containsKey(DEFAULTHOST)){
+            log.warn("The " + DEFAULTHOST + " initParams value is no longer used and will be ignored.");
+            initParams.remove(DEFAULTHOST);
         }
 
         engine = (Engine)Class.forName(className).newInstance();
 
         //Set the parameters
         setParameters(engine, initParams);
+        
+        //Set the default Host
+        final String defaultHostName = ((Host)defaultHost.getInternalObject()).getName();
+        engine.setDefaultHost(defaultHostName);
+        addHost(defaultHost);
 
         if (realmGBean != null){
             engine.setRealm((Realm)realmGBean.getInternalObject());
@@ -106,20 +118,26 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
             public void memberAdded(ReferenceCollectionEvent event) {
                 Object o = event.getMember();
                 ObjectRetriever objectRetriever = (ObjectRetriever) o;
-                addHost(objectRetriever);
+                String hostName = ((Host)objectRetriever.getInternalObject()).getName();
+                if (!hostName.equals(defaultHostName))
+                    addHost(objectRetriever);
             }
 
             public void memberRemoved(ReferenceCollectionEvent event) {
                 Object o = event.getMember();
                 ObjectRetriever objectRetriever = (ObjectRetriever) o;
-                removeHost(objectRetriever);
+                String hostName = ((Host)objectRetriever.getInternalObject()).getName();
+                if (!hostName.equals(defaultHostName))
+                    removeHost(objectRetriever);
             }
         });
+        
         Iterator iterator = refs.iterator();
         while (iterator.hasNext()){
             ObjectRetriever objRetriever = (ObjectRetriever)iterator.next();
-            addHost(objRetriever);
-
+            String hostName = ((Host)objRetriever.getInternalObject()).getName();
+            if (!hostName.equals(defaultHostName))
+                addHost(objRetriever);
         }
         
         //Add clustering
@@ -165,6 +183,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("TomcatEngine", EngineGBean.class);
         infoFactory.addAttribute("className", String.class, true);
         infoFactory.addAttribute("initParams", Map.class, true);
+        infoFactory.addReference("DefaultHost", HostGBean.class, HostGBean.J2EE_TYPE);
         infoFactory.addReference("Hosts", ObjectRetriever.class, HostGBean.J2EE_TYPE);
         infoFactory.addReference("RealmGBean", ObjectRetriever.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("TomcatValveChain", ValveGBean.class, ValveGBean.J2EE_TYPE);
@@ -174,6 +193,7 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         infoFactory.setConstructor(new String[] { 
                 "className", 
                 "initParams", 
+                "DefaultHost",
                 "Hosts", 
                 "RealmGBean", 
                 "TomcatValveChain",

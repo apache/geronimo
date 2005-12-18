@@ -359,10 +359,10 @@ public class AbstractWebModuleTest extends TestCase {
         //Default Engine
         initParams.clear();
         initParams.put("name", "Geronimo");
-        initParams.put("defaultHost", "localhost");
         engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
         engine.setAttribute("initParams", initParams);
+        engine.setReferencePattern("DefaultHost", hostName);
         if (realmClass != null)
             engine.setReferencePattern("RealmGBean", realmName);
         engine.setReferencePattern("Hosts", hostName);
