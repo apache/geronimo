@@ -376,7 +376,11 @@ Specific Issues, Features and Improvements for Version 1.0
     * [GERONIMO-1345] - Connection pool resizing does not calculate what to do correctly
     * [GERONIMO-1348] - Packaging plugin does not set extension directories
     * [GERONIMO-1350] - Web Console indicates that web server stats are available for Tomcat when they really are not
-    * [GERONIMODEVTOOLS-2] - Creation of new open-ejb.jar xml requires EnterpriseBeansType element
+    * [GERONIMO-1363] - DayTrader still using old geronimo-spec files
+    * [GERONIMO-1364] - update welcome pages to point at HTTP redirects in the geronimo.apache.org site
+    * [GERONIMO-1377] - Startup Warning on tomcat - unknown default host.
+    * [GERONIMO-1372] - Exception during startup - TradeEJB
+    * [GERONIMO-1373] - DB info portlet not working correctly
     * [GERONIMODEVTOOLS-4] - React to WTP model/API changes in LaunchConfiguration
 
 ** New Features
