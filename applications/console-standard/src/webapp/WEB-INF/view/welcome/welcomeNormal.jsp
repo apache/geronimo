@@ -81,9 +81,9 @@
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <a href="http://geronimo.apache.org/">The Geronimo Home Page</a><br />
-                        <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220">Problem Tracking Database</a><br />
-                        <a href="http://mail-archives.apache.org/mod_mbox/geronimo-user/">Users Mailing List</a><br />
-                        <a href="http://mail-archives.apache.org/mod_mbox/geronimo-dev/">Developers Mailing List</a><br />
+                        <a href="http://geronimo.apache.org/redirects/issues.html">Problem Tracking Database</a><br />
+                        <a href="http://geronimo.apache.org/redirects/userMailingList.html">Users Mailing List Archive</a><br />
+                        <a href="http://geronimo.apache.org/redirects/developerMailingList.html">Developers Mailing List Archive</a><br />
                         <a href="irc://irc.freenode.net/#geronimo">Geronimo IRC chat</a><br />
                         &nbsp;<br />
                     </td>
@@ -103,9 +103,9 @@
                     <td bgcolor="#FFFFFF" nowrap>
                         &nbsp;<br />
                         <a href="http://geronimo.apache.org/faq.html">FAQ</a><br />
-                        <a href="http://wiki.apache.org/geronimo">Wiki</a><br />
+                        <a href="http://geronimo.apache.org/redirects/wiki.html">Wiki</a><br />
                         <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
-<%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Home">Additional Documentation</a><br />--%>
+                        <a href="http://geronimo.apache.org/redirects/additionalDocumentation.html">Additional Documentation</a><br />
                         &nbsp;<br />
                     </td>
                 </tr>
