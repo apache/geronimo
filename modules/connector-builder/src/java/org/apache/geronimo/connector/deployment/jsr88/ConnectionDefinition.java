@@ -19,6 +19,8 @@ package org.apache.geronimo.connector.deployment.jsr88;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
 import javax.enterprise.deploy.model.DDBean;
 import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
@@ -26,6 +28,13 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
+ * Represents /connector/resourceadapter/outbound-resourceadapter/connection-definition
+ * in the Geronimo Connector deployment plan.  A Geronimo connection definition
+ * corresponds to a ra.xml connection definition (though there may be several
+ * Geronimo CDs for each ra.xml CD so this cannot be a DConfigBean [which would
+ * require a 1:1 mapping]).  Each Geronimo connection definition may have one
+ * or more instances with different config property settings, etc.
+ *
  * @version $Rev$ $Date$
  */
 public class ConnectionDefinition extends XmlBeanSupport {
@@ -48,11 +57,26 @@ public class ConnectionDefinition extends XmlBeanSupport {
     void configure(DDBean resourceAdapter, GerConnectionDefinitionType definition) {
         this.resourceAdapter = resourceAdapter;
         setXmlObject(definition);
-        //todo: initialize connectiondefinition-instance from definition
+        //todo: handle unmatched interfaces below
+        instances = new ConnectionDefinitionInstance[definition.getConnectiondefinitionInstanceArray().length];
+        DDBean[] beans = resourceAdapter.getChildBean("outbound-resourceadapter/connection-definition");
+        DDBean match = null;
+        for (int i = 0; i < beans.length; i++) {
+            DDBean bean = beans[i];
+            if(bean.getText("connectionfactory-interface")[0].equals(definition.getConnectionfactoryInterface())) {
+                match = bean;
+                break;
+            }
+        }
+        for (int i = 0; i < instances.length; i++) {
+            GerConnectiondefinitionInstanceType gerInstance = definition.getConnectiondefinitionInstanceArray()[i];
+            instances[i] = new ConnectionDefinitionInstance(match, gerInstance);
+        }
     }
 
     // ----------------------- JavaBean Properties for connection-definition ----------------------
 
+    //todo: instead of String, make this an Enum type aware of the interfaces available in the J2EE DD
     public String getConnectionFactoryInterface() {
         return getConnectionDefinition().getConnectionfactoryInterface();
     }

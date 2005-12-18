@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connector configId="user/database-pool-TestPool/1/car" xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0">
+    <dep:dependency xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.0">
+        <dep:uri>org.apache.derby/derbyclient/10.1.1.0/jar</dep:uri>
+    </dep:dependency>
+    <resourceadapter>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <connectionfactory-interface>javax.sql.DataSource</connectionfactory-interface>
+                <connectiondefinition-instance>
+                    <name>TestPool</name>
+<!--
+                    <config-property-setting name="Password" xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+-->
+                    <config-property-setting name="CommitBeforeAutocommit">false</config-property-setting>
+                    <config-property-setting name="Driver">org.apache.derby.jdbc.EmbeddedDriver</config-property-setting>
+                    <config-property-setting name="ExceptionSorterClass">org.tranql.connector.AllExceptionsAreFatalSorter</config-property-setting>
+<!--
+                    <config-property-setting name="UserName" xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+-->
+                    <config-property-setting name="ConnectionURL">jdbc:derby:TestDatabase;create=true</config-property-setting>
+                    <connectionmanager>
+                        <local-transaction/>
+                        <single-pool>
+                            <match-one/>
+                        </single-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
+            </connection-definition>
+        </outbound-resourceadapter>
+    </resourceadapter>
+</connector>

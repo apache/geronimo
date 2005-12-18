@@ -27,7 +27,9 @@ import org.apache.geronimo.xbeans.geronimo.GerConnectionDefinitionType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
- * Represents /connector/resourceadapter in the Geronimo Connector deployment plan
+ * Represents /connector/resourceadapter in the Geronimo Connector deployment plan.
+ * Note: is not a DConfigBean, because there may be more than one ResourceAdapter
+ * in the Geronimo plan per ResourceAdapter in the J2EE deployment descriptor.
  *
  * @version $Rev$ $Date$
  */
@@ -51,7 +53,6 @@ public class ResourceAdapter extends XmlBeanSupport {
     void configure(DDBean resourceAdapter, GerResourceadapterType ra) {
         this.resourceAdapter = resourceAdapter;
         setXmlObject(ra);
-        //todo: configure myself from the ra
         if(ra.isSetOutboundResourceadapter()) {
             DDBean[] test = resourceAdapter.getChildBean("outbound-resourceadapter");
             if(test != null && test.length > 0) {

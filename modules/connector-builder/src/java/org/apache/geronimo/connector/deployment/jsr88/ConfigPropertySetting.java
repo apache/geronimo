@@ -36,9 +36,9 @@ public class ConfigPropertySetting extends XmlBeanSupport {
         super(null);
     }
 
-    public ConfigPropertySetting(DDBean configProperty, GerConfigPropertySettingType property) {
+    public ConfigPropertySetting(DDBean configProperty, GerConfigPropertySettingType property, boolean setDefault) {
         super(null);
-        configure(configProperty, property);
+        configure(configProperty, property, setDefault);
     }
 
     protected GerConfigPropertySettingType getPropertySetting() {
@@ -49,14 +49,18 @@ public class ConfigPropertySetting extends XmlBeanSupport {
         return configProperty;
     }
 
-    void configure(DDBean configProperty, GerConfigPropertySettingType property) {
+    void configure(DDBean configProperty, GerConfigPropertySettingType property, boolean setDefault) {
         this.configProperty = configProperty;
         setXmlObject(property);
         final String name = configProperty.getText("config-property-name")[0];
         getPropertySetting().setName(name);
-        String[] test = configProperty.getText("config-property-value");
-        if(test != null && test.length == 1) {
-            getPropertySetting().setStringValue(test[0]);
+        if(setDefault) {
+            String[] test = configProperty.getText("config-property-value");
+            if(test != null && test.length == 1) {
+                getPropertySetting().setStringValue(test[0]);
+            } else {
+                getPropertySetting().setStringValue(null);
+            }
         }
     }
 
@@ -74,7 +78,7 @@ public class ConfigPropertySetting extends XmlBeanSupport {
     }
 
     public String getValue() {
-        return getPropertySetting().getStringValue();
+        return getPropertySetting().isNil() ? null : getPropertySetting().getStringValue();
     }
 
     public void setValue(String value) {
