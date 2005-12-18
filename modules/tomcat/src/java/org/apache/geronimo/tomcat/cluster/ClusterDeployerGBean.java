@@ -40,6 +40,11 @@ public class ClusterDeployerGBean  extends BaseGBean implements GBeanLifecycle, 
        deployer = null; 
     }
     
+    protected ClusterDeployerGBean(String className) throws Exception{
+       super();     
+       deployer = (ClusterDeployer)Class.forName(className).newInstance();
+    }
+    
     public ClusterDeployerGBean(String className, Map initParams) throws Exception {
 
         super(); // TODO: make it an attribute
