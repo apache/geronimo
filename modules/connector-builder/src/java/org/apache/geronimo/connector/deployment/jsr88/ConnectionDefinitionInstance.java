@@ -73,9 +73,33 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         return (GerConnectiondefinitionInstanceType) getXmlObject();
     }
 
+    void clearNullSettings() {
+        List list = new ArrayList();
+        for (int i = 0; i < settings.length; i++) {
+            ConfigPropertySetting setting = settings[i];
+            if(setting.getValue() != null) {
+                list.add(setting);
+            }
+        }
+        settings = (ConfigPropertySetting[]) list.toArray(new ConfigPropertySetting[list.size()]);
+        GerConnectiondefinitionInstanceType instance = getConnectionInstance();
+        for (int i = instance.getConfigPropertySettingArray().length-1; i>=0; --i) {
+            GerConfigPropertySettingType type = instance.getConfigPropertySettingArray(i);
+            if(type.isNil() || type.getStringValue() == null) {
+                instance.removeConfigPropertySetting(i);
+            }
+        }
+    }
+
+    void reconfigure() {
+        configure(connectionDefinition, getConnectionInstance());
+    }
+
     void configure(DDBean connectionDefinition, GerConnectiondefinitionInstanceType definition) {
+        ConfigPropertySetting[] old = null;
         if(this.connectionDefinition != null) {
             this.connectionDefinition.removeXpathListener("config-property", xpathListener);
+            old = settings;
         }
         this.connectionDefinition = connectionDefinition;
         setXmlObject(definition);
@@ -93,7 +117,7 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
             GerConfigPropertySettingType setting = previous[i];
             DDBean ddBean = (DDBean) byName.remove(setting.getName());
             if(ddBean != null) {
-                list.add(new ConfigPropertySetting(ddBean, setting));
+                list.add(new ConfigPropertySetting(ddBean, setting, false));
             } else {
                 System.out.println("Ignoring connectiondefinition-instance/config-setting "+setting.getName()+" (no matching config-property in J2EE DD)");
                 //todo: delete it from the XMLBeans tree
@@ -102,16 +126,19 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         for (Iterator it = byName.keySet().iterator(); it.hasNext();) {
             String name = (String) it.next();
             DDBean bean = (DDBean) byName.get(name);
-            list.add(new ConfigPropertySetting(bean, getConnectionInstance().addNewConfigPropertySetting()));
+            list.add(new ConfigPropertySetting(bean, getConnectionInstance().addNewConfigPropertySetting(), true));
         }
         settings = (ConfigPropertySetting[]) list.toArray(new ConfigPropertySetting[list.size()]);
+        if(old != null) {
+            pcs.firePropertyChange("configPropertySetting", old, settings);
+        }
         if(connectionDefinition != null) {
             connectionDefinition.addXpathListener("config-property", xpathListener);
         }
         if(connectionDefinition != null) {
             DDBean parent = connectionDefinition.getChildBean("..")[0];
-            ConnectionManager old = manager;
-            if(old == null) {
+            ConnectionManager oldMgr = manager;
+            if(oldMgr == null) {
                 if(definition.getConnectionmanager() != null) {
                     manager = new ConnectionManager(parent, definition.getConnectionmanager());
                 } else {
@@ -124,7 +151,7 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
                     manager.configure(parent, definition.addNewConnectionmanager());
                 }
             }
-            pcs.firePropertyChange("connectionManager", old, manager);
+            pcs.firePropertyChange("connectionManager", oldMgr, manager);
         }
     }
 

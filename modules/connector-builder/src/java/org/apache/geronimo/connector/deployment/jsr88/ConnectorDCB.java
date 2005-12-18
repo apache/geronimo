@@ -47,7 +47,6 @@ public class ConnectorDCB extends DConfigBeanSupport {
         }
         //todo: do something if resourceAdapterDDBean is null
         loadExistingData(connector);
-        //todo: load defaults from J2EE DD /connector/resourceadapter
 
         // Make sure we're told if /connector/resourceadapter is replaced!
         connectorDDBean.addXpathListener("resourceadapter", new XpathListener() {
@@ -256,6 +255,8 @@ public class ConnectorDCB extends DConfigBeanSupport {
 
 
     // ----------------------- End of JavaBean Properties ----------------------
+
+    
 
     protected SchemaTypeLoader getSchemaTypeLoader() {
         return Connector15DCBRoot.SCHEMA_TYPE_LOADER;

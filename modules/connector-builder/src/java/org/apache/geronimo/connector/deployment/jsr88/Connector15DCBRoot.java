@@ -18,16 +18,28 @@ package org.apache.geronimo.connector.deployment.jsr88;
 
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Arrays;
 import javax.enterprise.deploy.model.DDBeanRoot;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 import org.apache.geronimo.deployment.plugin.DConfigBeanRootSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorDocument;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerResourceadapterInstanceType;
+import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * Represents "/" in a Geronimo Connector deployment plan (geronimo-ra.xml).
@@ -95,5 +107,60 @@ public class Connector15DCBRoot extends DConfigBeanRootSupport {
 
     protected SchemaTypeLoader getSchemaTypeLoader() {
         return SCHEMA_TYPE_LOADER;
+    }
+
+    /**
+     * When loaded, reset the cached "connector" child
+     */
+    public void fromXML(InputStream inputStream) throws XmlException, IOException {
+        DDBean ddb = connector.getDDBean();
+        super.fromXML(inputStream);
+        if(getConnectorDocument().getConnector() != null) {
+            connector = new ConnectorDCB(ddb, getConnectorDocument().getConnector());
+        } else {
+            connector = new ConnectorDCB(ddb, getConnectorDocument().addNewConnector());
+        }
+        //todo: fire some kind of notification for the DDBeans to catch?
+    }
+
+    /**
+     * A little trickery -- on a save event, temporarily remove any config-property-setting
+     * elements with a null value, and then immediately replace them again.  This is because
+     * we don't want to write them out as null, but we also want to keep the objects in
+     * sync 1:1 with the config params declared in the J2EE deployment descriptor.
+     */
+    public void toXML(OutputStream outputStream) throws IOException {
+        List parents = new ArrayList();
+        clearNulls(parents);
+        try {
+            super.toXML(outputStream);
+        } finally {
+            for (int i = 0; i < parents.size(); i++) {
+                Object parent = parents.get(i);
+                if(parent instanceof ConnectionDefinitionInstance) {
+                    ConnectionDefinitionInstance instance = (ConnectionDefinitionInstance) parent;
+                    instance.reconfigure();
+                } //todo: else if instanceof ResourceAdapterInstance, else if instanceof AdminObjectInstance
+            }
+        }
+    }
+
+    private void clearNulls(List parents) {
+        ResourceAdapter[] adapters = connector.getResourceAdapter();
+        for (int i = 0; i < adapters.length; i++) {
+            ResourceAdapter adapter = adapters[i];
+            // todo: check resource adapter instances
+            ConnectionDefinition defs[] = adapter.getConnectionDefinition();
+            for (int j = 0; j < defs.length; j++) {
+                ConnectionDefinition def = defs[j];
+                ConnectionDefinitionInstance instances[] = def.getConnectionInstances();
+                for (int k = 0; k < instances.length; k++) {
+                    ConnectionDefinitionInstance instance = instances[k];
+                    parents.add(instance);
+                    instance.clearNullSettings();
+                }
+            }
+        }
+        //todo: check admin object instances
     }
 }

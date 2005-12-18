@@ -786,8 +786,12 @@ public class DatabasePoolPortlet extends BasePortlet {
         Driver driver = (Driver) driverClass.newInstance();
         if(driver.acceptsURL(data.url)) {
             Properties props = new Properties();
-            props.put("user", data.user);
-            props.put("password", data.password);
+            if(data.user != null) {
+                props.put("user", data.user);
+            }
+            if(data.password != null) {
+                props.put("password", data.password);
+            }
             Connection con = null;
             try {
                 con = driver.connect(data.url, props);
