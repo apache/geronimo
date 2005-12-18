@@ -59,9 +59,9 @@
                 <tr>
                     <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
                         <a href="http://geronimo.apache.org/faq.html">FAQ</a><br />
-                        <a href="http://wiki.apache.org/geronimo">Wiki</a><br />
+                        <a href="http://geronimo.apache.org/redirects/wiki.html">Wiki</a><br />
                         <a href="http://geronimo.apache.org/documentation.html">Geronimo Documentation</a><br />
-<%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Home">Additional Documentation</a><br />--%>
+                        <a href="http://geronimo.apache.org/redirects/additionalDocumentation.html">Additional Documentation</a><br />
                         &nbsp;
                     </td>
                 </tr>
@@ -76,9 +76,9 @@
                 <tr>
                     <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
                         <a href="http://geronimo.apache.org/">The Geronimo Home Page</a><br />
-                        <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10220">Problem Tracking Database</a><br />
-                        <a href="http://mail-archives.apache.org/mod_mbox/geronimo-user/">Users Mailing List</a><br />
-                        <a href="http://mail-archives.apache.org/mod_mbox/geronimo-dev/">Developers Mailing List</a><br />
+                        <a href="http://geronimo.apache.org/redirects/issues.html">Problem Tracking Database</a><br />
+                        <a href="http://geronimo.apache.org/redirects/userMailingList.html">Users Mailing List Archive</a><br />
+                        <a href="http://geronimo.apache.org/redirects/developerMailingList.html">Developers Mailing List Archive</a><br />
                         <a href="irc://irc.freenode.net/#geronimo">Geronimo IRC chat</a><br />
                         &nbsp;
                     </td>
@@ -96,8 +96,8 @@
                     <td bgcolor="#FFFFFF" bordercolor="#000000" nowrap>
                         <a href="/servlets-examples/">Servlet Examples </a><br />
                         <a href="/jsp-examples/">JSP Examples </a><br />
-<%--                        <a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Samples+for+Apache+Geronimo">Download Additional Examples</a><br />--%>
                         <a href="/ldap-demo/">LDAP Demo</a><br />
+                        <a href="http://geronimo.apache.org/redirects/additionalSamples.html">Additional Samples</a><br />
                     </td>
                 </tr>
             </table>
@@ -126,7 +126,7 @@
                 <p><b>Would you like your application to appear at this URL?</b><br />
                 To set the context root for a web application, you can write a Geronimo deployment
                 plan that uses the <tt>context-root</tt> element to specify the URL prefix used to
-                reach that application.  If you specify a context root of <tt>/</tt> then the
+                reach that application.  If you specify a context root of <tt>&quot;/&quot;</tt> then the
                 application will appear at this URL.  However, you'll need to stop this small
                 Welcome application first!</p>
                 <p>Your web deployment plan should look like this, and you can either pack it into
@@ -137,7 +137,7 @@
     &lt;context-root&gt;/&lt;/context-root&gt;
     &lt;context-priority-classloader&gt;false&lt;/context-priority-classloader&gt;
 &lt;/web-app&gt;</pre>
-                <p>Then you can stop this application and deploy yours with a command like this:</p>
+                <p>Then you can stop this application and deploy yours from the <a href="/console">Admin Console</a> or from the command line with a sequence of commands like this:</p>
                 <% boolean jetty = application.getServerInfo().toLowerCase().indexOf("jetty") > -1; %>
 <pre>java -jar bin/deployer.jar stop geronimo/welcome-<% if(jetty) {%>jetty<%} else {%>tomcat<%}%>/1.0/car
 java -jar bin/deployer.jar deploy MyWebApp.war</pre>
@@ -154,10 +154,10 @@ java -jar bin/deployer.jar deploy MyWebApp.war</pre>
 
             <div style="margin-left: 50px; margin-right: 50px; padding: 10px; background-color:#eee">
                 <p><b>Would you like a slimmer Geronimo installation?</b><br />
-                 Geronimo ships with a number of sample applications and demonistration services
+                 Geronimo ships with a number of sample applications and demonstration services
                  running.  The table below lists the default configurations and whether they're
                  required or optional for a J2EE application server configuration.</p>
-                <p>To disable any option configuration, run a command like this:</p>
+                <p>Optional configurations can be disabled from the <a href="/console">Admin Console</a> or by running a command like this:</p>
                 <pre>java -jar bin/deployer.jar stop <i>configuration-name</i></pre>
                 <table border="1">
                     <tr><th>Name</th><th>Comments</th></tr>
