@@ -62,48 +62,57 @@ public class JAASJettyRealm implements UserRealm {
 
     public Principal authenticate(String username, Object credentials, HttpRequest request) {
         try {
-            JAASJettyPrincipal userPrincipal = (JAASJettyPrincipal) userMap.get(username);
+            if ( (username!=null) && (!username.equals("")) ) {
 
-            //user has been previously authenticated, but
-            //re-authentication has been requested, so remove them
-            if (userPrincipal != null) {
-                userMap.remove(username);
-            }
+                JAASJettyPrincipal userPrincipal = (JAASJettyPrincipal) userMap.get(username);
 
-            ClearableCallbackHandler callbackHandler;
-            if (credentials instanceof char[]) {
-                char[] password = (char[]) credentials;
-                callbackHandler = new PasswordCallbackHandler(username, password);
-            } else if (credentials instanceof String) {
-                char[] password = ((String) credentials).toCharArray();
-                callbackHandler = new PasswordCallbackHandler(username, password);
-            } else if (credentials instanceof X509Certificate[]) {
-                X509Certificate[] certs = (X509Certificate[]) credentials;
-                if (certs.length < 1) {
-                    throw new LoginException("no certificates supplied");
+                //user has been previously authenticated, but
+                //re-authentication has been requested, so remove them
+                if (userPrincipal != null) {
+                    userMap.remove(username);
                 }
-                callbackHandler = new CertificateCallbackHandler(certs[0]);
-            } else {
-                throw new LoginException("Cannot extract credentials from class: " + credentials.getClass().getName());
+
+                ClearableCallbackHandler callbackHandler;
+                if (credentials instanceof char[]) {
+                    char[] password = (char[]) credentials;
+                    callbackHandler = new PasswordCallbackHandler(username, password);
+                } else if (credentials instanceof String) {
+                    char[] password = ((String) credentials).toCharArray();
+                    callbackHandler = new PasswordCallbackHandler(username, password);
+                } else if (credentials instanceof X509Certificate[]) {
+                    X509Certificate[] certs = (X509Certificate[]) credentials;
+                    if (certs.length < 1) {
+                        throw new LoginException("no certificates supplied");
+                    }
+                    callbackHandler = new CertificateCallbackHandler(certs[0]);
+                } else {
+                    throw new LoginException("Cannot extract credentials from class: " + credentials.getClass().getName());
+                }
+
+                //set up the login context
+                LoginContext loginContext = new LoginContext(loginDomainName, callbackHandler);
+                loginContext.login();
+                callbackHandler.clear();
+
+                Subject subject = ContextManager.getServerSideSubject(loginContext.getSubject());
+                ContextManager.setCurrentCaller(subject);
+
+                //login success
+                userPrincipal = new JAASJettyPrincipal(username);
+                userPrincipal.setSubject(subject);
+
+                userMap.put(username, userPrincipal);
+
+                return userPrincipal;
+            }
+            else {
+                log.debug("Login Failed - null userID");
+                return null;
             }
 
-            //set up the login context
-            LoginContext loginContext = new LoginContext(loginDomainName, callbackHandler);
-            loginContext.login();
-            callbackHandler.clear();
-
-            Subject subject = ContextManager.getServerSideSubject(loginContext.getSubject());
-            ContextManager.setCurrentCaller(subject);
-
-            //login success
-            userPrincipal = new JAASJettyPrincipal(username);
-            userPrincipal.setSubject(subject);
-
-            userMap.put(username, userPrincipal);
-
-            return userPrincipal;
         } catch (LoginException e) {
-            log.warn("Login Failed", e);
+//          log.warn("Login Failed", e);
+            log.debug("Login Failed", e);
             return null;
         }
     }
