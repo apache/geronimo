@@ -1,0 +1,118 @@
+<html>
+    <head>
+        <title>Documentation : Security</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : Security
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="Security-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:simon@godik.com" title="Send mail to Simon Godik">Simon Godik</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>The following are a series of articles that will help you understand better security and how those comcepts are implemented in Apache Geronimo.</p>
+<ol>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Concepts.html" title="Concepts">Concepts</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Concepts.html#Concepts-LoginDomain" title="Login Domain on Concepts">Login Domain</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Concepts.html#Concepts-SecurityRealm" title="Security Realm on Concepts">Security Realm</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Concepts.html#Concepts-AuthenticationandPrincipals" title="Authentication and Principals on Concepts">Authentication and Principals</a></li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Login into Geronimo.html" title="Login into Geronimo">Login into Geronimo</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Login into Geronimo.html#LoginintoGeronimo-LoginServiceAPI" title="Login Service API on Login into Geronimo">Login Service API</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Login into Geronimo.html#LoginintoGeronimo-JaasLoginCoordinator" title="JaasLoginCoordinator on Login into Geronimo">Login into Geronimo the portable way: JaasLoginCoordinator</a></li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo and JAAS.html" title="Geronimo and JAAS">Geronimo and JAAS</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo and JAAS.html#GeronimoandJAAS-jaas" title="jaas on Geronimo and JAAS">Integrating Geronimo security with the JAAS API</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo and JAAS.html#GeronimoandJAAS-implementations" title="implementations on Geronimo and JAAS">ConfigurationEntryFactory implementations</a></li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="JaasLoginService API Discussion.html" title="JaasLoginService API Discussion">JaasLoginService API Discussion</a></li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Component Configuration.html" title="Component Configuration">Component Configuration</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Component Configuration.html#ComponentConfiguration-ConfiguringDirectConfigurationEntry" title="Configuring DirectConfigurationEntry on Component Configuration">Configuring DirectConfigurationEntry</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Component Configuration.html#ComponentConfiguration-ConfiguringServerRealmConfigurationEntry" title="Configuring ServerRealmConfigurationEntry on Component Configuration">Configuring ServerRealmConfigurationEntry</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Component Configuration.html#ComponentConfiguration-ConfiguringSecurityRealm" title="Configuring Security Realm on Component Configuration">Configuring Security Realm</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Component Configuration.html#ComponentConfiguration-xmlreference" title="xml-reference on Component Configuration">Configuring GenericSecurityRealm using xml-reference</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Component Configuration.html#ComponentConfiguration-ConfiguringLoginmodule" title="Configuring Login module on Component Configuration">Configuring Login module</a></li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Authorization - mapping J2EE roles to Principals.html" title="Authorization - mapping J2EE roles to Principals">Authorization \- mapping J2EE roles to Principals</a></li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html" title="Security Definition Schema">Security Definition Schema</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TypesecurityType" title="Type securityType on Security Definition Schema">Type securityType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TypedefaultPrincipalType" title="Type defaultPrincipalType on Security Definition Schema">Type defaultPrincipalType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TypeprincipalType" title="Type principalType on Security Definition Schema">Type principalType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TypeloginDomainPrincipalType" title="Type loginDomainPrincipalType on Security Definition Schema">Type loginDomainPrincipalType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TyperealmPrincipalType" title="Type realmPrincipalType on Security Definition Schema">Type realmPrincipalType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TypenamedusernamepasswordcredentialType" title="Type named-username-password-credentialType on Security Definition Schema">Type named-username-password-credentialType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TyperolemappingsType" title="Type role-mappingsType on Security Definition Schema">Type role-mappingsType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TyperoleType" title="Type roleType on Security Definition Schema">Type roleType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TypedistinguishedNameType" title="Type distinguishedNameType on Security Definition Schema">Type distinguishedNameType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Security Definition Schema.html#SecurityDefinitionSchema-TypedescriptionType" title="Type descriptionType on Security Definition Schema">Type descriptionType</a></li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo Login Config Schema.html" title="Geronimo Login Config Schema">Geronimo Login Config Schema</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo Login Config Schema.html#GeronimoLoginConfigSchema-TypeLoginconfigType" title="Type Login-configType on Geronimo Login Config Schema">Type Login-configType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo Login Config Schema.html#GeronimoLoginConfigSchema-TypeabstractloginmoduleType" title="Type abstract-login-moduleType on Geronimo Login Config Schema">Type abstract-login-moduleType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo Login Config Schema.html#GeronimoLoginConfigSchema-TypecontrolflagType" title="Type control-flagType on Geronimo Login Config Schema">Type control-flagType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo Login Config Schema.html#GeronimoLoginConfigSchema-TypeloginmodulerefType" title="Type login-module-refType on Geronimo Login Config Schema">Type login-module-refType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo Login Config Schema.html#GeronimoLoginConfigSchema-TypeloginmoduleType" title="Type login-moduleType on Geronimo Login Config Schema">Type login-moduleType</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Geronimo Login Config Schema.html#GeronimoLoginConfigSchema-TypeoptionType" title="Type optionType on Geronimo Login Config Schema">Type optionType</a></li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Deploying secure applications.html" title="Deploying secure applications">Deploying secure applications</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Deploying secure applications.html#Deployingsecureapplications-DeploymentoptionsforWebapplications" title="Deployment options for Web applications on Deploying secure applications">Deployment options for Web applications</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Deploying secure applications.html#Deployingsecureapplications-DeployingWebapplicationwiththecontainerneutralschema" title="Deploying Web application with the container-neutral schema on Deploying secure applications">Deploying Web application with the container-neutral schema</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Deploying secure applications.html#Deployingsecureapplications-DefiningSecurityRealmName" title="Defining Security Realm Name on Deploying secure applications">Defining Security Realm Name</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Deploying secure applications.html#Deployingsecureapplications-ExampleoftheWebapplicationdeploymentwithwebcontainerneutralschema" title="Example of the Web application deployment with web-container neutral schema on Deploying secure applications">Example of the Web application deployment with web-container neutral schema</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Deploying secure applications.html#Deployingsecureapplications-DeployingWebapplicationonJettycontainer" title="Deploying Web application on Jetty container on Deploying secure applications">Deploying Web application on Jetty container</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Deploying secure applications.html#Deployingsecureapplications-DeployingWebapplicationonTomcatcontainer" title="Deploying Web application on Tomcat container on Deploying secure applications">Deploying Web application on Tomcat container</a></li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Available login modules.html" title="Available login modules">Available login modules</a>
+	<ul>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Available login modules.html#Availableloginmodules-PropertiesFileLoginModule" title="PropertiesFileLoginModule on Available login modules">PropertiesFileLoginModule</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Available login modules.html#Availableloginmodules-LDAPLoginModule" title="LDAPLoginModule on Available login modules">LDAPLoginModule</a></li>
+		<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Available login modules.html#Availableloginmodules-SQLLoginModule" title="SQLLoginModule on Available login modules">SQLLoginModule</a>
+		<ul>
+			<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Configuring LDAP.html" title="Configuring LDAP">Configuring LDAP</a></li>
+		</ul>
+		</li>
+	</ul>
+	</li>
+	<li><img class="emoticon" src="./icons/emoticons/check.gif" height="16" width="16" align="absmiddle" alt="" border="0"/> <a href="Mapping J2EE Roles in M5 release.html" title="Mapping J2EE Roles in M5 release">Mapping J2EE Roles in M5 release</a></li>
+</ol>
+
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

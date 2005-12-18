@@ -1,0 +1,586 @@
+<html>
+    <head>
+        <title>Documentation : JBoss to Geronimo - JCA Migration</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : JBoss to Geronimo - JCA Migration
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="JBosstoGeronimo-JCAMigration-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:shvb@isg.axmor.com" title="Send mail to Vladimir Shraibman">Vladimir Shraibman</a>, <a href="mailto:artem@us.ibm.com" title="Send mail to Artem Papkov">Artem Papkov</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<h1><a name="JBosstoGeronimo-JCAMigration-Overview"></a>Overview</h1>
+<p>This article will help you migrate applications that are based on Java Connector Architecture (JCA) and developed for JBoss v4 to Apache Geronimo. It is part of a series of migration articles covering different types of applications migration.</p>
+
+<p>This article provides some details on the differences between these two application servers as well as a detailed step-by-step migration procedure for porting JCA applications from JBoss v4 to Apache Geronimo. To define a common starting point (the source environment) we provide steps for deploying the sample File Retriever JCA application into the JBoss source environment. Then you will be guided through the application migration and deployment process onto Apache Geronimo.</p>
+
+<p>This article is organized in the following sections:</p>
+
+<ul>
+	<li><a href="#JBosstoGeronimo-JCAMigration-implementation" title="implementation on JBoss to Geronimo - JCA Migration">JCA implementation analysis</a></li>
+	<li><a href="#JBosstoGeronimo-JCAMigration-sampleApp" title="sampleApp on JBoss to Geronimo - JCA Migration">Sample application</a></li>
+	<li><a href="#JBosstoGeronimo-JCAMigration-JBoss" title="JBoss on JBoss to Geronimo - JCA Migration">The JBoss environment</a></li>
+	<li><a href="#JBosstoGeronimo-JCAMigration-Geronimo" title="Geronimo on JBoss to Geronimo - JCA Migration">The Geronimo environment</a></li>
+	<li><a href="#JBosstoGeronimo-JCAMigration-migration" title="migration on JBoss to Geronimo - JCA Migration">Step-by-step migration</a></li>
+	<li><a href="#JBosstoGeronimo-JCAMigration-summary" title="summary on JBoss to Geronimo - JCA Migration">Summary</a></li>
+</ul>
+
+
+
+<h1><a name="JBosstoGeronimo-JCAMigration-JCAimplementationanalysis"></a>JCA implementation analysis <a name="JBosstoGeronimo-JCAMigration-implementation"></a></h1>
+<p>Connectors implementation, also know as Resource Adapters, may vary from one vendor to another. The purpose of this section is to provide a JCA specific feature-to-feature comparison between JBoss and Apache Geronimo so you can clearly identify the differences and plan accordingly before migration.</p>
+
+<p>The most common features related to support of Connectors are summarized in the following table:</p>
+
+<table class='confluenceTable'><tbody>
+<tr>
+<th class='confluenceTh'>Features</th>
+<th class='confluenceTh'>JBoss v4</th>
+<th class='confluenceTh'>Apache Geronimo</th>
+</tr>
+<tr>
+<td class='confluenceTd'>Basic JCA architecture support</td>
+<td class='confluenceTd'>Supports resource adapters. However, requires that the <b>ra.xml</b> deployment descriptor file specifies a class implementing <b>javax.resource.spi.ResourceAdapter</b> interface. Such an implementation is optional according to the specification.</td>
+<td class='confluenceTd'>Supports resource adapters exactly as it is expected according to the JCA specification</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Location of classes</td>
+<td class='confluenceTd'>Compiled Java classes are to be put into the root of corresponding RAR archive similar to JAR files.</td>
+<td class='confluenceTd'>Fails to find classes just located in a RAR file. It needs the classes to be packed in an intermediate JAR file which in its time should be put into the root of the RAR archive.</td>
+</tr>
+<tr>
+<td class='confluenceTd'>Server-specific deployment descriptors</td>
+<td class='confluenceTd'>Uses *<b>-ds.xml</b> name convention and expects to find such a file in the deployment directory of the respective server outside corresponding EAR or RAR archive.</td>
+<td class='confluenceTd'>Allows to put additional deployment parameters into the <b>geronimo-ra.xml</b> file inside the META-INF folder of corresponding RAR archive. Also allows  to specify external deployment plan files during deployment of resource adapters.</td>
+</tr>
+</tbody></table>
+
+<p>As it is shown in this table, JBoss requires an implementation of the <b>ResourceAdapter</b> interface. The fully-qualified name of a corresponding class should be specified in the <b>ra.xml</b> file, note the <b>&lt;resourceadapter-class&gt;</b> tags in the following example:</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml">&lt;connector xmlns=<span class="code-quote">"http://java.sun.com/xml/ns/j2ee"</span>
+        <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+        http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
+        version=<span class="code-quote">"1.5"</span>&gt;
+
+    <span class="code-tag">&lt;display-name&gt;</span>MyAdapter<span class="code-tag">&lt;/display-name&gt;</span>
+    <span class="code-tag">&lt;vendor-name&gt;</span>...<span class="code-tag">&lt;/vendor-name&gt;</span>
+    <span class="code-tag">&lt;eis-type&gt;</span>...<span class="code-tag">&lt;/eis-type&gt;</span>
+    <span class="code-tag">&lt;resourceadapter-version&gt;</span>...<span class="code-tag">&lt;/resourceadapter-version&gt;</span>
+    <span class="code-tag">&lt;resourceadapter&gt;</span>
+        <span class="code-tag">&lt;resourceadapter-class&gt;</span>
+            org.jboss.resource.deployment.DummyResourceAdapter
+        <span class="code-tag">&lt;/resourceadapter-class&gt;</span>
+        <span class="code-tag">&lt;outbound-resourceadapter&gt;</span>
+            ...
+        <span class="code-tag">&lt;/outbound-resourceadapter&gt;</span>
+    <span class="code-tag">&lt;/resourceadapter&gt;</span>
+<span class="code-tag">&lt;/connector&gt;</span></pre>
+</div></div>
+
+<p>The class <b>org.jboss.resource.deployment.DummyResourceAdapter</b> is the dummy implementation of the interface provided by JBoss that can be used in those cases when the supplier of the adapter does not provide its own specific implementation. This implementation does nothing and returns <b>null</b> when invoked.</p>
+
+<p>On the other hand, Geronimo follows the J2EE specification and does not require the <b>resourceadapter-class</b> element. However, Geronimo throws a <b>java.lang.NullPointerException</b> when attempting to use the dummy implementation of the interface which copies the stub provided by JBoss. </p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-JCAMigration-Sampleapplication"></a>Sample application <a name="JBosstoGeronimo-JCAMigration-sampleApp"></a></h1>
+<p>This article contains a <a href="http://localhost:9090/download/attachments/1567/jca.zip?version=1" title="jca.zip attached to JBoss to Geronimo - JCA Migration">File Retriever JCA</a> sample application to demonstrate the migration from JBoss to Geronimo. This application consists of two modules that, for this sample purposes, are deployed separately and not as a single EAR archive.</p>
+
+<p>The first module is a simple file system resource adapter that conforms to the JCA architecture without any server-specific extensions. The adapter provides only two functions:</p>
+
+<ul>
+	<li>Lists name of files and directories located in a specific repository being a directory in the underlying file system.</li>
+	<li>Retrieves the content of one of the files.</li>
+</ul>
+
+
+<p>The second module is a Web application that uses the adapter and provides online access to the files.</p>
+
+<p><img src="JBoss to Geronimo - JCA Migration_attachments/JCA_flow.jpg" align="absmiddle" border="0" /></p>
+
+<p>The user views a list of directories and files located in the repository and clicks a file to download it from the server. By default the resource adapter is configured so that the root directory of an application server is used as the repository.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-ApplicationclassesandJSPpages"></a>Application classes and JSP pages</h2>
+<p>The JCA sample application consists of the following packages:</p>
+
+<ul>
+	<li>com.ibm.j2g.jca.connector - Interfaces for the resource adapter and its factory class.</li>
+	<li>com.ibm.j2g.jca.connector.impl - Implementation of the interfaces and auxiliary classes required by the JCA architecture.</li>
+	<li>com.ibm.j2g.jca.web - Classes of the Web module:
+	<ul>
+		<li>FileRetrieverServlet - Used for downloading files from the repository.</li>
+	</ul>
+	</li>
+</ul>
+
+
+<p>In addition to these packages, the Web module consists of a single JSP page which is located in the <b>web</b> directory. This JSP shows structure of the repository and provides hyperlinks to the File Retriever servlet for downloading contents of the files.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Toolsused"></a>Tools used</h2>
+<p>The tools used for developing and building the File Retriever sample application are:</p>
+
+<h3><a name="JBosstoGeronimo-JCAMigration-Eclipse"></a>Eclipse</h3>
+<p>The Eclipse IDE was used for development of the sample application. This is a very powerful and popular open source development tool. Integration plug-ins are available for both JBoss and Geronimo. Eclipse can be downloaded from the following URL:<br/>
+<a href="http://www.eclipse.org" title="Visit page outside Confluence">&#104;ttp://www.eclipse.org</a></p>
+
+<h3><a name="JBosstoGeronimo-JCAMigration-ApacheAnt"></a>Apache Ant</h3>
+<p>Ant is a pure Java build tool. It is used for building the war files and populating the database for the Online Brokerage application. Ant can be downloaded from the following URL:<br/>
+<a href="http://ant.apache.org" title="Visit page outside Confluence">&#104;ttp://ant.apache.org</a></p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-JCAMigration-TheJBossenvironment"></a>The JBoss environment <a name="JBosstoGeronimo-JCAMigration-JBoss"></a></h1>
+<p>This section shows you how and where the sample JBoss reference environment was installed so you can map this scenario to your own implementation.</p>
+
+<p>Detailed instructions for installing, configuring, and managing JBoss are provided in the product documentation. Check the product Web site for the most updated documents.</p>
+
+<p>The following list highlights the general tasks you will need to complete to install and configure the initial environment as the starting point for deploying the sample application.</p>
+
+<ol>
+	<li>Download and install JBoss v4 as explained in the product documentation guides. From now on the installation directory will be referred as <b>&lt;jboss_home&gt;</b></li>
+	<li>Create a copy of the default JBoss v4 application server. Copy recursively <b>&lt;jboss_home&gt;\server\default</b> to <b>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;</b></li>
+	<li>Start the new server by running the <tt>run.sh -c &lt;your_server_name&gt;</tt> command from the <b>&lt;jboss_home&gt;\bin</b> directory.</li>
+	<li>Once the server is started, you can verify that it is running by opening a Web browser and pointing it to this URL: <a href="http://localhost:8080" title="Visit page outside Confluence">&#104;ttp://localhost:8080</a>. You should see the JBoss Welcome window and be able to access the JBoss console.</li>
+	<li>Once the application server is up and running, the next step is to install and configure all the remaining prerequisite software required by the sample application. This step is described in the following section.</li>
+</ol>
+
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Installandconfigureprerequisitesoftware"></a>Install and configure prerequisite software</h2>
+<p>Compiling the source code of the sample application requires Java libraries that provide J2EE API interfaces. Build scripts included with the sample application package are configured for using JAR files provided by a JBoss installation.</p>
+
+<p>The only additional software required for building the application is Apache Ant. If you still do not have Ant installed this is a good time for doing it and make sure that <b>&lt;ant_home&gt;\bin</b> directory is added to the system's path variable.</p>
+
+<p>Apache Ant can be downloaded from the following URL:</p>
+
+<p><a href="http://ant.apache.org" title="Visit page outside Confluence">&#104;ttp://ant.apache.org</a></p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Buildthesampleapplication"></a>Build the sample application</h2>
+<p>The File Retriever JCA sample application included with this article provides an Ant script that you will use in order to build modules of the application. Download the File Retriever JCA application package from the following link:</p>
+
+<p><a href="http://localhost:9090/download/attachments/1567/jca.zip?version=1" title="jca.zip attached to JBoss to Geronimo - JCA Migration">File Retriever JCA Sample</a></p>
+
+<p>After extracting the zip file, a <b>jca</b> directory is created. From now on this directory will be referred as <b>&lt;jca_home&gt;</b>. In that directory open the <b>build.properties</b> file and edit the properties which starts from the prefix <b>jboss</b> to match your environment as shown in the following example. The remaining properties are not relevant at this point in time, you will use them later to build the Geronimo version of this sample application.</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>build.properties</b></div><div class="preformattedContent">
+<pre># Name of the server to build the application for:
+server.name = jboss
+
+# Home directory of JBoss 4.0.2 J2ee Application Server
+# and name of the server instance on which the application
+# should be deployed (JBoss is also used for building
+# purposes):
+jboss.home = &lt;jboss_home&gt;
+jboss.server = &lt;your_server_name&gt;
+
+# Home directory of Geronimo Application Server
+# and its administrator credentials:
+geronimo.home = &lt;geronimo_home&gt;
+geronimo.user = system
+geronimo.password = manager</pre>
+</div></div>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>When specifying the directories and paths in the build.properties file, make sure to use just the forward slash "/" , otherwise the build will not locate the required files.</td></tr></table>
+
+<p>From a command prompt or shell go to the &lt;jca_home&gt; directory and run <b>ant</b>. This will create the RAR and WAR archives and place them directly into the &lt;jca_home&gt; directory.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h3><a name="JBosstoGeronimo-JCAMigration-Resourceadapterdescriptor"></a>Resource adapter descriptor</h3>
+<p>The RAR archive contains a JBoss version of the resource adapter deployment descriptor. The <b>ra.xml</b> file, located in the META-INF directory is shown in the following example.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>ra.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;connector xmlns=<span class="code-quote">"http://java.sun.com/xml/ns/j2ee"</span>
+        <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+                http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
+        version=<span class="code-quote">"1.5"</span>&gt;
+
+    <span class="code-tag">&lt;display-name&gt;</span>FileRetriever<span class="code-tag">&lt;/display-name&gt;</span>
+    <span class="code-tag">&lt;vendor-name&gt;</span>IBM<span class="code-tag">&lt;/vendor-name&gt;</span>
+    <span class="code-tag">&lt;eis-type&gt;</span>File system<span class="code-tag">&lt;/eis-type&gt;</span>
+    <span class="code-tag">&lt;resourceadapter-version&gt;</span>1.0<span class="code-tag">&lt;/resourceadapter-version&gt;</span>
+    <span class="code-tag">&lt;resourceadapter&gt;</span>
+        <span class="code-tag">&lt;resourceadapter-class&gt;</span>
+            org.jboss.resource.deployment.DummyResourceAdapter
+        <span class="code-tag">&lt;/resourceadapter-class&gt;</span>
+        <span class="code-tag">&lt;outbound-resourceadapter&gt;</span>
+            <span class="code-tag">&lt;connection-definition&gt;</span>
+                <span class="code-tag">&lt;managedconnectionfactory-class&gt;</span>
+                    com.ibm.j2g.jca.connector
+                        .impl.FileRetrieverManagedConnectionFactory
+                <span class="code-tag">&lt;/managedconnectionfactory-class&gt;</span>
+                <span class="code-tag">&lt;config-property&gt;</span>
+                    <span class="code-tag">&lt;description&gt;</span>
+                         Path to the directory being the file
+                         repository
+                    <span class="code-tag">&lt;/description&gt;</span>
+                    <span class="code-tag">&lt;config-property-name&gt;</span>
+                         RepositoryPath
+                    <span class="code-tag">&lt;/config-property-name&gt;</span>
+                    <span class="code-tag">&lt;config-property-type&gt;</span>
+                         java.lang.String
+                    <span class="code-tag">&lt;/config-property-type&gt;</span>
+                <span class="code-tag">&lt;/config-property&gt;</span>
+                <span class="code-tag">&lt;connectionfactory-interface&gt;</span>
+                    com.ibm.j2g.jca.connector
+                        .FileRetrieverConnectionFactory
+                <span class="code-tag">&lt;/connectionfactory-interface&gt;</span>
+                <span class="code-tag">&lt;connectionfactory-impl-class&gt;</span>
+                    com.ibm.j2g.jca.connector
+                        .impl.FileRetrieverConnectionFactoryImpl
+                <span class="code-tag">&lt;/connectionfactory-impl-class&gt;</span>
+                <span class="code-tag">&lt;connection-interface&gt;</span>
+                    com.ibm.j2g.jca.connector.FileRetrieverConnection
+                <span class="code-tag">&lt;/connection-interface&gt;</span>
+                <span class="code-tag">&lt;connection-impl-class&gt;</span>
+                    com.ibm.j2g.jca.connector
+                        .impl.FileRetrieverConnectionImpl
+                <span class="code-tag">&lt;/connection-impl-class&gt;</span>
+            <span class="code-tag">&lt;/connection-definition&gt;</span>
+            <span class="code-tag">&lt;transaction-support&gt;</span>NoTransaction<span class="code-tag">&lt;/transaction-support&gt;</span>
+            <span class="code-tag">&lt;reauthentication-support&gt;</span>false<span class="code-tag">&lt;/reauthentication-support&gt;</span>
+        <span class="code-tag">&lt;/outbound-resourceadapter&gt;</span>
+    <span class="code-tag">&lt;/resourceadapter&gt;</span>
+<span class="code-tag">&lt;/connector&gt;</span></pre>
+</div></div>
+
+<p>This file provides general information about the resource adapter, specifies its interfaces and classes, defines repository path configuration parameter and declares that the adapter does not support transaction. In particular, since JBoss requires that the descriptor defines a class implementing <b>javax.resource.spi.ResourceAdapter</b> interface the dummy implementation <b>org.jboss.resource.deployment.DummyResourceAdapter</b> provided by JBoss itself is specified.</p>
+
+<p>To deploy the adapter you also need a deployment descriptor specific to JBoss which is not included into the RAR archive because it may be updated just before deployment in order to provide the correct configuration for the adapter. The file &lt;jca_home&gt;/meta/jboss/jca-ds.xml providing the required configuration looks like the following example.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>jca-ds.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;!DOCTYPE connection-factories PUBLIC
+        <span class="code-quote">"-//JBoss//DTD JBOSS JCA Config 1.5//EN"</span>
+        <span class="code-quote">"http://www.jboss.org/j2ee/dtd/jboss-ds_1_5.dtd"</span>&gt;
+
+<span class="code-tag">&lt;connection-factories&gt;</span>
+
+    <span class="code-tag">&lt;no-tx-connection-factory&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>FileRetriever<span class="code-tag">&lt;/jndi-name&gt;</span>
+        <span class="code-tag">&lt;rar-name&gt;</span>jca.rar<span class="code-tag">&lt;/rar-name&gt;</span>
+        <span class="code-tag">&lt;connection-definition&gt;</span>
+            com.ibm.j2g.jca.connector.FileRetrieverConnectionFactory
+        <span class="code-tag">&lt;/connection-definition&gt;</span>
+        &lt;config-property name=<span class="code-quote">"RepositoryPath"</span>
+            type=<span class="code-quote">"java.lang.String"</span>&gt;..<span class="code-tag">&lt;/config-property&gt;</span>
+    <span class="code-tag">&lt;/no-tx-connection-factory&gt;</span>
+
+<span class="code-tag">&lt;/connection-factories&gt;</span></pre>
+</div></div>
+
+<p>This descriptor defines the JNDI name of the factory that is responsible for the resource adapter instance creation, it specifies that the adapter classes are contained by the jca.rar archive and provides value of the repository path configuration parameter. By default the adapter is configured so that the root directory of the JBoss server is used as the repository.</p>
+
+<h3><a name="JBosstoGeronimo-JCAMigration-Webapplicationdescriptors"></a>Web application descriptors</h3>
+<p>The WEB-INF directory of the WAR archive created by ant contains the standard <b>web.xml</b> deployment descriptor as well as a descriptor specific to JBoss, jboss-web.xml.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>web.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+
+&lt;web-app xmlns=<span class="code-quote">"http://java.sun.com/xml/ns/j2ee"</span>
+        <span class="code-keyword">xmlns:xsi</span>=<span class="code-quote">"http://www.w3.org/2001/XMLSchema-instance"</span>
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+                http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+        version=<span class="code-quote">"2.4"</span>&gt;
+
+    <span class="code-tag">&lt;servlet&gt;</span>
+        <span class="code-tag">&lt;servlet-name&gt;</span>FileRetrieverServlet<span class="code-tag">&lt;/servlet-name&gt;</span>
+        <span class="code-tag">&lt;servlet-class&gt;</span>
+            com.ibm.j2g.jca.web.FileRetrieverServlet
+        <span class="code-tag">&lt;/servlet-class&gt;</span>
+    <span class="code-tag">&lt;/servlet&gt;</span>
+    <span class="code-tag">&lt;servlet-mapping&gt;</span>
+        <span class="code-tag">&lt;servlet-name&gt;</span>FileRetrieverServlet<span class="code-tag">&lt;/servlet-name&gt;</span>
+        <span class="code-tag">&lt;url-pattern&gt;</span>/retrieve<span class="code-tag">&lt;/url-pattern&gt;</span>
+    <span class="code-tag">&lt;/servlet-mapping&gt;</span>
+
+    <span class="code-tag">&lt;resource-ref&gt;</span>
+        <span class="code-tag">&lt;res-ref-name&gt;</span>ra/FileRetriever<span class="code-tag">&lt;/res-ref-name&gt;</span>
+        <span class="code-tag">&lt;res-type&gt;</span>
+            com.ibm.j2g.jca.connector.FileRetrieverConnectionFactory
+        <span class="code-tag">&lt;/res-type&gt;</span>
+        <span class="code-tag">&lt;res-auth&gt;</span>Container<span class="code-tag">&lt;/res-auth&gt;</span>
+        <span class="code-tag">&lt;res-sharing-scope&gt;</span>Shareable<span class="code-tag">&lt;/res-sharing-scope&gt;</span>
+    <span class="code-tag">&lt;/resource-ref&gt;</span>
+
+<span class="code-tag">&lt;/web-app&gt;</span></pre>
+</div></div>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>jboss-web.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+&lt;!DOCTYPE jboss-web PUBLIC <span class="code-quote">"-//JBoss//DTD Web Application 2.3//EN"</span>
+                           <span class="code-quote">"http://www.jboss.org/j2ee/dtd/jboss-web_3_2.dtd"</span>&gt;
+
+<span class="code-tag">&lt;jboss-web&gt;</span>
+
+    <span class="code-tag">&lt;context-root&gt;</span>/jca<span class="code-tag">&lt;/context-root&gt;</span>
+
+    <span class="code-tag">&lt;resource-ref&gt;</span>
+        <span class="code-tag">&lt;res-ref-name&gt;</span>ra/FileRetriever<span class="code-tag">&lt;/res-ref-name&gt;</span>
+        <span class="code-tag">&lt;jndi-name&gt;</span>java:/FileRetriever<span class="code-tag">&lt;/jndi-name&gt;</span>
+    <span class="code-tag">&lt;/resource-ref&gt;</span>
+
+<span class="code-tag">&lt;/jboss-web&gt;</span></pre>
+</div></div>
+
+<p>The web.xml file defines a servlet used for retrieving contents of files and locally used reference to the resource adapter which the main JSP page and the servlet refer to. The jboss-web.xml file defines the context root for the Web module and maps the locally used reference to the JNDI name defined by the resource adapter descriptor specific to JBoss, the <b>jca-ds.xml</b> file.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Deploythesampleapplication"></a>Deploy the sample application</h2>
+<p>To deploy the modules of the File Retriever JCA application on JBoss, place the <b>jca.rar</b> and <b>jca.war</b> files that you just built with ant, along with the &lt;jca_home&gt;/meta/jboss/jca-ds.xml file into the following directory:</p>
+
+<p><tt>&lt;jboss_home&gt;\server\&lt;your_server_name&gt;\deploy</tt></p>
+
+<p>If JBoss is already started, it will automatically deploy and start the application; otherwise, the application will be deployed and started at the next startup.</p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Testthesampleapplication"></a>Test the sample application</h2>
+<p>To test the application, open a Web browser and access the following URL:</p>
+
+<p><a href="http://localhost:8080/jca" title="Visit page outside Confluence">&#104;ttp://localhost:8080/jca</a></p>
+
+<p>This brings up the main page of the sample application. Click a file to download it from the repository.</p>
+
+<p><img src="JBoss to Geronimo - JCA Migration_attachments/jca-testing.jpg" align="absmiddle" border="0" /></p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-JCAMigration-TheGeronimoenvironment"></a>The Geronimo environment <a name="JBosstoGeronimo-JCAMigration-Geronimo"></a></h1>
+<p>Download and install Geronimo from the following URL:</p>
+
+<p><a href="http://geronimo.apache.org/downloads.html" title="Visit page outside Confluence">&#104;ttp://geronimo.apache.org/downloads.html</a></p>
+
+<p>The release notes available there provide clear instructions on system requirements and how to install and start Geronimo.  Throughout the rest of this article we will refer to the Geronimo installation directory as <b>&lt;geronimo_home&gt;</b>.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='warningMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/forbidden.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b class="strong">TCP/IP ports conflict</b><br />If you are planning to run JBoss and Geronimo on the same machine consider to change the default service ports on, at least, one of these servers.</td></tr></table>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-JCAMigration-Stepbystepmigration"></a>Step-by-step migration <a name="JBosstoGeronimo-JCAMigration-migration"></a></h1>
+<p>To migrate the File Retriever sample application from JBoss to Geronimo you just need to update deployment descriptors and replace descriptors specific to JBoss with ones specific to Geronimo for both modules as described in the following sections.</p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Resourceadapterdescriptors"></a>Resource adapter descriptors</h2>
+<p>Geronimo follows the specification and does not require the <b>resourceadapter-class</b> element to be specified in the resource adapter deployment descriptor in case no implementation is available.</p>
+
+<p>The Geronimo version of the <b>ra.xml</b> file is located in the &lt;jca_home&gt;/meta/geronimo directory. It is almost identical to the descriptor used by JBoss which is located in the &lt;jca_home&gt;/meta/jboss directory and was listed above. The only difference is that the Geronimo version does not include the following lines from the JBoss version.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>Differences between JBoss and Geronimo resource adapters descriptors</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;resourceadapter-class&gt;</span>
+    org.jboss.resource.deployment.DummyResourceAdapter
+<span class="code-tag">&lt;/resourceadapter-class&gt;</span></pre>
+</div></div>
+
+<p>To deploy the adapter on Geronimo you also need a deployment plan specific to this server. Such a plan can be either named <b>geronimo-ra.xml</b> and be placed into the META-INF folder of the corresponding RAR archive, or can have any name and stay outside the archive. In the latter case, the path to the plan should be specified during the deployment of the resource adapter.</p>
+
+<p>The deployment plan used by the sample application contains the repository path configuration parameter that may be updated before the deployment. Because of this, the <b>jca-plan.xml</b> file is not included in the RAR archive but it is placed into the &lt;jca_home&gt;/meta/geronimo directory instead. The content of this file is listed in the following example. </p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>jca-plan.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- This is Geronimo-specific descriptor --&gt;</span></span>
+
+&lt;connector xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/j2ee/connector"</span> version=<span class="code-quote">"1.5"</span>
+        configId=<span class="code-quote">"com/ibm/j2g/jca.rar"</span> 
+        parentId=<span class="code-quote">"org/apache/geronimo/Server"</span>&gt;
+
+    <span class="code-tag">&lt;resourceadapter&gt;</span>
+        <span class="code-tag">&lt;outbound-resourceadapter&gt;</span>
+            <span class="code-tag">&lt;connection-definition&gt;</span>
+                <span class="code-tag">&lt;connectionfactory-interface&gt;</span>com.ibm.j2g.jca.connector.FileRetrieverConnectionFactory<span class="code-tag">&lt;/connectionfactory-interface&gt;</span>
+                <span class="code-tag">&lt;connectiondefinition-instance&gt;</span>
+                    <span class="code-tag">&lt;name&gt;</span>FileRetriever<span class="code-tag">&lt;/name&gt;</span>
+                    <span class="code-tag"><span class="code-comment">&lt;!-- The following path refers to the Geronimo home directory --&gt;</span></span>
+                    <span class="code-tag">&lt;config-property-setting name=<span class="code-quote">"RepositoryPath"</span>&gt;</span>..<span class="code-tag">&lt;/config-property-setting&gt;</span>
+                    <span class="code-tag">&lt;connectionmanager&gt;</span>
+                        <span class="code-tag">&lt;no-transaction/&gt;</span>
+                        <span class="code-tag">&lt;no-pool/&gt;</span>
+                    <span class="code-tag">&lt;/connectionmanager&gt;</span>
+                <span class="code-tag">&lt;/connectiondefinition-instance&gt;</span>
+            <span class="code-tag">&lt;/connection-definition&gt;</span>
+        <span class="code-tag">&lt;/outbound-resourceadapter&gt;</span>
+    <span class="code-tag">&lt;/resourceadapter&gt;</span>
+<span class="code-tag">&lt;/connector&gt;</span></pre>
+</div></div>
+
+<p>In this deployment plan the attribute <b>configId</b> specifies the unique name <b>com/ibm/j2g/jca.rar</b> used to identify the RAR module in Geronimo. The attribute <b>parentId</b> specifies that this module is deployed on the server as a separate component. Both attributes are required in this case.</p>
+
+<p>The descriptor also:</p>
+<ul>
+	<li>Defines the <b>FileRetriever</b> name which looks up for the resource adapter factory.</li>
+	<li>Specifies that neither transactions nor connection pool are supported.</li>
+	<li>Provides value of the repository path configuration parameter.</li>
+</ul>
+
+
+<p>By default, the adapter is configured so that the root directory of the Geronimo server is used as the repository.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Webapplicationdescriptors"></a>Web application descriptors</h2>
+<p>To deploy the WAR module on Geronimo you need to replace the <b>jboss-web.xml</b> file with a similar descriptor specific to this server. The <b>geronimo-web.xml</b> file is located in the &lt;jca_home&gt;/web/WEB-INF directory and its contents is listed the following example.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeHeader" style="border-bottom-style: solid; "><b>geronimo-web.xml</b></div><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;?xml version=<span class="code-quote">"1.0"</span> encoding=<span class="code-quote">"UTF-8"</span>?&gt;</span>
+
+<span class="code-tag"><span class="code-comment">&lt;!-- This is Geronimo-specific descriptor --&gt;</span></span>
+
+&lt;web-app xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/web"</span> 
+        configId=<span class="code-quote">"com/ibm/j2g/jca.war"</span>
+        parentId=<span class="code-quote">"com/ibm/j2g/jca.rar"</span>&gt;
+
+    <span class="code-tag">&lt;context-root&gt;</span>/jca<span class="code-tag">&lt;/context-root&gt;</span>
+
+    <span class="code-tag">&lt;resource-ref xmlns=<span class="code-quote">"http://geronimo.apache.org/xml/ns/naming"</span>&gt;</span>
+        <span class="code-tag">&lt;ref-name&gt;</span>ra/FileRetriever<span class="code-tag">&lt;/ref-name&gt;</span>
+        <span class="code-tag">&lt;resource-link&gt;</span>FileRetriever<span class="code-tag">&lt;/resource-link&gt;</span>
+    <span class="code-tag">&lt;/resource-ref&gt;</span>
+<span class="code-tag">&lt;/web-app&gt;</span></pre>
+</div></div>
+
+<p>In first place, this file specifies the unique name <b>com/ibm/j2g/jca.war</b> used to identify the WAR module in Geronimo and refers to the RAR module as to a parent configuration. This relation is required because the WAR module uses Java-interfaces defined in the RAR module.</p>
+
+<p>Then, similar to JBoss, this descriptor also defines the context root for the Web application and maps the locally used reference <b>ra/FileRetriever</b> to the name of the resource adapter specified in its deployment plan (jca-plan.xml).</p>
+
+<p>These are the only changes required to run modules of the JCA application in Geronimo.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Buildthemigratedsampleapplication"></a>Build the migrated sample application</h2>
+<p>In order to build the modules of the File Retriever JCA application for Geronimo, you need to update the <b>build.properties</b> file so that the <b>server.name</b> property value is set to <b>geronimo</b> and properties that start with the prefix <b>geronimo</b> match your environment as shown in the following example.</p>
+
+<div class="preformatted" style="border-style: solid; "><div class="preformattedHeader" style="border-bottom-style: solid; "><b>build.properties</b></div><div class="preformattedContent">
+<pre># Name of the server to build the application for:
+server.name = geronimo
+
+# Home directory of JBoss 4.0.2 J2ee Application Server
+# and name of the server instance on which the application
+# should be deployed (JBoss is also used for building
+# purposes):
+jboss.home = &lt;jboss_home&gt;
+jboss.server = &lt;your_server_name&gt;
+
+# Home directory of Geronimo Application Server
+# and its administrator credentials:
+geronimo.home = &lt;geronimo_home&gt;
+geronimo.user = system
+geronimo.password = manager</pre>
+</div></div>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td><b class="strong">Modifying the source code</b><br />If you modify the Java source code of this application, ensure that the properties which start with the prefix <b>jboss</b> still match your environment. The build scripts still refer to JBoss libraries for J2EE API interfaces required for the source code compilation. Alternatively, you can update the classpath specified in the <b>build.xml</b> file so that it refers to the library <b>&lt;geronimo_home&gt;/repository/geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc5.jar</b> instead of JBoss JARs.</td></tr></table>
+
+<p>Now run the command <b>ant build</b>. This will create the Geronimo version of the RAR and WAR archives with the proper deployment descriptors and place them directly into the &lt;jca_home&gt; directory. </p>
+
+<p>You can ensure that Java classes and interfaces for the resource adapter in the Geronimo version are packed into an intermediate JAR library which is placed into the RAR archive (while in the JBoss version the compiled Java code is placed into the archive directly). The reason for this is described in the beginning of this article.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h2><a name="JBosstoGeronimo-JCAMigration-Deploythemigratedsampleapplication"></a>Deploy the migrated sample application</h2>
+<p>To deploy the migrated File Retriever JCA application, make sure the Geronimo server is up and running. </p>
+
+<p>From a command line, change directory to &lt;jca_home&gt; and type the following commands:</p>
+
+<p><tt>java -jar &lt;geronimo_home&gt;/bin/deployer.jar --user system --password manager deploy meta/geronimo/jca-plan.xml jca.rar</tt></p>
+
+<p><tt>java -jar &lt;geronimo_home&gt;/bin/deployer.jar --user system --password manager deploy jca.war</tt></p>
+
+<p>Another way to deploy the modules on Geronimo (that is running on the default port 8080) is to update the build.properties file so that the properties which start with geronimo match with your environment and invoke the ant deploy command. The script executed by Ant will uninstall the modules if installed and deploy their latest builds created on the previous step.</p>
+
+<p><font color="white"><div class="preformatted" style="border-style: solid; "><div class="preformattedContent" style="background-color: #000000; ">
+<pre>E:\jca&gt;ant deploy
+Buildfile: build.xml
+
+deploy:
+
+deploy.geronimo:
+     [java]         Module com/ibm/j2g/jca.war stopped.
+
+     [java]         Module com/ibm/j2g/jca.war unloaded.
+
+     [java]         Module com/ibm/j2g/jca.war uninstalled.
+
+     [java]     Undeployed com/ibm/j2g/jca.war
+
+     [java]         Module com/ibm/j2g/jca.rar stopped.
+
+     [java]         Module com/ibm/j2g/jca.rar unloaded.
+
+     [java]         Module com/ibm/j2g/jca.rar uninstalled.
+
+     [java]     Undeployed com/ibm/j2g/jca.rar
+
+     [java]     Deployed com/ibm/j2g/jca.rar
+
+     [java]     Deployed com/ibm/j2g/jca.war @ http://hcunico:8080/jca
+
+
+BUILD SUCCESSFUL
+Total time: 7 seconds
+E:\jca&gt;</pre>
+</div></div></font></p>
+
+<p>Once the JCA application is deployed, open a Web browser and access the following URL:</p>
+
+<p><a href="http://localhost:8080/jca" title="Visit page outside Confluence">&#104;ttp://localhost:8080/jca</a></p>
+
+<p>You should see the JSP page of the application which is similar to the page of the JBoss version which you have already tested. The only difference should be an actual contents of the repository.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+<h1><a name="JBosstoGeronimo-JCAMigration-Summary"></a>Summary <a name="JBosstoGeronimo-JCAMigration-summary"></a></h1>
+<p>This article showed how to migrate a JCA (resource adapter) application from JBoss v4 to the Apache Geronimo application server. It showed that the migration requires you to update deployment descriptors (provide descriptors specific to Geronimo server). This takes minimum efforts.</p>
+
+<p><a href="#JBosstoGeronimo-JCAMigration-top" title="top on JBoss to Geronimo - JCA Migration">Back to Top</a></p>
+
+				    					    <br/>
+                        <div class="tabletitle">
+                            <a name="attachments">Attachments:</a>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - JCA Migration_attachments/jca.zip">jca.zip</a> (application/x-zip-compressed)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - JCA Migration_attachments/JCA_flow.jpg">JCA_flow.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="JBoss to Geronimo - JCA Migration_attachments/jca-testing.jpg">jca-testing.jpg</a> (image/pjpeg)
+                                <br/>
+                                                    </div>
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

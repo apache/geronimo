@@ -1,0 +1,271 @@
+<html>
+    <head>
+        <title>Documentation : Security Definition Schema</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : Security Definition Schema
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="SecurityDefinitionSchema-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:simon@godik.com" title="Send mail to Simon Godik">Simon Godik</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>Security schema is the <b>main syntax for the security-related definitions of any deployment plan</b>. Security schema is normally <b>imported</b> by the host schema.<br/>
+Security schema namespace is: <a href="http://geronimo.apache.org/xml/ns/security-1.1" title="Visit page outside Confluence">&#104;ttp://geronimo.apache.org/xml/ns/security-1.1</a> Security schema file is geronimo-security-1.1.xsd.</p>
+
+<p>The usual namespace prefix for the security schema is <tt>security</tt>. So if you want to refer to the elements of this namespace from some other namespace, you will do it this way: <tt>security:security</tt>.</p>
+
+<p>Here is the syntactic reference for the security schema. All security schema types are <b>global</b> (in the xml schema sense). There are only two global security elements: <tt>security:security</tt> and <tt>security:defaultPrincipal</tt>.</p>
+
+<p>Note that although default-principal is declared to be a <b>global</b> element, security schema does not make use of it and defines local default-principal element of the same type every time it needs it.</p>
+
+<p>The following sections describe the  syntax and meaning of the security schema element.</p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td> It has been used simple x-path path expressions such as /a/b/c and attribute expressions such as @attribute as a short-hand.</td></tr></table>
+
+<h2><a name="SecurityDefinitionSchema-TypesecurityType"></a>Type securityType</h2>
+<p><tt>security:securityType</tt> is the global type that defines security requirements of an application with respect to the J2EE role mapping to <tt>Principals</tt>.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"securityType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:sequence&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"description"</span> type=<span class="code-quote">"security:descriptionType"</span> 
+         minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+      <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"default-principal"</span> type=<span class="code-quote">"security:default-principalType"</span>/&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"role-mappings"</span> type=<span class="code-quote">"security:role-mappingsType"</span> 
+         minOccurs=<span class="code-quote">"0"</span>/&gt;
+   <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"doas-current-caller"</span> type=<span class="code-quote">"xsd:boolean"</span> default=<span class="code-quote">"false"</span>/&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"use-context-handler"</span> type=<span class="code-quote">"xsd:boolean"</span> default=<span class="code-quote">"false"</span>/&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"default-role"</span> type=<span class="code-quote">"xsd:string"</span>/&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@doas-current-caller</tt> - Set this attribute to <b>true</b> if the work is to be performed as the calling <tt>Subject</tt>. This attribute is optional, the default value is false.<br/>
+<tt>@use-context-handler</tt> - Set this attribute to <b>true</b> if the installed JACC policy contexts will use <tt>PolicyContextHandlers</tt>. This attribute is optional, the default value is false.<br/>
+<tt>@default-role</tt> - Used by the <b>Deployer</b> to assign method permissions for all of the unspecified methods, either by assigning them to security roles or by marking them as unchecked. If the value of default-role is empty then the unspecified methods are marked unchecked.</p>
+
+<p><tt>description</tt> - optional element. 0 to many description elements.<br/>
+<tt>default-principal</tt> - required element. Defines default principal for anonymous access.<br/>
+<tt>role-mappings</tt> - optional element. Maps J2EE roles to principals.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TypedefaultPrincipalType"></a>Type defaultPrincipalType</h2>
+<p>Default principal is used for anonymous access.</p>
+
+<p><tt>security:default-principalType</tt> is a sequence of optional description, the choice of principal, login-domain-principal, realm-principal, followed by a sequence of <br/>
+<tt>named-username-password-credential</tt> elements.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"default-principalType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:sequence&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"description"</span> type=<span class="code-quote">"security:descriptionType"</span> 
+         minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+      <span class="code-tag">&lt;xsd:choice&gt;</span>
+         <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"principal"</span> type=<span class="code-quote">"security:principalType"</span>/&gt;</span>
+         &lt;xsd:element name=<span class="code-quote">"login-domain-principal"</span> 
+            type=<span class="code-quote">"security:loginDomainPrincipalType"</span>/&gt;
+         <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"realm-principal"</span> type=<span class="code-quote">"security:realmPrincipalType"</span>/&gt;</span>
+      <span class="code-tag">&lt;/xsd:choice&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"named-username-password-credential"</span> 
+         type=<span class="code-quote">"security:named-username-password-credentialType"</span> minOccurs=<span class="code-quote">"0"</span> 
+            maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+   <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>description</tt> - optional. 0 to many description elements.<br/>
+<tt>principal</tt> - required choice element. Defines default principal to be of the <tt>security:princpalType</tt>.<br/>
+<tt>login-domain-principal</tt> - required choice element. Defines default principal to be of the <tt>security:loginDomainPrincipalType</tt>.<br/>
+<tt>realm-principal</tt> - required choice element. Defines default principal to be of the <tt>security:realmPrincipalType</tt>.<br/>
+<tt>named-username-password-credential</tt> - optional sequence of 0 to many elements of the <tt>security:named-username-password-credentialType</tt>.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TypeprincipalType"></a>Type principalType</h2>
+<p><tt>security:principalType</tt> defines authenticated principal.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"principalType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:sequence&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"description"</span> type=<span class="code-quote">"geronimo:descriptionType"</span> 
+         minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+   <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"class"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"name"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"designated-run-as"</span> type=<span class="code-quote">"xsd:boolean"</span> default=<span class="code-quote">"false"</span>/&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@class</tt> is principal implementation class.<br/>
+<tt>@name</tt> is authenticated principal name.<br/>
+<tt>@designated-run-as</tt> if set to <b>true</b> makes this principal a <b>run-as</b> principal for the role that maps this principal.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TypeloginDomainPrincipalType"></a>Type loginDomainPrincipalType</h2>
+<p><tt>security:loginDomainPrincipalType</tt> type associates a <tt>Principal</tt> with the <b>Login Domain</b> that authenticated that principal. If <b>Security Realm</b> into which login module (<b>Login Domain</b>) is wired up is configured to wrap <tt>Principals</tt>, every <tt>Principal</tt> produced by every login module will be wrapped into the <tt>DomainPrincipal</tt>.</p>
+
+<p>login-domainPrincipalType extends principalType.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"loginDomainPrincipalType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:complexContent&gt;</span>
+      <span class="code-tag">&lt;xsd:extension base=<span class="code-quote">"security:principalType"</span>&gt;</span>
+         <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"domain-name"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+      <span class="code-tag">&lt;/xsd:extension&gt;</span>
+   <span class="code-tag">&lt;/xsd:complexContent&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@domain-name</tt> - Login Domain name.</p>
+
+<p>Note that elements of the <tt>security:loginDomainPrincipalType</tt> wrap elements of <tt>security:principalType</tt>, so the <tt>@class</tt> attribute value must be the value of the <tt>Principal</tt> implementation class that is wrapped by the <tt>security:loginDomainPrincipal</tt>.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TyperealmPrincipalType"></a>Type realmPrincipalType</h2>
+<p><b>Realm principal</b> associates a <tt>Principal</tt> with the realm in which it was authenticated. If Security Realm is configured to wrap <tt>Principals</tt>, each <tt>DomainPrincipal</tt> will be wrapped into the <tt>RealmPrincipal</tt>.</p>
+
+<p><tt>realmPrincipalType</tt> extends <tt>security:loginDomainPrincipalType</tt>.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"realmPrincipalType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:complexContent&gt;</span>
+      <span class="code-tag">&lt;xsd:extension base=<span class="code-quote">"security:loginDomainPrincipalType"</span>&gt;</span>
+         <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"realm-name"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+      <span class="code-tag">&lt;/xsd:extension&gt;</span>
+   <span class="code-tag">&lt;/xsd:complexContent&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@realm-name</tt> is required attribute that defines realm name.</p>
+
+<p>Note that elements of <tt>security:realmPrincipalType</tt> wrap elements of <tt>security:principalType</tt>, that wrap elements of <tt>security:loginDomainPrincipalType</tt>. So the <tt>@class</tt> attribute value must be the value of the <tt>Principal</tt> implementation class that is wrapped by the <tt>security:loginDomainPrincipal</tt>.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TypenamedusernamepasswordcredentialType"></a>Type named-username-password-credentialType</h2>
+<p>This element defines username - password credential.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"named-username-password-credentialType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:sequence&gt;</span>
+      <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"name"</span> type=<span class="code-quote">"xsd:string"</span>/&gt;</span>
+      <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"username"</span> type=<span class="code-quote">"xsd:string"</span>/&gt;</span>
+      <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"password"</span> type=<span class="code-quote">"xsd:string"</span>/&gt;</span>
+   <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>name</tt> - required element. Names this credential set.<br/>
+<tt>username</tt> - required element. User name.<br/>
+<tt>password</tt> - required element. User password.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TyperolemappingsType"></a>Type role-mappingsType</h2>
+<p><tt>security:role-mappingsType</tt> defines mappings of J2EE roles to principals.</p>
+
+<p>&lt;xsd:complexType name="role-mappingsType"&gt;<br/>
+   &lt;xsd:sequence&gt;<br/>
+      &lt;xsd:element name="role" type="security:roleType" minOccurs="1" <br/>
+         maxOccurs="unbounded"/&gt;<br/>
+   &lt;/xsd:sequence&gt;<br/>
+&lt;/xsd:complexType&gt;</p>
+
+<p><tt>role</tt> - required sequence of 1 or more elements of <tt>security:roleType</tt>.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TyperoleType"></a>Type roleType</h2>
+<p><tt>security:roleType</tt> element defines J2EE role mapping to a set of <tt>Principals</tt>. Mapped principals can be any kind of <tt>principal: domain-principal</tt>, <tt>realm-principal</tt>, <tt>principal</tt>, or a <tt>distinguished name</tt> (dn).</p>
+
+<p>Note that ideally we want to map to <tt>DomainPrincipals</tt> or <tt>RealmPrincipals</tt>. This type of mapping is not supported in Geronimo M5 or earlier milestones. The only type of mapping in M5 and before is <tt>principalType</tt> mapping and <tt>dn</tt> mapping.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"roleType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:sequence&gt;</span>
+      <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"description"</span> type=<span class="code-quote">"security:descriptionType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;</span>
+      <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"realm-principal"</span> type=<span class="code-quote">"security:realmPrincipalType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"login-domain-principal"</span> 
+         type=<span class="code-quote">"security:loginDomainPrincipalType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+      <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"principal"</span> type=<span class="code-quote">"security:principalType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"distinguished-name"</span> 
+         type=<span class="code-quote">"security:distinguishedNameType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+   <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"role-name"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@role-name</tt> - J2EE role name. This is required attribute.</p>
+
+<p><tt>description</tt> - optional sequence from 0 to many <tt>security:description</tt> elements.<br/>
+<tt>realm-principal</tt> - optional sequence from 0 to many <tt>security:realmPrincipalType</tt> elements. Not supported for Geronimo M5 or earlier milestones.<br/>
+<tt>login-domain-principal</tt> - optional sequence from 0 to many <tt>security:loginDomainPrincipal</tt> type elements. Not supported for Geronimo M5 or earlier milestones.<br/>
+<tt>principal</tt> - optinal sequence from 0 to many <tt>security:principalType</tt> elements.<br/>
+<tt>distinguished-name</tt> - optional sequence of <tt>security:distinguishedNameType</tt> elements.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TypedistinguishedNameType"></a>Type distinguishedNameType</h2>
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"distinguishedNameType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:sequence&gt;</span>
+      &lt;xsd:element name=<span class="code-quote">"description"</span> type=<span class="code-quote">"security:descriptionType"</span> 
+         minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;
+   <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"name"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+   <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"designated-run-as"</span> type=<span class="code-quote">"xsd:boolean"</span> default=<span class="code-quote">"false"</span>/&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@designated-run-as</tt> - Set this attribute to <b>true</b> if this principal is to be used as the <b>run-as</b> principal for this role. This is optional attribute, default value is false.</p>
+
+<p><tt>desciption</tt> - optional sequence from 0 to many elements of <tt>security:descriptionType</tt>.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+<h2><a name="SecurityDefinitionSchema-TypedescriptionType"></a>Type descriptionType</h2>
+<p><tt>security:descriptionType</tt> element allows description to be inserted in any other element. This type extends schema string type with the reference to the global <tt>xml:lang</tt> attribute.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"descriptionType"</span>&gt;</span>
+   <span class="code-tag">&lt;xsd:simpleContent&gt;</span>
+      <span class="code-tag">&lt;xsd:extension base=<span class="code-quote">"xsd:string"</span>&gt;</span>
+         <span class="code-tag">&lt;xsd:attribute ref=<span class="code-quote">"xml:lang"</span>/&gt;</span>
+      <span class="code-tag">&lt;/xsd:extension&gt;</span>
+   <span class="code-tag">&lt;/xsd:simpleContent&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@xml:lang</tt> - language attribute. This attribute is optional.</p>
+
+<p><a href="#SecurityDefinitionSchema-top" title="top on Security Definition Schema">Back to Top</a></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

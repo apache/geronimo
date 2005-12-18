@@ -1,0 +1,300 @@
+<html>
+    <head>
+        <title>Documentation : Administrative tasks</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : Administrative tasks
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="Administrativetasks-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>This article is an attempt to cover as many administrative tasks as possible, common and not so common tasks. This article is grouped in four main sections having a similar flow to what you would find while using the <a href="Geronimo Administration Console.html" title="Geronimo Administration Console">Geronimo Administration Console</a>, this way should be easier for you to familiarize on both tasks and console.</p>
+
+<p>This article is organized in the following sections:</p>
+<ul>
+	<li><a href="#Administrativetasks-AdministeringtheApacheGeronimoServer" title="Administering the Apache Geronimo Server on Administrative tasks">Administering the Apache Geronimo Server</a>
+	<ul>
+		<li><a href="#Administrativetasks-ChangingtheWebcontainer%28JettyorTomcat%29" title="Changing the Web container (Jetty or Tomcat) on Administrative tasks">Changing the Web container \(Jetty or Tomcat\)</a></li>
+		<li><a href="#Administrativetasks-Startingandstoppingtheserver" title="Starting and stopping the server on Administrative tasks">Starting and stopping the server</a></li>
+		<li><a href="#Administrativetasks-Configureloglevel" title="Configure log level on Administrative tasks">Configure log level</a></li>
+		<li><a href="#Administrativetasks-Performancemonitoring" title="Performance monitoring on Administrative tasks">Performance monitoring</a></li>
+		<li><a href="#Administrativetasks-AddingnewlistenersfortheWebcontainers" title="Adding new listeners for the Web containers on Administrative tasks">Adding new listeners for the Web containers</a></li>
+		<li><a href="#Administrativetasks-ConfiguringtheJMSserver" title="Configuring the JMS server on Administrative tasks">Configuring the JMS server</a></li>
+	</ul>
+	</li>
+	<li>Configuring Services
+	<ul>
+		<li>Adding files to the Geronimo repository</li>
+		<li>Configuring database pools</li>
+		<li>Configuring JMS</li>
+		<li>Configuring JavaMail</li>
+	</ul>
+	</li>
+	<li>Administering applications
+	<ul>
+		<li>Installing and removing applications</li>
+		<li>Starting and stopping application modules</li>
+	</ul>
+	</li>
+	<li>Administering security
+	<ul>
+		<li>Adding security realms</li>
+		<li>Importing certificates</li>
+		<li><a href="Configuring LDAP.html" title="Configuring LDAP">Configuring LDAP</a></li>
+	</ul>
+	</li>
+</ul>
+
+
+<h1><a name="Administrativetasks-AdministeringtheApacheGeronimoServer"></a>Administering the Apache Geronimo Server</h1>
+<p>Covered in this section are the most common, every day, server related administrative tasks you may deal with. Subsequent sections will focus on configuring services, managing applications and configuring security.</p>
+
+<h2><a name="Administrativetasks-ChangingtheWebcontainer%28JettyorTomcat%29"></a>Changing the Web container (Jetty or Tomcat)</h2>
+<p>When you download and build Apache Geronimo from source code (from <b>svn</b>) you would get a directory structure similar to this one:</p>
+
+<ul>
+	<li>applications</li>
+	<li>assemblies</li>
+	<li>configs</li>
+	<li>docs_nopublish</li>
+	<li>etc</li>
+	<li>modules</li>
+	<li>openejb</li>
+	<li>plugins</li>
+	<li>sandbox</li>
+	<li>xdocs</li>
+</ul>
+
+
+<p>If you look under the <b>assemblies</b> directory you will find the following subdirectories:</p>
+
+<ul>
+	<li>j2ee-installer</li>
+	<li><b>j2ee-jetty-server</b></li>
+	<li><b>j2ee-tomcat-server</b></li>
+</ul>
+
+
+<p>We will focus on the last two directories that, as you may expect, contain self-contained images of Apache Geronimo configured to use either of these two Web containers.</p>
+
+<p>Depending on whether you want to use Jetty or Tomcat you will change to the respective directory (<em>j2ee-jetty-server</em> or <em>j2ee-tomcat-server</em>), the internal subdirectory structure will be the same. Once in the Web container specific directory, change directory once again to <b>target/geronimo-1.0</b>. This directory is your self-contained, totally complete, Apache Geronimo server. You may copy this directory to a different location. This directory is being referenced as <b>&lt;geronimo_home&gt;</b> throughout these series of articles.</p>
+
+<p>So, selecting the Web container is no longer a matter of changing configuration files but rather choosing a directory structure for the different assemblies. Within this structure you will find a <b>/bin</b> directory, the next section explains the commands located in this directory and how to start and stop the server.</p>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h2><a name="Administrativetasks-Startingandstoppingtheserver"></a>Starting and stopping the server</h2>
+<p>There are two command line ways to start the server. From a command line window or terminal change directory to <b>&lt;geronimo_home&gt;/bin</b>. From there you can either type:</p>
+
+<p><b><tt>java -jar server.jar</tt></b></p>
+
+<p>or simply</p>
+
+<p><b><tt>startup</tt></b></p>
+
+<p>Refer to the <a href="Tools and commands.html#Toolsandcommands-startup" title="startup on Tools and commands">Startup</a> section for all the options for this command.</p>
+
+<p>To stop the server you will have to open a new command line window or terminal, change directory to <b>&lt;geronimo_home&gt;/bin</b> and run the <b><tt>shutdown</tt></b> command. You will be prompted for username and password. Refer to the <a href="Tools and commands.html#Toolsandcommands-shutdown" title="shutdown on Tools and commands">Shutdown</a> section for all the options for this command.</p>
+
+<p>If the server is already running you have the option of using the <a href="Geronimo Administration Console.html" title="Geronimo Administration Console">Geronimo Administration Console</a> to shutdown the server remotely. With the server up and running open a Web browser and point to the following URL to access the console:</p>
+
+<p><a href="http://localhost:8080/console" title="Visit page outside Confluence">&#104;ttp://localhost:8080/console</a></p>
+
+<p>Log in to the Geronimo Administration Console and click on <img src="Administrative tasks_attachments/ico_x_16x16.gif" align="absmiddle" border="0" /> <b>Shutdown</b> on the Console Navigation panel on the left.</p>
+
+<p><img src="Administrative tasks_attachments/shutdown_console.jpg" align="absmiddle" border="0" /></p>
+
+<p>When you click on the <b>Shutdown</b> button in the Server Manager portlet, you will be prompted one more time to confirm the server shutdown. Click <b>OK</b> to confirm and shutdown the server. No need to mention that the connection from the Administration Console will be lost and you will need to restart the server from a terminal or command line window.</p>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h2><a name="Administrativetasks-Configureloglevel"></a>Configure log level</h2>
+<p>As explained in the <a href="Geronimo Administration Console.html" title="Geronimo Administration Console">Geronimo Administration Console</a> section, the Administration Console provides four portlets for configuring and viewing the server's logs, these portlets are the <b>Log Manager</b>, <b>Server Log Viewer</b>, <b>Derby Log Viewer</b> and <b>Web Access Log Viewer</b>.</p>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h3><a name="Administrativetasks-LogManager"></a>Log Manager</h3>
+<p>The Log Manager portlet options are illustrated in the following figure. From this portlet you can specify the location of the log configuration file. By default this value is set to <b><tt>var/log/server-log4j.properties</tt></b>.</p>
+
+<p><img src="Administrative tasks_attachments/LogManager.jpg" align="absmiddle" border="0" /></p>
+
+<p>Other value you can modify in from this portlet is the <b>Refresh Period</b>. This value tells Geronimo how often (in seconds) it should check for any changes to the configuration file. By default this value is set to 60 seconds.</p>
+
+<p>From this portlet you can also change the <b>Log Level</b>. By default this value is set to <b>INFO</b>, the possible values you can choose from are <b>All</b>, <b>DEBUG</b>, <b>INFO</b>, <b>WARN</b>, <b>ERROR</b>, <b>FATAL</b>, <b>TRACE</b> and <b>OFF</b>.</p>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h3><a name="Administrativetasks-ServerLogViewer"></a>Server Log Viewer</h3>
+<p>The Server Log Viewer portlet options are illustrated in the following figure. From this portlet you can view the Geronimo server logs as well as set filters for refining the results displayed.</p>
+
+<p><span class="error">!ServerLogViewer.jpg!</span></p>
+
+<p>The <b>Reset</b> link on the upper left corner will reset any filtering criteria you may have specified to the <a href="Geronimo Administration Console.html" title="Geronimo Administration Console">Geronimo Administration Console</a>'s defaults and will display the last 10 lines (if any) of the current Geronimo server log.</p>
+
+<p>The <b>Filter Results:</b> area will let you specify different filtering criteria to further narrowing down your search. The <b>File</b> pull-down menu allows you to select the log file to view. The logs listed in this pull-down menu are ruled by the <b>Configuration File</b> (<tt>server-log4j.properties</tt> by default) specified in the <a href="#Administrativetasks-LogManager" title="Log Manager on Administrative tasks">Log Manager</a> portlet. The number of log files to choose from the <b>File</b> pull-down menu will depend on the number of log files defined in the <tt>server-log4j.properties</tt> configuration file.</p>
+
+<p><b>Lines ..to..</b> lets you specify a range of line of log to analyze. <b>Max Results</b> limits the number of lines to be displayed. <b>Level</b> displays only those <em>errors</em> occurred for that Log Level. <b>Containing text</b> lets you enter a specific string to search through the server log. <b>With Exceptions</b> by clicking this checkbox will be displayed not just the error but also the exception, the stack trace display will be limited to the number lines set by the <b>Max Results</b> value.</p>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h3><a name="Administrativetasks-DerbyLogViewer"></a>Derby Log Viewer</h3>
+<p>The Derby Log viewer portlet options are illustrated in the following figure. From this portlet you can view the Derby server logs as well as set filters for refining the results displayed.</p>
+
+<p><img src="Administrative tasks_attachments/DerbyLogViewer.jpg" align="absmiddle" border="0" /></p>
+
+<p>The <b>Reset</b> link on the upper left corner will reset any filtering criteria you may have specified to the <a href="Geronimo Administration Console.html" title="Geronimo Administration Console">Geronimo Administration Console</a>'s defaults and will display the last 10 lines (if any) of the current Derby server log.</p>
+
+<p>Similar to the <a href="#Administrativetasks-ServerLogViewer" title="Server Log Viewer on Administrative tasks">Server Log Viewer</a> portlet, the <b>Filter Results:</b> area will let you specify different filtering criteria to further narrowing down your search. <b>Lines ..to..</b> lets you specify a range of line of log to analyze. <b>Max Results</b> limits the number of lines to be displayed and <b>Containing text</b> lets you enter a specific string to search through the server log.</p>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h3><a name="Administrativetasks-WebAccessLogViewer"></a>Web Access Log Viewer</h3>
+<p>The Web Access Log Viewer portlet options are illustrated in the following figure. From this portlet you can view the Web server logs as well as set filters for refining the results displayed.</p>
+
+<p><img src="Administrative tasks_attachments/WebAccessLogViewer.jpg" align="absmiddle" border="0" /></p>
+
+<p>The <b>Reset</b> link on the upper left corner will reset any filtering criteria you may have specified to the <a href="Geronimo Administration Console.html" title="Geronimo Administration Console">Geronimo Administration Console</a>'s defaults. In contrast with the other portlets, the <b>Web Access Log Viewer</b> will display all the lines in the log, it will just be limited by your Web browser display capabilities.</p>
+
+<p>The <b>Filter Results:</b> area will let you specify different filtering criteria to further narrowing down your search. For the Web Access Log Viewer this area is divided in three main groups, <b>Date</b>, <b>Identity</b> and <b>Requests</b>.</p>
+
+<ul>
+	<li><b>Date:</b><br/>
+Lets you specify a date range. If the <b>Ignore Dates</b> checkbox is selected, filtering will not be done using the date. All log lines that match the other filtering criteria will be displayed regardless of the date.</li>
+</ul>
+
+
+<ul>
+	<li><b>Identity:</b><br/>
+Lets you specify <b>Remote Address</b> (i.e. 192.168.0.1) and <b>Authenticated User</b> (i.e. system). </li>
+</ul>
+
+
+<ul>
+	<li><b>Request:</b><br/>
+Lets you specify the Request Method from and the Requested URI. You can select the Requested Method from a drop-down menu, the possible values are <b>ANY</b>, <b>POST</b> and <b>GET</b>. To filter by Requested URI just enter a URI, for example <a href="http://localhost:8080/console/login.jsp" title="Visit page outside Confluence">&#104;ttp://localhost:8080/console/login.jsp</a>.</li>
+</ul>
+
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h2><a name="Administrativetasks-Performancemonitoring"></a>Performance monitoring</h2>
+<p>For monitoring the Web server performance the <b>Web Server Manager</b> portlet is available by selecting <b>Web Server</b> on the <b>Console Navigation</b> on the left hand side. By default this portlet is not enabled, click on the <b>enable</b> button to start collecting statistics.</p>
+
+<p><img src="Administrative tasks_attachments/WebServerManager_off.jpg" align="absmiddle" border="0" /></p>
+
+<p>Once enable you will start collecting information on the number of requests, concurrent connections, requests duration, etc. The following figure illustrates all the values being collected.</p>
+
+<p><img src="Administrative tasks_attachments/WebServerManager.jpg" align="absmiddle" border="0" /></p>
+
+<p>The three links at the bottom let you <b>refresh</b> the current statistics, <b>disable</b> the portlet and stopping the collection of new data and <b>reset</b> the data collected. </p>
+
+<table cellpadding='5' width='85%' cellspacing='8px' class='noteMacro' border="0" align='center'><colgroup><col width='24'><col></colgroup><tr><td valign='top'><img src="icons/emoticons/warning.gif" width="16" height="16" align="absmiddle" alt="" border="0"></td><td>Note that any request from you via the Geronimo Administration Console (for example refreshing statistics) will be reflected in this collection.</td></tr></table>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h2><a name="Administrativetasks-AddingnewlistenersfortheWebcontainers"></a>Adding new listeners for the Web containers</h2>
+<p>For configuring new listeners (HTTP, HTTPS and AJP) to the Web container in use (either Jetty or Tomcat) the <b>Network Listener</b> portlet is available by selecting <b>Web Server</b> on the <b>Console Navigation</b> on the left hand side. From this portlet you can add new listeners as well as change the status (stop, start, delete) of the existing connectors.</p>
+
+<p><img src="Administrative tasks_attachments/NetworkListeners.jpg" align="absmiddle" border="0" /></p>
+
+<p>The processes described next are the same for both Jetty and Tomcat Web containers.</p>
+
+<h3><a name="Administrativetasks-AddnewHTTPlistener"></a>Add new HTTP listener</h3>
+<p>To add a new HTTP listener click on the respective link. The following figure illustrates the different parameters needed for creating a new HTTP listener. This process is process is very simple and the parameters are self explanatory, fill in with your values and click on <b>Save</b>.</p>
+
+<p><img src="Administrative tasks_attachments/httpListener.jpg" align="absmiddle" border="0" /></p>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h3><a name="Administrativetasks-AddnewHTTPSlistener"></a>Add new HTTPS listener</h3>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h3><a name="Administrativetasks-AddnewAJPlistener"></a>Add new AJP listener</h3>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+<h2><a name="Administrativetasks-ConfiguringtheJMSserver"></a>Configuring the JMS server</h2>
+
+<h1><a name="Administrativetasks-ConfiguringServices"></a>Configuring Services</h1>
+<h2><a name="Administrativetasks-AddingfilestotheGeronimorepository"></a>Adding files to the Geronimo repository</h2>
+<h2><a name="Administrativetasks-Configuringdatabasepools"></a>Configuring database pools</h2>
+<h2><a name="Administrativetasks-ConfiguringJMS"></a>Configuring JMS</h2>
+<p><em>Connection factories, queues, topics and destinations.</em></p>
+<h2><a name="Administrativetasks-ConfiguringJavaMail"></a>Configuring JavaMail</h2>
+
+<h1><a name="Administrativetasks-Administeringapplications"></a>Administering applications</h1>
+<h2><a name="Administrativetasks-Installingandremovingapplications"></a>Installing and removing applications</h2>
+<p><em>include hot deployment and redeployment</em></p>
+<h2><a name="Administrativetasks-Startingandstoppingapplicationmodules"></a>Starting and stopping application modules</h2>
+
+<h1><a name="Administrativetasks-Administeringsecurity"></a>Administering security</h1>
+<h2><a name="Administrativetasks-Addingsecurityrealms"></a>Adding security realms</h2>
+<h2><a name="Administrativetasks-Importingcertificates"></a>Importing certificates</h2>
+
+<p><a href="#Administrativetasks-top" title="top on Administrative tasks">Back to Top</a></p>
+
+				    					    <br/>
+                        <div class="tabletitle">
+                            <a name="attachments">Attachments:</a>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/DerbyLogViewer.jpg">DerbyLogViewer.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/httpListener.jpg">httpListener.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/ico_x_16x16.gif">ico_x_16x16.gif</a> (image/gif)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/LogManager.jpg">LogManager.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/LogServerViewer.jpg">LogServerViewer.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/NetworkListeners.jpg">NetworkListeners.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/shutdown_console.jpg">shutdown_console.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/WebAccessLogViewer.jpg">WebAccessLogViewer.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/WebServerManager.jpg">WebServerManager.jpg</a> (image/pjpeg)
+                                <br/>
+                                                            <img src="icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="Administrative tasks_attachments/WebServerManager_off.jpg">WebServerManager_off.jpg</a> (image/pjpeg)
+                                <br/>
+                                                    </div>
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>

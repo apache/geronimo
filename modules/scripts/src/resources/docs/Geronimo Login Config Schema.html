@@ -1,0 +1,172 @@
+<html>
+    <head>
+        <title>Documentation : Geronimo Login Config Schema</title>
+	    <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">	    
+    </head>
+
+    <body>
+	    <table class="pagecontent" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#ffffff">
+		    <tr>
+			    <td valign="top" class="pagebody">
+				    <div class="pageheader">
+					    <span class="pagetitle">
+                            Documentation : Geronimo Login Config Schema
+                                                    </span>
+				    </div>
+				    <div class="pagesubheading">
+					    This page last changed on Dec 14, 2005 by <font color="#0050B2">hcunico@gmail.com</font>.
+				    </div>
+
+				    <p><a name="GeronimoLoginConfigSchema-top"></a><br/>
+<em><b>Article donated by:</b> <a href="mailto:simon@godik.com" title="Send mail to Simon Godik">Simon Godik</a>, <a href="mailto:hcunico@gmail.com" title="Send mail to Hernan Cunico">Hernan Cunico</a></em></p>
+
+<p>As was explained before, Geronimo login configuration schema was devised as a user-friendly syntax for configuring Security Realm GBeans. It is included with <tt>xml-reference</tt> element into the host GBean and processed by the syntax-aware deployer.</p>
+
+<p>Geronimo login configuration namespace is <a href="http://geronimo.apache.org/xml/ns/loginconfig-1.0" title="Visit page outside Confluence">&#104;ttp://geronimo.apache.org/xml/ns/loginconfig-1.0</a> and the schema file is geronimo-login-config-1.0.xsd. All types are defined in this namespace.</p>
+
+<h2><a name="GeronimoLoginConfigSchema-TypeLoginconfigType"></a>Type Login-configType</h2>
+<p>Element <tt>login-config</tt> of the <tt>login-configType</tt> type is the top-level element in the login configuration schema.<br/>
+It defines <b>login module</b> configurations for the enclosing <b>Security Realm</b> GBean. Currently the only GBean that implements the <tt>SecuritRealm</tt> interface is <tt>GenericSecurityRealm</tt>.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"login-configType"</span>&gt;</span>
+	<span class="code-tag">&lt;xsd:annotation&gt;</span>
+            <span class="code-tag">&lt;xsd:documentation&gt;</span>
+                Defines the list of login modules for a login configuration represented by a GenericSecurityRealm
+            <span class="code-tag">&lt;/xsd:documentation&gt;</span>
+      <span class="code-tag">&lt;/xsd:annotation&gt;</span>
+      <span class="code-tag">&lt;xsd:sequence&gt;</span>
+            <span class="code-tag">&lt;xsd:choice minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"login-module-ref"</span> type=<span class="code-quote">"geronimo:login-module-refType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"login-module"</span> type=<span class="code-quote">"geronimo:login-moduleType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;</span>
+            <span class="code-tag">&lt;/xsd:choice&gt;</span>
+      <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>login-module-ref</tt> - optinal element in the sequence of choices. Defines reference to a login module.<br/>
+<tt>login-module</tt> - optional element in the sequence of choices. Defines login module.</p>
+
+<p><a href="#GeronimoLoginConfigSchema-top" title="top on Geronimo Login Config Schema">Back to Top</a></p>
+
+<h2><a name="GeronimoLoginConfigSchema-TypeabstractloginmoduleType"></a>Type abstract-login-moduleType</h2>
+<p>This is an abstract base type from which all other <b>login module</b> types are derived.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"abstract-login-moduleType"</span> abstract=<span class="code-quote">"true"</span>&gt;</span>
+    <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"control-flag"</span> type=<span class="code-quote">"geronimo:control-flagType"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@control-flag</tt> - <b>login module</b> control flag of the <tt>geronimo:control-flagType</tt>. Defines how authentication outcome from the <b>login module</b> must be combined with authentication outcomes from other login modules.</p>
+
+<p><a href="#GeronimoLoginConfigSchema-top" title="top on Geronimo Login Config Schema">Back to Top</a></p>
+
+<h2><a name="GeronimoLoginConfigSchema-TypecontrolflagType"></a>Type control-flagType</h2>
+<p>This type constrains the values of the module control flag. Values of this type emulate JAAS module combination semantics.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:simpleType name=<span class="code-quote">"control-flagType"</span>&gt;</span>
+    <span class="code-tag">&lt;xsd:restriction base=<span class="code-quote">"xsd:string"</span>&gt;</span>
+        <span class="code-tag">&lt;xsd:enumeration value=<span class="code-quote">"REQUIRED"</span>/&gt;</span>
+        <span class="code-tag">&lt;xsd:enumeration value=<span class="code-quote">"REQUISITE"</span>/&gt;</span>
+        <span class="code-tag">&lt;xsd:enumeration value=<span class="code-quote">"SUFFICIENT"</span>/&gt;</span>
+        <span class="code-tag">&lt;xsd:enumeration value=<span class="code-quote">"OPTIONAL"</span>/&gt;</span>
+    <span class="code-tag">&lt;/xsd:restriction&gt;</span>
+<span class="code-tag">&lt;/xsd:simpleType&gt;</span></pre>
+</div></div>
+
+<p><a href="#GeronimoLoginConfigSchema-top" title="top on Geronimo Login Config Schema">Back to Top</a></p>
+
+<h2><a name="GeronimoLoginConfigSchema-TypeloginmodulerefType"></a>Type login-module-refType</h2>
+<p>This type allows reference to the <b>login module</b> by the <b>object name</b>. Object name is split into <b>components</b>, so you do not have to write an extensive object name by hand, just a extensive object-name enclosed in pointy brackets.</p>
+
+<p><tt>Login-module-refType</tt> extends from <tt>abstract-login-moduleType</tt>.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"login-module-refType"</span>&gt;</span>
+    <span class="code-tag">&lt;xsd:complexContent&gt;</span>
+        <span class="code-tag">&lt;xsd:extension base=<span class="code-quote">"geronimo:abstract-login-moduleType"</span>&gt;</span>
+            <span class="code-tag">&lt;xsd:sequence&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"domain"</span> type=<span class="code-quote">"xsd:string"</span> minOccurs=<span class="code-quote">"0"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"server"</span> type=<span class="code-quote">"xsd:string"</span> minOccurs=<span class="code-quote">"0"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"application"</span> type=<span class="code-quote">"xsd:string"</span> minOccurs=<span class="code-quote">"0"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"module"</span> type=<span class="code-quote">"xsd:string"</span> minOccurs=<span class="code-quote">"0"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"type"</span> type=<span class="code-quote">"xsd:string"</span> minOccurs=<span class="code-quote">"0"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"name"</span> type=<span class="code-quote">"xsd:string"</span>/&gt;</span>
+            <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+        <span class="code-tag">&lt;/xsd:extension&gt;</span>
+    <span class="code-tag">&lt;/xsd:complexContent&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@control-flag</tt> - required attribute of the <tt>control-flagType</tt> type. It is inherited from the abstract base class. Defines how referenced <b>login module</b> authentication outcome must be combined with authentication outcome of other modules.</p>
+
+<p><tt>domain</tt> - optional element of the <tt>xs:string</tt> type that defines <tt>domain</tt> component of the <b>login module</b> object name.<br/>
+<tt>server</tt> - optional element of the <tt>xs:string</tt> type that defines <tt>server</tt> component of the <b>login module</b> object name.<br/>
+<tt>application</tt> - optional element of the <tt>xs:string</tt> type that defines <tt>application</tt> component of the <b>login module</b> object name.<br/>
+<tt>module</tt> - optional element of the <tt>xs:string</tt> type that defines <tt>module</tt> component of the <b>login module</b> object name<br/>
+<tt>type</tt> - optional element of the <tt>xs:string</tt> type that defines <tt>j2eeType</tt> component of the <b>login module</b> object name.<br/>
+<tt>name</tt> - required element of the <tt>xs:string</tt> type that defines <tt>name</tt> component of the <b>login module</b> object name.</p>
+
+<p><a href="#GeronimoLoginConfigSchema-top" title="top on Geronimo Login Config Schema">Back to Top</a></p>
+
+<h2><a name="GeronimoLoginConfigSchema-TypeloginmoduleType"></a>Type login-moduleType</h2>
+<p>The <tt>login-moduleType</tt> describes configuration for one login module within the enclosing <tt>GenericSecurityRealm</tt> GBean.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"login-moduleType"</span>&gt;</span>
+    <span class="code-tag">&lt;xsd:complexContent&gt;</span>
+        <span class="code-tag">&lt;xsd:extension base=<span class="code-quote">"geronimo:abstract-login-moduleType"</span>&gt;</span>
+            <span class="code-tag">&lt;xsd:sequence&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"login-domain-name"</span> type=<span class="code-quote">"xsd:string"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"login-module-class"</span> type=<span class="code-quote">"xsd:string"</span>/&gt;</span>
+                <span class="code-tag">&lt;xsd:element name=<span class="code-quote">"option"</span> type=<span class="code-quote">"geronimo:optionType"</span> minOccurs=<span class="code-quote">"0"</span> maxOccurs=<span class="code-quote">"unbounded"</span>/&gt;</span>
+            <span class="code-tag">&lt;/xsd:sequence&gt;</span>
+            <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"server-side"</span> type=<span class="code-quote">"xsd:boolean"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+        <span class="code-tag">&lt;/xsd:extension&gt;</span>
+    <span class="code-tag">&lt;/xsd:complexContent&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@control-flag</tt> - required attribute of the <tt>control-flagType</tt> type. It is inherited from the abstract base class. Defines how login module authentication outcome must be combined with authentication outcome of other modules.<br/>
+<tt>@server-side</tt> - required attribute of the <tt>xs:boolean</tt> type. If set to true login module is server-side login module.</p>
+
+<p><tt>login-domain-name</tt> - required element of the <tt>xs:string</tt> type. This is <b>Login Domain</b> name.<br/>
+<tt>login-module-class</tt> - required element of the <tt>xs:string</tt> type. This is a name of the class that implements this login module.<br/>
+<tt>option</tt> - optional sequence of options of type <tt>optionType</tt> from 0 to many. Options are specific to the login module.</p>
+
+<p><a href="#GeronimoLoginConfigSchema-top" title="top on Geronimo Login Config Schema">Back to Top</a></p>
+
+<h2><a name="GeronimoLoginConfigSchema-TypeoptionType"></a>Type optionType</h2>
+<p>This type defines login module specific option, like location of the authentication database, etc.</p>
+
+<div class="code" style="border-style: solid; "><div class="codeContent">
+<pre class="code-xml"><span class="code-tag">&lt;xsd:complexType name=<span class="code-quote">"optionType"</span>&gt;</span>
+    <span class="code-tag">&lt;xsd:simpleContent&gt;</span>
+        <span class="code-tag">&lt;xsd:extension base=<span class="code-quote">"xsd:string"</span>&gt;</span>
+            <span class="code-tag">&lt;xsd:attribute name=<span class="code-quote">"name"</span> type=<span class="code-quote">"xsd:string"</span> use=<span class="code-quote">"required"</span>/&gt;</span>
+        <span class="code-tag">&lt;/xsd:extension&gt;</span>
+    <span class="code-tag">&lt;/xsd:simpleContent&gt;</span>
+<span class="code-tag">&lt;/xsd:complexType&gt;</span></pre>
+</div></div>
+
+<p><tt>@name</tt> - required attribute of type <tt>xs:string</tt>. This is login module option name.</p>
+
+<p><a href="#GeronimoLoginConfigSchema-top" title="top on Geronimo Login Config Schema">Back to Top</a></p>
+
+				    
+                    			    </td>
+		    </tr>
+	    </table>
+	    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr>
+				<td height="12" background="border/border_bottom.gif"><img src="border/spacer.gif" width="1" height="1" border="0"/></td>
+			</tr>
+		    <tr>
+			    <td align="center"><font color="grey">Document generated by Confluence on Dec 15, 2005 19:14</font></td>
+		    </tr>
+	    </table>
+    </body>
+</html>
