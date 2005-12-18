@@ -45,6 +45,10 @@ public class HostGBean extends BaseGBean implements GBeanLifecycle, ObjectRetrie
     private static final String NAME = "name";
     
     private final Host host;
+    
+    public HostGBean(){
+        host = null;
+    }
 
     public HostGBean(String className, 
             Map initParams, 

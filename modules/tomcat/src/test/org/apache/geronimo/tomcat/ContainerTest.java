@@ -277,9 +277,9 @@ public class ContainerTest extends TestCase {
 
         initParams.clear();
         initParams.put("name", "Geronimo");
-        initParams.put("defaultHost", "localhost");
         engine = new GBeanData(engineName, EngineGBean.GBEAN_INFO);
         engine.setAttribute("className", "org.apache.geronimo.tomcat.TomcatEngine");
+        engine.setReferencePattern("DefaultHost", hostName);
         engine.setAttribute("initParams", initParams);
         engine.setReferencePattern("Hosts", hostName);
         start(engine);
