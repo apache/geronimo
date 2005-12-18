@@ -21,6 +21,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+import javax.security.auth.login.FailedLoginException;
 
 import org.apache.geronimo.security.jaas.server.JaasSessionId;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
@@ -71,6 +72,8 @@ public class ServerLoginProxy extends LoginModuleProxy {
                 System.err.println("No callback handler available for " + callbacks.length + " callbacks!");
             }
             return service.performLogin(sessionHandle, lmIndex, callbacks);
+        } catch (FailedLoginException e) {
+            throw e;
         } catch (Exception e) {
             LoginException le = new LoginException("Error filling callback list");
             le.initCause(e);
