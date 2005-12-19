@@ -421,6 +421,10 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GerMessageDestinationType[] gerMessageDestinations = gerWebApp.getMessageDestinationArray();
 
         ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
+        if((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
+                (!gerWebApp.isSetSecurityRealmName() || !gerWebApp.isSetSecurity())) {
+            throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> and <security> elements necessary to configured security accordingly.");
+        }
         if (gerWebApp.isSetSecurity()) {
             if (!gerWebApp.isSetSecurityRealmName()) {
                 throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
