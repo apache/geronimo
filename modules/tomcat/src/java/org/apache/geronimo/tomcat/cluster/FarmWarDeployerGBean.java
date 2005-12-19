@@ -73,7 +73,7 @@ public class FarmWarDeployerGBean extends ClusterDeployerGBean{
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("ClusterDeployer", FarmWarDeployerGBean.class, J2EE_TYPE);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic("ClusterDeployer", FarmWarDeployerGBean.class, ClusterDeployerGBean.GBEAN_INFO);
 
         infoFactory.addAttribute("tempDir", String.class, true);
         infoFactory.addAttribute("deployDir", String.class, true);
@@ -83,12 +83,11 @@ public class FarmWarDeployerGBean extends ClusterDeployerGBean{
         infoFactory.addReference("ServerInfo", ServerInfo.class, "GBean");
         infoFactory.addOperation("getInternalObject");
         infoFactory.setConstructor(new String[] {
-                "className",
-                "initParams",
                 "tempDir",
                 "deployDir",
                 "watchDir",
                 "watchEnabled",
+                "processDeployFrequency",
                 "ServerInfo"
         });
         GBEAN_INFO = infoFactory.getBeanInfo();
