@@ -107,6 +107,38 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     private String sessionManager;
 
+    
+    public class SessionManagerConfiguration implements WebApplicationContext.Configuration {
+
+    	private WebApplicationContext webAppContext;
+    	
+    	
+		public void setWebApplicationContext(WebApplicationContext webAppContext) {
+			this.webAppContext = webAppContext;
+		}
+
+		public WebApplicationContext getWebApplicationContext() {
+			return this.webAppContext;
+		}
+
+		public void configureClassPath() throws Exception {
+		}
+
+		public void configureDefaults() throws Exception {	
+		}
+
+	
+		public void configureWebApp() throws Exception {
+		       //setup a SessionManager
+	        if (getSessionManager() != null) {
+	        	Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
+	          Object o = clazz.newInstance();
+	        	this.webAppContext.getServletHandler().setSessionManager((SessionManager)o);
+	        }
+		}
+    	
+    }
+    
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
@@ -213,7 +245,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setClassLoader(this.webClassLoader);
 
         setHosts(virtualHosts);
-        this.sessionManager = sessionManager;
+        
         handler = new WebApplicationHandler();
         addHandler(handler);
 
@@ -268,25 +300,22 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         } else {
             securityInterceptor = null;
         }
-//end JACC
+//      end JACC
         interceptor = new RequestWrappingBeforeAfter(interceptor, handler);
         chain = interceptor;
         contextLength = index;
-
+        
         //cheat -- add jsr154 filter not as a gbean
         FilterHolder jsr154FilterHolder = new FilterHolder(handler, "jsr154", JSR154Filter.class.getName());
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
         handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR);
-
-        //setup a SessionManager
-        if (getSessionManager()!=null) {
-        	Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
-          Object o = clazz.newInstance();
-        	getServletHandler().setSessionManager((SessionManager)o);
-        }
-
+        
+        configureSessionManager (sessionManager);
+      
     }
+
+    
 
     public String getObjectName() {
         return objectName;
@@ -327,7 +356,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         setClassLoader(webClassLoader);
-
+        
+ 
         // merge Geronimo and Jetty Lifecycles
         if (!isStarting()) {
             super.start();
@@ -487,6 +517,22 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
 
+    private void configureSessionManager (String sessionManagerClassName) {
+    	  this.sessionManager = sessionManagerClassName;
+          if (this.sessionManager != null) {
+        	  addConfiguration (SessionManagerConfiguration.class.getName());
+          }
+    }
+    
+    private void addConfiguration (String configClassName) {
+          String[] configClassNames = getConfigurationClassNames();
+          String[] newConfigClassNames = new String[configClassNames==null?1:configClassNames.length+1];
+          for (int i=0;i<configClassNames.length;i++)
+        	  newConfigClassNames[i] = configClassNames[i];
+          
+          newConfigClassNames[newConfigClassNames.length-1] = configClassName;
+    }
+    
     /**
      * ObjectName must match this pattern:
      * <p/>
