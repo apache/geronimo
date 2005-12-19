@@ -192,8 +192,18 @@ Significant Missing Features
  * Installer program (expected shortly)
 
 
-Specific Issues, Features and Improvements for Version 1.0
-----------------------------------------------------------
+Known Issues
+------------
+ * ActiveMQ (our JMS implementation) is not shut down in the right
+   way and thus tends to generate exceptions to the console during
+   the shutdown process.  This does not cause any actual problems
+   as far as we know, but it sure doesn't look nice.
+ * See also outstanding JIRA issues at 
+   http://issues.apache.org/jira/browse/GERONIMO
+
+
+Specific Issues, Features and Improvements fixed in Version 1.0
+---------------------------------------------------------------
 
 ** Bugs
     * [GERONIMO-287] - Control-C termination overwrites log files created with log4j.xml
