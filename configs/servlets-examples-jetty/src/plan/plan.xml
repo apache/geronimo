@@ -24,4 +24,15 @@
 
     <context-root>/servlets-examples</context-root>
     <context-priority-classloader>false</context-priority-classloader>
+    <security-realm-name>geronimo-properties-realm</security-realm-name>
+    <security>
+        <default-principal>
+            <principal name="anonymous" class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal" />
+        </default-principal>
+        <role-mappings>
+            <role role-name="tomcat">
+                <principal name="admin" class="org.apache.geronimo.security.realm.providers.GeronimoGroupPrincipal" />
+            </role>
+        </role-mappings>
+    </security>
 </web-app>
