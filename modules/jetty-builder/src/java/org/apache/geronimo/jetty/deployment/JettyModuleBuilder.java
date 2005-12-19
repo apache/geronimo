@@ -422,8 +422,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         ENCConfigBuilder.registerMessageDestinations(earContext.getRefContext(), module.getName(), messageDestinations, gerMessageDestinations);
         if((webApp.getSecurityConstraintArray().length > 0 || webApp.getSecurityRoleArray().length > 0) &&
-                (!gerWebApp.isSetSecurityRealmName() || !gerWebApp.isSetSecurity())) {
-            throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> and <security> elements necessary to configured security accordingly.");
+                !gerWebApp.isSetSecurityRealmName()) {
+            throw new DeploymentException("web.xml includes security elements but Geronimo deployment plan is not provided or does not contain <security-realm-name> element necessary to configure security accordingly.");
         }
         if (gerWebApp.isSetSecurity()) {
             if (!gerWebApp.isSetSecurityRealmName()) {
@@ -806,7 +806,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 if (earContext.getSecurityConfiguration() == null) {
-                     throw new DeploymentException("You have specified a login security realm for the webapp " + webModuleName + " but no security configuration is supplied in the application plan");
+                     throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + webModuleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
                 }
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
