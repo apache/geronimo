@@ -25,7 +25,7 @@
 </tr>
 </table>
 
-<h3>Attributes</h3>
+<h3>MBean Attributes</h3>
 
 <table>
 
@@ -47,7 +47,6 @@
 #end
 </table>
 
-<!--
 <h3>MBean Operations</h3>
 
 
@@ -55,15 +54,16 @@
 
 <tr>
   <th>Name</th>
-  <th>Return Type</th>
+  <th>MethodName</th>
+  <th>Parameters</th>
 </tr>
 
 #foreach($i in $beanInfo.getOperationInfo())
 <tr>
   <td>$i.getName()</td>
-  <td>$i.getReturnType()</td>
+  <td>$i.getMethodName()</td>
+  <td>$i.getParameterList()</td>
 </tr>
 #end
 </table>
--->
 
