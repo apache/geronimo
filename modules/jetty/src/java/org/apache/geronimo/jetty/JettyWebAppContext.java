@@ -108,12 +108,16 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private String sessionManager;
 
     
-    public class SessionManagerConfiguration implements WebApplicationContext.Configuration {
+    public static class SessionManagerConfiguration implements WebApplicationContext.Configuration {
 
     	private WebApplicationContext webAppContext;
     	
+        
     	
-		public void setWebApplicationContext(WebApplicationContext webAppContext) {
+		public SessionManagerConfiguration() {
+        }
+
+        public void setWebApplicationContext(WebApplicationContext webAppContext) {
 			this.webAppContext = webAppContext;
 		}
 
@@ -129,12 +133,15 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
 	
 		public void configureWebApp() throws Exception {
-		       //setup a SessionManager
-	        if (getSessionManager() != null) {
-	        	Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
-	          Object o = clazz.newInstance();
-	        	this.webAppContext.getServletHandler().setSessionManager((SessionManager)o);
-	        }
+		    //setup a SessionManager
+            log.debug("About to configure a SessionManager");
+            String sessionManagerClassName = ((JettyWebAppContext)webAppContext).getSessionManager();
+		    if (sessionManagerClassName != null) {
+		        Class clazz = Thread.currentThread().getContextClassLoader().loadClass(sessionManagerClassName);
+		        Object o = clazz.newInstance();
+                log.debug("Setting SessionManager type="+clazz.getName()+" instance="+o);
+		        this.webAppContext.getServletHandler().setSessionManager((SessionManager)o);
+		    }
 		}
     	
     }
@@ -519,6 +526,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     private void configureSessionManager (String sessionManagerClassName) {
     	  this.sessionManager = sessionManagerClassName;
+          log.debug("SessionManager classname="+sessionManagerClassName);
           if (this.sessionManager != null) {
         	  addConfiguration (SessionManagerConfiguration.class.getName());
           }
@@ -531,6 +539,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         	  newConfigClassNames[i] = configClassNames[i];
           
           newConfigClassNames[newConfigClassNames.length-1] = configClassName;
+          setConfigurationClassNames(newConfigClassNames);
+          log.debug("Configs:");
+          for (int i=0; i<newConfigClassNames.length;i++)
+              log.debug(newConfigClassNames[i]+" ");
     }
     
     /**
