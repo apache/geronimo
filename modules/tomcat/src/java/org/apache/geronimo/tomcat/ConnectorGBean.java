@@ -401,6 +401,25 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         connector.setAttribute("disableUploadTimeout", new Boolean(!enabled));
     }
 
+    public int getMaxPostSize() {
+        Object value = connector.getAttribute("maxPostSize");
+        return value == null ? 2097152 : Integer.parseInt(value.toString());
+    }
+
+    public void setMaxPostSize(int bytes) {
+        // TODO Auto-generated method stub
+        connector.setAttribute("maxPostSize", new Integer(bytes));
+        
+    }
+
+    public int getMaxSavePostSize() {
+        Object value = connector.getAttribute("maxSavePostSize");
+        return value == null ? 4096 : Integer.parseInt(value.toString());
+    }
+
+    public void setMaxSavePostSize(int kbytes) {
+        connector.setAttribute("maxSavePostSize", new Integer(kbytes));
+    }
 
     public static final GBeanInfo GBEAN_INFO;
 
@@ -410,7 +429,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl",},
+        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl","maxPostSize","maxSavePostSize"},
                                                            new String[]{"host","port","redirectPort"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
@@ -419,4 +438,5 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
 }
