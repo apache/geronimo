@@ -48,8 +48,16 @@
       <type>rar</type>
     </dependency>
     <dependency>
-        <groupId>geronimo-spec</groupId>
-        <artifactId>geronimo-spec-javamail</artifactId>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-mail</artifactId>
+        <version>${pom.currentVersion}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
         <version>${geronimo_spec_javamail_version}</version>
     </dependency>
     <dependency>

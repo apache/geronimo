@@ -17,7 +17,7 @@
 -->
 <!-- $Rev$ $Date$ -->
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    parentId="geronimo/system-jms/1.0-SNAPSHOT/car" 
+    parentId="geronimo/activemq-broker/1.0-SNAPSHOT/car" 
     configId="org/apache/geronimo/AdventureBuilderJMS">
     <resourceadapter>
         <resourceadapter-instance>

@@ -23,6 +23,7 @@
     xmlns:ant="jelly:ant"
     xmlns:deploy="geronimo:deploy"
     xmlns:velocity="jelly:velocity"
+    xmlns:u="jelly:util"
     >
 
     <j:set var="instDir" value="${maven.build.dir}/geronimo-${geronimo_version}"/>
@@ -32,9 +33,25 @@
     </goal>
 
     <goal name="ab:deploy" description="Deploys Adventure Builder" prereqs="clean">
+        <!-- TODO: Make geronimoArtifactId configurable -->
         <deploy:unpackServer
             geronimoVersion="${geronimo_version}"
-            geronimoName="geronimo"/>
+            geronimoArtifactId="geronimo-tomcat-j2ee"/>
+
+        <deploy:startRemoteServer
+            geronimoTarget="${instDir}"/>
+        <ant:echo message="Waiting for server to start at: ${instDir}"/>
+        <!-- TODO: No way to specify vv -->
+        <!-- TODO: Empty id leads to Exception -->
+        <!-- TODO: Use maven properties, e.g. 1.0-SNAPSHOT -->
+        <deploy:waitForStarted
+            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+            username="system"
+            password="manager"
+            maxTries="120"
+            id="geronimo/j2ee-deployer/1.0-SNAPSHOT/car"/>
+        <echo message="Deployer has started"/>
+        <u:sleep millis="60000"/>
 
         <fileScanner var="plans">
             <fileset dir="${basedir}/src/plan">
@@ -52,90 +69,76 @@
                 name="${maven.build.dir}/plan/${planName}"/>
         </j:forEach>
 
-        <ant:echo>Building JMS Configuration</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/adventure1.0.3-jms-ra-plan.xml"/>
-            <ant:arg value="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"/>
-        </ant:java>
+        <ant:echo>Distributing JMS Configuration</ant:echo>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.repo.local}/activemq/rars/activemq-ra-${activemq_version}.rar"
+            plan="${maven.build.dir}/plan/adventure1.0.3-jms-ra-plan.xml"/>
 
         <ant:echo>Distributing Database Configuration</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/adventure1.0.1-db-ra-plan.xml"/>
-            <ant:arg value="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_vendors_version}.rar"/>
-        </ant:java>
+        <!-- TODO: TranQL version hardcoded -->
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-1.1-SNAPSHOT.rar"
+            plan="${maven.build.dir}/plan/adventure1.0.1-db-ra-plan.xml"/>
 
         <ant:echo>Distributing Adventure Builder Consumer Website Application</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-<!--
-            <ant:jvmarg value="-Xdebug"/>
-            <ant:jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,address=8000"/>
--->
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/consumerwebsite1.0.1.ear-plan.xml"/>
-            <!--ant:arg value="${ab.home}/project/apps/consumerwebsite/build/consumerwebsite.ear"/-->
-            <ant:arg value="${ab.home}/consumerwebsite.ear"/>
-        </ant:java>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${ab.home}/consumerwebsite.ear"
+            plan="${maven.build.dir}/plan/consumerwebsite1.0.1.ear-plan.xml"/>
 
         <ant:echo>Distributing Adventure Builder Activity Supplier Application</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/activitysupplier1.0.3.ear-plan.xml"/>
-            <ant:arg value="${ab.home}/activitysupplier.ear"/>
-        </ant:java>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${ab.home}/activitysupplier.ear"
+            plan="${maven.build.dir}/plan/activitysupplier1.0.3.ear-plan.xml"/>
 
         <ant:echo>Distributing Adventure Builder OPC Application</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/opc1.0.3.ear-plan.xml"/>
-            <ant:arg value="${ab.home}/opc.ear"/>
-        </ant:java>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${ab.home}/opc.ear"
+            plan="${maven.build.dir}/plan/opc1.0.3.ear-plan.xml"/>
 
         <ant:echo>Distributing Adventure Builder Airline Supplier Application</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/airlinesupplier1.0.3.ear-plan.xml"/>
-            <ant:arg value="${ab.home}/airlinesupplier.ear"/>
-        </ant:java>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${ab.home}/airlinesupplier.ear"
+            plan="${maven.build.dir}/plan/airlinesupplier1.0.3.ear-plan.xml"/>
 
         <ant:echo>Distributing Adventure Builder Bank Application</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/bank1.0.3.ear-plan.xml"/>
-            <ant:arg value="${ab.home}/bank.ear"/>
-        </ant:java>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${ab.home}/bank.ear"
+            plan="${maven.build.dir}/plan/bank1.0.3.ear-plan.xml"/>
 
         <ant:echo>Distributing Adventure Lodging Supplier Application</ant:echo>
-        <ant:java fork="true" jar="${instDir}/bin/deployer.jar" failonerror="true">
-            <ant:jvmarg value="-ea"/>
-            <ant:arg value="--offline"/>
-            <ant:arg value="distribute"/>
-            <ant:arg value="${maven.build.dir}/plan/lodgingsupplier1.0.3.ear-plan.xml"/>
-            <ant:arg value="${ab.home}/lodgingsupplier.ear"/>
-        </ant:java>
+        <deploy:distribute
+            uri="deployer:geronimo:jmx"
+            username="system"
+            password="manager"
+            module="${ab.home}/lodgingsupplier.ear"
+            plan="${maven.build.dir}/plan/lodgingsupplier1.0.3.ear-plan.xml"/>
 
         <ant:echo>Creating Adventure Builder Database Schema</ant:echo>
-        <j:invokeStatic className="java.lang.System" method="setProperty">
-            <j:arg type="java.lang.String" value="derby.system.home"/>
-            <j:arg type="java.lang.String" value="${instDir}/var/derby"/>
-        </j:invokeStatic>
+        <j:set var="derby.system.home" value="${instDir}/var/derby"/>
         <ant:sql driver="org.apache.derby.jdbc.EmbeddedDriver"
-            url="jdbc:derby:AdventureDB;create=true" userid="" password="">
+            url="jdbc:derby:${derby.system.home}/AdventureDB;create=true" userid="" password=""
+            autocommit="true">
             <ant:fileset dir="src/sql"/>
             <ant:classpath>
                 <ant:pathelement location="${maven.repo.local}/org.apache.derby/jars/derby-${derby_version}.jar"/>
@@ -144,38 +147,33 @@
     </goal>
 
     <goal name="ab:start" description="Start Adventure Builder">
-        <deploy:startRemoteServer
-            geronimoTarget="${instDir}"
-            debugPort="8000"
-            configs="geronimo/console-jetty/1.0-SNAPSHOT/car geronimo/debug-console/1.0-SNAPSHOT/car geronimo/runtime-deployer/1.0-SNAPSHOT/car  geronimo/uddi-jetty/1.0-SNAPSHOT/car geronimo/jetty-runtime-deployer/1.0-SNAPSHOT/car org/apache/geronimo/Adventure1.0.1 org/apache/geronimo/AirlineSupplier1.0.3 org/apache/geronimo/ActivitySupplier1.0.3 org/apache/geronimo/Bank1.0.3 org/apache/geronimo/LodgingSupplier1.0.3 org/apache/geronimo/OPC1.0.3"/>
-        <ant:echo message="Waiting for server at: ${instDir}"/>
-        <deploy:waitForStarted
-            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+        <deploy:start
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/Adventure1.0.1"/>
-        <deploy:waitForStarted
-            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+        <deploy:start
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/AirlineSupplier1.0.3"/>
-        <deploy:waitForStarted
-            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+        <deploy:start
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/ActivitySupplier1.0.3"/>
-        <deploy:waitForStarted
-            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+        <deploy:start
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/Bank1.0.3"/>
-        <deploy:waitForStarted
-            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+        <deploy:start
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/LodgingSupplier1.0.3"/>
-        <deploy:waitForStarted
-            uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
+        <deploy:start
+            uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
             id="org/apache/geronimo/OPC1.0.3"/>
