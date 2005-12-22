@@ -17,7 +17,7 @@
 -->
 <!-- $Rev$ $Date$ -->
 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
-    parentId="geronimo/activemq-broker/1.0-SNAPSHOT/car" 
+    parentId="geronimo/activemq-broker/${geronimo_version}/car" 
     configId="org/apache/geronimo/AdventureBuilderJMS">
     <resourceadapter>
         <resourceadapter-instance>
@@ -46,7 +46,6 @@
                   <match-one/>
                 </single-pool>
               </connectionmanager>
-              <credential-interface>javax.resource.spi.security.PasswordCredential</credential-interface>
             </connectiondefinition-instance>
           </connection-definition>
         </outbound-resourceadapter>
@@ -60,6 +59,7 @@
         </adminobject-instance>
     </adminobject>
     <adminobject>
+    	  <!-- TODO jrf 20051912 I can't seem to find anyone using this Topic . Maybe it should be removed? -->
         <adminobject-interface>javax.jms.Topic</adminobject-interface>
         <adminobject-class>org.codehaus.activemq.message.ActiveMQTopic</adminobject-class>
         <adminobject-instance>
@@ -84,6 +84,7 @@
         </adminobject-instance>
     </adminobject>
     <adminobject>
+    	<!-- TODO jrf 20051912 I can't seem to find anyone using this Topic . Maybe it should be removed? -->
         <adminobject-interface>javax.jms.Topic</adminobject-interface>
         <adminobject-class>org.codehaus.activemq.message.ActiveMQTopic</adminobject-class>
         <adminobject-instance>

@@ -22,27 +22,27 @@
     <import>
         <uri>org/apache/geronimo/AdventureBuilderJMS</uri>
     </import>
-    <dependency>
+     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-common</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${geronimo_version}</version>
     </dependency>
-    <dependency>
+     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-mail</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-        <groupId>geronimo-spec</groupId>
-        <artifactId>geronimo-spec-activation</artifactId>
-        <version>1.0-SNAPSHOT</version>
+      <groupId>org.apache.geronimo.specs</groupId>
+       <artifactId>geronimo-activation_1.0.2_spec</artifactId>
+       <version>${geronimo_spec_activation_version}</version>
     </dependency>
     <dependency>
-        <groupId>geronimo-spec</groupId>
-        <artifactId>geronimo-spec-javamail</artifactId>
-        <version>1.0-SNAPSHOT</version>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
+     <version>${geronimo_spec_javamail_version}</version>
     </dependency>
-    <module>
+   <module>
         <ejb>opc-ejb.jar</ejb>
         <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar"
             xmlns:naming="http://geronimo.apache.org/xml/ns/naming" 
@@ -63,7 +63,7 @@
                         <naming:ref-name>jms/opc/WorkFlowMgrQueue</naming:ref-name>
                         <naming:message-destination-link>jms/opc/WorkFlowMgrQueue</naming:message-destination-link>
                     </naming:resource-env-ref>
-                    <web-service-address>http://localhost:8080/webservice/PoEndpointBean</web-service-address>     
+                    <web-service-address>http://localhost:${webServicePort}/webservice/PoEndpointBean</web-service-address>     
                 </session>
                 <session>
                     <ejb-name>BrokerServiceBean</ejb-name>
@@ -76,7 +76,7 @@
                         <naming:ref-name>jms/opc/WorkFlowMgrQueue</naming:ref-name>
                         <naming:message-destination-link>jms/opc/WorkFlowMgrQueue</naming:message-destination-link>
                     </naming:resource-env-ref>
-                    <web-service-address>http://localhost:8080/webservice/WebServiceBroker</web-service-address>
+                    <web-service-address>http://localhost:${webServicePort}/webservice/WebServiceBroker</web-service-address>
                 </session>
                 <session>
                     <ejb-name>OtEndpointBean</ejb-name>
@@ -89,7 +89,7 @@
                         <ref-name>ejb/local/purchaseorder/PurchaseOrder</ref-name>
                         <name>PurchaseOrderBean</name>
                     </ejb-local-ref>
-                    <web-service-address>http://localhost:8080/webservice/OtEndpointBean</web-service-address>
+                    <web-service-address>http://localhost:${webServicePort}/webservice/OtEndpointBean</web-service-address>
                 </session>
                 <message-driven>
                     <ejb-name>WorkFlowManagerBean</ejb-name>
@@ -112,8 +112,8 @@
                             <naming:port-name>CreditCardIntfPort</naming:port-name>
                             <naming:protocol>http</naming:protocol>
                             <naming:host>localhost</naming:host>
-                            <naming:port>8080</naming:port>
-                            <naming:uri>/activity/foo/as</naming:uri>
+                            <naming:port>${webServicePort}</naming:port>
+                            <naming:uri>/webservice/CreditCardService</naming:uri>
                         </naming:port>
                     </naming:service-ref>
                     <resource-ref>
@@ -161,11 +161,11 @@
                     <activation-config>
                         <activation-config-property>
                             <activation-config-property-name>destination</activation-config-property-name>
-                            <activation-config-property-value>jms/opc/BrokerRequestorTopic</activation-config-property-value>
+                            <activation-config-property-value>jms/opc/WebServiceBrokerQueue</activation-config-property-value>
                         </activation-config-property>
                         <activation-config-property>
                             <activation-config-property-name>destinationType</activation-config-property-name>
-                            <activation-config-property-value>javax.jms.Topic</activation-config-property-value>
+                            <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
                         </activation-config-property>
                     </activation-config>
                     <naming:service-ref>
@@ -174,8 +174,8 @@
                             <naming:port-name>ActivityPOIntfPort</naming:port-name>
                             <naming:protocol>http</naming:protocol>
                             <naming:host>localhost</naming:host>
-                            <naming:port>8080</naming:port>
-                            <naming:uri>/activity/foo/as</naming:uri>
+                            <naming:port>${webServicePort}</naming:port>
+                            <naming:uri>/webservice/ActivityPOService</naming:uri>
                         </naming:port>
                     </naming:service-ref>
                     <naming:service-ref>
@@ -184,8 +184,8 @@
                             <naming:port-name>LodgingPOIntfPort</naming:port-name>
                             <naming:protocol>http</naming:protocol>
                             <naming:host>localhost</naming:host>
-                            <naming:port>8080</naming:port>
-                            <naming:uri>/activity/foo/as</naming:uri>
+                            <naming:port>${webServicePort}</naming:port>
+                            <naming:uri>/webservice/LodgingPOService</naming:uri>
                         </naming:port>
                     </naming:service-ref>
                     <naming:service-ref>
@@ -194,8 +194,8 @@
                             <naming:port-name>AirlinePOIntfPort</naming:port-name>
                             <naming:protocol>http</naming:protocol>
                             <naming:host>localhost</naming:host>
-                            <naming:port>8080</naming:port>
-                            <naming:uri>/activity/foo/as</naming:uri>
+                            <naming:port>${webServicePort}</naming:port>
+                            <naming:uri>/webservice/AirlinePOService</naming:uri>
                         </naming:port>
                     </naming:service-ref>
                     <resource-ref>
@@ -239,12 +239,12 @@
                         <type-converter>org.tranql.sql.typeconverter.SerializableConverter</type-converter>
                     </cmp-field-mapping>
                     <primkey-field>addressBean_upk</primkey-field>     
-                    <key-generator>
-                        <auto-increment-table>
-                            <sql>INSERT INTO Address VALUES(null,streetName1,streetName2,city,state,postalCode,country)</sql>
-                            <return-type>java.lang.Integer</return-type>
-                        </auto-increment-table>
-                    </key-generator>
+		            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
+		              <auto-increment-table>
+		                <sql>INSERT INTO ADDRESS (streetName1) VALUES (NULL)</sql>
+			            <return-type>java.lang.Integer</return-type>
+		              </auto-increment-table>
+		            </key-generator>
                     <resource-ref>
                         <ref-name>jdbc/adventure/AdventureDB</ref-name>
                         <resource-link>AdventureDataSource</resource-link>
@@ -278,9 +278,9 @@
                         <type-converter>org.tranql.sql.typeconverter.SerializableConverter</type-converter>
                     </cmp-field-mapping>
                     <primkey-field>contactInfoBean_upk</primkey-field> 
-                    <key-generator>
+                    <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
                         <auto-increment-table>
-                            <sql>INSERT INTO ContactInfo VALUES(null,phone,email,givenName,familyName,null)</sql>
+                            <sql>INSERT INTO ContactInfo (phone) VALUES(null)</sql>
                             <return-type>java.lang.Integer</return-type>
                         </auto-increment-table>
                     </key-generator>
@@ -337,9 +337,9 @@
                         <type-converter>org.tranql.sql.typeconverter.SerializableConverter</type-converter> 
                     </cmp-field-mapping>
                     <primkey-field>lodgingBean_upk</primkey-field>     
-                    <key-generator>
+                    <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
                         <auto-increment-table>
-                            <sql>INSERT INTO Lodging_Bean VALUES(null,startDate,lodgingId,noNights,endDate,location,noRooms,name,pricePerNight)</sql>
+                            <sql>INSERT INTO Lodging_Bean (startDate) VALUES (null)</sql>
                             <return-type>java.lang.Integer</return-type>
                         </auto-increment-table>
                     </key-generator>
@@ -372,9 +372,9 @@
                         <type-converter>org.tranql.sql.typeconverter.SerializableConverter</type-converter>
                     </cmp-field-mapping>
                     <primkey-field>creditCardBean_upk</primkey-field>
-                    <key-generator>
+                    <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
                         <auto-increment-table>
-                            <sql>INSERT INTO CreditCard VALUES(null,cardNumber,cardType,cardExpiryDate)</sql>
+                            <sql>INSERT INTO CreditCard (cardNumber) VALUES (null)</sql>
                             <return-type>java.lang.Integer</return-type>
                         </auto-increment-table>
                     </key-generator>
@@ -500,9 +500,9 @@
                         <type-converter>org.tranql.sql.typeconverter.SerializableConverter</type-converter>
                     </cmp-field-mapping>
                     <primkey-field>transportationBean_upk</primkey-field>    
-                    <key-generator>
+                    <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
                         <auto-increment-table>
-                            <sql>INSERT INTO Transportation_Bean VALUES(null,transportationId,departureDate,destination,travelClass,price,carrier,origin,departureTime,headCount)</sql>
+                            <sql>INSERT INTO Transportation_Bean (transportationId) VALUES (null)</sql>
                             <return-type>java.lang.Integer</return-type>
                         </auto-increment-table>
                     </key-generator>
@@ -551,9 +551,9 @@
                         <type-converter>org.tranql.sql.typeconverter.SerializableConverter</type-converter>
                     </cmp-field-mapping>
                     <primkey-field>activityBean_upk</primkey-field>
-                    <key-generator>
+                    <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
                         <auto-increment-table>
-                            <sql>INSERT INTO Activity_Bean VALUES(null,activityId,startDate,price,endDate,headCount,location,name,null)</sql>
+                            <sql>INSERT INTO Activity_Bean (activityId) VALUES (null)</sql>
                             <return-type>java.lang.Integer</return-type>
                         </auto-increment-table>
                     </key-generator>
@@ -580,6 +580,10 @@
                     <resource-ref>
                         <ref-name>jms/opc/QueueConnectionFactory</ref-name>
                         <resource-link>AdventureBuilderConnectionFactory</resource-link>
+                    </resource-ref>
+                    <resource-ref>
+                        <ref-name>mail/MailSession</ref-name>
+                        <resource-link>mail/MailSession</resource-link>
                     </resource-ref>
                 </message-driven>
             </enterprise-beans>
@@ -801,9 +805,10 @@
             </enterprise-beans>
         </openejb-jar>
     </module>
-    <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean"/>
+    <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean" />
     <gbean name="mail/MailSession" class="org.apache.geronimo.mail.SMTPTransportGBean">
-        <attribute name="host">10.0.0.1</attribute>
-        <attribute name="port">25</attribute>
+        <attribute name="host">${smtpHost}</attribute>
+        <attribute name="port">${smtpPort}</attribute>
+        <attribute name="properties">mail.host=${smtpHost}</attribute>
     </gbean>
 </application>

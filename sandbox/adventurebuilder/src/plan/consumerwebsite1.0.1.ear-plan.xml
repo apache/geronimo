@@ -16,14 +16,14 @@
     limitations under the License.
 -->
 <!-- $Rev$ $Date$ -->
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application"
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
     parentId="org/apache/geronimo/AdventureDataSource1.0.1" 
     configId="org/apache/geronimo/Adventure1.0.1">
 
     <module>
         <web>adventure.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/web"
-            xmlns:naming="http://geronimo.apache.org/xml/ns/naming"
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
+            xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
             configId="NOT_USED">
 
             <context-priority-classloader>false</context-priority-classloader>
@@ -34,8 +34,8 @@
                     <naming:port-name>PurchaseOrderIntfPort</naming:port-name>
                     <naming:protocol>http</naming:protocol>
                     <naming:host>localhost</naming:host>
-                    <naming:port>8080</naming:port>
-                    <naming:uri>/consumer/foo/po</naming:uri>
+                    <naming:port>${webServicePort}</naming:port>
+                    <naming:uri>/webservice/PoEndpointBean</naming:uri>
                 </naming:port>
             </naming:service-ref>
             <naming:service-ref>
@@ -44,8 +44,8 @@
                     <naming:port-name>OrderTrackingIntfPort</naming:port-name>
                     <naming:protocol>http</naming:protocol>
                     <naming:host>localhost</naming:host>
-                    <naming:port>8080</naming:port>
-                    <naming:uri>/consumer/foo/order</naming:uri>
+                    <naming:port>${webServicePort}</naming:port>
+                    <naming:uri>/webservice/OtEndpointBean</naming:uri>
                 </naming:port>
             </naming:service-ref>
             <naming:resource-ref>

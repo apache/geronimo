@@ -43,6 +43,7 @@
                         <ref-name>jms/activity/ActivityQueue</ref-name>
                         <resource-link>jms/activity/ActivityQueue</resource-link>   
                     </resource-ref>
+                    <web-service-address>http://localhost:${webServicePort}/webservice/ActivityPOService</web-service-address>     
                 </session>
                 <entity>
                     <ejb-name>ActivityPurchaseOrderBean</ejb-name>
@@ -89,9 +90,9 @@
                         <type-converter>org.tranql.sql.typeconverter.SerializableConverter</type-converter>
                     </cmp-field-mapping>
                     <primkey-field>activityDetailsBean_upk</primkey-field>
-                    <key-generator>
+		            <key-generator xmlns="http://www.openejb.org/xml/ns/pkgen">
                         <auto-increment-table>
-                            <sql>INSERT INTO ActivityDetails VALUES(null,activityId,startDate,endDate,headCount,null)</sql>
+                            <sql>INSERT INTO ActivityDetails (activityId) VALUES(null)</sql>
                             <return-type>java.lang.Integer</return-type>
                         </auto-increment-table>
                     </key-generator>
@@ -108,11 +109,11 @@
                     <activation-config>
                         <activation-config-property>
                             <activation-config-property-name>destination</activation-config-property-name>
-                            <activation-config-property-value>jms/activity/ActivityTopic</activation-config-property-value>
+                            <activation-config-property-value>jms/activity/ActivityQueue</activation-config-property-value>
                         </activation-config-property>
                         <activation-config-property>
                             <activation-config-property-name>destinationType</activation-config-property-name>
-                            <activation-config-property-value>javax.jms.Topic</activation-config-property-value>
+                            <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
                         </activation-config-property>
                     </activation-config>
                     <naming:service-ref>
@@ -121,8 +122,8 @@
                             <naming:port-name>BrokerServiceIntfPort</naming:port-name>
                             <naming:protocol>http</naming:protocol>
                             <naming:host>localhost</naming:host>
-                            <naming:port>8080</naming:port>
-                            <naming:uri>/activity/foo/as</naming:uri>
+                            <naming:port>${webServicePort}</naming:port>
+                            <naming:uri>/webservice/WebServiceBroker</naming:uri>
                         </naming:port>
                     </naming:service-ref>
                 </message-driven>  

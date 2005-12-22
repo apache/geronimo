@@ -77,6 +77,7 @@
                         <naming:ref-name>jms/airline/AirlineQueue</naming:ref-name>
                         <naming:message-destination-link>jms/airline/AirlineQueue</naming:message-destination-link>   
                     </naming:resource-env-ref>
+                    <web-service-address>http://localhost:${webServicePort}/webservice/AirlinePOService</web-service-address>     
                 </session>
                 <message-driven>
                     <ejb-name>AirlineMessageEJB</ejb-name>
@@ -99,8 +100,8 @@
                             <naming:port-name>BrokerServiceIntfPort</naming:port-name>
                             <naming:protocol>http</naming:protocol>
                             <naming:host>localhost</naming:host>
-                            <naming:port>8080</naming:port>
-                            <naming:uri>/activity/foo/as</naming:uri>
+                            <naming:port>${webServicePort}</naming:port>
+                            <naming:uri>/webservice/WebServiceBroker</naming:uri>
                         </naming:port>
                     </naming:service-ref>
                 </message-driven>

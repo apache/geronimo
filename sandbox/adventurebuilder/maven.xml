@@ -27,17 +27,29 @@
     >
 
     <j:set var="instDir" value="${maven.build.dir}/geronimo-${geronimo_version}"/>
-
-    <goal name="default">
+    <!-- Set smtpHost to a valid smtp host (and set the correspondning entry in the env entry for the AB application if you want to send mail -->
+    <j:set var="smtpHost" value="localhost" />
+    <!-- Set smtpPort to the port of the smtpHost if you want to send mail -->
+    <j:set var="smtpPort" value="25" />
+    <j:set var="webServicePort" value="8080"/>
+    <j:set var="allABconfigurations" value="org/apache/geronimo/ActivitySupplier1.0.3 org/apache/geronimo/AirlineSupplier1.0.3 org/apache/geronimo/Adventure1.0.1 org/apache/geronimo/AdventureDataSource1.0.1 org/apache/geronimo/AdventureBuilderJMS org/apache/geronimo/Bank1.0.3 org/apache/geronimo/LodgingSupplier1.0.3 org/apache/geronimo/OPC1.0.3" />
+    <j:set var="allSystemConfigurations" value="geronimo/j2ee-deployer/${geronimo_version}/car geronimo/webconsole-jetty/${geronimo_version}/car geronimo/directory/${geronimo_version}/car geronimo/ldap-realm/${geronimo_version}/car geronimo/online-deployer/${geronimo_version}/car geronimo/j2ee-system/${geronimo_version}/car geronimo/activemq/${geronimo_version}/car geronimo/j2ee-server/${geronimo_version}/car geronimo/jetty/${geronimo_version}/car geronimo/jetty-deployer/${geronimo_version}/car geronimo/geronimo-gbean-deployer/${geronimo_version}/car geronimo/rmi-naming/${geronimo_version}/car geronimo/system-database/${geronimo_version}/car geronimo/j2ee-security/${geronimo_version}/car geronimo/activemq-broker/${geronimo_version}/car geronimo/uddi-jetty/${geronimo_version}/car geronimo/javamail/${geronimo_version}/car" />
+    
+    <goal name="default" prereqs="clean">
+        <attainGoal name="ab:unpackServer"/>
+        <attainGoal name="ab:startForDeployment"/>
         <attainGoal name="ab:deploy"/>
+        <attainGoal name="ab:start"/>
     </goal>
 
-    <goal name="ab:deploy" description="Deploys Adventure Builder" prereqs="clean">
+    <goal name="ab:unpackServer">
         <!-- TODO: Make geronimoArtifactId configurable -->
         <deploy:unpackServer
             geronimoVersion="${geronimo_version}"
-            geronimoArtifactId="geronimo-tomcat-j2ee"/>
+            geronimoArtifactId="geronimo-tomcat-j2ee"/>    
+    </goal>
 
+    <goal name="ab:startForDeployment">
         <deploy:startRemoteServer
             geronimoTarget="${instDir}"/>
         <ant:echo message="Waiting for server to start at: ${instDir}"/>
@@ -49,9 +61,13 @@
             username="system"
             password="manager"
             maxTries="120"
-            id="geronimo/j2ee-deployer/1.0-SNAPSHOT/car"/>
+            id="geronimo/j2ee-deployer/${geronimo_version}/car"/>
         <echo message="Deployer has started"/>
-        <u:sleep millis="60000"/>
+        <u:sleep millis="60000"/>    
+    </goal>
+    
+    <goal name="ab:deploy" description="Deploys Adventure Builder">
+        <ant:delete dir="${maven.build.dir}/plan" />
 
         <fileScanner var="plans">
             <fileset dir="${basedir}/src/plan">

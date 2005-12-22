@@ -31,8 +31,7 @@ create table package (
     primary key (packageid, locale) ,
     foreign key (catid, locale) references category (catid, locale),
     foreign key (lodgingid, locale) references lodging (lodgingid, locale)
-)
-;
+);
 
 create table activity (
     activityid VARCHAR(20) not null,
@@ -95,6 +94,136 @@ create table account (
     primary key (userid)
 )
 ;
+
+create table manager (
+    lodgingOrderStatus varchar(40),
+    orderError char,
+    orderId varchar(80),
+    status varchar(40),
+    activityOrderStatus varchar(40),
+    airlineOrderStatus varchar(40)       
+);
+
+create table AirlineOrder (
+    orderId varchar(80),
+    depFlightId varchar(80),
+    depFlightDate bigint,
+    retFlightId varchar (80),
+    retFlightDate bigint,
+    headCount integer
+);
+
+create table LodgingOrder ( -- lodgingsupplier.ear -> LodgingOrderBean
+    orderId varchar (80),
+    lodgingId varchar(80),
+    startDate bigint,
+    endDate bigint,
+    headCount integer
+);
+
+create table Address (
+    streetName1 varchar(80),
+    streetName2 varChar(80),
+    city varchar(80),
+    state varchar(80),
+    postalCode varchar(30),
+    country varchar(80),
+    AddressBean_upk INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    primary key (AddressBean_upk)
+);
+
+create table ContactInfo (
+    phone varchar(80),
+    email varchar(80),
+    givenName varchar(80),
+    familyName varchar(80),
+    address integer,
+    ContactInfoBean_upk INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    primary key (ContactInfoBean_upk)
+);
+
+create table Lodging_Bean ( -- opc.ear -> LodgingBean
+    startDate bigint,
+    lodgingId varchar(80),
+    noNights integer,
+    endDate bigint,
+    location varchar(80),
+    noRooms integer,
+    name varchar(80),
+    pricePerNight real,
+    LodgingBean_upk INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    primary key (LodgingBean_upk)
+);
+
+create table CreditCard (
+    cardNumber varchar(80),
+    cardType varchar(80),
+    cardExpiryDate varchar(80),
+    CreditCardBean_upk INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    primary key (CreditCardBean_upk)
+);
+
+create table PurchaseOrder (
+    locale varchar(80),
+    totalPrice real,
+    startDate bigint,
+    userId varchar(80),
+    departureCity varchar(80),
+    endDate bigint,
+    orderDate bigint,
+    headCount integer,
+    poId varchar(80),
+    emailId varchar(80),
+    returnFlightInfo integer,
+    lodging integer,
+    departureFlightInfo integer,
+    billingInfo integer,
+    shippingInfo integer,
+    creditCard integer    
+);
+
+create table Transportation_Bean (
+    transportationId varchar(80),
+    departureDate bigint,
+    destination varchar(80),
+    travelClass varchar(80),
+    price real,
+    carrier varchar(80),
+    origin varchar(80),
+    departureTime varchar(80),
+    headCount integer,
+    TransportationBean_upk INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    primary key (TransportationBean_upk)
+);
+
+create table Activity_Bean ( -- opc.ear -> ActivityBean
+    activityId varchar(80),
+    startDate bigint,
+    price real,
+    endDate bigint,
+    headCount integer,
+    location varchar(80),
+    name varchar(80),
+    ActivityBean_upk INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    PurchaseOrderBean_activities varchar(80),
+    primary key (ActivityBean_upk)
+);
+
+create table ActivityPurchaseOrder ( -- activitysupplier.ear -> ActivityPurchaseOrderBean
+    poId varchar(80),
+    primary key (poId)
+);
+
+create table ActivityDetails ( -- activitysupplier.ear -> ActivityDetailsBean
+    activityId varchar(80),
+    startDate bigint,
+    endDate bigint,
+    headCount integer,
+    ActivityPurchaseOrderBean_activities varchar(80),
+    activityDetailsBean_upk integer GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    primary key (ActivityDetailsBean_upk)
+);
+
 
 INSERT INTO category VALUES ('ISLAND', 'en_US', 'Island Adventures', 'Experience an island paradise in a way fit for your needs.','Island_Adventures.gif')
 ;

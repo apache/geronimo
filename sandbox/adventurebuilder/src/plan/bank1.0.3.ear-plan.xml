@@ -35,7 +35,7 @@
                 <session>
                     <ejb-name>CreditCardEndpointBean</ejb-name>
                     <jndi-name>CreditCardEndpointBean</jndi-name>
-                    <web-service-address>http://localhost:8080/webservice/CreditCardService</web-service-address>
+                    <web-service-address>http://localhost:${webServicePort}/webservice/CreditCardService</web-service-address>
                 </session>
             </enterprise-beans>
         </openejb-jar>
