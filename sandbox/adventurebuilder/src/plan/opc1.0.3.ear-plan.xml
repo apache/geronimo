@@ -22,25 +22,25 @@
     <import>
         <uri>org/apache/geronimo/AdventureBuilderJMS</uri>
     </import>
-     <dependency>
+    <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-common</artifactId>
         <version>${geronimo_version}</version>
     </dependency>
-     <dependency>
+    <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-mail</artifactId>
         <version>${geronimo_version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-       <artifactId>geronimo-activation_1.0.2_spec</artifactId>
-       <version>${geronimo_spec_activation_version}</version>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-activation_1.0.2_spec</artifactId>
+        <version>${geronimo_spec_activation_version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-     <version>${geronimo_spec_javamail_version}</version>
+        <groupId>org.apache.geronimo.specs</groupId>
+        <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
+        <version>${geronimo_spec_javamail_version}</version>
     </dependency>
    <module>
         <ejb>opc-ejb.jar</ejb>

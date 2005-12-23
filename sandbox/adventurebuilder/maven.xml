@@ -46,7 +46,16 @@
         <!-- TODO: Make geronimoArtifactId configurable -->
         <deploy:unpackServer
             geronimoVersion="${geronimo_version}"
-            geronimoArtifactId="geronimo-tomcat-j2ee"/>    
+            geronimoArtifactId="geronimo-tomcat-j2ee"/>
+        <!-- Copy necessary javamail jars -->
+        <ant:copy todir="${instDir}/repository/org.apache.geronimo.specs/jars">
+            <ant:fileset dir="${maven.repo.local}/org.apache.geronimo.specs/jars">
+                <ant:include name="geronimo-activation_1.0.2_spec-${geronimo_spec_activation_version}.jar"/>
+                <ant:include name="geronimo-javamail_1.3.1_spec-${geronimo_spec_javamail_version}.jar"/>
+            </ant:fileset>
+        </ant:copy>
+        <ant:copy file="${maven.repo.local}/geronimo/jars/geronimo-mail-${geronimo_version}.jar" 
+            todir="${instDir}/repository/geronimo/jars"/>
     </goal>
 
     <goal name="ab:startForDeployment">
