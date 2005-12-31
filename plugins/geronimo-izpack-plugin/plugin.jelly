@@ -43,7 +43,7 @@
         </fileScanner>
         <j:set var="GeronimoVersion" value="${geronimo_version}"/>
         <j:set var="InstallSource" value="${geronimo.assembly.dest}"/>
-        <j:set var="ReleaseNotesVersion" value="1.0-M5"/>
+        <j:set var="ReleaseNotesVersion" value="${release_notes_version}"/>
         <j:forEach var="installer" items="${installFiles.iterator()}">
             <j:set var="installerName" value="${installer.name}"/>
             <echo>Processing installer file ${installerName}</echo>

@@ -71,11 +71,7 @@
 	    <file src="${InstallSource}/BUILDING.txt" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/LICENSE.txt" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/README.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M1.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M2.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M3.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M4.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0-M5.txt" targetdir="$INSTALL_PATH"/>
+	    <file src="${InstallSource}/RELEASE-NOTES-${ReleaseNotesVersion}.txt" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/bin" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/lib" targetdir="$INSTALL_PATH"/>
 	    <file src="${InstallSource}/config-store" targetdir="$INSTALL_PATH"/>
