@@ -38,7 +38,15 @@ public class JettyFilterHolder extends FilterHolder {
         if (jettyServletRegistration != null) {
             ((WebApplicationHandler)jettyServletRegistration.getServletHandler()).addFilterHolder(this);
             putAll(initParams);
-            start();
+            
+            ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+            try {
+                ClassLoader newCL = jettyServletRegistration.getWebClassLoader();
+                Thread.currentThread().setContextClassLoader(newCL);
+                start();
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldCL);
+            }
         }
     }
 
