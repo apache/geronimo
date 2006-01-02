@@ -295,13 +295,15 @@ public class SchemaConversionUtils {
                     cursor.pop();
                     do {
                         String name = cursor.getName().getLocalPart();
-                        if ("filter".equals(name) || "servlet".equals(name)) {
+                        if ("filter".equals(name) || "servlet".equals(name) || "context-param".equals(name)) {
                             cursor.push();
                             cursor.toFirstChild();
                             convertToDescriptionGroup(cursor, moveable);
-                            if (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
+                            while (cursor.toNextSibling(J2EE_NAMESPACE, "init-param")) {
+                                cursor.push();
                                 cursor.toFirstChild();
                                 convertToDescriptionGroup(cursor, moveable);
+                                cursor.pop();
                             }
                             cursor.pop();
                         }
