@@ -53,6 +53,11 @@
         <version>${geronimo_version}</version>
     </dependency>
     <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-javamail-transport</artifactId>
+        <version>${geronimo_version}</version>
+    </dependency>
+    <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
         <version>${geronimo_spec_javamail_version}</version>

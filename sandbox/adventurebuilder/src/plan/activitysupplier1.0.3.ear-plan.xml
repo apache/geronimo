@@ -43,7 +43,7 @@
                         <ref-name>jms/activity/ActivityQueue</ref-name>
                         <resource-link>jms/activity/ActivityQueue</resource-link>   
                     </resource-ref>
-                    <web-service-address>http://localhost:${webServicePort}/webservice/ActivityPOService</web-service-address>     
+                    <web-service-address>http://localhost:8080/webservice/ActivityPOService</web-service-address>     
                 </session>
                 <entity>
                     <ejb-name>ActivityPurchaseOrderBean</ejb-name>

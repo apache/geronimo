@@ -22,12 +22,12 @@
     <import>
         <uri>org/apache/geronimo/AdventureBuilderJMS</uri>
     </import>
-    <dependency>
+     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-common</artifactId>
         <version>${geronimo_version}</version>
     </dependency>
-    <dependency>
+     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>geronimo-mail</artifactId>
         <version>${geronimo_version}</version>
@@ -41,6 +41,11 @@
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
         <version>${geronimo_spec_javamail_version}</version>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>geronimo-javamail-transport</artifactId>
+        <version>${geronimo_version}</version>
     </dependency>
    <module>
         <ejb>opc-ejb.jar</ejb>
@@ -63,7 +68,7 @@
                         <naming:ref-name>jms/opc/WorkFlowMgrQueue</naming:ref-name>
                         <naming:message-destination-link>jms/opc/WorkFlowMgrQueue</naming:message-destination-link>
                     </naming:resource-env-ref>
-                    <web-service-address>http://localhost:${webServicePort}/webservice/PoEndpointBean</web-service-address>     
+                    <web-service-address>http://localhost:8080/webservice/PoEndpointBean</web-service-address>     
                 </session>
                 <session>
                     <ejb-name>BrokerServiceBean</ejb-name>
@@ -76,7 +81,7 @@
                         <naming:ref-name>jms/opc/WorkFlowMgrQueue</naming:ref-name>
                         <naming:message-destination-link>jms/opc/WorkFlowMgrQueue</naming:message-destination-link>
                     </naming:resource-env-ref>
-                    <web-service-address>http://localhost:${webServicePort}/webservice/WebServiceBroker</web-service-address>
+                    <web-service-address>http://localhost:8080/webservice/WebServiceBroker</web-service-address>
                 </session>
                 <session>
                     <ejb-name>OtEndpointBean</ejb-name>
@@ -89,7 +94,7 @@
                         <ref-name>ejb/local/purchaseorder/PurchaseOrder</ref-name>
                         <name>PurchaseOrderBean</name>
                     </ejb-local-ref>
-                    <web-service-address>http://localhost:${webServicePort}/webservice/OtEndpointBean</web-service-address>
+                    <web-service-address>http://localhost:8080/webservice/OtEndpointBean</web-service-address>
                 </session>
                 <message-driven>
                     <ejb-name>WorkFlowManagerBean</ejb-name>
@@ -805,10 +810,18 @@
             </enterprise-beans>
         </openejb-jar>
     </module>
-    <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean" />
+    <gbean name="mail/MailSession" class="org.apache.geronimo.mail.MailGBean">
+        <attribute name="host">${smtpHost}</attribute>
+        <attribute name="properties">
+        mail.from=${smtpFrom}
+        mail.smtp.port=${smtpPort}</attribute>
+    </gbean>
+
+
+
     <gbean name="mail/MailSession" class="org.apache.geronimo.mail.SMTPTransportGBean">
         <attribute name="host">${smtpHost}</attribute>
         <attribute name="port">${smtpPort}</attribute>
-        <attribute name="properties">mail.host=${smtpHost}</attribute>
+        <attribute name="from">${smtpFrom}</attribute>
     </gbean>
 </application>

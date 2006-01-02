@@ -68,7 +68,7 @@
                         <naming:ref-name>jms/lodging/LodgingQueue</naming:ref-name>
                         <naming:message-destination-link>jms/lodging/LodgingQueue</naming:message-destination-link>
                     </naming:resource-env-ref>
-                    <web-service-address>http://localhost:${webServicePort}/webservice/LodgingPOService</web-service-address>
+                    <web-service-address>http://localhost:8080/webservice/LodgingPOService</web-service-address>
                 </session>
                 <message-driven>
                     <ejb-name>LodgingMessageEJB</ejb-name>
