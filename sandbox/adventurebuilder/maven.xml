@@ -60,7 +60,8 @@
 
     <goal name="ab:startForDeployment">
         <deploy:startRemoteServer
-            geronimoTarget="${instDir}"/>
+            geronimoTarget="${instDir}"
+            configs="geronimo/j2ee-deployer/${geronimo_version}/car geronimo/j2ee-security/${geronimo_version}/car geronimo/jetty-deployer/${geronimo_version}/car"/>
         <ant:echo message="Waiting for server to start at: ${instDir}"/>
         <!-- TODO: No way to specify vv -->
         <!-- TODO: Empty id leads to Exception -->
@@ -93,7 +94,7 @@
                 template="${planName}"
                 name="${maven.build.dir}/plan/${planName}"/>
         </j:forEach>
-
+        
         <ant:echo>Distributing JMS Configuration</ant:echo>
         <deploy:distribute
             uri="deployer:geronimo:jmx"
