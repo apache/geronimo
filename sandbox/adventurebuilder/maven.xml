@@ -109,7 +109,7 @@
             uri="deployer:geronimo:jmx"
             username="system"
             password="manager"
-            module="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-1.1-SNAPSHOT.rar"
+            module="${maven.repo.local}/tranql/rars/tranql-connector-derby-embed-xa-${tranql_connector_version}.rar"
             plan="${maven.build.dir}/plan/adventure1.0.1-db-ra-plan.xml"/>
 
         <ant:echo>Distributing Adventure Builder Consumer Website Application</ant:echo>
