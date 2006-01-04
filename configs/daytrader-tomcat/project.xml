@@ -75,7 +75,21 @@
         <groupId>geronimo</groupId>
         <artifactId>daytrader-ear</artifactId>
         <version>${pom.currentVersion}</version>
-            <type>ear</type>
+        <type>ear</type>
+    </dependency>
+
+    <dependency>
+        <groupId>activemq</groupId>
+        <artifactId>activemq-ra</artifactId>
+        <version>${activemq_version}</version>
+         <type>rar</type>
+    </dependency>
+
+    <dependency>
+        <groupId>tranql</groupId>
+        <artifactId>tranql-connector-derby-embed-xa</artifactId>
+        <version>${tranql_vendors_version}</version>
+        <type>rar</type>
     </dependency>
 
 
