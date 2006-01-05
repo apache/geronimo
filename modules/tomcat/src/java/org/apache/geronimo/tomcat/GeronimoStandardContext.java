@@ -134,20 +134,6 @@ public class GeronimoStandardContext extends StandardContext {
 
                 PolicyContextValve policyValve = new PolicyContextValve(securityHolder.getPolicyContextID());
                 addValve(policyValve);
-
-                //This is definitely a hack, but I don't see a reasonable way to install the defaultSubject.
-                //Obviously this won't work if there are permissions.  Setting the default subject if there are
-                //permissions breaks authentication.
-                boolean hasPermissions = securityHolder.getChecked().elements().hasMoreElements() ||
-                        securityHolder.getExcluded().elements().hasMoreElements();
-                Valve defaultSubjectValve;
-                if (!hasPermissions && defaultSubject != null) {
-                    defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
-                } else {
-                    //this will clear the thread of any read subject added by some other web app
-                    defaultSubjectValve = new DefaultSubjectValve(null);
-                }
-                addValve(defaultSubjectValve);
             }
         }
 
@@ -184,7 +170,11 @@ public class GeronimoStandardContext extends StandardContext {
         if (pipelineInitialized) {
             try {
                 Valve valve = getFirst();
-                    valve.invoke(null, null);
+                valve.invoke(null, null);
+                //Install the DefaultSubjectValve after the authentication valve so the default subject is supplied
+                //only if no real subject is authenticated.
+                Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
+                addValve(defaultSubjectValve);
             } catch (IOException e) {
                 if (e.getCause() instanceof LifecycleException) {
                     throw (LifecycleException) e.getCause();
@@ -217,8 +207,8 @@ public class GeronimoStandardContext extends StandardContext {
 
         ClassLoader cl = this.getParentClassLoader();
 
-        Class baseServletClass = null;
-        Class servletClass = null;
+        Class baseServletClass;
+        Class servletClass;
         try {
             baseServletClass = cl.loadClass(Servlet.class.getName());
             servletClass = cl.loadClass(servletClassName);
@@ -229,7 +219,7 @@ public class GeronimoStandardContext extends StandardContext {
                     StoredObject storedObject = (StoredObject) webServiceMap.get(wrapper.getName());
 
                     if (storedObject != null) {
-                        WebServiceContainer webServiceContainer = null;
+                        WebServiceContainer webServiceContainer;
                         try {
                             webServiceContainer = (WebServiceContainer) storedObject.getObject(cl);
                         } catch (IOException io) {
