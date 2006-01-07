@@ -290,20 +290,11 @@
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq</artifactId>
-            <version>${wadi_activemq_version}</version>
+            <version>${activemq_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-        <dependency>
-            <groupId>axion</groupId>
-            <artifactId>axion</artifactId>
-            <version>${wadi_axion_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-
         <dependency>
             <groupId>wadi</groupId>
             <artifactId>wadi-core</artifactId>
