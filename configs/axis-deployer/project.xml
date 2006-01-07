@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../etc/project.xml</extend>
+    <id>axis-deployer</id>
+    <name>Axis Configuration for performing J2EE deployments</name>
+
+    <dependencies>
+        <!-- dependency on deployer -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-packaging-plugin</artifactId>
+            <version>${geronimo_packaging_plugin_version}</version>
+            <type>plugin</type>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+        </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <type>car</type>
+        <artifactId>j2ee-deployer</artifactId>
+        <version>${pom.currentVersion}</version>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <type>car</type>
+        <artifactId>axis</artifactId>
+        <version>${pom.currentVersion}</version>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+    </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-system</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+            <version>${xmlbeans_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+            <version>${stax_api_version}</version>
+        </dependency>
+
+<!--        <dependency>
+            <groupId>concurrent</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${concurrent_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>howl</groupId>
+            <artifactId>howl-logger</artifactId>
+            <version>${howl_version}</version>
+            <url>http://forge.objectweb.org/projects/howl</url>
+        </dependency>
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
+        </dependency>
+-->
+        <!-- dependencies from plan -->
+
+        <!-- common libraries used by all builders -->
+<!--        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
+            <version>${geronimo_spec_j2ee_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-corba_2.3_spec</artifactId>
+            <version>${geronimo_spec_corba_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-management</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-transaction</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+-->
+
+        <!-- todo builder implementations - can we move these to sub-plans? -->
+        <!-- EAR, application-clients and other J2EE artifacts -->
+<!--        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-client-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-naming</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+-->        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>${wsdl4j_version}</version>
+        </dependency>
+
+        <!-- WARs using Jetty -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-web-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jetty-builder</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-jetty</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>org.mortbay.jetty</artifactId>
+            <version>${jetty_version}</version>
+        </dependency>
+
+        <!-- EJBs using OpenEJB -->
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-builder</artifactId>
+            <version>${openejb_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-pkgen-builder</artifactId>
+            <version>${openejb_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+            <version>${openejb_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql</artifactId>
+            <version>${tranql_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+
+        <!-- RARs using Geronimo Connector implementation -->
+<!--        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector-builder</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+-->
+    </dependencies>
+</project>
+

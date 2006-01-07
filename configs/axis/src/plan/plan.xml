@@ -18,22 +18,19 @@
 
 <!-- $Rev$ $Date$ -->
 
+<!--
+Configuration for the main ring of a Geronimo server.
+
+This configuration should contain those services normally provided
+by the server.
+               parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
+
+-->
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
-    <gbean name="TomcatWebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/tomcat/${pom.currentVersion}/car,${pom.groupId}/axis/${pom.currentVersion}/car</attribute>
-        <attribute name="defaultContextPriorityClassloader">false</attribute>
-        <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
-        <reference name="WebServiceBuilder">
-            <module>*</module>
-            <name>WebServiceBuilder</name>
-        </reference>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
-        </reference>
-    </gbean>
+    <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 
 </configuration>

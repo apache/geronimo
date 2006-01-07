@@ -24,7 +24,7 @@
     >
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/jetty/${pom.currentVersion}/car</attribute>
+        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/jetty/${pom.currentVersion}/car,${pom.groupId}/axis/${pom.currentVersion}/car</attribute>
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
@@ -37,7 +37,7 @@
             <name>POJOTemplate</name>
         </reference>
         <reference name="WebServiceBuilder">
-            <module>${pom.groupId}/j2ee-deployer/${pom.currentVersion}/car</module>
+            <module>*</module>
             <name>WebServiceBuilder</name>
         </reference>
         <reference name="Repository">

@@ -16,12 +16,7 @@
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/j2ee-server/${pom.currentVersion}/car">
-        <gbean name="geronimo:name=EJB,type=NetworkService">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanOpenEJBPort}</attribute>
-        </gbean>
-    </configuration>
+    <configuration name="geronimo/j2ee-server/${pom.currentVersion}/car"/>
     <configuration name="geronimo/j2ee-security/${pom.currentVersion}/car">
         <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -29,6 +24,13 @@
         </gbean>
         <gbean name="JMXConnector">
             <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
+        </gbean>
+    </configuration>
+    <configuration name="geronimo/axis/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/openejb/${pom.currentVersion}/car">
+        <gbean name="geronimo:name=EJB,type=NetworkService">
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanOpenEJBPort}</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/j2ee-corba/${pom.currentVersion}/car" load="false">
@@ -79,11 +81,14 @@
         <gbean name="WebBuilder">
             <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</attribute>
         </gbean>
+    </configuration>
+    <configuration name="geronimo/openejb-deployer/${pom.currentVersion}/car">
         <gbean name="EJBBuilder">
             <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/javamail/1.0/car" load="false">
+    <configuration name="geronimo/axis-deployer/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/javamail/${pom.currentVersion}/car" load="false">
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>
             <attribute name="port">25</attribute>
@@ -99,5 +104,5 @@
     <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car" />
+    <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car"/>
 </attributes>

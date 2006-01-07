@@ -21,8 +21,8 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>system-database</id>
-    <name>System Database Configuration for the J2EE Server</name>
+    <id>axis</id>
+    <name>Axis Configuration for the J2EE Server</name>
 
     <dependencies>
         <!-- dependency on deployer -->
@@ -38,25 +38,6 @@
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>j2ee-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>openejb-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>axis-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-        </dependency>
-
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -65,24 +46,151 @@
             <type>car</type>
             <properties>
                  <geronimo.import>true</geronimo.import>
-            </properties>
-         </dependency>
-
-
+             </properties>
+        </dependency>
+<!--        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-core</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
         <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-xa</artifactId>
-            <version>${tranql_vendors_version}</version>
-            <type>rar</type>
-<!--
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-connector</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-timer</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-webservices</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-client</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-axis</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>openejb</groupId>
+            <artifactId>openejb-core</artifactId>
+            <version>${openejb_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>xpp3</groupId>
+            <artifactId>xpp3</artifactId>
+            <version>${xpp3_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${asm_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-gbean-management</artifactId>
+            <version>${activemq_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>activeio</groupId>
+            <artifactId>activeio</artifactId>
+            <version>${activeio_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+       <dependency>
+            <groupId>scout</groupId>
+            <artifactId>jaxr-api</artifactId>
+            <version>${scout_version}</version>
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
             </properties>
--->
         </dependency>
 
-        <!--TODO these are also in j2ee-server config.   why ?? -->
         <dependency>
+            <groupId>scout</groupId>
+            <artifactId>scout</artifactId>
+            <version>${scout_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>juddi</groupId>
+            <artifactId>juddi</artifactId>
+            <version>${juddi_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>${jdom_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+-->
+
+        <!-- TODO why are these here rather than in system-database??? -->
+<!--        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-derby</artifactId>
             <version>${pom.currentVersion}</version>
@@ -90,6 +198,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
+
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derby</artifactId>
@@ -98,6 +207,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
+
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbynet</artifactId>
@@ -106,11 +216,19 @@
                  <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
+-->
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-gbean-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
         </dependency>
 
         <dependency>
@@ -136,27 +254,7 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-core</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-common</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-connector</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-timer</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>
@@ -171,22 +269,7 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
             <artifactId>geronimo-jmxremoting</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-client</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
         <dependency>
@@ -206,11 +289,6 @@
             <version>${tranql_version}</version>
         </dependency>
         <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-        <dependency>
             <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
             <version>${howl_version}</version>
@@ -225,36 +303,17 @@
             <artifactId>regexp</artifactId>
             <version>${regexp_version}</version>
         </dependency>
+
         <dependency>
-            <groupId>xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-            <version>${xpp3_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>${asm_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
-            <version>${activemq_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-            <version>${activeio_version}</version>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>${axis_version}</version>
         </dependency>
 
         <dependency>
-            <groupId>jetty</groupId>
-            <artifactId>org.mortbay.jetty</artifactId>
-            <version>${jetty_version}</version>
+            <groupId>commons-discovery</groupId>
+            <artifactId>commons-discovery</artifactId>
+            <version>${commons_discovery_version}</version>
         </dependency>
     </dependencies>
 </project>

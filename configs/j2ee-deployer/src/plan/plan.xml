@@ -36,6 +36,7 @@
             <name>WebBuilder</name>
         </reference>
         <reference name="EJBConfigBuilder">
+            <module>*</module>
             <name>EJBBuilder</name>
         </reference>
         <reference name="ConnectorConfigBuilder">
@@ -48,9 +49,11 @@
             <name>ConnectorBuilder</name>
         </reference>
         <reference name="ServiceReferenceBuilder">
+            <module>*</module>
             <name>WebServiceBuilder</name>
         </reference>
         <reference name="EJBReferenceBuilder">
+            <module>*</module>
             <name>ServerEJBReferenceBuilder</name>
         </reference>
     </gbean>
@@ -63,20 +66,6 @@
             <pattern><gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/tomcat-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=TomcatWebBuilder</gbean-name></pattern>
         </references>
      </gbean>
-
-    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
-        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
-        <reference name="WebServiceLinkTemplate">
-            <name>WebServiceEJBLinkTemplate</name>
-        </reference>
-        <reference name="WebServiceBuilder">
-            <name>WebServiceBuilder</name>
-        </reference>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
-        </reference>
-    </gbean>
 
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
         <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
@@ -98,6 +87,7 @@
         <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
         <attribute name="corbaGBeanObjectName">geronimo.client:J2EEApplication=null,J2EEModule=geronimo/client-corba/${pom.currentVersion}/car,J2EEServer=client,j2eeType=CORBABean,name=Server</attribute>
         <reference name="EJBReferenceBuilder">
+            <module>*</module>
             <name>ClientEJBReferenceBuilder</name>
         </reference>
         <reference name="ConnectorModuleBuilder">
@@ -107,6 +97,7 @@
             <name>ConnectorBuilder</name>
         </reference>
         <reference name="ServiceReferenceBuilder">
+            <module>*</module>
             <name>WebServiceBuilder</name>
         </reference>
         <references name="Store">
@@ -119,16 +110,10 @@
         </reference>
     </gbean>
 
-    <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
-    <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
-    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>
-    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder"/>
-    <gbean name="WebServiceBuilder" class="org.apache.geronimo.axis.builder.AxisBuilder"/>
-    <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean"/>
 
 </configuration>
