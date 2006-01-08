@@ -282,10 +282,6 @@ ble') == 'endorsed' || dependency.getProperty('geronimo.assemble') == 'extension
                 <patternset refid="geronimo.fixcrlf.patternset"/> 
             </ant:fixcrlf>
 
-            <ant:fixcrlf srcdir="${geronimo.assembly.dest}" eol="lf"> 
-                <patternset refid="geronimo.fixcrlf.patternset"/>
-            </ant:fixcrlf>
-
             <ant:zip zipfile="${maven.build.dir}/${maven.final.name}.zip">
                 <ant:zipfileset dir="${geronimo.assembly.dest}/..">
                     <ant:include name="${geronimo.assembly.name}/**"/>
