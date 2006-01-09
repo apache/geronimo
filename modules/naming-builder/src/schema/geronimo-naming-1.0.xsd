@@ -139,7 +139,14 @@
             <xsd:element name="ref-name" type="xsd:string"/>
             <xsd:choice>
                 <xsd:group ref="gernaming:objectNameGroup"/>
-                <xsd:element name="message-destination-link" type="xsd:string"/>
+                <xsd:element name="message-destination-link" type="xsd:string">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This element is deprecated and should not be used.  Use admin-object-link instead.
+                            That is effectively a renamed version of this.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
                 <xsd:sequence>
                     <xsd:element name="admin-object-module" type="xsd:string" minOccurs="0"/>
                     <xsd:element name="admin-object-link" type="xsd:string"/>
