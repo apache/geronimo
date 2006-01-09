@@ -143,8 +143,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         server.removeContext(context);
     }
 
-    public void addRealm(UserRealm realm) {
-        server.addRealm(realm);
+    public UserRealm addRealm(UserRealm realm) {
+        return server.addRealm(realm);
     }
 
     public void removeRealm(UserRealm realm) {

@@ -20,7 +20,6 @@ import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.geronimo.security.ContextManager;
 import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
@@ -33,14 +32,9 @@ public class JettyServer extends Server {
     private final Map realmDelegates = new HashMap();
 
     public UserRealm addRealm(UserRealm realm) {
-        RealmDelegate delegate = (RealmDelegate) realmDelegates.get(realm.getName());
-        if (delegate == null) {
-            delegate = new RealmDelegate(realm.getName());
-            realmDelegates.put(realm.getName(), delegate);
-        }
-        delegate.delegate = realm;
-
-        return delegate;
+        RealmDelegate delegate = (RealmDelegate) getRealm(realm.getName());
+        delegate.addDelegate(realm);
+        return delegate.delegate;
     }
 
     public UserRealm getRealm(String realmName) {
@@ -53,17 +47,37 @@ public class JettyServer extends Server {
         return delegate;
     }
 
-    public void removeRealm(UserRealm realm) {
-        realmDelegates.remove(realm.getName());
+    public synchronized void removeRealm(UserRealm realm) {
+        RealmDelegate delegate = (RealmDelegate) realmDelegates.get(realm.getName());
+        if (delegate != null) {
+            if (delegate.removeDelegate() == 0) {
+                realmDelegates.remove(realm.getName());
+            }
+        }
     }
 
-    private class RealmDelegate implements UserRealm {
+    private static class RealmDelegate implements UserRealm {
 
         private UserRealm delegate;
         private final String name;
+        private int  count;
 
         private RealmDelegate(String name) {
             this.name = name;
+        }
+
+        private synchronized void addDelegate(UserRealm newDelegate) {
+            if (delegate != null && !delegate.equals(newDelegate)) {
+                throw new IllegalArgumentException("Inconsistent assigment of user realm: old: " + delegate + ", new: " + newDelegate);
+            }
+            if (delegate == null) {
+                delegate = newDelegate;
+            }
+            count++;
+        }
+
+        private int removeDelegate() {
+            return count--;
         }
 
         public String getName() {

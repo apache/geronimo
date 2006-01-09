@@ -35,7 +35,7 @@ public interface JettyContainer extends WebContainer {
 
     void removeContext(HttpContext context);
 
-    void addRealm(UserRealm realm);
+    UserRealm addRealm(UserRealm realm);
 
     void removeRealm(UserRealm realm);
 

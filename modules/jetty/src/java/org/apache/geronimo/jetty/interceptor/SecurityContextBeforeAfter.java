@@ -16,35 +16,29 @@
  */
 package org.apache.geronimo.jetty.interceptor;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.common.GeronimoSecurityException;
+import org.apache.geronimo.jetty.JAASJettyPrincipal;
+import org.apache.geronimo.jetty.JettyContainer;
+import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.security.IdentificationPrincipal;
+import org.apache.geronimo.security.SubjectId;
+import org.apache.geronimo.security.deploy.DefaultPrincipal;
+import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.mortbay.http.*;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+import org.mortbay.jetty.servlet.ServletHttpRequest;
+
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebUserDataPermission;
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
 import java.security.PermissionCollection;
 import java.security.Principal;
 import java.util.Map;
-import javax.security.auth.Subject;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.servlet.http.HttpServletRequest;
-
-import org.mortbay.http.Authenticator;
-import org.mortbay.http.HttpException;
-import org.mortbay.http.HttpRequest;
-import org.mortbay.http.HttpResponse;
-import org.mortbay.http.SecurityConstraint;
-import org.mortbay.http.UserRealm;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-import org.mortbay.jetty.servlet.ServletHttpRequest;
-
-import org.apache.geronimo.common.GeronimoSecurityException;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.jetty.JAASJettyPrincipal;
-import org.apache.geronimo.security.ContextManager;
-import org.apache.geronimo.security.IdentificationPrincipal;
-import org.apache.geronimo.security.SubjectId;
-import org.apache.geronimo.security.deploy.DefaultPrincipal;
-import org.apache.geronimo.security.util.ConfigurationUtil;
 
 
 /**
@@ -77,8 +71,10 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
                                       Map roleDesignates,
-                                      UserRealm realm, ClassLoader classLoader)
-    {
+                                      UserRealm realm, ClassLoader classLoader) {
+        assert realm != null;
+        assert authenticator != null;
+
         this.next = next;
         this.policyContextIDIndex = policyContextIDIndex;
         this.webAppContextIndex = webAppContextIndex;
@@ -107,17 +103,13 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         ContextManager.registerSubject(defaultSubject);
         SubjectId id = ContextManager.getSubjectId(defaultSubject);
         defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
-
-//        log.debug("Default subject " + id + " for JACC policy '" + policyContextID + "' registered.");
-
-
         this.realm = realm;
-//        log.debug("JettyWebAppJACCContext started with JACC policy '" + policyContextID + "'");
     }
 
-    public void stop() {
+    public void stop(JettyContainer jettyContainer) {
         Subject defaultSubject = this.defaultPrincipal.getSubject();
         ContextManager.unregisterSubject(defaultSubject);
+        jettyContainer.removeRealm(realm);
     }
 
     public void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {
@@ -129,7 +121,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
 
         if (httpRequest != null) {
             ServletHttpRequest request = (ServletHttpRequest) httpRequest.getWrapper();
-            PolicyContext.setHandlerData((HttpServletRequest) request);
+            PolicyContext.setHandlerData(request);
         }
 
         if (next != null) {
@@ -188,22 +180,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
         }
 
         try {
-            Principal user = obtainUser(pathInContext, request, response);
-
-            if (user == null) {
-                return false;
-            }
-            if (user == SecurityConstraint.__NOBODY) {
-                return true;
-            }
-
-            AccessControlContext acc = ContextManager.getCurrentContext();
             ServletHttpRequest servletHttpRequest = (ServletHttpRequest) request.getWrapper();
-
-            /**
-             * JACC v1.0 secion 4.1.1
-             */
-
             String transportType;
             if (request.isConfidential()) {
                 transportType = "CONFIDENTIAL";
@@ -213,12 +190,28 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                 transportType = "NONE";
             }
             WebUserDataPermission wudp = new WebUserDataPermission(servletHttpRequest.getServletPath(), new String[]{servletHttpRequest.getMethod()}, transportType);
+            WebResourcePermission webResourcePermission = new WebResourcePermission(servletHttpRequest);
+            Principal user = obtainUser(pathInContext, request, response, webResourcePermission, wudp);
+
+            if (user == null) {
+                return false;
+            }
+            if (user == SecurityConstraint.__NOBODY) {
+                return true;
+            }
+
+            AccessControlContext acc = ContextManager.getCurrentContext();
+
+            /**
+             * JACC v1.0 secion 4.1.1
+             */
+
             acc.checkPermission(wudp);
 
             /**
              * JACC v1.0 secion 4.1.2
              */
-            acc.checkPermission(new WebResourcePermission(servletHttpRequest));
+            acc.checkPermission(webResourcePermission);
         } catch (HttpException he) {
             response.sendError(he.getCode(), he.getReason());
             return false;
@@ -245,41 +238,29 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
      *         security checking should not proceed and servlet handling should proceed,
      *         e.g. login page.
      */
-    private Principal obtainUser(String pathInContext, HttpRequest request, HttpResponse response) throws IOException, IOException {
-        ServletHttpRequest servletHttpRequest = (ServletHttpRequest) request.getWrapper();
-        WebResourcePermission resourcePermission = new WebResourcePermission(servletHttpRequest);
-        WebUserDataPermission dataPermission = new WebUserDataPermission(servletHttpRequest);
+    private Principal obtainUser(String pathInContext, HttpRequest request, HttpResponse response, WebResourcePermission resourcePermission, WebUserDataPermission dataPermission) throws IOException, IOException {
         boolean unauthenticated = !(checked.implies(resourcePermission) || checked.implies(dataPermission));
         boolean forbidden = excludedPermissions.implies(resourcePermission) || excludedPermissions.implies(dataPermission);
 
-//       Authenticator authenticator = getAuthenticator();
-        Principal user = null;
         if (!unauthenticated && !forbidden) {
-            if (realm == null) {
-//               log.warn("Realm Not Configured");
-                throw new HttpException(HttpResponse.__500_Internal_Server_Error, "Realm Not Configured");
-            }
-
-            // Handle pre-authenticated request
-            if (authenticator != null) {
-                // User authenticator.
-                user = authenticator.authenticate(realm, pathInContext, request, response);
-            } else {
-                // don't know how authenticate
-//               log.warn("Mis-configured Authenticator for " + request.getPath());
-                throw new HttpException(HttpResponse.__500_Internal_Server_Error, "Mis-configured Authenticator for " + request.getPath());
-            }
-
-            return user;
-        } else if (authenticator instanceof FormAuthenticator && pathInContext.endsWith(FormAuthenticator.__J_SECURITY_CHECK)) {
+            return authenticator.authenticate(realm, pathInContext, request, response);
+        } else
+        if (authenticator instanceof FormAuthenticator && pathInContext.endsWith(FormAuthenticator.__J_SECURITY_CHECK))
+        {
             /**
              * This could be a post request to __J_SECURITY_CHECK.
              */
-            if (realm == null) {
-//               log.warn("Realm Not Configured");
-                throw new HttpException(HttpResponse.__500_Internal_Server_Error, "Realm Not Configured");
-            }
             return authenticator.authenticate(realm, pathInContext, request, response);
+        }
+
+        //attempt to access an unprotected resource that is not the j_security_check.
+        //if we are logged in, return the logged in principal.
+        if (request != null) {
+            //null response appears to prevent redirect to login page
+            Principal user = authenticator.authenticate(realm, pathInContext, request, null);
+            if (user != null) {
+                return user;
+            }
         }
 
         /**
