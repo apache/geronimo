@@ -191,7 +191,19 @@ public class Daemon {
                 monitor = new LongStartupMonitor();
             else
                 monitor = new ProgressBarStartupMonitor();
-        }
+        }                                                            
+
+        JVMCheck();
+    }
+
+    private void JVMCheck() {
+        String jvmVersion = (String)System.getProperty("java.specification.version");
+        if (! jvmVersion.equals("1.4"))
+            log.warn("\n====================================== Warning =======================================\n" +
+                     " Geronimo is currently only certified on version 1.4 of the Java Virtual Machine.\n" +
+                     " Use of version " + jvmVersion + " is not currently supported.  Use at your own risk.\n" +
+                     " Check http://geronimo.apache.org for current information on JDK certification level.\n" +
+                     "====================================== Warning =======================================");
     }
 
     private void doStartup() {
@@ -207,7 +219,7 @@ public class Daemon {
                     System.exit(1);
                     throw new AssertionError();
                 }
-            
+
             // Determine the geronimo installation directory
             File geronimoInstallDirectory = DirectoryUtils.getGeronimoInstallDirectory();
             if (geronimoInstallDirectory == null) {
