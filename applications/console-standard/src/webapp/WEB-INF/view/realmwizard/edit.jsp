@@ -102,7 +102,7 @@ just leave the extra ones blank.</p>
         <td></td>
         <td>The control flag for the login module, which controls what happens to the overall login processing if this
           login module succeeds or fails.  For more information see
-          <a href="http://java.sun.com/j2se/1.4.2/docs/api/index.html">javax.security.auth.login.Configuration</a>.</td>
+          <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/security/auth/login/Configuration.html">javax.security.auth.login.Configuration</a>.</td>
       </tr>
       <tr>
         <th><div align="right">Server-Side:</div></th>
