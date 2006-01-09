@@ -49,10 +49,10 @@ import java.util.Iterator;
 public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //todo: write unit tests
     private static final Log log = LogFactory.getLog("org.apache.geronimo.deployment.hot.Hot Deployer");
     // Try to make this stand out as the user is likely to get a ton of errors if this comes up
-    private static final String BAD_LAYOUT_MESSAGE = "CANNOT DEPLOY: It looks like you unpacked an application or module "+
-                   "directly into the hot deployment directory.  THIS DOES NOT WORK.  You need to unpack into a "+
-                   "subdirectory directly under the hot deploy directory.  For example, if the hot deploy directory "+
-                   "is 'deploy/' and your file is 'webapp.war' then you could unpack it into a directory 'deploy/webapp.war/'";
+    private static final String BAD_LAYOUT_MESSAGE = "CANNOT DEPLOY: It looks like you unpacked an application or module " +
+            "directly into the hot deployment directory.  THIS DOES NOT WORK.  You need to unpack into a " +
+            "subdirectory directly under the hot deploy directory.  For example, if the hot deploy directory " +
+            "is 'deploy/' and your file is 'webapp.war' then you could unpack it into a directory 'deploy/webapp.war/'";
     private DirectoryMonitor monitor;
     private String path;
     private ServerInfo serverInfo;
@@ -101,7 +101,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     }
 
     public void setDeploymentURI(String deploymentURI) {
-        if(deploymentURI != null && !deploymentURI.trim().equals("")) {
+        if (deploymentURI != null && !deploymentURI.trim().equals("")) {
             this.deploymentURI = deploymentURI.trim();
         }
     }
@@ -123,16 +123,16 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     }
 
     public void doStart() throws Exception {
-        if(factory == null) {
+        if (factory == null) {
             factory = new DeploymentFactoryImpl();
         }
         File dir = serverInfo.resolve(path);
-        if(!dir.exists()) {
-            if(!dir.mkdirs()) {
-                throw new IllegalStateException("Hot deploy directory "+dir.getAbsolutePath()+" does not exist and cannot be created!");
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new IllegalStateException("Hot deploy directory " + dir.getAbsolutePath() + " does not exist and cannot be created!");
             }
-        } else if(!dir.canRead() || !dir.isDirectory()) {
-            throw new IllegalStateException("Hot deploy directory "+dir.getAbsolutePath()+" is not a readable directory!");
+        } else if (!dir.canRead() || !dir.isDirectory()) {
+            throw new IllegalStateException("Hot deploy directory " + dir.getAbsolutePath() + " is not a readable directory!");
         }
         DeploymentManager mgr = null;
         try {
@@ -147,7 +147,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             t.setDaemon(true);
             t.start();
         } finally {
-            if(mgr != null) mgr.release();
+            if (mgr != null) mgr.release();
         }
     }
 
@@ -156,7 +156,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
     }
 
     public void doFail() {
-        if(monitor != null) {
+        if (monitor != null) {
             monitor.close();
         }
     }
@@ -166,7 +166,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             DeployUtils.identifyTargetModuleIDs(startupModules, configId).toArray(new TargetModuleID[0]);
             return true;
         } catch (DeploymentException e) {
-            log.debug("Found new file in deploy directory on startup with ID "+configId);
+            log.debug("Found new file in deploy directory on startup with ID " + configId);
             return false;
         }
     }
@@ -183,7 +183,7 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             ObjectName configListName = (ObjectName) i.next();
             try {
                 Boolean result = (Boolean) kernel.getAttribute(configListName, "kernelFullyStarted");
-                if(!result.booleanValue()) {
+                if (!result.booleanValue()) {
                     return false;
                 }
             } catch (Exception e) {
@@ -205,60 +205,67 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
 
     public boolean validateFile(File file, String configId) {
         //todo: some more detailed evaluation
-        if(file.isDirectory() && (file.getName().equals("WEB-INF") || file.getName().equals("META-INF"))) {
-            log.error("("+file.getName()+") "+BAD_LAYOUT_MESSAGE);
+        if (file.isDirectory() && (file.getName().equals("WEB-INF") || file.getName().equals("META-INF"))) {
+            log.error("(" + file.getName() + ") " + BAD_LAYOUT_MESSAGE);
             return false;
         }
         return true;
     }
 
     public String fileAdded(File file) {
-        log.info("Deploying "+file.getName());
+        log.info("Deploying " + file.getName());
         DeploymentManager mgr = null;
         TargetModuleID[] modules = null;
         boolean completed = false;
         try {
             mgr = getDeploymentManager();
             Target[] targets = mgr.getTargets();
-            ProgressObject po = mgr.distribute(targets, file, null);
+            ProgressObject po;
+            if (DeployUtils.isJarFile(file) || file.isDirectory()) {
+                po = mgr.distribute(targets, file, null);
+            } else {
+                po = mgr.distribute(targets, null, file);
+            }
             waitForProgress(po);
-            if(po.getDeploymentStatus().isCompleted()) {
+            if (po.getDeploymentStatus().isCompleted()) {
                 modules = po.getResultTargetModuleIDs();
                 po = mgr.start(modules);
                 waitForProgress(po);
-                if(po.getDeploymentStatus().isCompleted()) {
+                if (po.getDeploymentStatus().isCompleted()) {
                     completed = true;
                 } else {
-                    log.warn("Unable to start some modules for "+file.getAbsolutePath());
+                    log.warn("Unable to start some modules for " + file.getAbsolutePath());
                 }
                 modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Deployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()), 4, 72));
-                    if(result.getChildTargetModuleID() != null) {
+                    System.out.println(DeployUtils.reformat("Deployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
+                    if (result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.println(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()),4, 72));
+                            System.out.println(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
                         }
                     }
                 }
             } else {
-                log.error("Unable to deploy: "+po.getDeploymentStatus().getMessage());
+                log.error("Unable to deploy: " + po.getDeploymentStatus().getMessage());
                 return null;
             }
         } catch (DeploymentManagerCreationException e) {
             log.error("Unable to open deployer", e);
             return null;
+        } catch (DeploymentException e) {
+            log.error("Unable to determine if file is a jar", e);
         } finally {
-            if(mgr != null) mgr.release();
+            if (mgr != null) mgr.release();
         }
-        if(completed && modules != null) {
-            if(modules.length == 1) {
+        if (completed && modules != null) {
+            if (modules.length == 1) {
                 return modules[0].getModuleID();
             } else {
                 return "";
             }
-        } else if(modules != null) { //distribute completed but not start or something like that
+        } else if (modules != null) { //distribute completed but not start or something like that
             return "";
         } else {
             return null;
@@ -267,14 +274,14 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
 
     private DeploymentManager getDeploymentManager() throws DeploymentManagerCreationException {
         DeploymentManager manager = factory.getDeploymentManager(deploymentURI, deploymentUser, deploymentPassword);
-        if(manager instanceof JMXDeploymentManager) {
-            ((JMXDeploymentManager)manager).setLogConfiguration(false, true);
+        if (manager instanceof JMXDeploymentManager) {
+            ((JMXDeploymentManager) manager).setLogConfiguration(false, true);
         }
         return manager;
     }
 
     public boolean fileRemoved(File file, String configId) {
-        log.info("Undeploying "+file.getName());
+        log.info("Undeploying " + file.getName());
         DeploymentManager mgr = null;
         try {
             mgr = getDeploymentManager();
@@ -283,14 +290,14 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
             ProgressObject po = mgr.undeploy(ids);
             waitForProgress(po);
-            if(po.getDeploymentStatus().isCompleted()) {
+            if (po.getDeploymentStatus().isCompleted()) {
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Undeployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : ""), 4, 72));
+                    System.out.println(DeployUtils.reformat("Undeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : ""), 4, 72));
                 }
             } else {
-                log.error("Unable to undeploy "+file.getAbsolutePath()+"("+configId+")"+po.getDeploymentStatus().getMessage());
+                log.error("Unable to undeploy " + file.getAbsolutePath() + "(" + configId + ")" + po.getDeploymentStatus().getMessage());
                 return false;
             }
         } catch (DeploymentManagerCreationException e) {
@@ -300,13 +307,13 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             log.error("Unable to undeploy", e);
             return false;
         } finally {
-            if(mgr != null) mgr.release();
+            if (mgr != null) mgr.release();
         }
         return true;
     }
 
     public void fileUpdated(File file, String configId) {
-        log.info("Redeploying "+file.getName());
+        log.info("Redeploying " + file.getName());
         DeploymentManager mgr = null;
         try {
             mgr = getDeploymentManager();
@@ -315,32 +322,32 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
             ProgressObject po = mgr.redeploy(ids, file, null);
             waitForProgress(po);
-            if(po.getDeploymentStatus().isCompleted()) {
+            if (po.getDeploymentStatus().isCompleted()) {
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID result = modules[i];
-                    System.out.println(DeployUtils.reformat("Redeployed "+result.getModuleID()+(targets.length > 1 ? " to "+result.getTarget().getName() : "")+(result.getWebURL() == null ? "" : " @ "+result.getWebURL()), 4, 72));
-                    if(result.getChildTargetModuleID() != null) {
+                    System.out.println(DeployUtils.reformat("Redeployed " + result.getModuleID() + (targets.length > 1 ? " to " + result.getTarget().getName() : "") + (result.getWebURL() == null ? "" : " @ " + result.getWebURL()), 4, 72));
+                    if (result.getChildTargetModuleID() != null) {
                         for (int j = 0; j < result.getChildTargetModuleID().length; j++) {
                             TargetModuleID child = result.getChildTargetModuleID()[j];
-                            System.out.println(DeployUtils.reformat("  `-> "+child.getModuleID()+(child.getWebURL() == null ? "" : " @ "+child.getWebURL()),4, 72));
+                            System.out.println(DeployUtils.reformat("  `-> " + child.getModuleID() + (child.getWebURL() == null ? "" : " @ " + child.getWebURL()), 4, 72));
                         }
                     }
                 }
             } else {
-                log.error("Unable to undeploy "+file.getAbsolutePath()+"("+configId+")"+po.getDeploymentStatus().getMessage());
+                log.error("Unable to undeploy " + file.getAbsolutePath() + "(" + configId + ")" + po.getDeploymentStatus().getMessage());
             }
         } catch (DeploymentManagerCreationException e) {
             log.error("Unable to open deployer", e);
         } catch (Exception e) {
             log.error("Unable to undeploy", e);
         } finally {
-            if(mgr != null) mgr.release();
+            if (mgr != null) mgr.release();
         }
     }
 
     private void waitForProgress(ProgressObject po) {
-        while(po.getDeploymentStatus().isRunning()) {
+        while (po.getDeploymentStatus().isRunning()) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
