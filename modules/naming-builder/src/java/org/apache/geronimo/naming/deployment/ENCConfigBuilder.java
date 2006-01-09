@@ -308,7 +308,7 @@ public class ENCConfigBuilder {
                     throw new DeploymentException("Could not construct module URI", e);
                 }
             }
-            containerId = refContext.getAdminObjectContainerId(moduleURI, gerResourceEnvRef.getMessageDestinationLink().trim(), context);
+            containerId = refContext.getAdminObjectContainerId(moduleURI, gerResourceEnvRef.getAdminObjectLink().trim(), context);
         } else if (gerResourceEnvRef.isSetTargetName()) {
             containerId = getStringValue(gerResourceEnvRef.getTargetName());
         } else {
