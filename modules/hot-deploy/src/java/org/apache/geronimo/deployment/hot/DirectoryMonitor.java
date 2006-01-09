@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.geronimo.deployment.cli.DeployUtils;
 import java.io.File;
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -310,7 +311,11 @@ public class DirectoryMonitor implements Runnable {
         try {
             moduleId = DeployUtils.extractModuleIdFromArchive(module);
         } catch (Exception e) {
-            log.warn("Unable to calculate module ID for module "+module.getAbsolutePath()+" ["+e.getMessage()+"]");
+            try {
+                moduleId = DeployUtils.extractModuleIdFromPlan(module);
+            } catch (IOException e2) {
+                log.warn("Unable to calculate module ID for file "+module.getAbsolutePath()+" ["+e2.getMessage()+"]");
+            }
         }
         if(moduleId == null) {
             int pos = module.getName().lastIndexOf('.');

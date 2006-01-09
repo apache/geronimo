@@ -320,7 +320,12 @@ public class DirectoryHotDeployer implements HotDeployer, GBeanLifecycle { //tod
             Target[] targets = mgr.getTargets();
             TargetModuleID[] ids = mgr.getAvailableModules(null, targets);
             ids = (TargetModuleID[]) DeployUtils.identifyTargetModuleIDs(ids, configId).toArray(new TargetModuleID[0]);
-            ProgressObject po = mgr.redeploy(ids, file, null);
+            ProgressObject po;
+            if (DeployUtils.isJarFile(file) || file.isDirectory()) {
+                po = mgr.redeploy(ids, file, null);
+            } else {
+                po = mgr.redeploy(ids, null, file);
+            }
             waitForProgress(po);
             if (po.getDeploymentStatus().isCompleted()) {
                 TargetModuleID[] modules = po.getResultTargetModuleIDs();
