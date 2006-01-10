@@ -16,104 +16,29 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.security.Principal;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.mortbay.http.HttpRequest;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
 
 /**
+ * JettyServer extends the base Jetty Server class to prevent managing any user realm information by the web.xml realm name
+ * which is only relevant for basic and digest authentication and should not be tied to any
+ * actual information about which security realm is in use.
+ * 
  * @version $Rev$ $Date$
  */
 public class JettyServer extends Server {
-    private final Map realmDelegates = new HashMap();
 
     public UserRealm addRealm(UserRealm realm) {
-        RealmDelegate delegate = (RealmDelegate) getRealm(realm.getName());
-        delegate.addDelegate(realm);
-        return delegate.delegate;
+        throw new IllegalArgumentException("You must supply a security-realm-name to every web module using security features");
     }
 
     public UserRealm getRealm(String realmName) {
-        RealmDelegate delegate = (RealmDelegate) realmDelegates.get(realmName);
-
-        if (delegate == null) {
-            delegate = new RealmDelegate(realmName);
-            realmDelegates.put(realmName, delegate);
-        }
-        return delegate;
+        throw new IllegalArgumentException("You must supply a security-realm-name to every web module using security features");
     }
 
     public synchronized void removeRealm(UserRealm realm) {
-        RealmDelegate delegate = (RealmDelegate) realmDelegates.get(realm.getName());
-        if (delegate != null) {
-            if (delegate.removeDelegate() == 0) {
-                realmDelegates.remove(realm.getName());
-            }
-        }
+        throw new IllegalArgumentException("You must supply a security-realm-name to every web module using security features");
     }
 
-    private static class RealmDelegate implements UserRealm {
-
-        private UserRealm delegate;
-        private final String name;
-        private int  count;
-
-        private RealmDelegate(String name) {
-            this.name = name;
-        }
-
-        private synchronized void addDelegate(UserRealm newDelegate) {
-            if (delegate != null && !delegate.equals(newDelegate)) {
-                throw new IllegalArgumentException("Inconsistent assigment of user realm: old: " + delegate + ", new: " + newDelegate);
-            }
-            if (delegate == null) {
-                delegate = newDelegate;
-            }
-            count++;
-        }
-
-        private int removeDelegate() {
-            return count--;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Principal getPrincipal(String username) {
-            return delegate.getPrincipal(username);
-        }
-
-        public Principal authenticate(String username, Object credentials, HttpRequest request) {
-            return delegate.authenticate(username, credentials, request);
-        }
-
-        public boolean reauthenticate(Principal user) {
-            return delegate.reauthenticate(user);
-        }
-
-        public boolean isUserInRole(Principal user, String role) {
-            return delegate.isUserInRole(user, role);
-        }
-
-        public void disassociate(Principal user) {
-            delegate.disassociate(user);
-        }
-
-        public Principal pushRole(Principal user, String role) {
-            return delegate.pushRole(user, role);
-        }
-
-        public Principal popRole(Principal user) {
-            return delegate.popRole(user);
-        }
-
-        public void logout(Principal user) {
-            delegate.logout(user);
-        }
-    }
 }

@@ -20,6 +20,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.GeronimoSecurityException;
 import org.apache.geronimo.jetty.JAASJettyPrincipal;
 import org.apache.geronimo.jetty.JettyContainer;
+import org.apache.geronimo.jetty.JAASJettyRealm;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
@@ -60,7 +61,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
     private final PermissionCollection excludedPermissions;
     private final Authenticator authenticator;
 
-    private final UserRealm realm;
+    private final JAASJettyRealm realm;
 
     public SecurityContextBeforeAfter(BeforeAfter next,
                                       int policyContextIDIndex,
@@ -71,7 +72,8 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
                                       PermissionCollection checkedPermissions,
                                       PermissionCollection excludedPermissions,
                                       Map roleDesignates,
-                                      UserRealm realm, ClassLoader classLoader) {
+                                      JAASJettyRealm realm,
+                                      ClassLoader classLoader) {
         assert realm != null;
         assert authenticator != null;
 
@@ -109,7 +111,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
     public void stop(JettyContainer jettyContainer) {
         Subject defaultSubject = this.defaultPrincipal.getSubject();
         ContextManager.unregisterSubject(defaultSubject);
-        jettyContainer.removeRealm(realm);
+        jettyContainer.removeRealm(realm.getSecurityRealmName());
     }
 
     public void before(Object[] context, HttpRequest httpRequest, HttpResponse httpResponse) {

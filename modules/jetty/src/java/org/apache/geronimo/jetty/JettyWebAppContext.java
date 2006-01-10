@@ -293,9 +293,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 throw new IllegalArgumentException("RoleDesignateSource must be supplied for a secure web app");
             }
             Map roleDesignates = roleDesignateSource.getRoleDesignateMap();
-            //set the JAASJettyRealm as our realm.
-            UserRealm realm = new JAASJettyRealm(realmName, securityRealmName);
-            realm = jettyContainer.addRealm(realm);
+            InternalJAASJettyRealm internalJAASJettyRealm = jettyContainer.addRealm(securityRealmName);
+            //wrap jetty realm with something that knows the dumb realmName
+            JAASJettyRealm realm = new JAASJettyRealm(realmName, internalJAASJettyRealm);
+            setRealm(realm);
             this.securityInterceptor = new SecurityContextBeforeAfter(interceptor, index++, index++, policyContextID, defaultPrincipal, authenticator, checkedPermissions, excludedPermissions, roleDesignates, realm, classLoader);
             interceptor = this.securityInterceptor;
         } else {

@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.jetty;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -30,6 +28,9 @@ import org.mortbay.http.RequestLog;
 import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.Server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @version $Rev$ $Date$
  */
@@ -37,6 +38,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private final Server server;
     private final Map webServices = new HashMap();
     private final String objectName;
+    private final Map realms = new HashMap();
 
     public JettyContainerImpl(String objectName) {
         this.objectName = objectName;
@@ -143,16 +145,29 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         server.removeContext(context);
     }
 
-    public UserRealm addRealm(UserRealm realm) {
-        return server.addRealm(realm);
+    public InternalJAASJettyRealm addRealm(String realmName) {
+        InternalJAASJettyRealm realm = (InternalJAASJettyRealm) realms.get(realmName);
+        if (realm == null) {
+            realm = new InternalJAASJettyRealm(realmName);
+            realms.put(realmName, realm);
+        } else {
+            realm.addUse();
+        }
+        return realm;
     }
 
-    public void removeRealm(UserRealm realm) {
-        server.removeRealm(realm.getName());
+    public void removeRealm(String realmName) {
+        InternalJAASJettyRealm realm = (InternalJAASJettyRealm) realms.get(realmName);
+        if (realm != null) {
+            if (realm.removeUse() == 0){
+                realms.remove(realmName);
+            }
+        }
     }
 
     public void addWebService(String contextPath, String[] virtualHosts, WebServiceContainer webServiceContainer, String securityRealmName, String realmName, String transportGuarantee, String authMethod, ClassLoader classLoader) throws Exception {
-        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, securityRealmName, realmName, transportGuarantee, authMethod, classLoader);
+        InternalJAASJettyRealm internalJAASJettyRealm = securityRealmName == null? null:addRealm(securityRealmName);
+        JettyEJBWebServiceContext webServiceContext = new JettyEJBWebServiceContext(contextPath, webServiceContainer, internalJAASJettyRealm, realmName, transportGuarantee, authMethod, classLoader);
         webServiceContext.setHosts(virtualHosts);
         addContext(webServiceContext);
         webServiceContext.start();
@@ -161,6 +176,10 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
 
     public void removeWebService(String contextPath) {
         JettyEJBWebServiceContext webServiceContext = (JettyEJBWebServiceContext) webServices.remove(contextPath);
+        String securityRealmName = webServiceContext.getSecurityRealmName();
+        if (securityRealmName != null) {
+            removeRealm(securityRealmName);
+        }
         removeContext(webServiceContext);
     }
 
@@ -220,8 +239,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         infoBuilder.addOperation("removeListener", new Class[]{HttpListener.class});
         infoBuilder.addOperation("addContext", new Class[]{HttpContext.class});
         infoBuilder.addOperation("removeContext", new Class[]{HttpContext.class});
-        infoBuilder.addOperation("addRealm", new Class[]{UserRealm.class});
-        infoBuilder.addOperation("removeRealm", new Class[]{UserRealm.class});
+        infoBuilder.addOperation("addRealm", new Class[]{String.class});
+        infoBuilder.addOperation("removeRealm", new Class[]{String.class});
 
         infoBuilder.addAttribute("objectName", String.class, false);
 
