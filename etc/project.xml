@@ -87,6 +87,11 @@
 
     <versions>
         <version>
+            <id>1.0</id>
+            <name>1.0</name>
+            <tag>v1_0_0</tag>
+        </version>
+        <version>
             <id>1.0-M5</id>
             <name>1.0-M5</name>
             <tag>HEAD</tag>
@@ -190,6 +195,13 @@
         </developer>
 
         <developer>
+            <name>Matt Hogstrom</name>
+            <id>hogstrom</id>
+            <email>hogstrom@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
             <name>Jim Jagielski</name>
             <id>jim</id>
             <email>jim@apache.org</email>
@@ -214,6 +226,13 @@
             <name>Geir Magnusson Jr.</name>
             <id>geirm</id>
             <email>geirm@apache.org</email>
+            <organization></organization>
+        </developer>
+
+        <developer>
+            <name>Kevan Miller</name>
+            <id>kevan</id>
+            <email>kevan@apache.org</email>
             <organization></organization>
         </developer>
 
