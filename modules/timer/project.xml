@@ -147,11 +147,13 @@
         </dependency>
 -->
 
-        <dependency>
-            <groupId>mx4j</groupId>
-            <artifactId>mx4j</artifactId>
-            <version>${mx4j_version}</version>
-        </dependency>
-
+        <!-- duplicate dependency - commented out to avoid eclipse project errors
+        #<dependency>
+        #    <groupId>mx4j</groupId>
+        #    <artifactId>mx4j</artifactId>
+        #    <version>${mx4j_version}</version>
+        #</dependency>
+        -->
+        
     </dependencies>
 </project>
