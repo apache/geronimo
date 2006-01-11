@@ -160,7 +160,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         File path = new File(basedir, "src/test-resources/deployables/" + warName);
         File dest = new File(basedir, "target/test-resources/deployables/" + warName + "/war");
         recursiveCopy(path, dest);
-        UnpackedJarFile jarFile = new UnpackedJarFile(path);
+        UnpackedJarFile jarFile = new UnpackedJarFile(dest);
         Module module = builder.createModule(null, jarFile);
         URI id = new URI(warName);
 
@@ -186,7 +186,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         earContext.close();
         module.close();
         GBeanData configData = earContext.getConfigurationGBeanData();
-        configData.setAttribute("baseURL", path.toURL());
+        configData.setAttribute("baseURL", outputPath.toURL());
         kernel.loadGBean(configData, cl);
         ObjectName configName = configData.getName();
         kernel.startGBean(configName);
@@ -391,7 +391,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         WebServiceBuilder webServiceBuilder = new AxisBuilder();
 
-        builder = new TomcatModuleBuilder(new URI[] {new URI("null")}, false, containerName, webServiceBuilder, null);
+        builder = new TomcatModuleBuilder(new URI[] {new URI("null")}, true, containerName, webServiceBuilder, null);
 
         // Default Realm
         Map initParams = new HashMap();
