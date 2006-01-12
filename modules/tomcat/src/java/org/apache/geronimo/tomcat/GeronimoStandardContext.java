@@ -27,10 +27,7 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
 import org.apache.catalina.Container;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleEvent;
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
@@ -64,7 +61,7 @@ import org.apache.geronimo.webservices.WebServiceContainer;
 import org.apache.geronimo.webservices.WebServiceContainerInvoker;
 
 
-public class GeronimoStandardContext extends StandardContext implements LifecycleListener {
+public class GeronimoStandardContext extends StandardContext {
 
     private static final Log log = LogFactory.getLog(GeronimoStandardContext.class);
 
@@ -75,10 +72,6 @@ public class GeronimoStandardContext extends StandardContext implements Lifecycl
     private Map webServiceMap = null;
 
     private boolean pipelineInitialized;
-
-  private String localSessionManager;
-  private String distributableSessionManager;
-  private ClassLoader webClassLoader;
 
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
         // Create ReadOnlyContext
@@ -163,43 +156,25 @@ public class GeronimoStandardContext extends StandardContext implements Lifecycl
         if (cluster != null)
             this.setCluster(cluster);
         
+        Manager manager = ctx.getManager();
+        if (manager != null)
+            this.setManager(manager);
+
         pipelineInitialized = true;
         this.webServiceMap = ctx.getWebServices();
 
         this.setCrossContext(ctx.isCrossContext());
-
-	this.localSessionManager=ctx.getLocalSessionManager();
-	this.distributableSessionManager=ctx.getDistributableSessionManager();
-	this.webClassLoader=ctx.getWebClassLoader();
-    }
-
-    public void lifecycleEvent(LifecycleEvent event) {
-      if (event.getType()==Lifecycle.START_EVENT) {
-	try {
-	  String sessionManager=getDistributable()?distributableSessionManager:localSessionManager;
-	  if (sessionManager!=null) {
-	    //	    Class clazz=Thread.currentThread().getContextClassLoader().loadClass(sessionManager);
-	    Class clazz=webClassLoader.loadClass(sessionManager);
-	    log.info("Session Manager is:" + clazz.getName());
-	    setManager((Manager)clazz.newInstance());
-	  }
-	} catch (Exception e) {
-	  log.error("unexpected problem instantiating Session Manager", e);
-	}
-      }
     }
 
     public synchronized void start() throws LifecycleException {
         if (pipelineInitialized) {
             try {
-	        addLifecycleListener(this);
                 Valve valve = getFirst();
                 valve.invoke(null, null);
                 //Install the DefaultSubjectValve after the authentication valve so the default subject is supplied
                 //only if no real subject is authenticated.
                 Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
                 addValve(defaultSubjectValve);
-		removeLifecycleListener(this);
             } catch (IOException e) {
                 if (e.getCause() instanceof LifecycleException) {
                     throw (LifecycleException) e.getCause();

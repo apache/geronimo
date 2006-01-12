@@ -66,8 +66,7 @@ public interface TomcatContext {
     
     public CatalinaCluster getCluster();
     
-    public String getLocalSessionManager();
-    public String getDistributableSessionManager();
+    public Manager getManager();
     
     public boolean isCrossContext();
     

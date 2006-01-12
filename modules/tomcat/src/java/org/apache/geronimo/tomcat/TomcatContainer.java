@@ -76,10 +76,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      **/
     private ClassLoader classLoader;
 
-  private String _localSessionManager;
-  private String _distributableSessionManager="org.codehaus.wadi.tomcat55.TomcatManager";;
-
-
     private final Map webServices = new HashMap();
     private final String objectName;
 
@@ -385,22 +381,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         return new TomcatClassLoader((URL[])urls.toArray(new URL[0]), null, cl, false);
     }
 
-  public String getLocalSessionManager() {
-    return _localSessionManager;
-  }
-
-  public void setLocalSessionManager(String localSessionManager) {
-    _localSessionManager=localSessionManager;
-  }
-
-  public String getDistributableSessionManager() {
-    return _distributableSessionManager;
-  }
-
-  public void setDistributableSessionManager(String distributableSessionManager) {
-    _distributableSessionManager=distributableSessionManager;
-  }    
-
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -426,9 +406,6 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
 
         infoFactory.addInterface(SoapHandler.class);
         infoFactory.addInterface(TomcatWebContainer.class);
-
-        infoFactory.addAttribute("localSessionManager", String.class, true);
-        infoFactory.addAttribute("distributableSessionManager", String.class, true);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
