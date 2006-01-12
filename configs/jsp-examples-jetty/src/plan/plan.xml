@@ -24,4 +24,11 @@
 
     <context-root>/jsp-examples</context-root>
     <context-priority-classloader>false</context-priority-classloader>
+    <security-realm-name>geronimo-properties-realm</security-realm-name>
+    <security>
+        <default-principal realm-name="geronimo-properties-realm">
+            <principal class="org.apache.geronimo.security.realm.providers.GeronimoUserPrincipal"
+                       name="user"/>
+        </default-principal>
+    </security>
 </web-app>
