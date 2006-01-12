@@ -38,31 +38,31 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-common</artifactId>
-            <version>${geronimo_version}</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>${geronimo_version}</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment</artifactId>
-            <version>${geronimo_version}</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deploy-jsr88</artifactId>
-            <version>${geronimo_version}</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>${geronimo_version}</version>
+            <version>1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
