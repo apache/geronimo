@@ -23,6 +23,7 @@ import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.AdminObjectWrapperGBean;
 import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
+import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -49,7 +50,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
     protected static Log log = LogFactory
             .getLog(CreateDestinationHandler.class);
 
-    private static final List parentId = Arrays.asList(new URI[] {URI.create("geronimo/activemq-broker/1.0-SNAPSHOT/car")});
+    private static final List parentId = Arrays.asList(new URI[] {URI.create("geronimo/activemq-broker/" + GeronimoVersion.GERONIMO_VERSION + "/car")});
 
     static final GBeanInfo QUEUE_INFO;
 

@@ -18,6 +18,7 @@
 package org.apache.geronimo.console.jmsmanager;
 
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.console.databasemanager.DataSourceInfo;
 import org.apache.geronimo.console.jmsmanager.activemqCF.ActiveMQConnectorHelper;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -53,7 +54,7 @@ public class JMSConnectionFactoryManagerPortlet extends BasePortlet {
 
     private final static ActiveMQConnectorHelper helper = new ActiveMQConnectorHelper();
 
-    private final static String PARENT_ID = "geronimo/activemq-broker/1.0-SNAPSHOT/car";
+    private final static String PARENT_ID = "geronimo/activemq-broker/" + GeronimoVersion.GERONIMO_VERSION + "/car";
 
     private final static String ADD_MODE = "addACF";
 

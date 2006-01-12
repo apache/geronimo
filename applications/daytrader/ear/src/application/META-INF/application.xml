@@ -5,18 +5,18 @@
       <description>Application description</description>
       <display-name>Trade</display-name>
       <module>
-         <java>daytrader-streamer-1.0-SNAPSHOT.jar</java>
+         <java>daytrader-streamer-1.1-SNAPSHOT.jar</java>
       </module>
       <module>
-         <java>daytrader-wsappclient-1.0-SNAPSHOT.jar</java>
+         <java>daytrader-wsappclient-1.1-SNAPSHOT.jar</java>
       </module>
       <module>
          <web>
-            <web-uri>daytrader-web-1.0-SNAPSHOT.war</web-uri>
+            <web-uri>daytrader-web-1.1-SNAPSHOT.war</web-uri>
             <context-root>/daytrader</context-root>
          </web>
       </module>
       <module>
-         <ejb>daytrader-ejb-1.0-SNAPSHOT.jar</ejb>
+         <ejb>daytrader-ejb-1.1-SNAPSHOT.jar</ejb>
       </module>
 </application>

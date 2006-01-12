@@ -28,10 +28,11 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.console.GeronimoVersion;
 
 public abstract class AbstractJMSManager {
 
-    protected static final String JMS_SERVER_MBEAN_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=geronimo/activemq-broker/1.0-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=JMSServer,name=ActiveMQl";
+    protected static final String JMS_SERVER_MBEAN_NAME = "geronimo.server:J2EEApplication=null,J2EEModule=geronimo/activemq-broker/" + GeronimoVersion.GERONIMO_VERSION + "/car,J2EEServer=geronimo,j2eeType=JMSServer,name=ActiveMQl";
 
     protected static final String GET_BROKER_ADMIN_FUNCTION = "getBrokerAdmin";
 
@@ -57,7 +58,7 @@ public abstract class AbstractJMSManager {
 
     protected static final String DESTINATION_CONFIG_URI = "destinationConfigURI";
 
-    protected static final String CONNECTION_FACTORY_NAME = "geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/activemq/1.0-SNAPSHOT/car,j2eeType=JCAManagedConnectionFactory,name=DefaultActiveMQConnectionFactory";
+    protected static final String CONNECTION_FACTORY_NAME = "geronimo.server:J2EEApplication=null,J2EEServer=geronimo,JCAResource=geronimo/activemq/" + GeronimoVersion.GERONIMO_VERSION + "/car,j2eeType=JCAManagedConnectionFactory,name=DefaultActiveMQConnectionFactory";
 
     protected static Object[] no_args = new Object[0];
 
