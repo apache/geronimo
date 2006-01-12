@@ -31,7 +31,8 @@ Configuration for Jetty server.
          plan and thinks they might belong in the console plan.  Aaron thinks
          they definitely don't belong in the console plan, but could go into
          a management layer plan. -->
-    <gbean name="JettyWebManager" class="org.apache.geronimo.jetty.JettyManagerImpl"/>
+    <gbean name="JettyWebManager" class="org.apache.geronimo.jetty.JettyManagerImpl">
+    </gbean>
 
     <gbean name="JettyAccessLogManager" class="org.apache.geronimo.jetty.requestlog.JettyLogManagerImpl">
         <references name="LogGBeans">
@@ -49,6 +50,8 @@ Configuration for Jetty server.
 
     <!-- default WAR container using Jetty -->
     <gbean name="JettyWebContainer" class="org.apache.geronimo.jetty.JettyContainerImpl">
+        <attribute name="localSessionManager"></attribute>
+        <attribute name="distributableSessionManager">org.codehaus.wadi.jetty5.JettyManager</attribute>
     </gbean>
 
     <gbean name="JettyRequestLog" class="org.apache.geronimo.jetty.requestlog.NCSARequestLog">

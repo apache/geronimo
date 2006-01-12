@@ -34,6 +34,12 @@ public interface JettyContainer extends WebContainer {
     void addContext(HttpContext context);
 
     void removeContext(HttpContext context);
+    
+    String getLocalSessionManager();
+    void setLocalSessionManager(String localSessionManagerClassname);
+    
+    String getDistributableSessionManager();
+    void setDistributableSessionManager(String distributableSessionManagerClassname);
 
     InternalJAASJettyRealm addRealm(String realmName);
 

@@ -132,7 +132,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
             //setup a SessionManager
             log.debug("About to configure a SessionManager");
             String sessionManagerClassName = ((JettyWebAppContext) webAppContext).getSessionManager();
-            if (sessionManagerClassName != null) {
+            if (sessionManagerClassName != null && sessionManagerClassName.trim().length() != 0) {
                 Class clazz = Thread.currentThread().getContextClassLoader().loadClass(sessionManagerClassName);
                 Object o = clazz.newInstance();
                 log.debug("Setting SessionManager type=" + clazz.getName() + " instance=" + o);
@@ -313,7 +313,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
         handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR);
 
-        configureSessionManager(sessionManager);
+        configureSessionManager();
 
     }
 
@@ -516,9 +516,13 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
 
-    private void configureSessionManager(String sessionManagerClassName) {
-        this.sessionManager = sessionManagerClassName;
-        log.debug("SessionManager classname=" + sessionManagerClassName);
+    private void configureSessionManager() {
+        if (isDistributable())
+            this.sessionManager = jettyContainer.getDistributableSessionManager();
+        else
+            this.sessionManager = jettyContainer.getLocalSessionManager();
+        log.debug("SessionManager classname=" + this.sessionManager);
+        
         if (this.sessionManager != null) {
             addConfiguration(SessionManagerConfiguration.class.getName());
         }

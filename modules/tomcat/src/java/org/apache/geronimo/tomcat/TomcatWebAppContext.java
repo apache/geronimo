@@ -47,7 +47,6 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.tomcat.cluster.CatalinaClusterGBean;
-import org.apache.geronimo.tomcat.cluster.WADIGBean;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
@@ -82,7 +81,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
     
     private final CatalinaCluster catalinaCluster;
     
-    private final Manager manager;
+    private Manager manager=null;
 
     private final boolean crossContext;
 
@@ -112,6 +111,9 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     private final String originalSpecDD;
 
+  private final String localSessionManager;
+  private final String distributableSessionManager;
+
     public TomcatWebAppContext(
             ClassLoader classLoader,
             String objectName,
@@ -133,7 +135,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
             ObjectRetriever tomcatRealm,
             ValveGBean tomcatValveChain,
             CatalinaClusterGBean cluster,
-            WADIGBean manager,
             boolean crossContext,
             Map webServices,
             J2EEServer server,
@@ -161,6 +162,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         }
         this.webAppRoot = root.resolve(relativeWebAppRoot);
         this.container = container;
+	this.localSessionManager=container.getLocalSessionManager();
+	this.distributableSessionManager=container.getDistributableSessionManager();
         this.originalSpecDD = originalSpecDD;
 
         this.setDocBase(this.webAppRoot.getPath());
@@ -205,11 +208,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         else
             catalinaCluster = null;
 
-        //Add the manager
-        if (manager != null)
-           this.manager = (Manager)manager.getInternalObject(); 
-        else
-            this.manager = null;
+        //Add the manager - now instantiated lazily...
 
         this.crossContext = crossContext;
 
@@ -337,10 +336,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return catalinaCluster;
     }
     
-    public Manager getManager() {
-        return manager;
-    }
-    
     public boolean isCrossContext() {
         return crossContext;
     }
@@ -429,6 +424,14 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         log.warn("TomcatWebAppContext failed");
     }
 
+  public String getLocalSessionManager() {
+    return localSessionManager;
+  }
+
+  public String getDistributableSessionManager() {
+    return distributableSessionManager;
+  }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
@@ -458,7 +461,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         infoBuilder.addReference("TomcatRealm", ObjectRetriever.class);
         infoBuilder.addReference("TomcatValveChain", ValveGBean.class);
         infoBuilder.addReference("Cluster", CatalinaClusterGBean.class, CatalinaClusterGBean.J2EE_TYPE);
-        infoBuilder.addReference("Manager", WADIGBean.class);
         infoBuilder.addAttribute("crossContext", boolean.class, true);
         infoBuilder.addAttribute("webServices", Map.class, true);
         infoBuilder.addReference("J2EEServer", J2EEServer.class);
@@ -488,7 +490,6 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
                 "TomcatRealm",
                 "TomcatValveChain",
                 "Cluster",
-                "Manager",
                 "crossContext",
                 "webServices",
                 "J2EEServer",

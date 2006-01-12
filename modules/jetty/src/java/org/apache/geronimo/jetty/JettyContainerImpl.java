@@ -39,6 +39,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     private final Map webServices = new HashMap();
     private final String objectName;
     private final Map realms = new HashMap();
+    private String localSessionManager;
+    private String distributableSessionManager = "org.codehaus.wadi.jetty5.JettyManager";
 
     public JettyContainerImpl(String objectName) {
         this.objectName = objectName;
@@ -49,6 +51,22 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         return objectName;
     }
 
+    public String getDistributableSessionManager() {
+        return distributableSessionManager;
+    }
+
+    public void setDistributableSessionManager(String distributableSessionManager) {
+        this.distributableSessionManager = distributableSessionManager;
+    }
+
+    public String getLocalSessionManager() {
+        return localSessionManager;
+    }
+
+    public void setLocalSessionManager(String localSessionManager) {
+        this.localSessionManager = localSessionManager;
+    }
+    
     public boolean isStateManageable() {
         return true;
     }
@@ -234,6 +252,8 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
         infoBuilder.addOperation("resetStatistics");
 
         infoBuilder.addAttribute("requestLog", RequestLog.class, false, false);
+        infoBuilder.addAttribute("localSessionManager", String.class, true);
+        infoBuilder.addAttribute("distributableSessionManager", String.class, true);
 
         infoBuilder.addOperation("addListener", new Class[]{HttpListener.class});
         infoBuilder.addOperation("removeListener", new Class[]{HttpListener.class});
@@ -254,5 +274,7 @@ public class JettyContainerImpl implements JettyContainer, SoapHandler, GBeanLif
     public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
+
+
 
 }
