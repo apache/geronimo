@@ -16,27 +16,9 @@
  */
 package org.apache.geronimo.tomcat.realm;
 
-import java.io.IOException;
-import java.security.AccessControlContext;
-import java.security.AccessControlException;
-import java.security.Principal;
-import java.security.cert.X509Certificate;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.AccountExpiredException;
-import javax.security.auth.login.CredentialExpiredException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Wrapper;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
@@ -49,6 +31,24 @@ import org.apache.geronimo.security.jacc.PolicyContextHandlerContainerSubject;
 import org.apache.geronimo.security.realm.providers.CertificateChainCallbackHandler;
 import org.apache.geronimo.security.realm.providers.PasswordCallbackHandler;
 import org.apache.geronimo.tomcat.JAASTomcatPrincipal;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.login.AccountExpiredException;
+import javax.security.auth.login.CredentialExpiredException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.security.jacc.PolicyContext;
+import javax.security.jacc.PolicyContextException;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
+import java.io.IOException;
+import java.security.AccessControlContext;
+import java.security.AccessControlException;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
 
 
 public class TomcatGeronimoRealm extends JAASRealm {
@@ -70,6 +70,12 @@ public class TomcatGeronimoRealm extends JAASRealm {
     public TomcatGeronimoRealm() {
 
      }
+
+    public static Request setRequest(Request request) {
+        Request old = (Request) currentRequest.get();
+        currentRequest.set(request);
+        return old;
+    }
 
     /**
      * Enforce any user data constraint required by the security constraint
@@ -148,9 +154,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
                                          Context context)
             throws IOException {
 
-        //Set the current request (for hasRole)
-        currentRequest.set(request);
-
         // Specifically allow access to the form login and form error pages
         // and the "j_security_check" action
         LoginConfig config = context.getLoginConfig();
@@ -181,10 +184,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         //If we have no principal, then we should use the default.
         if (principal == null) {
-            if (request.isSecure())
-                return true;
+            return request.isSecure();
 
-            return false;
         } else {
             ContextManager.setCurrentCaller(((JAASTomcatPrincipal) principal).getSubject());
         }
@@ -208,62 +209,6 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
     }
 
-    private String getServletName(Request request) {
-
-        String contextPath = ((HttpServletRequest) request.getRequest()).getContextPath();
-        String requestURI = request.getDecodedRequestURI();
-        String relativeURI = requestURI.substring(contextPath.length());
-        String servletPath = relativeURI;
-        String name = null;
-        Context context = request.getContext();
-
-        //Try exact match
-        if (!(relativeURI.equals("/")))
-            name = context.findServletMapping(relativeURI);
-
-        //Try prefix match (i.e. xyz/* )
-        if (name == null) {
-            servletPath = relativeURI;
-            while (true) {
-                name = context.findServletMapping(servletPath + "/*");
-                if (name != null) {
-                    break;
-                }
-                int slash = servletPath.lastIndexOf('/');
-                if (slash < 0)
-                    break;
-                servletPath = servletPath.substring(0, slash);
-            }
-        }
-
-        //Try extension match (i.e. *.do )
-        if (name == null) {
-            int slash = relativeURI.lastIndexOf('/');
-            if (slash >= 0) {
-                String last = relativeURI.substring(slash);
-                int period = last.lastIndexOf('.');
-                if (period >= 0) {
-                    String pattern = "*" + last.substring(period);
-                    name = context.findServletMapping(pattern);
-                }
-            }
-        }
-
-        //Try default match
-        if (name == null) {
-            name = context.findServletMapping("/");
-        }
-
-        /**
-         * JACC v1.0 secion B.19
-         */
-        if (name.equals("jsp")) {
-            name = "";
-        }
-
-        return (name == null ? "" : name);
-    }
-
     /**
      * Return <code>true</code> if the specified Principal has the specified
      * security role, within the context of this Realm; otherwise return
@@ -279,12 +224,17 @@ public class TomcatGeronimoRealm extends JAASRealm {
         }
 
         Request request = (Request) currentRequest.get();
-        if (request == null) {
-            log.error("No currentRequest found.");
-            return false;
-        }
+        assert request != null;
 
-        String name = getServletName(request);
+        Wrapper servletWrapper = request.getWrapper();
+        String name = servletWrapper.getName();
+
+        /**
+         * JACC v1.0 secion B.19
+         */
+        if (name == null || name.equals("jsp")) {
+            name = "";
+        }
 
         //Set the caller
         ContextManager.setCurrentCaller(((JAASTomcatPrincipal) principal).getSubject());
@@ -293,7 +243,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
         try {
             /**
-             * JACC v1.0 secion 4.1.3
+             * JACC v1.0 section 4.1.3
              */
             acc.checkPermission(new WebRoleRefPermission(name, role));
         } catch (AccessControlException e) {
@@ -369,7 +319,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
                   log.debug("Login context created " + principalName);
 
               // Negotiate a login via this LoginContext
-              Subject subject = null;
+              Subject subject;
               try {
                   loginContext.login();
                   Subject tempSubject = loginContext.getSubject();
