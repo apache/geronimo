@@ -116,22 +116,32 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
         index.clear();
         File indexfile = new File(rootDir, INDEX_NAME);
+        InputStream indexIs = null;
         try {
-            index.load(new BufferedInputStream(new FileInputStream(indexfile)));
+            indexIs = new BufferedInputStream(new FileInputStream(indexfile)); 
+            index.load(indexIs);
             for (Iterator i = index.values().iterator(); i.hasNext();) {
                 String id = (String) i.next();
                 maxId = Math.max(maxId, Integer.parseInt(id));
             }
         } catch (FileNotFoundException e) {
             maxId = 0;
+        } finally {
+            if (indexIs != null)
+                indexIs.close();
         }
 
         // See if there are old directories which we should clean up...
         File pendingDeletionFile = new File(rootDir, DELETE_NAME);
+        InputStream pendingIs = null;
         try {
-            pendingDeletionIndex.load(new BufferedInputStream(new FileInputStream(pendingDeletionFile)));
+            pendingIs = new BufferedInputStream(new FileInputStream(pendingDeletionFile));
+            pendingDeletionIndex.load(pendingIs);
         } catch (FileNotFoundException e) {
             // may not be one...
+        } finally {
+            if (pendingIs != null)
+                pendingIs.close();
         }
         
         // Create and start the reaper...
