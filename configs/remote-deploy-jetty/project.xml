@@ -57,6 +57,20 @@
             <type>car</type>
         </dependency>
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
             <version>${geronimo_spec_servlet_version}</version>

@@ -50,6 +50,19 @@
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>openejb-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
