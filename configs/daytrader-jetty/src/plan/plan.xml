@@ -3,7 +3,7 @@
     configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
 
     <module>
-        <web>daytrader-web-${pom.currentVersion}.war</web>
+        <web>daytrader-web-${daytrader_version}.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
             configId="Web" parentId="Trade">
             <context-priority-classloader>false</context-priority-classloader>
@@ -508,7 +508,7 @@
         <java>daytrader-streamer-1.0.jar</java>
         <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
             configId="foo"
-            clientConfigId="${pom.groupId}/${pom.artifactId}-streamer-client/${pom.currentVersion}/car">
+            clientConfigId="${pom.groupId}/${pom.artifactId}-streamer-client/${daytrader_version}/car">
             <resource>
                 <external-rar>activemq/activemq-ra/${activemq_version}/rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"

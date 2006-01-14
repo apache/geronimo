@@ -64,6 +64,7 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
@@ -816,6 +817,7 @@ public class DatabasePoolPortlet extends BasePortlet {
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
                 connector.setConfigID("user/database-pool-"+data.getName() + "/1/car");
+                connector.setParentID("geronimo/j2ee-server/" + GeronimoVersion.GERONIMO_VERSION + "/car");
                 // Use a parentId of null to pick up the default
                 if(data.jar1 != null && !data.jar1.equals("")) {
                     Dependency dep = new Dependency();

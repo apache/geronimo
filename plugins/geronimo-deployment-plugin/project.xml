@@ -32,7 +32,7 @@
     <package>org.apache.geronimo</package>
     <logo></logo>
 
-    <currentVersion>1.0.0</currentVersion>
+    <currentVersion>1.0.1</currentVersion>
 
     <dependencies>
         <dependency>

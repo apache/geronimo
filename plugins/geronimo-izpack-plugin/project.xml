@@ -23,18 +23,18 @@
     <id>geronimo-izpack-plugin</id>
     <name>Geronimo :: IZPack Installer Build Plugin</name>
     <description>A plugin used to build an IZPack based installer for Geronimo</description>
-    <currentVersion>1.0</currentVersion>
+    <currentVersion>1.0.1-SNAPSHOT</currentVersion>
 
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>izpack</groupId>

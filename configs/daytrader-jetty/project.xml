@@ -72,7 +72,7 @@
     <dependency>
         <groupId>geronimo</groupId>
         <artifactId>daytrader-ear</artifactId>
-        <version>${pom.currentVersion}</version>
+        <version>${daytrader_version}</version>
             <type>ear</type>
     </dependency>
 

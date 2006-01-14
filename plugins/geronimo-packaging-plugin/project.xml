@@ -22,13 +22,13 @@
     <groupId>geronimo</groupId>
     <id>geronimo-packaging-plugin</id>
     <name>Geronimo :: Maven Packaging Plugin</name>
-    <currentVersion>1.0.1</currentVersion>
+    <currentVersion>1.0.2</currentVersion>
 
     <dependencies>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
-            <version>1.0</version>
+            <version>1.0.1-SNAPSHOT</version>
             <properties>
                 <packaging.classpath>true</packaging.classpath>
             </properties>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
-            <version>1.0</version>
+            <version>1.0.1-SNAPSHOT</version>
             <properties>
                 <packaging.classpath>true</packaging.classpath>
             </properties>
@@ -97,7 +97,7 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-service-builder</artifactId>
-            <version>1.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
