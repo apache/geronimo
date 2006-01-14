@@ -65,11 +65,11 @@ them in your local maven repo as .car files.
 
 To run the server :
 
-      $> cd assemblies/j2ee-jetty-server/target/geronimo-1.0-SNAPSHOT
+      $> cd assemblies/j2ee-jetty-server/target/geronimo-1.1-SNAPSHOT
 
 or
 
-      $> cd assemblies/j2ee-tomcat-server/target/geronimo-1.0-SNAPSHOT
+      $> cd assemblies/j2ee-tomcat-server/target/geronimo-1.1-SNAPSHOT
 
 and finally execute the following command:
 

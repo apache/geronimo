@@ -50,6 +50,6 @@ done
 PRGDIR=`dirname "$PRG"`
 SERVER_JAR=$PRGDIR/server.jar
 
-GERONIMO_HOME=$PRGDIR/../../../assemblies/j2ee-tomcat-server/target/geronimo-1.0-SNAPSHOT
+GERONIMO_HOME=$PRGDIR/../../../assemblies/j2ee-tomcat-server/target/geronimo-1.1-SNAPSHOT
 echo $GERONIMO_HOME
-java -jar ${GERONIMO_HOME}/bin/deployer.jar --verbose --user system --password manager deploy ~/dev/geronimo/sandbox/daytrader/modules/ear/target/daytrader-ear-1.0-SNAPSHOT.ear dayTrader-plan.xml
+java -jar ${GERONIMO_HOME}/bin/deployer.jar --verbose --user system --password manager deploy ~/dev/geronimo/sandbox/daytrader/modules/ear/target/daytrader-ear-1.1-SNAPSHOT.ear dayTrader-plan.xml

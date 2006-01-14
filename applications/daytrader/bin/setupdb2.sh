@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export GERONIMO_HOME=~/geronimo/geronimo/modules/assembly/target/geronimo-1.0-SNAPSHOT
+export GERONIMO_HOME=~/geronimo/geronimo/modules/assembly/target/geronimo-1.1-SNAPSHOT
 
 mkdir ${GERONIMO_HOME}/repository/db2
 mkdir ${GERONIMO_HOME}/repository/db2/jars

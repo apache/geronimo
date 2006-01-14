@@ -28,10 +28,10 @@ Configuration for the Apache Tomcat web container
     >
 
     <dependency>
-        <uri>geronimo/jars/geronimo-tomcat-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-tomcat-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-system-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-system-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
         <uri>org.apache.geronimo.specs/jars/geronimo-j2ee_1.4_spec-1.0.jar</uri>

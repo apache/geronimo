@@ -1,4 +1,4 @@
-export GERONIMO_HOME=~/geronimo/geronimo/modules/assembly/target/geronimo-1.0-SNAPSHOT
+export GERONIMO_HOME=~/geronimo/geronimo/modules/assembly/target/geronimo-1.1-SNAPSHOT
 rm  ${GERONIMO_HOME}/var/log/geronimo.log
 
 java -Xdebug -Xnoagent -Xmx512m -Xms512m  -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -jar ${GERONIMO_HOME}/bin/server.jar $1

@@ -19,8 +19,8 @@
 <web-app
     xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
     xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-    configId="geronimo/security-demo/1.0-SNAPSHOT/car"
-    parentId="geronimo/security/1.0-SNAPSHOT/car">
+    configId="geronimo/security-demo/1.1-SNAPSHOT/car"
+    parentId="geronimo/security/1.1-SNAPSHOT/car">
 
 <!--
     configId="geronimo/security-demo/${pom.currentVersion}/car"

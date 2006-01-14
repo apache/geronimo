@@ -65,7 +65,7 @@
         <ant:echo message="Waiting for server to start at: ${instDir}"/>
         <!-- TODO: No way to specify vv -->
         <!-- TODO: Empty id leads to Exception -->
-        <!-- TODO: Use maven properties, e.g. 1.0-SNAPSHOT -->
+        <!-- TODO: Use maven properties, e.g. 1.1-SNAPSHOT -->
         <deploy:waitForStarted
             uri="jmx:rmi://localhost/jndi/rmi:/JMXConnector"
             username="system"

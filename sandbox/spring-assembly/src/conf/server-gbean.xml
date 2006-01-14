@@ -30,62 +30,62 @@
         <uri>geronimo-spec/jars/geronimo-spec-j2ee-jacc-1.0-rc4.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-activation-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-activation-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-j2ee-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-j2ee-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-core-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-core-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-connector-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-connector-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
         <uri>concurrent/jars/concurrent-1.3.4.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-timer-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-timer-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-transaction-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-transaction-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-naming-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-naming-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-security-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-security-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-system-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-system-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-webservices-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-webservices-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>tranql/jars/tranql-1.0-SNAPSHOT.jar</uri>
+        <uri>tranql/jars/tranql-1.1-SNAPSHOT.jar</uri>
     </dependency>
 
     <dependency>
         <uri>openejb/jars/openejb-core-2.0-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>tmporb/jars/tmporb-orb-1.0-SNAPSHOT.jar</uri>
+        <uri>tmporb/jars/tmporb-orb-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>tmporb/jars/tmporb-orb-omg-1.0-SNAPSHOT.jar</uri>
+        <uri>tmporb/jars/tmporb-orb-omg-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>tmporb/jars/tmporb-orb-tools-1.0-SNAPSHOT.jar</uri>
+        <uri>tmporb/jars/tmporb-orb-tools-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>tmporb/jars/tmporb-tools-1.0-SNAPSHOT.jar</uri>
+        <uri>tmporb/jars/tmporb-tools-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>tmporb/jars/tmporb-ins-1.0-SNAPSHOT.jar</uri>
+        <uri>tmporb/jars/tmporb-ins-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>tmporb/jars/tmporb-pss-1.0-SNAPSHOT.jar</uri>
+        <uri>tmporb/jars/tmporb-pss-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
         <uri>geronimo-spec/jars/geronimo-spec-corba-2.3-rc4.jar</uri>
@@ -114,10 +114,10 @@
 
 
     <dependency>
-        <uri>geronimo/jars/geronimo-jetty-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-jetty-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-jmxremoting-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-jmxremoting-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
         <uri>howl/jars/howl-logger-0.1.8.jar</uri>
@@ -140,10 +140,10 @@
     </dependency>
 
     <dependency>
-        <uri>geronimo/jars/geronimo-common-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-common-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
-        <uri>geronimo/jars/geronimo-client-1.0-SNAPSHOT.jar</uri>
+        <uri>geronimo/jars/geronimo-client-1.1-SNAPSHOT.jar</uri>
     </dependency>
 
     <dependency>
@@ -151,7 +151,7 @@
     </dependency>
 
     <dependency>
-         <uri>geronimo/jars/geronimo-axis-1.0-SNAPSHOT.jar</uri>
+         <uri>geronimo/jars/geronimo-axis-1.1-SNAPSHOT.jar</uri>
     </dependency>
     <dependency>
         <uri>axis/jars/axis-1.2.1-SNAPSHOT.jar</uri>
@@ -164,7 +164,7 @@
     </dependency>
 
     <dependency>
-         <uri>geronimo/jars/geronimo-webservices-1.0-SNAPSHOT.jar</uri>
+         <uri>geronimo/jars/geronimo-webservices-1.1-SNAPSHOT.jar</uri>
     </dependency>
 
     <dependency>

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#export GERONIMO_HOME=/home/hogstrom/geronimo/geronimo/modules/assembly/target/geronimo-1.0-SNAPSHOT
+#export GERONIMO_HOME=/home/hogstrom/geronimo/geronimo/modules/assembly/target/geronimo-1.1-SNAPSHOT
 
 java -jar ${GERONIMO_HOME}/bin/deployer.jar --user system --password manager stop Trade
 #java -jar ${GERONIMO_HOME}/bin/deployer.jar --user system --password manager stop TradeDataSource

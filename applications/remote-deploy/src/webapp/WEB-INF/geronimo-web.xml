@@ -3,11 +3,11 @@
 <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
          xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
          xmlns:cfg="http://geronimo.apache.org/xml/ns/deployment-1.0"
-         configId="geronimo/remote-deploy/1.0-SNAPSHOT/car">
+         configId="geronimo/remote-deploy/1.1-SNAPSHOT/car">
     <cfg:dependency>
         <cfg:groupId>geronimo</cfg:groupId>
         <cfg:artifactId>geronimo-remote-deploy-lib</cfg:artifactId>
-        <cfg:version>1.0-SNAPSHOT</cfg:version>
+        <cfg:version>1.1-SNAPSHOT</cfg:version>
     </cfg:dependency>
     <context-root>/remote-deploy</context-root>
     <context-priority-classloader>true</context-priority-classloader>

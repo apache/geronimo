@@ -48,7 +48,7 @@
             <fileset dir="target/classes"/>
             <manifest>
                 <attribute name="Main-Class" value="org.gbean.geronimo.Daemon"/>
-                <attribute name="Class-Path" value="../lib/gbean-kernel-1.0-SNAPSHOT.jar ../lib/geronimo-kernel-1.0-SNAPSHOT.jar ../lib/geronimo-system-1.0-SNAPSHOT.jar ../lib/log4j-1.2.8.jar ../lib/commons-logging-1.0.4.jar ../lib/cglib-nodep-2.1.jar ../lib/mx4j-3.0.1.jar ../lib/spring-1.2.jar"/>
+                <attribute name="Class-Path" value="../lib/gbean-kernel-1.1-SNAPSHOT.jar ../lib/geronimo-kernel-1.1-SNAPSHOT.jar ../lib/geronimo-system-1.1-SNAPSHOT.jar ../lib/log4j-1.2.8.jar ../lib/commons-logging-1.0.4.jar ../lib/cglib-nodep-2.1.jar ../lib/mx4j-3.0.1.jar ../lib/spring-1.2.jar"/>
                 <attribute name="Default-Location" value="conf/server.xml"/>
             </manifest>
         </jar>
