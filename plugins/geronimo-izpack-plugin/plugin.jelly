@@ -61,14 +61,15 @@
                 <ant:include name="STATUS"/>
             </ant:fileset>
         </ant:copy>
-
+        <!-- this dir is needed after install -->
+        <ant:mkdir dir="${geronimo.assembly.dest}/var/temp"/>
     </goal>
 
 
     <goal name="izpack:izpack-installer-build" prereqs="izpack:izpack-prepare" >
         <echo>IZPack installer build is running.</echo>
         <echo>IZPack Version is ${izpack_version}</echo>
-        <ant:java jar="${maven.repo.local}/izpack/jars/standalone-compiler-${izpack_version}.jar"
+        <ant:java jar="${maven.repo.local}/geronimo/jars/standalone-compiler-custom-${izpack_version}.jar"
               fork="true" >
            <arg value="${geronimo.assembly.dest}/geronimo-izpack.xml" />
            <arg value="-o" />
