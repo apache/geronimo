@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev: 330381 $ $Date: 2005-11-02 18:02:55 -0500 (Wed, 02 Nov 2005) $ -->
+<project>
+    <pomVersion>3</pomVersion>
+    <extend>../../etc/project.xml</extend>
+
+    <!-- ===================== -->
+    <!-- Module Identification -->
+    <!-- ===================== -->
+    <name>Geronimo :: Installer Support</name>
+    <id>geronimo-installer-support</id>
+    <shortDescription>Geronimo Installer Support</shortDescription>
+    <description>Geronimo Installer Support</description>
+    <url>http://geronimo.apache.org/modules/installer/</url>
+    <siteDirectory>/www/geronimo.apache.org/modules/installer</siteDirectory>
+    <distributionDirectory>/www/incubator.apache.org/projects/geronimo/builds/installer</distributionDirectory>
+    <package>com.izforge.izpack.panels</package>
+
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+    <dependencies>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${geronimo_dependency_plugin_version}</version>
+            <type>plugin</type>
+        </dependency>
+
+	<dependency>
+            <groupId>izpack</groupId>
+            <artifactId>installer</artifactId>
+            <version>${izpack_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>izpack</groupId>
+            <artifactId>standalone-compiler</artifactId>
+            <version>${izpack_version}</version>
+        </dependency>
+
+     </dependencies>
+
+
+    <!-- =================== -->
+    <!-- Build Specification -->
+    <!-- =================== -->
+    <build>
+        <unitTest>
+            <includes>
+	        <include>**/**Test.java</include>
+            </includes>
+            <resources>
+                <resource>
+                    <directory>${basedir}/src/test-resources</directory>
+                </resource>
+            </resources>
+        </unitTest>
+    </build>
+</project>

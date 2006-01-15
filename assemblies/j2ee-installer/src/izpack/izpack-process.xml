@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <processing>
-    <!-- J2EE Features -->
-    <job name="Success!">
-	    <executefile name="$JAVA_HOME/bin/java">
-		    <arg>-classpath</arg>
-		    <arg>$INSTALL_PATH/repository/geronimo/jars/geronimo-system-${GeronimoVersion}.jar</arg>
-		    <arg>org.apache.geronimo.system.configuration.cli.AddStartupConfiguration</arg>
-		    <arg>$INSTALL_PATH/var/config/config.list</arg>
-		    <arg>org/apache/geronimo/RMINaming</arg>
-	    </executefile>
-	    <executeForPack name="J2EE Features"/>
+    <!-- Server Features -->
+    <job name="Installing Configurations">
+        <executefile name="$JAVA_HOME/bin/java">
+          <arg>-classpath</arg>
+          <arg>${INSTALL_PATH}/repository/xerces/jars/xmlParserAPIs-${xmlParserApisVersion}.jar${CPES}${INSTALL_PATH}/repository/xerces/jars/xercesImpl-${xercesVersion}.jar${CPES}${INSTALL_PATH}/var/temp/geronimo-installer-processing-${GeronimoVersion}.jar</arg>
+            <arg>org.apache.geronimo.installer.processing.ConfigInstaller</arg>
+            <arg>$INSTALL_PATH</arg>
+            <arg>var/config/configure.xml</arg>
+            <arg>TRACE=${TRACE}</arg>
+        </executefile>
+        <executeForPack name="Server"/>
     </job>
     <!-- old processing
     <job name="Activating RMI naming configuration">

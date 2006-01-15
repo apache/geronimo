@@ -20,11 +20,17 @@
 <project>
     <pomVersion>3</pomVersion>
     <extend>../../etc/project.xml</extend>
-    <id>geronimo-installer</id>
+    <id>geronimo-installer-assembly</id>
     <name>Geronimo Assembly for an IZPack Installer</name>
     <description>An assembly of Geronimo for the IZPack installer</description>
 
     <dependencies>
+        <!-- IzPack extension dependency (modules/installer-support) -->
+        <dependency>
+           <groupId>geronimo</groupId>
+           <artifactId>geronimo-installer-support</artifactId>
+           <version>${pom.currentVersion}</version>
+        </dependency>
         <!-- plugin we use -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -48,6 +54,7 @@
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
                 <geronimo.assemble.executable>bin/server.jar</geronimo.assemble.executable>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -57,6 +64,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -66,6 +74,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -74,7 +83,8 @@
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>
-                <geronimo.assemble>install</geronimo.assemble>
+              <geronimo.assemble>install</geronimo.assemble>
+              <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -84,6 +94,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>CORBA.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -93,6 +104,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Jetty.Web.Container</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -102,6 +114,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Tomcat.Web.Container</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -111,7 +124,18 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>LDAP.Server</geronimo.pack>
             </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>ldap-realm</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>LDAP.Server</geronimo.pack>
+          </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -120,6 +144,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Sample.Database.Pool</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -129,6 +154,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>JMS.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -138,6 +164,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>JMS.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -147,6 +174,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Server</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -156,6 +184,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -165,6 +194,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -174,6 +204,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Jetty.Web.Container</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -183,26 +214,29 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Jetty.Welcome.Application</geronimo.pack>
             </properties>
         </dependency>
-	<dependency>
-		<groupId>geronimo</groupId>
-		<artifactId>servlets-examples-jetty</artifactId>
-		<type>car</type>
-		<version>${pom.currentVersion}</version>
-		<properties>
-			<geronimo.assemble>install</geronimo.assemble>
-		</properties>
-	</dependency>
-	<dependency>
-		<groupId>geronimo</groupId>
-		<artifactId>jsp-examples-jetty</artifactId>
-		<type>car</type>
-		<version>${pom.currentVersion}</version>
-		<properties>
-			<geronimo.assemble>install</geronimo.assemble>
-		</properties>
-	</dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>servlets-examples-jetty</artifactId>
+        <type>car</type>
+        <version>${pom.currentVersion}</version>
+        <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Jetty.Sample.Applications</geronimo.pack>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <artifactId>jsp-examples-jetty</artifactId>
+        <type>car</type>
+        <version>${pom.currentVersion}</version>
+        <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Jetty.Sample.Applications</geronimo.pack>
+        </properties>
+    </dependency>
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>webconsole-jetty</artifactId>
@@ -210,6 +244,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Jetty.Web.Management.Console</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -219,6 +254,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Jetty.Web.Container</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -228,6 +264,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Jetty.Web.Container</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -237,6 +274,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Jetty.UDDI.Server</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -246,7 +284,28 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Tomcat.Web.Container</geronimo.pack>
             </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>ldap-demo-tomcat</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Tomcat.Sample.Applications</geronimo.pack>
+          </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>ldap-demo-jetty</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Jetty.Sample.Applications</geronimo.pack>
+          </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -255,7 +314,28 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Tomcat.Welcome.Application</geronimo.pack>
             </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>servlets-examples-tomcat</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Tomcat.Sample.Applications</geronimo.pack>
+          </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>jsp-examples-tomcat</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Tomcat.Sample.Applications</geronimo.pack>
+          </properties>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
@@ -264,6 +344,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Tomcat.Web.Management.Console</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -273,6 +354,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Tomcat.Web.Container</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -282,6 +364,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Tomcat.Web.Container</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -291,8 +374,50 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>Tomcat.UDDI.Server</geronimo.pack>
             </properties>
         </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>daytrader-derby-jetty</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Daytrader.for.Jetty</geronimo.pack>
+          </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>daytrader-derby-jetty-streamer-client</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Daytrader.for.Jetty</geronimo.pack>
+          </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>daytrader-derby-tomcat</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Daytrader.for.Tomcat</geronimo.pack>
+          </properties>
+        </dependency>
+        <dependency>
+          <groupId>geronimo</groupId>
+          <artifactId>daytrader-derby-tomcat-streamer-client</artifactId>
+          <type>car</type>
+          <version>${pom.currentVersion}</version>
+          <properties>
+            <geronimo.assemble>install</geronimo.assemble>
+            <geronimo.pack>Daytrader.for.Tomcat</geronimo.pack>
+          </properties>
+        </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>client-system</artifactId>
@@ -301,6 +426,7 @@
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
                 <geronimo.assemble.executable>bin/client.jar</geronimo.assemble.executable>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -310,6 +436,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -319,6 +446,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
@@ -328,6 +456,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
+                <geronimo.pack>CORBA.Features</geronimo.pack>
             </properties>
         </dependency>
 
@@ -482,6 +611,7 @@
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
                 <geronimo.assemble.executable>bin/deployer.jar</geronimo.assemble.executable>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
 
@@ -529,6 +659,7 @@
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
                 <geronimo.assemble.executable>bin/shutdown.jar</geronimo.assemble.executable>
+                <geronimo.pack>Server</geronimo.pack>
             </properties>
         </dependency>
 

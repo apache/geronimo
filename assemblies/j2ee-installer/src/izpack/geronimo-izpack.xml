@@ -8,59 +8,69 @@
         <javaversion>1.4</javaversion>
     </info>
     <variables>
+       <variable name="pom.currentVersion"  value="${pom.currentVersion}" />
+       <variable name="xercesVersion" value="${xerces_version}" />
+       <variable name="xmlParserApisVersion" value="${xml_parser_apis_version}" />
+       <variable name="TOMCAT_WEB_SERVER_NAME"  value="Tomcat" />
+       <variable name="JETTY_WEB_SERVER_NAME"  value="Jetty" />
+       <variable name="NO_WEB_SERVER_NAME"  value="JettyORTomcat" />
+       <variable name="JETTY_WEBBUILDER_NAMESPACE" value="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0" />
+       <variable name="TOMCAT_WEBBUILDER_NAMESPACE" value="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0" />
+       <variable name="NO_WEBBUILDER_NAMESPACE" value="http://geronimo.apache.org/xml/ns/j2ee/web/jettyORtomcat-1.0" />
     </variables>
     <guiprefs width="640" height="480" resizable="yes">
-	    <laf name="liquid">
-		    <os family="unix"/>
-	    </laf>
+       <laf name="liquid">
+          <os family="unix"/>
+       </laf>
     </guiprefs>
     <locale>
         <langpack iso3="eng"/>
     </locale>
     <resources>
-	<res id="Installer.image" src="${InstallSource}/izpack/geronimo_banner_vert.gif" />
+        <res id="Installer.image" src="${InstallSource}/izpack/geronimo_banner_vert.gif" />
         <res id="LicencePanel.licence" src="${InstallSource}/LICENSE.txt"/>
-	<res id="InfoPanel.info" src="${InstallSource}/RELEASE-NOTES-1.0.txt"/>
-	<res id="userInputSpec.xml" src="${InstallSource}/izpack-user-input.xml" />
-<!--	<res id="ProcessPanel.Spec.xml" src="${InstallSource}/izpack-process.xml" /> -->
-	<res id="ImgPacksPanel.img.0" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.1" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.2" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.3" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.4" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.5" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.6" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.7" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.8" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.9" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.10" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.11" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.12" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.13" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.14" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.15" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.16" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.17" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.18" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.19" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
-	<res id="ImgPacksPanel.img.20" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="InfoPanel.info" src="${InstallSource}/RELEASE-NOTES-${ReleaseNotesVersion}.txt"/>
+        <res id="userInputSpec.xml" src="${InstallSource}/izpack-user-input.xml" />
+        <res id="ProcessPanel.Spec.xml" src="${InstallSource}/izpack-process.xml" />
+        <res id="ImgPacksPanel.img.0" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.1" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.2" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.3" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.4" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.5" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.6" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.7" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.8" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.9" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.10" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.11" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.12" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.13" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.14" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.15" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.16" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.17" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.18" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.19" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
+        <res id="ImgPacksPanel.img.20" src="${InstallSource}/izpack/geronimo_med_vert.gif" />
     </resources>
     <panels>
         <panel classname="HelloPanel"/>
         <panel classname="LicencePanel"/>
         <panel classname="TargetPanel"/>
         <panel classname="ImgPacksPanel"/>
-        <panel classname="UserInputPanel"/>
-        <panel classname="UserInputPanel"/>
-        <panel classname="UserInputPanel"/>
-        <panel classname="UserInputPanel"/>
-        <panel classname="UserInputPanel"/>
-        <panel classname="UserInputPanel"/>
-        <panel classname="UserInputPanel"/>
-        <panel classname="UserInputPanel"/>
-	<panel classname="UserInputPanel"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
         <panel classname="InstallPanel"/>
-<!--        <panel classname="ProcessPanel"/> -->
+        <panel classname="ProcessPanel"/>
         <panel classname="InfoPanel"/>
         <panel classname="FinishPanel"/>
     </panels>
@@ -68,20 +78,21 @@
         <pack name="Server" required="yes">
             <!-- o/a/g/System -->
             <description>Core Geronimo installation.  This includes the code and libraries necessary for all the features described below.  The subsequent options simply let you select what should be run by default when the server is started.  Anything not selected on this screen could be manually enabled later.</description>
-	    <file src="${InstallSource}/BUILDING.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/LICENSE.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/README.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/RELEASE-NOTES-1.0.txt" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/bin" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/lib" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/config-store" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/repository" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/schema" targetdir="$INSTALL_PATH"/>
-	    <file src="${InstallSource}/var" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/BUILDING.txt" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/LICENSE.txt" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/README.txt" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/RELEASE-NOTES-${ReleaseNotesVersion}.txt" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/bin" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/lib" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/config-store" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/repository" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/schema" targetdir="$INSTALL_PATH"/>
+            <file src="${InstallSource}/var" targetdir="$INSTALL_PATH"/>
             <!--singlefile src="var/config/config.izpack.list" target="$INSTALL_PATH/var/config/config.list"/-->
             <parsable targetfile="$INSTALL_PATH/var/security/users.properties" type="javaprop"/>
             <parsable targetfile="$INSTALL_PATH/var/security/groups.properties" type="javaprop"/>
             <parsable targetfile="$INSTALL_PATH/var/config/config.xml" type="xml"/>
+            <parsable targetfile="$INSTALL_PATH/var/config/configure.xml" type="xml"/>
             <executable targetfile="$INSTALL_PATH/bin/deploy.sh" type="bin" stage="never" />
             <executable targetfile="$INSTALL_PATH/bin/geronimo.sh" type="bin" stage="never" />
             <executable targetfile="$INSTALL_PATH/bin/setjavaenv.sh" type="bin" stage="never" />
@@ -93,7 +104,7 @@
             <!-- o/o/g/Server -->
             <!-- o/o/g/RuntimeDeployer -->
             <!-- o/o/g/SystemDatabase -->
-            <description>If selected, basic features for J2EE support will be enabled, including a J2EE Web container, a JMS broker, an EJB server, an embedded Derby database, an administrative security realm, etc.  If not selected, these features will be installed but would need to be manually activated later.</description>
+            <description>If selected, basic features for J2EE support will be enabled. Enabling J2EE support is required before selecting a J2EE Web container, a JMS broker, an EJB server, an embedded Derby database, an administrative security realm, etc.  If not selected, these additional features may be installed, but will not be active in the configuration.</description>
             <depends packname="Server" />
         </pack>
 
@@ -114,7 +125,7 @@
         <pack name="Jetty Web Container" required="no" preselected="yes">
             <!-- o/o/g/Jetty -->
             <!-- o/o/g/JettyRuntimeDeployer -->
-            <description>The Jetty Web Container</description>
+            <description>The Jetty Web Container.  Either the Jetty or Tomcat web container may be selected, but not both.</description>
             <depends packname="J2EE Features" />
         </pack>
         <pack name="Jetty Welcome Application" required="no" preselected="yes">
@@ -132,20 +143,27 @@
             <description>A UDDI server that runs in Geronimo, using the jUDDI package.</description>
             <depends packname="Jetty Web Container" />
         </pack>
-
+        <pack name="Jetty Sample Applications" required="no" preselected="yes" >
+            <description>Sample applications for Jetty</description>
+            <depends packname="Jetty Web Container" />
+        </pack>
+        <pack name="Daytrader for Jetty" required="no" preselected="yes" >
+          <description>Daytrader sample application for Jetty</description>
+          <depends packname="Jetty Web Container" />
+        </pack>
         <!-- TOMCAT-->
-        <pack name="Tomcat Web Container" required="no" preselected="yes">
+        <pack name="Tomcat Web Container" required="no" preselected="no">
             <!-- o/o/g/Tomcat -->
             <!-- o/o/g/TomcatRuntimeDeployer -->
-            <description>The Tomcat Web Container</description>
+            <description>The Tomcat Web Container. Either the Tomcat or the Jetty web container may be selected, but not both.</description>
             <depends packname="J2EE Features" />
         </pack>
-        <pack name="Tomcat Welcome Application" required="no" preselected="yes">
+        <pack name="Tomcat Welcome Application" required="no" preselected="no">
              <!-- o/o/g/Console/Tomcat -->
             <description>Simple welcome application normally at localhost:8080/</description>
              <depends packname="Tomcat Web Container" />
          </pack>
-         <pack name="Tomcat Web Management Console" required="no" preselected="yes">
+         <pack name="Tomcat Web Management Console" required="no" preselected="no">
              <!-- o/o/g/Console/Tomcat -->
              <description>A web-based management console which allows an administrator to log in and view and customize the Geronimo server configuration (such as network ports, logging, thread pools, application deployments, etc.).  The console login is the same administrative login you'll be setting in the next step.  The console can typically be reached at http://localhost:8080/console/ though the default port may be changed on the web configuration screen.  If not selected, the console will be installed but would need to be manually activated later.</description>
              <depends packname="Tomcat Web Container" />
@@ -155,31 +173,46 @@
              <description>A UDDI server that runs in Geronimo, using the jUDDI package.</description>
              <depends packname="Tomcat Web Container" />
          </pack>
+         <pack name="Tomcat Sample Applications"  required="no" preselected="no" >
+            <description>Sample applications for Tomcat</description>
+            <depends packname="Tomcat Web Container" />
+        </pack>
+        <pack name="Daytrader for Tomcat" required="no" preselected="no" >
+          <description>Daytrader sample application for Tomcat</description>
+          <depends packname="Tomcat Web Container" />
+        </pack>
 
         <pack name="LDAP Server" required="no" preselected="no">
             <!-- o/o/g/Directory -->
             <description>An LDAP directory server that runs in Geronimo, using the Apache Directory package.  This runs on the non-standard port of 1389 by default, so the server can start as a non-root user.  If not selected, this configuration will be available but would need to be manually activated later.</description>
             <depends packname="J2EE Features" />
         </pack>
+        <pack name="SMTP Transport" required="no" preselected="no">
+          <!-- o/o/g/Directory -->
+          <description>Select the SMTP Transport functionality to enable JavaMail applications in Geronimo.  Outbound JavaMail is sent through the SMTP Transport to a specified mail host.</description>
+          <depends packname="J2EE Features" />
+        </pack>
         <pack name="Sample Database Pool" required="no" preselected="no">
             <!-- o/o/g/DefaultDatabase -->
             <description>A sample embedded database, using the Derby RDBMS.  If selected, this creates a database pool that connects to the "DefaultDatabase" database running in the embedded Derby installation.  If not selected, this configuration will be available but would need to be manually activated later.  The "DefaultDatabase" database will be created the first time this configuration is run.</description>
             <depends packname="J2EE Features" />
         </pack>
-        <pack name="Spring Integration" required="no" preselected="no">
+        <!-- pack name="Spring Integration" required="no" preselected="no"-->
             <!-- o/o/g/SpringRuntime -->
             <!-- o/o/g/SpringDeployer -->
-            <description>Features to run Spring applications in Geronimo without any additional J2EE packaging.  This is currently working but not being actively developed.  If not selected, these features will be installed but would need to be manually activated later.</description>
+            <!--description>Features to run Spring applications in Geronimo without any additional J2EE packaging.  This is currently working but not being actively developed.  If not selected, these features will be installed but would need to be manually activated later.</description>
             <depends packname="J2EE Features" />
-        </pack>
-        <pack name="JMX Debug Web Application" required="no" preselected="yes">
+        </pack-->
+        <!--pack name="Documentation" required="no" preselected="yes">
+            <description>Geronimo documentation.</description>
+            <file src="${InstallSource}/docs" targetdir="$INSTALL_PATH"/>
+        </pack-->        
+        <!--<pack name="JMX Debug Web Application" required="no" preselected="yes"> -->
             <!-- o/o/g/DebugConsole -->
+<!--
             <description>A web application that lets you display the JMX data from a running Geronimo server.  This can be useful to see exactly what features are enabled in Geronimo and to help resolve resource mapping failures.  However, it is not very user-friendly compared to, for example, the web management console.  The debug application can typically be reached at http://localhost:8080/debug-tool/ though the default port may be changed on the web configuration screen.  If not selected, the JMX debug application will be installed but would need to be manually activated later.</description>
             <depends packname="Jetty Web Container" />
         </pack>
-	<pack name="Geronimo Sample Applications" required="no" preselected="yes">
-		<description>Install sample Tomcat and Jetty applications</description>
-		<depends packname="Server" />
-	</pack>
+-->
     </packs>
 </installation>

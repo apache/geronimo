@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <userInput>
     <panel order="0">
-        <field type="title" txt="Security Configuration"/>
+        <field type="title" txt="Base Configuration"/>
         <field type="staticText" txt="Please select security options for Geronimo"/>
         <divider/>
         <field type="text" variable="SecurityDefaultUser">
@@ -14,13 +14,25 @@
         </field>
         <field type="rule" variable="PlanRemoteLoginPort">
             <description txt="The network port that should be used to listen for remote login attempts"/>
-            <spec txt="Remote Login Port:" layout="N:5:5" set="0:4242"/>
+            <spec txt="Remote Login Port [4242]:" layout="N:5:5" set="0:4242"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
             <createForPack name="J2EE Features"/>
         </field>
-        <createForPack name="Server"/>
+    <field type="check" variable="J2EE.Features.enable">
+          <description txt="Active at runtime"/>
+        <!--description align="left" txt="Enable J2EE features"
+            id="J2EE.Features.enable.desc" /-->
+        <spec txt="J2EE Features" id="J2EE.Features.enable.field"
+              true="true" false="false" set="true" />
+        <createForPack name="J2EE Features"/>
+    </field>
+    <field type="staticText" txt="Disabling J2EE Features disables dependent runtime features as well.">
+        <createForPack name="J2EE Features"/>
+    </field>
+    <createForPack name="Server"/>
     </panel>
     <panel order="1">
+        <createForPack name="Jetty Web Container"/>
         <field type="title" txt="Jetty Web Configuration"/>
         <field type="staticText" txt="Please select Jetty Web server configuration options for Geronimo"/>
         <divider/>
@@ -29,62 +41,127 @@
             <spec txt="Hostname:" size="50" set="0.0.0.0"/>
         </field>
         <field type="rule" variable="PlanHTTPPort">
-            <description txt="The standard network port that the web container should use"/>
-            <spec txt="HTTP Port:" layout="N:5:5" set="0:8080"/>
+            <!--description txt="The standard network port that the web container should use"/-->
+            <spec txt="HTTP (standard) Port [8080]:" layout="N:5:5" set="0:8080"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
         <field type="rule" variable="PlanHTTPSPort">
-            <description txt="The secure network port that the web container should use"/>
-            <spec txt="HTTPS Port:" layout="N:5:5" set="0:8443"/>
+            <!--description txt="The secure network port that the web container should use"/-->
+            <spec txt="HTTPS (secure) Port [8443]:" layout="N:5:5" set="0:8443"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
         <field type="rule" variable="PlanAJPPort">
-            <description txt="The Apache AJP network port that the web container should use"/>
-            <spec txt="AJP Port:" layout="N:5:5" set="0:8009"/>
+            <!--description txt="The Apache AJP network port that the web container should use"/-->
+            <spec txt="Apache AJP Port [8009]:" layout="N:5:5" set="0:8009"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
-        <field type="text" variable="PlanWebServerName">
-            <description txt="Name of web container (do not modify)"/>
-            <spec txt="Web Server (Do not modify)" size="5" set="Jetty"/>
-        </field>
-        <field type="text" variable="PlanWebBuilderDefaultNamespace">
-            <description txt="Namspace for web plan schema (do not modify)"/>
-            <spec txt="Web plan namespace (Do not modify)" size="53" set="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"/>
-        </field>
+    <field type="check" variable="Jetty.Web.Container.enable">
+          <description txt="Active at runtime"/>
+          <spec txt="Jetty Web Container" id="Jetty.Web.Container.enable.field"
+              true="true" false="false" set="true" />
+          <depends variable="J2EE.Features.enable"/>
+          <exclusiveOf variable="Tomcat.Web.Container.enable"/>
         <createForPack name="Jetty Web Container"/>
+    </field>
+    <field type="check" variable="Jetty.Welcome.Application.enable">
+        <spec txt="Jetty Welcome Application" id="Jetty.Welcome.Application.enable.field"
+              true="true" false="false" set="true" />
+                <depends variable="Jetty.Web.Container.enable"/>
+        <createForPack name="Jetty Welcome Application"/>
+    </field>
+        <field type="check" variable="Jetty.Web.Management.Console.enable">
+          <spec txt="Jetty Web Management Console" id="Jetty.Web.Management.Console.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="Jetty.Web.Container.enable"/>
+          <createForPack name="Jetty Web Management Console"/>
+        </field>
+        <field type="check" variable="Jetty.UDDI.Server.enable">
+          <spec txt="Jetty UDDI Server" id="Jetty.UDDI.Server.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="Jetty.Web.Container.enable"/>
+          <createForPack name="Jetty UDDI Server"/>
+        </field>
+        <field type="check" variable="Jetty.Sample.Applications.enable">
+          <spec txt="Jetty Sample Applications" id="Jetty.Sample.Applications.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="Jetty.Web.Container.enable"/>
+          <createForPack name="Jetty Sample Applications"/>
+        </field>
+        <field type="check" variable="Daytrader.for.Jetty.enable">
+          <spec txt="Daytrader for Jetty" id="Daytrader.for.Jetty.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="Jetty.Web.Container.enable"/>
+          <createForPack name="Daytrader for Jetty"/>
+        </field>
+        <field type="staticText" txt="Jetty and Tomcat may not be enabled concurrently from the installer.">
+          <createForPack name="Tomcat Web Container"/>
+        </field>
     </panel>
     <panel order="2">
+       <createForPack name="Tomcat Web Container"/>
         <field type="title" txt="Tomcat Web Configuration"/>
         <field type="staticText" txt="Please select Tomcat Web server configuration options for Geronimo"/>
         <divider/>
         <field type="text" variable="PlanServerHostname">
             <description txt="Hostname the server should bind to (usually localhost or 0.0.0.0)"/>
             <spec txt="Hostname:" size="50" set="0.0.0.0"/>
-        </field>
+        </field>        
         <field type="rule" variable="PlanHTTPPort2">
-            <description txt="The standard network port that the web container should use"/>
-            <spec txt="HTTP Port:" layout="N:5:5" set="0:8080"/>
+            <!--description txt="The standard network port that the web container should use"/-->
+            <spec txt="HTTP (standard) Port [8080]:" layout="N:5:5" set="0:8080"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
         <field type="rule" variable="PlanHTTPSPort2">
-            <description txt="The secure network port that the web container should use"/>
-            <spec txt="HTTPS Port:" layout="N:5:5" set="0:8443"/>
+            <!--description txt="The secure network port that the web container should use"/-->
+            <spec txt="HTTPS (secure) Port [8443]:" layout="N:5:5" set="0:8443"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
         <field type="rule" variable="PlanAJPPort2">
-            <description txt="The Apache AJP network port that the web container should use"/>
-            <spec txt="AJP Port:" layout="N:5:5" set="0:8009"/>
+            <!--description txt="The Apache AJP network port that the web container should use"/-->
+            <spec txt="Apache AJP Port [8009]:" layout="N:5:5" set="0:8009"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
-        <field type="text" variable="PlanWebServerName">
-            <description txt="Name of web container (do not modify)"/>
-            <spec txt="Web Server (Do not modify)" size="5" set="Tomcat"/>
+        <field type="check" variable="Tomcat.Web.Container.enable">
+          <description txt="Active at runtime"/>
+          <spec txt="Tomcat Web Container" id="Tomcat.Web.Container.enable.field"
+                true="true" false="false" set="false" />
+          <depends variable="J2EE.Features.enable"/>
+          <exclusiveOf variable="Jetty.Web.Container.enable"/>
+          <createForPack name="Tomcat Web Container"/>
         </field>
-        <field type="text" variable="PlanWebBuilderDefaultNamespace">
-            <description txt="Namspace for web plan schema (do not modify)"/>
-            <spec txt="Web plan namespace (Do not modify)" size="55" set="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"/>
+        <field type="check" variable="Tomcat.Welcome.Application.enable">
+          <spec txt="Tomcat Welcome Application" id="Tomcat.Welcome.Application.enable.field"
+                true="true" false="false" set="false" />
+          <depends variable="Tomcat.Web.Container.enable"/>
+          <createForPack name="Tomcat Welcome Application"/>
         </field>
-        <createForPack name="Tomcat Web Container"/>
+        <field type="check" variable="Tomcat.Web.Management.Console.enable">
+          <spec txt="Tomcat Web Management Console" id="Tomcat.Web.Management.Console.enable.field"
+                true="true" false="false" set="false" />
+          <depends variable="Tomcat.Web.Container.enable"/>
+          <createForPack name="Tomcat Web Management Console"/>
+        </field>
+        <field type="check" variable="Tomcat.UDDI.Server.enable">
+          <spec txt="Tomcat UDDI Server" id="Tomcat.UDDI.Server.enable.field"
+                true="true" false="false" set="false" />
+          <depends variable="Tomcat.Web.Container.enable"/>
+          <createForPack name="Tomcat UDDI Server"/>
+        </field>
+        <field type="check" variable="Tomcat.Sample.Applications.enable">
+          <spec txt="Tomcat Sample Applications" id="Tomcat.Sample.Applications.enable.field"
+                true="true" false="false" set="false" />
+          <depends variable="Tomcat.Web.Container.enable"/>
+          <createForPack name="Tomcat Sample Applications"/>
+        </field>
+        <field type="check" variable="Daytrader.for.Tomcat.enable">
+          <spec txt="Daytrader for Tomcat" id="Daytrader.for.Tomcat.enable.field"
+                true="true" false="false" set="false" />
+          <depends variable="Tomcat.Web.Container.enable"/>
+          <createForPack name="Daytrader for Tomcat"/>
+        </field>
+        <field type="staticText" txt="Jetty and Tomcat may not be enabled concurrently from the installer.">
+          <createForPack name="Jetty Web Container"/>
+        </field>
     </panel>
     <panel order="3">
         <field type="title" txt="EJB Configuration"/>
@@ -92,13 +169,13 @@
         <divider/>
         <field type="rule" variable="PlanNamingPort">
             <description txt="The network port that the Geronimo naming service should use"/>
-            <spec txt="Naming Port:" layout="N:5:5" set="0:1099"/>
+            <spec txt="Naming Port [1099]:" layout="N:5:5" set="0:1099"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
             <createForPack name="Server"/>
         </field>
         <field type="rule" variable="PlanOpenEJBPort">
             <description txt="The network port that the EJB container should use"/>
-            <spec txt="EJB Port:" layout="N:5:5" set="0:4201"/>
+            <spec txt="EJB Port [4201]:" layout="N:5:5" set="0:4201"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
             <createForPack name="J2EE Features"/>
         </field>
@@ -109,12 +186,13 @@
         </field>
     </panel>
     <panel order="4">
+        <createForPack name="CORBA Features"/>
         <field type="title" txt="CORBA Configuration"/>
         <field type="staticText" txt="Please select CORBA configuration options for Geronimo"/>
         <divider/>
         <field type="rule" variable="PlanIIOPPort">
             <description txt="The network port that the RMI/IIOP listener should use"/>
-            <spec txt="IIOP Port:" layout="N:5:5" set="0:9000"/>
+            <spec txt="IIOP Port [9000]:" layout="N:5:5" set="0:9000"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
         <field type="text" variable="PlanORBSSLHost">
@@ -123,7 +201,7 @@
         </field>
         <field type="rule" variable="PlanORBSSLPort">
             <description txt="The network port that the IIOP ORB should use. Do not change, it cannot be reset from the installer."/>
-            <spec txt="ORB Port:" layout="N:5:5" set="0:2001"/>
+            <spec txt="ORB Port [2001]:" layout="N:5:5" set="0:2001"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
         <field type="text" variable="PlanCOSNamingHost">
@@ -132,63 +210,105 @@
         </field>
         <field type="rule" variable="PlanCOSNamingPort">
             <description txt="The network port that the CORBA Naming Service should use"/>
-            <spec txt="CosNaming Port:" layout="N:5:5" set="0:1050"/>
+            <spec txt="CosNaming Port [1050]:" layout="N:5:5" set="0:1050"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
-        <createForPack name="CORBA Features"/>
+        <field type="check" variable="CORBA.Features.enable">
+          <description txt="Active at runtime"/>
+          <spec txt="CORBA Features" id="CORBA.Features.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="J2EE.Features.enable"/>
+          <createForPack name="CORBA Features"/>
+        </field>
     </panel>
     <panel order="5">
+        <createForPack name="Sample Database Pool"/>
         <field type="title" txt="Derby Configuration"/>
         <field type="staticText" txt="Please configure Derby"/>
         <divider/>
         <field type="rule" variable="PlanDerbyPort">
             <description txt="The network port that the Derby DB should use"/>
-            <spec txt="Derby Port:" layout="N:5:5" set="0:1527"/>
+            <spec txt="Derby Port [1527]:" layout="N:5:5" set="0:1527"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
-            <createForPack name="J2EE Features"/>
+        </field>
+        <field type="check" variable="Sample.Database.Pool.enable">
+          <description txt="Active at runtime"/>
+          <spec txt="Sample Database Pool" id="Sample.Database.Pool.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="J2EE.Features.enable"/>
+          <createForPack name="Sample Database Pool"/>
         </field>
     </panel>
     <panel order="6">
-        <field type="title" txt="Activemq Configuration"/>
+        <createForPack name="JMS Features"/>
+        <field type="title" txt="ActiveMQ Configuration"/>
         <field type="staticText" txt="Please configure activemq services"/>
         <divider/>
         <field type="rule" variable="PlanActiveMQPort">
             <description txt="The network port that the ActiveMQ JMS server should use"/>
-            <spec txt="JMS Port:" layout="N:5:5" set="0:61616"/>
+            <spec txt="JMS Port [61616]:" layout="N:5:5" set="0:61616"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
-        <createForPack name="JMS Features"/>
+        <field type="check" variable="JMS.Features.enable">
+          <description txt="Active at runtime"/>
+          <spec txt="JMS Features" id="JMS.Features.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="J2EE.Features.enable"/>
+          <createForPack name="JMS Features"/>
+        </field>
     </panel>
     <panel order="7">
+        <createForPack name="LDAP Server"/>
         <field type="title" txt="Directory (LDAP) Configuration"/>
         <field type="staticText" txt="Please configure Directory services"/>
         <divider/>
         <field type="rule" variable="PlanLdapPort">
             <description txt="The network port that the directory server should use"/>
-            <spec txt="Directory Port:" layout="N:5:5" set="0:1389"/>
+            <spec txt="Directory Port [1389]:" layout="N:5:5" set="0:1389"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
-        <createForPack name="LDAP Server"/>
+        <field type="check" variable="LDAP.Server.enable">
+          <description txt="Active at runtime"/>
+          <spec txt="LDAP Server" id="LDAP.Server.enable.field"
+                true="true" false="false" set="true" />
+          <depends variable="J2EE.Features.enable"/>
+          <createForPack name="LDAP Server"/>
+        </field>
     </panel>
     <panel order="8">
-	    <field type="title" txt="Samples Configuration"/>
-	    <field type="staticText" txt="Select samples to install" />
-	    <divider/>
-	    <field type="check" variable="jettySamples.1">
-		    <Description align="left"
-				 txt="Jetty Samples"
-				 id="jettySamplesDesc.1"/>
-		    <spec txt="Jetty Samples"
-			  id="jettySamples.label.1" true="on" false="off"
-			  set="false"/>
-	    </field>
-	    <field type="check" variable="tomcatSamples.1">
-		    <Description align="left"
-				 txt="Tomcat Samples"
-				 id="tomcatSamplesDesc.1"/>
-		    <spec txt="Tomcat Samples"
-			  id="tomcatSamples.label.1" true="on" false="off"
-			  set="false"/>
-	    </field>
+      <createForPack name="SMTP Transport"/>
+      <field type="title" txt="SMTP Transport Configuration"/>
+      <field type="staticText" txt="Configure the SMTP Transport"/>
+      <divider/>
+      <field type="text" variable="PlanSMTPHost">
+        <description txt="The network host to use for outgoing SMTP connections"/>
+        <spec txt="SMTP Host:" size="50" set="localhost"/>
+      </field>
+      <field type="rule" variable="PlanSMTPPort">
+        <description txt="The network port to use for outgoing SMTP connections"/>
+        <spec txt="SMTP Port [25]:" layout="N:5:5" set="0:25"/>
+        <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+      </field>
+      <field type="check" variable="SMTP.Transport.enable">
+        <description txt="Active at runtime"/>
+        <spec txt="SMTP Transport" id="SMTP.Transport.enable.field"
+              true="true" false="false" set="true" />
+        <depends variable="J2EE.Features.enable"/>
+        <createForPack name="SMTP Transport"/>
+      </field>
+    </panel>
+    <panel order="9">
+            <field type="title" txt="Configuration Checkpoint"/>
+            <field type="staticText" txt="Congratulations!"/>
+            <field type="staticText" txt="        Geronimo configuration is complete." />
+            <divider/>
+            <field type="staticText" txt="Press 'Next' to continue with file installation or" />
+            <field type="staticText" txt="press 'Previous' to back up and change options." />
+            <field type="staticText" txt=".." />
+            <field type="staticText" txt=".." />
+            <field type="staticText" txt=".." />
+            <field type="staticText" txt=".." />
+            <field type="staticText" txt=".." />
+            <field type="staticText" txt=".." />
     </panel>
 </userInput>

@@ -7,7 +7,7 @@
 <!-- ======================================================== -->
 
 <attributes xmlns="http://geronimo.apache.org/xml/ns/attributes">
-    <configuration name="geronimo/rmi-naming/${pom.currentVersion}/car" load="true">
+    <configuration name="geronimo/rmi-naming/${pom.currentVersion}/car" load="${J2EE.Features.enable}">
         <gbean name="RMIRegistry">
             <attribute name="port">${PlanNamingPort}</attribute>
         </gbean>
@@ -16,13 +16,13 @@
             <attribute name="namingProviderUrl">rmi://${PlanServerHostname}:${PlanNamingPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/j2ee-server/${pom.currentVersion}/car">
+    <configuration name="geronimo/j2ee-server/${pom.currentVersion}/car" load="${J2EE.Features.enable}">
         <gbean name="geronimo:name=EJB,type=NetworkService">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanOpenEJBPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/j2ee-security/${pom.currentVersion}/car">
+    <configuration name="geronimo/j2ee-security/${pom.currentVersion}/car" load="${J2EE.Features.enable}">
         <gbean name="geronimo.remoting:target=JaasLoginServiceRemotingServer">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanRemoteLoginPort}</attribute>
@@ -31,7 +31,7 @@
             <attribute name="url">service:jmx:rmi://${PlanServerHostname}/jndi/rmi:/JMXConnector</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/j2ee-corba/${pom.currentVersion}/car" load="false">
+    <configuration name="geronimo/j2ee-corba/${pom.currentVersion}/car" load="${CORBA.Features.enable}">
         <gbean name="NameServer">
             <attribute name="dbDir">var/cosnaming.db</attribute>
             <attribute name="port">${PlanCOSNamingPort}</attribute>
@@ -43,26 +43,27 @@
             <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/activemq-broker/${pom.currentVersion}/car">
+    <configuration name="geronimo/activemq-broker/${pom.currentVersion}/car" load="${JMS.Features.enable}">
         <gbean name="ActiveMQ.tcp.default">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanActiveMQPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/activemq/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/system-database/${pom.currentVersion}/car">
+    <configuration name="geronimo/activemq/${pom.currentVersion}/car" load="${JMS.Features.enable}"/>
+    <configuration name="geronimo/system-database/${pom.currentVersion}/car" load="${J2EE.Features.enable}">
         <gbean name="DerbyNetwork">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanDerbyPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/directory/${pom.currentVersion}/car">
+    <configuration name="geronimo/directory/${pom.currentVersion}/car" load="${LDAP.Server.enable}">
         <gbean name="geronimo.server:name=DirectoryService">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanLdapPort}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/jetty/${pom.currentVersion}/car">
+    <configuration name="geronimo/ldap-realm/${pom.currentVersion}/car" load="${LDAP.Server.enable}"/>
+    <configuration name="geronimo/jetty/${pom.currentVersion}/car" load="${Jetty.Web.Container.enable}">
         <gbean name="JettyWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
             <attribute name="port">${PlanHTTPPortPrimary}</attribute>
@@ -73,54 +74,58 @@
             <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/welcome-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/tomcat/${pom.currentVersion}/car" load="false">
+    <configuration name="geronimo/welcome-jetty/${pom.currentVersion}/car" load="${Jetty.Welcome.Application.enable}"/>
+    <configuration name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car" load="${Jetty.Sample.Applications.enable}"/>
+    <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car" load="${Jetty.Sample.Applications.enable}"/>
+    <configuration name="geronimo/ldap-demo-jetty/${pom.currentVersion}/car" load="${Jetty.Sample.Applications.enable}"/>
+    <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car" load="${Jetty.Web.Management.Console.enable}"/>
+    <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car" load="${Jetty.UDDI.Server.enable}"/>
+    <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car" load="${Jetty.Web.Container.enable}"/>
+    <configuration name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car" load="${Jetty.Web.Container.enable}"/>
+    <configuration name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car" load="${Daytrader.for.Jetty.enable}"/>
+    <configuration name="geronimo/tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Container.enable}">
         <gbean name="TomcatResources"/>
         <gbean name="TomcatWebConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPPortPrimary}</attribute>
-            <attribute name="redirectPort">${PlanHTTPSPortPrimary}</attribute>
+            <attribute name="port">${PlanHTTPPort2}</attribute>
+            <attribute name="redirectPort">${PlanHTTPSPort2}</attribute>
         </gbean>
         <gbean name="TomcatAJPConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanAJPPortPrimary}</attribute>
-            <attribute name="redirectPort">${PlanHTTPSPortPrimary}</attribute>
+            <attribute name="port">${PlanAJPPort2}</attribute>
+            <attribute name="redirectPort">${PlanHTTPSPort2}</attribute>
         </gbean>
         <gbean name="TomcatWebSSLConnector">
             <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanHTTPSPortPrimary}</attribute>
+            <attribute name="port">${PlanHTTPSPort2}</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/javamail/1.0/car" load="false">
+    <configuration name="geronimo/welcome-tomcat/${pom.currentVersion}/car" load="${Tomcat.Welcome.Application.enable}"/>
+    <configuration name="geronimo/servlets-examples-tomcat/${pom.currentVersion}/car" load="${Tomcat.Sample.Applications.enable}"/>
+    <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car" load="${Tomcat.Sample.Applications.enable}"/>
+    <configuration name="geronimo/ldap-demo-tomcat/${pom.currentVersion}/car" load="${Tomcat.Sample.Applications.enable}"/>
+    <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Management.Console.enable}"/>
+    <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car" load="${Tomcat.UDDI.Server.enable}"/>
+    <configuration name="geronimo/jmxdebug-tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Container.enable}"/>
+    <configuration name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car" load="${Tomcat.Web.Container.enable}"/>
+    <configuration name="geronimo/daytrader-derby-tomcat/${pom.currentVersion}/car" load="${Daytrader.for.Tomcat.enable}"/>
+    <configuration name="geronimo/javamail/${pom.currentVersion}/car" load="false"><!-- load="${SMTP.Transport.enable}"-->
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>
             <attribute name="port">25</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/welcome-tomcat/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/servlets-examples-tomcat/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/jmxdebug-tomcat/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car">
+    <configuration name="geronimo/geronimo-gbean-deployer/${pom.currentVersion}/car" load="${Server.enable}"/>
+    <configuration name="geronimo/j2ee-deployer/${pom.currentVersion}/car" load="${J2EE.Features.enable}">
         <gbean name="WebBuilder">
-            <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0</attribute>
+            <attribute name="defaultNamespace">${PlanWebBuilderDefaultNamespace}</attribute>
         </gbean>
         <gbean name="EJBBuilder">
-            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=JettyWebContainer</attribute>
+            <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/jetty/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=${PlanWebServerName}WebContainer</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car" load="false"/>
-    <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car" />
+    <configuration name="geronimo/jetty-deployer/${pom.currentVersion}/car" load="${Jetty.Web.Container.enable}"/>
+    <configuration name="geronimo/tomcat-deployer/${pom.currentVersion}/car" load="${Tomcat.Web.Container.enable}"/>
+    <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car" load="${J2EE.Features.enable}"/>
 
 </attributes>

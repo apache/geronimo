@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project default="default"
+    xmlns:j="jelly:core"
+    xmlns:maven="jelly:maven"
+    xmlns:deploy="deploy"
+    xmlns:ant="jelly:ant">
+    
+    <!-- Construct dependency lists for inclusion in generated jar. -->
+    <postGoal name="java:compile">
+        <attainGoal name="geronimo:dependency"/>
+       <echo>Maven local repo is: ${maven.repo.local}</echo>
+       <echo>Maven build dir is: ${maven.build.dir}</echo>
+
+       <!-- we build the extension to a std geronimo jar name,
+            but it must be inserted into the compiler jar with
+            the panel name as ref'd in geronimo-izpack.xml
+            "ValidatePackSelections.jar"
+       -->
+       <ant:mkdir dir="${maven.build.dir}/tmp/bin/panels" />
+       <ant:jar destfile="${maven.build.dir}/tmp/bin/panels/ValidatePackSelections.jar"
+          basedir="${maven.build.dir}/classes"
+       />
+       <!-- copy the standalone-compiler-IZPACKVER to a new name
+            so it will be ready to receive the ValidatePackSelections.jar
+       -->
+       <ant:copy file="${maven.repo.local}/izpack/jars/standalone-compiler-${izpack_version}.jar" tofile="${maven.build.dir}/standalone-compiler-custom-${izpack_version}.jar" />
+       <!-- slip the bin/panels/ValidatePackSelections.jar into
+              the standalone-compiler jar
+              don't forget "update" or it's screwed
+       -->
+       <ant:jar destfile="${maven.build.dir}/standalone-compiler-custom-${izpack_version}.jar"
+                basedir="${maven.build.dir}/tmp"
+                includes="**/ValidatePackSelections.jar"
+                update="true" >
+       </ant:jar>
+       <!--
+         Ok, we've got a new izpack compiler jar.  Copy it to 
+         the local repository as a geronimo artifact.
+       -->
+      <echo>Built Geronimo custom IzPack installer jar</echo>
+      <echo>Copying standalone-compiler-custom-${izpack_version} to local repo</echo>
+      <ant:copy file="${maven.build.dir}/standalone-compiler-custom-${izpack_version}.jar"
+                tofile="${maven.repo.local}/geronimo/jars/standalone-compiler-custom-${izpack_version}.jar"
+     /> 
+    </postGoal>
+</project>
