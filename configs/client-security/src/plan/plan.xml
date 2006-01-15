@@ -31,7 +31,7 @@ Configuration for the security of a Geronimo app client.
     <!-- required -->
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/ClientSystem</module>
+            <module>geronimo/client-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
@@ -94,7 +94,7 @@ Configuration for the security of a Geronimo app client.
             </lc:login-config>
         </xml-reference>
         <reference name="ServerInfo">
-            <module>org/apache/geronimo/ClientSystem</module>
+            <module>geronimo/client-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
         </reference>
         <reference name="LoginService">
