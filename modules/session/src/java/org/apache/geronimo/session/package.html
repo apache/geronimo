@@ -1,0 +1,213 @@
+<html>
+<head>
+<title>Geronimo :: Session</title>
+</head>
+<body>
+
+<h1>Geronimo :: Session</h1>
+
+<p>
+This library provides a simple API for working with stateful session state so that it is easy to 
+integrate different state management technologies into projects like OpenEJB, ServiceMix or Tuscany while also
+providing the option of different providers; from simple solutions to highly dynamic clusters with replication groups etc.
+</p>
+
+</p>
+Session management is a complex area with many different possible deployment options and requirements.
+The idea behind this module is to create an extremely simple API that provides only the minimum functionality
+a server to needs manage session state, while allowing for the most common session management implementations. 
+</p>
+
+<h2>Deployment Scenarios</h2>
+
+<h5>Local Only</h5>
+
+You have a single server running a single Java VM.  The sessions are kept in memory and possibly paged to disk.  Unused sessions are discarded as needed.
+
+<h5>Local Only - Reboot Safe</h5>
+
+Same as "Local Only" except you can reboot the server and recover all existing sessions.  To accomplish this, the sessions must be written to a persistent store after modification.
+
+<h5>Distributed</h5>
+
+You have several Java VMs running on one or more servers.  A session only exists on a single server and can not be moved.  If a request is received on a VM where the session is not present, the request must be relocated to the VM which contains the session.  This can be accomplished by either sending a redirect to the client or by the server forwarding the request to the correct server directly.
+
+<h5>Distributed - Movable</h5>
+
+Same as "Distributed" except a session can be moved to another server.  A session can only exists on a single server at one time.  If a request is received on a VM where the session is not present, the server can optionally decide to move the remote session to the local server.
+ 
+<h5>Replicated</h5>
+
+Same as "Distributed - Movable" except sessions are saved to a persistent store, so in the case of a server failure the sessions can be recovered by the remaining servers.  The persistent store can be other servers or a globally shared store such as a shared disk, database, or a cluster store (Tangosol).
+
+<h2>Use Cases</h2>
+
+<h5>Session is local</h5>
+
+This should be the default scenario and all other scenarios should be considered exceptions.  If that is not the case, the hardware installation should be changed to the most common scenario, is that the session in local.
+
+<ul>
+<li>A request arrives</li>
+<li>Lookup session location</li>
+<li>Session is local, so use session</li>
+<li>Release session</li>
+</ul>
+
+<h5>Redirect request</h5>
+
+This scenario requires that the client-server protocol supports redirects.  This is normally true with smart Java clients, such as EJB or Lingo, but is not true for all but the most expensive web load balancers.
+
+<ul>
+<li>A request arrives</li>
+<li>Lookup session location</li>
+<li>Session is remote, so get remote server address</li>
+<li>Send a redirect to client</li>
+</ul>
+
+<h5>Proxy request</h5>
+
+This scenario requires that the client-server protocol can be proxied.  This is normally true for http requests, but may not be true for heavier protocols that rely on transport level credentials to authenticate the client.
+ 
+<ul>
+<li>A request arrives</li>
+<li>Lookup session location</li>
+<li>Session is remote, so get remote server address</li>
+<li>Send the request to the remote server and send the response to the client [Option: include correct remote server address in response so the client will send next request to the correct server]</li>
+</ul>
+
+<h5>Move session</h5>
+
+The scenario requires an intra-server communication protocol where the local server can negotiate with remote server to take over a session.
+
+<ul>
+<li>A request arrives</li>
+<li>Lookup session location</li>
+<li>Session is remote, so move the session to the local server</li>
+<li>Use session</li>
+<li>Release session</li>
+</ul>
+
+<h5>Background session recovery</h5>
+
+This requires a background process that can detect server failures, and that sessions are backed up to a globally available location.  This also requires a process for determining the new location for a session.
+
+<ul>
+<li>Background process informs group that a server is dead</li>
+<li>New location is selected either by the Group protocol itself or via intra-server communication</li>
+<li>Master acquires the session from a backup store (note: this could be the local server)</li>
+</ul>
+
+<h5>Request triggered session recovery</h5>
+
+This uses case explicitly states that we are not mixing the recovery process with the normal session processing use cases.  In the case where a request arrives for a session on a failed server, we wait for the recovery process to choose a new location for the session, and the proceed using on with one of the local or remote session use cases.
+
+<ul>
+<li>A request arrives</li>
+<li>Lookup session location</li>
+<li>Session is remote, and remote server is dead</li>
+<li>Inform group of dead server, which kicks of the "Recover session 1" use case, or sleep until Group protocol notices the dead server or dead server is resurrected.</li>
+<li>Session is now recovered, so continue using "Session is local", "Redirect request", "Proxy request", or "Move session".
+</ul>
+
+<h2>Design Guidelines</h2>
+
+<p>
+We have tried to follow these guidelines while creating the API
+</p>
+
+<ul>
+<li>KISS (Keep it real simple stupid)</li>
+<li>There is a large diversity in qualities of service so lets not preclude any particular model.
+e.g. sometimes loosing session state in the rare case of catastrophic hardware or process failure is
+completely acceptable, in which case there is no need for backup copy. 
+In other times the loss of state is so vital and the changes to the state have to be transactional 
+that using a database is the best solution.
+</li>
+<li>Support diversity of implementations; there are many ways of implementing session management based on your requirements</li>
+<li>Lets follow the 80/20 rule and get the absolute basics working and rock solid first before 
+we try clever & wacky stuff :). Sometimes its better to be simple and slow yet work 100% of the time than 
+be fast and have bugs.
+</li>
+<li>Hide as much of the implementation details and algorithms used to distributed the state
+from the API as is possible; instead focus on just what the server needs to make its decisions on what to do
+with session state or a request.</li>
+<li>Use a POJO programming model to hide the underlying remoting technologies so that it is easy to implement the API on top of
+various things like pure sockets/udp, JMS/ActiveCluster, WADI, JDBC, Tangosol etc. This should also make it easy to test the edge cases easily
+as its sometimes hard to test every edge case without mocking out the underlying messaging technology.</li>
+</ul>
+
+<h2>Assumptions</h2>
+ 
+<ul>
+<li>A session can only exist on one server at a time.</li>
+<li>Multiple concurrent requests to a session is allowed and can overlap.  The service container will either handle serializing the request (EJB) or concurrent access to the session data is allowed (Servlet).</li>
+</ul>
+
+<h2>Using the API</h2>
+
+<p>
+In terms of concurrency the idea is (whether there are backup copies of the state or not) 
+there is a single Session object on all servers for a given SessionId. Any access to the session uses
+either a read or write lock to ensure consistency of the sessions state. With one exception
+(migration) these locks are always using in-JVM locking since the session only exists in one single JVM (though there
+may be backup copies).
+</p>
+
+<p>
+A request handler, such as the OpenEJB protocol, uses a Locator to find the SessionLocation which is location of a given 
+Session in the system. A SessionLocation can be local or remote. The service then has multiple choices of what to do to handle current
+request based on the location of the session. 
+</p>
+
+<p>
+If the session is local, the service can just use it immediately; when the SessionLocator.getSession() method is called the session is locked
+using a read lock. The service can then access whatever different state it requires (it might need to access the state of multiple
+stateful session beans). When the service has completed its request it calls the Session.release() method so that the system
+can (when there are no other concurrent accesses of the session) backup the state or allow session migration.
+</p>
+
+<p>
+When the session is remote the service has these choices; they are sorted in efficiency order
+</p>
+
+<ul>
+<li>REDIRECT: send a response to the requester of the service that the service should go to the real server hosting the service.</li>
+<li>PROXY: the service proxies the request to the remote service which owns the session.</li>
+<li>MOVE: the service talks to the owner of the service and requests that they move the session locally so that the current service becomes the master.</li>
+</ul>
+
+<p>
+Move is the heaviest of the choices since it involves communicating with the remote server, performing a kind of distributed
+lock, moving the state, possibly relocating the back copies, then broadcasting the location change to all servers.
+</p>
+
+<p>
+Redirect and Proxy are quite similar from the service perspective on one request; they are both pretty fast and efficient.
+The main benefit of Redirect is that there should be no more requests for that particular session again once the client
+has redirected to the actual location of the session - assuming there is a smart client capable of redirecting; whereas each request will pay the proxy cost.
+Proxy is only really useful if you have a bad client/load balancer which tends to scatter requests for the same session
+to multiple servers from time to time; so you may want to proxy for a while until you know the new location the 
+client/load balancer has chosen for the session.
+</p>
+
+<p>
+So a typical policy may well be to try proxy the first few requests; once you hit some limit you probably want to try 
+redirection if you can. Then if you hit some upper limit in the number of proxy requests for the given 
+Session you may wish to just go ahead and move the session.
+</p>
+
+<p>
+With a well behaved smart client that handles redirection, then there is no need to use any technique other then redirection.
+Though to help rebalance workload you may wish to move sessions around from time to time; but then again in
+scenarios like EJB; sessions do not often last very long, so there is a natural decay in the number of sessions in any
+server - so focussing purely on where to allocate new sessions, rather than moving existing sessions is probably of more
+use and efficiency.
+</p>
+
+<p>
+Irrespective of the actual strategy an administrator chooses, the important thing is to give the request handler all the information it needs 
+to make the best decision for the scenario.
+</p>
+
+</body>
+</html>
