@@ -30,7 +30,7 @@ CSSBean examples for app client
 
     <gbean name="Server" class="org.openejb.corba.CORBABean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Client</module>
+            <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="SecurityService">
@@ -46,11 +46,11 @@ CSSBean examples for app client
 
     <gbean name="SSLClientCert" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Client</module>
+            <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Client</module>
+            <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -86,11 +86,11 @@ CSSBean examples for app client
 
     <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Client</module>
+            <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Client</module>
+            <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
@@ -127,11 +127,11 @@ CSSBean examples for app client
 
     <gbean name="NoSecurity" class="org.openejb.corba.CSSBean">
         <reference name="ThreadPool">
-            <module>org/apache/geronimo/Client</module>
+            <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
         </reference>
         <reference name="TransactionContextManager">
-            <module>org/apache/geronimo/Client</module>
+            <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>TransactionContextManager</name>
         </reference>
         <attribute name="configAdapter">org.openejb.corba.sunorb.SunORBConfigAdapter</attribute>
