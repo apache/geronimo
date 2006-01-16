@@ -13,38 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.session.remote;
+package org.apache.geronimo.session.remote.util;
 
 import org.apache.geronimo.session.SessionLocation;
 
 /**
+ * A strategy for deciding if a client should deal with a remote
+ * session; either redirecting to the remote server, proxying to it
+ * or moving the session locally.
  * 
  * @version $Revision: $
  */
-public class DefaultRemoteSessionStrategy {
-
+public interface RemoteSessionStrategy {
     public static final int REDIRECT = 1;
     public static final int PROXY = 2;
     public static final int MOVE = 3;
 
-    private boolean redirectSupported;
-    private int redirectWatermark = 5;
-    private int moveWatermark = 10;
+    public int decide(SessionLocation location);
 
-    public int decide(SessionLocation location) {
-        int count = getRecentRequestCount(location.getSessionId());
-        if (redirectSupported) {
-            if (count < redirectWatermark) {
-                return REDIRECT;
-            }
-        }
-        if (count < moveWatermark) {
-            return PROXY;
-        }
-        return MOVE;
-    }
-
-    private int getRecentRequestCount(String sessionId) {
-        return 0;
-    }
 }
