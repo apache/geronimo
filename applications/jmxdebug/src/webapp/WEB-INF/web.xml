@@ -5,15 +5,33 @@
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
     version="2.4">
 
+    <display-name>JMX Debug Tool</display-name>
+
     <!-- Welcome File List -->
     <welcome-file-list>
         <welcome-file>index.vm</welcome-file>
     </welcome-file-list>
 
     <servlet>
+        <display-name>Debug</display-name>
         <servlet-name>Debug</servlet-name>
         <servlet-class>org.apache.geronimo.jmxdebug.web.velocity.DebugServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
+        <init-param>
+            <param-name>charset</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+		<init-param>
+			<param-name>form-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>container-encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
     </servlet>
 
     <servlet-mapping>
