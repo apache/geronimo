@@ -16,8 +16,8 @@
 package org.apache.geronimo.session;
 
 /**
- * An attempt was made to create a new session which was already created by another
- * process or thread.
+ * An attempt was made to create a new session which was already created by
+ * another process or thread.
  * 
  * @version $Revision: $
  */

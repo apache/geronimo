@@ -13,35 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.geronimo.session;
+package org.apache.geronimo.session.local;
+
+import java.util.Map;
 
 /**
- * Represents a logical server which is either the local server or a remote
- * server.
+ * A listener to be notified of changes in a session state so that it can be
+ * stored in some backup such as a file, a database or a buddy group.
  * 
  * @version $Revision: $
  */
-public interface Server {
+public interface SessionStateListener {
 
     /**
-     * Returns the unique name of this server
+     * Notifies a complete change of the state; typically when a session moves
      */
-    String getName();
+    void onCompleteChange(String sessionId, Map state);
 
     /**
-     * Returns the addresses on which you can communicate with the server which
-     * is required for redirecting or proxying requests for remote sessions
+     * Notifies a set of deltas have changed, only a fraction of the complete
+     * session state
      */
-    String[] getAddresses(String protocol);
+    void onDeltaChange(String sessionId, Map deltas);
 
     /**
-     * Configures the available addresses that can be used to connect to this
-     * server
+     * The session has been destroyed so remove all state for this session Id
+     * 
+     * @param sessionId
      */
-    void setAddresses(String string, String[] strings);
+    void onDestroy(String sessionId);
 
-    /**
-     * Is this the local in-JVM server or a remote server
-     */
-    public boolean isLocalServer();
 }

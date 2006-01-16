@@ -16,7 +16,8 @@
 package org.apache.geronimo.session;
 
 /**
- * The state for a stateful session client which always exists in the local JVM; it is never remote.
+ * The state for a stateful session client which always exists in the local JVM;
+ * it is never remote.
  * 
  * There is only one instance of this object in the system for a given session
  * ID; even when using buddy groups to replicate session state there will only

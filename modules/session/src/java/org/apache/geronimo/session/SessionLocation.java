@@ -23,8 +23,8 @@ package org.apache.geronimo.session;
 public interface SessionLocation {
 
     /**
-     * Is the session local to this JVM so that it can be used directly or
-     * must the user redirect, proxy or move.
+     * Is the session local to this JVM so that it can be used directly or must
+     * the user redirect, proxy or move.
      */
     boolean isLocal();
 

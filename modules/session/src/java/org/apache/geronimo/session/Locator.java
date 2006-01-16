@@ -16,8 +16,8 @@
 package org.apache.geronimo.session;
 
 /**
- * This is the main API to locating where sessions are located, to create
- * new sessions and to view the available servers. There is a single Locator per
+ * This is the main API to locating where sessions are located, to create new
+ * sessions and to view the available servers. There is a single Locator per
  * local {@link Server}.
  * 
  * @version $Revision: $
@@ -30,8 +30,6 @@ public interface Locator {
     public SessionLocation getSessionLocation(String clientID);
 
     Session createSession(String sessionId) throws SessionAlreadyExistsException;
-
-    public Server[] getRemoteServers();
 
     public Server getLocalServer();
 }
