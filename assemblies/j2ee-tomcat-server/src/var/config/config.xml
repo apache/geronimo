@@ -107,7 +107,7 @@
     <configuration name="geronimo/jsp-examples-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/uddi-tomcat/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/jmxdebug-tomcat/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/jmxdebug-tomcat/${pom.currentVersion}/car" load="false"/>
     <configuration name="geronimo/daytrader-derby-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/remote-deploy-tomcat/${pom.currentVersion}/car"/>
     <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car"/>
