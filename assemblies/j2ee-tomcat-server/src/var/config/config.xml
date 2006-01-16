@@ -89,7 +89,7 @@
             <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/tomcat/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=TomcatWebContainer</attribute>
         </gbean>
     </configuration>
-    <configuration name="geronimo/javamail/1.0/car" load="false">
+    <configuration name="geronimo/javamail/${pom.currentVersion}/car" load="false">
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>
             <attribute name="port">25</attribute>
