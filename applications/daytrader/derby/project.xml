@@ -26,7 +26,7 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: Daytrader Derby database</name>
+    <name>DayTrader :: Derby Database</name>
     <artifactId>geronimo-daytrader-derby-db</artifactId>
     <shortDescription>Geronimo Daytrader Derby Database</shortDescription>
     <description>Geronimo Daytrader Derby Database</description>
