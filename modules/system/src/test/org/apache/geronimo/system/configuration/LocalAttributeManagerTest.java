@@ -67,6 +67,13 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(1, newDatas.size());
         assertEquals(originalDatas, newDatas);
 
+        // remove the configuration from the store
+        localAttributeManager.removeConfiguration(configurationName.toString());
+
+        // should still get the same gbeans, config list and gbean attribute override functions are separate interfaces.
+        newDatas = new HashSet(localAttributeManager.setAttributes(configurationName, originalDatas, getClass().getClassLoader()));
+        assertEquals(1, newDatas.size());
+        assertEquals(originalDatas, newDatas);
     }
 
     public void testGBeanShouldLoad() throws Exception {
