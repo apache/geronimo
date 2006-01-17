@@ -1,0 +1,3 @@
+connect 'jdbc:derby://localhost:1527/tradedb;create=true';
+run 'Table.ddl';
+commit;
