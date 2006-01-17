@@ -67,13 +67,6 @@ public class LocalAttributeManagerTest extends TestCase {
         assertEquals(1, newDatas.size());
         assertEquals(originalDatas, newDatas);
 
-        // remove the configuration from the store
-        localAttributeManager.removeConfiguration(configurationName.toString());
-
-        // should not load
-// The next lines mix the "load" question with the "what attributes are overridden" question.  Please answer them separately.       
-//        newDatas = new HashSet(localAttributeManager.setAttributes(configurationName, originalDatas, getClass().getClassLoader()));
-//        assertEquals(0, newDatas.size());
     }
 
     public void testGBeanShouldLoad() throws Exception {

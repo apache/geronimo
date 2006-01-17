@@ -104,11 +104,6 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         if (configuration == null) {
             return gbeanDatas;
         }
-// IMO (DJ) the following lines mix the config.list and config.xml functionalities for no reason.
-// They also cause GERONIMO-1455       
-//        if (!configuration.isLoad()) {
-//            return Collections.EMPTY_LIST;
-//        }
 
         // index the incoming datas
         Map datasByName = new HashMap();
