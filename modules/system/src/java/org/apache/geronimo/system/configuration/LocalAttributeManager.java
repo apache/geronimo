@@ -104,9 +104,6 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         if (configuration == null) {
             return gbeanDatas;
         }
-        if (!configuration.isLoad()) {
-            return Collections.EMPTY_LIST;
-        }
 
         // index the incoming datas
         Map datasByName = new HashMap();
