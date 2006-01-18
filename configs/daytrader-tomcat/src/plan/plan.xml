@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
+    configId="${pom.groupId}/${pom.artifactId}/${daytrader_version}/car">
 
     <module>
-        <web>daytrader-web-${pom.currentVersion}.war</web>
+        <web>daytrader-web-${daytrader_version}.war</web>
         <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
             configId="Web" parentId="Trade">
             <context-priority-classloader>false</context-priority-classloader>
@@ -30,7 +30,7 @@
     ##
     -->
     <module>
-        <ejb>daytrader-ejb-${pom.currentVersion}.jar</ejb>     <!--  Note this must match the -->
+        <ejb>daytrader-ejb-${daytrader_version}.jar</ejb>     <!--  Note this must match the -->
         <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
                      configId="TradeEJBs"
                      >
@@ -505,10 +505,10 @@
 
 
     <module>
-        <java>daytrader-streamer-${pom.currentVersion}.jar</java>
+        <java>daytrader-streamer-${daytrader_version}.jar</java>
         <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
             configId="foo"
-            clientConfigId="${pom.groupId}/${pom.artifactId}-streamer-client/${pom.currentVersion}/car">
+            clientConfigId="${pom.groupId}/${pom.artifactId}-streamer-client/${daytrader_version}/car">
             <resource>
                 <external-rar>activemq/activemq-ra/${activemq_version}/rar</external-rar>
                 <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector"
