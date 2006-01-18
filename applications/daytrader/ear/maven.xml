@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" default="ear:install">
+<project xmlns:j="jelly:core" 
+         xmlns:ant="jelly:ant" 
+         xmlns:define="jelly:define"
+         xmlns:velocity="jelly:velocity"
+         xmlns:util="jelly:util"
+         default="ear:install">
+
   <preGoal name="java:compile">
   </preGoal>
+  <goal name="ear:generate-ear-descriptor">
+      <ant:echo>Generating ${maven.ear.descriptordir}/application.xml</ant:echo>
+      <velocity:merge basedir="${maven.ear.src}/META-INF" template="application.xml" name="${maven.ear.descriptordir}/application.xml"/>
+  </goal>
+
 </project>
 

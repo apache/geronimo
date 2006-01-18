@@ -4,7 +4,7 @@
   <extend>../../../etc/project.xml</extend>
   <pomVersion>3</pomVersion>
   <artifactId>daytrader-wsappclient</artifactId>
-  <name>daytrader-wsappclient</name>
+  <name>DayTrader :: WS Application Client</name>
   <package>org.apache.geronimo.samples.daytrader</package>
   <description>Common files for day Trader</description>
   <dependencies>

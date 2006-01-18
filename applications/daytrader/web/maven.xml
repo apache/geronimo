@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" default="war:install">
+<project xmlns:j="jelly:core"
+         xmlns:ant="jelly:ant"
+         xmlns:define="jelly:define"
+         xmlns:velocity="jelly:velocity"
+         xmlns:util="jelly:util"
+         default="war:install">
+
   <preGoal name="java:compile">
   </preGoal>
+
+  <postGoal name="war:webapp">
+      <ant:echo>Generating ${maven.war.descriptordir}/web.xml</ant:echo>
+      <velocity:merge basedir="${maven.war.src}/WEB-INF" template="web.xml" name="${maven.war.webapp.dir}/WEB-INF/web.xml"/>
+  </postGoal>
 </project>
+
 

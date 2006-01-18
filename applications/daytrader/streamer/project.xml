@@ -4,7 +4,7 @@
   <extend>../../../etc/project.xml</extend>
   <pomVersion>3</pomVersion>
   <artifactId>daytrader-streamer</artifactId>
-  <name>streamer</name>
+  <name>DayTrader :: Quote Streamer</name>
   <package>org.apache.geronimo.samples.daytrader.client</package>
   <description>Streamer Application for Day Trader</description>
   <dependencies>

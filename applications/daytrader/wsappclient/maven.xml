@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:j="jelly:core" xmlns:ant="jelly:ant" default="jar:install">
+<project xmlns:j="jelly:core"
+         xmlns:ant="jelly:ant"
+         xmlns:define="jelly:define"
+         xmlns:velocity="jelly:velocity"
+         xmlns:util="jelly:util"
+         default="jar:jar">
+
   <preGoal name="java:compile">
   </preGoal>
+
+  <preGoal name="jar:jar">
+      <ant:echo>Generating Manifest file for Streamer Application</ant:echo>
+      <ant:mkdir dir="${maven.build.dir}/tmp"/>
+      <ant:echo>And this is found in ${maven.jar.source.path}/client/META-INF</ant:echo>
+     <velocity:merge basedir="${basedir}/src/client/META-INF" template="MANIFEST.MF" name="${maven.build.dir}/tmp/MANIFEST.MF"/>
+  </preGoal>
+
 </project>
 

@@ -2,21 +2,21 @@
 <application  version="1.4"
     xmlns="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/application_1_4.xsd">
-      <description>Application description</description>
+      <description>DayTrader Stock Trading Performance Benchmark Sample</description>
       <display-name>Trade</display-name>
       <module>
-         <java>daytrader-streamer-1.1-SNAPSHOT.jar</java>
+         <java>daytrader-streamer-${daytrader_version}.jar</java>
       </module>
       <module>
-         <java>daytrader-wsappclient-1.1-SNAPSHOT.jar</java>
+         <java>daytrader-wsappclient-${daytrader_version}.jar</java>
       </module>
       <module>
          <web>
-            <web-uri>daytrader-web-1.1-SNAPSHOT.war</web-uri>
+            <web-uri>daytrader-web-${daytrader_version}.war</web-uri>
             <context-root>/daytrader</context-root>
          </web>
       </module>
       <module>
-         <ejb>daytrader-ejb-1.1-SNAPSHOT.jar</ejb>
+         <ejb>daytrader-ejb-${daytrader_version}.jar</ejb>
       </module>
 </application>

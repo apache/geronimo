@@ -4,7 +4,7 @@
   <extend>../../../etc/project.xml</extend>
   <pomVersion>3</pomVersion>
   <artifactId>daytrader-ejb</artifactId>
-  <name>DayTrader EJBs</name>
+  <name>DayTrader :: EJBs</name>
   <package>org.apache.geronimo.samples.daytrader.ejb</package>
   <description>Day Trader EJBs</description>
   <dependencies>

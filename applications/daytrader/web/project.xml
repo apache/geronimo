@@ -4,7 +4,7 @@
   <extend>../../../etc/project.xml</extend>
   <pomVersion>3</pomVersion>
   <artifactId>daytrader-web</artifactId>
-  <name>Web Application</name>
+  <name>DayTrader :: Web Application</name>
   <package>org.apache.geronimo.samples.daytrader.web</package>
   <description>This is the web application.</description>
   <dependencies>
