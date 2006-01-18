@@ -66,4 +66,10 @@
         <reference name="activeMQContainer"><gbean-name>geronimo.server:j2eeType=JMSServer,name=ActiveMQ,*</gbean-name></reference>
     </gbean>
 
+    <gbean name="SystemProperties" class="org.apache.geronimo.system.properties.SystemProperties">
+        <attribute name="systemProperties">
+            activemq.broker.disable-clean-shutdown=true
+        </attribute>
+    </gbean>
+
 </configuration>
