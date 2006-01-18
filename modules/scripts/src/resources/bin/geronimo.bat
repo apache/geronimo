@@ -105,11 +105,14 @@ goto end
 :okOsCheck
 setlocal
 
-if not "%GERONIMO_HOME%" == "" goto gotHome
-set CURRENT_DIR=%cd%
+if not "%GERONIMO_HOME%" == "" goto resolveHome
 @REM %~dp0 is expanded pathname of the current script
-cd %~dp0..
-@REM reference %cd% to resolve ..
+set GERONIMO_HOME=%~dp0..
+
+@REM resolve .. and remove any trailing slashes
+:resolveHome
+set CURRENT_DIR=%cd%
+cd %GERONIMO_HOME%
 set GERONIMO_HOME=%cd%
 cd %CURRENT_DIR%
 
