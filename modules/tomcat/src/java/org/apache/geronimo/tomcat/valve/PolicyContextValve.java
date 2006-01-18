@@ -20,6 +20,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.geronimo.security.ContextManager;
+import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 
 import javax.servlet.ServletException;
 import javax.security.jacc.PolicyContext;
@@ -44,12 +45,15 @@ public class PolicyContextValve extends ValveBase {
 
         PolicyContext.setContextID(policyContextID);
         PolicyContext.setHandlerData(request);
+        Request oldRequest = TomcatGeronimoRealm.setRequest(request);
 
         // Pass this request on to the next valve in our pipeline
         try {
             getNext().invoke(request, response);
         } finally {
             PolicyContext.setContextID(oldId);
+            //This might not be necessary, but I think it's possible that cross-context dispatch might change the request.
+            TomcatGeronimoRealm.setRequest(oldRequest);
         }
     }
 }
