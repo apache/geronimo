@@ -241,40 +241,32 @@
         <!--        <ant:delete dir="${configStoreDir}"/>-->
         <ant:mkdir dir="${configStoreDir}"/>
         <ant:mkdir dir="${geronimo.assembly.dest}/var/config"/>
-        <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" append="false" outputMode="xml" escapeText="false" trim="false">
+        <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" outputMode="xml" escapeText="false" trim="true" prettyPrint="false">
            &lt;!-- used only for install. This file may be removed. --&gt;
            &lt;configurations&gt;
-        </j:file>
         <j:set var="DS" value="$" />
         <j:set var="LB" value="{" />
         <j:set var="RB" value="}" />
         <j:forEach var="artifact" items="${pom.artifacts}">
+            <!-- One for each configuration -->
             <j:set var="dependency" value="${artifact.dependency}"/>
             <j:if test="${dependency.type == 'car'}">
-                <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" append="true" outputMode="xml" omitXmlDeclaration="true" escapeText="false" trim="false">            
+
                     &lt;configuration&gt;
-                </j:file> 
                 <j:if test="${dependency.getProperty('geronimo.assemble') == 'install'}">
                     <j:set var="PACK" value="${dependency.getProperty('geronimo.pack')}"/>
-                    <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" append="true" outputMode="xml" omitXmlDeclaration="true" escapeText="false" trim="false">            
-                      &lt;artifact&gt;${dependency.getGroupId()}/${dependency.getArtifactId()}/${dependency.getVersion()}/${dependency.getType()} &lt;/artifact&gt;
+                      &lt;artifact&gt;${dependency.getGroupId()}/${dependency.getArtifactId()}/${dependency.getVersion()}/${dependency.getType()}&lt;/artifact&gt;
                       &lt;selected&gt;${DS}${LB}${PACK}${RB}&lt;/selected&gt;
-                    </j:file>
                 </j:if>
-
                 <!-- handle executable configs -->
                 <j:if test="${dependency.getProperty('geronimo.assemble.executable') != null}">
                     <j:set var="exe" value="${dependency.getProperty('geronimo.assemble.executable')}"/>
-                    <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" append="true" outputMode="xml" omitXmlDeclaration="true" escapeText="false" trim="false">            
                       &lt;executable&gt;${exe}&lt;/executable&gt;
-                    </j:file>
                 </j:if>
-                <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" append="true" outputMode="xml" omitXmlDeclaration="true" escapeText="false" trim="false">
                     &lt;/configuration&gt;
-                </j:file> 
+
             </j:if>
         </j:forEach>
-        <j:file name="${geronimo.assembly.dest}/var/config/configure.xml" append="true" outputMode="xml" escapeText="false" trim="false" omitXmlDeclaration="true">
            &lt;/configurations&gt;
         </j:file>
     </goal>
