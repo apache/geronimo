@@ -203,10 +203,10 @@
             <!--description>Features to run Spring applications in Geronimo without any additional J2EE packaging.  This is currently working but not being actively developed.  If not selected, these features will be installed but would need to be manually activated later.</description>
             <depends packname="J2EE Features" />
         </pack-->
-        <!--pack name="Documentation" required="no" preselected="yes">
+        <pack name="Documentation" required="no" preselected="yes">
             <description>Geronimo documentation.</description>
             <file src="${InstallSource}/docs" targetdir="$INSTALL_PATH"/>
-        </pack-->        
+        </pack>        
         <!--<pack name="JMX Debug Web Application" required="no" preselected="yes"> -->
             <!-- o/o/g/DebugConsole -->
 <!--
