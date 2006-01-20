@@ -28,7 +28,7 @@ import javax.servlet.ServletContext;
  *
  * @version $Rev$ $Date$
  */
-public class ServletLogger {
+public class ServletLogger implements LogSystem {
     private ServletContext servletContext = null;
 
     private static final String PREFIX = " Velocity ";
