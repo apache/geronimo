@@ -77,8 +77,8 @@
                 </j:if>
             </ant:fileset>
         </ant:copy>
-        <ant:mkdir dir="${geronimo.assembly.dest}/lib/extension"/>
-        <ant:copy todir="${geronimo.assembly.dest}/lib/extension" flatten="true">
+        <ant:mkdir dir="${geronimo.assembly.dest}/lib/ext"/>
+        <ant:copy todir="${geronimo.assembly.dest}/lib/ext" flatten="true">
             <ant:fileset dir="${maven.repo.local}">
                 <j:set var="hasExtension" value="false"/>
                 <j:forEach var="artifact" items="${pom.artifacts}">
