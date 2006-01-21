@@ -357,7 +357,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             if (ConfigurationModuleType.EAR == applicationType) {
                 GBeanData gbeanData = new GBeanData(earContext.getApplicationObjectName(), J2EEApplicationImpl.GBEAN_INFO);
                 try {
-                    gbeanData.setAttribute("deploymentDescriptor", applicationInfo.getOriginalSpecDD());
+                    String originalSpecDD = applicationInfo.getOriginalSpecDD();
+                    if (originalSpecDD == null) {
+                        originalSpecDD = "Synthetic EAR";
+                    }
+                    gbeanData.setAttribute("deploymentDescriptor", originalSpecDD);
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
