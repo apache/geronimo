@@ -23,10 +23,10 @@
     <link rel="stylesheet" href="main.css" type="text/css"/>
 </head>
 
-<body>
+<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" rightmargin="0">
 
 <!-- Header -->
-<table width="100%">
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td>
       <table width="100%" height="86"  border="0" cellpadding="0" cellspacing="0">
