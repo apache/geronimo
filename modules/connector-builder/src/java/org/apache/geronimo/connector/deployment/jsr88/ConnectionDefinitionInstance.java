@@ -16,17 +16,10 @@
  */
 package org.apache.geronimo.connector.deployment.jsr88;
 
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import javax.enterprise.deploy.model.DDBean;
-import javax.enterprise.deploy.model.XpathListener;
-import javax.enterprise.deploy.model.XpathEvent;
-import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.GerConnectiondefinitionInstanceType;
 import org.apache.geronimo.xbeans.geronimo.GerConfigPropertySettingType;
+import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
 import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
@@ -35,37 +28,14 @@ import org.apache.xmlbeans.SchemaTypeLoader;
  *
  * @version $Rev$ $Date$
  */
-public class ConnectionDefinitionInstance extends XmlBeanSupport {
-    final XpathListener xpathListener = new XpathListener() {
-                    public void fireXpathEvent(XpathEvent event) {
-                        if(event.isAddEvent()) {
-                            //todo: add new config-property-setting, fire change event
-                        } else if(event.isRemoveEvent()) {
-                            //todo: remove config-property-setting, fire change event
-                        } else if(event.isChangeEvent()) {
-                            if(event.getChangeEvent().getPropertyName().equals("config-property-name")) {
-                                String old = (String) event.getChangeEvent().getOldValue();
-                                for (int i = 0; i < settings.length; i++) {
-                                    ConfigPropertySetting setting = settings[i];
-                                    if(setting.getName().equals(old)) {
-                                        setting.setName((String) event.getChangeEvent().getNewValue());
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
+public class ConnectionDefinitionInstance extends ConfigHolder {
     private DDBean connectionDefinition;
-    private ConfigPropertySetting[] settings = new ConfigPropertySetting[0];
     private ConnectionManager manager;
 
     public ConnectionDefinitionInstance() {
-        super(null);
     }
 
     public ConnectionDefinitionInstance(DDBean connectionDefinition, GerConnectiondefinitionInstanceType instance) {
-        super(null);
         configure(connectionDefinition, instance);
     }
 
@@ -73,68 +43,13 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         return (GerConnectiondefinitionInstanceType) getXmlObject();
     }
 
-    void clearNullSettings() {
-        List list = new ArrayList();
-        for (int i = 0; i < settings.length; i++) {
-            ConfigPropertySetting setting = settings[i];
-            if(setting.getValue() != null) {
-                list.add(setting);
-            }
-        }
-        settings = (ConfigPropertySetting[]) list.toArray(new ConfigPropertySetting[list.size()]);
-        GerConnectiondefinitionInstanceType instance = getConnectionInstance();
-        for (int i = instance.getConfigPropertySettingArray().length-1; i>=0; --i) {
-            GerConfigPropertySettingType type = instance.getConfigPropertySettingArray(i);
-            if(type.isNil() || type.getStringValue() == null) {
-                instance.removeConfigPropertySetting(i);
-            }
-        }
-    }
-
-    void reconfigure() {
+    public void reconfigure() {
         configure(connectionDefinition, getConnectionInstance());
     }
 
     void configure(DDBean connectionDefinition, GerConnectiondefinitionInstanceType definition) {
-        ConfigPropertySetting[] old = null;
-        if(this.connectionDefinition != null) {
-            this.connectionDefinition.removeXpathListener("config-property", xpathListener);
-            old = settings;
-        }
         this.connectionDefinition = connectionDefinition;
-        setXmlObject(definition);
-
-        // Prepare the ConfigPropertySetting array
-        List list = new ArrayList();
-        DDBean[] all = connectionDefinition == null ? new DDBean[0] : connectionDefinition.getChildBean("config-property");
-        Map byName = new HashMap();
-        for (int i = 0; i < all.length; i++) {
-            DDBean ddBean = all[i];
-            byName.put(ddBean.getText("config-property-name")[0], ddBean);
-        }
-        GerConfigPropertySettingType[] previous = definition.getConfigPropertySettingArray();
-        for (int i = 0; i < previous.length; i++) {
-            GerConfigPropertySettingType setting = previous[i];
-            DDBean ddBean = (DDBean) byName.remove(setting.getName());
-            if(ddBean != null) {
-                list.add(new ConfigPropertySetting(ddBean, setting, false));
-            } else {
-                System.out.println("Ignoring connectiondefinition-instance/config-setting "+setting.getName()+" (no matching config-property in J2EE DD)");
-                //todo: delete it from the XMLBeans tree
-            }
-        }
-        for (Iterator it = byName.keySet().iterator(); it.hasNext();) {
-            String name = (String) it.next();
-            DDBean bean = (DDBean) byName.get(name);
-            list.add(new ConfigPropertySetting(bean, getConnectionInstance().addNewConfigPropertySetting(), true));
-        }
-        settings = (ConfigPropertySetting[]) list.toArray(new ConfigPropertySetting[list.size()]);
-        if(old != null) {
-            pcs.firePropertyChange("configPropertySetting", old, settings);
-        }
-        if(connectionDefinition != null) {
-            connectionDefinition.addXpathListener("config-property", xpathListener);
-        }
+        super.configure(connectionDefinition, definition);
         if(connectionDefinition != null) {
             DDBean parent = connectionDefinition.getChildBean("..")[0];
             ConnectionManager oldMgr = manager;
@@ -157,6 +72,18 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
 
     DDBean getDDBean() {
         return connectionDefinition;
+    }
+
+    protected GerConfigPropertySettingType createConfigProperty() {
+        return getConnectionInstance().addNewConfigPropertySetting();
+    }
+
+    protected GerConfigPropertySettingType[] getConfigProperties() {
+        return getConnectionInstance().getConfigPropertySettingArray();
+    }
+
+    protected void removeConfigProperty(int index) {
+        getConnectionInstance().removeConfigPropertySetting(index);
     }
 
     // ----------------------- JavaBean Properties for /connectiondefinition-instance ----------------------
@@ -191,18 +118,9 @@ public class ConnectionDefinitionInstance extends XmlBeanSupport {
         pcs.firePropertyChange("implementedInterface", old, getImplementedInterface());
     }
 
-    public ConfigPropertySetting[] getConfigPropertySetting() {
-        return settings;
-    }
-
-    public ConfigPropertySetting getConfigPropertySetting(int index) {
-        return settings[index];
-    }
-
     public ConnectionManager getConnectionManager() {
         return manager;
     }
-
 
     // ----------------------- End of JavaBean Properties ----------------------
 

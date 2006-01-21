@@ -36,6 +36,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 public class ResourceAdapter extends XmlBeanSupport {
     private DDBean resourceAdapter;
     private ConnectionDefinition[] instances = new ConnectionDefinition[0];
+    private ResourceAdapterInstance resourceAdapterInstance;
 
     public ResourceAdapter() {
         super(null);
@@ -53,6 +54,11 @@ public class ResourceAdapter extends XmlBeanSupport {
     void configure(DDBean resourceAdapter, GerResourceadapterType ra) {
         this.resourceAdapter = resourceAdapter;
         setXmlObject(ra);
+        if(ra.isSetResourceadapterInstance()) {
+            resourceAdapterInstance = new ResourceAdapterInstance(resourceAdapter, ra.getResourceadapterInstance());
+        } else {
+            resourceAdapterInstance = null;
+        }
         if(ra.isSetOutboundResourceadapter()) {
             DDBean[] test = resourceAdapter.getChildBean("outbound-resourceadapter");
             if(test != null && test.length > 0) {
@@ -72,8 +78,6 @@ public class ResourceAdapter extends XmlBeanSupport {
     }
 
     // ----------------------- JavaBean Properties for /connector/resourceadapter ----------------------
-    //todo: handle the following properties
-    // resourceadapter-instance?
 
     public ConnectionDefinition[] getConnectionDefinition() {
         return instances;
@@ -129,7 +133,24 @@ public class ResourceAdapter extends XmlBeanSupport {
         if(definition.getConnectionDefinition() == null) {
             definition.configure(resourceAdapter, getResourceAdapter().getOutboundResourceadapter().addNewConnectionDefinition());
         }
-        pcs.firePropertyChange("resourceAdapter", old, instances);
+        pcs.firePropertyChange("connectionDefinition", old, instances);
+    }
+
+    public ResourceAdapterInstance getResourceAdapterInstance() {
+        return resourceAdapterInstance;
+    }
+
+    public void setResourceAdapterInstance(ResourceAdapterInstance resourceAdapterInstance) {
+        ResourceAdapterInstance old = this.resourceAdapterInstance;
+        this.resourceAdapterInstance = resourceAdapterInstance;
+        if(resourceAdapterInstance.getResourceAdapterInstance() == null) {
+            if(getResourceAdapter().isSetResourceadapterInstance()) {
+                resourceAdapterInstance.configure(resourceAdapter, getResourceAdapter().getResourceadapterInstance());
+            } else {
+                resourceAdapterInstance.configure(resourceAdapter, getResourceAdapter().addNewResourceadapterInstance());
+            }
+        }
+        pcs.firePropertyChange("resourceAdapterInstance", old, instances);
     }
 
     // ----------------------- End of JavaBean Properties ----------------------

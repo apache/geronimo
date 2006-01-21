@@ -19,14 +19,26 @@ package org.apache.geronimo.connector.deployment.jsr88;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import javax.enterprise.deploy.model.DDBean;
 import javax.enterprise.deploy.model.XpathListener;
 import javax.enterprise.deploy.model.XpathEvent;
+import javax.enterprise.deploy.spi.DConfigBean;
+import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
+import org.apache.geronimo.xbeans.geronimo.GerAdminobjectInstanceType;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlCursor;
 
 /**
  * Represents /connector in a Geronimo Connector deployment plan.
@@ -38,6 +50,7 @@ public class ConnectorDCB extends DConfigBeanSupport {
     private DDBean resourceAdapterDDBean;
     private ResourceAdapter[] resourceAdapter = new ResourceAdapter[0];
     private Dependency[] dependency = new Dependency[0];
+    private AdminObjectDCB[] adminobjects = new AdminObjectDCB[0];
 
     public ConnectorDCB(DDBean connectorDDBean, final GerConnectorType connector) {
         super(connectorDDBean, connector);
@@ -60,6 +73,33 @@ public class ConnectorDCB extends DConfigBeanSupport {
                 }
             }
         });
+    }
+
+    public String[] getXpaths() {
+        return getXPathsForJ2ee_1_4(new String[][]{{"resourceadapter","adminobject",},});
+    }
+
+    public DConfigBean getDConfigBean(DDBean bean) throws ConfigurationException {
+        if (getXpaths()[0].equals(bean.getXpath())) { // "adminobject"
+            String aoInterface = bean.getText("adminobject-interface")[0];
+            String aoClass = bean.getText("adminobject-class")[0];
+            // Check whether we've seen this one before
+            for(int i=0; i<adminobjects.length; i++) {
+                if(adminobjects[i].getAdminObjectClass().equals(aoClass) &&
+                   adminobjects[i].getAdminObjectInterface().equals(aoInterface)) {
+                    return adminobjects[i];
+                }
+            }
+            // Haven't seen it; create a new DConfigBean
+            GerAdminobjectType ao = getConnector().addNewAdminobject();
+            AdminObjectDCB dcb = new AdminObjectDCB(bean, ao);
+            AdminObjectDCB[] list = new AdminObjectDCB[adminobjects.length+1];
+            System.arraycopy(adminobjects, 0, list, 0, adminobjects.length);
+            list[adminobjects.length] = dcb;
+            return dcb;
+        } else {
+            throw new ConfigurationException("No DConfigBean matching DDBean "+bean.getXpath());
+        }
     }
 
     private void loadExistingData(GerConnectorType connector) {
@@ -89,7 +129,78 @@ public class ConnectorDCB extends DConfigBeanSupport {
                 resourceAdapter[i] = new ResourceAdapter(resourceAdapterDDBean, adapter);
             }
         }
-        //todo: Handle the AdminObject children
+        // Handle the AdminObject children
+        GerAdminobjectType[] admins = connector.getAdminobjectArray();
+        DDBean[] data = getDDBean().getChildBean(getXpaths()[0]);
+        List ddBeans = data == null ? Collections.EMPTY_LIST : new ArrayList(Arrays.asList(data)); // resourceadapter/adminobject
+
+        Map dcbs = new LinkedHashMap();
+        if(admins == null) {
+            adminobjects = new AdminObjectDCB[0];
+        } else {
+            // Match up each Geronimo adminobject with a ra.xml adminobject and create DConfigBeans accordingly
+            for (int i = 0; i < admins.length; i++) {
+                GerAdminobjectType admin = admins[i];
+                String aoClass = admin.getAdminobjectClass();
+                String aoIface = admin.getAdminobjectInterface();
+                AdminObjectDCB dcb = (AdminObjectDCB) dcbs.get("class "+aoClass+" iface "+aoIface);
+                if(dcb != null) {
+                    // this is a second Geronimo adminobject block of the same type; there will not be a matching DDBean any more
+                    // merge the adminobject-instance entries instead!!!
+                    if(admin.getAdminobjectInstanceArray().length > 0) {
+                        GerAdminobjectType old = dcb.getAdminObject();
+                        GerAdminobjectInstanceType[] array = admin.getAdminobjectInstanceArray();
+                        int oldCount = dcb.getAdminObjectInstance().length;
+                        for (int j = 0; j < array.length; j++) {
+                            GerAdminobjectInstanceType instance = array[j];
+                            XmlCursor source = instance.newCursor();
+                            XmlCursor dest = old.newCursor();
+                            dest.toEndToken();
+                            if(!source.moveXml(dest)) {
+                                throw new RuntimeException("Unable to move admin object instance");
+                            }
+                            source.dispose();
+                            dest.dispose();
+                            dcb.addAdminObjectInstance(old.getAdminobjectInstanceArray(oldCount+j));
+                        }
+                    }
+                    continue;
+                }
+                DDBean target = null;
+                for (int j = 0; j < ddBeans.size(); j++) {
+                    DDBean ddBean = (DDBean) ddBeans.get(j);
+                    String ddClass = ddBean.getText("adminobject-class")[0];
+                    String ddIface = ddBean.getText("adminobject-interface")[0];
+                    if(ddClass.equals(aoClass) && ddIface.equals(aoIface)) {
+                        target = ddBean;
+                        ddBeans.remove(j);
+                        break;
+                    }
+                }
+                if(target == null) {
+                    System.out.println("Geronimo connector deployment plan has admin object with interface '"+aoIface+"' and class '"+aoClass+"' but the ra.xml does not have a matching adminobject declared.  Deleting this adminobject from the Geronimo plan.");
+                    continue;
+                }
+                dcb = new AdminObjectDCB(target, admin);
+                dcbs.put("class "+aoClass+" iface "+aoIface, dcb);
+            }
+        }
+        // There are some admin object types in ra.xml with no matching instances; create DConfigBeans for those
+        for (int i = 0; i < ddBeans.size(); i++) {
+            DDBean ddBean = (DDBean) ddBeans.get(i);
+            String ddClass = ddBean.getText("adminobject-class")[0];
+            String ddIface = ddBean.getText("adminobject-interface")[0];
+            GerAdminobjectType admin = connector.addNewAdminobject();
+            dcbs.put("class "+ddClass+" iface "+ddIface, new AdminObjectDCB(ddBean, admin));
+        }
+        List adminResults = new ArrayList();
+        for (Iterator it = dcbs.keySet().iterator(); it.hasNext();) {
+            String key = (String) it.next();
+            DConfigBean value = (DConfigBean) dcbs.get(key);
+            adminResults.add(value);
+        }
+        adminobjects = (AdminObjectDCB[]) adminResults.toArray(new AdminObjectDCB[adminResults.size()]);
+
         //todo: Handle the GBean children
     }
 
@@ -104,7 +215,6 @@ public class ConnectorDCB extends DConfigBeanSupport {
     // import*
     // hidden-classes*
     // non-overridable-classes*
-    // adminobject*
     // gbean*
 
     public String getConfigID() {
@@ -256,7 +366,7 @@ public class ConnectorDCB extends DConfigBeanSupport {
 
     // ----------------------- End of JavaBean Properties ----------------------
 
-    
+
 
     protected SchemaTypeLoader getSchemaTypeLoader() {
         return Connector15DCBRoot.SCHEMA_TYPE_LOADER;

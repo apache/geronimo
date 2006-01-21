@@ -137,10 +137,8 @@ public class Connector15DCBRoot extends DConfigBeanRootSupport {
         } finally {
             for (int i = 0; i < parents.size(); i++) {
                 Object parent = parents.get(i);
-                if(parent instanceof ConnectionDefinitionInstance) {
-                    ConnectionDefinitionInstance instance = (ConnectionDefinitionInstance) parent;
-                    instance.reconfigure();
-                } //todo: else if instanceof ResourceAdapterInstance, else if instanceof AdminObjectInstance
+                ConfigHolder instance = (ConfigHolder) parent;
+                instance.reconfigure();
             }
         }
     }
@@ -149,7 +147,10 @@ public class Connector15DCBRoot extends DConfigBeanRootSupport {
         ResourceAdapter[] adapters = connector.getResourceAdapter();
         for (int i = 0; i < adapters.length; i++) {
             ResourceAdapter adapter = adapters[i];
-            // todo: check resource adapter instances
+            if(adapter.getResourceAdapterInstance() != null) {
+                parents.add(adapter.getResourceAdapterInstance());
+                adapter.getResourceAdapterInstance().clearNullSettings();
+            }
             ConnectionDefinition defs[] = adapter.getConnectionDefinition();
             for (int j = 0; j < defs.length; j++) {
                 ConnectionDefinition def = defs[j];
@@ -161,6 +162,21 @@ public class Connector15DCBRoot extends DConfigBeanRootSupport {
                 }
             }
         }
-        //todo: check admin object instances
+        try {
+            DDBean[] adminDDBs = connector.getDDBean().getChildBean(connector.getXpaths()[0]);
+            if(adminDDBs == null) adminDDBs = new DDBean[0];
+            for (int i = 0; i < adminDDBs.length; i++) {
+                DDBean ddb = adminDDBs[i];
+                AdminObjectDCB dcb = (AdminObjectDCB) connector.getDConfigBean(ddb);
+                AdminObjectInstance[] instances = dcb.getAdminObjectInstance();
+                for (int j = 0; j < instances.length; j++) {
+                    AdminObjectInstance instance = instances[j];
+                    parents.add(instance);
+                    instance.clearNullSettings();
+                }
+            }
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -53,8 +53,9 @@ public class ConnectionManager extends XmlBeanSupport {
                     manager.addNewNoTransaction();
                 } else if(tx.equalsIgnoreCase("LocalTransaction")) {
                     manager.addNewLocalTransaction();
-                } else if(tx.equalsIgnoreCase("XATranasaction")) {
+                } else if(tx.equalsIgnoreCase("XATransaction")) {
                     manager.addNewXaTransaction();
+                    manager.getXaTransaction().addNewTransactionCaching();
                 }
             }
         }
@@ -203,7 +204,7 @@ public class ConnectionManager extends XmlBeanSupport {
     }
 
     public boolean isTransactionXACachingThread() {
-        return isTransactionXA() && getManager().getXaTransaction().isSetTransactionCaching();
+        return isTransactionXA() && getManager().getXaTransaction().isSetThreadCaching();
     }
 
     public void setTransactionXACachingThread(boolean set) {
