@@ -192,11 +192,10 @@
           <description>Select the SMTP Transport functionality to enable JavaMail applications in Geronimo.  Outbound JavaMail is sent through the SMTP Transport to a specified mail host.</description>
           <depends packname="J2EE Features" />
         </pack>
-        <pack name="Sample Database Pool" required="no" preselected="no">
-            <!-- o/o/g/DefaultDatabase -->
+        <!--pack name="Sample Database Pool" required="no" preselected="no">
             <description>A sample embedded database, using the Derby RDBMS.  If selected, this creates a database pool that connects to the "DefaultDatabase" database running in the embedded Derby installation.  If not selected, this configuration will be available but would need to be manually activated later.  The "DefaultDatabase" database will be created the first time this configuration is run.</description>
             <depends packname="J2EE Features" />
-        </pack>
+        </pack-->
         <!-- pack name="Spring Integration" required="no" preselected="no"-->
             <!-- o/o/g/SpringRuntime -->
             <!-- o/o/g/SpringDeployer -->
