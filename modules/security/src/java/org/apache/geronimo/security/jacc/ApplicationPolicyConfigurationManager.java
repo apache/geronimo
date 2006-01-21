@@ -60,7 +60,7 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
             String contextID = (String) entry.getKey();
             ComponentPermissions componentPermissions = (ComponentPermissions) entry.getValue();
 
-            PolicyConfiguration policyConfiguration = policyConfigurationFactory.getPolicyConfiguration(contextID, false);
+            PolicyConfiguration policyConfiguration = policyConfigurationFactory.getPolicyConfiguration(contextID, true);
 //            if (policyConfiguration != policyConfigurationFactory.getPolicyConfiguration(contextID, false)) {
 //                throw new IllegalStateException("JACC implementation is invalid: returns different instances of PolicyConfiguration for the same contextID");
 //            }
