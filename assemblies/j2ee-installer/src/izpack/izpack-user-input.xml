@@ -222,21 +222,14 @@
         </field>
     </panel>
     <panel order="5">
-        <createForPack name="Sample Database Pool"/>
+        <createForPack name="J2EE Features"/>
         <field type="title" txt="Derby Configuration"/>
-        <field type="staticText" txt="Please configure Derby"/>
+        <field type="staticText" txt="Configure Derby, the sample database engine."/>
         <divider/>
         <field type="rule" variable="PlanDerbyPort">
             <description txt="The network port that the Derby DB should use"/>
             <spec txt="Derby Port [1527]:" layout="N:5:5" set="0:1527"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
-        </field>
-        <field type="check" variable="Sample.Database.Pool.enable">
-          <description txt="Active at runtime"/>
-          <spec txt="Sample Database Pool" id="Sample.Database.Pool.enable.field"
-                true="true" false="false" set="true" />
-          <depends variable="J2EE.Features.enable"/>
-          <createForPack name="Sample Database Pool"/>
         </field>
     </panel>
     <panel order="6">

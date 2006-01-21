@@ -1,7 +1,19 @@
-/*
- * Apache 2.0 license
+/**
  *
-*/
+ * Copyright 2003-2006 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.izforge.izpack.panels;
 import com.izforge.izpack.installer.AutomatedInstallData;
 import com.izforge.izpack.util.Debug;
@@ -166,8 +178,7 @@ public class GeronimoConfigProcessor {
                 setEnableVar( idata, pack.name, fSel );
          }
          // fixup for jetty not selected to install
-         if( isJettySelected( idata ) == false && 
-                isTomcatSelected( idata ) == true ) {
+         if( isTomcatSelected( idata ) == true ) {
                 int packs[] = {
                    TOMCAT_PACK, 
                    TOMCAT_WELCOME_PACK,
@@ -175,13 +186,25 @@ public class GeronimoConfigProcessor {
                    TOMCAT_UDDI_PACK,
                    TOMCAT_SAMPLE_PACK,
                    TOMCAT_DAYTRADER };
+               debug( "-setInitialConfig() : tomcat is selected for install. ");
                 boolean fSel = false;
                 String packName = null;
-                for( int i = 0; i < packs.length; ++i ) {
-                   packName = getPackName( packs[ i ] );
-                   fSel = isPackSelected( idata, packName );
-                   setEnableVar( idata, packName, fSel );
+                if( isJettySelected( idata ) == false ) {
+                   debug( "-setInitialConfig() : jetty is not selected for install. ");
+                   for( int i = 0; i < packs.length; ++i ) {
+                      packName = getPackName( packs[ i ] );
+                      fSel = isPackSelected( idata, packName );
+                      setEnableVar( idata, packName, fSel );
+                   }
+                } else {
+                   debug( "-setInitialConfig() : jetty is selected for install. ");
+                   for( int i = 0; i < packs.length; ++i ) {
+                      packName = getPackName( packs[ i ] );
+                      setEnableVar( idata, packName, false );
+                   }
                 }
+         } else {
+            debug( "-setInitialConfig() : tomcat is not selected for install. ");
          }
 
          // end fixup
