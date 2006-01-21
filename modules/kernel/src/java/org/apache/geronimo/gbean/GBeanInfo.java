@@ -62,7 +62,7 @@ public final class GBeanInfo implements Serializable {
             throw new InvalidConfigurationException("Class does not have a getGBeanInfo() method: " + className);
         }
         try {
-            return (GBeanInfo) method.invoke(clazz, new Object[]{});
+            return (GBeanInfo) method.invoke(null, new Object[]{});
         } catch (Exception e) {
             throw new InvalidConfigurationException("Could not get GBeanInfo from class: " + className, e);
         }
