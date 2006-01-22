@@ -470,7 +470,7 @@
             <version>${geronimo_spec_j2ee_deployment_version}</version>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
-                <geronimo.assemble>repository</geronimo.assemble>
+                <!--geronimo.assemble>repository</geronimo.assemble-->
             </properties>
         </dependency>
         <dependency>
