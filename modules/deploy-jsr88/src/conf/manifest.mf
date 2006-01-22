@@ -1,6 +1,2 @@
-Class-Path:  ../lib/geronimo-common-1.0.jar ../lib/geronimo-deployment
- -1.0.jar ../lib/geronimo-deploy-jsr88-1.0.jar ../lib/geronimo-kernel-
- 1.0.jar ../lib/geronimo-system-1.0.jar  ../lib/geronimo-j2ee-deployme
- nt_1.1_spec-1.0.jar ../lib/cglib-nodep-2.1_3.jar ../lib/mx4j-3.0.1.ja
- r ../lib/mx4j-remote-3.0.1.jar
+Class-Path:  ../lib/geronimo-common-${geronimo_version}.jar ../lib/geronimo-deployment-${geronimo_version}.jar ../lib/geronimo-deploy-jsr88-${geronimo_version}.jar ../lib/geronimo-kernel-${geronimo_version}.jar ../lib/geronimo-system-${geronimo_version}.jar  ../lib/geronimo-j2ee-deployment_1.1_spec-${geronimo_spec_j2ee_deployment_version}.jar ../lib/cglib-nodep-${cglib_version}.jar ../lib/mx4j-${mx4j_version}.jar ../lib/mx4j-remote-${mx4j_version}.jar
 J2EE-DeploymentFactory-Implementation-Class: org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl
