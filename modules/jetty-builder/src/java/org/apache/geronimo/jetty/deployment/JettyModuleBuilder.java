@@ -42,6 +42,7 @@ import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
+import org.apache.geronimo.jetty.NonAuthenticator;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -250,7 +251,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
 
         // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
+        URI configId;
         try {
             configId = new URI(jettyWebApp.getConfigId());
         } catch (URISyntaxException e) {
@@ -312,7 +313,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 log.warn(e);
             }
 
-            JettyWebAppType jettyWebApp = null;
+            JettyWebAppType jettyWebApp;
             if (rawPlan != null) {
                 XmlObject webPlan = new GenericToSpecificPlanConverter(GerJettyDocument.type.getDocumentElementName().getNamespaceURI(),
                         JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI(), "jetty").convertToSpecificPlan(rawPlan);
@@ -448,7 +449,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GbeanType[] gbeans = jettyWebApp.getGbeanArray();
         ServiceConfigBuilder.addGBeans(gbeans, webClassLoader, moduleJ2eeContext, earContext);
 
-        ObjectName webModuleName = null;
+        ObjectName webModuleName;
         try {
             webModuleName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
@@ -616,6 +617,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     webModuleData.setAttribute("realmName", loginConfig.getRealmName().getStringValue());
                 }
 
+            } else if (jettyWebApp.isSetSecurityRealmName()) {
+                webModuleData.setAttribute("authenticator", new NonAuthenticator());
             }
             earContext.addGBean(webModuleData);
 
@@ -844,7 +847,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         getWebClassPath(earContext, webModule);
         URI[] webClassPath = webModule.getWebClasspath();
         URI baseUri = earContext.getBaseDir().toURI();
-        URL baseUrl = null;
+        URL baseUrl;
         try {
             baseUrl = baseUri.resolve(webModule.getTargetPathURI()).toURL();
         } catch (MalformedURLException e) {
@@ -942,13 +945,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GBeanData servletData;
         if (servletType.isSetServletClass()) {
             String servletClassName = servletType.getServletClass().getStringValue().trim();
-            Class servletClass = null;
+            Class servletClass;
             try {
                 servletClass = webClassLoader.loadClass(servletClassName);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load servlet class " + servletClassName, e);
             }
-            Class baseServletClass = null;
+            Class baseServletClass;
             try {
                 baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {

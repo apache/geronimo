@@ -240,7 +240,7 @@ public class SecurityContextBeforeAfter implements BeforeAfter {
      *         security checking should not proceed and servlet handling should proceed,
      *         e.g. login page.
      */
-    private Principal obtainUser(String pathInContext, HttpRequest request, HttpResponse response, WebResourcePermission resourcePermission, WebUserDataPermission dataPermission) throws IOException, IOException {
+    private Principal obtainUser(String pathInContext, HttpRequest request, HttpResponse response, WebResourcePermission resourcePermission, WebUserDataPermission dataPermission) throws IOException {
         boolean unauthenticated = !(checked.implies(resourcePermission) || checked.implies(dataPermission));
         boolean forbidden = excludedPermissions.implies(resourcePermission) || excludedPermissions.implies(dataPermission);
 
