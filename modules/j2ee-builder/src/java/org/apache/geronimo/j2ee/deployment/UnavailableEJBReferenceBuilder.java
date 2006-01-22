@@ -43,10 +43,6 @@ public class UnavailableEJBReferenceBuilder implements EJBReferenceBuilder {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }
 
-    public Object createHandleDelegateReference() throws DeploymentException {
-        throw new DeploymentException("EJB references are unavailable in this configuration");
-    }
-
     public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
         throw new DeploymentException("EJB references are unavailable in this configuration");
     }

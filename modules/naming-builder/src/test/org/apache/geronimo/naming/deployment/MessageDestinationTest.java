@@ -64,10 +64,6 @@ public class MessageDestinationTest extends TestCase {
                 return null;
             }
 
-            public Object createHandleDelegateReference() throws DeploymentException {
-                return null;
-            }
-
             public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
                 return null;
             }

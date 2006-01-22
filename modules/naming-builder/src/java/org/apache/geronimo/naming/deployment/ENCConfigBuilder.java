@@ -759,11 +759,7 @@ public class ENCConfigBuilder {
                 corbaGBean = refContext.locateUniqueName(earContext, corbaGBean);
             }
             builder.addORB(corbaGBean);
-        }
-
-        Object handleDelegateReference = earContext.getRefContext().getHandleDelegateReference();
-        if (handleDelegateReference != null) {
-            builder.addHandleDelegateReference(handleDelegateReference);
+            builder.addHandleDelegateReference(corbaGBean);
         }
 
         URI moduleURI = module.getConfigId();

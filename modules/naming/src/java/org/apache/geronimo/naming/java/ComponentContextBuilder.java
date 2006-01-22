@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.naming.reference.GBeanProxyReference;
 import org.apache.geronimo.naming.reference.KernelReference;
 import org.apache.geronimo.naming.reference.ORBReference;
+import org.apache.geronimo.naming.reference.HandleDelegateReference;
 
 /**
  * TODO consider removing this class. The only purpose is to slightly hide the internalBind method.
@@ -50,8 +51,8 @@ public class ComponentContextBuilder {
         context.put("ORB", new ORBReference(corbaGBeanObjectName));
     }
 
-    public void addHandleDelegateReference(Object handleDelegateReference) {
-        context.put("HandleDelegate", handleDelegateReference);
+    public void addHandleDelegateReference(ObjectName corbaGBeanObjectName) {
+        context.put("HandleDelegate", new HandleDelegateReference(corbaGBeanObjectName));
     }
 
     public void bind(String name, Object value) {

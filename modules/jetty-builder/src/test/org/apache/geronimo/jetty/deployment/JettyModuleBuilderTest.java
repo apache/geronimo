@@ -177,10 +177,6 @@ public class JettyModuleBuilderTest extends TestCase {
                         return null;
                     }
 
-                    public Object createHandleDelegateReference() {
-                        return null;
-                    }
-
                     public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
                         return null;
                     }

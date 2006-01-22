@@ -81,10 +81,6 @@ public class EJBRefContextTest extends TestCase {
                 return new FakeReference(objectName);
             }
 
-            public Object createHandleDelegateReference() {
-                return null;
-            }
-
             public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException {
                 return null;
             }

@@ -16,17 +16,6 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Iterator;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.deployment.DeploymentContext;
@@ -35,7 +24,17 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -97,10 +96,6 @@ public class RefContext {
         return ejbReferenceBuilder.createEJBLocalReference(objectName, null, isSession, localHome, local);
     }
 
-    public Object getHandleDelegateReference() throws DeploymentException {
-        return ejbReferenceBuilder.createHandleDelegateReference();
-    }
-
     public Reference getEJBRemoteRef(URI module, String ejbLink, boolean isSession, String home, String remote, NamingContext namingContext) throws DeploymentException {
         GBeanData containerData = locateEjbInApplication(namingContext, isSession, ejbLink, module);
         return ejbReferenceBuilder.createEJBRemoteReference(containerData.getName().getCanonicalName(), containerData, isSession, home, remote);
@@ -145,7 +140,7 @@ public class RefContext {
             if (destinations == null) {
                 StringBuffer sb = new StringBuffer();
                 for (Iterator mapIterator = messageDestinations.keySet().iterator(); mapIterator.hasNext();) {
-                    sb.append((String) mapIterator.next() + "\n");
+                    sb.append((String) mapIterator.next()).append("\n");
                 }
                 throw new DeploymentException("Unknown module " + targetModule + " when processing message destination " + messageDestinationLink +
                         "\nKnown modules in deployable unit are:\n" + sb.toString());
@@ -206,7 +201,7 @@ public class RefContext {
     }
 
     public String getMEJBName() throws DeploymentException {
-        ObjectName query = null;
+        ObjectName query;
         try {
             query = ObjectName.getInstance("*:name=ejb/mgmt/MEJB,*");
         } catch (MalformedObjectNameException e) {
@@ -286,7 +281,7 @@ public class RefContext {
     }
 
     private GBeanData locateGBeanInContext(String moduleType, String moduleName, String name, String type, J2eeContext j2eeContext, String queryType, NamingContext context, boolean requireMatch) throws UnresolvedReferenceException {
-        ObjectName query = null;
+        ObjectName query;
         //TODO make sure this is reasonable
         if (moduleType == null) {
             moduleName = "*";

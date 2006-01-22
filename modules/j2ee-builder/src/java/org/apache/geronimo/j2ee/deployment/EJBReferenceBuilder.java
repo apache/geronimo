@@ -35,8 +35,6 @@ public interface EJBReferenceBuilder {
 
     Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException;
 
-    Object createHandleDelegateReference() throws DeploymentException;
-
     Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext context) throws DeploymentException;
 
     Reference getImplicitEJBLocalRef(URI module, String refName, boolean isSession, String localHome, String local, NamingContext context) throws DeploymentException;
