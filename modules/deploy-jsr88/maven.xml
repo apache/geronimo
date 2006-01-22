@@ -19,6 +19,17 @@
 
 <!-- $Rev$ $Date$ -->
 
-<project default="default">
+<project xmlns:j="jelly:core"
+         xmlns:ant="jelly:ant"
+         xmlns:define="jelly:define"
+         xmlns:velocity="jelly:velocity"
+         xmlns:util="jelly:util"
+         default="default">
+
+  <preGoal name="jar:jar">
+      <ant:echo>Generating Manifest file for JSR88-Deployer</ant:echo>
+      <ant:mkdir dir="${maven.build.dir}/tmp"/>
+     <velocity:merge basedir="${basedir}/src/conf" template="manifest.mf" name="${maven.build.dir}/tmp/MANIFEST.MF"/>
+  </preGoal>
 
 </project>
