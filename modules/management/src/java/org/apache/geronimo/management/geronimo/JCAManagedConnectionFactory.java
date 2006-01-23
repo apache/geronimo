@@ -49,7 +49,6 @@ public interface JCAManagedConnectionFactory extends org.apache.geronimo.managem
      * connection factory.  That object should implement
      * javax.resource.spi.ConnectionManager and
      * org.apache.geronimo.connector.outbound.PoolingAttributes
-     * @return
      */
     public String getConnectionManager();
     

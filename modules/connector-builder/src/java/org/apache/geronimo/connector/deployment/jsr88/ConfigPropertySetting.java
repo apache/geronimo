@@ -31,6 +31,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
  */
 public class ConfigPropertySetting extends XmlBeanSupport {
     private DDBean configProperty;
+    private String defaultValue;
 
     public ConfigPropertySetting() {
         super(null);
@@ -54,14 +55,21 @@ public class ConfigPropertySetting extends XmlBeanSupport {
         setXmlObject(property);
         final String name = configProperty.getText("config-property-name")[0];
         getPropertySetting().setName(name);
-        if(setDefault) {
-            String[] test = configProperty.getText("config-property-value");
-            if(test != null && test.length == 1) {
-                getPropertySetting().setStringValue(test[0]);
-            } else {
-                getPropertySetting().setStringValue(null);
-            }
+        String[] test = configProperty.getText("config-property-value");
+        if(test != null && test.length == 1) {
+            defaultValue = test[0];
+        } else {
+            defaultValue = null;
         }
+        if(setDefault) {
+            getPropertySetting().setStringValue(defaultValue);
+        }
+    }
+
+    boolean isSetToDefault() {
+        String value = getValue();
+        return (defaultValue == null && value == null) ||
+                (defaultValue != null && value != null && defaultValue.equals(value));
     }
 
     // ----------------------- JavaBean Properties for config-property-setting ----------------------

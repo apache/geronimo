@@ -41,7 +41,17 @@ public interface ServerInfo {
 
     public URI resolve(final URI uri);
 
+    /**
+     * A config.xml setting for the base directory.  This is normally
+     * left null, which means the ServerInfo will use the Geronimo
+     * install directory.
+     */
     public String getBaseDirectory();
+
+    /**
+     * The base directory that this ServerInfo is actually using.
+     */
+    public String getCurrentBaseDirectory();
 
     public String getVersion();
 

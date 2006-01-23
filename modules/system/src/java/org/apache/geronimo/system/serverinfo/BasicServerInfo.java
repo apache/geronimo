@@ -108,6 +108,10 @@ public class BasicServerInfo implements ServerInfo {
         return baseDirectory;
     }
 
+    public String getCurrentBaseDirectory() {
+        return base.getAbsolutePath();
+    }
+
     public String getVersion() {
         return ServerConstants.getVersion();
     }

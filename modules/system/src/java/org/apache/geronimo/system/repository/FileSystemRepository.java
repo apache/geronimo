@@ -74,6 +74,9 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
 
     public boolean hasURI(URI uri) {
         uri = resolve(uri);
+        if(uri == null) {
+            return false;
+        }
         if ("file".equals(uri.getScheme())) {
             File f = new File(uri);
             return f.exists() && f.canRead();
@@ -92,6 +95,10 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
 
     private URI resolve(final URI uri) {
         String[] bits = uri.toString().split("/");
+        if(bits.length < 3) {
+            log.warn("Unable to resolve URI '"+uri+"' as a repository entry");
+            return null;
+        }
         StringBuffer buf = new StringBuffer(bits[0]).append('/');
         String type = bits.length >= 4 ? bits[3] : "jar";
         buf.append(type).append('s').append('/').append(bits[1]).append('-').append(bits[2]).append('.').append(type);
