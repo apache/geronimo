@@ -148,6 +148,14 @@
     </dependency>
     <dependency>
         <groupId>geronimo</groupId>
+        <artifactId>geronimo-naming-builder</artifactId>
+        <version>${geronimo_version}</version>
+        <properties>
+            <geronimo.dependency>true</geronimo.dependency>
+        </properties>
+    </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
         <artifactId>geronimo-security-builder</artifactId>
         <version>${geronimo_version}</version>
         <properties>
