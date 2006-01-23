@@ -9,6 +9,16 @@
     <display-name>WebAppDisplayName</display-name>
     <description>WebAppDescription</description>
     <distributable/>
+    <context-param>
+        <param-name>param1</param-name>
+        <param-value>value1</param-value>
+        <description>description1</description>
+    </context-param>
+    <context-param>
+        <param-name>param2</param-name>
+        <param-value>value2</param-value>
+        <description>description2</description>
+    </context-param>
     <filter>
         <icon>
             <small-icon>small</small-icon>
