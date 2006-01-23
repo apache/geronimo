@@ -20,26 +20,33 @@ package org.apache.geronimo.connector;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
 
 /**
  * 
  * @version $Revision$
  */
 public class AdminObjectWrapperGBean {
-    
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AdminObjectWrapperGBean.class, AdminObjectWrapper.class, NameFactory.JCA_ADMIN_OBJECT);
         infoBuilder.addAttribute("adminObjectInterface", String.class, true);
         infoBuilder.addAttribute("adminObjectClass", String.class, true);
+        infoBuilder.addAttribute("kernel", Kernel.class, false);
+        infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
 
         infoBuilder.addOperation("$getResource");
+        infoBuilder.addInterface(JCAAdminObject.class);
 
         infoBuilder.setConstructor(new String[]{
             "adminObjectInterface",
             "adminObjectClass",
+            "kernel",
+            "objectName",
             "classLoader"
         });
 

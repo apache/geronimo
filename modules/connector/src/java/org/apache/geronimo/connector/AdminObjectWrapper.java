@@ -19,6 +19,13 @@ package org.apache.geronimo.connector;
 
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
+
+import javax.management.ObjectName;
+import java.util.Map;
+import java.util.HashMap;
+import java.lang.reflect.Constructor;
 
 /**
  * Wrapper around AdminObject that exposes its config-properties as GBeanAttributes and
@@ -26,13 +33,17 @@ import org.apache.geronimo.gbean.DynamicGBeanDelegate;
  *
  * @version $Rev$ $Date$
  */
-public class AdminObjectWrapper implements DynamicGBean {
+public class AdminObjectWrapper implements DynamicGBean, JCAAdminObject {
 
     private final String adminObjectInterface;
     private final String adminObjectClass;
 
     private final DynamicGBeanDelegate delegate;
     private final Object adminObject;
+
+
+    private final Kernel kernel;
+    private final String objectName;
 
     /**
      * Default constructor required when a class is used as a GBean Endpoint.
@@ -42,6 +53,8 @@ public class AdminObjectWrapper implements DynamicGBean {
         adminObjectClass = null;
         adminObject = null;
         delegate = null;
+        kernel = null;
+        objectName = null;
     }
 
     /**
@@ -54,9 +67,13 @@ public class AdminObjectWrapper implements DynamicGBean {
      */
     public AdminObjectWrapper(final String adminObjectInterface,
                               final String adminObjectClass,
+                              final Kernel kernel,
+                              final String objectName,
                               final ClassLoader cl) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         this.adminObjectInterface = adminObjectInterface;
         this.adminObjectClass = adminObjectClass;
+        this.kernel = kernel;
+        this.objectName = objectName;
         Class clazz = cl.loadClass(adminObjectClass);
         adminObject = clazz.newInstance();
         delegate = new DynamicGBeanDelegate();
@@ -119,5 +136,53 @@ public class AdminObjectWrapper implements DynamicGBean {
         return null;
     }
 
+    /**
+     * Gets the config properties in the form of a map where the key is the
+     * property name and the value is property type (as a String not a Class).
+     */
+    public Map getConfigProperties() {
+        String[] props = delegate.getProperties();
+        Map map = new HashMap();
+        for (int i = 0; i < props.length; i++) {
+            String prop = props[i];
+            if(prop.equals("logWriter")) {
+                continue;
+            }
+            map.put(prop, delegate.getPropertyType(prop));
+        }
+        return map;
+    }
+
+    public void setConfigProperty(String property, Object value) throws Exception {
+        Class cls = delegate.getPropertyType(property);
+        if(value != null && value instanceof String && !cls.getName().equals("java.lang.String")) {
+            if(cls.isPrimitive()) {
+                if(cls.equals(int.class)) {
+                    cls = Integer.class;
+                } else if(cls.equals(boolean.class)) {
+                    cls = Boolean.class;
+                } else if(cls.equals(float.class)) {
+                    cls = Float.class;
+                } else if(cls.equals(double.class)) {
+                    cls = Double.class;
+                } else if(cls.equals(long.class)) {
+                    cls = Long.class;
+                } else if(cls.equals(short.class)) {
+                    cls = Short.class;
+                } else if(cls.equals(byte.class)) {
+                    cls = Byte.class;
+                } else if(cls.equals(char.class)) {
+                    cls = Character.class;
+                }
+            }
+            Constructor con = cls.getConstructor(new Class[]{String.class});
+            value = con.newInstance(new Object[]{value});
+        }
+        kernel.setAttribute(ObjectName.getInstance(objectName), property, value);
+    }
+
+    public Object getConfigProperty(String property) throws Exception {
+        return delegate.getAttribute(property);
+    }
 
 }

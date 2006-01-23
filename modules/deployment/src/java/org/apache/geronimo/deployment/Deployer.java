@@ -123,17 +123,27 @@ public class Deployer {
      * @return The URL that clients should use for deployment file uploads.
      */
     public String getRemoteDeployUploadURL() {
+        // Get the token GBean from the remote deployment configuration
         Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.deployment.remote.RemoteDeployToken"));
         if(set.size() == 0) {
             return null;
         }
         ObjectName token = (ObjectName) set.iterator().next();
+        // Identify the parent configuration for that GBean
         set = kernel.getDependencyManager().getParents(token);
-        if(set.size() == 0) {
-            log.error("Unable to find configuration for remote deployer GBean");
+        ObjectName config = null;
+        for (Iterator it = set.iterator(); it.hasNext();) {
+            ObjectName name = (ObjectName) it.next();
+            if(Configuration.isConfigurationObjectName(name)) {
+                config = name;
+                break;
+            }
+        }
+        if(config == null) {
+            log.warn("Unable to find remote deployment configuration; is the remote deploy web application running?");
             return null;
         }
-        ObjectName config = (ObjectName) set.iterator().next();
+        // Generate the URL based on the remote deployment configuration
         Hashtable hash = new Hashtable();
         hash.put("J2EEApplication", token.getKeyProperty("J2EEApplication"));
         hash.put("J2EEServer", token.getKeyProperty("J2EEServer"));

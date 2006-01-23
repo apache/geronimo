@@ -54,7 +54,9 @@ public class SinglePool extends XmlBeanSupport {
     public void setMinSize(Integer value) {
         Integer old = getMinSize();
         if(value == null) {
-            getSinglePool().unsetMinSize();
+            if(getSinglePool().isSetMinSize()) {
+                getSinglePool().unsetMinSize();
+            }
         } else {
             getSinglePool().setMinSize(value.intValue());
         }
@@ -68,7 +70,9 @@ public class SinglePool extends XmlBeanSupport {
     public void setMaxSize(Integer value) {
         Integer old = getMaxSize();
         if(value == null) {
-            getSinglePool().unsetMaxSize();
+            if(getSinglePool().isSetMaxSize()) {
+                getSinglePool().unsetMaxSize();
+            }
         } else {
             getSinglePool().setMaxSize(value.intValue());
         }
@@ -82,7 +86,9 @@ public class SinglePool extends XmlBeanSupport {
     public void setBlockingTimeoutMillis(Integer value) {
         Integer old = getBlockingTimeoutMillis();
         if(value == null) {
-            getSinglePool().unsetBlockingTimeoutMilliseconds();
+            if(getSinglePool().isSetBlockingTimeoutMilliseconds()) {
+                getSinglePool().unsetBlockingTimeoutMilliseconds();
+            }
         } else {
             getSinglePool().setBlockingTimeoutMilliseconds(value.intValue());
         }
@@ -96,7 +102,9 @@ public class SinglePool extends XmlBeanSupport {
     public void setIdleTimeoutMinutes(Integer value) {
         Integer old = getIdleTimeoutMinutes();
         if(value == null) {
-            getSinglePool().unsetIdleTimeoutMinutes();
+            if(getSinglePool().isSetIdleTimeoutMinutes()) {
+                getSinglePool().unsetIdleTimeoutMinutes();
+            }
         } else {
             getSinglePool().setIdleTimeoutMinutes(value.intValue());
         }

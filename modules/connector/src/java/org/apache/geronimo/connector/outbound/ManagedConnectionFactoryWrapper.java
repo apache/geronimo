@@ -317,7 +317,6 @@ public class ManagedConnectionFactoryWrapper implements GBeanLifecycle, DynamicG
                     cls = Character.class;
                 }
             }
-            //todo: what about value is null but type is primitive?
             Constructor con = cls.getConstructor(new Class[]{String.class});
             value = con.newInstance(new Object[]{value});
         }
