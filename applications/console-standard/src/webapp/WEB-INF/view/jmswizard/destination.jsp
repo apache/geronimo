@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p><b>Create JMS Resource</b> -- Add Connection Factory</p>
+<p><b>JMS Resource Group</b> -- Configure Destination</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
@@ -75,11 +75,8 @@
       <tr>
         <td></td>
         <td>
-            <input type="hidden" name="nextAction" value="factoryType" />
-            <input type="submit" value="Add Connection Factory" />
-            <input type="button" value="Add Destination" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='destinationType';document.<portlet:namespace/>JMSForm.submit();return false;" />
-            <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='plan';document.<portlet:namespace/>JMSForm.submit();return false;" />
-            <input type="button" value="Deploy Now" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='deploy';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="hidden" name="nextAction" value="review" />
+            <input type="submit" value="Next" />
         </td>
       </tr>
     </table>
@@ -87,9 +84,9 @@
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
 
 
-<p><b>Current Status for JMS Resource <c:out value="${data.instanceName}" /></b></p>
+<p><b>Current Status for JMS Resource Group <c:out value="${data.instanceName}" /></b></p>
 <ul>
-  <li><c:out value="${data.connectionFactoryCount}" /> Connection Factories
+  <li><c:out value="${data.connectionFactoryCount}" /> Connection Factor<c:choose><c:when test="${data.connectionFactoryCount == 1}">y</c:when><c:otherwise>ies</c:otherwise></c:choose>
       <c:if test="${data.connectionFactoryCount > 0}">
           <ul>
               <c:forEach var="factory" items="${data.connectionFactories}">
@@ -107,7 +104,7 @@
           </ul>
       </c:if>
   </li>
-  <li><c:out value="${data.destinationCount}" /> Destinations
+  <li><c:out value="${data.destinationCount}" /> Destination<c:if test="${data.destinationCount != 1}">s</c:if>
       <c:if test="${data.destinationCount > 0}">
           <ul>
               <c:forEach var="dest" items="${data.adminObjects}">

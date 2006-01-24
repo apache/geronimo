@@ -3,11 +3,50 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p><b>JMS Resource Group</b> -- Select Connection Factory Type</p>
+<p><b>JMS Resource Group</b> -- Current Progress</p>
+
+<c:choose>
+    <c:when test="${data.connectionFactoryCount == 0 && data.destinationCount == 0}">
+        <p>So far, you've entered the basic configuration information required for
+          a JMS resource group.  Now you can create connection factories and
+          destinations.  When you're finished adding connection factories and
+          destinations, you can review the Geronimo deployment plan for this JMS
+          resource group, or go ahead and deploy it.</p>
+    </c:when>
+    <c:otherwise>
+        <p>These are the connection factories and destinations you've added to the
+          JMS resource group so far.  When you're finished adding connection factories and
+          destinations, you can review the Geronimo deployment plan for this resource
+          group, or go ahead and deploy it.</p>
+
+        <table border="0" width="100%">
+            <tr><th colspan="3">Resource Group <c:out value="${data.instanceName}"/></th></tr>
+            <tr>
+                <td class="DarkBackground">Type</td>
+                <td class="DarkBackground">Name</td>
+                <td class="DarkBackground">Interface</td>
+            </tr>
+            <c:forEach var="factory" items="${data.connectionFactories}">
+                <tr>
+                    <td>Connection Factory</td>
+                    <td><c:out value="${factory.instanceName}" /></td>
+                    <td><c:out value="${provider.connectionDefinitions[factory.factoryType].connectionFactoryInterface}" /></td>
+                </tr>
+            </c:forEach>
+            <c:forEach var="dest" items="${data.adminObjects}">
+                <tr>
+                    <td>Destination</td>
+                    <td><c:out value="${dest.name}" /></td>
+                    <td><c:out value="${provider.adminObjectDefinitions[dest.destinationType].adminObjectInterface}" /></td>
+                </tr>
+            </c:forEach>
+        </table>
+    </c:otherwise>
+</c:choose>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
-    <input type="hidden" name="mode" value="factoryType-after" />
+    <input type="hidden" name="mode" value="review-after" />
     <input type="hidden" name="rar" value="${data.rarURI}" />
     <input type="hidden" name="dependency" value="${data.dependency}" />
     <input type="hidden" name="instanceName" value="${data.instanceName}" />
@@ -17,6 +56,7 @@
     </c:forEach>
     <input type="hidden" name="currentFactoryID" value="${data.currentFactoryID}" />
     <input type="hidden" name="currentDestinationID" value="${data.currentDestinationID}" />
+    <input type="hidden" name="factoryType" value="${data.factoryType}" />
     <input type="hidden" name="destinationType" value="${data.destinationType}" />
     <c:forEach var="factory" items="${data.connectionFactories}" varStatus="status">
       <input type="hidden" name="factory.${status.index}.factoryType" value="${factory.factoryType}" />
@@ -40,72 +80,22 @@
       </c:forEach>
     </c:forEach>
     <table border="0">
-    <!-- ENTRY FIELD: Connection Factory Type -->
-      <tr>
-        <th><div align="right">JMS Factory Type:</div></th>
-        <td>
-          <select name="factoryType">
-        <c:forEach var="factory" items="${provider.connectionDefinitions}" varStatus="status">
-            <option <c:if test="${status.index == data.factoryType}">selected</c:if> value="${status.index}">${factory.connectionFactoryInterface}</option>
-        </c:forEach>
-          </select>
-        </td>
-      </tr>
-      <tr>
-        <td></td>
-        <td>This resource adapter declares several possible connection factory interfaces.
-            Select the desired interface type for this connection factory.
-        </td>
-      </tr>
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Next" /></td>
+        <td>
+            <input type="hidden" name="nextAction" value="factoryType" />
+            <input type="submit" value="Add Connection Factory" />
+            <input type="button" value="Add Destination" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='destinationType';document.<portlet:namespace/>JMSForm.submit();return false;" />
+<c:if test="${data.connectionFactoryCount > 0 || data.destinationCount > 0}">
+            <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='plan';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="button" value="Deploy Now" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='deploy';document.<portlet:namespace/>JMSForm.submit();return false;" />
+</c:if>
+        </td>
       </tr>
     </table>
 </form>
 <!--   END OF FORM TO COLLECT DATA FOR THIS PAGE   -->
-
-
-<p><b>Current Status for JMS Resource Group <c:out value="${data.instanceName}" /></b></p>
-<ul>
-  <li><c:out value="${data.connectionFactoryCount}" /> Connection Factor<c:choose><c:when test="${data.connectionFactoryCount == 1}">y</c:when><c:otherwise>ies</c:otherwise></c:choose>
-      <c:if test="${data.connectionFactoryCount > 0}">
-          <ul>
-              <c:forEach var="factory" items="${data.connectionFactories}">
-                  <li>
-                      <c:choose>
-                          <c:when test="${empty(factory.instanceName)}">
-                              <i>In Process</i>
-                          </c:when>
-                          <c:otherwise>
-                              <c:out value="${factory.instanceName}" />
-                          </c:otherwise>
-                      </c:choose>
-                  </li>
-              </c:forEach>
-          </ul>
-      </c:if>
-  </li>
-  <li><c:out value="${data.destinationCount}" /> Destination<c:if test="${data.destinationCount != 1}">s</c:if>
-      <c:if test="${data.destinationCount > 0}">
-          <ul>
-              <c:forEach var="dest" items="${data.adminObjects}">
-                  <li>
-                      <c:choose>
-                          <c:when test="${empty(dest.name)}">
-                              <i>In Process</i>
-                          </c:when>
-                          <c:otherwise>
-                              <c:out value="${dest.name}" />
-                          </c:otherwise>
-                      </c:choose>
-                  </li>
-              </c:forEach>
-          </ul>
-      </c:if>
-  </li>
-</ul>
 
 
 <p><a href="<portlet:actionURL portletMode="view">

@@ -52,6 +52,7 @@ public class JMSResourcePortlet extends BasePortlet {
         addHelper(new CreateDestinationHandler(), config);
         addHelper(new ShowPlanHandler(), config);
         addHelper(new DeployHandler(), config);
+        addHelper(new ReviewHandler(), config);
     }
 
     public void destroy() {
@@ -82,7 +83,7 @@ public class JMSResourcePortlet extends BasePortlet {
                     log.error("No handler for action mode '"+mode+"'");
                     break;
                 }
-System.out.println("Using action handler '"+handler.getClass().getName()+"'");
+                log.debug("Using action handler '"+handler.getClass().getName()+"'");
                 if(type.equals("before")) {
                     mode = handler.actionBeforeView(actionRequest, actionResponse, data);
                 } else if(type.equals("after")) {
@@ -113,7 +114,7 @@ System.out.println("Using action handler '"+handler.getClass().getName()+"'");
             if(handler == null) {
                 log.error("No handler for render mode '"+mode+"'");
             } else {
-System.out.println("Using render handler '"+handler.getClass().getName()+"'");
+                log.debug("Using render handler '"+handler.getClass().getName()+"'");
                 handler.renderView(renderRequest, renderResponse, data);
             }
         } catch (Throwable e) {

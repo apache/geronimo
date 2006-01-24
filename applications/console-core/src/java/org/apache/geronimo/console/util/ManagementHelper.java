@@ -81,6 +81,7 @@ public interface ManagementHelper {
     EJBModule[] getEJBModules(J2EEServer server);
     ResourceAdapterModule[] getRAModules(J2EEServer server);
     ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String connectionFactoryInterface);
+    ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String[] connectionFactoryInterfaces);
     ResourceAdapterModule[] getAdminObjectModules(J2EEServer server, String[] adminObjectInterfaces);
     JCAManagedConnectionFactory[] getOutboundFactories(J2EEServer server, String connectionFactoryInterface);
     J2EEResource[] getResources(J2EEServer server);
@@ -139,6 +140,7 @@ public interface ManagementHelper {
     ResourceAdapter[] getResourceAdapters(ResourceAdapterModule module);
     JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module);
     JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String connectionFactoryInterface);
+    JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String[] connectionFactoryInterfaces);
     //todo: create an interface for admin objects
     JCAAdminObject[] getAdminObjects(ResourceAdapterModule module, String[] adminObjectInterfaces);
 

@@ -70,8 +70,8 @@ public class ListScreenHandler extends AbstractHandler {
         List resources = new ArrayList();
 
         // Get the list of connection factories
-        //todo: do we need to check for QueueCF and TopicCF too?
-        ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(renderRequest, "javax.jms.ConnectionFactory");
+        ResourceAdapterModule[] modules = PortletManager.getOutboundRAModules(renderRequest, new String[]{
+                "javax.jms.ConnectionFactory","javax.jms.QueueConnectionFactory","javax.jms.TopicConnectionFactory",});
         try {
             for (int i = 0; i < modules.length; i++) {
                 ResourceAdapterModule module = modules[i];
@@ -90,7 +90,6 @@ public class ListScreenHandler extends AbstractHandler {
                     if(adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
                         JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
                         if(resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
-                            System.out.println("RA Object Name is '"+resource[0].getResourceAdapterInstances()[0]);
                             name = ObjectName.getInstance(resource[0].getResourceAdapterInstances()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
                     }
@@ -102,7 +101,8 @@ public class ListScreenHandler extends AbstractHandler {
                     resources.add(target);
                 }
 
-                JCAManagedConnectionFactory[] factories = PortletManager.getOutboundFactoriesForRA(renderRequest, module, "javax.jms.ConnectionFactory");
+                JCAManagedConnectionFactory[] factories = PortletManager.getOutboundFactoriesForRA(renderRequest, module, new String[]{
+                        "javax.jms.ConnectionFactory", "javax.jms.QueueConnectionFactory", "javax.jms.TopicConnectionFactory", });
                 for (int j = 0; j < factories.length; j++) {
                     JCAManagedConnectionFactory factory = factories[j];
                     ObjectName name = ObjectName.getInstance(factory.getObjectName());
@@ -130,7 +130,6 @@ public class ListScreenHandler extends AbstractHandler {
                     if(adapters.length == 1 && adapters[0].getJCAResources().length == 1) {
                         JCAResource[] resource = PortletManager.getJCAResources(renderRequest, adapters[0]);
                         if(resource.length == 1 && resource[0].getResourceAdapterInstances().length == 1) {
-                            System.out.println("RA Object Name is '"+resource[0].getResourceAdapterInstances()[0]);
                             name = ObjectName.getInstance(resource[0].getResourceAdapterInstances()[0]).getKeyProperty(NameFactory.J2EE_NAME);
                         }
                     }

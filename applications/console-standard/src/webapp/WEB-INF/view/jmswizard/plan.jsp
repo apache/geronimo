@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p><b>Create JMS Resource</b> -- Show Deployment Plan</p>
+<p><b>JMS Resource Group</b> -- Show Deployment Plan</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
@@ -51,8 +51,7 @@
         <td></td>
         <td>
             <input type="hidden" name="nextAction" value="deploy" />
-            <input type="button" value="Add Connection Factory" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='factoryType';document.<portlet:namespace/>JMSForm.submit();return false;" />
-            <input type="button" value="Add Destination" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='destinationType';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="button" value="Edit Configuration" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='review';document.<portlet:namespace/>JMSForm.submit();return false;" />
             <input type="submit" value="Deploy JMS Resource" />
         </td>
       </tr>
