@@ -25,7 +25,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.management.JCAResource;
+import org.apache.geronimo.management.geronimo.JCAResource;
 
 /**
  * @version $Rev$ $Date$
