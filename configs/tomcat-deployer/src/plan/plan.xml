@@ -27,10 +27,16 @@
         <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/tomcat/${pom.currentVersion}/car,${pom.groupId}/axis/${pom.currentVersion}/car</attribute>
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
-        <reference name="WebServiceBuilder">
-            <module>*</module>
-            <name>WebServiceBuilder</name>
-        </reference>
+        <references name="WebServiceBuilder">
+            <pattern>
+                <module>*</module>
+                <name>WebServiceBuilder</name>
+            </pattern>
+            <pattern>
+                <module>*</module>
+                <name>UnavailableWebServiceBuilder</name>
+            </pattern>
+        </references>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>

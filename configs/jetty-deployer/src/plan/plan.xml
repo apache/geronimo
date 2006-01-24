@@ -36,10 +36,16 @@
         <reference name="PojoWebServiceTemplate">
             <name>POJOTemplate</name>
         </reference>
-        <reference name="WebServiceBuilder">
-            <module>*</module>
-            <name>WebServiceBuilder</name>
-        </reference>
+        <references name="WebServiceBuilder">
+            <pattern>
+                <module>*</module>
+                <name>WebServiceBuilder</name>
+            </pattern>
+            <pattern>
+                <module>*</module>
+                <name>UnavailableWebServiceBuilder</name>
+            </pattern>
+        </references>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>

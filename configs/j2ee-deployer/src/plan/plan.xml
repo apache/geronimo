@@ -27,8 +27,10 @@
         <attribute name="transactionContextManagerObjectName">*:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">*:name=ConnectionTracker,*</attribute>
         <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
-        <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
-        <attribute name="corbaGBeanObjectName">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/server-corba/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=CORBABean,name=Server</attribute>
+        <attribute name="nonTransactionalTimerObjectName">
+            geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
+        <attribute name="corbaGBeanObjectName">
+            geronimo.server:J2EEApplication=null,J2EEModule=geronimo/server-corba/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=CORBABean,name=Server</attribute>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
@@ -43,15 +45,22 @@
             <name>ConnectorBuilder</name>
         </reference>
         <reference name="AppClientConfigBuilder">
+            <module>*</module>
             <name>AppClientBuilder</name>
         </reference>
         <reference name="ResourceReferenceBuilder">
             <name>ConnectorBuilder</name>
         </reference>
-        <reference name="ServiceReferenceBuilder">
-            <module>*</module>
-            <name>WebServiceBuilder</name>
-        </reference>
+        <references name="ServiceReferenceBuilder">
+            <pattern>
+                <module>*</module>
+                <name>WebServiceBuilder</name>
+            </pattern>
+            <pattern>
+                <module>*</module>
+                <name>UnavailableServiceReferenceBuilder</name>
+            </pattern>
+        </references>
         <reference name="EJBReferenceBuilder">
             <module>*</module>
             <name>ServerEJBReferenceBuilder</name>
@@ -62,10 +71,16 @@
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
         <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</attribute>
         <references name="ModuleBuilders">
-            <pattern><gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/jetty-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=JettyWebBuilder</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/tomcat-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=TomcatWebBuilder</gbean-name></pattern>
+            <pattern>
+                <gbean-name>
+                    geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/jetty-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=JettyWebBuilder</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>
+                    geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/tomcat-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=TomcatWebBuilder</gbean-name>
+            </pattern>
         </references>
-     </gbean>
+    </gbean>
 
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
         <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
@@ -80,39 +95,10 @@
         </reference>
     </gbean>
 
-    <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
-        <attribute name="defaultClientParentId">${pom.groupId}/client/${pom.currentVersion}/car</attribute>
-        <attribute name="defaultServerParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
-        <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
-        <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
-        <attribute name="corbaGBeanObjectName">geronimo.client:J2EEApplication=null,J2EEModule=geronimo/client-corba/${pom.currentVersion}/car,J2EEServer=client,j2eeType=CORBABean,name=Server</attribute>
-        <reference name="EJBReferenceBuilder">
-            <module>*</module>
-            <name>ClientEJBReferenceBuilder</name>
-        </reference>
-        <reference name="ConnectorModuleBuilder">
-            <name>ConnectorBuilder</name>
-        </reference>
-        <reference name="ResourceReferenceBuilder">
-            <name>ConnectorBuilder</name>
-        </reference>
-        <reference name="ServiceReferenceBuilder">
-            <module>*</module>
-            <name>WebServiceBuilder</name>
-        </reference>
-        <references name="Store">
-            <!-- todo replace with a store the Client Builder can write to -->
-            <pattern><gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationStore,name=Local</gbean-name></pattern>
-        </references>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
-        </reference>
-    </gbean>
-
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyConfigurationFactory">
+            org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
 

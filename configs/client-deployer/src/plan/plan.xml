@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2005 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
+               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+        >
+
+    <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
+        <attribute name="defaultClientParentId">${pom.groupId}/client/${pom.currentVersion}/car</attribute>
+        <attribute name="defaultServerParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
+        <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
+        <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
+        <attribute name="corbaGBeanObjectName">geronimo.client:J2EEApplication=null,J2EEModule=geronimo/client-corba/${pom.currentVersion}/car,J2EEServer=client,j2eeType=CORBABean,name=Server</attribute>
+        <reference name="EJBReferenceBuilder">
+            <module>*</module>
+            <name>ClientEJBReferenceBuilder</name>
+        </reference>
+        <reference name="ConnectorModuleBuilder">
+            <module>*</module>
+            <name>ConnectorBuilder</name>
+        </reference>
+        <reference name="ResourceReferenceBuilder">
+            <module>*</module>
+            <name>ConnectorBuilder</name>
+        </reference>
+        <references name="ServiceReferenceBuilder">
+            <pattern>
+                <module>*</module>
+                <name>WebServiceBuilder</name>
+            </pattern>
+            <pattern>
+                <module>*</module>
+                <name>UnavailableServiceReferenceBuilder</name>
+            </pattern>
+        </references>
+        <references name="Store">
+            <pattern>
+                <gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>geronimo.server:j2eeType=ConfigurationStore,name=Local</gbean-name>
+            </pattern>
+        </references>
+        <reference name="Repository">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
+</configuration>

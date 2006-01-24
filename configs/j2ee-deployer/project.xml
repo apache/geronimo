@@ -53,7 +53,7 @@
     </dependency>
 
         <!-- dependencies from gbean-deployer needed as maven adds service builder to the maven.root classloader -->
-        <dependency>
+<!--        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>
             <version>${geronimo_version}</version>
@@ -88,28 +88,11 @@
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
         </dependency>
-
-<!--        <dependency>
-            <groupId>concurrent</groupId>
-            <artifactId>concurrent</artifactId>
-            <version>${concurrent_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>howl</groupId>
-            <artifactId>howl-logger</artifactId>
-            <version>${howl_version}</version>
-            <url>http://forge.objectweb.org/projects/howl</url>
-        </dependency>
-        <dependency>
-            <groupId>activeio</groupId>
-            <artifactId>activeio</artifactId>
-            <version>${activeio_version}</version>
-        </dependency>
 -->
         <!-- dependencies from plan -->
 
         <!-- common libraries used by all builders -->
-        <dependency>
+<!--        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <version>${geronimo_spec_j2ee_version}</version>
@@ -125,6 +108,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-schema</artifactId>
@@ -177,7 +161,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-        <dependency>
+       <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming-builder</artifactId>
             <version>${geronimo_version}</version>
@@ -209,6 +193,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis-builder</artifactId>
@@ -225,6 +210,8 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+    
+-->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-webservices</artifactId>
@@ -233,6 +220,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>axis</groupId>
             <artifactId>axis</artifactId>
@@ -243,7 +231,7 @@
             <artifactId>wsdl4j</artifactId>
             <version>${wsdl4j_version}</version>
         </dependency>
-
+-->
         <!-- WARs using Jetty -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -253,6 +241,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jetty-builder</artifactId>
@@ -268,8 +257,9 @@
             <artifactId>org.mortbay.jetty</artifactId>
             <version>${jetty_version}</version>
         </dependency>
-
+-->
         <!-- EJBs using OpenEJB -->
+<!--
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-builder</artifactId>
@@ -302,7 +292,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-
+-->
         <!-- RARs using Geronimo Connector implementation -->
         <dependency>
             <groupId>geronimo</groupId>

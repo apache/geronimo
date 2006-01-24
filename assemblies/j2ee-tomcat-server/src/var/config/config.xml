@@ -94,6 +94,7 @@
         </gbean>
     </configuration>
     <configuration name="geronimo/axis-deployer/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/client-deployer/${pom.currentVersion}/car"/>                                                                     
     <configuration name="geronimo/javamail/${pom.currentVersion}/car" load="false">
         <gbean name="SMTPTransport">
             <attribute name="host">localhost</attribute>

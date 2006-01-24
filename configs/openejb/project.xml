@@ -45,10 +45,19 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
-             </properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
         </dependency>
-<!--        <dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>axis</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
+        </dependency>
+        <!--        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${geronimo_version}</version>
@@ -109,8 +118,8 @@
             <artifactId>openejb-core</artifactId>
             <version>${openejb_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
         <dependency>
             <groupId>xstream</groupId>
@@ -190,33 +199,33 @@
 -->
 
         <!-- TODO why are these here rather than in system-database??? -->
-<!--        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-derby</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
+        <!--        <dependency>
+                    <groupId>geronimo</groupId>
+                    <artifactId>geronimo-derby</artifactId>
+                    <version>${pom.currentVersion}</version>
+                    <properties>
+                         <geronimo.dependency>true</geronimo.dependency>
+                    </properties>
+                </dependency>
 
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <version>${derby_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
+                <dependency>
+                    <groupId>org.apache.derby</groupId>
+                    <artifactId>derby</artifactId>
+                    <version>${derby_version}</version>
+                    <properties>
+                         <geronimo.dependency>true</geronimo.dependency>
+                    </properties>
+                </dependency>
 
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbynet</artifactId>
-            <version>${derby_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
--->
+                <dependency>
+                    <groupId>org.apache.derby</groupId>
+                    <artifactId>derbynet</artifactId>
+                    <version>${derby_version}</version>
+                    <properties>
+                         <geronimo.dependency>true</geronimo.dependency>
+                    </properties>
+                </dependency>
+        -->
 
         <dependency>
             <groupId>geronimo</groupId>

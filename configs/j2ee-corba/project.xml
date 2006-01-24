@@ -41,7 +41,7 @@
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>j2ee-server</artifactId>
+            <artifactId>openejb</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>

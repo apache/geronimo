@@ -247,6 +247,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>client-deployer</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>                                                                                                                              
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>tomcat-deployer</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>

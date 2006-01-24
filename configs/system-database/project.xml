@@ -46,6 +46,12 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>client-deployer</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>openejb-deployer</artifactId>
             <version>${geronimo_version}</version>
             <type>car</type>
