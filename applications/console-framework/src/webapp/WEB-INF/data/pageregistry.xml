@@ -273,6 +273,7 @@ limitations under the License.
                     </fragment>
                 </fragment>
             </fragment>
+<!--
             <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
                     <fragment name="p1" type="portlet">
@@ -287,6 +288,7 @@ limitations under the License.
                     </fragment>
                 </fragment>
             </fragment>
+-->
         </fragment>
 
 <!--
