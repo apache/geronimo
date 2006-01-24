@@ -84,13 +84,6 @@
         </dependency>
 
         <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>jetty-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
             <version>${geronimo_spec_j2ee_version}</version>
@@ -164,11 +157,6 @@
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-axis</artifactId>
-            <version>${geronimo_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
 
