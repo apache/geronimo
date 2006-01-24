@@ -5,7 +5,7 @@
 <p><b>Create Database Pool</b> -- Step 3: Final Pool Configuration</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-url" />
     <input type="hidden" name="test" value="true" />
     <input type="hidden" name="name" value="${pool.name}" />

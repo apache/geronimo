@@ -26,18 +26,8 @@ import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 import org.apache.geronimo.management.J2EEDomain;
-import org.apache.geronimo.management.geronimo.EJBManager;
-import org.apache.geronimo.management.geronimo.J2EEServer;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.management.geronimo.JMSBroker;
-import org.apache.geronimo.management.geronimo.JMSConnector;
-import org.apache.geronimo.management.geronimo.JMSManager;
-import org.apache.geronimo.management.geronimo.JVM;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.management.geronimo.WebAccessLog;
-import org.apache.geronimo.management.geronimo.WebConnector;
-import org.apache.geronimo.management.geronimo.WebContainer;
-import org.apache.geronimo.management.geronimo.WebManager;
+import org.apache.geronimo.management.ResourceAdapter;
+import org.apache.geronimo.management.geronimo.*;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
@@ -58,6 +48,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.net.URI;
+import java.net.URL;
+import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 
 /**
  * @version $Rev$ $Date$
@@ -205,6 +199,11 @@ public class PortletManager {
         return helper.getOutboundRAModules(getCurrentServer(request), iface);
     }
 
+    public static ResourceAdapterModule[] getAdminObjectModules(PortletRequest request, String[] ifaces) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getAdminObjectModules(getCurrentServer(request), ifaces);
+    }
+
     public static JCAManagedConnectionFactory[] getOutboundFactoriesOfType(PortletRequest request, String iface) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundFactories(getCurrentServer(request), iface);
@@ -228,6 +227,12 @@ public class PortletManager {
     public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, ResourceAdapterModule module, String iface) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getOutboundFactories(module, iface);
+    }
+
+    //todo: Create an interface for admin objects
+    public static JCAAdminObject[] getAdminObjectsForRA(PortletRequest request, ResourceAdapterModule module, String[] ifaces) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getAdminObjects(module, ifaces);
     }
 
     public static String[] getWebManagerNames(PortletRequest request) {
@@ -353,6 +358,16 @@ public class PortletManager {
         return helper.getJMSConnectorsForContainer(manager, brokerObjectName, protocol);
     }
 
+    public static ResourceAdapter[] getResourceAdapters(PortletRequest request, ResourceAdapterModule module) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getResourceAdapters(module);
+    }
+
+    public static JCAResource[] getJCAResources(PortletRequest request, ResourceAdapter adapter) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getRAResources(adapter);
+    }
+
     public static GeronimoExecutor[] getThreadPools(PortletRequest request) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getThreadPools(getCurrentServer(request));
@@ -386,6 +401,29 @@ public class PortletManager {
     public static GeronimoManagedBean getManagedBean(PortletRequest request, String name) {
         ManagementHelper helper = getManagementHelper(request);
         return (GeronimoManagedBean) helper.getObject(name);
+    }
+
+    public static URI getConfigurationFor(PortletRequest request, String objectName) {
+        ManagementHelper helper = getManagementHelper(request);
+        return helper.getConfigurationNameFor(objectName);
+    }
+
+    public static URL getRepositoryEntry(PortletRequest request, String repositoryURI) {
+        try {
+            Repository[] repos = getRepositories(request);
+            URI uri = new URI(repositoryURI);
+            for (int i = 0; i < repos.length; i++) {
+                Repository repo = repos[i];
+                if(repo.hasURI(uri)) {
+                    return repo.getURL(uri);
+                }
+            }
+        } catch (URISyntaxException e) {
+            log.error("Unable to access repository entry '"+repositoryURI+"'", e);
+        } catch (MalformedURLException e) {
+            log.error("Unable to access repository entry '"+repositoryURI+"'", e);
+        }
+        return null;
     }
 
     /**

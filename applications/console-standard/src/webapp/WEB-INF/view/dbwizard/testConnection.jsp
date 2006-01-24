@@ -5,7 +5,7 @@
 <p><b>Create Database Pool</b> -- Step 4: Test Connection</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="save" />
     <input type="hidden" name="user" value="${pool.user}" />
     <input type="hidden" name="name" value="${pool.name}" />

@@ -16,6 +16,11 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.net.URI;
+import java.util.Map;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
@@ -25,7 +30,6 @@ import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEModule;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.management.JCAResource;
 import org.apache.geronimo.management.JDBCDataSource;
 import org.apache.geronimo.management.JDBCDriver;
 import org.apache.geronimo.management.JDBCResource;
@@ -37,7 +41,9 @@ import org.apache.geronimo.management.geronimo.EJBConnector;
 import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
@@ -52,11 +58,6 @@ import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import java.util.Map;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -80,6 +81,7 @@ public interface ManagementHelper {
     EJBModule[] getEJBModules(J2EEServer server);
     ResourceAdapterModule[] getRAModules(J2EEServer server);
     ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String connectionFactoryInterface);
+    ResourceAdapterModule[] getAdminObjectModules(J2EEServer server, String[] adminObjectInterfaces);
     JCAManagedConnectionFactory[] getOutboundFactories(J2EEServer server, String connectionFactoryInterface);
     J2EEResource[] getResources(J2EEServer server);
     JCAResource[] getJCAResources(J2EEServer server);
@@ -137,6 +139,8 @@ public interface ManagementHelper {
     ResourceAdapter[] getResourceAdapters(ResourceAdapterModule module);
     JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module);
     JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String connectionFactoryInterface);
+    //todo: create an interface for admin objects
+    JCAAdminObject[] getAdminObjects(ResourceAdapterModule module, String[] adminObjectInterfaces);
 
     // resource adapter properties
     JCAResource[] getRAResources(ResourceAdapter adapter);
@@ -149,6 +153,7 @@ public interface ManagementHelper {
 
     // Generic utility methods
     Object getObject(String objectName);
+    URI getConfigurationNameFor(String objectName);
     String getGBeanDescription(String objectName);
 
     // Misc

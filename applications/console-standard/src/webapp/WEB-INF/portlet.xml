@@ -506,6 +506,29 @@ limitations under the License.
     </portlet>
 
     <portlet>
+        <description>Portlet for managing JMS Resources</description>
+        <portlet-name>JMSWizard</portlet-name>
+        <display-name>JMS Resource Wizard</display-name>
+
+        <portlet-class>org.apache.geronimo.console.jmsmanager.wizard.JMSResourcePortlet</portlet-class>
+
+        <expiration-cache>-1</expiration-cache>
+
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>JMS Resources</title>
+            <short-title>JMS Resources</short-title>
+            <keywords>JMS Resource Connection Factory Destination Wizard</keywords>
+        </portlet-info>
+    </portlet>
+
+    <portlet>
         <description>Portlet for managing security realms</description>
         <portlet-name>RealmWizard</portlet-name>
         <display-name>Security Realm Wizard</display-name>

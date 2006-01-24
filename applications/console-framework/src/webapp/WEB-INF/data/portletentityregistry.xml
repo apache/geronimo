@@ -136,5 +136,8 @@ limitations under the License.
         <portlet id="66">
             <definition-id>console-standard.RealmWizard</definition-id>
         </portlet>
+        <portlet id="67">
+            <definition-id>console-standard.JMSWizard</definition-id>
+        </portlet>
     </application>
 </portlet-entity-registry>

@@ -6,7 +6,7 @@
     xmlns:velocity="jelly:velocity"
     xmlns:util="jelly:util">
 
-    <preGoal name="war:install">
+    <preGoal name="war:war">
         <attainGoal name="preCompile"/>
     </preGoal>
 
