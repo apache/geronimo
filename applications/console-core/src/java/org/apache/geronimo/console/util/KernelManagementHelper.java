@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
@@ -265,6 +267,11 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String connectionFactoryInterface) {
+        return getOutboundRAModules(server, new String[]{connectionFactoryInterface});
+    }
+
+    public ResourceAdapterModule[] getOutboundRAModules(J2EEServer server, String[] connectionFactoryInterfaces) {
+        Set targets = new HashSet(Arrays.asList(connectionFactoryInterfaces));
         List list = new ArrayList();
         try {
             String[] names = server.getDeployedObjects();
@@ -284,13 +291,13 @@ public class KernelManagementHelper implements ManagementHelper {
                             for (int l = 0; l < factories.length; l++) {
                                 JCAConnectionFactory factory = factories[l];
                                 JCAManagedConnectionFactory mcf = getManagedConnectionFactory(factory);
-                                if(mcf.getConnectionFactoryInterface().equals(connectionFactoryInterface)) {
+                                if(targets.contains(mcf.getConnectionFactoryInterface())) {
                                     list.add(module);
                                     break outer;
                                 }
                                 for (int m = 0; m < mcf.getImplementedInterfaces().length; m++) {
                                     String iface = mcf.getImplementedInterfaces()[m];
-                                    if(iface.equals(connectionFactoryInterface)) {
+                                    if(targets.contains(iface)) {
                                         list.add(module);
                                         break outer;
                                     }
@@ -368,6 +375,10 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String connectionFactoryInterface) {
+        return getOutboundFactories(module, new String[]{connectionFactoryInterface});
+    }
+    public JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module, String[] connectionFactoryInterfaces) {
+        Set targets = new HashSet(Arrays.asList(connectionFactoryInterfaces));
         List list = new ArrayList();
         try {
             ResourceAdapter[] adapters = getResourceAdapters(module);
@@ -380,13 +391,13 @@ public class KernelManagementHelper implements ManagementHelper {
                     for (int l = 0; l < factories.length; l++) {
                         JCAConnectionFactory factory = factories[l];
                         JCAManagedConnectionFactory mcf = getManagedConnectionFactory(factory);
-                        if(mcf.getConnectionFactoryInterface().equals(connectionFactoryInterface)) {
+                        if(targets.contains(mcf.getConnectionFactoryInterface())) {
                             list.add(mcf);
                             continue;
                         }
                         for (int m = 0; m < mcf.getImplementedInterfaces().length; m++) {
                             String iface = mcf.getImplementedInterfaces()[m];
-                            if(iface.equals(connectionFactoryInterface)) {
+                            if(targets.contains(iface)) {
                                 list.add(mcf);
                                 break;
                             }

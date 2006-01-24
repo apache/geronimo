@@ -3,7 +3,12 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p><b>Create JMS Resource</b> -- Configure Server Connection</p>
+<p><b>JMS Resource Group</b> -- Configure Server Connection</p>
+
+<p>The settings on this screen are different for each JMS provider, but they
+  generally configure connectivity to the JMS server.  Connection factories
+  or destinations you create in the next step typically use these settings to
+  communicate with the server.</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>" method="POST">
@@ -45,7 +50,8 @@
       <tr>
         <td></td>
         <td>A unique name for the resource adapter; used to generate the configuration name
-          as well as to connect Message-Driven Beans to this resource adapter.</td>
+          for this resource group as well as to connect Message-Driven Beans to the JMS server
+          using the settings on this page.</td>
       </tr>
     <!-- ENTRY FIELD: Config Properties -->
       <tr>
@@ -64,11 +70,10 @@
   </c:forEach>
     <!-- SUBMIT BUTTON -->
       <tr>
-        <th><div align="right">Next Actions:</div></th>
+        <th><div align="right"></div></th>
         <td>
-            <input type="hidden" name="nextAction" value="factoryType" />
-            <input type="submit" value="Add Connection Factory" />
-            <input type="button" value="Add Destination" onclick="document.<portlet:namespace/>JMSForm.nextAction.value='destinationType';document.<portlet:namespace/>JMSForm.submit();return false;" />
+            <input type="hidden" name="nextAction" value="review" />
+            <input type="submit" value="Next" />
         </td>
       </tr>
     </table>

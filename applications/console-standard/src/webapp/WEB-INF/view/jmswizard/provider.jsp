@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
 <portlet:defineObjects/>
 
-<p><b>Create JMS Resource</b> -- Select JMS Provider RAR</p>
+<p><b>JMS Resource Group</b> -- Select JMS Provider RAR</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>JMSForm" action="<portlet:actionURL/>">

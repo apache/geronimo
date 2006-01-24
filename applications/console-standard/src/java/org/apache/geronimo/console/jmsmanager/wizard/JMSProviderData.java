@@ -184,6 +184,9 @@ public class JMSProviderData implements Serializable {
     }
 
     public static JMSProviderData getProviderData(String rar, PortletRequest request) throws IOException {
+        if(all == null) {
+            loadProviders();
+        }
         for (int i = 0; i < all.size(); i++) {
             JMSProviderData data = (JMSProviderData) all.get(i);
             if(data.getRaURI().equals(rar)) {
