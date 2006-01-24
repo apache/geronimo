@@ -262,17 +262,24 @@ limitations under the License.
 
         <fragment name="jms" type="page">
             <navigation>
-                <title>JMS</title>
+                <title>JMS Resources</title>
                 <description>ico_beanjar_16x16.gif Configure Java Message Service</description>
             </navigation>
             <fragment name="row1" type="row">
+                <fragment name="col1" type="column">
+                    <fragment name="p1" type="portlet">
+                        <property name="portlet" value="5.67"/>
+                    </fragment>
+                </fragment>
+            </fragment>
+            <fragment name="row2" type="row">
                 <fragment name="col1" type="column">
                     <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.31"/>
                     </fragment>
                 </fragment>
             </fragment>
-            <fragment name="row2" type="row">
+            <fragment name="row3" type="row">
                 <fragment name="col1" type="column">
                     <fragment name="p1" type="portlet">
                         <property name="portlet" value="5.17"/>

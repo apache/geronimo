@@ -31,9 +31,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * Describes an available login module, including how to create and configure it.
+ * Reads the list of available login modules from a properties file on the class path.
+ *
  * @version $Rev$ $Date$
  */
-public class MasterLoginModuleInfo {
+public class MasterLoginModuleInfo implements Serializable {
     private final static Log log = LogFactory.getLog(MasterLoginModuleInfo.class);
     private static MasterLoginModuleInfo[] allModules;
     private String name;

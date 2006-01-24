@@ -251,6 +251,20 @@ limitations under the License.
     </servlet>
     <servlet>
         <description>Automated generated Portlet Wrapper</description>
+        <display-name>Pluto Wrapper for JMS Wizard Portlet</display-name>
+        <servlet-name>JMSWizard</servlet-name>
+        <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
+        <init-param>
+            <param-name>portlet-class</param-name>
+            <param-value>org.apache.geronimo.console.jmsmanager.wizard.JMSResourcePortlet</param-value>
+        </init-param>
+        <init-param>
+            <param-name>portlet-guid</param-name>
+            <param-value>console-standard.JMSWizard</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <description>Automated generated Portlet Wrapper</description>
         <display-name>Pluto Wrapper for Security Realm Wizard Portlet</display-name>
         <servlet-name>RealmWizard</servlet-name>
         <servlet-class>org.apache.pluto.core.PortletServlet</servlet-class>
@@ -763,6 +777,10 @@ limitations under the License.
     <servlet-mapping>
         <servlet-name>DBWizard</servlet-name>
         <url-pattern>/DBWizard/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>JMSWizard</servlet-name>
+        <url-pattern>/JMSWizard/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>RealmWizard</servlet-name>

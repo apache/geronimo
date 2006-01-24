@@ -5,7 +5,7 @@
 <p><b>Create Database Pool</b> -- Step 1: Select Name and Database</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-rdbms" />
     <input type="hidden" name="user" value="${pool.user}" />
     <input type="hidden" name="password" value="${pool.password}" />

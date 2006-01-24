@@ -6,7 +6,7 @@
 <p>This page edits a new or existing database pool.</p>
 
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
-<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>">
+<form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-url" />
     <input type="hidden" name="test" value="true" />
 

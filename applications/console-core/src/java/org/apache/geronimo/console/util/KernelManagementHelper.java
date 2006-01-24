@@ -16,6 +16,24 @@
  */
 package org.apache.geronimo.console.util;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanQuery;
@@ -23,6 +41,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.AppClientModule;
@@ -33,7 +52,6 @@ import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.J2EEModule;
 import org.apache.geronimo.management.J2EEResource;
 import org.apache.geronimo.management.JCAConnectionFactory;
-import org.apache.geronimo.management.JCAResource;
 import org.apache.geronimo.management.JDBCDataSource;
 import org.apache.geronimo.management.JDBCDriver;
 import org.apache.geronimo.management.JDBCResource;
@@ -45,7 +63,9 @@ import org.apache.geronimo.management.geronimo.EJBConnector;
 import org.apache.geronimo.management.geronimo.EJBManager;
 import org.apache.geronimo.management.geronimo.J2EEApplication;
 import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.geronimo.JMSBroker;
 import org.apache.geronimo.management.geronimo.JMSConnector;
 import org.apache.geronimo.management.geronimo.JMSManager;
@@ -61,24 +81,6 @@ import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
@@ -304,6 +306,44 @@ public class KernelManagementHelper implements ManagementHelper {
         return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
     }
 
+    public ResourceAdapterModule[] getAdminObjectModules(J2EEServer server, String[] adminObjectInterfaces) {
+        List list = new ArrayList();
+        try {
+            String[] names = server.getDeployedObjects();
+            for (int i = 0; i < names.length; i++) {
+                ObjectName name = ObjectName.getInstance(names[i]);
+                String type = name.getKeyProperty(NameFactory.J2EE_TYPE);
+                if(type.equals(NameFactory.RESOURCE_ADAPTER_MODULE)) {
+                    ResourceAdapterModule module = (ResourceAdapterModule) pm.createProxy(name, KernelManagementHelper.class.getClassLoader());
+                    ResourceAdapter[] adapters = getResourceAdapters(module);
+                    outer:
+                    for (int j = 0; j < adapters.length; j++) {
+                        ResourceAdapter adapter = adapters[j];
+                        JCAResource[] resources = getRAResources(adapter);
+                        for (int k = 0; k < resources.length; k++) {
+                            JCAResource resource = resources[k];
+                            JCAAdminObject[] admins = getAdminObjects(resource);
+                            for (int l = 0; l < admins.length; l++) {
+                                JCAAdminObject admin = admins[l];
+                                String adminIface = admin.getAdminObjectInterface();
+                                for (int m = 0; m < adminObjectInterfaces.length; m++) {
+                                    if(adminIface.equals(adminObjectInterfaces[m])) {
+                                        list.add(module);
+                                        break outer;
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return (ResourceAdapterModule[]) list.toArray(new ResourceAdapterModule[list.size()]);
+    }
+
     public JCAManagedConnectionFactory[] getOutboundFactories(ResourceAdapterModule module) {
         List list = new ArrayList();
         try {
@@ -358,6 +398,34 @@ public class KernelManagementHelper implements ManagementHelper {
             log.error("Unable to look up related GBean", e);
         }
         return (JCAManagedConnectionFactory[]) list.toArray(new JCAManagedConnectionFactory[list.size()]);
+    }
+
+    public JCAAdminObject[] getAdminObjects(ResourceAdapterModule module, String[] adminObjectInterfaces) {
+        List list = new ArrayList();
+        try {
+            ResourceAdapter[] adapters = getResourceAdapters(module);
+            for (int j = 0; j < adapters.length; j++) {
+                ResourceAdapter adapter = adapters[j];
+                JCAResource[] resources = getRAResources(adapter);
+                for (int k = 0; k < resources.length; k++) {
+                    JCAResource resource = resources[k];
+                    JCAAdminObject[] admins = getAdminObjects(resource);
+                    for (int l = 0; l < admins.length; l++) {
+                        JCAAdminObject admin = admins[l];
+                        String adminIface = admin.getAdminObjectInterface();
+                        for (int m = 0; m < adminObjectInterfaces.length; m++) {
+                            if(adminIface.equals(adminObjectInterfaces[m])) {
+                                list.add(admin);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return (JCAAdminObject[]) list.toArray(new JCAAdminObject[list.size()]);
     }
 
     public J2EEResource[] getResources(J2EEServer server) {
@@ -886,6 +954,28 @@ public class KernelManagementHelper implements ManagementHelper {
         return result;
     }
 
+    public JCAAdminObject[] getAdminObjects(JCAResource resource) {
+        JCAAdminObject[] result = new JCAAdminObject[0];
+        String objectName = resource.getObjectName();
+        try {
+            String name = ObjectName.getInstance(objectName).getKeyProperty(NameFactory.J2EE_NAME);
+            String query = "*:JCAResource="+name+",j2eeType=JCAAdminObject,*";
+            Set results = kernel.listGBeans(ObjectName.getInstance(query));
+            String[] names = new String[results.size()];
+            int i = 0;
+            for (Iterator it = results.iterator(); it.hasNext();) {
+                ObjectName next = (ObjectName) it.next();
+                names[i++] = next.getCanonicalName();
+            }
+            Object[] temp = pm.createProxies(names, KernelManagementHelper.class.getClassLoader());
+            result = new JCAAdminObject[temp.length];
+            System.arraycopy(temp, 0, result, 0, temp.length);
+        } catch (MalformedObjectNameException e) {
+            log.error("Unable to look up admin objects for resource adapter", e);
+        }
+        return result;
+    }
+
     public JCAManagedConnectionFactory getManagedConnectionFactory(JCAConnectionFactory factory) {
         try {
             String name = factory.getManagedConnectionFactory();
@@ -903,6 +993,24 @@ public class KernelManagementHelper implements ManagementHelper {
             log.error("Unable to look up related GBean", e);
             return null;
         }
+    }
+
+    public URI getConfigurationNameFor(String objectName) {
+        try {
+            Set parents = kernel.getDependencyManager().getParents(ObjectName.getInstance(objectName));
+            if(parents.size() == 0) {
+                throw new IllegalStateException("No parents for GBean '"+objectName+"'");
+            }
+            for (Iterator it = parents.iterator(); it.hasNext();) {
+                ObjectName name = (ObjectName) it.next();
+                if(Configuration.isConfigurationObjectName(name)) {
+                    return Configuration.getConfigurationID(name);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to look up related GBean", e);
+        }
+        return null;
     }
 
     public String getGBeanDescription(String objectName) {

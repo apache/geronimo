@@ -6,8 +6,9 @@
     xmlns:velocity="jelly:velocity"
     xmlns:util="jelly:util">
 
-    <preGoal name="war:install">
+    <preGoal name="war:war">
         <attainGoal name="preCompile"/>
+        <attainGoal name="substitute"/>
     </preGoal>
 
     <!-- Output folder for compiled jsps. -->
@@ -20,6 +21,12 @@
         <attainGoal name="war:install"/>
     </goal>
     
+    <goal name="substitute">
+        <velocity:merge basedir="${basedir}/src/conf"
+          template="jms-resource-providers.properties"
+          name="${basedir}/target/${pom.artifactId}/WEB-INF/classes/jms-resource-providers.properties"/>
+    </goal>
+
     <!-- ==================================================== -->
     <!-- Pre compile JSPs                                     -->
     <!-- ==================================================== -->
