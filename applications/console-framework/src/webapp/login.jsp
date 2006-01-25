@@ -9,10 +9,6 @@
 
 <form name="login" action="j_security_check" method="POST">
   <%--  Top table is the banner --%>
-<%--
-  <table width="100%"  border="0" cellspacing="0" cellpadding="0">
-    <tr>
---%>
       <TABLE width="100%" HEIGHT="86" BORDER="0" CELLSPACING="0" CELLPADDING="0">
         <TR>
           <td height="86" class="LoginLogo" border="0"></td>
@@ -30,10 +26,6 @@
           <td>&nbsp;</td>
         </TR>
       </TABLE>
-<%--
-    </tr>
-  </TABLE>
---%>
 
   <%--  Main body --%>
   <table WIDTH="100%" BORDER="0" CELLSPACING="0" CELLPADDING="0">
@@ -142,71 +134,6 @@
       </td>
 
       <td width="30%" >&nbsp;</td>
-<%--
-      <td width="30%" align="Center" valign="top">   
-          <table width="200" border cellspacing="0" cellpadding="0">
-              <tr>
-                <td width="50%" class="BrightTitle"><STRONG>&nbsp;Geronimo Related Links</td>
-              </tr>
-              <tr>
-                <td>
-                <table width="100%"  border="0" cellspacing="0" cellpadding="0">
-                  <tr>
-                    <td align="center">&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td width="20" align="center"><img src="<%=request.getContextPath()%>/images/bullet.gif"></td>
-                    <td><a href="http://geronimo.apache.org/">Geronimo Home Page</a></td>
-                    <td width="10">&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td align="center">&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td width="20" align="center"><img src="<%=request.getContextPath()%>/images/bullet.gif"></td>
-                    <td><a href="http://wiki.apache.org/geronimo/">Geronimo Wiki</a> </td>
-                    <td width="10">&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td align="center">&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td width="20" align="center"><img src="<%=request.getContextPath()%>/images/bullet.gif"></td>
-                    <td><a href="http://opensource2.atlassian.com/confluence/oss/display/GERONIMO/Home">Geronimo Documentation</a></td>
-                    <td width="10">&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td align="center">&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td width="20" align="center"><img src="<%=request.getContextPath()%>/images/bullet.gif"></td>
-                    <td><a href="mailto:user@geronimo.apache.org">Geronimo User Mailing List</a></td>
-                    <td width="10">&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                    <td>&nbsp;</td>
-                  </tr>
-                </table>
-                </td>
-              </tr>
-            </table>
-      </TD>
---%>
     </tr>
   </table>
 </form>
