@@ -35,7 +35,7 @@
     <c:forEach var="line" items="${searchResults}">
         <tr>
             <td class="Smaller">
-            ${line.lineNumber}:&nbsp;${line.lineContent}
+            ${line.lineNumber}:&nbsp;<c:out escapeXml="true" value="${line.lineContent}" />
             </td>
         </tr>
     </c:forEach>
