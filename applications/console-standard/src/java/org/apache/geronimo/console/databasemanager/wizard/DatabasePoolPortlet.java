@@ -629,7 +629,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             } else if(mode.equals(TEST_CONNECTION_MODE)) {
                 renderTestConnection(renderRequest, renderResponse);
             } else if(mode.equals(SHOW_PLAN_MODE)) {
-                renderPlan(renderRequest, renderResponse);
+                renderPlan(renderRequest, renderResponse, data);
             } else if(mode.equals(IMPORT_START_MODE)) {
                 renderImportUploadForm(renderRequest, renderResponse);
             } else if(mode.equals(IMPORT_STATUS_MODE)) {
@@ -776,9 +776,23 @@ public class DatabasePoolPortlet extends BasePortlet {
         testConnectionView.include(renderRequest, renderResponse);
     }
 
-    private void renderPlan(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
+    private void renderPlan(RenderRequest renderRequest, RenderResponse renderResponse, PoolData data) throws IOException, PortletException {
         // Pass on results
         renderRequest.setAttribute("deploymentPlan", renderRequest.getPortletSession().getAttribute("deploymentPlan"));
+        // Digest the RAR URI
+        String path = PortletManager.getRepositoryEntry(renderRequest, data.getRarPath()).getPath();
+        String base = PortletManager.getServerInfo(renderRequest).getCurrentBaseDirectory();
+        if(base != null && path.startsWith(base)) {
+            path = path.substring(base.length());
+            if(path.startsWith("/")) {
+                path = path.substring(1);
+            }
+        } else {
+            int pos = path.lastIndexOf('/');
+            path = path.substring(pos+1);
+        }
+        renderRequest.setAttribute("rarRelativePath", path);
+
         planView.include(renderRequest, renderResponse);
     }
 

@@ -53,7 +53,7 @@
 <pre>
 cd GERONIMO_HOME
 java -jar bin/deployer.jar deploy plan-file.xml \
-        ${pool.rarPath}
+        ${rarRelativePath}
 </pre></td>
       </tr>
     <!-- STATUS FIELD: Embed in EAR guidance -->
@@ -65,7 +65,7 @@ java -jar bin/deployer.jar deploy plan-file.xml \
 <ol>
   <li>Copy and paste the plan to a file</li>
   <li>Save the plan file to the top level of your EAR</li>
-  <li>Copy the RAR file from <tt>GERONIMO_HOME/repository/${pool.rarPath}</tt>
+  <li>Copy the RAR file from <tt>GERONIMO_HOME/${rarRelativePath}</tt>
     to the top level of your EAR</li>
   <li>Create a <tt>META-INF/geronimo-application.xml</tt> file in your EAR
     that has a <tt>module</tt> entry like this (substituting the correct
@@ -76,7 +76,7 @@ java -jar bin/deployer.jar deploy plan-file.xml \
    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
    configId="MyApplication"&gt;
   &lt;module&gt;
-    &lt;connector&gt;rar-file-name&lt;/connector&gt;
+    &lt;connector&gt;rar-file-name.rar&lt;/connector&gt;
     &lt;alt-dd&gt;plan-file-name.xml&lt;/alt-dd&gt;
   &lt;/module&gt;
 &lt;/application&gt;

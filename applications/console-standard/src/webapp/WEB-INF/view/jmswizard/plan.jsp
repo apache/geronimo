@@ -87,7 +87,7 @@ java -jar bin/deployer.jar deploy plan-file.xml \
    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
    configId="MyApplication"&gt;
   &lt;module&gt;
-    &lt;connector&gt;rar-file-name&lt;/connector&gt;
+    &lt;connector&gt;rar-file-name.rar&lt;/connector&gt;
     &lt;alt-dd&gt;plan-file-name.xml&lt;/alt-dd&gt;
   &lt;/module&gt;
 &lt;/application&gt;
