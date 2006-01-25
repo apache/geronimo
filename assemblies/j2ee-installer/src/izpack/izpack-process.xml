@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <processing>
+    <!-- TRACE is set supplying -DTRACE=true to the installer process -->
     <!-- Server Features -->
     <job name="Installing Configurations">
         <executefile name="$JAVA_HOME/bin/java">
@@ -8,6 +9,16 @@
             <arg>org.apache.geronimo.installer.processing.ConfigInstaller</arg>
             <arg>$INSTALL_PATH</arg>
             <arg>var/config/configure.xml</arg>
+            <arg>TRACE=${TRACE}</arg>
+        </executefile>
+        <executeForPack name="Server"/>
+    </job>
+    <job name="Adjusting Text File Line Terminators">
+        <executefile name="$JAVA_HOME/bin/java">
+            <arg>-classpath</arg>
+            <arg>${INSTALL_PATH}/var/temp/geronimo-installer-processing-${GeronimoVersion}.jar</arg>
+            <arg>org.apache.geronimo.installer.processing.FixTextLines</arg>
+            <arg>$INSTALL_PATH</arg>
             <arg>TRACE=${TRACE}</arg>
         </executefile>
         <executeForPack name="Server"/>
