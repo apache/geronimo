@@ -607,6 +607,9 @@ public class SecurityRealmPortlet extends BasePortlet {
                 final URI[] uris = repo.listURIs();
                 outer:
                 for (int j = 0; j < uris.length; j++) {
+                    if(uris[j] == null) {
+                        continue; // probably a JAR lacks a version number in the name, etc.
+                    }
                     String test = uris[j].toString();
                     for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
                         String skip = SKIP_ENTRIES_WITH[k];
