@@ -232,7 +232,7 @@
     </goal>
     <goal name="assemble:assemble-installer-helpers">
         <ant:copy todir="${geronimo.assembly.dest}/var/temp" >
-           <ant:fileset file="${maven.repo.local}/geronimo/plugins/geronimo-assembly-plugin*.jar"/>
+           <ant:fileset file="${maven.repo.local}/geronimo/plugins/geronimo-assembly-plugin-${geronimo_assembly_plugin_version}.jar"/>
         </ant:copy>
         <ant:copy todir="${geronimo.assembly.dest}/var/temp" >
            <ant:fileset file="${maven.repo.local}/geronimo/jars/geronimo-installer-processing-${pom.currentVersion}.jar"/>
