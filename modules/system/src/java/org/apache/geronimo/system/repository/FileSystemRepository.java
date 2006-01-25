@@ -110,24 +110,26 @@ public class FileSystemRepository implements Repository, ListableRepository, Wri
     private static final Pattern pattern = Pattern.compile("(.+)/(.+)s/(.+)-([0-9].+)\\.([^0-9]+)");
 
     public URI[] listURIs() throws URISyntaxException {
-        String[] results = getFiles(rootFile, "");
-        URI[] out = new URI[results.length];
+        String[] names = getFiles(rootFile, "");
+        List results = new ArrayList(names.length);
         Matcher matcher = pattern.matcher("");
-        for (int i = 0; i < out.length; i++) {
-            matcher.reset(results[i]);
+        for (int i = 0; i < names.length; i++) {
+            matcher.reset(names[i]);
             if (matcher.matches()) {
                 String groupId = matcher.group(1);
                 String artifactId = matcher.group(3);
                 String version = matcher.group(4);
                 String type = matcher.group(5);
                 StringBuffer buf = new StringBuffer(groupId).append("/").append(artifactId).append("/").append(version).append("/").append(type);
-                out[i] = new URI(buf.toString());
+                results.add(new URI(buf.toString()));
             } else {
-                //??
+            	log.warn("could not resolve URI for malformed repository entry: " + names[i] +
+            	" - the filename should look like: <groupId>/<type>s/<artifactId>-<version>.<type>   "+
+                "Perhaps you put in a file without a version number in the name?");
             }
 
         }
-        return out;
+       	return (URI[])results.toArray(new URI[results.size()]);
     }
 
     public String[] getFiles(File base, String prefix) {
