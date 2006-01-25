@@ -88,6 +88,8 @@ by the server.
         <reference name="Executor"><name>DefaultThreadPool</name></reference>
         <reference name="Server"><gbean-name>openejb:type=Server,name=EJB</gbean-name></reference>
     </gbean>
+
+    <!--
     <gbean gbeanName="openejb:type=Server,name=EJB" class="org.openejb.server.ejbd.EjbServerGBean">
         <reference name="ContainerIndex">
             <gbean-name>openejb:type=ContainerIndex</gbean-name>
@@ -97,8 +99,10 @@ by the server.
             <name>Server</name>
         </reference>
     </gbean>
+    -->
 
     <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
+    <!--
     <gbean gbeanName="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
         <references name="EJBContainers">
             <pattern><gbean-name>geronimo.server:j2eeType=StatelessSessionBean,*</gbean-name></pattern>
@@ -106,6 +110,7 @@ by the server.
             <pattern><gbean-name>geronimo.server:j2eeType=EntityBean,*</gbean-name></pattern>
         </references>
     </gbean>
+    -->
 
     <!-- JSR77 Management Objects -->
     <gbean gbeanName="geronimo.server:j2eeType=J2EEDomain,name=geronimo.server" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
@@ -117,7 +122,9 @@ by the server.
 
     <gbean name="eis/JAXR" class="org.apache.geronimo.webservices.jaxr.JAXRGBean"/>
 
+    <!--
     <gbean gbeanName="geronimo.server:J2EEApplication=null,EJBModule=geronimo/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB" class="org.openejb.mejb.MEJB"/>
+    -->
 
     <gbean name="AxisCLWorkaround" class="org.apache.geronimo.axis.AxisDiscoveryCLWorkaroundGBean"/>
 
