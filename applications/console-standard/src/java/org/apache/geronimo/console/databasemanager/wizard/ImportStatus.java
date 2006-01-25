@@ -131,7 +131,7 @@ public class ImportStatus implements Serializable {
         return count;
     }
 
-    public final static class PoolProgress {
+    public final static class PoolProgress implements Serializable {
         public final static String TYPE_NOTX = "NoTX";
         public final static String TYPE_LOCAL = "JDBC";
         public final static String TYPE_XA = "XA";

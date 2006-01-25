@@ -70,8 +70,11 @@ public class SelectProviderHandler extends AbstractHandler {
                 final URI[] uris = repo.listURIs();
                 outer:
                 for (int j = 0; j < uris.length; j++) {
+                    if(uris[j] == null) {
+                        continue; // probably a JAR lacks a version number in the name, etc.
+                    }
                     String test = uris[j].toString();
-                    if(!test.endsWith("/rar")) {
+                    if(!test.endsWith("/rar")) { //todo: may need to change this logic if configId format changes
                         continue;
                     }
                     for (int k = 0; k < SKIP_RARS_CONTAINING.length; k++) {

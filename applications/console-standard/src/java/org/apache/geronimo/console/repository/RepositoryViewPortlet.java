@@ -191,6 +191,9 @@ public class RepositoryViewPortlet extends BasePortlet {
                 try {
                     final URI[] uris = repo.listURIs();
                     for (int j = 0; j < uris.length; j++) {
+                        if(uris[j] == null) {
+                            continue; // probably a JAR lacks a version number in the name, etc.
+                        }
                         String fileName = uris[j].toString();
                         list.add(fileName);
                     }
