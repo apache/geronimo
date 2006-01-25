@@ -23,7 +23,7 @@
         <td width="100" class="${backgroundClass}">&nbsp;${configInfo.state}</td>
         <td width="100" class="${backgroundClass}">
 <c:if test="${configInfo.state.running}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="stop"/></portlet:actionURL>">Stop</a></c:if>
-<c:if test="${configInfo.state.stopped}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="start"/></portlet:actionURL>">Start</a></c:if>
+<c:if test="${configInfo.state.stopped && (configInfo.type.name ne 'CAR')}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="start"/></portlet:actionURL>">Start</a></c:if>
 <c:if test="${configInfo.state.failed}">&nbsp;<a href="<portlet:actionURL><portlet:param name="configId" value="${configInfo.configID}"/><portlet:param name="action" value="stop"/></portlet:actionURL>">Stop</a></c:if>
         </td>
         <td width="100" class="${backgroundClass}">
