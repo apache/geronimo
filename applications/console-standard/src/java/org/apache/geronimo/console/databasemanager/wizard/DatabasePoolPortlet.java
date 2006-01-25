@@ -1149,7 +1149,11 @@ public class DatabasePoolPortlet extends BasePortlet {
             password = request.getParameter("password");
             if(password != null && password.equals("")) password = null;
             url = request.getParameter("url");
-            if(url != null && url.equals("")) url = null;
+            if(url != null && url.equals("")) {
+                url = null;
+            } else if(url != null && url.indexOf("%3B") > -1) {
+                url = url.replaceAll("%3B", ";"); // attempt to work around Pluto/Tomcat error with ; in a stored value
+            }
             urlPrototype = request.getParameter("urlPrototype");
             if(urlPrototype != null && urlPrototype.equals("")) urlPrototype = null;
             jar1 = request.getParameter("jar1");
@@ -1227,7 +1231,9 @@ public class DatabasePoolPortlet extends BasePortlet {
             if(driverClass != null) response.setRenderParameter("driverClass", driverClass);
             if(user != null) response.setRenderParameter("user", user);
             if(password != null) response.setRenderParameter("password", password);
-            if(url != null) response.setRenderParameter("url", url);
+            if(url != null) { // attempt to work around Pluto/Tomcat error with ; in a stored value
+                response.setRenderParameter("url", url.replaceAll(";", "%3B"));
+            }
             if(urlPrototype != null) response.setRenderParameter("urlPrototype", urlPrototype);
             if(jar1 != null) response.setRenderParameter("jar1", jar1);
             if(jar2 != null) response.setRenderParameter("jar2", jar2);
