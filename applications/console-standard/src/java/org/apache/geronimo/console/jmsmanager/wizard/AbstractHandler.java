@@ -514,6 +514,10 @@ public abstract class AbstractHandler {
             DeploymentManager mgr = PortletManager.getDeploymentManager(request);
             try {
                 URL url = PortletManager.getRepositoryEntry(request, data.getRarURI());
+                String str = url.toString();
+                if(str.indexOf(' ') > -1) {
+                    url = new URL(str.replaceAll(" ", "%20")); // try to avoid problems with spaces in path on Windows
+                }
                 ConnectorDeployable deployable = new ConnectorDeployable(url);
                 DeploymentConfiguration config = mgr.createConfiguration(deployable);
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
