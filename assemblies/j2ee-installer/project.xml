@@ -144,7 +144,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>install</geronimo.assemble>
-                <geronimo.pack>Sample.Database.Pool</geronimo.pack>
+                <geronimo.pack>J2EE.Features</geronimo.pack>
             </properties>
         </dependency>
         <dependency>
