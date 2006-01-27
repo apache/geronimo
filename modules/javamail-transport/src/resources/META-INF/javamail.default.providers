@@ -7,3 +7,4 @@
 # $Rev$ $Date$
 #
 protocol=smtp; type=transport; class=org.apache.geronimo.javamail.transport.smtp.SMTPTransport; vendor=Apache Software Foundation; version=1.0
+protocol=pop3; type=store; class=org.apache.geronimo.javamail.store.pop3.POP3Store; vendor=Apache Software Foundation; version=1.0
