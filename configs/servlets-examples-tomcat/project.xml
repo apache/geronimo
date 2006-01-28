@@ -218,7 +218,7 @@
         <dependency>
             <groupId>geronimo-samples</groupId>
             <artifactId>geronimo-servlet-examples-tomcat</artifactId>
-            <version>${tomcat_examples_version}</version>
+            <version>${tomcat_servlet_examples_version}</version>
             <type>war</type>
         </dependency>
         
