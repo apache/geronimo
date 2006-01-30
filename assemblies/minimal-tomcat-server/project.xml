@@ -245,7 +245,7 @@
             <version>${geronimo_spec_qname_version}</version>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
-                <geronimo.assemble>repository</geronimo.assemble>
+                <!--<geronimo.assemble>repository</geronimo.assemble>-->
             </properties>
         </dependency>
 
@@ -315,7 +315,7 @@
             <version>${geronimo_spec_j2ee_deployment_version}</version>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
-                <geronimo.assemble>repository</geronimo.assemble>
+                <!--<geronimo.assemble>repository</geronimo.assemble>-->
             </properties>
         </dependency>
         <dependency>
@@ -359,120 +359,6 @@
         </dependency>
 
 
-        <!--<dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-ra</artifactId>
-            <version>${activemq_version}</version>
-            <type>rar</type>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector</artifactId>
-            <version>${tranql_connector_version}</version>
-            <type>rar</type>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
-        <!--<dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-local</artifactId>
-            <version>${tranql_vendors_version}</version>
-            <type>rar</type>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector-derby-embed-xa</artifactId>
-            <version>${tranql_vendors_version}</version>
-            <type>rar</type>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector-derby-client-local</artifactId>
-            <version>${tranql_vendors_version}</version>
-            <type>rar</type>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql-connector-derby-client-xa</artifactId>
-            <version>${tranql_vendors_version}</version>
-            <type>rar</type>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbyclient</artifactId>
-            <version>${derby_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbytools</artifactId>
-            <version>${derby_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
-        <!-- all our specs.  These should be all included via transitive dependencies but most arent -->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-activation_1.0.2_spec</artifactId>
-            <version>${geronimo_spec_activation_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-corba_2.3_spec</artifactId>
-            <version>${geronimo_spec_corba_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_2.1_spec</artifactId>
-            <version>${geronimo_spec_ejb_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-            <version>${geronimo_spec_j2ee_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
@@ -507,44 +393,6 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-            <version>${geronimo_spec_javamail_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxr_1.0_spec</artifactId>
-            <version>${geronimo_spec_jaxr_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-            <version>${geronimo_spec_jaxrpc_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jms_1.1_spec</artifactId>
-            <version>${geronimo_spec_jms_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jsp_2.0_spec</artifactId>
@@ -571,16 +419,6 @@
         #    </properties>
         #</dependency>
         -->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.1_spec</artifactId>
-            <version>${geronimo_spec_saaj_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
@@ -677,74 +515,6 @@
             <version>${concurrent_version}</version>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>directory</groupId>
-            <artifactId>apacheds-core</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory</groupId>
-            <artifactId>apacheds-shared</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-asn1</groupId>
-            <artifactId>asn1-ber</artifactId>
-            <version>${asn1_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-asn1</groupId>
-            <artifactId>asn1-codec</artifactId>
-            <version>${asn1_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-asn1</groupId>
-            <artifactId>asn1-der</artifactId>
-            <version>${asn1_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-network</groupId>
-            <artifactId>mina</artifactId>
-            <version>${mina_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-protocols</groupId>
-            <artifactId>kerberos-protocol</artifactId>
-            <version>${kerberos_protocols_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-protocols</groupId>
-            <artifactId>ldap-protocol</artifactId>
-            <version>${ldap_protocols_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-shared</groupId>
-            <artifactId>apache-ldapber-provider</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-shared</groupId>
-            <artifactId>kerberos-common</artifactId>
-            <version>${kerberos_common_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-shared</groupId>
-            <artifactId>ldap-common</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-        -->
-
 <!-- geronimo jars -->
 <!-- geronimo spec jars -->
 
@@ -768,31 +538,6 @@
         </dependency>
 
 
-        <!--
-        <dependency>
-            <groupId>juddi</groupId>
-            <artifactId>juddi</artifactId>
-            <version>${juddi_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-pkgen-builder</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>org.apache.derby</groupId>
