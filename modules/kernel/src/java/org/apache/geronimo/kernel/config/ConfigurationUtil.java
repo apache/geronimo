@@ -54,10 +54,10 @@ public final class ConfigurationUtil {
             }
         }
         if (names.isEmpty()) {
-            throw new IllegalStateException("Configuration mananger could not be found in kernel");
+            throw new IllegalStateException("A Configuration Manager could not be found in the kernel");
         }
         if (names.size() > 1) {
-            throw new IllegalStateException("More than one configuration mananger was found in kernel");
+            throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
         ObjectName configurationManagerName = (ObjectName) names.iterator().next();
         return (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
@@ -87,7 +87,7 @@ public final class ConfigurationUtil {
             return null; // may be one, just not editable
         }
         if (names.size() > 1) {
-            throw new IllegalStateException("More than one configuration mananger was found in kernel");
+            throw new IllegalStateException("More than one Configuration Manager was found in the kernel");
         }
         ObjectName configurationManagerName = (ObjectName) names.iterator().next();
         return (EditableConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, EditableConfigurationManager.class);
@@ -96,5 +96,5 @@ public final class ConfigurationUtil {
     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
         kernel.getProxyManager().destroyProxy(configurationManager);
     }
-    
+
 }
