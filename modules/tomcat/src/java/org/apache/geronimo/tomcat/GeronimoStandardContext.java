@@ -164,6 +164,9 @@ public class GeronimoStandardContext extends StandardContext {
         this.webServiceMap = ctx.getWebServices();
 
         this.setCrossContext(ctx.isCrossContext());
+        
+        //Set the Dispatch listener
+        this.addInstanceListener("org.apache.geronimo.tomcat.listener.DispatchListener");
     }
 
     public synchronized void start() throws LifecycleException {
