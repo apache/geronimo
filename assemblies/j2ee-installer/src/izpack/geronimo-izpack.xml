@@ -18,10 +18,17 @@
        <variable name="TOMCAT_WEBBUILDER_NAMESPACE" value="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0" />
        <variable name="NO_WEBBUILDER_NAMESPACE" value="http://geronimo.apache.org/xml/ns/j2ee/web/jettyORtomcat-1.0" />
     </variables>
-    <guiprefs width="640" height="480" resizable="yes">
-       <laf name="liquid">
+    <guiprefs width="680" height="500" resizable="yes">
+       <modifier key="useButtonIcons" value="no" />
+       <modifier key="useLabelIcons" value="no" />
+       <!--laf name="looks">
           <os family="unix"/>
+          <param name="variant" value="plastic" />
        </laf>
+       <laf name="looks">
+           <os family="windows" />
+           <param name="variant" value="plastic" />
+       </laf-->
     </guiprefs>
     <locale>
         <langpack iso3="eng"/>

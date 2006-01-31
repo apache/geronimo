@@ -40,13 +40,62 @@
             so it will be ready to receive the ValidatePackSelections.jar
        -->
        <ant:copy file="${maven.repo.local}/izpack/jars/standalone-compiler-${izpack_version}.jar" tofile="${maven.build.dir}/standalone-compiler-custom-${izpack_version}.jar" />
-       <!-- slip the bin/panels/ValidatePackSelections.jar into
+       <!-- overwrite the icons in the jar with Apache License compliant
+               versions.  These icons are modified versions of the
+               icons shipped with the Apache HTTP server
+               The icons in /img are actually not used, but we write
+               over them anyway
+       -->
+      <ant:jar destfile="${maven.build.dir}/standalone-compiler-custom-${izpack_version}.jar"
+               basedir="${maven.src.dir}/images"
+               includes="**/*"
+               update="true" >
+      </ant:jar>
+      <!-- Continuing the icon licensing saga. extract lib/installer.jar
+           from standalone compiler. Overwrite the icons in that jar too.
+           These are the ones actually used in the installer.
+           Then, put the installer.jar back into the standalone compiler.
+
+           Do the same for uninstaller.jar too.
+
+      -->
+      <ant:unjar
+         src="${maven.build.dir}/standalone-compiler-custom-${izpack_version}.jar"
+         dest="${maven.build.dir}/tmp" >
+         <patternset>
+           <include name="**/installer.jar"/>
+           <include name="**/uninstaller.jar"/>
+         </patternset>
+      </ant:unjar>
+       <!-- overwrite the icons in the installer.jar 
+               with Apache License compliant
+               versions.  These icons are modified versions of the
+               icons shipped with the Apache HTTP server
+               The icons in /img are actually not used
+       -->
+      <ant:jar destfile="${maven.build.dir}/tmp/lib/installer.jar"
+               basedir="${maven.src.dir}/images"
+               includes="**/*"
+               update="true" >
+      </ant:jar>
+       <!-- overwrite the icons in the uninstaller.jar 
+               with Apache License compliant
+               versions.  These icons are modified versions of the
+               icons shipped with the Apache HTTP server
+               The icons in /img are actually not used
+       -->
+      <ant:jar destfile="${maven.build.dir}/tmp/lib/uninstaller.jar"
+               basedir="${maven.src.dir}/images"
+               includes="**/*"
+               update="true" >
+      </ant:jar>
+       <!-- slip the jars into
               the standalone-compiler jar
               don't forget "update" or it's screwed
        -->
        <ant:jar destfile="${maven.build.dir}/standalone-compiler-custom-${izpack_version}.jar"
                 basedir="${maven.build.dir}/tmp"
-                includes="**/ValidatePackSelections.jar"
+                includes="**/*.jar"
                 update="true" >
        </ant:jar>
        <!--
