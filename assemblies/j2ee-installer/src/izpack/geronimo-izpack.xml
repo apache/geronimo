@@ -76,6 +76,7 @@
         <panel classname="ValidatePackSelections"/>
         <panel classname="ValidatePackSelections"/>
         <panel classname="ValidatePackSelections"/>
+        <panel classname="ValidatePackSelections"/>
         <panel classname="InstallPanel"/>
         <panel classname="ProcessPanel"/>
         <panel classname="InfoPanel"/>

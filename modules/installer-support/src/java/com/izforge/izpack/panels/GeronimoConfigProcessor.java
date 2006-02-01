@@ -20,21 +20,22 @@ import com.izforge.izpack.util.Debug;
 import com.izforge.izpack.Pack;
 import java.util.Vector;
 public class GeronimoConfigProcessor {
-
-   static int BASE_CONFIG = 0;
-   static int JETTY_CONFIG = 1;
-   static int TOMCAT_CONFIG = 2;
-   static int EJB_CONFIG = 3;
-   static int CORBA_CONFIG = 4;
-   static int DERBY_CONFIG = 5;
-   static int ACTIVEMQ_CONFIG = 6;
-   static int LDAP_CONFIG = 7;
-   static int SMTP_CONFIG = 8;
-   static int CONFIG_CKPT = 9;
+   static int CONFIG_PROBLEM = 0;
+   static int BASE_CONFIG = 1;
+   static int JETTY_CONFIG = 2;
+   static int TOMCAT_CONFIG = 3;
+   static int EJB_CONFIG = 4;
+   static int CORBA_CONFIG = 5;
+   static int DERBY_CONFIG = 6;
+   static int ACTIVEMQ_CONFIG = 7;
+   static int LDAP_CONFIG = 8;
+   static int SMTP_CONFIG = 9;
+   static int CONFIG_CKPT = 10;
 
    static String panelNames[] = {
       // keep in sync with izpack-user-input.xml
       // until there's a better way
+      "Configuration Problem",
       "Base Configuration",
       "Jetty Web Configuration",
       "Tomcat Web Configuration",
@@ -104,33 +105,38 @@ public class GeronimoConfigProcessor {
    }
    protected static VarInfo vars[] = {
 
-        new VarInfo( "SecurityDefaultUser",'s',BASE_CONFIG,SERVER_PACK,"" ),
-        new VarInfo( "SecurityDefaultPassword",'s',BASE_CONFIG, SERVER_PACK,"" ),
-        new VarInfo( "PlanRemoteLoginPort",'p',BASE_CONFIG,J2EE_PACK,"Remote Login Port" ),
-        new VarInfo( "PlanServerHostName",'h',JETTY_CONFIG,JETTY_PACK,"" ),
-        new VarInfo( "PlanHTTPPort",'p',JETTY_CONFIG,JETTY_PACK,"Jetty HTTP Port" ),
-        new VarInfo( "PlanHTTPSPort",'p',JETTY_CONFIG, JETTY_PACK,"Jetty HTTPS Port"),
-        new VarInfo( "PlanAJPPort",'p',JETTY_CONFIG,JETTY_PACK,"Jetty AJP Port" ),
-        new VarInfo( "PlanServerHostName",'h',TOMCAT_CONFIG,TOMCAT_PACK,"" ),
-        new VarInfo( "PlanHTTPPort2",'p',TOMCAT_CONFIG,TOMCAT_PACK,"Tomcat HTTP Port" ),
-        new VarInfo( "PlanHTTPSPort2",'p',TOMCAT_CONFIG,TOMCAT_PACK,"Tomcat HTTPS Port" ),
-        new VarInfo( "PlanAJPPort2",'p',TOMCAT_CONFIG,TOMCAT_PACK,"Tomcat AJP Port" ),
-        new VarInfo( "PlanNamingPort",'p',EJB_CONFIG,SERVER_PACK,"Naming Port" ),
-        new VarInfo( "PlanOpenEJBPort",'p',EJB_CONFIG, J2EE_PACK,"EJB Port" ),
-        new VarInfo( "PlanClientAddresses",'s',EJB_CONFIG,SERVER_PACK,"" ),
-        new VarInfo( "PlanIIOPPort",'p',CORBA_CONFIG,CORBA_PACK,"IIOP Port" ),
-        new VarInfo( "PlanORBSSLHost",'h',CORBA_CONFIG,CORBA_PACK,"" ),
-        new VarInfo( "PlanORBSSLPort",'p',CORBA_CONFIG,CORBA_PACK,"ORB SSL Port" ),
-        new VarInfo( "PlanCOSNamingHost",'h',CORBA_CONFIG,CORBA_PACK,"" ),
-        new VarInfo( "PlanCOSNamingPort",'p',CORBA_CONFIG,CORBA_PACK,"CosNaming Port" ),
-        new VarInfo( "PlanDerbyPort",'p',DERBY_CONFIG,SAMPLE_DB_POOL_PACK,"Derby Port" ),
-        new VarInfo( "PlanActiveMQPort",'p',ACTIVEMQ_CONFIG,JMS_PACK,"JMS Port" ),
-        new VarInfo( "PlanLdapPort",'p',LDAP_CONFIG,LDAP_PACK,"LDAP Port" ),
-        new VarInfo( "PlanSMTPHost",'h',SMTP_CONFIG,SMTP_PACK,"SMTP Host" ),
-        new VarInfo( "PlanSMTPPort",'p',SMTP_CONFIG,SMTP_PACK,"SMTP Port" )
+        new VarInfo( "SecurityDefaultUser",'s',BASE_CONFIG,SERVER_PACK,"", "system" ),
+        new VarInfo( "SecurityDefaultPassword",'s',BASE_CONFIG, SERVER_PACK,"", "manager" ),
+        new VarInfo( "PlanRemoteLoginPort",'p',BASE_CONFIG,J2EE_PACK,"Remote Login Port", "4242" ),
+        new VarInfo( "PlanServerHostName",'h',JETTY_CONFIG,JETTY_PACK,"", "0.0.0.0" ),
+        new VarInfo( "PlanHTTPPort",'p',JETTY_CONFIG,JETTY_PACK,"Jetty HTTP Port", "8080" ),
+        new VarInfo( "PlanHTTPSPort",'p',JETTY_CONFIG, JETTY_PACK,"Jetty HTTPS Port", "8443"),
+        new VarInfo( "PlanAJPPort",'p',JETTY_CONFIG,JETTY_PACK,"Jetty AJP Port", "8009" ),
+        new VarInfo( "PlanServerHostName",'h',TOMCAT_CONFIG,TOMCAT_PACK,"", "0.0.0.0" ),
+        new VarInfo( "PlanHTTPPort2",'p',TOMCAT_CONFIG,TOMCAT_PACK,"Tomcat HTTP Port", "8080" ),
+        new VarInfo( "PlanHTTPSPort2",'p',TOMCAT_CONFIG,TOMCAT_PACK,"Tomcat HTTPS Port", "8443" ),
+        new VarInfo( "PlanAJPPort2",'p',TOMCAT_CONFIG,TOMCAT_PACK,"Tomcat AJP Port", "8009" ),
+        new VarInfo( "PlanNamingPort",'p',EJB_CONFIG,SERVER_PACK,"Naming Port", "1009" ),
+        new VarInfo( "PlanOpenEJBPort",'p',EJB_CONFIG, J2EE_PACK,"EJB Port", "4201" ),
+        new VarInfo( "PlanClientAddresses",'s',EJB_CONFIG,SERVER_PACK,"", "0.0.0.0" ),
+        new VarInfo( "PlanIIOPPort",'p',CORBA_CONFIG,CORBA_PACK,"IIOP Port", "9000" ),
+        new VarInfo( "PlanORBSSLHost",'h',CORBA_CONFIG,CORBA_PACK,"", "localhost" ),
+        new VarInfo( "PlanORBSSLPort",'p',CORBA_CONFIG,CORBA_PACK,"ORB SSL Port", "2001" ),
+        new VarInfo( "PlanCOSNamingHost",'h',CORBA_CONFIG,CORBA_PACK,"", "localhost" ),
+        new VarInfo( "PlanCOSNamingPort",'p',CORBA_CONFIG,CORBA_PACK,"CosNaming Port", "1050" ),
+        new VarInfo( "PlanDerbyPort",'p',DERBY_CONFIG,SAMPLE_DB_POOL_PACK,"Derby Port", "1527" ),
+        new VarInfo( "PlanActiveMQPort",'p',ACTIVEMQ_CONFIG,JMS_PACK,"JMS Port", "61616" ),
+        new VarInfo( "PlanLdapPort",'p',LDAP_CONFIG,LDAP_PACK,"LDAP Port", "1389" ),
+        new VarInfo( "PlanSMTPHost",'h',SMTP_CONFIG,SMTP_PACK,"SMTP Host", "localhost" ),
+        new VarInfo( "PlanSMTPPort",'p',SMTP_CONFIG,SMTP_PACK,"SMTP Port", "25" )
     };
 
-
+    protected boolean isAdvancedMode( AutomatedInstallData idata ) {
+       boolean fRet = false;
+       String val = idata.getVariable( "advanced.mode" );
+       if( val.equalsIgnoreCase( "true" )) fRet = true;
+       return fRet;
+    }
     
     protected boolean isTomcatSelected( AutomatedInstallData idata ) {
        return isPackSelected( idata, packNames[ TOMCAT_PACK ]);
@@ -157,57 +163,89 @@ public class GeronimoConfigProcessor {
     protected void panelNavDebug( AutomatedInstallData idata ) {
        debug( "--> num panels: " + idata.panels.size() + "  cur panel: " + idata.curPanelNumber );
     }
-
+    protected boolean isPackSelectionProblem( AutomatedInstallData idata ) {
+       boolean fRet = false;
+       if( isAdvancedMode( idata ) == true ) {
+          fRet = false; // this assumes all pack selections are OK in advanced mode
+       } else if( isJettySelected( idata ) && isTomcatSelected( idata )) {
+            fRet = true;
+       }
+       return fRet;
+    }
     protected boolean shouldSkipPanel( AutomatedInstallData idata, String panelName ) {
       boolean fRet = false;
+      if( panelName.equalsIgnoreCase( getPanelName( CONFIG_PROBLEM ))) {
+         if( isPackSelectionProblem( idata )) 
+            fRet = false;
+         else fRet = true;
+      }
       debug( "shouldSkipPanel( " + panelName + " ) is: " + fRet );
       return fRet;
     }
+
+    protected void initEnableVarsToPackSelections( AutomatedInstallData idata ) {
+        boolean fSel = false;
+        for( int i = 0; i < idata.allPacks.size(); ++i ) {
+            Pack pack = (Pack)idata.allPacks.get( i );
+            fSel = false;
+            if( isPackSelected( idata, pack.name )) {
+                fSel = true;
+            }
+            setEnableVar( idata, pack.name, fSel );
+        }
+    }
+
     protected static boolean fInitialConfigDone = false;
     protected void setInitialConfig( AutomatedInstallData idata ) {
          if( fInitialConfigDone ) return;
          fInitialConfigDone = true;
          debug( ">setInitialConfig()  ");
          //System.out.println( "CPES = " + cpes );
-         for( int i = 0; i < idata.allPacks.size(); ++i ) {
-                Pack pack = (Pack)idata.allPacks.get( i );
-                boolean fSel = false;
-                if( isPackSelected( idata, pack.name )) {
-                   fSel = true;
-                }
-                setEnableVar( idata, pack.name, fSel );
-         }
-         // fixup for jetty not selected to install
-         if( isTomcatSelected( idata ) == true ) {
-                int packs[] = {
-                   TOMCAT_PACK, 
-                   TOMCAT_WELCOME_PACK,
-                   TOMCAT_MGT_PACK,
-                   TOMCAT_UDDI_PACK,
-                   TOMCAT_SAMPLE_PACK,
-                   TOMCAT_DAYTRADER };
-               debug( "-setInitialConfig() : tomcat is selected for install. ");
-                boolean fSel = false;
-                String packName = null;
-                if( isJettySelected( idata ) == false ) {
-                   debug( "-setInitialConfig() : jetty is not selected for install. ");
-                   for( int i = 0; i < packs.length; ++i ) {
-                      packName = getPackName( packs[ i ] );
-                      fSel = isPackSelected( idata, packName );
-                      setEnableVar( idata, packName, fSel );
-                   }
-                } else {
-                   debug( "-setInitialConfig() : jetty is selected for install. ");
-                   for( int i = 0; i < packs.length; ++i ) {
-                      packName = getPackName( packs[ i ] );
-                      setEnableVar( idata, packName, false );
-                   }
-                }
-         } else {
-            debug( "-setInitialConfig() : tomcat is not selected for install. ");
-         }
 
+         initEnableVarsToPackSelections( idata );
+
+         if( isAdvancedMode( idata )) {
+         // fixup for jetty not selected to install
+            if( isTomcatSelected( idata ) == true ) {
+                int packs[] = {
+                    TOMCAT_PACK, 
+                    TOMCAT_WELCOME_PACK,
+                    TOMCAT_MGT_PACK,
+                    TOMCAT_UDDI_PACK,
+                    TOMCAT_SAMPLE_PACK,
+                    TOMCAT_DAYTRADER };
+                 debug( "-setInitialConfig() : tomcat is selected for install. ");
+                 boolean fSel = false;
+                 String packName = null;
+                 if( isJettySelected( idata ) == false ) {
+                    debug( "-setInitialConfig() : jetty is not selected for install. ");
+                    for( int i = 0; i < packs.length; ++i ) {
+                        packName = getPackName( packs[ i ] );
+                        fSel = isPackSelected( idata, packName );
+                        setEnableVar( idata, packName, fSel );
+                    }
+                 } else {
+                    debug( "-setInitialConfig() : jetty is selected for install. ");
+                    for( int i = 0; i < packs.length; ++i ) {
+                        packName = getPackName( packs[ i ] );
+                        setEnableVar( idata, packName, false );
+                    }
+                 }
+            } else {
+                debug( "-setInitialConfig() : tomcat is not selected for install. ");
+            }
+         }
          // end fixup
+
+         // setup initial variable values in case the operator never hits the 
+         // panel where the default value gets set. This way we don't wind
+         // up with thinks like ${PlanServerName} in the config.xml -- even
+         // though it doesn't affect operations since this only happens
+         // for disabled configs (load=false)
+         // Don't set any "xxx.enable" variables this way...
+         for( int i = 0; i < vars.length; ++i ) {
+            vars[ i ].setDefault( idata );
+         }
          debug( "<setInitialConfig()  ");
     }
 
@@ -246,7 +284,11 @@ public class GeronimoConfigProcessor {
        boolean fRet = true;
        if( panelName.equals( getPanelName( BASE_CONFIG ))) {
           setInitialConfig( idata ); // from selected packs
-          resetConfigNonSelected( idata );
+          if( isAdvancedMode( idata ) == false ) {
+             initEnableVarsToPackSelections( idata );
+          } else { 
+             resetConfigNonSelected( idata );
+          }
        }
        return fRet;
     }
@@ -509,16 +551,21 @@ public class GeronimoConfigProcessor {
     }
 }
 class VarInfo {
-   public VarInfo( String varName, char verTyp, int panelId, int packId, String varDesc ) {
+   public VarInfo( String varName, char verTyp, int panelId, int packId, String varDesc, String defVal ) {
       this.varName = varName;
       this.panelId = panelId;
       this.packId = packId;
       this.verTyp = verTyp;
       this.varDesc = varDesc;
+      this.defVal = defVal;
+   }
+   public void setDefault( AutomatedInstallData idata ) {
+      idata.setVariable( varName, defVal );
    }
    String varName;
    int panelId;
    int packId;
    char verTyp;
    String varDesc;
+   String defVal;
 }

@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2006 The Apache Software Foundation
+ *  Copyright 2003-2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,11 +44,13 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.Set;
 import java.util.List;
+import java.util.Properties;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -90,8 +92,24 @@ public class ValidatePackSelections extends IzPanel {
    protected void setTitle( String title ) {
       sTitle = title;
    }
-   protected String getTitle() {
+   protected String getTitle() { // ###ead
       return sTitle;
+   }
+
+   protected static boolean fAdvancedMode = false;
+   static { // static initializer
+      Properties props = System.getProperties();
+      Enumeration names = props.propertyNames();
+      
+      while( names.hasMoreElements() ) {
+         String name = (String)names.nextElement();
+         if( name.equalsIgnoreCase( "advancedmode" ))  {
+            String am = props.getProperty( name );
+            if( am != null && am.equalsIgnoreCase( "true" )) {
+               fAdvancedMode = true;
+            }
+         }
+      }
    }
 
 /*---------------------------------------------------------------------------*/
@@ -159,29 +177,31 @@ public class ValidatePackSelections extends IzPanel {
      */
     private static final long serialVersionUID = 3257850965439886129L;
 
-    protected static final int POS_DISPLAYED = 0;
+    protected static final int POS_SUPPRESS = 0; 
 
-    protected static final int POS_TYPE = 1;
+    protected static final int POS_DISPLAYED = 1;
 
-    protected static final int POS_VARIABLE = 2;
+    protected static final int POS_TYPE = 2;
 
-    protected static final int POS_CONSTRAINTS = 3;
+    protected static final int POS_VARIABLE = 3;
 
-    protected static final int POS_FIELD = 4;
+    protected static final int POS_CONSTRAINTS = 4;
 
-    protected static final int POS_PACKS = 5;
+    protected static final int POS_FIELD = 5;
 
-    protected static final int POS_OS = 6;
+    protected static final int POS_PACKS = 6;
 
-    protected static final int POS_TRUE = 7;
+    protected static final int POS_OS = 7;
 
-    protected static final int POS_FALSE = 8;
+    protected static final int POS_TRUE = 8;
 
-    protected static final int POS_MESSAGE = 9;
+    protected static final int POS_FALSE = 9;
 
-    protected static final int POS_GROUP = 10;
+    protected static final int POS_MESSAGE = 10;
 
-    protected static final int POS_ID = 11; 
+    protected static final int POS_GROUP = 11;
+
+
 
     /** The name of the XML file that specifies the panel layout */
     protected static final String SPEC_FILE_NAME = "userInputSpec.xml";
@@ -326,12 +346,15 @@ public class ValidatePackSelections extends IzPanel {
 
     protected static final String FAMILY = "family";
 
-    protected static final String DEPENDS = "depends";
-    protected static final String EXCLUSIVE = "exclusiveOf";
-    protected static final String AUTO_INSTALL = "AutomatedInstallation";
+    protected static final String VALUE          = "value";
+    protected static final String DEPENDS        = "depends";
+    protected static final String SUPPRESS       = "suppress";
+    protected static final String WHEN           = "when";
+    protected static final String EXCLUSIVE      = "exclusiveOf";
+    protected static final String AUTO_INSTALL   = "AutomatedInstallation";
     protected static final String SELECTED_PACKS = "selected";
-    protected static final String PANEL_PKG = "com.izforge.izpack.panels";
-    protected static final String PACKS_PANEL = "ImgPacksPanel";
+    protected static final String PANEL_PKG      = "com.izforge.izpack.panels";
+    protected static final String PACKS_PANEL    = "ImgPacksPanel";
     // ------------------------------------------------------------------------
     // Variable Declarations
     // ------------------------------------------------------------------------
@@ -377,7 +400,7 @@ public class ValidatePackSelections extends IzPanel {
     protected Vector searchFields = new Vector();
 
     /** Holds all user inputs for use in automated installation */
-    protected Vector entries = new Vector();
+    //protected Vector entries = new Vector(); // removed this ###ead
 
     protected TwoColumnLayout layout;
 
@@ -402,10 +425,20 @@ public class ValidatePackSelections extends IzPanel {
      * @param installData shared information about the installation
      */
     /*--------------------------------------------------------------------------*/
+    protected static boolean fHasSetAdvancedMode = false; // ##ead
+
     public ValidatePackSelections(InstallerFrame parent, InstallData installData)
 
     {
         super(parent, installData);
+
+        if( fHasSetAdvancedMode == false ) { // ###ead
+           String sVal = "false";
+           if( fAdvancedMode )
+              sVal = "true";
+           installData.setVariable( "advanced.mode", sVal );
+           fHasSetAdvancedMode = true;
+        }
 
         instanceNumber = instanceCount++;
         this.parentFrame = parent;
@@ -589,6 +622,9 @@ public class ValidatePackSelections extends IzPanel {
         {
             parentFrame.lockPrevButton();
         }
+        if( gcp.isPackSelectionProblem( idata ) ) {
+            parentFrame.lockNextButton();
+        }
         gcp.panelNavDebug( idata );
         if( gcp.isCheckpointPanel( panelName )) {
            String msgs[] = { // this is the default, no error message
@@ -694,13 +730,29 @@ public class ValidatePackSelections extends IzPanel {
     public void makeXMLData(XMLElement panelRoot)
     {
         Map entryMap = new HashMap();
-
+        /* ###ead
+           this approach doesn't work correctly for Geronimo (and there's a bug)
         for (int i = 0; i < entries.size(); i++)
         {
             TextValuePair pair = (TextValuePair) entries.elementAt(i);
             entryMap.put(pair.toString(), pair.getValue());
         }
+        */ 
+        // ###ead -- new approach
+        Object[] uiElement;
 
+        for (int i = 0; i < uiElements.size(); i++) {
+            uiElement = (Object[]) uiElements.elementAt(i);
+            String var = (String)uiElement[POS_VARIABLE];
+            if( var != null ) {
+               String val = idata.getVariable( var );
+               if( val != null ) {
+                  Debug.trace( "-makeXMLData(): entryMap.put( " + var + ", " + val + " )");
+                  entryMap.put( var, val );
+               } else Debug.trace( "-makeXMLData(): entryMap.put( " + var + " was null" );
+            }
+        }
+        // end new approach
         new ValidatePackSelectionsAutomationHelper(entryMap, getTitle() ).makeXMLData(idata, panelRoot);
     }
 
@@ -717,7 +769,7 @@ public class ValidatePackSelections extends IzPanel {
         {
             uiElement = (Object[]) uiElements.elementAt(i);
 
-            if ( itemRequiredFor((Vector) uiElement[POS_PACKS])  &&     itemRequiredForOs((Vector) uiElement[POS_OS]))
+            if ( itemRequiredFor((Vector) uiElement[POS_PACKS])  &&     itemRequiredForOs((Vector) uiElement[POS_OS]) && ( isFieldSuppressed( (Vector)uiElement[POS_SUPPRESS] ) == false ))
             {
                 try
                 {
@@ -1050,7 +1102,7 @@ public class ValidatePackSelections extends IzPanel {
         // elements if it exists.
         // ----------------------------------------------------
         element = spec.getFirstChildNamed(DESCRIPTION);
-        addDescription(element, forPacks, forOs);
+        addDescription(element, forPacks, forOs, null);
 
         // ----------------------------------------------------
         // get the validator and processor if they are defined
@@ -1108,12 +1160,12 @@ public class ValidatePackSelections extends IzPanel {
         constraints.position = TwoColumnConstraints.WEST;
 
         uiElements
-                .add(new Object[] { null, FIELD_LABEL, null, constraints, label, forPacks, forOs});
+                .add(new Object[] { null, null, FIELD_LABEL, null, constraints, label, forPacks, forOs});
 
         TwoColumnConstraints constraints2 = new TwoColumnConstraints();
         constraints2.position = TwoColumnConstraints.EAST;
 
-        uiElements.add(new Object[] { null, RULE_FIELD, variable, constraints2, field, forPacks,
+        uiElements.add(new Object[] { null, null, RULE_FIELD, variable, constraints2, field, forPacks,
                 forOs, null, null, message});
     }
 
@@ -1166,7 +1218,7 @@ public class ValidatePackSelections extends IzPanel {
         }
 
         idata.setVariable(variable, ruleField.getText());
-        entries.add(new TextValuePair(variable, ruleField.getText()));
+        //entries.add(new TextValuePair(variable, ruleField.getText())); 
         return (true);
     }
 
@@ -1233,7 +1285,7 @@ public class ValidatePackSelections extends IzPanel {
         // elements if it exists.
         // ----------------------------------------------------
         element = spec.getFirstChildNamed(DESCRIPTION);
-        addDescription(element, forPacks, forOs);
+        addDescription(element, forPacks, forOs, null);
 
         // ----------------------------------------------------
         // construct the UI element and add it to the list
@@ -1245,12 +1297,12 @@ public class ValidatePackSelections extends IzPanel {
         constraints.position = TwoColumnConstraints.WEST;
 
         uiElements
-                .add(new Object[] { null, FIELD_LABEL, null, constraints, label, forPacks, forOs});
+                .add(new Object[] { null, null, FIELD_LABEL, null, constraints, label, forPacks, forOs});
 
         TwoColumnConstraints constraints2 = new TwoColumnConstraints();
         constraints2.position = TwoColumnConstraints.EAST;
 
-        uiElements.add(new Object[] { null, TEXT_FIELD, variable, constraints2, field, forPacks,
+        uiElements.add(new Object[] { null, null, TEXT_FIELD, variable, constraints2, field, forPacks,
                 forOs});
     }
 
@@ -1284,7 +1336,7 @@ public class ValidatePackSelections extends IzPanel {
         if ((variable == null) || (value == null)) { return (true); }
 
         idata.setVariable(variable, value);
-        entries.add(new TextValuePair(variable, value));
+        // entries.add(new TextValuePair(variable, value));
         return (true);
     }
 
@@ -1411,18 +1463,18 @@ public class ValidatePackSelections extends IzPanel {
         // elements if it exists.
         // ----------------------------------------------------
         element = spec.getFirstChildNamed(DESCRIPTION);
-        addDescription(element, forPacks, forOs);
+        addDescription(element, forPacks, forOs, null);
 
         TwoColumnConstraints constraints = new TwoColumnConstraints();
         constraints.position = TwoColumnConstraints.WEST;
 
         uiElements
-                .add(new Object[] { null, FIELD_LABEL, null, constraints, label, forPacks, forOs});
+                .add(new Object[] { null, null, FIELD_LABEL, null, constraints, label, forPacks, forOs});
 
         TwoColumnConstraints constraints2 = new TwoColumnConstraints();
         constraints2.position = TwoColumnConstraints.EAST;
 
-        uiElements.add(new Object[] { null, COMBO_FIELD, variable, constraints2, field, forPacks,
+        uiElements.add(new Object[] { null, null, COMBO_FIELD, variable, constraints2, field, forPacks,
                 forOs});
     }
 
@@ -1456,7 +1508,7 @@ public class ValidatePackSelections extends IzPanel {
         if ((variable == null) || (value == null)) { return true; }
 
         idata.setVariable(variable, value);
-        entries.add(new TextValuePair(variable, value));
+        // entries.add(new TextValuePair(variable, value));
         return true;
     }
 
@@ -1508,7 +1560,7 @@ public class ValidatePackSelections extends IzPanel {
         // elements if it exists.
         // ----------------------------------------------------
         element = spec.getFirstChildNamed(DESCRIPTION);
-        addDescription(element, forPacks, forOs);
+        addDescription(element, forPacks, forOs, null);
 
         // ----------------------------------------------------
         // extract the specification details
@@ -1546,7 +1598,7 @@ public class ValidatePackSelections extends IzPanel {
                 }
 
                 buttonGroups.add(group);
-                uiElements.add(new Object[] { null, RADIO_FIELD, variable, constraints, choice,
+                uiElements.add(new Object[] { null, null, RADIO_FIELD, variable, constraints, choice,
                         forPacks, forOs, value, null, null, group});
             }
         }
@@ -1584,7 +1636,7 @@ public class ValidatePackSelections extends IzPanel {
         }
 
         idata.setVariable(variable, value);
-        entries.add(new TextValuePair(variable, value));
+        // entries.add(new TextValuePair(variable, value));
         return (true);
     }
 
@@ -1632,7 +1684,7 @@ public class ValidatePackSelections extends IzPanel {
         // elements if it exists.
         // ----------------------------------------------------
         element = spec.getFirstChildNamed(DESCRIPTION);
-        addDescription(element, forPacks, forOs);
+        addDescription(element, forPacks, forOs, null);
 
         // ----------------------------------------------------
         // get the validator and processor if they are defined
@@ -1694,13 +1746,13 @@ public class ValidatePackSelections extends IzPanel {
                 TwoColumnConstraints constraints = new TwoColumnConstraints();
                 constraints.position = TwoColumnConstraints.WEST;
 
-                uiElements.add(new Object[] { null, FIELD_LABEL, null, constraints, label,
+                uiElements.add(new Object[] { null, null, FIELD_LABEL, null, constraints, label,
                         forPacks, forOs});
 
                 TwoColumnConstraints constraints2 = new TwoColumnConstraints();
                 constraints2.position = TwoColumnConstraints.EAST;
 
-                uiElements.add(new Object[] { null, PWD_FIELD, variable, constraints2, field,
+                uiElements.add(new Object[] { null, null, PWD_FIELD, variable, constraints2, field,
                         forPacks, forOs, null, null, message, group});
                 group.addField(field);
             }
@@ -1749,10 +1801,37 @@ public class ValidatePackSelections extends IzPanel {
         }
 
         idata.setVariable(variable, group.getPassword());
-        entries.add(new TextValuePair(variable, group.getPassword()));
+        // entries.add(new TextValuePair(variable, group.getPassword()));
         return (true);
     }
-
+    protected boolean isFieldSuppressed( Vector suppressions ) { // ###ead
+       boolean fRet = false;
+       for( int i = 0; suppressions != null &&  i < suppressions.size( ); ++i ) {
+          TextValuePair tvp = (TextValuePair)suppressions.elementAt(i);
+          String var = tvp.toString();
+          String val = idata.getVariable( var );
+          if( val.equalsIgnoreCase( tvp.getValue() )) {
+             fRet = true;
+             break;
+          }
+       }
+       return fRet;
+    }
+    protected Vector getFieldSuppressionList( XMLElement spec ) { // ###ead
+       Vector supps = null;
+       XMLElement suppress = spec.getFirstChildNamed( SUPPRESS );
+       if( suppress != null ) {
+          Vector whens = suppress.getChildrenNamed( WHEN );
+          for( int i = 0; i < whens.size(); ++i ) {
+             if( supps == null ) supps = new Vector();
+             XMLElement when = (XMLElement)whens.elementAt(i);
+             String var = when.getAttribute( VARIABLE );
+             String val = when.getAttribute( VALUE );
+             supps.add( new TextValuePair( var, val ));
+          }
+       }
+       return supps;
+    }
     /*--------------------------------------------------------------------------*/
     /**
      * Adds a chackbox to the list of UI elements.
@@ -1770,7 +1849,7 @@ public class ValidatePackSelections extends IzPanel {
         String falseValue = null;
         String variable = spec.getAttribute(VARIABLE);
         XMLElement detail = spec.getFirstChildNamed(SPEC);
-
+        Vector suppress = getFieldSuppressionList( spec ); // ###ead
         if (variable == null) { return; }
 
         if (detail != null)
@@ -1804,14 +1883,14 @@ public class ValidatePackSelections extends IzPanel {
         // elements if it exists.
         // ----------------------------------------------------
         XMLElement element = spec.getFirstChildNamed(DESCRIPTION);
-        addDescription(element, forPacks, forOs);
+        addDescription( element, forPacks, forOs, suppress );
 
         TwoColumnConstraints constraints = new TwoColumnConstraints();
         constraints.position = TwoColumnConstraints.BOTH;
         constraints.stretch = true;
         constraints.indent = true;
 
-        uiElements.add(new Object[] { null, CHECK_FIELD, variable, constraints, checkbox, forPacks,
+        uiElements.add(new Object[] { suppress, null, CHECK_FIELD, variable, constraints, checkbox, forPacks,
                 forOs, trueValue, falseValue});
     }
 
@@ -1857,12 +1936,12 @@ public class ValidatePackSelections extends IzPanel {
         if (box.isSelected())
         {
             idata.setVariable(variable, trueValue);
-            entries.add(new TextValuePair(variable, trueValue));
+            // entries.add(new TextValuePair(variable, trueValue));
         }
         else
         {
             idata.setVariable(variable, falseValue);
-            entries.add(new TextValuePair(variable, falseValue));
+            // entries.add(new TextValuePair(variable, falseValue));
         }
 
         return (true);
@@ -2006,12 +2085,12 @@ public class ValidatePackSelections extends IzPanel {
         // elements if it exists.
         // ----------------------------------------------------
         element = spec.getFirstChildNamed(DESCRIPTION);
-        addDescription(element, forPacks, forOs);
+        addDescription(element, forPacks, forOs, null );
 
         TwoColumnConstraints westconstraint1 = new TwoColumnConstraints();
         westconstraint1.position = TwoColumnConstraints.WEST;
 
-        uiElements.add(new Object[] { null, FIELD_LABEL, null, westconstraint1, label, forPacks,
+        uiElements.add(new Object[] { null, null, FIELD_LABEL, null, westconstraint1, label, forPacks,
                 forOs});
 
         TwoColumnConstraints eastconstraint1 = new TwoColumnConstraints();
@@ -2035,7 +2114,7 @@ public class ValidatePackSelections extends IzPanel {
 
         if (tooltiptext.length() > 0) combobox.setToolTipText(tooltiptext.toString());
 
-        uiElements.add(new Object[] { null, SEARCH_FIELD, variable, eastconstraint1, combobox,
+        uiElements.add(new Object[] { null, null, SEARCH_FIELD, variable, eastconstraint1, combobox,
                 forPacks, forOs});
 
         JPanel buttonPanel = new JPanel();
@@ -2059,7 +2138,7 @@ public class ValidatePackSelections extends IzPanel {
         TwoColumnConstraints eastonlyconstraint = new TwoColumnConstraints();
         eastonlyconstraint.position = TwoColumnConstraints.EASTONLY;
 
-        uiElements.add(new Object[] { null, SEARCH_BUTTON_FIELD, null, eastonlyconstraint,
+        uiElements.add(new Object[] { null, null, SEARCH_BUTTON_FIELD, null, eastonlyconstraint,
                 buttonPanel, forPacks, forOs});
 
         searchFields.add(new SearchField(filename, check_filename, parentFrame, combobox,
@@ -2104,7 +2183,7 @@ public class ValidatePackSelections extends IzPanel {
         if ((variable == null) || (value == null)) { return (true); }
 
         idata.setVariable(variable, value);
-        entries.add(new TextValuePair(variable, value));
+        // entries.add(new TextValuePair(variable, value));
         return (true);
     }
 
@@ -2119,8 +2198,8 @@ public class ValidatePackSelections extends IzPanel {
     {
         Vector forPacks = spec.getChildrenNamed(SELECTEDPACKS);
         Vector forOs = spec.getChildrenNamed(OS);
-
-        addDescription(spec, forPacks, forOs);
+        Vector suppress = getFieldSuppressionList( spec );
+        addDescription(spec, forPacks, forOs, suppress );
     }
 
     /*--------------------------------------------------------------------------*/
@@ -2142,7 +2221,7 @@ public class ValidatePackSelections extends IzPanel {
         constraints.stretch = true;
 
         uiElements
-                .add(new Object[] { null, SPACE_FIELD, null, constraints, panel, forPacks, forOs});
+                .add(new Object[] { null, null, SPACE_FIELD, null, constraints, panel, forPacks, forOs});
     }
 
     /*--------------------------------------------------------------------------*/
@@ -2179,7 +2258,7 @@ public class ValidatePackSelections extends IzPanel {
         constraints.position = TwoColumnConstraints.BOTH;
         constraints.stretch = true;
 
-        uiElements.add(new Object[] { null, DIVIDER_FIELD, null, constraints, panel, forPacks,
+        uiElements.add(new Object[] { null, null, DIVIDER_FIELD, null, constraints, panel, forPacks,
                 forOs});
     }
 
@@ -2190,7 +2269,7 @@ public class ValidatePackSelections extends IzPanel {
      * @param spec a <code>XMLElement</code> containing the specification for the description.
      */
     /*--------------------------------------------------------------------------*/
-    protected void addDescription(XMLElement spec, Vector forPacks, Vector forOs)
+    protected void addDescription(XMLElement spec, Vector forPacks, Vector forOs, Vector suppress )
     {
         String description;
         TwoColumnConstraints constraints = new TwoColumnConstraints();
@@ -2225,7 +2304,7 @@ public class ValidatePackSelections extends IzPanel {
 
                 MultiLineLabel label = new MultiLineLabel(description, justify);
 
-                uiElements.add(new Object[] { null, DESCRIPTION, null, constraints, label,
+                uiElements.add(new Object[] { suppress, null, DESCRIPTION, null, constraints, label,
                         forPacks, forOs});
             }
         }
