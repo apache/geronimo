@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <userInput>
-    <panel order="0">
+    <panel order="0" >
+        <!-- this panel displays only if both Jetty and Tomcat are selected.
+             Check ValidatePackSelections.panelActivate() and
+             GeronimoConfigProcessor.shouldSkipPanel()
+        -->
+        <field type="title" txt="Configuration Problem"/>
+        <divider/>
+        <field type="staticText" txt="Select either the Jetty or Tomcat web container, but not both."/>
+        <divider/>
+        <divider/>
+        <divider/>
+        <field type="staticText" txt="Return to the Pack Selection Panel to correct the problem."/>
+    </panel>
+    <panel order="1">
         <field type="title" txt="Base Configuration"/>
         <field type="staticText" txt="Please select security options for Geronimo"/>
         <divider/>
@@ -18,20 +31,26 @@
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
             <createForPack name="J2EE Features"/>
         </field>
-    <field type="check" variable="J2EE.Features.enable">
-          <description txt="Active at runtime"/>
-        <!--description align="left" txt="Enable J2EE features"
+        <field type="check" variable="J2EE.Features.enable">
+            <description txt="Active at runtime"/>
+            <!--description align="left" txt="Enable J2EE features"
             id="J2EE.Features.enable.desc" /-->
-        <spec txt="J2EE Features" id="J2EE.Features.enable.field"
+            <spec txt="J2EE Features" id="J2EE.Features.enable.field"
               true="true" false="false" set="true" />
-        <createForPack name="J2EE Features"/>
-    </field>
-    <field type="staticText" txt="Disabling J2EE Features disables dependent runtime features as well.">
-        <createForPack name="J2EE Features"/>
-    </field>
+            <createForPack name="J2EE Features"/>
+            <suppress>
+                <when variable="advanced.mode" value="false" />
+            </suppress>
+         </field>
+         <field type="staticText" txt="Disabling J2EE Features disables dependent runtime features as well.">
+           <suppress>
+               <when variable="advanced.mode" value="false" />
+           </suppress>
+           <createForPack name="J2EE Features"/>
+         </field>
     <createForPack name="Server"/>
     </panel>
-    <panel order="1">
+    <panel order="2">
         <createForPack name="Jetty Web Container"/>
         <field type="title" txt="Jetty Web Configuration"/>
         <field type="staticText" txt="Please select Jetty Web server configuration options for Geronimo"/>
@@ -55,49 +74,70 @@
             <spec txt="Apache AJP Port [8009]:" layout="N:5:5" set="0:8009"/>
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
-    <field type="check" variable="Jetty.Web.Container.enable">
+        <field type="check" variable="Jetty.Web.Container.enable">
           <description txt="Active at runtime"/>
           <spec txt="Jetty Web Container" id="Jetty.Web.Container.enable.field"
               true="true" false="false" set="true" />
           <depends variable="J2EE.Features.enable"/>
           <exclusiveOf variable="Tomcat.Web.Container.enable"/>
-        <createForPack name="Jetty Web Container"/>
-    </field>
-    <field type="check" variable="Jetty.Welcome.Application.enable">
-        <spec txt="Jetty Welcome Application" id="Jetty.Welcome.Application.enable.field"
-              true="true" false="false" set="true" />
-                <depends variable="Jetty.Web.Container.enable"/>
-        <createForPack name="Jetty Welcome Application"/>
-    </field>
+          <createForPack name="Jetty Web Container"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
+        </field>
+        <field type="check" variable="Jetty.Welcome.Application.enable">
+             <spec txt="Jetty Welcome Application" id="Jetty.Welcome.Application.enable.field"
+                true="true" false="false" set="true" />
+             <depends variable="Jetty.Web.Container.enable"/>
+             <createForPack name="Jetty Welcome Application"/>
+             <suppress>
+                 <when variable="advanced.mode" value="false" />
+             </suppress>
+        </field>
         <field type="check" variable="Jetty.Web.Management.Console.enable">
           <spec txt="Jetty Web Management Console" id="Jetty.Web.Management.Console.enable.field"
                 true="true" false="false" set="true" />
           <depends variable="Jetty.Web.Container.enable"/>
           <createForPack name="Jetty Web Management Console"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Jetty.UDDI.Server.enable">
           <spec txt="Jetty UDDI Server" id="Jetty.UDDI.Server.enable.field"
                 true="true" false="false" set="true" />
           <depends variable="Jetty.Web.Container.enable"/>
           <createForPack name="Jetty UDDI Server"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Jetty.Sample.Applications.enable">
           <spec txt="Jetty Sample Applications" id="Jetty.Sample.Applications.enable.field"
                 true="true" false="false" set="true" />
           <depends variable="Jetty.Web.Container.enable"/>
           <createForPack name="Jetty Sample Applications"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Daytrader.for.Jetty.enable">
           <spec txt="Daytrader for Jetty" id="Daytrader.for.Jetty.enable.field"
                 true="true" false="false" set="true" />
           <depends variable="Jetty.Web.Container.enable"/>
           <createForPack name="Daytrader for Jetty"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="staticText" txt="Jetty and Tomcat may not be enabled concurrently from the installer.">
           <createForPack name="Tomcat Web Container"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
     </panel>
-    <panel order="2">
+    <panel order="3">
        <createForPack name="Tomcat Web Container"/>
         <field type="title" txt="Tomcat Web Configuration"/>
         <field type="staticText" txt="Please select Tomcat Web server configuration options for Geronimo"/>
@@ -128,42 +168,63 @@
           <depends variable="J2EE.Features.enable"/>
           <exclusiveOf variable="Jetty.Web.Container.enable"/>
           <createForPack name="Tomcat Web Container"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Tomcat.Welcome.Application.enable">
           <spec txt="Tomcat Welcome Application" id="Tomcat.Welcome.Application.enable.field"
                 true="true" false="false" set="false" />
           <depends variable="Tomcat.Web.Container.enable"/>
           <createForPack name="Tomcat Welcome Application"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Tomcat.Web.Management.Console.enable">
           <spec txt="Tomcat Web Management Console" id="Tomcat.Web.Management.Console.enable.field"
                 true="true" false="false" set="false" />
           <depends variable="Tomcat.Web.Container.enable"/>
           <createForPack name="Tomcat Web Management Console"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Tomcat.UDDI.Server.enable">
           <spec txt="Tomcat UDDI Server" id="Tomcat.UDDI.Server.enable.field"
                 true="true" false="false" set="false" />
           <depends variable="Tomcat.Web.Container.enable"/>
           <createForPack name="Tomcat UDDI Server"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Tomcat.Sample.Applications.enable">
           <spec txt="Tomcat Sample Applications" id="Tomcat.Sample.Applications.enable.field"
                 true="true" false="false" set="false" />
           <depends variable="Tomcat.Web.Container.enable"/>
           <createForPack name="Tomcat Sample Applications"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="check" variable="Daytrader.for.Tomcat.enable">
           <spec txt="Daytrader for Tomcat" id="Daytrader.for.Tomcat.enable.field"
                 true="true" false="false" set="false" />
           <depends variable="Tomcat.Web.Container.enable"/>
           <createForPack name="Daytrader for Tomcat"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
         <field type="staticText" txt="Jetty and Tomcat may not be enabled concurrently from the installer.">
           <createForPack name="Jetty Web Container"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
     </panel>
-    <panel order="3">
+    <panel order="4">
         <field type="title" txt="EJB Configuration"/>
         <field type="staticText" txt="Please select EJB server configuration options for Geronimo"/>
         <divider/>
@@ -185,7 +246,7 @@
             <createForPack name="J2EE Features"/>
         </field>
     </panel>
-    <panel order="4">
+    <panel order="5">
         <createForPack name="CORBA Features"/>
         <field type="title" txt="CORBA Configuration"/>
         <field type="staticText" txt="Please select CORBA configuration options for Geronimo"/>
@@ -219,9 +280,12 @@
                 true="true" false="false" set="true" />
           <depends variable="J2EE.Features.enable"/>
           <createForPack name="CORBA Features"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
     </panel>
-    <panel order="5">
+    <panel order="6">
         <createForPack name="J2EE Features"/>
         <field type="title" txt="Derby Configuration"/>
         <field type="staticText" txt="Configure Derby, the sample database engine."/>
@@ -232,7 +296,7 @@
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
         </field>
     </panel>
-    <panel order="6">
+    <panel order="7">
         <createForPack name="JMS Features"/>
         <field type="title" txt="ActiveMQ Configuration"/>
         <field type="staticText" txt="Please configure activemq services"/>
@@ -248,9 +312,12 @@
                 true="true" false="false" set="true" />
           <depends variable="J2EE.Features.enable"/>
           <createForPack name="JMS Features"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
     </panel>
-    <panel order="7">
+    <panel order="8">
         <createForPack name="LDAP Server"/>
         <field type="title" txt="Directory (LDAP) Configuration"/>
         <field type="staticText" txt="Please configure Directory services"/>
@@ -266,9 +333,12 @@
                 true="true" false="false" set="true" />
           <depends variable="J2EE.Features.enable"/>
           <createForPack name="LDAP Server"/>
+          <suppress>
+              <when variable="advanced.mode" value="false" />
+          </suppress>
         </field>
     </panel>
-    <panel order="8">
+    <panel order="9">
       <createForPack name="SMTP Transport"/>
       <field type="title" txt="SMTP Transport Configuration"/>
       <field type="staticText" txt="Configure the SMTP Transport"/>
@@ -288,9 +358,12 @@
               true="true" false="false" set="true" />
         <depends variable="J2EE.Features.enable"/>
         <createForPack name="SMTP Transport"/>
+        <suppress>
+            <when variable="advanced.mode" value="false" />
+        </suppress>
       </field>
     </panel>
-    <panel order="9">
+    <panel order="10">
             <field type="title" txt="Configuration Checkpoint"/>
             <field type="staticText" txt="Congratulations!"/>
             <field type="staticText" txt="        Geronimo configuration is complete." />
