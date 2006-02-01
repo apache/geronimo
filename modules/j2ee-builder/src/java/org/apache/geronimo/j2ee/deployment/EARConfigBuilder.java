@@ -54,6 +54,8 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -72,7 +74,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev: 6509 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
 
@@ -381,8 +383,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 Module module = (Module) modules.iterator().next();
                 moduleName = module.getName();
             }
+            J2eeContext appJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earContext.getJ2eeContext(), NameFactory.J2EE_MODULE, moduleName);
             try {
-                jaccBeanName = NameFactory.getComponentName(null, null, null, moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER, earContext.getJ2eeContext());
+                jaccBeanName = NameFactory.getComponentName(null, null, null, null, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER, appJ2eeContext);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Could not construct name for JACCBean", e);
             }
@@ -402,8 +405,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             //add the JACC gbean if there is a principal-role mapping
             if (earContext.getSecurityConfiguration() != null) {
-                GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(jaccBeanName, earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
-                earContext.addGBean(jaccBeanData);
+                SecurityBuilder.configureApplicationPolicyManager(jaccBeanName, earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration(), appJ2eeContext, earContext);
             }
             earContext.close();
             return earContext.getConfigurationData();

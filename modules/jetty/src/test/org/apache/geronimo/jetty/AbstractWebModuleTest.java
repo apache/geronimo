@@ -48,6 +48,7 @@ import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
@@ -131,13 +132,18 @@ public class AbstractWebModuleTest extends TestCase {
     }
 
     protected void setUpSecureAppContext(Map roleDesignates, Map principalRoleMap, ComponentPermissions componentPermissions, DefaultPrincipal defaultPrincipal, PermissionCollection checked, Set securityRoles) throws Exception {
+        ObjectName mapperName = NameFactory.getComponentName(null, null, null, null, "mapper", NameFactory.JACC_MANAGER, moduleContext);
+        GBeanData mapperData = new GBeanData(mapperName, ApplicationPrincipalRoleConfigurationManager.GBEAN_INFO);
+        mapperData.setAttribute("principalRoleMap", principalRoleMap);
+        start(mapperData);
+
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put("TEST", componentPermissions);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
-        jaccBeanData.setAttribute("principalRoleMap", principalRoleMap);
         jaccBeanData.setAttribute("roleDesignates", roleDesignates);
+        jaccBeanData.setReferencePattern("PrincipalRoleMapper", mapperName);
         start(jaccBeanData);
 
         GBeanData app = new GBeanData(webModuleName, JettyWebAppContext.GBEAN_INFO);

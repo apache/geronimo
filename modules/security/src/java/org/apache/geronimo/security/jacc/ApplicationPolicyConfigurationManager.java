@@ -43,8 +43,10 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
 
     private final Map contextIdToPolicyConfigurationMap = new HashMap();
     private final Map roleDesignates;
+    private final PrincipalRoleMapper principalRoleMapper;
 
-    public ApplicationPolicyConfigurationManager(Map contextIdToPermissionsMap, Map principalRoleMap, Map roleDesignates, ClassLoader cl) throws PolicyContextException, ClassNotFoundException {
+    public ApplicationPolicyConfigurationManager(Map contextIdToPermissionsMap, Map roleDesignates, ClassLoader cl, PrincipalRoleMapper principalRoleMapper) throws PolicyContextException, ClassNotFoundException {
+        this.principalRoleMapper = principalRoleMapper;
         Thread currentThread = Thread.currentThread();
         ClassLoader oldClassLoader = currentThread.getContextClassLoader();
         currentThread.setContextClassLoader(cl);
@@ -61,9 +63,6 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
             ComponentPermissions componentPermissions = (ComponentPermissions) entry.getValue();
 
             PolicyConfiguration policyConfiguration = policyConfigurationFactory.getPolicyConfiguration(contextID, true);
-//            if (policyConfiguration != policyConfigurationFactory.getPolicyConfiguration(contextID, false)) {
-//                throw new IllegalStateException("JACC implementation is invalid: returns different instances of PolicyConfiguration for the same contextID");
-//            }
             contextIdToPolicyConfigurationMap.put(contextID, policyConfiguration);
             policyConfiguration.addToExcludedPolicy(componentPermissions.getExcludedPermissions());
             policyConfiguration.addToUncheckedPolicy(componentPermissions.getUncheckedPermissions());
@@ -77,15 +76,10 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
 
                 }
             }
+        }
 
-            GeronimoPolicyConfigurationFactory roleMapperFactory = GeronimoPolicyConfigurationFactory.getSingleton();
-            if (roleMapperFactory == null) {
-                throw new IllegalStateException("Inconsistent security setup.  GeronimoPolicyConfigurationFactory is not being used");
-            }
-
-            GeronimoPolicyConfiguration geronimoPolicyConfiguration = roleMapperFactory.getGeronimoPolicyConfiguration(contextID);
-            geronimoPolicyConfiguration.setPrincipalRoleMapping(principalRoleMap);
-
+        if (principalRoleMapper != null) {
+            principalRoleMapper.install(contextIdToPermissionsMap.keySet());
         }
 
         //link everything together
@@ -130,6 +124,10 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
              ContextManager.unregisterSubject(roleDesignate);
          }
 
+        if (principalRoleMapper != null) {
+            principalRoleMapper.uninstall();
+        }
+
         for (Iterator iterator = contextIdToPolicyConfigurationMap.values().iterator(); iterator.hasNext();) {
             PolicyConfiguration policyConfiguration = (PolicyConfiguration) iterator.next();
             policyConfiguration.delete();
@@ -149,11 +147,11 @@ public class ApplicationPolicyConfigurationManager implements GBeanLifecycle, Ro
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ApplicationPolicyConfigurationManager.class, NameFactory.JACC_MANAGER);
         infoBuilder.addAttribute("contextIdToPermissionsMap", Map.class, true);
-        infoBuilder.addAttribute("principalRoleMap", Map.class, true);
         infoBuilder.addAttribute("roleDesignates", Map.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
         infoBuilder.addInterface(RoleDesignateSource.class);
-        infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "principalRoleMap", "roleDesignates", "classLoader"});
+        infoBuilder.addReference("PrincipalRoleMapper", PrincipalRoleMapper.class, NameFactory.JACC_MANAGER);
+        infoBuilder.setConstructor(new String[] {"contextIdToPermissionsMap", "roleDesignates", "classLoader", "PrincipalRoleMapper"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

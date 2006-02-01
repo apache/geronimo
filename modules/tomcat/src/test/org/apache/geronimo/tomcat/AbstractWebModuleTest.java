@@ -47,6 +47,7 @@ import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
+import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
@@ -129,7 +130,7 @@ public class AbstractWebModuleTest extends TestCase {
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
-        jaccBeanData.setAttribute("principalRoleMap", new HashMap());
+//        jaccBeanData.setAttribute("principalRoleMap", new HashMap());
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
         start(jaccBeanData);
 
@@ -178,13 +179,18 @@ public class AbstractWebModuleTest extends TestCase {
     {
 
         //Will use the Engine level security
+        ObjectName mapperName = NameFactory.getComponentName(null, null, null, null, "mapper", NameFactory.JACC_MANAGER, moduleContext);
+        GBeanData mapperData = new GBeanData(mapperName, ApplicationPrincipalRoleConfigurationManager.GBEAN_INFO);
+        mapperData.setAttribute("principalRoleMap", principalRoleMap);
+        start(mapperData);
+
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         Map contextIDToPermissionsMap = new HashMap();
         contextIDToPermissionsMap.put(POLICY_CONTEXT_ID, componentPermissions);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
-        jaccBeanData.setAttribute("principalRoleMap", principalRoleMap);
         jaccBeanData.setAttribute("roleDesignates", roleDesignates);
+        jaccBeanData.setReferencePattern("PrincipalRoleMapper", mapperName);
         start(jaccBeanData);
 
         SecurityHolder securityHolder = new SecurityHolder();
