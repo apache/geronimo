@@ -34,7 +34,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 6509 $ $Date$
  */
 public class EARContext extends DeploymentContext implements NamingContext {
     private final ObjectName domainObjectName;
@@ -55,8 +55,9 @@ public class EARContext extends DeploymentContext implements NamingContext {
     private final Map contextIDToPermissionsMap = new HashMap();
     private ObjectName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
+    private final ObjectName transactionManagerObjectName;
 
-    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, List parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, ObjectName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
+    public EARContext(File baseDir, URI id, ConfigurationModuleType moduleType, List parentID, Kernel kernel, String j2eeApplicationName, ObjectName transactionManagerObjectName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactedTimerName, ObjectName nonTransactedTimerName, ObjectName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
         super(baseDir, id, moduleType, parentID, kernel);
         j2eeContext = new J2eeContextImpl(getDomain(), getServer(), j2eeApplicationName == null ? NameFactory.NULL : j2eeApplicationName, NameFactory.J2EE_MODULE, NameFactory.NULL, null, null);
         domainObjectName = NameFactory.getDomainName(null, j2eeContext);
@@ -68,6 +69,7 @@ public class EARContext extends DeploymentContext implements NamingContext {
             applicationObjectName = null;
         }
 
+        this.transactionManagerObjectName = transactionManagerObjectName;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactedTimerName = transactedTimerName;
@@ -98,6 +100,10 @@ public class EARContext extends DeploymentContext implements NamingContext {
 
     public ObjectName getApplicationObjectName() {
         return applicationObjectName;
+    }
+
+    public ObjectName getTransactionManagerObjectName() {
+        return transactionManagerObjectName;
     }
 
     public ObjectName getTransactionContextManagerObjectName() {

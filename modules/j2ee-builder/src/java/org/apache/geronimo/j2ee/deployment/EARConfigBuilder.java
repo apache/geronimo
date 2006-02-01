@@ -72,7 +72,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 6509 $ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
 
@@ -89,6 +89,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final List defaultParentId;
+    private final ObjectName transactionManagerObjectName;
     private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
     private final ObjectName transactionalTimerObjectName;
@@ -96,7 +97,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName corbaGBeanObjectName;
 
 
-    public EARConfigBuilder(URI[] defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(URI[] defaultParentId, ObjectName transactionManagerObjectName, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
@@ -108,6 +109,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
+        this.transactionManagerObjectName = transactionManagerObjectName;
         this.transactionContextManagerObjectName = transactionContextManagerObjectName;
         this.connectionTrackerObjectName = connectionTrackerObjectName;
         this.transactionalTimerObjectName = transactionalTimerObjectName;
@@ -180,7 +182,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         GerApplicationType gerApplication = null;
         try {
             // load the geronimo-application.xml from either the supplied plan or from the earFile
-            GerApplicationDocument gerApplicationDoc = null;
             XmlObject rawPlan = null;
             try {
                 if (planFile != null) {
@@ -295,6 +296,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         applicationInfo.getParentId(),
                         kernel,
                         applicationInfo.getApplicationName(),
+                        transactionManagerObjectName,
                         transactionContextManagerObjectName,
                         connectionTrackerObjectName,
                         transactionalTimerObjectName,
@@ -357,11 +359,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             if (ConfigurationModuleType.EAR == applicationType) {
                 GBeanData gbeanData = new GBeanData(earContext.getApplicationObjectName(), J2EEApplicationImpl.GBEAN_INFO);
                 try {
-                    String originalSpecDD = applicationInfo.getOriginalSpecDD();
-                    if (originalSpecDD == null) {
-                        originalSpecDD = "Synthetic EAR";
-                    }
-                    gbeanData.setAttribute("deploymentDescriptor", originalSpecDD);
+                    gbeanData.setAttribute("deploymentDescriptor", applicationInfo.getOriginalSpecDD());
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
@@ -699,6 +697,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addAttribute("defaultParentId", URI[].class, true, true);
+        infoFactory.addAttribute("transactionManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
@@ -720,6 +719,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.setConstructor(new String[]{
             "defaultParentId",
+            "transactionManagerObjectName",
             "transactionContextManagerObjectName",
             "connectionTrackerObjectName",
             "transactionalTimerObjectName",

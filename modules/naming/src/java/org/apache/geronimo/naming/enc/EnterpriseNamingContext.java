@@ -17,24 +17,53 @@
 
 package org.apache.geronimo.naming.enc;
 
-import javax.naming.Context;
-import javax.naming.LinkRef;
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.Reference;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javax.naming.Context;
+import javax.naming.LinkRef;
+import javax.naming.Name;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.transaction.UserTransaction;
+
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
+import org.apache.geronimo.naming.reference.KernelAwareReference;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 6682 $ $Date$
  */
 public final class EnterpriseNamingContext extends AbstractReadOnlyContext {
     private final Map localBindings;
 
     private final Map globalBindings;
+
+    public static Context createEnterpriseNamingContext(Map componentContext, UserTransaction userTransaction, Kernel kernel, ClassLoader classLoader) throws NamingException {
+        Map map = new HashMap();
+        if (componentContext != null) {
+            map.putAll(componentContext);
+        }
+
+        for (Iterator iterator = map.values().iterator(); iterator.hasNext();) {
+            Object value = iterator.next();
+            if (value instanceof KernelAwareReference) {
+                ((KernelAwareReference) value).setKernel(kernel);
+            }
+            if (value instanceof ClassLoaderAwareReference) {
+                ((ClassLoaderAwareReference) value).setClassLoader(classLoader);
+            }
+        }
+
+        if (userTransaction != null) {
+            map.put("UserTransaction", userTransaction);
+        }
+
+        Context enc = EnterpriseNamingContext.createEnterpriseNamingContext(map);
+        return enc;
+    }
 
     public static Context createEnterpriseNamingContext(Map context) throws NamingException {
         return new EnterpriseNamingContext(context);

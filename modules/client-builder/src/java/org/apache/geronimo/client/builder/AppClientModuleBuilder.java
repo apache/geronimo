@@ -24,13 +24,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -38,18 +38,16 @@ import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -84,7 +82,6 @@ import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 
 
 /**
@@ -119,7 +116,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                   ServiceReferenceBuilder serviceReferenceBuilder,
                                   ConfigurationStore store,
                                   Repository repository,
-                                  Kernel kernel) throws DeploymentException {
+                                  Kernel kernel) {
         this.defaultClientParentId = defaultClientParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultClientParentId);
         this.defaultServerParentId = defaultServerParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultServerParentId);
         this.corbaGBeanObjectName = corbaGBeanObjectName;
@@ -351,6 +348,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             clientParentId,
                             kernel,
                             clientApplicationName,
+                            null,
                             transactionContextManagerObjectName,
                             connectionTrackerObjectName,
                             null,

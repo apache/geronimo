@@ -32,7 +32,7 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
  * This adds the ability to enable or disable the operations depending on
  * the lifecycle of the EJB instance.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 6682 $ $Date$
  */
 public class UserTransactionImpl implements UserTransaction, Serializable {
     private final ThreadLocal state = new StateThreadLocal();
@@ -44,6 +44,11 @@ public class UserTransactionImpl implements UserTransaction, Serializable {
 
     public UserTransactionImpl() {
         state.set(OFFLINE);
+    }
+
+    public UserTransactionImpl(TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator) {
+        state.set(OFFLINE);
+        ONLINE.setUp(transactionContextManager, trackedConnectionAssociator);
     }
 
     public void setUp(TransactionContextManager transactionContextManager, TrackedConnectionAssociator trackedConnectionAssociator) {

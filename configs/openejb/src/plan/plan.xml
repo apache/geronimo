@@ -26,12 +26,55 @@ by the server.
                parentId="${pom.groupId}/rmi-naming/${pom.currentVersion}/car"
 
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-    >
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
 
-    <!-- EJB Protocol -->
+    <gbean name="StatelessEjbContainer" class="org.openejb.slsb.DefaultStatelessEjbContainer">
+        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
+        <reference name="TrackedConnectionAssociator"><name>ConnectionTracker</name></reference>
+        <reference name="TransactedTimer"><gbean-name>geronimo.server:name=TransactionalThreadPooledTimer,*</gbean-name></reference>
+        <reference name="NontransactedTimer"><gbean-name>geronimo.server:name=NonTransactionalThreadPooledTimer,*</gbean-name></reference>
+        <attribute name="securityEnabled">true</attribute>
+        <attribute name="doAsCurrentCaller">true</attribute>
+        <attribute name="useContextHandler">true</attribute>
+    </gbean>
+
+    <gbean name="StatefulEjbContainer" class="org.openejb.sfsb.DefaultStatefulEjbContainer">
+        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
+        <reference name="TrackedConnectionAssociator"><name>ConnectionTracker</name></reference>
+        <attribute name="securityEnabled">true</attribute>
+        <attribute name="doAsCurrentCaller">true</attribute>
+        <attribute name="useContextHandler">true</attribute>
+    </gbean>
+
+    <gbean name="BmpEjbContainer" class="org.openejb.entity.bmp.DefaultBmpEjbContainer">
+        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
+        <reference name="TrackedConnectionAssociator"><name>ConnectionTracker</name></reference>
+        <reference name="TransactedTimer"><gbean-name>geronimo.server:name=TransactionalThreadPooledTimer,*</gbean-name></reference>
+        <reference name="NontransactedTimer"><gbean-name>geronimo.server:name=NonTransactionalThreadPooledTimer,*</gbean-name></reference>
+        <attribute name="securityEnabled">true</attribute>
+        <attribute name="doAsCurrentCaller">true</attribute>
+        <attribute name="useContextHandler">true</attribute>
+    </gbean>
+
+    <gbean name="CmpEjbContainer" class="org.openejb.entity.cmp.DefaultCmpEjbContainer">
+        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
+        <reference name="TrackedConnectionAssociator"><name>ConnectionTracker</name></reference>
+        <reference name="TransactedTimer"><gbean-name>geronimo.server:name=TransactionalThreadPooledTimer,*</gbean-name></reference>
+        <reference name="NontransactedTimer"><gbean-name>geronimo.server:name=NonTransactionalThreadPooledTimer,*</gbean-name></reference>
+        <attribute name="securityEnabled">true</attribute>
+        <attribute name="doAsCurrentCaller">true</attribute>
+        <attribute name="useContextHandler">true</attribute>
+    </gbean>
+
+    <gbean name="MdbEjbContainer" class="org.openejb.mdb.DefaultMdbContainer">
+        <reference name="TransactionContextManager"><name>TransactionContextManager</name></reference>
+        <reference name="TrackedConnectionAssociator"><name>ConnectionTracker</name></reference>
+        <reference name="TransactedTimer"><gbean-name>geronimo.server:name=TransactionalThreadPooledTimer,*</gbean-name></reference>
+        <reference name="NontransactedTimer"><gbean-name>geronimo.server:name=NonTransactionalThreadPooledTimer,*</gbean-name></reference>
+        <attribute name="doAsCurrentCaller">true</attribute>
+    </gbean>
+
     <gbean gbeanName="geronimo:type=NetworkService,name=EJB" class="org.activeio.xnet.StandardServiceStackGBean">
         <attribute name="name">EJB</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
@@ -47,8 +90,8 @@ by the server.
     </gbean>
 
     <gbean gbeanName="openejb:type=Server,name=EJB" class="org.openejb.server.ejbd.EjbServerGBean">
-        <reference name="ContainerIndex">
-            <gbean-name>openejb:type=ContainerIndex</gbean-name>
+        <reference name="DeploymentIndex">
+            <gbean-name>openejb:type=DeploymentIndex</gbean-name>
         </reference>
         <reference name="ORBRefs">
             <module>*</module>
@@ -57,8 +100,8 @@ by the server.
     </gbean>
 
     <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
-    <gbean gbeanName="openejb:type=ContainerIndex" class="org.openejb.ContainerIndex">
-        <references name="EJBContainers">
+    <gbean gbeanName="openejb:type=DeploymentIndex" class="org.openejb.DeploymentIndex">
+        <references name="EjbDeployments">
             <pattern><gbean-name>geronimo.server:j2eeType=StatelessSessionBean,*</gbean-name></pattern>
             <pattern><gbean-name>geronimo.server:j2eeType=StatefulSessionBean,*</gbean-name></pattern>
             <pattern><gbean-name>geronimo.server:j2eeType=EntityBean,*</gbean-name></pattern>

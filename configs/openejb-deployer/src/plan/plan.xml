@@ -17,13 +17,17 @@
 -->
 
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-        >
+    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
 
 
-    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
+    <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEjbModuleBuilder">
         <attribute name="defaultParentId">${pom.groupId}/openejb/${pom.currentVersion}/car,${pom.groupId}/axis/${pom.currentVersion}/car</attribute>
         <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
+        <attribute name="defaultStatelessEjbContainer">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/openejb/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=StatelessEjbContainer,name=StatelessEjbContainer</attribute>
+        <attribute name="defaultStatefulEjbContainer">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/openejb/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=StatefulEjbContainer,name=StatefulEjbContainer</attribute>
+        <attribute name="defaultBmpEjbContainer">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/openejb/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=BmpEjbContainer,name=BmpEjbContainer</attribute>
+        <attribute name="defaultCmpEjbContainer">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/openejb/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=CmpEjbContainer,name=CmpEjbContainer</attribute>
+        <attribute name="defaultMdbEjbContainer">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/openejb/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=MdbEjbContainer,name=MdbEjbContainer</attribute>
         <reference name="WebServiceLinkTemplate">
             <name>WebServiceEJBLinkTemplate</name>
         </reference>
@@ -46,11 +50,11 @@
     <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
     <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
 
-    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder">
+    <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEjbReferenceBuilder">
         <attribute name="host">${PlanServerHostname}</attribute>
         <attribute name="port">${PlanOpenEJBPort}</attribute>
     </gbean>
-    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEJBReferenceBuilder"/>
+    <gbean name="ServerEJBReferenceBuilder" class="org.openejb.deployment.OpenEjbReferenceBuilder"/>
     <gbean name="WebServiceEJBLinkTemplate" class="org.openejb.server.axis.WSContainerGBean"/>
 
 </configuration>

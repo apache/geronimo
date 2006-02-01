@@ -22,14 +22,18 @@ import java.util.jar.JarFile;
 import java.util.List;
 import java.io.IOException;
 
+import javax.management.ObjectName;
+
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.deployment.DeploymentContext;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 6509 $ $Date$
  */
 public class EJBModule extends Module {
+    private ObjectName moduleCmpEngineName;
+
     public EJBModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
         super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
     }
@@ -40,6 +44,14 @@ public class EJBModule extends Module {
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
         context.addClass(location, fqcn, bytes, true);
+    }
+
+    public ObjectName getModuleCmpEngineName() {
+        return moduleCmpEngineName;
+    }
+
+    public void setModuleCmpEngineName(ObjectName moduleCmpEngineName) {
+        this.moduleCmpEngineName = moduleCmpEngineName;
     }
 }
 

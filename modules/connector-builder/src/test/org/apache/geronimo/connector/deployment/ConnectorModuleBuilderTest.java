@@ -179,7 +179,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.startGBean(configurationManagerName);
 
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, null, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultParentId, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();
@@ -347,6 +347,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         j2eeContext.getJ2eeApplicationName(),
                         null,
                         connectionTrackerName,
+                        null,
                         null,
                         null,
                         null, new RefContext(ejbReferenceBuilder,
@@ -553,8 +554,9 @@ public class ConnectorModuleBuilderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        defaultParentId = new URI[] {new URI("org/apache/geronimo/Server")};
+        defaultParentId = new URI[]{new URI("org/apache/geronimo/Server")};
     }
 
     private abstract class InstallAction {
