@@ -18,6 +18,8 @@
 package org.apache.geronimo.kernel.log;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.commons.logging.LogFactory;
 
@@ -25,6 +27,10 @@ import org.apache.commons.logging.LogFactory;
  * @version $Rev$ $Date$
  */
 public class GeronimoLogging {
+
+    //this needs to go before the instance constants or you get an NPE in the constructor.
+    private static final Map levels = new HashMap();
+
     public static final GeronimoLogging TRACE = new GeronimoLogging("TRACE");
     public static final GeronimoLogging DEBUG = new GeronimoLogging("DEBUG");
     public static final GeronimoLogging INFO = new GeronimoLogging("INFO");
@@ -35,6 +41,7 @@ public class GeronimoLogging {
     private static boolean initialized = false;
     private static GeronimoLogging consoleLogLevel;
     private static GeronimoLogging defaultLevel;
+
 
     /**
      * Initializes the logging system used by Geronimo.  This MUST be called in
@@ -86,10 +93,15 @@ public class GeronimoLogging {
         GeronimoLogging.consoleLogLevel = consoleLogLevel;
     }
 
+    public static GeronimoLogging getGeronimoLogging(String level) {
+        return (GeronimoLogging) levels.get(level);
+    }
+
     private final String level;
 
     private GeronimoLogging(String level) {
         this.level = level;
+        levels.put(level, this);
     }
 
     public String toString() {

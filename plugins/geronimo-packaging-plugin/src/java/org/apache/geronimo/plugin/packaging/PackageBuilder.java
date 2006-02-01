@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -111,6 +112,7 @@ public class PackageBuilder {
     private String classPath;
     private String endorsedDirs;
     private String extensionDirs;
+    private String logLevel;
 
     public String getRepositoryClass() {
         return repositoryClass;
@@ -254,9 +256,17 @@ public class PackageBuilder {
         this.extensionDirs = extensionDirs;
     }
 
+    public String getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        this.logLevel = logLevel;
+    }
+
     public void execute() throws Exception {
         try {
-            Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass);
+            Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass, logLevel);
 
             // start the Configuration we're going to use for this deployment
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
@@ -292,7 +302,7 @@ public class PackageBuilder {
     /**
      * Create a Geronimo Kernel to contain the deployment configurations.
      */
-    private static synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass) throws Exception {
+    private static synchronized Kernel createKernel(File repository, String repoClass, String configStoreClass, String logLevel) throws Exception {
         // first return our cached version
         if (kernel != null) {
             return kernel;
@@ -304,7 +314,11 @@ public class PackageBuilder {
             return kernel;
         }
 
-        BasicConfigurator.configure();
+        GeronimoLogging geronimoLogging = GeronimoLogging.getGeronimoLogging(logLevel);
+        if (geronimoLogging == null) {
+            geronimoLogging = GeronimoLogging.DEBUG;
+        }
+        GeronimoLogging.initialize(geronimoLogging);
         // boot one ourselves
         kernel = KernelFactory.newInstance().createKernel(KERNEL_NAME);
         kernel.boot();

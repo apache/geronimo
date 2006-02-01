@@ -62,6 +62,7 @@ public class PackageBuilderShell {
     private String endorsedDirs;
     private String extensionDirs;
     private static final String PACKAGING_CLASSPATH_PROPERTY = "packaging.classpath";
+    private String logLevel = "INFO";
 
     public File getRepository() {
         return repository;
@@ -202,6 +203,14 @@ public class PackageBuilderShell {
         this.context = context;
     }
 
+    public String getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        this.logLevel = logLevel;
+    }
+
     public void execute() throws Exception {
         try {
             Object packageBuilder = getPackageBuilder();
@@ -217,6 +226,7 @@ public class PackageBuilderShell {
             set("setRepository", repository, File.class, packageBuilder);
             set("setRepositoryClass", MavenRepository.class.getName(), String.class, packageBuilder);
             set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
+            set("setLogLevel", logLevel, String.class, packageBuilder);
 
             Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});
             m.invoke(packageBuilder, new Object[]{});

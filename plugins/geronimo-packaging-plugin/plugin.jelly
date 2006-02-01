@@ -65,6 +65,7 @@
             classPath="${geronimo.packaging.classPath}"
             endorsedDirs="${geronimo.packaging.endorsedDirs}"
             extensionDirs="${geronimo.packaging.extensionDirs}"
+            logLevel="${geronimo.packaging.logLevel}"
             />
     </goal>
 
