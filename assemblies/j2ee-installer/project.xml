@@ -551,7 +551,7 @@
             <version>${geronimo_spec_qname_version}</version>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
-                <geronimo.assemble>repository</geronimo.assemble>
+                <!--<geronimo.assemble>repository</geronimo.assemble>-->
             </properties>
         </dependency>
 
@@ -790,8 +790,8 @@
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
             <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
                 <geronimo.assemble>library</geronimo.assemble>
+                <!--<geronimo.assemble>repository</geronimo.assemble>-->
             </properties>
         </dependency>
         <dependency>
