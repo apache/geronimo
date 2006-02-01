@@ -159,6 +159,7 @@ public class JettyModuleBuilderTest extends TestCase {
                 parentId,
                 kernel,
                 moduleContext.getJ2eeApplicationName(),
+                tmName,
                 tcmName,
                 ctcName,
                 null,

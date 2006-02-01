@@ -221,10 +221,19 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     private EARContext createEARContext(File outputPath, URI id)
             throws MalformedObjectNameException, DeploymentException {
-        EARContext earContext = new EARContext(outputPath, id,
-                ConfigurationModuleType.WAR, parentId, kernel, moduleContext
-                        .getJ2eeApplicationName(), tcmName, ctcName, null,
-                null, null, new RefContext(new EJBReferenceBuilder() {
+        EARContext earContext = new EARContext(outputPath,
+                id,
+                ConfigurationModuleType.WAR,
+                parentId,
+                kernel,
+                moduleContext.getJ2eeApplicationName(),
+                tmName,
+                tcmName,
+                ctcName,
+                null,
+                null,
+                null,
+                new RefContext(new EJBReferenceBuilder() {
 
                     public Reference createEJBLocalReference(String objectName,
                                                              GBeanData gbeanData, boolean isSession, String localHome, String local)
