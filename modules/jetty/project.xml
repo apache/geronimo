@@ -262,60 +262,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-        <dependency>
-            <groupId>springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>${wadi_spring_version}</version>
-            <url>http://www.springframework.org/</url>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>axion</groupId>
-            <artifactId>axion</artifactId>
-            <version>${axion_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <version>${backport_util_concurrent_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>activecluster</groupId>
-            <artifactId>activecluster</artifactId>
-            <version>${wadi_activecluster_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq</artifactId>
-            <version>${activemq_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>wadi</groupId>
-            <artifactId>wadi-core</artifactId>
-            <version>${wadi_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>wadi</groupId>
-            <artifactId>wadi-jetty5</artifactId>
-            <version>${wadi_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
+
     </dependencies>
 
 
