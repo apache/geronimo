@@ -244,7 +244,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.webClassLoader = new JettyClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
         setClassLoader(this.webClassLoader);
 
-        setHosts(virtualHosts);
+        setVirtualHosts(virtualHosts);
         
         handler = new WebApplicationHandler();
         addHandler(handler);
