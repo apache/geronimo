@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
@@ -35,6 +36,7 @@ import org.apache.geronimo.security.deploy.Role;
 import org.apache.geronimo.security.deploy.Security;
 import org.apache.geronimo.security.jaas.NamedUsernamePasswordCredential;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
+import org.apache.geronimo.security.jacc.ApplicationPrincipalRoleConfigurationManager;
 import org.apache.geronimo.security.util.ConfigurationUtil;
 import org.apache.geronimo.xbeans.geronimo.security.GerDefaultPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerDistinguishedNameType;
@@ -45,6 +47,10 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.common.DeploymentException;
 
 
 /**
@@ -225,12 +231,23 @@ public class SecurityBuilder {
         return new PrincipalInfo(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
     }
 
-    public static GBeanData configureApplicationPolicyManager(ObjectName name, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
+    public static void configureApplicationPolicyManager(ObjectName name, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration, J2eeContext appJ2eeContext, DeploymentContext deploymentContext) throws DeploymentException {
+        ObjectName roleMapperName = null;
+        try {
+            roleMapperName = NameFactory.getComponentName(null, null, null, null, "RoleMapper", "RoleMapper", appJ2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct mapper object name", e);
+        }
+        GBeanData roleMapperData = new GBeanData(roleMapperName, ApplicationPrincipalRoleConfigurationManager.GBEAN_INFO);
+        roleMapperData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());
+        deploymentContext.addGBean(roleMapperData);
+
         GBeanData jaccBeanData = new GBeanData(name, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
-        jaccBeanData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());
         jaccBeanData.setAttribute("roleDesignates", securityConfiguration.getRoleDesignates());
-        return jaccBeanData;
+        jaccBeanData.setReferencePattern("PrincipalRoleMapper", roleMapperName);
+        deploymentContext.addGBean(jaccBeanData);
+
     }
 
 }
