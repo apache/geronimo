@@ -1,0 +1,4 @@
+"ASN1 codec suppllied by {package name} from :
+
+     Copyright (c) 2000-2005 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
+
