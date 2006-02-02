@@ -5,6 +5,53 @@
 
 <p>This page edits a new or existing database pool.</p>
 
+<script language="JavaScript">
+function <portlet:namespace/>validate() {
+
+   if (document.<portlet:namespace/>DatabaseForm.minSize.value == "") {
+      document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+   }
+   if (document.<portlet:namespace/>DatabaseForm.maxSize.value == "") {
+      document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+   }
+
+   var min = parseInt(document.<portlet:namespace/>DatabaseForm.minSize.value); 
+   var max = parseInt(document.<portlet:namespace/>DatabaseForm.maxSize.value); 
+   result = true;
+
+   if (isNaN(min)) {
+      alert("Min pool size must be a number. Defaulted to 0");
+      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+      result = false;
+   }
+   if (min < 0)
+   {
+      alert("Min pool size must be non-negative. Defaulted to 0");
+      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+      result = false;
+   }
+
+   if (isNaN(max)) {
+      alert("Max pool size must be a number. Defaulted to 10");
+      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+      result = false;
+   }
+   if (max <= 0)
+   {
+      alert("Max pool size must be greater than zero. Defaulted to 10" );
+      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+      result = false;
+   } 
+
+   if (min > max) {
+      alert("Max pool size must be greater than Min pool size." );
+      return false;
+   }
+
+   return result;
+}
+</script>
+
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-url" />
@@ -208,23 +255,23 @@
   <c:when test="${pool.generic}">
     <c:choose> <%-- Can't test after deployment because we don't know what JAR to put on the ClassPath, can't show plan becasue we can't update a plan --%>
       <c:when test="${empty pool.objectName}">
-          <input type="submit" value="Test Connection" />
-          <input type="button" value="Skip Test and Deploy" onclick="document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-          <input type="button" value="Skip Test and Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Test Connection" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
+          <input type="button" value="Skip Test and Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Skip Test and Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:when>
       <c:otherwise>
-          <input type="button" value="Save" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Save" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:otherwise>
     </c:choose>
   </c:when>
   <c:otherwise> <%-- Not a generic JDBC pool --%>
     <c:choose>
       <c:when test="${empty pool.objectName}"> <%-- If it's new we can preview the plan or save/deploy --%>
-          <input type="button" value="Deploy" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-          <input type="button" value="Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:when>
       <c:otherwise> <%-- If it's existing we can only save --%>
-          <input type="button" value="Save" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+          <input type="button" value="Save" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='save';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
       </c:otherwise>
     </c:choose>
   </c:otherwise>

@@ -4,6 +4,53 @@
 
 <p><b>Create Database Pool</b> -- Step 3: Final Pool Configuration</p>
 
+<script language="JavaScript">
+function <portlet:namespace/>validate() {
+
+   if (document.<portlet:namespace/>DatabaseForm.minSize.value == "") {
+      document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+   }
+   if (document.<portlet:namespace/>DatabaseForm.maxSize.value == "") {
+      document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+   }
+
+   var min = parseInt(document.<portlet:namespace/>DatabaseForm.minSize.value); 
+   var max = parseInt(document.<portlet:namespace/>DatabaseForm.maxSize.value); 
+   result = true;
+
+   if (isNaN(min)) {
+      alert("Min pool size must be a number. Defaulted to 0");
+      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+      result = false;
+   }
+   if (min < 0)
+   {
+      alert("Min pool size must be non-negative. Defaulted to 0");
+      min = document.<portlet:namespace/>DatabaseForm.minSize.value = 0;
+      result = false;
+   }
+
+   if (isNaN(max)) {
+      alert("Max pool size must be a number. Defaulted to 10");
+      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+      result = false;
+   }
+   if (max <= 0)
+   {
+      alert("Max pool size must be greater than zero. Defaulted to 10" );
+      max = document.<portlet:namespace/>DatabaseForm.maxSize.value = 10;
+      result = false;
+   } 
+
+   if (min > max) {
+      alert("Max pool size must be greater than Min pool size." );
+      return false;
+   }
+
+   return result;
+}
+</script>
+
 <!--   FORM TO COLLECT DATA FOR THIS PAGE   -->
 <form name="<portlet:namespace/>DatabaseForm" action="<portlet:actionURL/>" method="POST">
     <input type="hidden" name="mode" value="process-url" />
@@ -84,9 +131,10 @@
     <!-- SUBMIT BUTTON -->
       <tr>
         <td></td>
-        <td><input type="submit" value="Test Connection" />
-          <input type="button" value="Skip Test and Deploy" onclick="document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
-          <input type="button" value="Skip Test and Show Plan" onclick="document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;" />
+        <td>
+          <input type="button" value="Test Connection" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='true';document.<portlet:namespace/>DatabaseForm.submit();}" />
+          <input type="button" value="Skip Test and Deploy" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.test.value='false';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
+          <input type="button" value="Skip Test and Show Plan" onclick="if (<portlet:namespace/>validate()){document.<portlet:namespace/>DatabaseForm.mode.value='plan';document.<portlet:namespace/>DatabaseForm.submit();return false;}" />
         </td>
       </tr>
     </table>
