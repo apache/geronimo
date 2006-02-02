@@ -24,6 +24,7 @@
         <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
         <!--domain set to wildcard so datasources may be deployed independently on client. -->
         <!--a better solution is to get the domain and server from the parent configuration -->
+        <attribute name="transactionManagerObjectName">*:name=TransactionManager,*</attribute>
         <attribute name="transactionContextManagerObjectName">*:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">*:name=ConnectionTracker,*</attribute>
         <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
