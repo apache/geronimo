@@ -40,7 +40,6 @@
         </ant:copy>
         <ant:mkdir dir="${geronimo.assembly.dest}/var/config"/>
         <velocity:merge basedir="${geronimo.assembly.src}/var/config" template="config.xml" name="${geronimo.assembly.dest}/var/config/config.xml"/>
-        <velocity:merge basedir="${geronimo.assembly.src}/var/config" template="config.xml" name="${geronimo.assembly.dest}/var/config/config.xml.original"/>
     </goal>
 
     <goal name="assemble:assemble-lib">

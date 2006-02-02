@@ -168,9 +168,14 @@ public class FixTextLines {
                   fErr = true;
                }
             }
+            else
+            {
+                System.err.println( "FixTextLines: " + originalName + " initial rename failed." );
+                fErr = true;
+            }
          } catch( Exception e ) {
             System.err.println( "FixTextLines: Error moving files. " + file.getPath() );
-            fErr = true;
+            fErr = true;            
          }
       }
    }
