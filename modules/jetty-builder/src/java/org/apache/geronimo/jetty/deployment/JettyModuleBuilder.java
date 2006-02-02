@@ -43,6 +43,7 @@ import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.jetty.NonAuthenticator;
+import org.apache.geronimo.jetty.Host;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -473,12 +474,24 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setAttribute("uri", URI.create(module.getTargetPath() + "/"));
 
-            String[] hosts = jettyWebApp.getVirtualHostArray();
+            String[] hosts = jettyWebApp.getHostArray();
             for (int i = 0; i < hosts.length; i++) {
                 hosts[i] = hosts[i].trim();
             }
-            webModuleData.setAttribute("virtualHosts", hosts);
-            
+            String[] virtualHosts = jettyWebApp.getVirtualHostArray();
+            for (int i = 0; i < virtualHosts.length; i++) {
+                virtualHosts[i] = virtualHosts[i].trim();
+            }
+            if (hosts.length > 0 || virtualHosts.length > 0) {
+                //use name same as module
+                ObjectName hostName = NameFactory.getComponentName(null, null, null, null, null, "Host", "Host", moduleJ2eeContext);
+                GBeanData hostData = new GBeanData(hostName, Host.GBEAN_INFO);
+                hostData.setAttribute("hosts", hosts);
+                hostData.setAttribute("virtualHosts", virtualHosts);
+                earContext.addGBean(hostData);
+                webModuleData.setReferencePattern("Host", hostName);
+            }
+
             //Add dependencies on managed connection factories and ejbs in this app
             //This is overkill, but allows for people not using java:comp context (even though we don't support it)
             //and sidesteps the problem of circular references between ejbs.
@@ -524,8 +537,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             webModuleData.setAttribute("sessionTimeoutSeconds",
                     (webApp.getSessionConfigArray().length == 1 && webApp.getSessionConfigArray(0).getSessionTimeout() != null) ?
-                    new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
-                    defaultSessionTimeoutSeconds);
+                            new Integer(webApp.getSessionConfigArray(0).getSessionTimeout().getBigIntegerValue().intValue() * 60) :
+                            defaultSessionTimeoutSeconds);
 
             MimeMappingType[] mimeMappingArray = webApp.getMimeMappingArray();
             Map mimeMappingMap = new HashMap();
@@ -637,8 +650,8 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             for (int i = 0; i < servletMappingArray.length; i++) {
                 ServletMappingType servletMappingType = servletMappingArray[i];
                 String servletName = servletMappingType.getServletName().getStringValue().trim();
-                if(!knownServlets.contains(servletName)) {
-                    throw new DeploymentException("Servlet mapping refers to servlet '"+servletName+"' but no such servlet was found!");
+                if (!knownServlets.contains(servletName)) {
+                    throw new DeploymentException("Servlet mapping refers to servlet '" + servletName + "' but no such servlet was found!");
                 }
                 String urlPattern = servletMappingType.getUrlPattern().getStringValue().trim();
                 if (!knownServletMappings.contains(urlPattern)) {
@@ -802,7 +815,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
             if (jettyWebApp.isSetSecurityRealmName()) {
                 if (earContext.getSecurityConfiguration() == null) {
-                     throw new DeploymentException("You have specified a login security realm for the webapp " + webModuleName + " but no security configuration is supplied in the application plan");
+                    throw new DeploymentException("You have specified a login security realm for the webapp " + webModuleName + " but no security configuration is supplied in the application plan");
                 }
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
                 webModuleData.setAttribute("securityRealmName", securityRealmName);
@@ -1336,9 +1349,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     }
 
     private static void checkMultiplicities(WebAppType webApp) throws DeploymentException {
-        if (webApp.getSessionConfigArray().length > 1) throw new DeploymentException("Multiple <session-config> elements found");
-        if (webApp.getJspConfigArray().length > 1) throw new DeploymentException("Multiple <jsp-config> elements found");
-        if (webApp.getLoginConfigArray().length > 1) throw new DeploymentException("Multiple <login-config> elements found");
+        if (webApp.getSessionConfigArray().length > 1)
+            throw new DeploymentException("Multiple <session-config> elements found");
+        if (webApp.getJspConfigArray().length > 1)
+            throw new DeploymentException("Multiple <jsp-config> elements found");
+        if (webApp.getLoginConfigArray().length > 1)
+            throw new DeploymentException("Multiple <login-config> elements found");
     }
 
     class UncheckedItem {
@@ -1410,18 +1426,18 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[]{
-            "defaultParentId",
-            "defaultSessionTimeoutSeconds",
-            "defaultContextPriorityClassloader",
-            "defaultWelcomeFiles",
-            "jettyContainerObjectName",
-            "DefaultServlets",
-            "DefaultFilters",
-            "DefaultFilterMappings",
-            "PojoWebServiceTemplate",
-            "WebServiceBuilder",
-            "Repository",
-            "kernel"});
+                "defaultParentId",
+                "defaultSessionTimeoutSeconds",
+                "defaultContextPriorityClassloader",
+                "defaultWelcomeFiles",
+                "jettyContainerObjectName",
+                "DefaultServlets",
+                "DefaultFilters",
+                "DefaultFilterMappings",
+                "PojoWebServiceTemplate",
+                "WebServiceBuilder",
+                "Repository",
+                "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
 

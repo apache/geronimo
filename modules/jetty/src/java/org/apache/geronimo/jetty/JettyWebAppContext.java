@@ -166,7 +166,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public JettyWebAppContext(String objectName,
                               String originalSpecDD,
                               URI uri,
-                              String[] virtualHosts,
                               String sessionManager,
                               Map componentContext,
                               OnlineUserTransaction userTransaction,
@@ -196,6 +195,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                               PermissionCollection checkedPermissions,
                               PermissionCollection excludedPermissions,
 
+                              Host host,
                               TransactionContextManager transactionContextManager,
                               TrackedConnectionAssociator trackedConnectionAssociator,
                               JettyContainer jettyContainer,
@@ -247,7 +247,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         this.webClassLoader = new JettyClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
         setClassLoader(this.webClassLoader);
 
-        setHosts(virtualHosts);
+        if (host != null) {
+            setHosts(host.getHosts());
+            setVirtualHosts(host.getVirtualHosts());
+        }
 
         handler = new WebApplicationHandler();
         addHandler(handler);
@@ -621,7 +624,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
 
         infoBuilder.addAttribute("uri", URI.class, true);
-        infoBuilder.addAttribute("virtualHosts", String[].class, true);
         infoBuilder.addAttribute("sessionManager", String.class, true);
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
@@ -634,6 +636,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         infoBuilder.addAttribute("contextPath", String.class, true);
 
+        infoBuilder.addReference("Host", Host.class, "Host");
         infoBuilder.addReference("TransactionContextManager", TransactionContextManager.class, NameFactory.TRANSACTION_CONTEXT_MANAGER);
         infoBuilder.addReference("TrackedConnectionAssociator", TrackedConnectionAssociator.class, NameFactory.JCA_CONNECTION_TRACKER);
         infoBuilder.addReference("JettyContainer", JettyContainer.class, NameFactory.GERONIMO_SERVICE);
@@ -664,7 +667,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "objectName",
                 "deploymentDescriptor",
                 "uri",
-                "virtualHosts",
                 "sessionManager",
                 "componentContext",
                 "userTransaction",
@@ -695,6 +697,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "checkedPermissions",
                 "excludedPermissions",
 
+                "Host",
                 "TransactionContextManager",
                 "TrackedConnectionAssociator",
                 "JettyContainer",
