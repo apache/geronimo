@@ -8,6 +8,9 @@ To build me please install Maven from here - version 1.0.2 or later.
 In addition you should have JDK 1.4.2_08 or later installed with JAVA_HOME
 environment defined to point to this JDK.
 
+* NOTE * Currently Geronimo requires the Sun 1.4 JDK for building.  Newer JDK 
+         Versions may not work.  Use at your own risk.
+
 In the following examples, '$>' is your prompt, so if you see 
 '$> maven', at your prompt, type in 'maven' (without the quotes) 
 and then press [enter].
