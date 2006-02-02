@@ -266,7 +266,10 @@
       throw new Exception("No Context");
 
     out.print("<font color=\"green\">");
+    /** Removed to avoid a security risk in exposing a DS name
     out.print("+ Got a JDBC DataSource (dsname="+dsname+")");
+    **/
+    out.print("+ Got a JDBC DataSource!");
     out.println("</font>");
   }
   catch(Exception ex)
@@ -315,7 +318,7 @@
 %>
 </pre>
 
-
+<!-- removed to avoid exposing internal system properties to unauth user
 <h4>System Properties</h4>
 <pre>
 <%
@@ -335,6 +338,7 @@
   }
 %>
 </pre>
+-->
 
 <hr>
 Platform: <%= getServletConfig().getServletContext().getServerInfo() %>

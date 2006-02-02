@@ -23,6 +23,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
+    <!-- Welcome File List -->
+    <welcome-file-list>
+        <welcome-file>happyjuddi.jsp</welcome-file>
+    </welcome-file-list>
+
     <!--
       This Servlet is used to create, initialize and cleanup
       resources used by jUDDI. It ABSOLUTELY MUST be loaded first.
