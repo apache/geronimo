@@ -21,7 +21,7 @@
     configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
 
     <ext-module>
-        <web>uddi-jetty</web>
+        <web>uddi-tomcat</web>
         <external-path>geronimo/geronimo-uddi-server/${pom.currentVersion}/war</external-path>
         <web-app
             xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0"
