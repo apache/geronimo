@@ -20,22 +20,22 @@
             <param-name>charset</param-name>
             <param-value>UTF-8</param-value>
         </init-param>
-		<init-param>
-			<param-name>form-encoding</param-name>
-			<param-value>UTF-8</param-value>
-		</init-param>
-		<init-param>
-			<param-name>container-encoding</param-name>
-			<param-value>UTF-8</param-value>
-		</init-param>
-		<init-param>
-			<param-name>encoding</param-name>
-			<param-value>UTF-8</param-value>
-		</init-param>
+        <init-param>
+            <param-name>form-encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+           <param-name>container-encoding</param-name>
+           <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
     </servlet>
 
     <servlet-mapping>
         <servlet-name>Debug</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 </web-app>
