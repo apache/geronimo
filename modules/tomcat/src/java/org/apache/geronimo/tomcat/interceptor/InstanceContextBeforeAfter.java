@@ -14,53 +14,51 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.tomcat.valve;
+package org.apache.geronimo.tomcat.interceptor;
 
-import java.io.IOException;
 import java.util.Set;
 
 import javax.resource.ResourceException;
-import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
-import org.apache.catalina.connector.Request;
-import org.apache.catalina.connector.Response;
-import org.apache.catalina.valves.ValveBase;
 import org.apache.geronimo.transaction.DefaultInstanceContext;
 import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 
-/**
- * @version $Rev$ $Date$
- */
-public class InstanceContextValve extends ValveBase {
-
+public class InstanceContextBeforeAfter implements BeforeAfter{
+    
+    private final BeforeAfter next;
+    private final int index;
     private final Set unshareableResources;
-
     private final Set applicationManagedSecurityResources;
-
     private final TrackedConnectionAssociator trackedConnectionAssociator;
 
-    public InstanceContextValve(Set unshareableResources,
-            Set applicationManagedSecurityResources,
-            TrackedConnectionAssociator trackedConnectionAssociator) {
+    public InstanceContextBeforeAfter(BeforeAfter next, int index, Set unshareableResources, Set applicationManagedSecurityResources, TrackedConnectionAssociator trackedConnectionAssociator) {
+        this.next = next;
+        this.index = index;
         this.unshareableResources = unshareableResources;
         this.applicationManagedSecurityResources = applicationManagedSecurityResources;
         this.trackedConnectionAssociator = trackedConnectionAssociator;
     }
 
-    public void invoke(Request request, Response response) throws IOException,
-            ServletException {
-
+    public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
         try {
-            InstanceContext oldContext = trackedConnectionAssociator
-                    .enter(new DefaultInstanceContext(unshareableResources,
-                            applicationManagedSecurityResources));
+            context[index] = trackedConnectionAssociator.enter(new DefaultInstanceContext(unshareableResources, applicationManagedSecurityResources));
+        } catch (ResourceException e) {
+            throw new RuntimeException(e);
+        }
+        if (next != null) {
+            next.before(context, httpRequest, httpResponse);
+        }
+    }
 
-            // Pass this request on to the next valve in our pipeline
-            getNext().invoke(request, response);
-
-            // Set the old one back
-            trackedConnectionAssociator.exit((InstanceContext) oldContext);
+    public void after(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
+        if (next != null) {
+            next.after(context, httpRequest, httpResponse);
+        }
+        try {
+            trackedConnectionAssociator.exit((InstanceContext) context[index]);
         } catch (ResourceException e) {
             throw new RuntimeException(e);
         }
