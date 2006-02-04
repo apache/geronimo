@@ -54,7 +54,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
      *
      * @throws Exception thrown if an error in the test occurs
      */
-    public void DavidJencksPleaseVisitMetestExplicitMapping() throws Exception {
+    public void testExplicitMapping() throws Exception {
 
         Security securityConfig = new Security();
         securityConfig.setUseContextHandler(false);
@@ -110,6 +110,7 @@ public class JACCSecurityTest extends AbstractWebModuleTest {
 
         connection = (HttpURLConnection) new URL(location).openConnection();
         connection.setRequestMethod("POST");
+        connection.setRequestProperty("Referer","http://localhost:8181/securetest/auth/logon.html?param=test");
         connection.setRequestProperty("Cookie", cookie);
         connection.setInstanceFollowRedirects(false);
         assertEquals(HttpURLConnection.HTTP_MOVED_TEMP, connection.getResponseCode());

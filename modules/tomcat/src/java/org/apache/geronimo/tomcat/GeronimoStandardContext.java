@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.naming.NamingException;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -34,27 +35,28 @@ import org.apache.catalina.Wrapper;
 import org.apache.catalina.cluster.CatalinaCluster;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
-import org.apache.catalina.valves.ValveBase;
 import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.valves.ValveBase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.StoredObject;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.SubjectId;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.util.ConfigurationUtil;
+import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.ComponentContextBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.InstanceContextBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.PolicyContextBeforeAfter;
+import org.apache.geronimo.tomcat.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.tomcat.util.SecurityHolder;
-import org.apache.geronimo.tomcat.valve.ComponentContextValve;
 import org.apache.geronimo.tomcat.valve.DefaultSubjectValve;
-import org.apache.geronimo.tomcat.valve.InstanceContextValve;
-import org.apache.geronimo.tomcat.valve.PolicyContextValve;
-import org.apache.geronimo.tomcat.valve.TransactionContextValve;
+import org.apache.geronimo.tomcat.valve.GeronimoBeforeAfterValve;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.webservices.POJOWebServiceServlet;
 import org.apache.geronimo.webservices.WebServiceContainer;
@@ -72,7 +74,10 @@ public class GeronimoStandardContext extends StandardContext {
     private Map webServiceMap = null;
 
     private boolean pipelineInitialized;
-
+    
+    private BeforeAfter beforeAfter = null;
+    private int contextCount = 0;
+    
     public void setContextProperties(TomcatContext ctx) throws DeploymentException {
         // Create ReadOnlyContext
         javax.naming.Context enc = null;
@@ -93,28 +98,25 @@ public class GeronimoStandardContext extends StandardContext {
         } catch (NamingException ne) {
             log.error(ne);
         }
+        
+        int index = 0;
+        BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, 
+                ctx.getUnshareableResources(), 
+                ctx.getApplicationManagedSecurityResources(), 
+                ctx.getTrackedConnectionAssociator());
 
-        //Set the InstanceContextValve
-        InstanceContextValve instanceContextValve =
-                new InstanceContextValve(ctx.getUnshareableResources(),
-                        ctx.getApplicationManagedSecurityResources(),
-                        ctx.getTrackedConnectionAssociator());
-        addValve(instanceContextValve);
-
-        // Set ComponentContext valve
+        // Set ComponentContext BeforeAfter
         if (enc != null) {
-            ComponentContextValve contextValve = new ComponentContextValve(enc);
-            addValve(contextValve);
+            interceptor = new ComponentContextBeforeAfter(interceptor, index++, enc);
         }
 
-        // Set TransactionContextValve
+        // Set TransactionContext BeforeAfter
         TransactionContextManager transactionContextManager = ctx.getTransactionContextManager();
         if (transactionContextManager != null) {
-            TransactionContextValve transactionValve = new TransactionContextValve(transactionContextManager);
-            addValve(transactionValve);
+            interceptor = new TransactionContextBeforeAfter(interceptor, index++, transactionContextManager);
         }
 
-        //Set a PolicyContext Valve
+        //Set a PolicyContext BeforeAfter
         SecurityHolder securityHolder = ctx.getSecurityHolder();
         if (securityHolder != null) {
             if (securityHolder.getPolicyContextID() != null) {
@@ -132,11 +134,16 @@ public class GeronimoStandardContext extends StandardContext {
                     defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));
                 }
 
-                PolicyContextValve policyValve = new PolicyContextValve(securityHolder.getPolicyContextID());
-                addValve(policyValve);
+                interceptor = new PolicyContextBeforeAfter(interceptor, index++, securityHolder.getPolicyContextID());
             }
         }
-
+        
+        //Set the BeforeAfters as a valve
+        GeronimoBeforeAfterValve geronimoBAValve = new GeronimoBeforeAfterValve(interceptor, index);
+        addValve(geronimoBAValve);
+        beforeAfter = interceptor;
+        contextCount = index;
+        
         //Not clear if user defined valves should be involved in init processing.  Probably not since
         //request and response are null.
 
@@ -164,6 +171,9 @@ public class GeronimoStandardContext extends StandardContext {
         this.webServiceMap = ctx.getWebServices();
 
         this.setCrossContext(ctx.isCrossContext());
+        
+        //Set the Dispatch listener
+        this.addInstanceListener("org.apache.geronimo.tomcat.listener.DispatchListener");
     }
 
     public synchronized void start() throws LifecycleException {
@@ -173,6 +183,7 @@ public class GeronimoStandardContext extends StandardContext {
                 valve.invoke(null, null);
                 //Install the DefaultSubjectValve after the authentication valve so the default subject is supplied
                 //only if no real subject is authenticated.
+                
                 Valve defaultSubjectValve = new DefaultSubjectValve(defaultSubject);
                 addValve(defaultSubjectValve);
             } catch (IOException e) {
@@ -264,4 +275,14 @@ public class GeronimoStandardContext extends StandardContext {
 
         }
     }
+
+
+    public BeforeAfter getBeforeAfter() {
+        return beforeAfter;
+    }
+
+    public int getContextCount() {
+        return contextCount;
+    }
+
 }
