@@ -88,15 +88,16 @@ public class EngineGBean extends BaseGBean implements GBeanLifecycle, ObjectRetr
         //Set the parameters
         setParameters(engine, initParams);
         
+        //Set realm (must be before Hosts)
+        if (realmGBean != null){
+            engine.setRealm((Realm)realmGBean.getInternalObject());
+        }
+        
         //Set the default Host
         final String defaultHostName = ((Host)defaultHost.getInternalObject()).getName();
         engine.setDefaultHost(defaultHostName);
         addHost(defaultHost);
 
-        if (realmGBean != null){
-            engine.setRealm((Realm)realmGBean.getInternalObject());
-        }
-        
         if (manager != null)
             engine.setManager((Manager)manager.getInternalObject());
 

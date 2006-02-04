@@ -44,6 +44,8 @@ import javax.security.jacc.PolicyContextException;
 import javax.security.jacc.WebResourcePermission;
 import javax.security.jacc.WebRoleRefPermission;
 import javax.security.jacc.WebUserDataPermission;
+import javax.servlet.ServletRequest;
+
 import java.io.IOException;
 import java.security.AccessControlContext;
 import java.security.AccessControlException;
@@ -71,6 +73,10 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
      }
 
+    public static Request getRequest() {
+        return (Request) currentRequest.get();
+    }
+    
     public static Request setRequest(Request request) {
         Request old = (Request) currentRequest.get();
         currentRequest.set(request);
@@ -178,6 +184,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
                 return (true);
             }
         }
+        
+        currentRequest.set(request);
 
         // Which user principal have we already authenticated?
         Principal principal = request.getUserPrincipal();
