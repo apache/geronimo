@@ -39,15 +39,24 @@
             <xs:element ref="sys:environment"/>
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="domain" type="xs:string" use="optional"/>
-        <xs:attribute name="server" type="xs:string" use="optional"/>
     </xs:complexType>
 
-    <xs:element name="environment" type="sys:environmentType"/>
+    <xs:element name="environment" type="sys:environmentType">
+        <xs:key name="name-key-key">
+            <xs:annotation>
+                <xs:documentation>
+                    name-key-key assures that key-values for the names of services in this configuration will
+                    have unique key names.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:selector xpath="sys:name-key"/>
+            <xs:field xpath="sys:name-key/name"/>
+        </xs:key>
+    </xs:element>
 
     <xs:complexType name="environmentType">
         <xs:sequence>
-            <xs:element name="configid" type="sys:dependencyType">
+            <xs:element name="configid" type="sys:artifactType">
                 <xs:annotation>
                     <xs:documentation>
                         "configId" holds elements for the groupId, artifactId, and version of the configuration
@@ -63,7 +72,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="reference" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="reference" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         "reference" refers to a configuration that must be present to load this configuration, but
@@ -90,7 +99,7 @@
 
     <xs:complexType name="classloaderType">
         <xs:sequence>
-            <xs:element name="import" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="import" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         "import" holds a URI, where the URI matches the configId of another configuration.
@@ -106,7 +115,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="include" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
                         "include" holds a URI, where the URI identifies an entry in the server's Repository.
@@ -121,14 +130,13 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>
-                        "include" holds a URI, where the URI identifies an entry in the server's Repository.
-                        When this module is being built, the content of that repository entry will be
-                        copied into this module and added to the ClassPath of this module.  This is
-                        currently only supported for a small number of module types, and is typically used
-                        to create more "standalone" modules that don't need a populated repository to run.
+                        "dependency" holds a URI, where the URI identifies an entry in the server's
+                        Repository.  That repository entry will be added to the ClassPath of this module.
+                        Essentially, this module's ClassPath points to that location in the server's
+                        repository, so that entry must be in the repository at runtime for this to work.
 
                         This URI must always have a form acceptable to the Repository, which currently
                         takes Maven-style URIs (groupId/artifactId/version/type).  You can also use the
@@ -190,7 +198,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="dependencyType">
+    <xs:complexType name="artifactType">
         <xs:annotation>
             <xs:documentation><![CDATA[
                 Refers to either another module (aka configuration) running in the server, or
@@ -204,21 +212,20 @@
                 "repository/postgresql/postgresql-8.0-jdbc-313.jar").
 
                 When this is pointing to a module/configuration, the URI should match the
-                module's configId.  For standard Geronimo configurations, this also looks
-                like a Maven-style URI discussed above.  However, user-deployed applications
-                or configurations can use arbitrary URIs like "Foo".
+                module's configId.  This also looks
+                like a Maven-style URI discussed above.
 
-                The dependencyType element can take either a straight URI (as in the examples
+                The artifactType element can take either a straight URI (as in the examples
                 above), or maven-style identifier fragments (groupId, type, artifactId, and
                 version), which it will compose into a URI by adding up the fragments with
-                slashes in between.  Therefore, if you are pointing to a module with a
-                non-Maven-style configId, you can't use the maven fragments since you
-                wouldn't have something to specify for all of them.
+                slashes in between.
 
-                For example, two ways to map the URI listed above would be:
-                1.
-                <uri>postgresql/postgresql-8.0-jdbc/313/jar</uri>
-                2.
+                There is a correspondence between the xml format and a URI.  For example, the URI
+
+                postgresql/postgresql-8.0-jdbc/313/jar
+
+                corresponds to the xml:
+
                 <groupId>postgresql</groupId>
                 <type>jar</type>
                 <artifactId>postgresql-8.0-jdbc</artifactId>
@@ -226,15 +233,13 @@
 
           ]]></xs:documentation>
         </xs:annotation>
-        <xs:choice>
             <xs:sequence>
-                <xs:element name="groupId" type="xs:string"/>
+                <!-- TODO not sure if groupId can in fact be optional -->
+                <xs:element name="groupId" type="xs:string" minOccurs="0"/>
                 <xs:element name="type" type="xs:string" minOccurs="0"/>
                 <xs:element name="artifactId" type="xs:string"/>
-                <xs:element name="version" type="xs:string"/>
+                <xs:element name="version" type="xs:string" minOccurs="0"/>
             </xs:sequence>
-            <xs:element name="uri" type="xs:string"/>
-        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="gbeanType">
@@ -246,6 +251,7 @@
             <xs:element name="xml-reference" type="sys:xml-attributeType"/>
             <xs:element name="dependency" type="sys:patternType"/>
         </xs:choice>
+        <!-- todo try to eliminate explicit gbeanName -->
         <xs:attribute name="gbeanName" type="xs:string"/>
         <xs:attribute name="name" type="xs:string"/>
         <xs:attribute name="class" type="xs:string" use="required"/>
@@ -302,6 +308,7 @@
                 <xs:element name="type" type="xs:string" minOccurs="0"/>
                 <xs:element name="name" type="xs:string"/>
             </xs:sequence>
+            <!-- todo try to eliminate explicit gbean-name -->
             <xs:element name="gbean-name" type="xs:string"/>
         </xs:choice>
     </xs:group>
@@ -310,7 +317,7 @@
 
     <xs:complexType name="serviceType">
         <xs:sequence>
-            <xs:element name="dependency" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
