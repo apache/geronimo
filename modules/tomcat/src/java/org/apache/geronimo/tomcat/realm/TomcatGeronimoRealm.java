@@ -73,11 +73,15 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
      }
 
-//    public static ServletRequest setRequest(Request request) {
-//        ServletRequest old = (ServletRequest) currentRequest.get();
-//        currentRequest.set(request);
-//        return old;
-//    }
+    public static Request getRequest() {
+        return (Request) currentRequest.get();
+    }
+    
+    public static Request setRequest(Request request) {
+        Request old = (Request) currentRequest.get();
+        currentRequest.set(request);
+        return old;
+    }
 
     /**
      * Enforce any user data constraint required by the security constraint
