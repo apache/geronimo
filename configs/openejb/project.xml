@@ -112,7 +112,7 @@
             <properties>
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>openejb</groupId>
             <artifactId>openejb-core</artifactId>
@@ -121,7 +121,7 @@
                 <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>${xstream_version}</version>

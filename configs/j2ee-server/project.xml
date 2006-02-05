@@ -104,14 +104,14 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>openejb</groupId>-->
+            <!--<artifactId>openejb-core</artifactId>-->
+            <!--<version>${openejb_version}</version>-->
+            <!--<properties>-->
+                 <!--<geronimo.dependency>true</geronimo.dependency>-->
+             <!--</properties>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>xstream</groupId>
             <artifactId>xstream</artifactId>
@@ -136,6 +136,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+<!--
         <dependency>
             <groupId>activemq</groupId>
             <artifactId>activemq-gbean-management</artifactId>
@@ -144,6 +145,7 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+-->
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
@@ -283,20 +285,15 @@
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
         </dependency>
-        <dependency>
-            <groupId>tranql</groupId>
-            <artifactId>tranql</artifactId>
-            <version>${tranql_version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>tranql</groupId>-->
+            <!--<artifactId>tranql</artifactId>-->
+            <!--<version>${tranql_version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
             <version>${howl_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
-            <version>${antlr_version}</version>
         </dependency>
         <dependency>
             <groupId>regexp</groupId>

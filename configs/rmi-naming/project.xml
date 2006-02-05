@@ -49,12 +49,6 @@
              </properties>
         </dependency>
 
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-gbean-deployer</artifactId>
-            <version>${geronimo_version}</version>
-            <type>car</type>
-        </dependency>
 
     <!-- activation must come before spec-j2ee to override stock mailcap file in its javamail api -->
         <dependency>
@@ -175,9 +169,6 @@
             <groupId>tranql</groupId>
             <artifactId>tranql</artifactId>
             <version>${tranql_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
         </dependency>
         <dependency>
             <groupId>openejb</groupId>
@@ -197,9 +188,6 @@
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
             <version>${antlr_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
         </dependency>
         <dependency>
             <groupId>regexp</groupId>
