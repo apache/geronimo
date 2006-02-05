@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -155,8 +156,10 @@ public final class ExecutableConfigurationUtil {
             GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
             config.setAttribute("id", id);
             config.setAttribute("type", configurationData.getModuleType());
-            config.setAttribute("domain", configurationData.getDomain());
-            config.setAttribute("server", configurationData.getServer());
+            //TODO configid this needs improvmement
+            Map nameKeys = configurationData.getNameKeys();
+            config.setAttribute("domain", nameKeys.get("domain"));
+            config.setAttribute("server", nameKeys.get("J2EEServer"));
 
             List parentId = configurationData.getParentId();
             if (parentId.size() > 0) {

@@ -214,7 +214,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException("Invalid configId " + gerApplication.getConfigId(), e);
         }
 
-        List parentId = ServiceConfigBuilder.getParentID(gerApplication.getParentId(), gerApplication.getImportArray());
+        List parentId = ServiceConfigBuilder.toArtifacts(gerApplication.getParentId(), gerApplication.getImportArray());
         parentId.addAll(defaultParentId);
 
         // get the modules either the application plan or for a stand alone module from the specific deployer

@@ -79,15 +79,11 @@ public class DeploymentContext {
     private final byte[] buffer = new byte[4096];
     private final List loadedAncestors = new ArrayList();
     private final List startedAncestors = new ArrayList();
-//    private final ClassLoader[] parentCL;
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, List parentID, Kernel kernel) throws DeploymentException {
-        this(baseDir, configId, type, parentID, null, null, kernel);
-    }
 
-    public DeploymentContext(File baseDir, URI configId, ConfigurationModuleType type, List parentId, String domain, String server, Kernel kernel) throws DeploymentException {
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType type, Kernel kernel) throws DeploymentException {
         assert baseDir != null: "baseDir is null";
-        assert configId != null: "configID is null";
+        assert environment != null: "environment is null";
         assert type != null: "type is null";
 
         this.kernel = kernel;
@@ -102,18 +98,22 @@ public class DeploymentContext {
         this.baseUri = baseDir.toURI();
 
         configurationData = new ConfigurationData();
-        configurationData.setId(configId);
+        try {
+            configurationData.setId(environment.getConfigId().toURI());
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
         configurationData.setModuleType(type);
-        configurationData.setParentId(parentId);
-        configurationData.setDomain(domain);
-        configurationData.setServer(server);
+        //TODO configid this is broken, need Artifact to URI conversion or configData to use Artifacts.
+        configurationData.setParentId(new ArrayList(environment.getImports()));
+        configurationData.setNameKeys(environment.getNameKeys());
 
         determineNaming();
         determineInherited();
     }
 
     private void determineNaming() throws DeploymentException {
-        if (configurationData.getDomain() != null && configurationData.getServer() != null) {
+        if (configurationData.getNameKeys() != null && !configurationData.getNameKeys().isEmpty()) {
             return;
         }
         List parentId = configurationData.getParentId();
@@ -131,8 +131,7 @@ public class DeploymentContext {
             }
             try {
                 ObjectName parentName = Configuration.getConfigurationObjectName(parent);
-                configurationData.setDomain((String) kernel.getAttribute(parentName, "domain"));
-                configurationData.setServer((String) kernel.getAttribute(parentName, "server"));
+                configurationData.setNameKeys((Map) kernel.getAttribute(parentName, "nameKeys"));
             } catch (Exception e) {
                 throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
             } finally {
@@ -148,10 +147,9 @@ public class DeploymentContext {
         }
 
         //check that domain and server are now known
-        if (configurationData.getDomain() == null || configurationData.getServer() == null) {
+        if (configurationData.getNameKeys() == null || configurationData.getNameKeys().isEmpty()) {
             throw new IllegalStateException("Domain or server could not be determined from explicit args or parent configuration. ParentID: " + parentId
-                    + ", domain: " + configurationData.getDomain()
-                    + ", server: " + configurationData.getServer());
+                    + ", name keys: " + configurationData.getNameKeys());
         }
     }
 
@@ -224,11 +222,11 @@ public class DeploymentContext {
     }
 
     public String getDomain() {
-        return configurationData.getDomain();
+        return (String) configurationData.getNameKeys().get("domain");
     }
 
     public String getServer() {
-        return configurationData.getServer();
+        return (String) configurationData.getNameKeys().get("J2EEServer");
     }
 
     public void addGBean(GBeanData gbean) {
@@ -669,31 +667,6 @@ public class DeploymentContext {
         ConfigurationData configurationData = new ConfigurationData(this.configurationData);
         configurationData.setGBeans(Arrays.asList(gbeans.getGBeans()));
         return configurationData;
-    }
-
-    /**
-     * @return a copy of the configurations GBeanData
-     * @deprecated Currently used only in some tests, and may not be appropriate as a public method.
-     */
-    public GBeanData getConfigurationGBeanData() throws MalformedObjectNameException, InvalidConfigException {
-        URI id = configurationData.getId();
-        GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-        config.setAttribute("id", id);
-        config.setAttribute("type", configurationData.getModuleType());
-        config.setAttribute("domain", configurationData.getDomain());
-        config.setAttribute("server", configurationData.getServer());
-
-        List parentId = configurationData.getParentId();
-        if (parentId != null) {
-            config.setAttribute("parentId", parentId.toArray(new URI[parentId.size()]));
-        }
-
-        config.setAttribute("gBeanState", Configuration.storeGBeans(gbeans.getGBeans()));
-        config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
-        config.setAttribute("dependencies", configurationData.getDependencies());
-        config.setAttribute("classPath", configurationData.getClassPath());
-
-        return config;
     }
 
     public Object getAttribute(ObjectName name, String property) throws Exception {

@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.geronimo.gbean.GBeanData;
 
@@ -43,19 +45,20 @@ public class ConfigurationData {
     private ConfigurationModuleType moduleType;
 
     /**
-     * The uri of the parent of this configuration.  May be null.
+     * The uris of the parents of this configuration.
      */
-    private List parentId;
+    private List parentId = new ArrayList();
 
     /**
-     * The domain name of the configurations.  This is used to autogenerate names for sub components.
+     * The uris of the references (configurations required by but not in classpath) of this configuration.
      */
-    private String domain;
+    private List references = new ArrayList();
 
     /**
-     * The server name of the configurations.  This is used to autogenerate names for sub components.
+     * map of key-value pairs for names inside this and child configurations.  Typically domain and server
+     * Note that domain doesn't have a key name in an object name.
      */
-    private String server;
+    private Map nameKeys = new HashMap();
 
     /**
      * List of URIs of jar files on which this configuration is dependent on.
@@ -63,7 +66,7 @@ public class ConfigurationData {
     private final LinkedHashSet dependencies = new LinkedHashSet();
 
     /**
-     * List of URIs in this configuration's classpath.
+     * List of URIs in this configuration's classpath.  These are for the classes directly included in the configuration
      */
     private final LinkedHashSet classPath = new LinkedHashSet();
 
@@ -99,9 +102,9 @@ public class ConfigurationData {
     public ConfigurationData(ConfigurationData configurationData) {
         id = configurationData.id;
         moduleType = configurationData.moduleType;
-        parentId = configurationData.getParentId();
-        domain = configurationData.domain;
-        server = configurationData.server;
+        parentId.addAll(configurationData.getParentId());
+        references.addAll(configurationData.getReferences());
+        this.nameKeys.putAll(configurationData.nameKeys);
         setDependencies(new ArrayList(configurationData.dependencies));
         setClassPath(new ArrayList(configurationData.classPath));
         setGBeans(configurationData.gbeans);
@@ -128,27 +131,42 @@ public class ConfigurationData {
     }
 
     public List getParentId() {
-        return parentId;
+        return new ArrayList(parentId);
     }
 
     public void setParentId(List parentId) {
-        this.parentId = parentId;
+        this.parentId.clear();
+        this.parentId.addAll(parentId);
     }
 
-    public String getDomain() {
-        return domain;
+    public void addParent(URI parentId) {
+        this.parentId.add(parentId);
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public List getReferences() {
+        return new ArrayList(references);
     }
 
-    public String getServer() {
-        return server;
+    public void setReferences(List references) {
+        this.references.clear();
+        this.references.addAll(references);
     }
 
-    public void setServer(String server) {
-        this.server = server;
+    public void addReference(URI reference) {
+        this.references.add(reference);
+    }
+
+    public Map getNameKeys() {
+        return new HashMap(nameKeys);
+    }
+
+    public void setNameKeys(Map nameKeys) {
+        this.nameKeys.clear();
+        this.nameKeys.putAll(nameKeys);
+    }
+
+    public void addNameKey(String key, String value) {
+        nameKeys.put(key, value);
     }
 
     public List getDependencies() {

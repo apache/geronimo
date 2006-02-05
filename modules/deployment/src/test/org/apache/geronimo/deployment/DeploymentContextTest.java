@@ -20,10 +20,15 @@ import java.io.File;
 import java.net.URI;
 import java.net.URLClassLoader;
 import java.net.URL;
+import java.util.LinkedHashSet;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.sql.DataSource;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Artifact;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.core.DefaultGeneratorStrategy;
@@ -41,8 +46,11 @@ public class DeploymentContextTest extends TestCase {
         basedir.mkdirs();
         try {
             basedir.deleteOnExit();
-            URI configID = new URI("test");
-            DeploymentContext context = new DeploymentContext(basedir, configID, ConfigurationModuleType.CAR, null, "foo", "bar", null);
+            Artifact configId = new Artifact("foo", "artifact", "1", "car", true);
+            Map nameKeys = new HashMap();
+            nameKeys.put("domain", "d");
+            Environment environment = new Environment(configId, nameKeys, new LinkedHashSet(), new LinkedHashSet(), new LinkedHashSet(), new LinkedHashSet(), new HashSet(), new HashSet(), false);
+            DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, null);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);

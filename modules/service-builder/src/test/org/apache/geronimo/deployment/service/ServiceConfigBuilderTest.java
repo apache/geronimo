@@ -31,6 +31,7 @@ import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.FooBarBean;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -64,18 +65,20 @@ public class ServiceConfigBuilderTest extends TestCase {
             fail("could not create temp dir");
         }
         try {
-            DeploymentContext context = new DeploymentContext(outFile, URI.create("foo/bar"), ConfigurationModuleType.SERVICE, parentId, "domain", "server", null);
+
+            Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
+            DeploymentContext context = new DeploymentContext(outFile, environment, ConfigurationModuleType.SERVICE, null);
             J2eeContext j2eeContext = new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
-            ServiceConfigBuilder.addDependencies(context, plan.getDependencyArray(), new Repository() {
-
-                public boolean hasURI(URI uri) {
-                    return true;
-                }
-
-                public URL getURL(URI uri) throws MalformedURLException {
-                    return plan1;
-                }
-            });
+//            ServiceConfigBuilder.addDependencies(context, plan.getDependencyArray(), new Repository() {
+//
+//                public boolean hasURI(URI uri) {
+//                    return true;
+//                }
+//
+//                public URL getURL(URI uri) throws MalformedURLException {
+//                    return plan1;
+//                }
+//            });
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
             Set beanDatas = context.listGBeans(new ObjectName("*:*"));

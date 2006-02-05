@@ -71,7 +71,7 @@ public class GenerateServiceXml {
                 String artifactId = dependency.getArtifactId();
                 String version = dependency.getVersion();
                 String type = dependency.getType();
-                org.apache.geronimo.deployment.xbeans.DependencyType dependencyType = serviceType.addNewDependency();
+                org.apache.geronimo.deployment.xbeans.ArtifactType dependencyType = serviceType.addNewDependency();
                 dependencyType.setGroupId(groupId);
                 dependencyType.setArtifactId(artifactId);
                 dependencyType.setVersion(version);

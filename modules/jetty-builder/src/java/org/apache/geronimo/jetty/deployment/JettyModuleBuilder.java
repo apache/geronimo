@@ -257,7 +257,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
         }
 
-        List parentId = ServiceConfigBuilder.getParentID(jettyWebApp.getParentId(), jettyWebApp.getImportArray());
+        List parentId = ServiceConfigBuilder.toArtifacts(jettyWebApp.getParentId(), jettyWebApp.getImportArray());
         if (parentId.isEmpty()) {
             parentId = new ArrayList(defaultParentId);
         }

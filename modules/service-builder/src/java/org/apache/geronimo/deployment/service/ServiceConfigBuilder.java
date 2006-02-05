@@ -17,6 +17,45 @@
 
 package org.apache.geronimo.deployment.service;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.ConfigurationBuilder;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.deployment.xbeans.AttributeType;
+import org.apache.geronimo.deployment.xbeans.ClassFilterType;
+import org.apache.geronimo.deployment.xbeans.ClassloaderType;
+import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
+import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.NameKeyType;
+import org.apache.geronimo.deployment.xbeans.PatternType;
+import org.apache.geronimo.deployment.xbeans.ReferenceType;
+import org.apache.geronimo.deployment.xbeans.ReferencesType;
+import org.apache.geronimo.deployment.xbeans.ServiceDocument;
+import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceMap;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,45 +70,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.xml.namespace.QName;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
-import org.apache.geronimo.deployment.xbeans.ConfigurationType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.xbeans.ReferenceType;
-import org.apache.geronimo.deployment.xbeans.ReferencesType;
-import org.apache.geronimo.deployment.xbeans.ServiceDocument;
-import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
-import org.apache.geronimo.deployment.xbeans.PatternType;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferenceMap;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -92,7 +97,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     }
 
     public ServiceConfigBuilder(URI[] defaultParentId, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
-        this.defaultParentId = defaultParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultParentId);
+        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
 
         this.repository = repository;
         this.kernel = kernel;
@@ -152,108 +157,45 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
+        EnvironmentType environmentType = configType.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType);
+        Artifact configId = environment.getConfigId();
         try {
-            return new URI(configType.getConfigId());
+            return configId.toURI();
         } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
+            throw new DeploymentException("Invalid configId " + configId, e);
         }
     }
 
     public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
-        String domain = null;
-        String server = null;
 
-        return buildConfiguration(configType, domain, server, outfile);
+        return buildConfiguration(configType, outfile);
     }
 
-    public ConfigurationData buildConfiguration(ConfigurationType configType, String domain, String server, File outfile) throws DeploymentException, IOException {
-        List parentID = getParentID(configType.getParentId(), configType.getImportArray());
-        if (parentID == null || parentID.size() == 0) {
-            if (configType.isSetDomain()) {
-                if (!configType.isSetServer()) {
-                    throw new DeploymentException("You must set both domain and server");
-                }
-                domain = configType.getDomain();
-                server = configType.getServer();
-            } else {
-                parentID = defaultParentId;
-            }
-        }
+    public ConfigurationData buildConfiguration(ConfigurationType configurationType, File outfile) throws DeploymentException, IOException {
 
-        if (domain == null) {
-            //get from parent id
-            if (kernel == null) {
-                throw new DeploymentException("You must supply a kernel or the domain and server names");
-            }
-        }
+        Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment());
 
-        URI configID;
-        try {
-            configID = new URI(configType.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + configType.getConfigId(), e);
-        }
 
-        DeploymentContext context = null;
-        context = new DeploymentContext(outfile, configID, ConfigurationModuleType.SERVICE, parentID, domain, server, kernel);
-
-        J2eeContext j2eeContext = new J2eeContextImpl(context.getDomain(), context.getServer(), NameFactory.NULL, NameFactory.J2EE_MODULE, configID.toString(), null, null);
-        DependencyType[] includes = configType.getIncludeArray();
-        addIncludes(context, includes, repository);
-        addDependencies(context, configType.getDependencyArray(), repository);
+        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, kernel);
         ClassLoader cl = context.getClassLoader(repository);
-        GbeanType[] gbeans = configType.getGbeanArray();
-        addGBeans(gbeans, cl, j2eeContext, context);
-        if (configType.isSetInverseClassloading()) {
-            context.setInverseClassloading(configType.getInverseClassloading());
+
+
+        J2eeContext j2eeContext = null;
+        try {
+            j2eeContext = new J2eeContextImpl(context.getDomain(), context.getServer(), NameFactory.NULL, NameFactory.J2EE_MODULE, environment.getConfigId().toURI().toString(), null, null);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
         }
-        ClassFilterType[] filters = configType.getHiddenClassesArray();
-        addHiddenClasses(context, filters);
-        filters = configType.getNonOverridableClassesArray();
-        addNonOverridableClasses(context, filters);
+        GbeanType[] gbeans = configurationType.getGbeanArray();
+        addGBeans(gbeans, cl, j2eeContext, context);
         context.close();
         return context.getConfigurationData();
     }
-
-    public static void addHiddenClasses(DeploymentContext context, ClassFilterType[] filters) throws DeploymentException {
-        Set tmpFilters = new HashSet();
-        for (int i = 0; i < filters.length; i++) {
-            tmpFilters.add(filters[i].getFilter());
-        }
-        context.addHiddenClasses(tmpFilters);
-    }
-
-    public static void addNonOverridableClasses(DeploymentContext context, ClassFilterType[] filters) throws DeploymentException {
-        Set tmpFilters = new HashSet();
-        for (int i = 0; i < filters.length; i++) {
-            tmpFilters.add(filters[i].getFilter());
-        }
-        context.addNonOverridableClasses(tmpFilters);
-    }
-
-    public static List getParentID(String parentIDString, DependencyType[] imports) throws DeploymentException {
-        List uris = new ArrayList();
-        if (parentIDString != null) {
-            try {
-                uris.add(new URI(parentIDString));
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid parentId " + parentIDString, e);
-            }
-        } else if (imports.length == 0) {
-            return new ArrayList();
-        }
-        for (int i = 0; i < imports.length; i++) {
-            DependencyType anImport = imports[i];
-            URI parentURI = getDependencyURI(anImport);
-            uris.add(parentURI);
-        }
-        return uris;
-    }
-
-    public static void addIncludes(DeploymentContext context, DependencyType[] includes, Repository repository) throws DeploymentException {
+    public static void addIncludes(DeploymentContext context, ArtifactType[] includes, Repository repository) throws DeploymentException {
         for (int i = 0; i < includes.length; i++) {
-            DependencyType include = includes[i];
+            ArtifactType include = includes[i];
             URI uri = getDependencyURI(include, repository);
             String name = getDependencyFileName(include);
             URI path;
@@ -271,7 +213,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public static void addDependencies(DeploymentContext context, DependencyType[] deps, Repository repository) throws DeploymentException {
+    public static void addDependencies(DeploymentContext context, ArtifactType[] deps, Repository repository) throws DeploymentException {
         for (int i = 0; i < deps.length; i++) {
             URI dependencyURI = getDependencyURI(deps[i], repository);
             context.addDependency(dependencyURI);
@@ -298,7 +240,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 } catch (IOException e) {
                     throw new DeploymentException("Unable to parse geronimo-service.xml file in " + url, e);
                 }
-                DependencyType[] dependencyDeps = serviceDoc.getService().getDependencyArray();
+                ArtifactType[] dependencyDeps = serviceDoc.getService().getDependencyArray();
                 if (dependencyDeps != null) {
                     addDependencies(context, dependencyDeps, repository);
                 }
@@ -396,48 +338,26 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return objectName;
     }
 
-    private static URI getDependencyURI(DependencyType dep, Repository repository) throws DeploymentException {
-        URI uri = getDependencyURI(dep);
+    private static URI getDependencyURI(ArtifactType dep, Repository repository) throws DeploymentException {
+        URI uri = null;
+        try {
+            uri = EnvironmentBuilder.toArtifact(dep).toURI();
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
         if (!repository.hasURI(uri)) {
             throw new DeploymentException(new MissingDependencyException("uri " + uri + " not found in repository"));
         }
         return uri;
     }
 
-    private static URI getDependencyURI(DependencyType dep) throws DeploymentException {
-        URI uri;
-        if (dep.isSetUri()) {
-            try {
-                uri = new URI(dep.getUri().trim());
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Invalid dependency URI " + dep.getUri().trim(), e);
-            }
-        } else {
-            String groupId = dep.getGroupId().trim();
-            String type = dep.isSetType() ? dep.getType().trim() : "jar";
-            String artifactId = dep.getArtifactId().trim();
-            String version = dep.getVersion().trim();
-            String id = groupId + "/" + artifactId + "/" + version + "/" + type;
-            try {
-                uri = new URI(id);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to construct URI for groupId=" + groupId + ", artifactId=" + artifactId + ", version=" + version + ", type=" + type, e);
-            }
-        }
-        return uri;
-    }
-    
-    private static String getDependencyFileName(DependencyType dep) throws DeploymentException {
+    private static String getDependencyFileName(ArtifactType dep) throws DeploymentException {
         String name;
-        if (dep.isSetUri()) {
-        	name = dep.getUri().trim();
-        } else {
             String groupId = dep.getGroupId().trim();
             String type = dep.isSetType() ? dep.getType().trim() : "jar";
             String artifactId = dep.getArtifactId().trim();
             String version = dep.getVersion().trim();
             name = artifactId + "-" + version + "." + type;
-        }
         return name;
     }
 

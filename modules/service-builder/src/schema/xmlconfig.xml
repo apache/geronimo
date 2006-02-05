@@ -1,6 +1,11 @@
 <xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
 
+<!--
     <xb:namespace uri="http://geronimo.apache.org/xml/ns/deployment-1.0">
+        <xb:package>org.apache.geronimo.deployment.xbeans</xb:package>
+    </xb:namespace>
+-->
+    <xb:namespace uri="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <xb:package>org.apache.geronimo.deployment.xbeans</xb:package>
     </xb:namespace>
 

@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<xs:schema xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.1"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.1" schemaLocation="geronimo-config-1.1.xsd"/>
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+
+    <xs:annotation>
+        <xs:documentation>
+            <![CDATA[
+            documents using this schema should start like:
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+    version="1.5">
+
+          @(#)geronimo-connector_1_5.xsds
+            ]]>
+        </xs:documentation>
+    </xs:annotation>
+
+
+
+    <!-- **************************************************** -->
+
+
+    <xs:element name="connector" type="ger:connectorType">
+        <xs:annotation>
+            <xs:documentation>
+
+                The connector element is the root element of the deployment
+                descriptor for the resource adapter. This element includes
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:unique name="resourceadapter-instance-name-uniqueness">
+            <xs:annotation>
+                <xs:documentation>
+
+              The resourceadapter-instance element must have a unique name.
+
+                </xs:documentation>
+            </xs:annotation>
+            <xs:selector xpath="ger:resourceadapter/ger:resourceadapter-instance"/>
+            <xs:field xpath="ger:resourceadapter-name"/>
+        </xs:unique>
+
+        <xs:unique name="connectiondefinition-instance-name-uniqueness">
+            <xs:annotation>
+                <xs:documentation>
+
+              The connectiondefinition-instance element must have a unique name.
+
+                </xs:documentation>
+            </xs:annotation>
+            <xs:selector xpath="ger:resourceadapter/ger:outbound-resourceadapter/ger:connection-definition/ger:connectiondefinition-instance"/>
+            <xs:field xpath="ger:name"/>
+        </xs:unique>
+
+        <xs:unique name="admin-object-instance-name-uniqueness">
+            <xs:annotation>
+                <xs:documentation>
+
+              The admin-object-instance element must have a unique name.
+
+                </xs:documentation>
+            </xs:annotation>
+            <xs:selector xpath="ger:adminobject/ger:adminobject-instance"/>
+            <xs:field xpath="ger:message-destination-name"/>
+        </xs:unique>
+
+    </xs:element>
+
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="adminobjectType">
+        <xs:annotation>
+            <xs:documentation>
+                reference back into standard dd
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="adminobject-interface"
+                type="ger:fully-qualified-classType">
+                <xs:annotation>
+                    <xs:documentation>
+                        believe it or not, there are no uniqueness constraints on admin object intf or class
+                    </xs:documentation>
+                </xs:annotation>
+
+            </xs:element>
+            <xs:element name="adminobject-class"
+                type="ger:fully-qualified-classType">
+                <xs:annotation>
+                    <xs:documentation>reference back into the standard dd</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="adminobject-instance"
+                type="ger:adminobject-instanceType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="adminobject-instanceType">
+        <xs:sequence>
+            <xs:element name="message-destination-name"
+                type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>unique name for admin object instance.  Used in object name of gbean for it. Matches message-destination-name in ejb-jar.xml assembly descriptor.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="config-property-setting"
+                type="ger:config-property-settingType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="config-property-settingType">
+        <xs:annotation>
+            <xs:documentation>
+
+                The config-property-settingType contains a name-value pair for a
+                config-property or required-config-property
+
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="connection-definitionType">
+        <xs:annotation>
+            <xs:documentation>
+
+                The connection-definitionType defines a set of connection
+                interfaces and classes pertaining to a particular connection
+                type. This also includes configurable properties for
+                ManagedConnectionFactory instances that may be produced out
+                of this set.
+
+                The name element uniquely identifies this instance
+
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="connectionfactory-interface"
+                type="ger:fully-qualified-classType">
+                <xs:annotation>
+                    <xs:documentation>
+                        connectionfactory-interface is unique in ra.xml so is used to index into ra.xml
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="connectiondefinition-instance"
+                type="ger:connectiondefinition-instanceType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="connectiondefinition-instanceType">
+        <xs:sequence>
+            <xs:element name="name"
+                type="xs:string"/>
+
+            <xs:element name="implemented-interface"
+                type="ger:fully-qualified-classType"
+                minOccurs="0"
+                maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        Additional interfaces implemented by the connectionfactory, used by the application
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="config-property-setting"
+                type="ger:config-property-settingType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+            <!--            <xs:choice>-->
+            <xs:element name="connectionmanager"
+                type="ger:connectionmanagerType">
+            </xs:element>
+            <!--                <xs:element name="connectionmanager-ref" type="xs:string"/>-->
+            <!--            </xs:choice>-->
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="connectionmanagerType">
+        <xs:annotation>
+            <xs:documentation>
+                The ConnectionManager configuration.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="container-managed-security" type="ger:emptyType" minOccurs="0"/>
+            <xs:choice minOccurs="0">
+                <xs:element name="no-transaction" type="ger:emptyType"/>
+                <xs:element name="local-transaction" type="ger:emptyType"/>
+                <xs:element name="xa-transaction" type="ger:xatransactionType"/>
+                <xs:element name="transaction-log" type="ger:emptyType"/>
+            </xs:choice>
+            <xs:choice>
+                <xs:element name="no-pool" type="ger:emptyType"/>
+                <xs:element name="single-pool" type="ger:singlepoolType"/>
+                <xs:element name="partitioned-pool" type="ger:partitionedpoolType"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="xatransactionType">
+        <xs:sequence>
+            <xs:element name="transaction-caching" type="ger:emptyType" minOccurs="0"/>
+            <xs:element name="thread-caching" type="ger:emptyType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="singlepoolType">
+        <xs:sequence>
+            <xs:element name="max-size" type="xs:int" minOccurs="0"/>
+            <xs:element name="min-size" type="xs:int" minOccurs="0"/>
+            <xs:element name="blocking-timeout-milliseconds" type="xs:int" minOccurs="0"/>
+            <xs:element name="idle-timeout-minutes" type="xs:int" minOccurs="0"/>
+            <xs:choice>
+                <xs:element name="match-one" type="ger:emptyType"/>
+                <xs:element name="match-all" type="ger:emptyType"/>
+                <xs:element name="select-one-assume-match" type="ger:emptyType"/>
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="partitionedpoolType">
+        <complexContent>
+            <extension base="ger:singlepoolType">
+                <xs:sequence>
+                    <xs:element name="partition-by-subject" type="ger:emptyType" minOccurs="0"/>
+                    <xs:element name="partition-by-connectionrequestinfo" type="ger:emptyType" minOccurs="0"/>
+                </xs:sequence>
+            </extension>
+        </complexContent>
+    </xs:complexType>
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="connectorType">
+        <xs:annotation>
+            <xs:documentation>
+                The connectorType defines a resource adapter.
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+            <xs:group ref="sys:classloader-infoGroup"/>
+
+            <xs:element name="resourceadapter" type="ger:resourceadapterType" maxOccurs="unbounded"/>
+
+            <xs:element name="adminobject" type="ger:adminobjectType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+        <xs:attribute name="suppressDefaultParentId" type="xs:boolean" use="optional"/>
+        <xs:attribute name="inverseClassloading" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="emptyType"/>
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="outbound-resourceadapterType">
+        <xs:annotation>
+            <xs:documentation>
+
+                The outbound-resourceadapterType specifies information about
+                an outbound resource adapter. The information includes fully
+                qualified names of classes/interfaces required as part of
+                the connector architecture specified contracts for
+                connection management, level of transaction support
+                provided, one or more authentication mechanisms supported
+                and additional required security permissions.
+
+                If there is no authentication-mechanism specified as part of
+                resource adapter element then the resource adapter does not
+                support any standard security authentication mechanisms as
+                part of security contract. The application server ignores
+                the security part of the system contracts in this case.
+
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="connection-definition"
+                type="ger:connection-definitionType"
+                maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <!-- **************************************************** -->
+
+    <xs:complexType name="resourceadapterType">
+
+        <xs:sequence>
+            <xs:element name="resourceadapter-instance"
+                type="ger:resourceadapter-instanceType"
+                minOccurs="0">
+            </xs:element>
+            <xs:element name="outbound-resourceadapter"
+                type="ger:outbound-resourceadapterType"
+                minOccurs="0">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="resourceadapter-instanceType">
+        <xs:annotation>
+            <xs:documentation>
+                The resourceadapter instance info is put in a separate optional element
+                to provide easier more consistent support for 1.0 adapters.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="resourceadapter-name" type="xs:string"/>
+            <xs:element name="config-property-setting"
+                type="ger:config-property-settingType"
+                minOccurs="0"
+                maxOccurs="unbounded"/>
+            <xs:element ref="naming:workmanager"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+
+    <!-- types borrowed from the j2ee schema.  We might want to centralize  these -->
+
+    <xs:simpleType name="fully-qualified-classType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:complexType name="descriptionType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute ref="xml:lang"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+
+</xs:schema>
+

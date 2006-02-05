@@ -73,6 +73,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
@@ -119,7 +120,7 @@ public class JettyModuleBuilderTest extends TestCase {
         earContext.close();
         module.close();
 
-        GBeanData configData = earContext.getConfigurationGBeanData();
+        GBeanData configData = ExecutableConfigurationUtil.getConfigurationGBeanData(earContext.getConfigurationData());
         ObjectName configName = configData.getName();
         configData.setAttribute("baseURL", path.toURL());
         kernel.loadGBean(configData, cl);

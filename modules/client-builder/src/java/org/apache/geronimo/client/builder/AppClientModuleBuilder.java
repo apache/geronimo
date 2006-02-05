@@ -47,7 +47,6 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.gbean.GBeanData;
@@ -84,7 +83,6 @@ import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
 
 
 /**
@@ -343,7 +341,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 try {
 
                     URI clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
-                    List clientParentId = ServiceConfigBuilder.getParentID(geronimoAppClient.getClientParentId(), geronimoAppClient.getImportArray());
+                    List clientParentId = ServiceConfigBuilder.toArtifacts(geronimoAppClient.getClientParentId(), geronimoAppClient.getImportArray());
                     clientParentId.addAll(defaultClientParentId);
                     appClientDeploymentContext = new EARContext(appClientDir,
                             clientConfigId,

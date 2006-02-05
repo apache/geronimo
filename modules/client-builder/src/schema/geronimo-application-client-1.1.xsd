@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!-- @version $Rev: 356022 $ $Date: 2005-12-11 12:58:34 -0800 (Sun, 11 Dec 2005) $ -->
+<xs:schema
+    xmlns:geronimo="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1"
+    targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
+    xmlns:connector="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+    xmlns:security="http://geronimo.apache.org/xml/ns/security-1.1"
+    xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.1"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    version="1.0">
+
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.1" schemaLocation="geronimo-security-1.1.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0" schemaLocation="geronimo-connector-1.1.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.1" schemaLocation="geronimo-config-1.1.xsd"/>
+
+    <xs:element name="application-client" type="geronimo:application-clientType"/>
+
+    <xs:complexType name="application-clientType">
+        <xs:sequence>
+<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
+            <xs:group ref="sys:classloader-include-infoGroup"/>
+
+
+            <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="naming:message-destination" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element ref="security:default-principal" minOccurs="0"/>
+
+            <xs:sequence minOccurs="0">
+                <xs:element name="realm-name" type="xs:string"/>
+                <xs:element name="callback-handler" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+
+
+            <xs:element name="resource" type="geronimo:resourceType" minOccurs="0" maxOccurs="unbounded"/>
+
+            <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="configId" type="xs:string" use="required"/>
+        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+        <xs:attribute name="clientConfigId" type="xs:string" use="required"/>
+        <xs:attribute name="clientParentId" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="resourceType">
+        <xs:sequence>
+            <xs:choice>
+                <xs:element name="external-rar" type="xs:string"/>
+                <xs:element name="internal-rar" type="xs:string"/>
+            </xs:choice>
+            <xs:element ref="connector:connector"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+</xs:schema>

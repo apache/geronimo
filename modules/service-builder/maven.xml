@@ -24,7 +24,7 @@
 
     <preGoal name="java:compile">
         <xmlbeans:schema2java
-            maven.xmlbeans2.sourceschema="schema/geronimo-config-1.0.xsd,schema/geronimo-javabean-xmlattribute-1.0.xsd"/>
+            maven.xmlbeans2.sourceschema="schema/geronimo-config-1.1.xsd,schema/geronimo-javabean-xmlattribute-1.0.xsd"/>
         <mkdir dir="${basedir}/target/xmlbeans-classes"/>
         <mkdir dir="${basedir}/target/xmlbeans-classes/schemaorg_apache_xmlbeans"/>
         <copy todir="${basedir}/target/xmlbeans-classes/schemaorg_apache_xmlbeans">

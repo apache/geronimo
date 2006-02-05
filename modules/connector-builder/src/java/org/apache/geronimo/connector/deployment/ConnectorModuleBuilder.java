@@ -69,8 +69,6 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -242,7 +240,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException("Invalid configId " + gerConnector.getConfigId(), e);
         }
 
-        List parentId = ServiceConfigBuilder.getParentID(gerConnector.getParentId(), gerConnector.getImportArray());
+        List parentId = ServiceConfigBuilder.toArtifacts(gerConnector.getParentId(), gerConnector.getImportArray());
         //suppressing the default parentid is mostly useful for deploying standalone connectors on the app client.
         //The defaultParentId normally pulls in and tries to start all the base server gbeans.
         if (!gerConnector.getSuppressDefaultParentId()) {

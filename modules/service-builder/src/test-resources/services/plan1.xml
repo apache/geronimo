@@ -18,48 +18,52 @@
 
 
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="test/plan1"
-    >
-    <import>
-        <groupId>geronimo</groupId>
-        <type>car</type>
-        <artifactId>foo4</artifactId>
-        <version>DEV</version>
-    </import>
+        xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+        >
 
-    <import>
-        <uri>geronimo/foo5/DEV/car</uri>
-    </import>
+    <environment>
+        <configid>
+            <groupId>geronimo</groupId>
+            <type>car</type>
+            <artifactId>foo4</artifactId>
+            <version>DEV</version>
+        </configid>
+        <name-key>
+            <key>domain</key>
+            <value>geronimo.server</value>
+        </name-key>
+        <name-key>
+            <key>J2EEServer</key>
+            <value>geronimo</value>
+        </name-key>
+        <classloader>
+            <import>
+                <groupId>geronimo</groupId>
+                <type>car</type>
+                <artifactId>foo4</artifactId>
+                <version>DEV</version>
+            </import>
 
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>foo1</artifactId>
-        <version>DEV</version>
-    </dependency>
+            <dependency>
+                <groupId>geronimo</groupId>
+                <artifactId>foo1</artifactId>
+                <version>DEV</version>
+            </dependency>
 
-    <dependency>
-        <groupId>
-           geronimo
-        </groupId>
-        <artifactId>
-            foo2
-        </artifactId>
-        <version>
-            DEV
-        </version>
-    </dependency>
+            <dependency>
+                <groupId>
+                    geronimo
+                </groupId>
+                <artifactId>
+                    foo2
+                </artifactId>
+                <version>
+                    DEV
+                </version>
+            </dependency>
 
-    <dependency>
-        <uri>geronimo/foo3/DEV</uri>
-    </dependency>
-
-    <dependency>
-        <uri>
-           geronimo/foo4/DEV
-        </uri>
-    </dependency>
-
+        </classloader>
+    </environment>
     <gbean gbeanName="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
         <attribute name="value">1234</attribute>
         <attribute name="intValue">1234</attribute>

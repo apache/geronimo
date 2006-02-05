@@ -77,6 +77,7 @@ import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
 import org.apache.geronimo.tomcat.HostGBean;
@@ -185,7 +186,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         builder.addGBeans(earContext, module, cl);
         earContext.close();
         module.close();
-        GBeanData configData = earContext.getConfigurationGBeanData();
+        GBeanData configData = ExecutableConfigurationUtil.getConfigurationGBeanData(earContext.getConfigurationData());
         configData.setAttribute("baseURL", outputPath.toURL());
         kernel.loadGBean(configData, cl);
         ObjectName configName = configData.getName();
