@@ -23,7 +23,7 @@
     <id>geronimo-assembly-plugin</id>
     <name>Geronimo :: Maven Assembly Plugin</name>
     <description>A plugin used to assemble a distribution of Geronimo</description>
-    <currentVersion>1.1.7</currentVersion>
+    <currentVersion>1.1.8</currentVersion>
 
     <dependencies>
         <dependency>
