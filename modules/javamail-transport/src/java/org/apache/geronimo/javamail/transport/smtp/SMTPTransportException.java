@@ -32,11 +32,11 @@ class SMTPTransportException extends Exception {
         super(s);
     }
 
-    SMTPTransportException(String s, Throwable t) {
+    SMTPTransportException(String s, Exception t) {
         super(s,t);
     }
 
-    SMTPTransportException(Throwable t) {
-        super(t);
+    SMTPTransportException(Exception t) {
+        super("SMTP Transport error", t);
     }
 }

@@ -23,22 +23,39 @@ package org.apache.geronimo.javamail.transport.smtp;
  * @version $Rev$ $Date$
  */
 class SMTPReply {
+    // The original reply string
+    private final String reply;
+    // returned message code
     private final int code;
+    // the returned message text
     private final String message;
-    private final char firstChar;
+    // indicates that this is a continuation response
+    private boolean continued;
 
     SMTPReply(String s) throws MalformedSMTPReplyException {
-        // first three must be the return code
+        // save the reply
+        reply = s;
+
+        // In a normal response, the first 3 must be the return code.  However,
+        // the response back from a QUIT command is frequently a null string.  Therefore, if the result is
+        // too short, just default the code to -1 and use the entire text for the message.
         if (s == null || s.length() < 3) {
-            throw new MalformedSMTPReplyException("Too Short! : " + s);
+            code = -1;
+            message = s;
+            return;
         }
 
         try {
-            firstChar = s.charAt(0);
+            continued = false;
             code = Integer.parseInt(s.substring(0, 3));
 
-            // message should be separated by a space
+            // message should be separated by a space OR a continuation character if this is a
+            // multi-line response.
             if (s.length() > 4) {
+                //
+                if (s.charAt(3) == '-') {
+                    continued = true;
+                }
                 message = s.substring(4);
             } else {
                 message = "";
@@ -48,23 +65,52 @@ class SMTPReply {
         }
     }
 
-    int getCode() {
+    /**
+     * Return the code value associated with the reply.
+     *
+     * @return The integer code associated with the reply.
+     */
+    public int getCode() {
         return this.code;
     }
 
-    String getMessage() {
+    /**
+     * Get the message text associated with the reply.
+     *
+     * @return The string value of the message from the reply.
+     */
+    public String getMessage() {
         return this.message;
     }
+
+    /**
+     * Retrieve the raw reply string for the reponse.
+     *
+     * @return The original reply string from the server.
+     */
+    public String getReply() {
+        return reply;
+    }
+
 
     /**
      * Indicates if reply is an error condition
      */
     boolean isError() {
-        if (firstChar == '5' || firstChar == '4') {
-            return true;
-        }
+        // error codes are all above 400
+        return code >= 400;
+    }
 
-        return false;
+
+    /**
+     * Indicates whether this response is flagged as part of a
+     * multiple line response.
+     *
+     * @return true if the response has multiple lines, false if this is
+     *         the last line of the response.
+     */
+    public boolean isContinued() {
+        return continued;
     }
 
     public String toString() {

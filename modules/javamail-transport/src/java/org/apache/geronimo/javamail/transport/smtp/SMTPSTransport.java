@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2005 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,21 +17,18 @@
 
 package org.apache.geronimo.javamail.transport.smtp;
 
-/**
- * Exception for when a SMTP reply string has a problem
- * 
- * @version $Rev$ $Date$
- */
-class MalformedSMTPReplyException  extends Exception {
-    MalformedSMTPReplyException() {
-        super();
-    }
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.URLName;
 
-    MalformedSMTPReplyException(String msg) {
-        super(msg);
-    }
 
-    MalformedSMTPReplyException(String msg, Exception t) {
-        super(msg, t);
+public class SMTPSTransport extends SMTPTransport {
+    /**
+     * @param session
+     * @param name
+     */
+    public SMTPSTransport(Session session, URLName name) {
+        super(session, name, "smtps", 465, true);
     }
 }
