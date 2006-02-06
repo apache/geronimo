@@ -467,6 +467,7 @@
             <version>${pom.currentVersion}</version>
             <properties>
                 <geronimo.assemble>unpack</geronimo.assemble>
+                <geronimo.assemble.unpack.exclude.manifest>true</geronimo.assemble.unpack.exclude.manifest>
             </properties>
         </dependency>
 

@@ -115,6 +115,7 @@
 
     <goal name="assemble:assemble-unpack">
         <ant:mkdir dir="${geronimo.assembly.dest}"/>
+        <j:set var="excludeManifest" value="false"/>
         <ant:unjar dest="${geronimo.assembly.dest}">
             <ant:fileset dir="${maven.repo.local}">
                 <j:set var="hasUnpack" value="false"/>
@@ -123,13 +124,26 @@
                     <j:if test="${dependency.getProperty('geronimo.assemble') == 'unpack'}">
                         <ant:include name="${dependency.getArtifactDirectory()}/${dependency.getType()}s/${dependency.getArtifact()}"/>
                         <j:set var="hasUnpack" value="true"/>
+                        <j:if test="${dependency.getProperty('geronimo.assemble.unpack.exclude.manifest') == 'true'}">
+                            <j:set var="excludeManifest" value="true"/>
+                        </j:if>
                     </j:if>
                 </j:forEach>
                 <j:if test="${hasUnpack == 'false'}">
                     <ant:exclude name="**/*"/>
                 </j:if>
             </ant:fileset>
+            <j:if test="${excludeManifest == 'true'}">
+                <ant:patternset>
+                    <!-- this exclude leaves an empty META-INF directory 
+                         that we delete below -->
+                    <ant:exclude name="META-INF/MANIFEST.MF"/>
+                </ant:patternset>        
+            </j:if>
         </ant:unjar>
+        <j:if test="${excludeManifest == 'true'}">
+           <ant:delete dir="${geronimo.assembly.dest}/META-INF"/>
+        </j:if>
         <ant:chmod dir="${geronimo.assembly.dest}/bin" perm="ugo+x" includes="*.sh"/>
     </goal>
 
