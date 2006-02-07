@@ -23,11 +23,10 @@ import java.net.URISyntaxException;
 /**
  * @version $Rev:$ $Date:$
  */
-public class Artifact {
-
+public class Artifact implements Comparable {
     private String groupId;
     private String artifactId;
-    private String version;
+    private Version version;
     private String type;
     private boolean resolved;
 
@@ -37,7 +36,7 @@ public class Artifact {
     public Artifact(String groupId, String artifactId, String version, String type, boolean resolved) {
         this.groupId = groupId;
         this.artifactId = artifactId;
-        this.version = version;
+        this.version = new Version(version);
         this.type = type;
         this.resolved = resolved;
     }
@@ -58,11 +57,11 @@ public class Artifact {
         this.artifactId = artifactId;
     }
 
-    public String getVersion() {
+    public Version getVersion() {
         return version;
     }
 
-    public void setVersion(String version) {
+    public void setVersion(Version version) {
         this.version = version;
     }
 
@@ -82,6 +81,33 @@ public class Artifact {
         this.resolved = resolved;
     }
 
+    public int compareTo(Object object) {
+        Artifact artifact = (Artifact) object;
+
+        int i = safeCompare(groupId, artifact.groupId);
+        if (i != 0) return i;
+
+        i = safeCompare(artifactId, artifact.artifactId);
+        if (i != 0) return i;
+
+        i = safeCompare(version, artifact.version);
+        if (i != 0) return i;
+
+        i = safeCompare(type, artifact.type);
+        return i;
+    }
+
+    private static int GREATER = 1;
+    private static int LESS = -1;
+    private static int safeCompare(Comparable left, Comparable right) {
+        if (left == null) {
+            if (right != null) return LESS;
+            return 0;
+        }
+        if (right == null) return GREATER;
+        return left.compareTo(right);
+    }
+
     /**
      * @deprecated for use during conversion only!
      * @return
@@ -90,5 +116,10 @@ public class Artifact {
     public URI toURI() throws URISyntaxException {
         String id = groupId + "/" + artifactId + "/" + version + "/" + type;
         return new URI(id);
+    }
+
+    public String toString() {
+        String id = groupId + "/" + artifactId + "/" + version + "/" + type;
+        return id;
     }
 }
