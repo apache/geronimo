@@ -25,7 +25,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -340,16 +339,6 @@ public class SMTPTransport extends Transport {
                 debugOut("I/O exception establishing connection", e);
             }
             throw new MessagingException("Connection error", e);
-        } catch (SMTPTransportException e) {
-            if (debug) {
-                debugOut("Exception establishing connection", e);
-            }
-            throw new MessagingException("error", e);
-        } catch (MalformedSMTPReplyException e) {
-            if (debug) {
-                debugOut("Exception establishing connection", e);
-            }
-            throw new MessagingException("error", e);
         }
         return true;
     }
@@ -1265,9 +1254,9 @@ public class SMTPTransport extends Transport {
             msg.writeTo(outputStream);
             outputStream.flush();
         } catch (IOException e) {
-            throw new SMTPTransportException(e);
+            throw new MessagingException(e.toString());
         } catch (MessagingException e) {
-            throw new SMTPTransportException(e);
+            throw new MessagingException(e.toString());
         }
 
         // now to finish, we send a CRLF sequence, followed by a ".".
@@ -1275,7 +1264,13 @@ public class SMTPTransport extends Transport {
         sendLine(".");
 
         // use a longer time out here to give the server time to process the data.
-        line = new SMTPReply(receiveLine(TIMEOUT * 2));
+        try {
+			line = new SMTPReply(receiveLine(TIMEOUT * 2));
+		} catch (MalformedSMTPReplyException e) {
+            throw new MessagingException(e.toString());
+		} catch (MessagingException e) {
+            throw new MessagingException(e.toString());
+		}
 
         return !line.isError();
     }
@@ -1397,7 +1392,7 @@ public class SMTPTransport extends Transport {
 
 
         if (from == null || from.length() == 0) {
-            throw new SMTPTransportException("no FROM address");
+            throw new MessagingException("no FROM address");
         }
 
         StringBuffer command = new StringBuffer();
@@ -1515,7 +1510,7 @@ public class SMTPTransport extends Transport {
             debugOut("sending line to server >>>" + data + "<<<");
         }
         if (socket == null || !socket.isConnected()) {
-            throw new SMTPTransportException("no connection");
+            throw new MessagingException("no connection");
         }
         try {
             outputStream.write(data.getBytes());
@@ -1523,7 +1518,7 @@ public class SMTPTransport extends Transport {
             outputStream.write(LF);
             outputStream.flush();
         } catch (IOException e) {
-            throw new SMTPTransportException(e);
+            throw new MessagingException(e.toString());
         }
     }
 
@@ -1543,7 +1538,13 @@ public class SMTPTransport extends Transport {
      * @return An SMTP reply object from the stream.
      */
     protected SMTPReply getReply() throws MessagingException {
-        lastServerResponse = new SMTPReply(receiveLine());
+        try {
+			lastServerResponse = new SMTPReply(receiveLine());
+		} catch (MalformedSMTPReplyException e) {
+			throw new MessagingException(e.toString());
+		} catch (MessagingException e) {
+			throw e;
+		}
         return lastServerResponse;
     }
 
@@ -1570,7 +1571,7 @@ public class SMTPTransport extends Transport {
      */
     protected String receiveLine(int delayMillis) throws MessagingException {
         if (socket == null || !socket.isConnected()) {
-            throw new SMTPTransportException("no connection");
+            throw new MessagingException("no connection");
         }
 
         int timeout = 0;
@@ -1608,9 +1609,9 @@ public class SMTPTransport extends Transport {
             return line;
 
         } catch (SocketException e) {
-            throw new SMTPTransportException(e);
+            throw new MessagingException(e.toString());
         } catch (IOException e) {
-            throw new SMTPTransportException(e);
+            throw new MessagingException(e.toString());
         } finally {
             try {
                 socket.setSoTimeout(timeout);
@@ -1760,7 +1761,7 @@ public class SMTPTransport extends Transport {
             }
 
             if (localHost == null) {
-                throw new SMTPTransportException("Can't get local hostname. " +
+                throw new MessagingException("Can't get local hostname. " +
                         " Please correctly configure JDK/DNS or set mail.smtp.localhost");
             }
         }
@@ -2014,7 +2015,14 @@ public class SMTPTransport extends Transport {
         // authentication, and a 334 indicates we have an additional challenge.
         while (true) {
             // get the next line, and if it is an error response, return now.
-            SMTPReply line = new SMTPReply(receiveLine());
+            SMTPReply line;
+			try {
+				line = new SMTPReply(receiveLine());
+			} catch (MalformedSMTPReplyException e) {
+				throw new MessagingException(e.toString());
+			} catch (MessagingException e) {
+				throw e;
+			}
 
             // if we get a completion return, we've passed muster, so give an authentication response.
             if (line.getCode() == AUTHENTICATION_COMPLETE) {
