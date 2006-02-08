@@ -24,18 +24,25 @@ rem
 rem This batch file calls the geronimo.bat script passing "stop" as the
 rem first argument followed by the arguments supplied by the caller.
 rem
-rem Refer to the documentation in the geronimo.bat file for information
-rem on environment variables etc.
-rem
 rem This batch file is based upon Tomcat's shutdown.bat file to enable
 rem those familiar with Tomcat to easily stop Geronimo.
 rem 
 rem Alternatively you can use the more comprehensive geronimo.bat file 
 rem directly.
 rem
-rem Usage:  shutdown [geronimo_args ...]
+rem Invocation Syntax:
 rem
-rem $Rev$ $Date$
+rem   shutdown [stop command args ...]
+rem
+rem   Invoke the shutdown.bat file without any arguments for information
+rem   on arguments for the geronimo.bat stop command that is invoked by
+rem   this batch file.
+rem
+rem Environment Variable Prequisites:
+rem
+rem   Refer to the documentation in the geronimo.bat file for information
+rem   on environment variables etc.
+rem
 rem --------------------------------------------------------------------
 if "%OS%" == "Windows_NT" setlocal
 

@@ -19,13 +19,25 @@
 
 @REM ---------------------------------------------------------------------------
 @REM Start/Stop Batch file for Geronimo
-@REM
-@REM For usage information, just run geronimo.bat without any arguments.
 @REM 
-@REM This script is based upon Tomcat's catalina.sh file to enable
+@REM This batch file is based upon Tomcat's catalina.bat file to enable
 @REM those familiar with Tomcat to quickly get started with Geronimo.
 @REM
-@REM Environment Variable Prequisites
+@REM This batch file can be used directly instead of startup.bat and 
+@REM shutdown.bat as they call this batch file anyway.
+@REM
+@REM You should not have to edit this file.  If you wish to have environment
+@REM variables set each time you run this batch file refer to the information
+@REM on the setenv.bat file below. 
+@REM
+@REM Invocation Syntax:
+@REM
+@REM   geronimo command [geronimo_args] 
+@REM
+@REM   For detailed usage information, just run geronimo.bat without any 
+@REM   arguments.
+@REM
+@REM Environment Variable Prequisites:
 @REM 
 @REM   GERONIMO_HOME   May point at your Geronimo top-level directory.
 @REM                   If not specified, this batch file will attempt to
@@ -81,7 +93,9 @@
 @REM   %GERONIMO_HOME%\bin\setenv.bat
 @REM                   (Optional) This batch file is called if it is present.
 @REM                   Its contents may set one or more of the above environment
-@REM                   variables.
+@REM                   variables. It is preferable (to simplify migration to
+@REM                   future Geronimo releases) to set environment variables
+@REM                   in this file rather than modifying Geronimo's script files.
 @REM
 @REM   %GERONIMO_HOME%\bin\setjavaenv.bat
 @REM                   This batch file is called to set environment variables

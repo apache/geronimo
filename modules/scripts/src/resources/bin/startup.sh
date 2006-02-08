@@ -15,13 +15,14 @@
 #   limitations under the License.
 
 # --------------------------------------------------------------------
+# $Rev$ $Date$
+# --------------------------------------------------------------------
+
+# --------------------------------------------------------------------
 # Startup script file for Geronimo that starts Geronimo in the background.
 #
 # This script calls the geronimo.sh script passing "start" as the
 # first argument followed by the arguments supplied by the caller.
-#
-# Refer to the documentation in the geronimo.sh file for information
-# on environment variables etc.
 #
 # This script is based upon Tomcat's startup.sh file to enable
 # those familiar with Tomcat to quickly get started with Geronimo.
@@ -29,9 +30,15 @@
 # Alternatively you can use the more comprehensive geronimo.sh file 
 # directly.
 #
-# Usage:  startup.sh [geronimo.sh_args] [geronimo_args ...]
+# Invocation Syntax:
 #
-# $Rev$ $Date$
+#   startup.sh [geronimo_args ...]
+#
+# Environment Variable Prequisites:
+#
+#   Refer to the documentation in the geronimo.sh file for information
+#   on environment variables etc.
+#
 # --------------------------------------------------------------------
 
 os400=false

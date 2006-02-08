@@ -24,11 +24,25 @@
 # This script is based upon Tomcat's catalina.sh file to enable
 # those familiar with Tomcat to quickly get started with Geronimo.
 #
-# For usage information, just run geronimo.sh without any arguments.
+# This script file can be used directly instead of startup.sh and 
+# shutdown.sh as they call this script file anyway.
 #
-# Environment Variable Prequisites
+# You should not have to edit this file.  If you wish to have environment
+# variables set each time you run this script refer to the information
+# on the setenv.sh script that is called by this script below. 
 #
-#   GERONIMO_HOME   May point at your Geronimo top-level directory.
+# Invocation Syntax:
+#
+#   geronimo.sh command [geronimo_args] 
+#
+#   For detailed command usage information, just run geronimo.sh without any 
+#   arguments.
+#
+# Environment Variable Prequisites:
+#
+#   GERONIMO_HOME   (Optional) May point at your Geronimo top-level directory.
+#                   If not specified, it will default to the parent directory
+#                   of the location of this script.
 #
 #   GERONIMO_BASE   (Optional) Base directory for resolving dynamic portions
 #                   of a Geronimo installation.  If not present, resolves to
@@ -84,7 +98,9 @@
 #   $GERONIMO_HOME/bin/setenv.sh
 #                   (Optional) This script file is called if it is present.
 #                   Its contents may set one or more of the above environment
-#                   variables.
+#                   variables.  It is preferable (to simplify migration to
+#                   future Geronimo releases) to set environment variables
+#                   in this file rather than modifying Geronimo's script files.
 #
 #   $GERONIMO_HOME/bin/setjavaenv.sh
 #                   This batch file is called to set environment variables
