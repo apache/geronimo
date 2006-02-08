@@ -62,7 +62,8 @@ public class HOWLLogTest extends AbstractLogTest {
                 2, //                "maxLogFiles",
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
-                xidFactory, new BasicServerInfo(new File(basedir, "target").getAbsolutePath())
+//                xidFactory,
+                new BasicServerInfo(new File(basedir, "target").getAbsolutePath())
         );
         howlLog.doStart();
         return howlLog;

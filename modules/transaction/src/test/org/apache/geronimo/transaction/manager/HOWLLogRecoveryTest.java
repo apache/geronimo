@@ -71,7 +71,7 @@ public class HOWLLogRecoveryTest extends AbstractRecoveryTest {
                 2, //                "maxLogFiles",
                 2, //                "minBuffers",
                 10,//                "threadsWaitingForceThreshold"});
-                xidFactory,
+//                xidFactory,
                 new BasicServerInfo(targetDir)
         );
         howlLog.doStart();

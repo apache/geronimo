@@ -66,12 +66,12 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     private final ServerInfo serverInfo;
     private String logFileDir;
 
-    private final XidFactory xidFactory;
+//    private final XidFactory xidFactory;
 
     private final XALogger logger;
     private final Configuration configuration = new Configuration();
     private boolean started = false;
-    private HashMap recovered;
+//    private HashMap recovered;
 
     public HOWLLog(String bufferClassName,
                    int bufferSize,
@@ -85,7 +85,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
                    int maxLogFiles,
                    int minBuffers,
                    int threadsWaitingForceThreshold,
-                   XidFactory xidFactory,
+//                   XidFactory xidFactory,
                    ServerInfo serverInfo) throws IOException, LogConfigurationException {
         this.serverInfo = serverInfo;
         setBufferClassName(bufferClassName);
@@ -101,7 +101,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         setMaxLogFiles(maxLogFiles);
         setMinBuffers(minBuffers);
         setThreadsWaitingForceThreshold(threadsWaitingForceThreshold);
-        this.xidFactory = xidFactory;
+//        this.xidFactory = xidFactory;
         this.logger = new XALogger(configuration);
     }
 
@@ -211,21 +211,21 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     public void doStart() throws Exception {
         started = true;
         setLogFileDir(logFileDir);
-        log.debug("Initiating transaction manager recovery");
-        recovered = new HashMap();
+//        log.debug("Initiating transaction manager recovery");
+//        recovered = new HashMap();
 
         logger.open(null);
 
-        ReplayListener replayListener = new GeronimoReplayListener(xidFactory, recovered);
-        logger.replayActiveTx(replayListener);
+//        ReplayListener replayListener = new GeronimoReplayListener(xidFactory, recovered);
+//        logger.replayActiveTx(replayListener);
 
-        log.debug("In doubt transactions recovered from log");
+//        log.debug("In doubt transactions recovered from log");
     }
 
     public void doStop() throws Exception {
         started = false;
         logger.close();
-        recovered = null;
+//        recovered = null;
     }
 
     public void doFail() {
@@ -309,6 +309,11 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     }
 
     public Collection recover(XidFactory xidFactory) throws LogException {
+        log.debug("Initiating transaction manager recovery");
+        Map recovered = new HashMap();
+        ReplayListener replayListener = new GeronimoReplayListener(xidFactory, recovered);
+        logger.replayActiveTx(replayListener);
+        log.debug("In doubt transactions recovered from log");
         return recovered.values();
     }
 
@@ -408,7 +413,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
         infoFactory.addAttribute("minBuffers", Integer.TYPE, true);
         infoFactory.addAttribute("threadsWaitingForceThreshold", Integer.TYPE, true);
 
-        infoFactory.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
+//        infoFactory.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
         infoFactory.addReference("ServerInfo", ServerInfo.class, NameFactory.GERONIMO_SERVICE);
 
         infoFactory.addInterface(TransactionLog.class);
@@ -426,7 +431,7 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
             "maxLogFiles",
             "minBuffers",
             "threadsWaitingForceThreshold",
-            "XidFactory",
+//            "XidFactory",
             "ServerInfo"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
