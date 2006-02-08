@@ -59,6 +59,15 @@
 #
 #   JAVA_OPTS       (Optional) Java runtime options.
 #
+# Troubleshooting execution of this script file:
+#
+#  GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
+#                       "on" (the default) outputs the 
+#                       values of GERONIMO_HOME, GERONIMO_BASE, 
+#                       GERONIMO_TMPDIR, JAVA_HOME, JRE_HOME before
+#                       the command is issued. Set to "off" if you
+#                       do want to see this information.
+#
 # Scripts called by this script:
 # 
 #   $GERONIMO_HOME/bin/setenv.sh
@@ -167,6 +176,19 @@ if $cygwin; then
   GERONIMO_HOME=`cygpath --absolute --windows "$GERONIMO_HOME"`
   GERONIMO_BASE=`cygpath --absolute --windows "$GERONIMO_BASE"`
   GERONIMO_TMPDIR=`cygpath --absolute --windows "$GERONIMO_TMPDIR"`
+fi
+
+# ----- Execute The Requested Command -----------------------------------------
+if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
+  echo "Using GERONIMO_BASE:   $GERONIMO_BASE"
+  echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
+  echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
+  if [ "$1" = "debug" ] ; then
+    echo "Using JAVA_HOME:       $JAVA_HOME"
+    echo "Using JDB_SRCPATH:     $JDB_SRCPATH"
+  else
+    echo "Using JRE_HOME:        $JRE_HOME"
+  fi
 fi
 
 exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
