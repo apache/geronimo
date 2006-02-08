@@ -35,7 +35,6 @@ import org.apache.tomcat.util.http.mapper.MappingData;
 
 public class DispatchListener implements InstanceListener {
 
-    // private static StackThreadLocal currentContext = new ThreadLocal();
     private static ThreadLocal currentContext = new ThreadLocal() {
         protected Object initialValue() {
             return new Stack();
@@ -97,8 +96,7 @@ public class DispatchListener implements InstanceListener {
         Mapper mapper = webContext.getMapper();
         MessageBytes mb = MessageBytes.newInstance();
         
-        String dispatchPath = null;
-        dispatchPath = 
+        String dispatchPath =
             (String) request.getAttribute(Globals.DISPATCHER_REQUEST_PATH_ATTR);
         mb.setString(dispatchPath);
         

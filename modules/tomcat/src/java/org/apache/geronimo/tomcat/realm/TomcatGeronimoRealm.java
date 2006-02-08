@@ -181,9 +181,8 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
         }
         
-        Wrapper servletWrapper = request.getWrapper();
-        String name = servletWrapper.getName();
-        currentRequestWrapperName.set(name);
+        //Set the current wrapper name (Servlet mapping)
+        currentRequestWrapperName.set(request.getWrapper().getName());
 
         // Which user principal have we already authenticated?
         Principal principal = request.getUserPrincipal();
