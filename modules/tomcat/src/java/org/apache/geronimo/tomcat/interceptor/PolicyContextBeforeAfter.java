@@ -16,13 +16,9 @@
  */
 package org.apache.geronimo.tomcat.interceptor;
 
-import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-
-import org.apache.catalina.connector.Request;
-import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
 
 public class PolicyContextBeforeAfter implements BeforeAfter{
     
@@ -39,13 +35,7 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
     public void before(Object[] context, ServletRequest httpRequest, ServletResponse httpResponse) {
         
         //Save the old
-        PolicyObject policyObject = new PolicyObject();
-        policyObject.setContextId(PolicyContext.getContextID());
-        //Save the old Request object in case it gets changed 
-        //with a x-context Dispatch
-        policyObject.setRequest(TomcatGeronimoRealm.getRequest());
-        
-        context[policyContextIDIndex] = policyObject;
+        context[policyContextIDIndex] = PolicyContext.getContextID();
         
         //Set the new
         PolicyContext.setContextID(policyContextID);
@@ -62,28 +52,7 @@ public class PolicyContextBeforeAfter implements BeforeAfter{
         }
         
         //Replace the old
-        PolicyObject policyObject = (PolicyObject)context[policyContextIDIndex];
-        
-        PolicyContext.setContextID(policyObject.getContextId());
-        TomcatGeronimoRealm.setRequest(policyObject.getRequest());
-    }
-    
-    class PolicyObject{
-        private String contextId = null;
-        private Request request = null;
-        
-        public String getContextId() {
-            return contextId;
-        }
-        public void setContextId(String contextId) {
-            this.contextId = contextId;
-        }
-        public Request getRequest() {
-            return request;
-        }
-        public void setRequest(Request request) {
-            this.request = request;
-        }
+        PolicyContext.setContextID((String)context[policyContextIDIndex]);
     }
 
 }

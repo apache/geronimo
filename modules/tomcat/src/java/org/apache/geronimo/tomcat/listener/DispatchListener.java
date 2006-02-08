@@ -22,14 +22,20 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.catalina.Container;
+import org.apache.catalina.Globals;
 import org.apache.catalina.InstanceEvent;
 import org.apache.catalina.InstanceListener;
+import org.apache.catalina.core.StandardWrapper;
 import org.apache.geronimo.tomcat.GeronimoStandardContext;
 import org.apache.geronimo.tomcat.interceptor.BeforeAfter;
+import org.apache.geronimo.tomcat.realm.TomcatGeronimoRealm;
+import org.apache.tomcat.util.buf.MessageBytes;
+import org.apache.tomcat.util.http.mapper.Mapper;
+import org.apache.tomcat.util.http.mapper.MappingData;
 
 public class DispatchListener implements InstanceListener {
 
-    //private static StackThreadLocal currentContext = new ThreadLocal();
+    // private static StackThreadLocal currentContext = new ThreadLocal();
     private static ThreadLocal currentContext = new ThreadLocal() {
         protected Object initialValue() {
             return new Stack();
@@ -58,10 +64,14 @@ public class DispatchListener implements InstanceListener {
 
     private void beforeDispatch(GeronimoStandardContext webContext,
             ServletRequest request, ServletResponse response) {
+
         BeforeAfter beforeAfter = webContext.getBeforeAfter();
         if (beforeAfter != null) {
             Stack stack = (Stack) currentContext.get();
-            Object context[] = new Object[webContext.getContextCount()];
+            Object context[] = new Object[webContext.getContextCount() + 1];
+            String wrapperName = getWrapperName(request, webContext);
+            context[webContext.getContextCount()] = TomcatGeronimoRealm
+                    .setRequestWrapperName(wrapperName);
             beforeAfter.before(context, request, response);
             stack.push(context);
         }
@@ -74,7 +84,33 @@ public class DispatchListener implements InstanceListener {
             Stack stack = (Stack) currentContext.get();
             Object context[] = (Object[]) stack.pop();
             beforeAfter.after(context, request, response);
+            TomcatGeronimoRealm
+                    .setRequestWrapperName((String) context[webContext
+                            .getContextCount()]);
         }
     }
 
+    private String getWrapperName(ServletRequest request,
+            GeronimoStandardContext webContext) {
+        
+        MappingData mappingData = new MappingData();
+        Mapper mapper = webContext.getMapper();
+        MessageBytes mb = MessageBytes.newInstance();
+        
+        String dispatchPath = null;
+        dispatchPath = 
+            (String) request.getAttribute(Globals.DISPATCHER_REQUEST_PATH_ATTR);
+        mb.setString(dispatchPath);
+        
+        try {
+            mapper.map(mb, mappingData);
+            StandardWrapper wrapper = (StandardWrapper) mappingData.wrapper;
+            return wrapper.getName();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

@@ -57,7 +57,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
 
     private static final Log log = LogFactory.getLog(TomcatGeronimoRealm.class);
 
-    private static ThreadLocal currentRequest = new ThreadLocal();
+    private static ThreadLocal currentRequestWrapperName = new ThreadLocal();
 
     /**
      * Descriptive information about this <code>Realm</code> implementation.
@@ -72,14 +72,10 @@ public class TomcatGeronimoRealm extends JAASRealm {
     public TomcatGeronimoRealm() {
 
      }
-
-    public static Request getRequest() {
-        return (Request) currentRequest.get();
-    }
     
-    public static Request setRequest(Request request) {
-        Request old = (Request) currentRequest.get();
-        currentRequest.set(request);
+    public static String setRequestWrapperName(String requestWrapperName) {
+        String old = (String) currentRequestWrapperName.get();
+        currentRequestWrapperName.set(requestWrapperName);
         return old;
     }
 
@@ -185,7 +181,9 @@ public class TomcatGeronimoRealm extends JAASRealm {
             }
         }
         
-        currentRequest.set(request);
+        Wrapper servletWrapper = request.getWrapper();
+        String name = servletWrapper.getName();
+        currentRequestWrapperName.set(name);
 
         // Which user principal have we already authenticated?
         Principal principal = request.getUserPrincipal();
@@ -231,11 +229,7 @@ public class TomcatGeronimoRealm extends JAASRealm {
             return false;
         }
 
-        Request request = (Request) currentRequest.get();
-        assert request != null;
-
-        Wrapper servletWrapper = request.getWrapper();
-        String name = servletWrapper.getName();
+        String name = (String)currentRequestWrapperName.get();
 
         /**
          * JACC v1.0 secion B.19
