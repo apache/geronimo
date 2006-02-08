@@ -16,9 +16,23 @@
     limitations under the License.
 -->
 
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="org/apache/geronimo/j2ee/deployment/test"
-    parentId="org/apache/geronimo/Server">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <configId>
+            <groupId>geronimo</groupId>
+            <type>car</type>
+            <artifactId>test-ear</artifactId>
+            <version>1.0</version>
+        </configId>
+        <name-key>
+            <key>domain</key>
+            <value>geronimo.test</value>
+        </name-key>
+        <name-key>
+            <key>J2EEServer</key>
+            <value>geronimo</value>
+        </name-key>
+    </environment>
 
     <module>
         <web>test-war/</web>
@@ -34,6 +48,6 @@
     </module>
 
     <!-- a random gbean just to verify that the deployer doesn't die because of it -->
-    <gbean gbeanName="foo:j2eeType=J2EEDomain,name=foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
+    <gbean  xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1" gbeanName="foo:j2eeType=J2EEDomain,name=foo" class="org.apache.geronimo.j2ee.management.impl.J2EEDomainImpl"/>
 
 </application>

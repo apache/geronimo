@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<openejb-jar configId="org/openejb/Itests" parentId="org/apache/geronimo/DefaultDatabase" xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.0">
+<openejb-jar configId="org/openejb/Itests" parentId="org/apache/geronimo/DefaultDatabase" xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <dep:dependency>
         <dep:uri>junit/jars/junit-3.8.jar</dep:uri>
     </dep:dependency>

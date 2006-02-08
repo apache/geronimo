@@ -26,6 +26,7 @@ import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -193,7 +194,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         return createModule(plan, moduleFile, "war", null, true, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo);
     }
 
@@ -261,7 +262,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         if (parentId.isEmpty()) {
             parentId = new ArrayList(defaultParentId);
         }
-        WebModule module = new WebModule(standAlone, configId, parentId, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
+        WebModule module = new WebModule(standAlone, configId, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
         return module;
     }
 

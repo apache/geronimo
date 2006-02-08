@@ -55,6 +55,7 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -91,6 +92,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     public static ObjectName getConfigurationObjectName(URI configId) throws MalformedObjectNameException {
         return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toString()));
     }
+    public static ObjectName getConfigurationObjectName(Artifact configId) throws InvalidConfigException {
+        try {
+            return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toURI().toString()));
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException("Could not construct object name for configuration", e);
+        } catch (URISyntaxException e) {
+            throw new InvalidConfigException("Could not construct uri for artifact for configuration", e);
+        }
+    }
 
     public static boolean isConfigurationObjectName(ObjectName name) {
         return name.getDomain().equals("geronimo.config") && name.getKeyPropertyList().size() == 1 && name.getKeyProperty("name") != null;
@@ -120,7 +130,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * URI used to referr to this configuration in the configuration manager
      */
-    private final URI id;
+    private final Artifact id;
 
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
@@ -130,15 +140,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * The uri of the parent of this configuration.  May be null.
      */
-    private final URI[] parentId;
+    private final Artifact[] parentId;
 
     private final List dependencies;
     private final List classPath;
     private final boolean inverseClassLoading;
     private final String[] hiddenClasses;
     private final String[] nonOverridableClasses;
-    private final String domain;
-    private final String server;
+    private final Map nameKeys;
 
     /**
      * The names of all GBeans contained in this configuration.
@@ -177,8 +186,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         id = null;
         moduleType = null;
         parentId = null;
-        domain = null;
-        server = null;
+        nameKeys = null;
         objectNames = null;
         configurationClassLoader = null;
         dependencies = null;
@@ -196,26 +204,26 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      *
      * @param id           the unique id of this Configuration
      * @param moduleType   the module type identifier
+     * @param nameKeys
      * @param classPath    a List<URI> of locations that define the codebase for this Configuration
      * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
      * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      * @param dependencies a List<URI> of dependencies
      */
     public Configuration(Kernel kernel,
-            String objectName,
-            URI id,
-            ConfigurationModuleType moduleType,
-            URL baseURL,
-            URI[] parentId,
-            String domain,
-            String server,
-            List classPath,
-            boolean inverseClassLoading,
-            String[] hiddenClasses,
-            String[] nonOverridableClasses,
-            byte[] gbeanState,
-            Collection repositories,
-            List dependencies) throws Exception {
+                         String objectName,
+                         Artifact id,
+                         ConfigurationModuleType moduleType,
+                         URL baseURL,
+                         Artifact[] parentId,
+                         Map nameKeys,
+                         List classPath,
+                         boolean inverseClassLoading,
+                         String[] hiddenClasses,
+                         String[] nonOverridableClasses,
+                         byte[] gbeanState,
+                         Collection repositories,
+                         List dependencies) throws Exception {
 
         this.kernel = kernel;
         this.objectNameString = objectName;
@@ -248,8 +256,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             this.dependencies = Collections.EMPTY_LIST;
         }
 
-        this.domain = domain;
-        this.server = server;
+        this.nameKeys = nameKeys;
         addParentDependencies(kernel, id, parentId);
     }
 
@@ -257,12 +264,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return objectNameString;
     }
 
-    public String getDomain() {
-        return domain;
-    }
-
-    public String getServer() {
-        return server;
+    public Map getNameKeys() {
+        return nameKeys;
     }
 
     public void doStart() throws Exception {
@@ -274,9 +277,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // no explicit parent set, so use the class loader of this class as
             // the parent... this class should be in the root geronimo classloader,
             // which is normally the system class loader but not always, so be safe
-            configurationClassLoader = new MultiParentClassLoader(id, urls, getClass().getClassLoader(), inverseClassLoading, hiddenClasses, nonOverridableClasses);
+            configurationClassLoader = new MultiParentClassLoader(id.toURI(), urls, getClass().getClassLoader(), inverseClassLoading, hiddenClasses, nonOverridableClasses);
         } else {
-            configurationClassLoader = new MultiParentClassLoader(id, urls, getClassLoaders(parentId), inverseClassLoading, hiddenClasses, nonOverridableClasses);
+            configurationClassLoader = new MultiParentClassLoader(id.toURI(), urls, getClassLoaders(parentId), inverseClassLoading, hiddenClasses, nonOverridableClasses);
         }
 
         log.debug("Started configuration " + id);
@@ -292,7 +295,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // create and initialize GBeans
             Collection gbeans = loadGBeans();
             if (attributeStore != null) {
-                gbeans = attributeStore.setAttributes(id, gbeans, configurationClassLoader);
+                try {
+                    gbeans = attributeStore.setAttributes(id.toURI(), gbeans, configurationClassLoader);
+                } catch (URISyntaxException e) {
+                    throw new InvalidConfigException(e);
+                }
             }
 
             // register all the GBeans
@@ -332,13 +339,13 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private void addParentDependencies(Kernel kernel, URI id, URI[] parentId) throws MalformedObjectNameException {
+    private void addParentDependencies(Kernel kernel, Artifact id, Artifact[] parentId) throws InvalidConfigException {
         if (parentId != null && parentId.length > 0) {
             ObjectName name = getConfigurationObjectName(id);
             Set parentNames = new HashSet();
             for (int i = 0; i < parentId.length; i++) {
-                URI uri = parentId[i];
-                ObjectName parentName = getConfigurationObjectName(uri);
+                Artifact artifact = parentId[i];
+                ObjectName parentName = getConfigurationObjectName(artifact);
                 parentNames.add(parentName);
             }
             DependencyManager dependencyManager = kernel.getDependencyManager();
@@ -346,10 +353,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private ClassLoader[] getClassLoaders(URI[] parentId) throws Exception {
+    private ClassLoader[] getClassLoaders(Artifact[] parentId) throws Exception {
         ClassLoader[] classLoaders = new ClassLoader[parentId.length];
         for (int i = 0; i < parentId.length; i++) {
-            URI uri = parentId[i];
+            Artifact uri = parentId[i];
             ObjectName parentName = getConfigurationObjectName(uri);
             classLoaders[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
         }
@@ -442,7 +449,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      *
      * @return the unique id of the parent, or null if it does not have one
      */
-    public URI[] getParentId() {
+    public Artifact[] getParentId() {
         return parentId;
     }
 
@@ -451,7 +458,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      *
      * @return the unique Id
      */
-    public URI getId() {
+    public Artifact getId() {
         return id;
     }
 
@@ -630,11 +637,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Configuration.class);//does not use jsr-77 naming
         infoFactory.addAttribute("kernel", Kernel.class, false);
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("id", URI.class, true, false);
+        infoFactory.addAttribute("id", Artifact.class, true, false);
         infoFactory.addAttribute("type", ConfigurationModuleType.class, true, false);
-        infoFactory.addAttribute("parentId", URI[].class, true, false);
-        infoFactory.addAttribute("domain", String.class, true, false);
-        infoFactory.addAttribute("server", String.class, true, false);
+        infoFactory.addAttribute("parentId", Artifact[].class, true, false);
+        infoFactory.addAttribute("nameKeys", Map.class, true, false);
         infoFactory.addAttribute("classPath", List.class, true, false);
         infoFactory.addAttribute("inverseClassLoading", boolean.class, true, false);
         infoFactory.addAttribute("hiddenClasses", String[].class, true, false);
@@ -662,8 +668,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             "type",
             "baseURL",
             "parentId",
-            "domain",
-            "server",
+            "nameKeys",
             "classPath",
             "inverseClassLoading",
             "hiddenClasses",

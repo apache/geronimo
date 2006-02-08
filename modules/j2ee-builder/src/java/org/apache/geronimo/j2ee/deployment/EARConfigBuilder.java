@@ -42,12 +42,14 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
-import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -59,6 +61,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -94,9 +97,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ObjectName transactionalTimerObjectName;
     private final ObjectName nonTransactionalTimerObjectName;
     private final ObjectName corbaGBeanObjectName;
+    private static final String DEFAULT_GROUPID = "defaultGroupId";
 
 
-    public EARConfigBuilder(URI[] defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(Artifact[] defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
@@ -147,8 +151,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
 
         return new ApplicationInfo(module.getType(),
-                module.getConfigId(),
-                module.getParentId(),
+                module.getEnvironment(),
                 NameFactory.NULL,
                 null,
                 null,
@@ -206,24 +209,18 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(gerApplication.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + gerApplication.getConfigId(), e);
+        EnvironmentType environmentType = gerApplication.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType);
+        if (!environment.isSuppressDefaultParentId()) {
+            environment.addImports(defaultParentId);
         }
-
-        List parentId = ServiceConfigBuilder.toArtifacts(gerApplication.getParentId(), gerApplication.getImportArray());
-        parentId.addAll(defaultParentId);
-
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
         Set moduleLocations = new HashSet();
         Set modules = new LinkedHashSet();
         try {
-            addModules(earFile, application, gerApplication, moduleLocations, modules);
+            addModules(earFile, application, gerApplication, moduleLocations, modules, environment);
         } catch (Throwable e) {
             // close all the modules
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
@@ -241,11 +238,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        String applicationName = gerApplication.isSetApplicationName() ? gerApplication.getApplicationName() : configId.toString();
+        //TODO extract override from environment name-key map.
+        String applicationName = null;
+        try {
+            applicationName = gerApplication.isSetApplicationName() ? gerApplication.getApplicationName() : environment.getConfigId().toURI().toString();
+        } catch (URISyntaxException e) {
+            throw new DeploymentException("Could not construct application name from configId", e);
+        }
 
         return new ApplicationInfo(ConfigurationModuleType.EAR,
-                configId,
-                parentId,
+                environment,
                 applicationName,
                 application,
                 gerApplication,
@@ -258,6 +260,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private GerApplicationType createDefaultPlan(ApplicationType application, JarFile module) {
         // construct the empty geronimo-application.xml
         GerApplicationType gerApplication = GerApplicationType.Factory.newInstance();
+        EnvironmentType environmentType = gerApplication.addNewEnvironment();
+        ArtifactType artifactType = environmentType.addNewConfigId();
+
+        artifactType.setGroupId(DEFAULT_GROUPID);
 
         // set the configId
         String id = application.getId();
@@ -272,13 +278,19 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
         }
 
-        gerApplication.setConfigId(id);
+        artifactType.setArtifactId(id);
+        artifactType.setVersion("" + System.currentTimeMillis());
+        artifactType.setType("car");
         return gerApplication;
     }
 
     public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
-        return applicationInfo.getConfigId();
+        try {
+            return applicationInfo.getEnvironment().getConfigId().toURI();
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
     }
 
     public ConfigurationData buildConfiguration(Object plan, JarFile earFile, File outfile) throws IOException, DeploymentException {
@@ -290,9 +302,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             ConfigurationModuleType applicationType = applicationInfo.getType();
             try {
                 earContext = new EARContext(outfile,
-                        applicationInfo.getConfigId(),
+                        applicationInfo.getEnvironment(),
                         applicationType,
-                        applicationInfo.getParentId(),
                         kernel,
                         applicationInfo.getApplicationName(),
                         transactionContextManagerObjectName,
@@ -317,21 +328,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             GerApplicationType geronimoApplication = (GerApplicationType) applicationInfo.getVendorDD();
-            if (geronimoApplication != null) {
-                // add dependencies declared in the geronimo-application.xml
-                DependencyType[] dependencies = geronimoApplication.getDependencyArray();
-                ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
-
-                if (geronimoApplication.isSetInverseClassloading()) {
-                    earContext.setInverseClassloading(geronimoApplication.getInverseClassloading());
-                }
-
-                ClassFilterType[] filters = geronimoApplication.getHiddenClassesArray();
-                ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-
-                filters = geronimoApplication.getNonOverridableClassesArray();
-                ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
-            }
 
             // each module installs it's files into the output context.. this is different for each module type
             Set modules = applicationInfo.getModules();
@@ -418,7 +414,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, Set modules) throws DeploymentException {
+    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, Set modules, Environment environment) throws DeploymentException {
         Map altVendorDDs = new HashMap();
         try {
             if (earFile != null) {
@@ -537,7 +533,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                             moduleFile,
                             modulePath,
                             altSpecDD,
-                            URI.create(gerApplication.getConfigId()),
+                            environment,
                             moduleContextInfo);
 
                     if (module == null) {
@@ -647,7 +643,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         moduleFile,
                         moduleName,
                         altSpecDD,
-                        URI.create(gerApplication.getConfigId()),
+                        environment,
                         moduleContextInfo);
 
                 if (module == null) {
@@ -698,7 +694,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-        infoFactory.addAttribute("defaultParentId", URI[].class, true, true);
+        infoFactory.addAttribute("defaultParentId", Artifact[].class, true, true);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);

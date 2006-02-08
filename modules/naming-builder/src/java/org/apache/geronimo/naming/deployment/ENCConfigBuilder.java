@@ -766,7 +766,7 @@ public class ENCConfigBuilder {
             builder.addHandleDelegateReference(handleDelegateReference);
         }
 
-        URI moduleURI = module.getConfigId();
+        URI moduleURI = module.getModuleURI();
 
         addEnvEntries(envEntries, builder, cl);
 

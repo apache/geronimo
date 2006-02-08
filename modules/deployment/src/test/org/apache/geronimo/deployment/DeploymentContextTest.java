@@ -46,10 +46,11 @@ public class DeploymentContextTest extends TestCase {
         basedir.mkdirs();
         try {
             basedir.deleteOnExit();
-            Artifact configId = new Artifact("foo", "artifact", "1", "car", true);
+            Environment environment = new Environment();
+            environment.setConfigId(new Artifact("foo", "artifact", "1", "car", true));
             Map nameKeys = new HashMap();
             nameKeys.put("domain", "d");
-            Environment environment = new Environment(configId, nameKeys, new LinkedHashSet(), new LinkedHashSet(), new LinkedHashSet(), new LinkedHashSet(), new HashSet(), new HashSet(), false);
+            environment.setNameKeys(nameKeys);
             DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, null);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});

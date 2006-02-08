@@ -16,8 +16,14 @@
     limitations under the License.
 -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee"
-    configId="org/apache/geronimo/j2ee/deployment/test"
-    parentId="org/apache/geronimo/Server">
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <configId>
+            <groupId>geronimo</groupId>
+            <type>car</type>
+            <artifactId>test-rar</artifactId>
+            <version>1.0</version>
+        </configId>
+    </environment>
 
 </connector>

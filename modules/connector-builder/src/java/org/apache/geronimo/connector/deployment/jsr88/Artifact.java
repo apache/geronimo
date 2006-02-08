@@ -17,7 +17,7 @@
 package org.apache.geronimo.connector.deployment.jsr88;
 
 import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
@@ -28,23 +28,23 @@ import org.apache.xmlbeans.XmlBeans;
  *
  * @version $Rev$ $Date$
  */
-public class Dependency extends XmlBeanSupport {
-    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderForClassLoader(DependencyType.class.getClassLoader());
+public class Artifact extends XmlBeanSupport {
+    static final SchemaTypeLoader SCHEMA_TYPE_LOADER = XmlBeans.typeLoaderForClassLoader(ArtifactType.class.getClassLoader());
 
-    public Dependency() {
+    public Artifact() {
         super(null);
     }
 
-    public Dependency(DependencyType dependency) {
+    public Artifact(ArtifactType dependency) {
         super(null);
         configure(dependency);
     }
 
-    protected DependencyType getDependency() {
-        return (DependencyType) getXmlObject();
+    protected ArtifactType getDependency() {
+        return (ArtifactType) getXmlObject();
     }
 
-    void configure(DependencyType dependency) {
+    void configure(ArtifactType dependency) {
         setXmlObject(dependency);
         //todo: read in data from dependency object?
     }
@@ -63,9 +63,6 @@ public class Dependency extends XmlBeanSupport {
             getDependency().setGroupId(groupId);
         }
         pcs.firePropertyChange("groupId", old, groupId);
-        if(groupId != null && getURI() != null) {
-            setURI(null);
-        }
     }
 
     public String getArtifactId() {
@@ -74,15 +71,12 @@ public class Dependency extends XmlBeanSupport {
 
     public void setArtifactId(String artifact) {
         String old = getArtifactId();
-        if(artifact == null) {
-            getDependency().unsetArtifactId();
-        } else {
+//        if(artifact == null) {
+//            getDependency().unsetArtifactId();
+//        } else {
             getDependency().setArtifactId(artifact);
-        }
+//        }
         pcs.firePropertyChange("artifactId", old, artifact);
-        if(artifact != null && getURI() != null) {
-            setURI(null);
-        }
     }
 
     public String getType() {
@@ -90,16 +84,13 @@ public class Dependency extends XmlBeanSupport {
     }
 
     public void setType(String type) {
-        String old = type;
+        String old = getDependency().getType();
         if(type == null) {
             getDependency().unsetType();
         } else {
             getDependency().setType(type);
         }
         pcs.firePropertyChange("type", old, type);
-        if(type != null && getURI() != null) {
-            setURI(null);
-        }
     }
 
     public String getVersion() {
@@ -114,29 +105,6 @@ public class Dependency extends XmlBeanSupport {
             getDependency().setVersion(version);
         }
         pcs.firePropertyChange("version", old, version);
-        if(version != null && getURI() != null) {
-            setURI(null);
-        }
-    }
-
-    public String getURI() {
-        return getDependency().getUri();
-    }
-
-    public void setURI(String uri) {
-        String old = getURI();
-        if(uri == null) {
-            getDependency().unsetUri();
-        } else {
-            getDependency().setUri(uri);
-        }
-        pcs.firePropertyChange("URI", old, uri);
-        if(uri != null) {
-            if(getArtifactId() != null) setArtifactId(null);
-            if(getGroupId() != null) setGroupId(null);
-            if(getType() != null) setType(null);
-            if(getVersion() != null) setVersion(null);
-        }
     }
 
     // ----------------------- End of JavaBean Properties ----------------------

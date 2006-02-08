@@ -16,7 +16,15 @@
     limitations under the License.
 -->
 
-<jetty:web-app xmlns:jetty="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0">
+<jetty:web-app xmlns:jetty="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <configId>
+            <groupId>geronimo</groupId>
+            <type>car</type>
+            <artifactId>test-ear</artifactId>
+            <version>1.0</version>
+        </configId>
+    </environment>
     <jetty:context-priority-classloader>false</jetty:context-priority-classloader>
     <!--
         <jetty:security>

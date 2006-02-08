@@ -16,6 +16,7 @@
 package org.apache.geronimo.kernel.repository;
 
 import java.util.StringTokenizer;
+import java.io.Serializable;
 
 /**
  * Default implementation of artifact versioning.
@@ -24,7 +25,7 @@ import java.util.StringTokenizer;
  * @version $Id$
  */
 // This code was lifted from Apache Maven
-public class Version implements Comparable {
+public class Version implements Comparable, Serializable {
     private Integer majorVersion;
 
     private Integer minorVersion;

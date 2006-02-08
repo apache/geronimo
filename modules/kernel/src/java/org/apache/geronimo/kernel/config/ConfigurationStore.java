@@ -26,6 +26,7 @@ import java.util.List;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * Interface to a store for Configurations.
@@ -40,7 +41,7 @@ public interface ConfigurationStore {
      * @throws IOException if the CAR could not be read
      * @throws InvalidConfigException if there is a configuration problem with the CAR
      */
-    URI install(URL source) throws IOException, InvalidConfigException;
+    Artifact install(URL source) throws IOException, InvalidConfigException;
 
     /**
      * Move the unpacked configuration directory into this store
@@ -58,7 +59,7 @@ public interface ConfigurationStore {
      * @throws NoSuchConfigException if the configuration is not contained in the store
      * @throws IOException if a problem occurs during the removal
      */
-    void uninstall(URI configID) throws NoSuchConfigException, IOException;
+    void uninstall(Artifact configID) throws NoSuchConfigException, IOException;
 
     /**
      * Loads the specified configuration into the kernel
@@ -68,7 +69,7 @@ public interface ConfigurationStore {
      * @throws IOException if a problem occurs loading the configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException;
+    ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Determines if the store contains a configuration with the spedified ID.
@@ -76,7 +77,7 @@ public interface ConfigurationStore {
      * @param configID the unique ID of the configuration
      * @return true if the store contains the configuration
      */
-    boolean containsConfiguration(URI configID);
+    boolean containsConfiguration(Artifact configID);
 
     /**
      * Return the object name for the store.

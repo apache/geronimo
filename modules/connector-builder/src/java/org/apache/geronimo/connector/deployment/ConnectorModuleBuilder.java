@@ -64,11 +64,13 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.Transactio
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -86,6 +88,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -129,7 +132,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
 
-    public ConnectorModuleBuilder(URI[] defaultParentId,
+    public ConnectorModuleBuilder(Artifact[] defaultParentId,
                                   int defaultMaxSize,
                                   int defaultMinSize,
                                   int defaultBlockingTimeoutMilliseconds,
@@ -155,7 +158,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return createModule(plan, moduleFile, "rar", null, true);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
         return createModule(plan, moduleFile, targetPath, specDDUrl, false);
     }
 
@@ -232,21 +235,12 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             throw new DeploymentException(e);
         }
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(gerConnector.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + gerConnector.getConfigId(), e);
+        EnvironmentType environmentType = gerConnector.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType);
+        if (!environment.isSuppressDefaultParentId()) {
+            environment.addImports(defaultParentId);
         }
-
-        List parentId = ServiceConfigBuilder.toArtifacts(gerConnector.getParentId(), gerConnector.getImportArray());
-        //suppressing the default parentid is mostly useful for deploying standalone connectors on the app client.
-        //The defaultParentId normally pulls in and tries to start all the base server gbeans.
-        if (!gerConnector.getSuppressDefaultParentId()) {
-            parentId.addAll(defaultParentId);
-        }
-        return new ConnectorModule(standAlone, configId, parentId, moduleFile, targetPath, connector, gerConnector, specDD);
+        return new ConnectorModule(standAlone, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
@@ -271,21 +265,9 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                 }
             }
 
-            DependencyType[] dependencies = vendorConnector.getDependencyArray();
-            ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying connector", e);
         }
-
-        if (vendorConnector.isSetInverseClassloading()) {
-            earContext.setInverseClassloading(vendorConnector.getInverseClassloading());
-        }
-
-        ClassFilterType[] filters = vendorConnector.getHiddenClassesArray();
-        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-
-        filters = vendorConnector.getNonOverridableClassesArray();
-        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -885,7 +867,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultParentId", Artifact[].class, true, true);
         infoBuilder.addAttribute("defaultMaxSize", int.class, true, true);
         infoBuilder.addAttribute("defaultMinSize", int.class, true, true);
         infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true, true);

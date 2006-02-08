@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -37,7 +38,7 @@ public class ConfigurationData {
     /**
      * URI used to referr to this configuration in the configuration manager
      */
-    private URI id;
+    private Artifact id;
 
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
@@ -84,7 +85,7 @@ public class ConfigurationData {
      * If true, then inverse the standard class loading delegation model.
      */
     private boolean inverseClassLoading;
-    
+
     /**
      * Class filters defining the classes hidden from the configuration.
      */
@@ -95,7 +96,7 @@ public class ConfigurationData {
      * override.  
      */
     private final Set nonOverridableClasses = new HashSet();
-    
+
     public ConfigurationData() {
     }
 
@@ -114,11 +115,11 @@ public class ConfigurationData {
         nonOverridableClasses.addAll(configurationData.nonOverridableClasses);
     }
 
-    public URI getId() {
+    public Artifact getId() {
         return id;
     }
 
-    public void setId(URI id) {
+    public void setId(Artifact id) {
         this.id = id;
     }
 
@@ -176,12 +177,12 @@ public class ConfigurationData {
     public void setDependencies(List dependencies) {
         this.dependencies.clear();
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            URI dependency = (URI) iterator.next();
+            Artifact dependency = (Artifact) iterator.next();
             addDependency(dependency);
         }
     }
 
-    public void addDependency(URI dependency) {
+    public void addDependency(Artifact dependency) {
         assert dependency != null;
         this.dependencies.add(dependency);
     }
@@ -239,15 +240,15 @@ public class ConfigurationData {
     public boolean isInverseClassloading() {
         return inverseClassLoading;
     }
-    
+
     public void setInverseClassloading(boolean inverseClassLoading) {
         this.inverseClassLoading = inverseClassLoading;
     }
-    
+
     public Set getHiddenClasses() {
         return hiddenClasses;
     }
-    
+
     public Set getNonOverridableClasses() {
         return nonOverridableClasses;
     }

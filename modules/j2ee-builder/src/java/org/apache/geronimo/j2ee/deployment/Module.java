@@ -27,6 +27,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$
@@ -34,8 +36,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
 public abstract class Module {
     private final boolean standAlone;
     private final String name;
-    private final URI configId;
-    private final List parentId;
+    private final Environment environment;
     private final URI moduleURI;
     private final JarFile moduleFile;
     private final String targetPath;
@@ -47,12 +48,11 @@ public abstract class Module {
 
     private URI uniqueModuleLocation;
 
-    protected Module(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) {
+    protected Module(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) throws DeploymentException {
         assert targetPath != null: "targetPath is null";
 
         this.standAlone = standAlone;
-        this.configId = configId;
-        this.parentId = parentId;
+        this.environment = environment;
         this.moduleFile = moduleFile;
         this.targetPath = targetPath;
         this.specDD = specDD;
@@ -61,7 +61,12 @@ public abstract class Module {
         this.namespace = namespace;
 
         if (standAlone) {
-            name = configId.toString();
+            //TODO configid
+            try {
+                name = environment.getConfigId().toURI().toString();
+            } catch (URISyntaxException e) {
+                throw new DeploymentException("Could not construct module name from environment configId");
+            }
             moduleURI = URI.create("");
         } else {
             name = targetPath;
@@ -81,12 +86,8 @@ public abstract class Module {
         return standAlone;
     }
 
-    public URI getConfigId() {
-        return configId;
-    }
-
-    public List getParentId() {
-        return parentId;
+    public Environment getEnvironment() {
+        return environment;
     }
 
     public URI getModuleURI() {

@@ -38,7 +38,8 @@ public class EnvironmentBuilder {
 
 
     public static Environment buildEnvironment(EnvironmentType environmentType) {
-        Artifact configId = toArtifact(environmentType.getConfigid());
+        Environment environment = new Environment();
+        environment.setConfigId(toArtifact(environmentType.getConfigId()));
 
         NameKeyType[] nameKeyArray = environmentType.getNameKeyArray();
         Map nameKeyMap = new HashMap();
@@ -48,19 +49,21 @@ public class EnvironmentBuilder {
             String value = nameKey.getValue().trim();
             nameKeyMap.put(key, value);
         }
+        environment.setNameKeys(nameKeyMap);
 
+        if (environmentType.isSetClassloader()) {
+            ClassloaderType classloaderType = environmentType.getClassloader();
+            environment.setImports(toArtifacts(classloaderType.getImportArray()));
+            environment.setDependencies(toArtifacts(classloaderType.getDependencyArray()));
+            environment.setIncludes(toArtifacts(classloaderType.getIncludeArray()));
 
-        ClassloaderType classloaderType = environmentType.getClassloader();
-        LinkedHashSet imports = toArtifacts(classloaderType.getImportArray());
-        LinkedHashSet dependencies = toArtifacts(classloaderType.getDependencyArray());
-        LinkedHashSet includes = toArtifacts(classloaderType.getIncludeArray());
+            environment.setInverseClassloading(classloaderType.isSetInverseClassloading());
+            environment.setSuppressDefaultParentId(classloaderType.isSetSuppressDefaultParentId());
+            environment.setHiddenClasses(toFilters(classloaderType.getHiddenClassesArray()));
+            environment.setNonOverrideableClasses(toFilters(classloaderType.getNonOverridableClassesArray()));
+        }
+        environment.setReferences(toArtifacts(environmentType.getReferenceArray()));
 
-        LinkedHashSet references = toArtifacts(environmentType.getReferenceArray());
-        boolean inverseClassloading = classloaderType.isSetInverseClassloading();
-        Set hiddenClasses = toFilters(classloaderType.getHiddenClassesArray());
-        Set nonOverrideableClasses = toFilters(classloaderType.getNonOverridableClassesArray());
-
-        Environment environment = new Environment(configId, nameKeyMap, imports, references, dependencies, includes, hiddenClasses, nonOverrideableClasses, inverseClassloading);
         return environment;
     }
 

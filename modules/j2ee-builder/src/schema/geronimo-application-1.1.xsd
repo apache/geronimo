@@ -33,11 +33,7 @@
 
     <xs:complexType name="applicationType">
         <xs:sequence>
-<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
-            <xs:group ref="sys:classloader-infoGroup"/>
+            <xs:element ref="sys:environment"/>
 
             <xs:element name="module" type="geronimo:moduleType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="ext-module" type="geronimo:ext-moduleType" minOccurs="0" maxOccurs="unbounded"/>
@@ -45,10 +41,8 @@
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="configId" type="xs:string" use="required"/>
-        <xs:attribute name="parentId" type="xs:string" use="optional"/>
+        <!--TODO application name should be settable using name-key in the environment.  Does this work? -->
         <xs:attribute name="application-name" type="xs:string" use="optional"/>
-        <xs:attribute name="inverseClassloading" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="moduleType">

@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -29,7 +30,7 @@ import org.apache.geronimo.common.DeploymentException;
 public interface ModuleBuilder {
     Module createModule(File plan, JarFile moduleFile) throws DeploymentException;
 
-    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException;
+    Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException;
 
     void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException;
 

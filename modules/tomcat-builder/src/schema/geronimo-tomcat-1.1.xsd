@@ -25,7 +25,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified"
-    version="1.0">
+    version="1.1">
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.1" schemaLocation="geronimo-security-1.1.xsd"/>
@@ -36,11 +36,7 @@
 
     <xs:complexType name="web-appType">
         <xs:sequence>
-<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
-            <xs:group ref="sys:classloader-infoGroup"/>
+            <xs:element ref="sys:environment"/>
 
             <xs:element name="context-root" type="xs:string" minOccurs="0"/>
             <xs:element name="context-priority-classloader" type="xs:boolean" minOccurs="0"/>
@@ -63,9 +59,6 @@
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
 
         </xs:sequence>
-        <xs:attribute name="configId" type="xs:string" use="required"/>
-        <xs:attribute name="parentId" type="xs:string" use="optional"/>
-        <xs:attribute name="inverseClassloading" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="emptyType"/>

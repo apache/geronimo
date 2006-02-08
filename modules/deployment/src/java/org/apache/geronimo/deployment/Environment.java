@@ -28,34 +28,27 @@ import java.util.HashSet;
 
 /**
  * holds the data from the EnvironmentType xml while it is being resolved, transitively closed, etc.
+ *
  * @version $Rev:$ $Date:$
  */
 public class Environment {
 
     private Artifact configId;
 
-    private Map nameKeys = new HashMap();
+    private final Map nameKeys = new HashMap();
 
-    private  LinkedHashSet imports;
-    private  LinkedHashSet references;
-    private  LinkedHashSet dependencies;
-    private  LinkedHashSet includes;
+    private final LinkedHashSet imports = new LinkedHashSet();
+    private final LinkedHashSet references = new LinkedHashSet();
+    private final LinkedHashSet dependencies = new LinkedHashSet();
+    private final LinkedHashSet includes = new LinkedHashSet();
 
-    private  Set hiddenClasses;
-    private  Set nonOverrideableClasses;
+    private final Set hiddenClasses = new HashSet();
+    private final Set nonOverrideableClasses = new HashSet();
 
     private boolean inverseClassloading;
+    private boolean suppressDefaultParentId;
 
-    public Environment(Artifact configId, Map nameKeys, LinkedHashSet imports, LinkedHashSet references, LinkedHashSet dependencies, LinkedHashSet includes, Set hiddenClasses, Set nonOverrideableClasses, boolean inverseClassloading) {
-        this.configId = configId;
-        this.nameKeys = nameKeys;
-        this.imports = imports;
-        this.references = references;
-        this.dependencies = dependencies;
-        this.includes = includes;
-        this.hiddenClasses = hiddenClasses;
-        this.nonOverrideableClasses = nonOverrideableClasses;
-        this.inverseClassloading = inverseClassloading;
+    public Environment() {
     }
 
     public Artifact getConfigId() {
@@ -70,56 +63,91 @@ public class Environment {
         return nameKeys;
     }
 
+    public void addNameKeys(Map nameKeys) {
+        this.nameKeys.putAll(nameKeys);
+    }
+
     public void setNameKeys(Map nameKeys) {
-        this.nameKeys = nameKeys;
+        this.nameKeys.clear();
+        addNameKeys(nameKeys);
     }
 
     public LinkedHashSet getImports() {
         return imports;
     }
 
-    public void setImports(LinkedHashSet imports) {
-        this.imports = imports;
+    public void addImports(Collection imports) {
+        this.imports.addAll(imports);
+    }
+
+    public void setImports(Collection imports) {
+        this.imports.clear();
+        addImports(imports);
     }
 
     public LinkedHashSet getReferences() {
         return references;
     }
 
-    public void setReferences(LinkedHashSet references) {
-        this.references = references;
+    public void addReferences(Collection references) {
+        this.references.addAll(references);
+    }
+
+    public void setReferences(Collection references) {
+        this.references.clear();
+        addReferences(references);
     }
 
     public LinkedHashSet getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(LinkedHashSet dependencies) {
-        this.dependencies = dependencies;
+    public void addDependencies(Collection dependencies) {
+        this.dependencies.addAll(dependencies);
+    }
+
+    public void setDependencies(Collection dependencies) {
+        this.dependencies.clear();
+        addDependencies(dependencies);
     }
 
     public LinkedHashSet getIncludes() {
         return includes;
     }
 
-    public void setIncludes(LinkedHashSet includes) {
-        this.includes = includes;
+    public void addIncludes(Collection includes) {
+        this.includes.addAll(includes);
+    }
+
+    public void setIncludes(Collection includes) {
+        this.includes.clear();
+        addIncludes(includes);
     }
 
     public Set getHiddenClasses() {
         return hiddenClasses;
     }
 
-    public void setHiddenClasses(Set hiddenClasses) {
-        this.hiddenClasses = hiddenClasses;
+    public void addHiddenClasses(Collection hiddenClasses) {
+        this.hiddenClasses.addAll(hiddenClasses);
+    }
+
+    public void setHiddenClasses(Collection hiddenClasses) {
+        this.hiddenClasses.clear();
+        addHiddenClasses(hiddenClasses);
     }
 
     public Set getNonOverrideableClasses() {
         return nonOverrideableClasses;
     }
 
-    public void setNonOverrideableClasses(Set nonOverrideableClasses) {
-        this.nonOverrideableClasses = nonOverrideableClasses;
+    public void addNonOverrideableClasses(Collection nonOverrideableClasses) {
+        this.nonOverrideableClasses.addAll(nonOverrideableClasses);
+    }
+
+    public void setNonOverrideableClasses(Collection nonOverrideableClasses) {
+        this.nonOverrideableClasses.clear();
+        addNonOverrideableClasses(nonOverrideableClasses);
     }
 
     public boolean isInverseClassloading() {
@@ -128,5 +156,13 @@ public class Environment {
 
     public void setInverseClassloading(boolean inverseClassloading) {
         this.inverseClassloading = inverseClassloading;
+    }
+
+    public boolean isSuppressDefaultParentId() {
+        return suppressDefaultParentId;
+    }
+
+    public void setSuppressDefaultParentId(boolean suppressDefaultParentId) {
+        this.suppressDefaultParentId = suppressDefaultParentId;
     }
 }

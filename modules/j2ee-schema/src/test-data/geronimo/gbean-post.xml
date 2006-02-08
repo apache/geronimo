@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <gbean name="client-properties-realm"
-    class="org.apache.geronimo.security.realm.GenericSecurityRealm" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
+    class="org.apache.geronimo.security.realm.GenericSecurityRealm" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <attribute name="realmName">client-properties-realm</attribute>
     <xml-reference name="LoginModuleConfiguration">
         <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">

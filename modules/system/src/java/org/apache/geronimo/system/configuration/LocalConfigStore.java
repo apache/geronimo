@@ -29,6 +29,7 @@ import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
@@ -222,8 +224,8 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return configurationDir;
     }
 
-    public URI install(URL source) throws IOException, InvalidConfigException {
-        return (URI) install2(source).getAttribute("id");
+    public Artifact install(URL source) throws IOException, InvalidConfigException {
+        return (Artifact) install2(source).getAttribute("id");
     }
 
     public GBeanData install2(URL source) throws IOException, InvalidConfigException {
@@ -239,12 +241,12 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             is.close();
         }
 
-        URI configId;
+        Artifact configId;
         GBeanData config;
         try {
             config = loadConfig(configurationDir);
-            configId = (URI) config.getAttribute("id");
-            index.setProperty(configId.toString(), configurationDir.getName());
+            configId = (Artifact) config.getAttribute("id");
+            index.setProperty(configId.toURI().toString(), configurationDir.getName());
         } catch (Exception e) {
             delete(configurationDir);
             throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
@@ -277,8 +279,13 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         log.debug("Installed configuration (file) " + configurationData.getId() + " in location " + source.getName());
     }
 
-    public void uninstall(URI configID) throws NoSuchConfigException, IOException {
-        String id = configID.toString();
+    public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
+        String id = null;
+        try {
+            id = configID.toURI().toString();
+        } catch (URISyntaxException e) {
+            throw new NoSuchConfigException(e);
+        }
         File configDir;
         String storeID;
         synchronized(this) {
@@ -307,15 +314,10 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
-    public synchronized ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public synchronized ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
         GBeanData config = loadConfig(getRoot(configId));
 
-        ObjectName name;
-        try {
-            name = Configuration.getConfigurationObjectName(configId);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
-        }
+        ObjectName name = Configuration.getConfigurationObjectName(configId);
         config.setName(name);
         config.setAttribute("baseURL", getRoot(configId).toURL());
 
@@ -335,7 +337,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         synchronized (this) {
             configs = new ArrayList(index.size());
             for (Iterator i = index.keySet().iterator(); i.hasNext();) {
-                URI configId = URI.create((String) i.next());
+                Artifact configId = Artifact.create((String) i.next());
                 try {
                     ObjectName configName = Configuration.getConfigurationObjectName(configId);
                     State state;
@@ -364,12 +366,22 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return configs;
     }
 
-    public synchronized boolean containsConfiguration(URI configID) {
-        return index.getProperty(configID.toString()) != null;
+
+    public synchronized boolean containsConfiguration(Artifact configID) {
+        try {
+            return index.getProperty(configID.toURI().toString()) != null;
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 
-    private synchronized File getRoot(URI configID) throws NoSuchConfigException {
-        String id = index.getProperty(configID.toString());
+    private synchronized File getRoot(Artifact configID) throws NoSuchConfigException {
+        String id = null;
+        try {
+            id = index.getProperty(configID.toURI().toString());
+        } catch (URISyntaxException e) {
+
+        }
         if (id == null) {
             throw new NoSuchConfigException("No such config: " + configID);
         }

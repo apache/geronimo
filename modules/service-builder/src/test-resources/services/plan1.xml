@@ -22,12 +22,12 @@
         >
 
     <environment>
-        <configid>
+        <configId>
             <groupId>geronimo</groupId>
             <type>car</type>
             <artifactId>foo4</artifactId>
             <version>DEV</version>
-        </configid>
+        </configId>
         <name-key>
             <key>domain</key>
             <value>geronimo.server</value>

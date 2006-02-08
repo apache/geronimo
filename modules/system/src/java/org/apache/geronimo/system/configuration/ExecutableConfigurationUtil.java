@@ -41,6 +41,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -152,18 +153,17 @@ public final class ExecutableConfigurationUtil {
 
     public static GBeanData getConfigurationGBeanData(ConfigurationData configurationData) throws InvalidConfigException {
         try {
-            URI id = configurationData.getId();
+            Artifact id = configurationData.getId();
             GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
             config.setAttribute("id", id);
             config.setAttribute("type", configurationData.getModuleType());
-            //TODO configid this needs improvmement
+            //TODO configid this might need further improvmement
             Map nameKeys = configurationData.getNameKeys();
-            config.setAttribute("domain", nameKeys.get("domain"));
-            config.setAttribute("server", nameKeys.get("J2EEServer"));
+            config.setAttribute("nameKeys", nameKeys);
 
             List parentId = configurationData.getParentId();
             if (parentId.size() > 0) {
-                config.setAttribute("parentId", parentId.toArray(new URI[parentId.size()]));
+                config.setAttribute("parentId", parentId.toArray(new Artifact[parentId.size()]));
             }
 
             config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
@@ -175,7 +175,7 @@ public final class ExecutableConfigurationUtil {
             config.setAttribute("hiddenClasses", set.toArray(new String[set.size()]));
             set = configurationData.getNonOverridableClasses();
             config.setAttribute("nonOverridableClasses", set.toArray(new String[set.size()]));
-            
+
             return config;
         } catch (MalformedObjectNameException e) {
             throw new InvalidConfigException(e);

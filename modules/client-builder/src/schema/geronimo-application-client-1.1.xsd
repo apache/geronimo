@@ -30,20 +30,14 @@
 
     <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/security-1.1" schemaLocation="geronimo-security-1.1.xsd"/>
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0" schemaLocation="geronimo-connector-1.1.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1" schemaLocation="geronimo-connector-1.1.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.1" schemaLocation="geronimo-config-1.1.xsd"/>
 
     <xs:element name="application-client" type="geronimo:application-clientType"/>
 
     <xs:complexType name="application-clientType">
         <xs:sequence>
-<!--            <xs:element ref="sys:parent" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element name="include" type="sys:dependencyType" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:dependency" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:hidden-classes" minOccurs="0" maxOccurs="unbounded"/>-->
-<!--            <xs:element ref="sys:non-overridable-classes" minOccurs="0" maxOccurs="unbounded"/>-->
-            <xs:group ref="sys:classloader-include-infoGroup"/>
-
+            <xs:element ref="sys:environment"/>
 
             <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>

@@ -27,11 +27,11 @@ import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -44,9 +44,8 @@ import java.util.Set;
  * you can save a lost configurations and stuff, but not change the set of
  * GBeans included in a configuration.
  *
- * @see EditableConfigurationManager
- *
  * @version $Rev$ $Date$
+ * @see EditableConfigurationManager
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
     private static final Log log = LogFactory.getLog(ConfigurationManagerImpl.class);
@@ -94,50 +93,41 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         throw new NoSuchStoreException("No such store: " + storeName);
     }
 
-    public boolean isLoaded(URI configID) {
+    public boolean isLoaded(Artifact configID) {
         try {
             ObjectName name = Configuration.getConfigurationObjectName(configID);
             return kernel.isLoaded(name);
-        } catch (MalformedObjectNameException e) {
+        } catch (InvalidConfigException e) {
+            //todo really?
             return false;
         }
     }
 
-    public ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public ObjectName load(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         List storeSnapshot = getStores();
 
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configID)) {
-                ObjectName configName =  store.loadConfiguration(configID);
+                ObjectName configName = store.loadConfiguration(configID);
                 return configName;
             }
         }
         throw new NoSuchConfigException("No configuration with id: " + configID);
     }
 
-    public void loadGBeans(URI configID) throws InvalidConfigException {
-        ObjectName configName;
-        try {
-            configName = Configuration.getConfigurationObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
-        }
+    public void loadGBeans(Artifact configID) throws InvalidConfigException {
+        ObjectName configName = Configuration.getConfigurationObjectName(configID);
         try {
             kernel.startGBean(configName);
-            kernel.invoke(configName, "loadGBeans", new Object[] {attributeStore}, new String[] {ManageableAttributeStore.class.getName()});
+            kernel.invoke(configName, "loadGBeans", new Object[]{attributeStore}, new String[]{ManageableAttributeStore.class.getName()});
         } catch (Exception e) {
             throw new InvalidConfigException("Could not extract gbean data from configuration", e);
         }
     }
 
-    public void start(URI configID) throws InvalidConfigException {
-        ObjectName configName;
-        try {
-            configName = Configuration.getConfigurationObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
-        }
+    public void start(Artifact configID) throws InvalidConfigException {
+        ObjectName configName = Configuration.getConfigurationObjectName(configID);
         try {
             kernel.invoke(configName, "startRecursiveGBeans");
         } catch (Exception e) {
@@ -148,13 +138,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
     }
 
-    public void stop(URI configID) throws InvalidConfigException {
-        ObjectName configName;
-        try {
-            configName = Configuration.getConfigurationObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert ID to ObjectName: ", e);
-        }
+    public void stop(Artifact configID) throws InvalidConfigException {
+        ObjectName configName = Configuration.getConfigurationObjectName(configID);
         try {
             kernel.invoke(configName, "stopGBeans");
         } catch (Exception e) {
@@ -165,13 +150,13 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
     }
 
-    public List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException {
+    public List loadRecursive(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException {
         LinkedList ancestors = new LinkedList();
         Set preloaded = kernel.listGBeans(CONFIGURATION_NAME_QUERY);
         for (Iterator it = preloaded.iterator(); it.hasNext();) {
             ObjectName name = (ObjectName) it.next();
             try {
-                if(kernel.getGBeanState(name) != State.RUNNING_INDEX) {
+                if (kernel.getGBeanState(name) != State.RUNNING_INDEX) {
                     it.remove();
                 }
             } catch (GBeanNotFoundException e) {
@@ -182,7 +167,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         return ancestors;
     }
 
-    private void loadRecursive(URI configID, LinkedList ancestors, Set preloaded) throws NoSuchConfigException, IOException, InvalidConfigException {
+    private void loadRecursive(Artifact configID, LinkedList ancestors, Set preloaded) throws NoSuchConfigException, IOException, InvalidConfigException {
         try {
             ObjectName name = Configuration.getConfigurationObjectName(configID);
             if (preloaded.contains(name)) {
@@ -194,10 +179,10 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             //put the earliest ancestors first, even if we have already started them.
             ancestors.remove(configID);
             ancestors.addFirst(configID);
-            URI[] parents = (URI[]) kernel.getAttribute(name, "parentId");
+            Artifact[] parents = (Artifact[]) kernel.getAttribute(name, "parentId");
             if (parents != null) {
                 for (int i = 0; i < parents.length; i++) {
-                    URI parent = parents[i];
+                    Artifact parent = parents[i];
                     loadRecursive(parent, ancestors, preloaded);
                 }
             }
@@ -212,12 +197,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
     }
 
-    public void unload(URI configID) throws NoSuchConfigException {
+    public void unload(Artifact configID) throws NoSuchConfigException {
         ObjectName configName;
         try {
             configName = Configuration.getConfigurationObjectName(configID);
-        } catch (MalformedObjectNameException e) {
-            throw new NoSuchConfigException("Cannot convert ID to ObjectName: ", e);
+        } catch (InvalidConfigException e) {
+            throw new NoSuchConfigException("Could not construct configuration object name", e);
         }
         try {
             if (State.RUNNING_INDEX == kernel.getGBeanState(configName)) {

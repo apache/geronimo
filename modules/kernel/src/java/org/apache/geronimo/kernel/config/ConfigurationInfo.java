@@ -21,6 +21,7 @@ import java.net.URI;
 import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * 
@@ -29,11 +30,11 @@ import org.apache.geronimo.kernel.management.State;
  */
 public class ConfigurationInfo implements Serializable {
     private final ObjectName storeName;
-    private final URI configID;
+    private final Artifact configID;
     private final State state;
     private final ConfigurationModuleType type;
 
-    public ConfigurationInfo(ObjectName storeName, URI configID, State state, ConfigurationModuleType type) {
+    public ConfigurationInfo(ObjectName storeName, Artifact configID, State state, ConfigurationModuleType type) {
         this.storeName = storeName;
         this.configID = configID;
         this.state = state;
@@ -44,16 +45,16 @@ public class ConfigurationInfo implements Serializable {
         return storeName;
     }
 
-    public URI getConfigID() {
+    public Artifact getConfigID() {
         return configID;
     }
 
     public State getState() {
         return state;
     }
-    
+
     public ConfigurationModuleType getType() {
         return type;
     }
-    
+
 }

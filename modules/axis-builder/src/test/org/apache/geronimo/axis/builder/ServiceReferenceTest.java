@@ -65,10 +65,12 @@ import org.apache.geronimo.axis.client.SEIFactory;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.reference.DeserializingReference;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingDocument;
 import org.apache.geronimo.xbeans.j2ee.JavaWsdlMappingType;
@@ -83,7 +85,8 @@ public class ServiceReferenceTest extends TestCase {
 
     public final static String NAMESPACE = "http://geronimo.apache.org/axis/mock";
     private File tmpbasedir;
-    private URI configID = URI.create("test");
+    private Environment environment = new Environment();
+    private Artifact configID = new Artifact("group", "test", "1", "car", true);
     private DeploymentContext context;
     private ClassLoader isolatedCl = new URLClassLoader(new URL[0], this.getClass().getClassLoader());
     private final String operationName = "doMockOperation";
@@ -100,11 +103,15 @@ public class ServiceReferenceTest extends TestCase {
         tmpbasedir = File.createTempFile("car", "tmp");
         tmpbasedir.delete();
         tmpbasedir.mkdirs();
-        context = new DeploymentContext(tmpbasedir, configID, ConfigurationModuleType.CAR, null, "foo", "geronimo", null);
+        environment.setConfigId(configID);
+        Map nameKeys = new HashMap();
+        nameKeys.put("domain", "geronimo");
+        environment.setNameKeys(nameKeys);
+        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, null);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
-        module = new EJBModule(true, configID, null, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
+        module = new EJBModule(true, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
     }

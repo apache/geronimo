@@ -21,7 +21,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
@@ -32,10 +31,10 @@ import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.management.State;
 
 /**
  *
@@ -46,7 +45,7 @@ public class LocalConfigStoreTest extends TestCase {
     private File root;
     private URL source;
     private File sourceFile;
-    private URI uri;
+    private Artifact artifact;
     private Kernel kernel;
     private byte[] state;
     private ObjectName gbeanName1;
@@ -106,9 +105,9 @@ public class LocalConfigStoreTest extends TestCase {
             kernel.startGBean(configurationManagerName);
             configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-            uri = new URI("test");
-            GBeanData gbean = new GBeanData(Configuration.getConfigurationObjectName(uri), Configuration.GBEAN_INFO);
-            gbean.setAttribute("id", uri);
+            artifact = new Artifact("group", "test", "1", "car", true);
+            GBeanData gbean = new GBeanData(Configuration.getConfigurationObjectName(artifact), Configuration.GBEAN_INFO);
+            gbean.setAttribute("id", artifact);
             gbean.setAttribute("gBeanState", state);
 
 

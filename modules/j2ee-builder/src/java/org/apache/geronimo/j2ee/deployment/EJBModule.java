@@ -19,19 +19,20 @@ package org.apache.geronimo.j2ee.deployment;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
-import java.util.List;
 import java.io.IOException;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$
  */
 public class EJBModule extends Module {
-    public EJBModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+    public EJBModule(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
+        super(standAlone, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
     }
 
     public ConfigurationModuleType getType() {

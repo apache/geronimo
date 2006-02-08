@@ -19,11 +19,12 @@ package org.apache.geronimo.kernel.repository;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.io.Serializable;
 
 /**
  * @version $Rev:$ $Date:$
  */
-public class Artifact implements Comparable {
+public class Artifact implements Comparable, Serializable {
     private String groupId;
     private String artifactId;
     private Version version;
@@ -39,6 +40,14 @@ public class Artifact implements Comparable {
         this.version = new Version(version);
         this.type = type;
         this.resolved = resolved;
+    }
+
+    public static Artifact create(String id) {
+        String[] parts = id.split("/");
+         if (parts.length != 4) {
+             throw new IllegalArgumentException("Invalid id: " + id);
+         }
+         return new Artifact(parts[0], parts[1], parts[2], parts[3], true);
     }
 
     public String getGroupId() {
@@ -114,12 +123,11 @@ public class Artifact implements Comparable {
      * @throws URISyntaxException
      */
     public URI toURI() throws URISyntaxException {
-        String id = groupId + "/" + artifactId + "/" + version + "/" + type;
-        return new URI(id);
+        return new URI(toString());
     }
 
     public String toString() {
-        String id = groupId + "/" + artifactId + "/" + version + "/" + type;
-        return id;
+        return groupId + "/" + artifactId + "/" + version + "/" + type;
     }
+    
 }

@@ -27,6 +27,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -38,7 +39,7 @@ public class ConfigTest extends TestCase {
     private ObjectName gbeanName2;
 
     public void testOnlineConfig() throws Exception {
-        URI id = new URI("test");
+        Artifact id = new Artifact("geronimo", "test", "1", "car", true);
         ObjectName configName = Configuration.getConfigurationObjectName(id);
 
         // create the config gbean data
@@ -94,7 +95,7 @@ public class ConfigTest extends TestCase {
     }
 
     public void testAddToConfig() throws Exception {
-        URI id = new URI("test");
+        Artifact id = new Artifact("geronimo", "test", "1", "car", true);
         ObjectName configName = Configuration.getConfigurationObjectName(id);
 
         // create the config gbean data

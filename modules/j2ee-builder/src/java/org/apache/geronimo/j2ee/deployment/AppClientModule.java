@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -34,8 +36,8 @@ public class AppClientModule extends Module {
     private JarFile earFile;
     private Collection resourceModules;
 
-    public AppClientModule(boolean standAlone, URI configId, List parentId, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) {
-        super(standAlone, configId, parentId, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+    public AppClientModule(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
+        super(standAlone, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
     }
 
     public ConfigurationModuleType getType() {

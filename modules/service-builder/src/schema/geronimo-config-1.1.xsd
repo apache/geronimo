@@ -42,6 +42,7 @@
     </xs:complexType>
 
     <xs:element name="environment" type="sys:environmentType">
+<!--    TODO figure out why this doesn't work
         <xs:key name="name-key-key">
             <xs:annotation>
                 <xs:documentation>
@@ -50,13 +51,14 @@
                 </xs:documentation>
             </xs:annotation>
             <xs:selector xpath="sys:name-key"/>
-            <xs:field xpath="sys:name-key/name"/>
+            <xs:field xpath="sys:name-key/key"/>
         </xs:key>
+-->
     </xs:element>
 
     <xs:complexType name="environmentType">
         <xs:sequence>
-            <xs:element name="configid" type="sys:artifactType">
+            <xs:element name="configId" type="sys:artifactType">
                 <xs:annotation>
                     <xs:documentation>
                         "configId" holds elements for the groupId, artifactId, and version of the configuration
@@ -65,7 +67,7 @@
                 </xs:annotation>
             </xs:element>
             <xs:element name="name-key" type="sys:name-keyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="classloader" type="sys:classloaderType">
+            <xs:element name="classloader" type="sys:classloaderType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         "classloader" holds all classloader configuration information for the configuration
@@ -177,6 +179,7 @@
                 </xs:annotation>
             </xs:element>
             <xs:element name="inverse-classloading" type="sys:emptyType" minOccurs="0"/>
+            <xs:element name="suppress-default-parentId" type="sys:emptyType" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

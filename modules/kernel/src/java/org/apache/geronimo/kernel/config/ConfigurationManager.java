@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
@@ -32,7 +34,7 @@ public interface ConfigurationManager {
      * @param configID the name of the configuration
      * @return true if the configuration has been loaded; false otherwise
      */
-    boolean isLoaded(URI configID);
+    boolean isLoaded(Artifact configID);
 
     /**
      * Return a list of the stores this manager knows about.
@@ -58,7 +60,7 @@ public interface ConfigurationManager {
      * @throws IOException if there is a problem loading te configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    ObjectName load(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
+    ObjectName load(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Load the specified configuration and all parent configurations into the kernel. This does not
@@ -72,7 +74,7 @@ public interface ConfigurationManager {
      * @throws IOException if there is a problem loading te configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    List loadRecursive(URI configID) throws NoSuchConfigException, IOException, InvalidConfigException;
+    List loadRecursive(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Unloads the gbeans of the specified configuration, stops the configuration gbean, and unloads the
@@ -81,7 +83,7 @@ public interface ConfigurationManager {
      * @param configID the name fo the configuration to remove
      * @throws NoSuchConfigException if the configuration is now loaded into the kernel
      */
-    void unload(URI configID) throws NoSuchConfigException;
+    void unload(Artifact configID) throws NoSuchConfigException;
 
     /**
      * Load the gbeans of the named configuration into the kernel, but do not start them.
@@ -91,7 +93,7 @@ public interface ConfigurationManager {
      * @param configID
      * @throws InvalidConfigException
      */
-    void loadGBeans(URI configID) throws InvalidConfigException;
+    void loadGBeans(Artifact configID) throws InvalidConfigException;
 
     /**
      * Start the gbeans in this configuration.  You must have called loadGBeans before calling this method.
@@ -99,7 +101,7 @@ public interface ConfigurationManager {
      * @param configID
      * @throws InvalidConfigException
      */
-    void start(URI configID) throws InvalidConfigException;
+    void start(Artifact configID) throws InvalidConfigException;
 
     /**
      * Stop the gbeans in this configuration, but do not stop the configuration gbean.
@@ -107,5 +109,5 @@ public interface ConfigurationManager {
      * @param configID
      * @throws InvalidConfigException
      */
-    void stop(URI configID) throws InvalidConfigException;
+    void stop(Artifact configID) throws InvalidConfigException;
 }

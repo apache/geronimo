@@ -17,9 +17,15 @@
 -->
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="org/openejb/itests"
-    parentId="org/apache/geronimo/Server">
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0">
+    <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <configId>
+            <groupId>geronimo</groupId>
+            <type>car</type>
+            <artifactId>test-ejb</artifactId>
+            <version>1.0</version>
+        </configId>
+    </environment>
 
     <cmp-connection-factory>DefaultDatasource</cmp-connection-factory>
 

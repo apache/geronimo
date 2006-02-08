@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URISyntaxException;
 import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -37,6 +38,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 
@@ -64,13 +66,19 @@ public class MavenConfigStore implements ConfigurationStore {
         return objectName.toString();
     }
 
-    public synchronized ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        if (!repository.hasURI(configId)) {
-            throw new NoSuchConfigException("Configuration not found: " + configId);
+    public synchronized ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        URI uri;
+        try {
+             uri = configId.toURI();
+        } catch (URISyntaxException e) {
+            throw new NoSuchConfigException("Configuration not found: " + configId, e);
         }
+            if (!repository.hasURI(uri)) {
+                throw new NoSuchConfigException("Configuration not found: " + configId);
+            }
 
         GBeanData config = new GBeanData();
-        URL baseURL = new URL("jar:" + repository.getURL(configId).toString() + "!/");
+        URL baseURL = new URL("jar:" + repository.getURL(uri).toString() + "!/");
         InputStream jis = null;
         try {
             URL stateURL = new URL(baseURL, "META-INF/config.ser");
@@ -85,12 +93,7 @@ public class MavenConfigStore implements ConfigurationStore {
             }
         }
 
-        ObjectName name;
-        try {
-            name = Configuration.getConfigurationObjectName(configId);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException("Cannot convert id to ObjectName: ", e);
-        }
+        ObjectName name = Configuration.getConfigurationObjectName(configId);
         config.setName(name);
         config.setAttribute("baseURL", baseURL);
 
@@ -104,8 +107,12 @@ public class MavenConfigStore implements ConfigurationStore {
     }
 
 
-    public boolean containsConfiguration(URI configID) {
-        return repository.hasURI(configID);
+    public boolean containsConfiguration(Artifact configID) {
+        try {
+            return repository.hasURI(configID.toURI());
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 
     public File createNewConfigurationDir() {
@@ -123,7 +130,7 @@ public class MavenConfigStore implements ConfigurationStore {
         }
     }
 
-    public URI install(URL source) throws IOException, InvalidConfigException {
+    public Artifact install(URL source) throws IOException, InvalidConfigException {
         throw new UnsupportedOperationException();
     }
 
@@ -147,7 +154,7 @@ public class MavenConfigStore implements ConfigurationStore {
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, source, targetFile);
     }
 
-    public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+    public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         throw new UnsupportedOperationException();
     }
 

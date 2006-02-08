@@ -27,6 +27,7 @@ import junit.framework.Assert;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.deployment.Environment;
 
 
 /**
@@ -38,11 +39,11 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
     public ClassLoader cl;
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return new EJBModule(true, null, null, moduleFile, "ejb.jar", null, null, null);
+        return new EJBModule(true, null, moduleFile, "ejb.jar", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
-        return new EJBModule(false, null, null, moduleFile, targetPath, null, null, null);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
+        return new EJBModule(false, null, moduleFile, targetPath, null, null, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module ejbModule) {

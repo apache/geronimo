@@ -64,7 +64,6 @@ import javax.enterprise.deploy.model.DDBean;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
@@ -78,7 +77,7 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
-import org.apache.geronimo.connector.deployment.jsr88.Dependency;
+import org.apache.geronimo.connector.deployment.jsr88.Artifact;
 import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
@@ -840,23 +839,23 @@ public class DatabasePoolPortlet extends BasePortlet {
                 connector.setConfigID("console-db-pool-"+data.getName());
                 // Use a parentId of null to pick up the default
                 if(data.jar1 != null && !data.jar1.equals("")) {
-                    Dependency dep = new Dependency();
-                    connector.setDependency(new Dependency[]{dep});
+                    Artifact dep = new Artifact();
+                    connector.setDependency(new Artifact[]{dep});
                     dep.setURI(data.jar1);
                 }
                 if(data.jar2 != null && !data.jar2.equals("")) {
-                    Dependency dep = new Dependency();
-                    Dependency[] old = connector.getDependency();
-                    Dependency[] longer = new Dependency[old.length+1];
+                    Artifact dep = new Artifact();
+                    Artifact[] old = connector.getDependency();
+                    Artifact[] longer = new Artifact[old.length+1];
                     System.arraycopy(old, 0, longer, 0, old.length);
                     longer[old.length] = dep;
                     connector.setDependency(longer);
                     dep.setURI(data.jar2);
                 }
                 if(data.jar3 != null && !data.jar3.equals("")) {
-                    Dependency dep = new Dependency();
-                    Dependency[] old = connector.getDependency();
-                    Dependency[] longer = new Dependency[old.length+1];
+                    Artifact dep = new Artifact();
+                    Artifact[] old = connector.getDependency();
+                    Artifact[] longer = new Artifact[old.length+1];
                     System.arraycopy(old, 0, longer, 0, old.length);
                     longer[old.length] = dep;
                     connector.setDependency(longer);

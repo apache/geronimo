@@ -18,14 +18,12 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.net.URL;
-import java.net.URI;
 import java.util.jar.JarFile;
 import java.util.Map;
 
-import javax.management.ObjectName;
-
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -39,11 +37,11 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     private String namespace = "foo";
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return new WebModule(true, null, null, moduleFile, "war", null, null, null, contextRoot, portMap, namespace);
+        return new WebModule(true, null, moduleFile, "war", null, null, null, contextRoot, portMap, namespace);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
-        return new WebModule(false, null, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
+        return new WebModule(false, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {

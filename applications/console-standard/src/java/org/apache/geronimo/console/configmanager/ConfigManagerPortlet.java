@@ -212,9 +212,9 @@ public class ConfigManagerPortlet extends BasePortlet {
                     if (shouldListConfig(info)) {
                         // TODO: Check if this is the right solution
                         // Disregard JMS Queues and Topics &&
-                        if (!info.getConfigID().getPath().startsWith(QUEUETOPIC_URI)
+                        if (!info.getConfigID().toURI().getPath().startsWith(QUEUETOPIC_URI)
                                 && !info
-                                .getConfigID()
+                                .getConfigID().toURI()
                                 .getPath()
                                 .startsWith(SecurityConstants.SECURITY_CONFIG_PREFIX)) {
                             configInfo.add(info);

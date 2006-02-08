@@ -17,28 +17,6 @@
 
 package org.apache.geronimo.connector.deployment;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.sql.DataSource;
-import javax.xml.namespace.QName;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
@@ -68,14 +46,38 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
+
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.sql.DataSource;
+import javax.xml.namespace.QName;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.Collection;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
@@ -88,7 +90,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private int defaultMinSize = 0;
     private int defaultBlockingTimeoutMilliseconds = 5000;
     private int defaultidleTimeoutMinutes = 15;
-    private URI[] defaultParentId;
+    private Artifact[] defaultParentId;
     private Repository repository = new Repository() {
 
                 public boolean hasURI(URI uri) {
@@ -306,7 +308,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
 
     private void executeTestBuildModule(InstallAction action, boolean is15) throws Exception {
-        J2eeContext j2eeContext = new J2eeContextImpl("test", "bar", "null", "JCAResource", "org/apache/geronimo/j2ee/deployment/test", null, null);
+        J2eeContext j2eeContext = new J2eeContextImpl("geronimo.test", "geronimo", "null", "JCAResource", "geronimo/test-ear/1.0/car", null, null);
         String resourceAdapterName = "testRA";
         //N.B. short version of getComponentName
         ObjectName connectionTrackerName = NameFactory.getComponentName(null, null, null, null, "ConnectionTracker", ConnectionTrackingCoordinatorGBean.GBEAN_INFO.getJ2eeType(), j2eeContext);
@@ -338,15 +340,14 @@ public class ConnectorModuleBuilderTest extends TestCase {
             if (module == null) {
                 throw new DeploymentException("Was not a connector module");
             }
-            assertEquals(j2eeContext.getJ2eeModuleName(), module.getConfigId().toString());
+            assertEquals(j2eeContext.getJ2eeModuleName(), module.getEnvironment().getConfigId().toString());
 
             File tempDir = null;
             try {
                 tempDir = DeploymentUtil.createTempDir();
                 EARContext earContext = new EARContext(tempDir,
-                        module.getConfigId(),
+                        module.getEnvironment(),
                         module.getType(),
-                        module.getParentId(),
                         kernel,
                         j2eeContext.getJ2eeApplicationName(),
                         null,
@@ -434,6 +435,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 Set applications = kernel.listGBeans(applicationObjectName);
                 assertTrue("No application object should be registered for a standalone module", applications.isEmpty());
             }
+
 
             ObjectName moduleName = NameFactory.getModuleName(null, null, null, NameFactory.RESOURCE_ADAPTER_MODULE, null, j2eeContext);
             assertRunning(kernel, moduleName);
@@ -558,7 +560,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
-        defaultParentId = new URI[] {new URI("org/apache/geronimo/Server")};
+        defaultParentId = new Artifact[] {Artifact.create("org/apache/geronimo/Server")};
     }
 
     private abstract class InstallAction {
@@ -584,27 +586,26 @@ public class ConnectorModuleBuilderTest extends TestCase {
             this.kernel = kernel;
         }
 
-        public URI install(URL source) throws IOException, InvalidConfigException {
+        public Artifact install(URL source) throws IOException, InvalidConfigException {
             return null;
         }
 
         public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         }
 
-        public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ObjectName configurationObjectName = null;
-            try {
                 configurationObjectName = Configuration.getConfigurationObjectName(configId);
-            } catch (MalformedObjectNameException e) {
-                throw new InvalidConfigException(e);
-            }
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             configData.setAttribute("id", configId);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
+            Map nameKeys = new HashMap();
+            nameKeys.put("domain", "test");
+            nameKeys.put("J2EEServer", "bar");
+
+            configData.setAttribute("nameKeys", nameKeys);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
             try {
@@ -616,7 +617,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return configurationObjectName;
         }
 
-        public boolean containsConfiguration(URI configID) {
+        public boolean containsConfiguration(Artifact configID) {
             return true;
         }
 

@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.deployment;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
@@ -33,9 +31,9 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -98,11 +96,7 @@ public class DeploymentContext {
         this.baseUri = baseDir.toURI();
 
         configurationData = new ConfigurationData();
-        try {
-            configurationData.setId(environment.getConfigId().toURI());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
-        }
+            configurationData.setId(environment.getConfigId());
         configurationData.setModuleType(type);
         //TODO configid this is broken, need Artifact to URI conversion or configData to use Artifacts.
         configurationData.setParentId(new ArrayList(environment.getImports()));
@@ -120,7 +114,7 @@ public class DeploymentContext {
         if (kernel == null || parentId == null || parentId.isEmpty()) {
             throw new DeploymentException("neither domain and server nor any way to determine them was provided for configuration " + configurationData.getId());
         }
-        URI parent = (URI) parentId.get(0);
+        Artifact parent = (Artifact) parentId.get(0);
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         try {
@@ -157,19 +151,20 @@ public class DeploymentContext {
         if (null == kernel) {
             return;
         }
-        
+
         List parentId = configurationData.getParentId();
         if (parentId != null && parentId.size() > 0) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             List inherited = new ArrayList();
             try {
                 for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
-                    URI uri = (URI) iterator.next();
-                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
+                    Artifact parent = (Artifact) iterator.next();
+                    //TODO configid
+                    ObjectName parentName = Configuration.getConfigurationObjectName(parent);
                     boolean loaded = false;
                     try {
-                        if (!configurationManager.isLoaded(uri)) {
-                            parentName = configurationManager.load(uri);
+                        if (!configurationManager.isLoaded(parent)) {
+                            parentName = configurationManager.load(parent);
                             loaded = true;
                         }
                         String[] nonOverridableClasses = (String[]) kernel.getAttribute(parentName, "nonOverridableClasses");
@@ -180,7 +175,7 @@ public class DeploymentContext {
                         }
                     } finally {
                         if (loaded) {
-                            configurationManager.unload(uri);
+                            configurationManager.unload(parent);
                         }
                     }
                 }
@@ -192,15 +187,15 @@ public class DeploymentContext {
             configurationData.getNonOverridableClasses().addAll(inherited);
         }
     }
-    
-    public URI getConfigID() {
+
+    public Artifact getConfigID() {
         return configurationData.getId();
     }
 
     public void setInverseClassloading(boolean inverseClassloading) {
         configurationData.setInverseClassloading(inverseClassloading);
     }
-    
+
     public void addHiddenClasses(Set hiddenClasses) {
         configurationData.getHiddenClasses().addAll(hiddenClasses);
     }
@@ -208,7 +203,7 @@ public class DeploymentContext {
     public void addNonOverridableClasses(Set nonOverridableClasses) {
         configurationData.getNonOverridableClasses().addAll(nonOverridableClasses);
     }
-    
+
     public void addParentId(List parentId) {
         configurationData.getParentId().addAll(parentId);
     }
@@ -246,8 +241,8 @@ public class DeploymentContext {
         return gbeans.getGBeanInstance(name);
     }
 
-    public void addDependency(URI uri) {
-        configurationData.addDependency(uri);
+    public void addDependency(Artifact artifact) {
+        configurationData.addDependency(artifact);
     }
 
     /**
@@ -458,13 +453,13 @@ public class DeploymentContext {
     }
 
     static interface ParentSource {
-        Collection getParents(URI point) throws DeploymentException;
+        Collection getParents(Artifact point) throws DeploymentException;
     }
 
     List getExtremalSet(Collection points, ParentSource parentSource) throws DeploymentException {
         LinkedHashMap pointToEnvelopeMap = new LinkedHashMap();
         for (Iterator iterator = points.iterator(); iterator.hasNext();) {
-            URI newPoint = (URI) iterator.next();
+            Artifact newPoint = (Artifact) iterator.next();
             Set newEnvelope = new HashSet();
             getEnvelope(newPoint, parentSource, newEnvelope);
             boolean useMe = true;
@@ -484,11 +479,11 @@ public class DeploymentContext {
         return new ArrayList(pointToEnvelopeMap.keySet());
     }
 
-    private void getEnvelope(URI point, ParentSource parentSource, Set envelope) throws DeploymentException {
+    private void getEnvelope(Artifact point, ParentSource parentSource, Set envelope) throws DeploymentException {
         Collection newPoints = parentSource.getParents(point);
         envelope.addAll(newPoints);
         for (Iterator iterator = newPoints.iterator(); iterator.hasNext();) {
-            URI newPoint = (URI) iterator.next();
+            Artifact newPoint = (Artifact) iterator.next();
             getEnvelope(newPoint, parentSource, envelope);
         }
     }
@@ -501,15 +496,15 @@ public class DeploymentContext {
             this.kernel = kernel;
         }
 
-        public Collection getParents(URI configID) throws DeploymentException {
+        public Collection getParents(Artifact configID) throws DeploymentException {
             ObjectName configName;
             try {
                 configName = Configuration.getConfigurationObjectName(configID);
-            } catch (MalformedObjectNameException e) {
+            } catch (InvalidConfigException e) {
                 throw new DeploymentException("Cannot convert ID to ObjectName: ", e);
             }
             try {
-                URI[] parents = (URI[]) kernel.getAttribute(configName, "parentId");
+                Artifact[] parents = (Artifact[]) kernel.getAttribute(configName, "parentId");
                 if (parents == null) {
                     return Collections.EMPTY_LIST;
                 } else {
@@ -522,7 +517,6 @@ public class DeploymentContext {
 
     }
 
-    private static final Log log = LogFactory.getLog(DeploymentContext.class);
     private ClassLoader[] determineParents() throws DeploymentException {
         ClassLoader[] parentCL;
         List parentId = configurationData.getParentId();
@@ -536,9 +530,9 @@ public class DeploymentContext {
 
                 try {
                     for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
-                        URI uri = (URI) iterator.next();
+                        Artifact artifact = (Artifact) iterator.next();
                         List started = new ArrayList();
-                        startAncestors(uri, kernel, started, configurationManager);
+                        startAncestors(artifact, kernel, started, configurationManager);
                         startedAncestors.addAll(started);
                     }
                 } catch (DeploymentException e) {
@@ -552,7 +546,7 @@ public class DeploymentContext {
             try {
                 parentCL = new ClassLoader[parentId.size()];
                 for (int i = 0; i < parentId.size(); i++) {
-                    URI uri = (URI) parentId.get(i);
+                    Artifact uri = (Artifact) parentId.get(i);
                     ObjectName parentName = Configuration.getConfigurationObjectName(uri);
                     parentCL[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
                 }
@@ -575,8 +569,8 @@ public class DeploymentContext {
         if (kernel != null && parentId != null) {
             try {
                 for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
-                    URI uri = (URI) iterator.next();
-                    List newAncestors = configurationManager.loadRecursive(uri);
+                    Artifact artifact = (Artifact) iterator.next();
+                    List newAncestors = configurationManager.loadRecursive(artifact);
                     loadedAncestors.addAll(newAncestors);
                 }
             } catch (Exception e) {
@@ -585,14 +579,14 @@ public class DeploymentContext {
         }
     }
 
-    private void startAncestors(URI configID, Kernel kernel, List started, ConfigurationManager configurationManager) throws Exception {
+    private void startAncestors(Artifact configID, Kernel kernel, List started, ConfigurationManager configurationManager) throws Exception {
         if (configID != null) {
             ObjectName configName = Configuration.getConfigurationObjectName(configID);
             if (!isRunning(kernel, configName)) {
-                URI[] patterns = (URI[]) kernel.getGBeanData(configName).getAttribute("parentId");
+                Artifact[] patterns = (Artifact[]) kernel.getGBeanData(configName).getAttribute("parentId");
                 if (patterns != null) {
                     for (int i = 0; i < patterns.length; i++) {
-                        URI pattern = patterns[i];
+                        Artifact pattern = patterns[i];
                         startAncestors(pattern, kernel, started, configurationManager);
                     }
                 }
@@ -629,11 +623,15 @@ public class DeploymentContext {
 
         boolean inverseClassloading = configurationData.isInverseClassloading();
         Set filter = configurationData.getHiddenClasses();
-        String[] hiddenFilter = (String[]) filter.toArray(new String[0]); 
+        String[] hiddenFilter = (String[]) filter.toArray(new String[0]);
         filter = configurationData.getNonOverridableClasses();
-        String[] nonOverridableFilter = (String[]) filter.toArray(new String[0]); 
-        
-        return new MultiParentClassLoader(configurationData.getId(), urls, parentCL, inverseClassloading, hiddenFilter, nonOverridableFilter);
+        String[] nonOverridableFilter = (String[]) filter.toArray(new String[0]);
+
+        try {
+            return new MultiParentClassLoader(configurationData.getId().toURI(), urls, parentCL, inverseClassloading, hiddenFilter, nonOverridableFilter);
+        } catch (URISyntaxException e) {
+            throw new DeploymentException(e);
+        }
     }
 
     public void close() throws IOException, DeploymentException {
@@ -643,8 +641,8 @@ public class DeploymentContext {
                 startedAncestors.clear();
                 Collections.reverse(loadedAncestors);
                 for (Iterator iterator = loadedAncestors.iterator(); iterator.hasNext();) {
-                    URI configID = (URI) iterator.next();
-                    if(configurationManager.isLoaded(configID)) {
+                    Artifact configID = (Artifact) iterator.next();
+                    if (configurationManager.isLoaded(configID)) {
                         try {
                             configurationManager.unload(configID);
                         } catch (NoSuchConfigException e) {

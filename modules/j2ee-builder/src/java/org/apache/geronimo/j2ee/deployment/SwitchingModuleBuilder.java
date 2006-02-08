@@ -18,7 +18,6 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,6 +27,7 @@ import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
@@ -132,11 +132,11 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         return builder;
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, URI earConfigId, Object moduleContextInfo) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
         String namespace = getNamespaceFromPlan(plan);
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         if (builder != null) {
-            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, earConfigId, moduleContextInfo);
+            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, environment, moduleContextInfo);
         } else {
             return null;
         }

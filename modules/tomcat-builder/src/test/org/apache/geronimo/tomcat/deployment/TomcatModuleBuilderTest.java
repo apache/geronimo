@@ -44,6 +44,7 @@ import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -62,6 +63,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -220,10 +222,10 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.unloadGBean(configName);
     }
 
-    private EARContext createEARContext(File outputPath, URI id)
+    private EARContext createEARContext(File outputPath, Environment environment)
             throws MalformedObjectNameException, DeploymentException {
-        EARContext earContext = new EARContext(outputPath, id,
-                ConfigurationModuleType.WAR, parentId, kernel, moduleContext
+        EARContext earContext = new EARContext(outputPath, environment,
+                ConfigurationModuleType.WAR, kernel, moduleContext
                         .getJ2eeApplicationName(), tcmName, ctcName, null,
                 null, null, new RefContext(new EJBReferenceBuilder() {
 
@@ -369,9 +371,9 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        configurationManager.load((URI) parentId.get(0));
-        configurationManager.loadGBeans((URI) parentId.get(0));
-        configurationManager.start((URI) parentId.get(0));
+        configurationManager.load((Artifact) parentId.get(0));
+        configurationManager.loadGBeans((Artifact) parentId.get(0));
+        configurationManager.start((Artifact) parentId.get(0));
 
         serverInfoName = new ObjectName("geronimo.system:name=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
@@ -486,23 +488,18 @@ public class TomcatModuleBuilderTest extends TestCase {
             this.kernel = kernel;
         }
 
-        public URI install(URL source) throws IOException, InvalidConfigException {
+        public Artifact install(URL source) throws IOException, InvalidConfigException {
             return null;
         }
 
         public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
         }
 
-        public void uninstall(URI configID) throws NoSuchConfigException, IOException {
+        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public ObjectName loadConfiguration(URI configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            ObjectName configurationObjectName = null;
-            try {
-                configurationObjectName = Configuration.getConfigurationObjectName(configId);
-            } catch (MalformedObjectNameException e) {
-                throw new InvalidConfigException(e);
-            }
+        public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             configData.setAttribute("id", configId);
             configData.setAttribute("domain", "test");
@@ -518,7 +515,7 @@ public class TomcatModuleBuilderTest extends TestCase {
             return configurationObjectName;
         }
 
-        public boolean containsConfiguration(URI configID) {
+        public boolean containsConfiguration(Artifact configID) {
             return true;
         }
 

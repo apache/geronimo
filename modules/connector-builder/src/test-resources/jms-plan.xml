@@ -13,8 +13,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.-->
 <!--$Rev: 356113 $ $Date: 2005-12-11 21:54:02 -0500 (Sun, 11 Dec 2005) $-->
-<connector configId="TestJMSConfig" xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0">
-  <dep:import xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.0">
+<connector configId="TestJMSConfig" xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
+  <dep:import xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
     <dep:groupId>geronimo</dep:groupId>
     <dep:type>car</dep:type>
     <dep:artifactId>activemq-broker</dep:artifactId>

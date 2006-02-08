@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.List;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -28,8 +29,7 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class ApplicationInfo {
     private ConfigurationModuleType type;
-    private URI configId;
-    private List parentId;
+    private Environment environment;
     private String applicationName;
     private XmlObject specDD;
     private XmlObject vendorDD;
@@ -40,16 +40,14 @@ public class ApplicationInfo {
     public ApplicationInfo() {
     }
 
-    public ApplicationInfo(ConfigurationModuleType type, URI configId, List parentId, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, Environment environment, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
         assert type != null;
-        assert configId != null;
-        assert parentId != null;
+        assert environment != null;
         assert modules != null;
         assert moduleLocations != null;
 
         this.type = type;
-        this.configId = configId;
-        this.parentId = parentId;
+        this.environment = environment;
         this.applicationName = applicationName;
         this.specDD = specDD;
         this.vendorDD = vendorDD;
@@ -66,20 +64,12 @@ public class ApplicationInfo {
         this.type = type;
     }
 
-    public URI getConfigId() {
-        return configId;
+    public Environment getEnvironment() {
+        return environment;
     }
 
-    public void setConfigId(URI configId) {
-        this.configId = configId;
-    }
-
-    public List getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(List parentId) {
-        this.parentId = parentId;
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
     public String getApplicationName() {

@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -101,7 +102,7 @@ public class ConfigurationDump {
             List configurationInfos = configurationStore.listConfigurations();
             for (Iterator iterator = configurationInfos.iterator(); iterator.hasNext();) {
                 ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
-                URI configID = configurationInfo.getConfigID();
+                Artifact configID = configurationInfo.getConfigID();
                 dumpConfiguration(kernel, configurationStore, configID, out);
             }
 
@@ -122,17 +123,14 @@ public class ConfigurationDump {
         }
     }
 
-    private static void dumpConfiguration(Kernel kernel, ConfigurationStore configurationStore, URI id, PrintWriter out) throws Exception {
+    private static void dumpConfiguration(Kernel kernel, ConfigurationStore configurationStore, Artifact id, PrintWriter out) throws Exception {
         out.println("==================================================");
         out.println("= " + id);
         out.println("==================================================");
 
         loadRecursive(kernel, configurationStore, id);
         ObjectName name = null;
-        try {
-            name = Configuration.getConfigurationObjectName(id);
-        } catch (MalformedObjectNameException e) {
-        }
+        name = Configuration.getConfigurationObjectName(id);
         out.println("objectName: " + name);
 
         GBeanData config = kernel.getGBeanData(name);
@@ -263,7 +261,7 @@ public class ConfigurationDump {
         }
     }
 
-    public static void loadRecursive(Kernel kernel, ConfigurationStore configurationStore, URI configID) throws Exception {
+    public static void loadRecursive(Kernel kernel, ConfigurationStore configurationStore, Artifact configID) throws Exception {
         LinkedList ancestors = new LinkedList();
         Set preloaded = kernel.listGBeans(CONFIGURATION_NAME_QUERY);
         loadRecursive(kernel, configurationStore, configID, ancestors, preloaded);
@@ -275,7 +273,7 @@ public class ConfigurationDump {
         }
     }
 
-    private static void loadRecursive(Kernel kernel, ConfigurationStore configurationStore, URI configID, LinkedList ancestors, Set preloaded) throws Exception {
+    private static void loadRecursive(Kernel kernel, ConfigurationStore configurationStore, Artifact configID, LinkedList ancestors, Set preloaded) throws Exception {
         ObjectName name = Configuration.getConfigurationObjectName(configID);
         if (preloaded.contains(name)) {
             return;
@@ -286,10 +284,10 @@ public class ConfigurationDump {
         //put the earliest ancestors first, even if we have already started them.
         ancestors.remove(configID);
         ancestors.addFirst(configID);
-        URI[] parents = (URI[]) kernel.getAttribute(name, "parentId");
+        Artifact[] parents = (Artifact[]) kernel.getAttribute(name, "parentId");
         if (parents != null) {
             for (int i = 0; i < parents.length; i++) {
-                URI parent = parents[i];
+                Artifact parent = parents[i];
                 loadRecursive(kernel, configurationStore, parent, ancestors, preloaded);
             }
         }
