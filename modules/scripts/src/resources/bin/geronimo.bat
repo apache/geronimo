@@ -55,6 +55,11 @@
 @REM                   the JVM should use (java.io.tmpdir).  Defaults to
 @REM                   %GERONIMO_BASE%\var\temp.
 @REM
+@REM   GERONIMO_WIN_START_ARGS  (Optional) additional arguments to the Windows
+@REM                            START command when the "start" command
+@REM                            is executed. E.G, you could set this to /MIN 
+@REM                            to start Geronimo in a minimized window.
+@REM
 @REM   JAVA_HOME       Points to your Java Development Kit installation.
 @REM                   JAVA_HOME doesn't need to be set if JRE_HOME is set
 @REM                   unless you use the "debug" command.
@@ -252,10 +257,10 @@ shift
 set _LONG_OPT=--long
 
 if not "%OS%" == "Windows_NT" goto noTitle
-set _EXECJAVA=start "Geronimo" %_RUNJAVA%
+set _EXECJAVA=start "Geronimo" %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
 goto gotTitle
 :noTitle
-set _EXECJAVA=start %_RUNJAVA%
+set _EXECJAVA=start %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
 :gotTitle
 goto execCmd
 
