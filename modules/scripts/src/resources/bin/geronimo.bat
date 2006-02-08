@@ -146,7 +146,7 @@ if not %errorlevel% == 0 goto end
 @REM Get standard Java environment variables (based upon Tomcat's setclasspath.bat
 @REM but renamed since Geronimo's classpath is set in the JAR manifest)
 if exist "%GERONIMO_HOME%\bin\setjavaenv.bat" goto okSetJavaEnv
-echo Cannot find %GERONIMO_HOME%\bin\setclasspath.bat
+echo Cannot find %GERONIMO_HOME%\bin\setjavaenv.bat
 echo This file is needed to run this program
 set ERRORLEVEL=1
 goto end
