@@ -309,6 +309,11 @@ public class HOWLLog implements TransactionLog, GBeanLifecycle {
     }
 
     public Collection recover(XidFactory xidFactory) throws LogException {
+        log.debug("Initiating transaction manager recovery");
+        Map recovered = new HashMap();
+        ReplayListener replayListener = new GeronimoReplayListener(xidFactory, recovered);
+        logger.replayActiveTx(replayListener);
+        log.debug("In doubt transactions recovered from log");
         return recovered.values();
     }
 
