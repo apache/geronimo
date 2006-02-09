@@ -98,7 +98,7 @@ public class DispatchListener implements InstanceListener {
         
         String dispatchPath =
             (String) request.getAttribute(Globals.DISPATCHER_REQUEST_PATH_ATTR);
-        mb.setString(dispatchPath);
+        mb.setString(webContext.getName() + dispatchPath);
         
         try {
             mapper.map(mb, mappingData);
