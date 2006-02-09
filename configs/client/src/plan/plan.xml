@@ -56,9 +56,14 @@ by the app client.
         </reference>
     </gbean>
 
+    <gbean name="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImplGBean">
+        <attribute name="tmId">71,84,77,73,68</attribute>
+    </gbean>
+
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <!--no transaction log on the client-->
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
+        <reference name="XidFactory"><name>XidFactory</name></reference>
         <references name="ResourceManagers">
             <pattern>
                 <gbean-name>*:j2eeType=JCAManagedConnectionFactory,*</gbean-name>

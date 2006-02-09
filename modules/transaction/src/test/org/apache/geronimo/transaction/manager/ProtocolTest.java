@@ -31,7 +31,8 @@ public class ProtocolTest extends TestCase {
     private MockResource mr11, mr12, mr21, mr22;
 
     protected void setUp() throws Exception {
-        tm = new TransactionManagerImpl(1000, null, null);
+        tm = new TransactionManagerImpl(1000, 
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         mrm1 = new MockResourceManager(true);
         mrm2 = new MockResourceManager(true);
         mr11 = new MockResource(mrm1, "mr11");

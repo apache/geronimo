@@ -112,7 +112,8 @@ public class TestTransactionManager extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        tm = new TransactionManagerImpl(10 * 1000, null, null);
+        tm = new TransactionManagerImpl(10 * 1000,
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         rm1 = new MockResourceManager(true);
         rm2 = new MockResourceManager(true);
         rm3 = new MockResourceManager(false);

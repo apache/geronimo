@@ -47,7 +47,9 @@ public class XATransactionTester {
         ds = getDataSource(args);
         XAConnection xaConn = ds.getXAConnection("test", "test");
         XAResource xaRes = xaConn.getXAResource();
-        manager = new TransactionManagerImpl(10, new DummyLog(), null);
+        manager = new TransactionManagerImpl(10,
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), 
+                new DummyLog(), null);
         Connection c = xaConn.getConnection();
         Statement s = c.createStatement();
 
