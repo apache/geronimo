@@ -271,7 +271,6 @@ elif [ "$1" = "run" ]; then
 
   shift
   exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" 
@@ -281,7 +280,6 @@ elif [ "$1" = "start" ] ; then
   shift
   touch "$GERONIMO_OUT"
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
