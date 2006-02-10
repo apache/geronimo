@@ -284,7 +284,8 @@ elif [ "$1" = "start" ] ; then
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
     >> $GERONIMO_OUT 2>&1 &
-
+    echo ""
+    echo "Geronimo started in background. PID: $!"
     if [ ! -z "$GERONIMO_PID" ]; then
       echo $! > $GERONIMO_PID
     fi
