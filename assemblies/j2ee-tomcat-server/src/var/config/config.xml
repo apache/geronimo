@@ -23,7 +23,7 @@
             <attribute name="port">${PlanRemoteLoginPort}</attribute>
         </gbean>
         <gbean name="JMXService">
-            <attribute name="url">service:jmx:rmi:///jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
+            <attribute name="url">service:jmx:rmi://${PlanServerHostname}:${PlanJMXPort}/jndi/rmi://${PlanServerHostname}:${PlanNamingPort}/JMXConnector</attribute>
         </gbean>
     </configuration>
     <configuration name="geronimo/axis/${pom.currentVersion}/car"/>
