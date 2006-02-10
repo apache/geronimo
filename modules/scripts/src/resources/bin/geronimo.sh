@@ -93,6 +93,14 @@
 #                   the OS provides a command that allows you to start a process
 #                   with in a specified CPU or priority.
 #
+# Troubleshooting execution of this script file:
+#
+#  GERONIMO_ENV_INFO (Optional) Environment variable that when set to "on"
+#                    (the default) outputs the values of the GERONIMO_HOME,
+#                    GERONIMO_BASE, GERONIMO_TMPDIR, JAVA_HOME and
+#                    JRE_HOME before the command is issued. Set to "off"    
+#                    if you do not want this information displayed.
+#
 # Scripts called by this script:
 # 
 #   $GERONIMO_HOME/bin/setenv.sh
@@ -217,21 +225,24 @@ if $cygwin; then
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
-
-echo "Using GERONIMO_BASE:   $GERONIMO_BASE"
-echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
-echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
-if [ "$1" = "debug" ] ; then
-  echo "Using JAVA_HOME:       $JAVA_HOME"
-  echo "Using JDB_SRCPATH:     $JDB_SRCPATH"
-else
-  echo "Using JRE_HOME:        $JRE_HOME"
+if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
+  echo "Using GERONIMO_BASE:   $GERONIMO_BASE"
+  echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
+  echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
+  if [ "$1" = "debug" ] ; then
+    echo "Using JAVA_HOME:       $JAVA_HOME"
+    echo "Using JDB_SRCPATH:     $JDB_SRCPATH"
+  else
+    echo "Using JRE_HOME:        $JRE_HOME"
+  fi
 fi
 
 LONG_OPT=
 if [ "$1" = "start" ] ; then
   LONG_OPT=--long
-  echo "Using GERONIMO_OUT:    $GERONIMO_OUT"
+  if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
+    echo "Using GERONIMO_OUT:    $GERONIMO_OUT"
+  fi
 fi
 
 if [ "$1" = "jpda" ] ; then

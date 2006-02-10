@@ -70,6 +70,13 @@
 @REM                        "on" results in each batch file to pause at the
 @REM                        end of execution
 @REM
+@REM   GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
+@REM                        "on" (the default) outputs the values of  
+@REM                        GERONIMO_HOME, GERONIMO_BASE, GERONIMO_TMPDIR,
+@REM                        JAVA_HOME and JRE_HOME before the command is
+@REM                        issued. Set to "off" if you do not want this
+@REM                        information displayed.
+@REM
 @REM Batch files called by this batch file:
 @REM 
 @REM   %GERONIMO_HOME%\bin\setenv.bat
@@ -143,6 +150,16 @@ set GERONIMO_BASE=%GERONIMO_HOME%
 if not "%GERONIMO_TMPDIR%" == "" goto gotTmpdir
 set GERONIMO_TMPDIR=%GERONIMO_BASE%\var\temp
 :gotTmpdir
+
+@REM ----- Execute The Requested Command ---------------------------------------
+@if "%GERONIMO_ENV_INFO%" == "off" goto skipEnvInfo
+echo Using GERONIMO_BASE:   %GERONIMO_BASE%
+echo Using GERONIMO_HOME:   %GERONIMO_HOME%
+echo Using GERONIMO_TMPDIR: %GERONIMO_TMPDIR%
+if "%_REQUIRE_JDK%" == "1" echo Using JAVA_HOME:       %JAVA_HOME%
+if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
+
+:skipEnvInfo
 
 @REM Capture any passed in arguments
 set ARGS=%*
