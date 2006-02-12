@@ -335,7 +335,8 @@
         <nagEmailAddress>dev@geronimo.apache.org</nagEmailAddress>
         <sourceDirectory>${basedir}/src/java</sourceDirectory>
         <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
-
+        <defaultGoal>default</defaultGoal>
+        
         <resources>
             <resource>
                 <directory>${basedir}/src/java</directory>
