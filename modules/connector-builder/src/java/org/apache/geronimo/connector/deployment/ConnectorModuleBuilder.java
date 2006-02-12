@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,7 +65,6 @@ import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.xbeans.ClassFilterType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.Environment;
@@ -126,13 +123,13 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final int defaultIdleTimeoutMinutes;
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
-    private final List defaultParentId;
+    private final Environment defaultEnvironment;
     private final Repository repository;
     private final Kernel kernel;
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
 
-    public ConnectorModuleBuilder(Artifact[] defaultParentId,
+    public ConnectorModuleBuilder(Environment defaultEnvironment,
                                   int defaultMaxSize,
                                   int defaultMinSize,
                                   int defaultBlockingTimeoutMilliseconds,
@@ -142,7 +139,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                                   Repository repository,
                                   Kernel kernel) {
         assert repository != null;
-        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
+        this.defaultEnvironment = defaultEnvironment;
 
         this.defaultMaxSize = defaultMaxSize;
         this.defaultMinSize = defaultMinSize;
@@ -236,10 +233,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         EnvironmentType environmentType = gerConnector.getEnvironment();
-        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType);
-        if (!environment.isSuppressDefaultParentId()) {
-            environment.addImports(defaultParentId);
-        }
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         return new ConnectorModule(standAlone, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
@@ -867,7 +861,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ConnectorModuleBuilder.class, NameFactory.MODULE_BUILDER);
 
-        infoBuilder.addAttribute("defaultParentId", Artifact[].class, true, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultMaxSize", int.class, true, true);
         infoBuilder.addAttribute("defaultMinSize", int.class, true, true);
         infoBuilder.addAttribute("defaultBlockingTimeoutMilliseconds", int.class, true, true);
@@ -881,7 +875,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addInterface(ModuleBuilder.class);
         infoBuilder.addInterface(ResourceReferenceBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultParentId",
+        infoBuilder.setConstructor(new String[]{"defaultEnvironment",
                                                 "defaultMaxSize",
                                                 "defaultMinSize",
                                                 "defaultBlockingTimeoutMilliseconds",

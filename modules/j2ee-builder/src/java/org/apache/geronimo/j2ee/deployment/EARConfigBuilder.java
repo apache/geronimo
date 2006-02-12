@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
@@ -91,7 +90,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ResourceReferenceBuilder resourceReferenceBuilder;
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
-    private final List defaultParentId;
+    private final Environment defaultEnvironment;
     private final ObjectName transactionContextManagerObjectName;
     private final ObjectName connectionTrackerObjectName;
     private final ObjectName transactionalTimerObjectName;
@@ -100,10 +99,10 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private static final String DEFAULT_GROUPID = "defaultGroupId";
 
 
-    public EARConfigBuilder(Artifact[] defaultParentId, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(Environment defaultEnvironment, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
-        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
+        this.defaultEnvironment = defaultEnvironment;
 
         this.ejbConfigBuilder = ejbConfigBuilder;
         this.ejbReferenceBuilder = ejbReferenceBuilder;
@@ -210,10 +209,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
 
         EnvironmentType environmentType = gerApplication.getEnvironment();
-        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType);
-        if (!environment.isSuppressDefaultParentId()) {
-            environment.addImports(defaultParentId);
-        }
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
@@ -694,7 +690,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
-        infoFactory.addAttribute("defaultParentId", Artifact[].class, true, true);
+        infoFactory.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
@@ -715,7 +711,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.setConstructor(new String[]{
-            "defaultParentId",
+            "defaultEnvironment",
             "transactionContextManagerObjectName",
             "connectionTrackerObjectName",
             "transactionalTimerObjectName",

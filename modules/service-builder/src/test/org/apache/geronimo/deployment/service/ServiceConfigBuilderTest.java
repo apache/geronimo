@@ -16,45 +16,40 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Set;
-import javax.management.ObjectName;
 import junit.framework.TestCase;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.deployment.FooBarBean;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.FooBarBean;
-import org.apache.geronimo.deployment.Environment;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+
+import javax.management.ObjectName;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilderTest extends TestCase {
 
-    private URI[] parentIdArray = new URI[] {URI.create("test/foo")};
-    private List parentId = Arrays.asList(parentIdArray);
+    private Environment parentEnvironment = new Environment();
 
     public void testJavaBeanXmlAttribute() throws Exception {
         ReferenceCollection referenceCollection = new MockReferenceCollection();
         JavaBeanXmlAttributeBuilder javaBeanXmlAttributeBuilder = new JavaBeanXmlAttributeBuilder();
         //this is kind of cheating, we rely on the builder to iterate through existing members of the collection.
         referenceCollection.add(javaBeanXmlAttributeBuilder);
-        new ServiceConfigBuilder(parentIdArray, null, referenceCollection, null, null);
+        new ServiceConfigBuilder(parentEnvironment, null, referenceCollection, null, null);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final URL plan1 = cl.getResource("services/plan1.xml");
         ConfigurationDocument doc = ConfigurationDocument.Factory.parse(plan1);

@@ -1,5 +1,14 @@
 <?xml version="1.0"?>
-<xml-fragment configId="org/apache/jetspeed/web" xmlns:tom="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.0">
+<xml-fragment xmlns:tom="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.0" xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <dep:environment>
+        <dep:configId>
+            <dep:groupId>test</dep:groupId>
+            <dep:type>car</dep:type>
+            <dep:artifactId>testclient</dep:artifactId>
+            <dep:version>1</dep:version>
+        </dep:configId>
+
+    </dep:environment>
     <tom:context-priority-classloader>false</tom:context-priority-classloader>
     <tom:cross-context/>
     <tom:tomcat-realm>TomcatJAASRealm</tom:tomcat-realm>

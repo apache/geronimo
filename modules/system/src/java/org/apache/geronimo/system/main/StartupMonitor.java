@@ -2,6 +2,7 @@ package org.apache.geronimo.system.main;
 
 import java.net.URI;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * An interface used by the Daemon to convey the status of the server
@@ -13,11 +14,11 @@ public interface StartupMonitor {
     // Normal calls, will generally occur in this order
     void systemStarting(long startTime);
     void systemStarted(Kernel kernel);
-    void foundConfigurations(URI[] configurations);
-    void configurationLoading(URI configuration);
-    void configurationLoaded(URI configuration);
-    void configurationStarting(URI configuration);
-    void configurationStarted(URI configuration);
+    void foundConfigurations(Artifact[] configurations);
+    void configurationLoading(Artifact configuration);
+    void configurationLoaded(Artifact configuration);
+    void configurationStarting(Artifact configuration);
+    void configurationStarted(Artifact configuration);
     void startupFinished();
 
     // Indicate failures during load

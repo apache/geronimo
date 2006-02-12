@@ -55,6 +55,8 @@
         </xs:key>
 -->
     </xs:element>
+    <xs:element name="client-environment" type="sys:environmentType"/>
+    <xs:element name="server-environment" type="sys:environmentType"/>
 
     <xs:complexType name="environmentType">
         <xs:sequence>
@@ -179,7 +181,7 @@
                 </xs:annotation>
             </xs:element>
             <xs:element name="inverse-classloading" type="sys:emptyType" minOccurs="0"/>
-            <xs:element name="suppress-default-parentId" type="sys:emptyType" minOccurs="0"/>
+            <xs:element name="suppress-default-environment" type="sys:emptyType" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

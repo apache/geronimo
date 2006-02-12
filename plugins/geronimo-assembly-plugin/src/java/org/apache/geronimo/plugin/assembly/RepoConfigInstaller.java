@@ -22,10 +22,12 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.URISyntaxException;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.repository.FileSystemRepository;
 
 /**
@@ -59,17 +61,23 @@ public class RepoConfigInstaller extends BaseConfigInstaller {
             this.targetRepo = targetRepo;
         }
 
-        public GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException {
-            URL sourceURL = sourceRepo.getURL(configId);
+        public GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException {
+            URI sourceURI;
+            try {
+                sourceURI = configId.toURI();
+            } catch (URISyntaxException e) {
+                throw new InvalidConfigException(e);
+            }
+            URL sourceURL = sourceRepo.getURL(sourceURI);
             InputStream in = sourceURL.openStream();
             try {
-                if (!targetRepo.hasURI(configId)) {
-                    targetRepo.copyToRepository(in, configId, new StartFileWriteMonitor());
+                if (!targetRepo.hasURI(sourceURI)) {
+                    targetRepo.copyToRepository(in, sourceURI, new StartFileWriteMonitor());
                 }
             } finally {
                 in.close();
             }
-            URL targetURL = targetRepo.getURL(configId);
+            URL targetURL = targetRepo.getURL(sourceURI);
             GBeanData config = new GBeanData();
             URL baseURL = new URL("jar:" + targetURL.toString() + "!/");
             InputStream jis = null;
@@ -88,8 +96,12 @@ public class RepoConfigInstaller extends BaseConfigInstaller {
             return config;
         }
 
-        public boolean containsConfiguration(URI configID) {
-            return targetRepo.hasURI(configID);
+        public boolean containsConfiguration(Artifact configID) {
+            try {
+                return targetRepo.hasURI(configID.toURI());
+            } catch (URISyntaxException e) {
+                throw (IllegalArgumentException)new IllegalArgumentException("bad artifact").initCause(e);
+            }
         }
     }
 

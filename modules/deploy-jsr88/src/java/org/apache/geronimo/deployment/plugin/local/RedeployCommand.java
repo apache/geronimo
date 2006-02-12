@@ -22,6 +22,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -74,7 +75,7 @@ public class RedeployCommand extends AbstractDeployCommand {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleIDImpl module = (TargetModuleIDImpl) modules[i];
 
-                    URI configID = URI.create(module.getModuleID());
+                    Artifact configID = Artifact.create(module.getModuleID());
                     ObjectName configName = Configuration.getConfigurationObjectName(configID);
                     try {
                         kernel.stopGBean(configName);
@@ -108,7 +109,7 @@ public class RedeployCommand extends AbstractDeployCommand {
 
                     List list = configurationManager.loadRecursive(configID);
                     for (int j = 0; j < list.size(); j++) {
-                        URI name = (URI) list.get(j);
+                        Artifact name = (Artifact) list.get(j);
                         configurationManager.loadGBeans(name);
                         configurationManager.start(name);
                         updateStatus("Started " + name);

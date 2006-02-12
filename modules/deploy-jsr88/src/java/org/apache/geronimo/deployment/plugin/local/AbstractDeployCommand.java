@@ -113,8 +113,8 @@ public abstract class AbstractDeployCommand extends CommandSupport {
             childIDs[j] = (String)objectNames.get(j+1);
         }
 
-        TargetModuleIDImpl moduleID = new TargetModuleIDImpl(target, parentName.toString(), childIDs);
-        if(isWebApp(kernel, parentName.toString())) {
+        TargetModuleIDImpl moduleID = new TargetModuleIDImpl(target, parentName, childIDs);
+        if(isWebApp(kernel, parentName)) {
             moduleID.setType(ModuleType.WAR);
         }
         if(moduleID.getChildTargetModuleID() != null) {

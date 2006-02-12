@@ -33,15 +33,22 @@ import org.apache.xmlbeans.XmlObject;
  * @version $Rev$ $Date$
  */
 public class AppClientModule extends Module {
+    private final Environment clientEnvironment;
     private JarFile earFile;
     private Collection resourceModules;
 
-    public AppClientModule(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
-        super(standAlone, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+
+    public AppClientModule(boolean standAlone, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
+        super(standAlone, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+        this.clientEnvironment = clientEnvironment;
     }
 
     public ConfigurationModuleType getType() {
         return ConfigurationModuleType.CAR;
+    }
+
+    public Environment getClientEnvironment() {
+        return clientEnvironment;
     }
 
     public JarFile getEarFile() {

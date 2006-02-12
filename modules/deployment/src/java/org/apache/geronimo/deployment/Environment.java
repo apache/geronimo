@@ -46,7 +46,7 @@ public class Environment {
     private final Set nonOverrideableClasses = new HashSet();
 
     private boolean inverseClassloading;
-    private boolean suppressDefaultParentId;
+    private boolean suppressDefaultEnvironment;
 
     public Environment() {
     }
@@ -158,11 +158,11 @@ public class Environment {
         this.inverseClassloading = inverseClassloading;
     }
 
-    public boolean isSuppressDefaultParentId() {
-        return suppressDefaultParentId;
+    public boolean isSuppressDefaultEnvironment() {
+        return suppressDefaultEnvironment;
     }
 
-    public void setSuppressDefaultParentId(boolean suppressDefaultParentId) {
-        this.suppressDefaultParentId = suppressDefaultParentId;
+    public void setSuppressDefaultEnvironment(boolean suppressDefaultEnvironment) {
+        this.suppressDefaultEnvironment = suppressDefaultEnvironment;
     }
 }

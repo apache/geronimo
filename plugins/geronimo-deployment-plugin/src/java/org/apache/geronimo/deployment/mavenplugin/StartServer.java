@@ -30,6 +30,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -120,10 +121,10 @@ public class StartServer {
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {
             for (Iterator i = configList.iterator(); i.hasNext();) {
-                URI configID = (URI) i.next();
+                Artifact configID = (Artifact) i.next();
                 List list = configurationManager.loadRecursive(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    URI name = (URI) iterator.next();
+                    Artifact name = (Artifact) iterator.next();
                     configurationManager.loadGBeans(name);
                     configurationManager.start(name);
                     System.out.println("started gbean: " + name);

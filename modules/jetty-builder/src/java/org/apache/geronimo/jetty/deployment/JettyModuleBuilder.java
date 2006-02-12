@@ -21,10 +21,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.gbean.GBeanData;
@@ -46,6 +48,7 @@ import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -134,7 +137,7 @@ import java.util.zip.ZipEntry;
  */
 public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     private final static Log log = LogFactory.getLog(JettyModuleBuilder.class);
-    private final List defaultParentId;
+    private final Environment defaultEnvironment;
     private final ObjectName jettyContainerObjectName;
     private final Collection defaultServlets;
     private final Collection defaultFilters;
@@ -149,9 +152,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     private final Repository repository;
     private final Kernel kernel;
-    private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();//GerConnectorDocument.type.getDocumentElementName().getNamespaceURI();
+    private static final String JETTY_NAMESPACE = JettyWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
-    public JettyModuleBuilder(URI[] defaultParentId,
+    public JettyModuleBuilder(Environment defaultEnvironment,
                               Integer defaultSessionTimeoutSeconds,
                               boolean defaultContextPriorityClassloader,
                               List defaultWelcomeFiles,
@@ -163,8 +166,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                               WebServiceBuilder webServiceBuilder,
                               Repository repository,
                               Kernel kernel) throws GBeanNotFoundException {
-        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
-
+        this.defaultEnvironment = defaultEnvironment;
         this.defaultSessionTimeoutSeconds = (defaultSessionTimeoutSeconds == null) ? new Integer(30 * 60) : defaultSessionTimeoutSeconds;
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.jettyContainerObjectName = jettyContainerObjectName;
@@ -239,6 +241,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             }
         }
 
+        EnvironmentType environmentType = jettyWebApp.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+
         Map servletNameToPathMap = buildServletNameToPathMap(webApp, contextRoot);
 
         //look for a webservices dd
@@ -250,19 +255,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             //no descriptor
         }
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(jettyWebApp.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + jettyWebApp.getConfigId(), e);
-        }
-
-        List parentId = ServiceConfigBuilder.toArtifacts(jettyWebApp.getParentId(), jettyWebApp.getImportArray());
-        if (parentId.isEmpty()) {
-            parentId = new ArrayList(defaultParentId);
-        }
-        WebModule module = new WebModule(standAlone, configId, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
+        WebModule module = new WebModule(standAlone, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
         return module;
     }
 
@@ -364,7 +357,19 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         JettyWebAppType jettyWebApp = JettyWebAppType.Factory.newInstance();
 
         // set the parentId, configId and context root
-        jettyWebApp.setConfigId(contextRoot);
+//        Environment environment = new Environment();
+//        EnvironmentBuilder.mergeEnvironments(environment, defaultEnvironment);
+//        Artifact artifact = environment.getConfigId();
+//        artifact.setArtifactId(contextRoot);
+        //TODO broken, perhaps need a reverse env. builder
+//        jettyWebApp.setEnvironment(environment);
+        EnvironmentType environmentType = jettyWebApp.addNewEnvironment();
+        ArtifactType artifact = environmentType.addNewConfigId();
+        //TODO this version is incomplete.
+        artifact.setGroupId("unknown");
+        artifact.setArtifactId(contextRoot);
+        artifact.setVersion("1");
+        artifact.setType("car");
         jettyWebApp.setContextRoot(contextRoot);
         jettyWebApp.setContextPriorityClassloader(defaultContextPriorityClassloader);
         return jettyWebApp;
@@ -373,7 +378,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         JettyWebAppType jettyWebApp = (JettyWebAppType) module.getVendorDD();
 
-        earContext.addParentId(defaultParentId);
         try {
             URI baseDir = URI.create(module.getTargetPath() + "/");
 
@@ -395,24 +399,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             // and the url class loader will not pick up a manifest from an unpacked dir
             earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
 
-            // add the dependencies declared in the geronimo-web.xml file
-            DependencyType[] dependencies = jettyWebApp.getDependencyArray();
-            ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } catch (URISyntaxException e) {
             throw new DeploymentException("Could not construct URI for location of war entry", e);
         }
 
-        if (jettyWebApp.isSetInverseClassloading()) {
-            earContext.setInverseClassloading(jettyWebApp.getInverseClassloading());
-        }
-
-        ClassFilterType[] filters = jettyWebApp.getHiddenClassesArray();
-        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-
-        filters = jettyWebApp.getNonOverridableClassesArray();
-        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -1400,7 +1392,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(JettyModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultSessionTimeoutSeconds", Integer.class, true, true);
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
         infoBuilder.addAttribute("defaultWelcomeFiles", List.class, true, true);
@@ -1415,7 +1407,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[]{
-            "defaultParentId",
+            "defaultEnvironment",
             "defaultSessionTimeoutSeconds",
             "defaultContextPriorityClassloader",
             "defaultWelcomeFiles",

@@ -13,6 +13,9 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -35,10 +38,11 @@ public class PlanParsingTest extends TestCase {
     ObjectName jettyContainerObjectName = JMXUtil.getObjectName("test:type=JettyContainer");
     ObjectName pojoWebServiceTemplate = null;
     WebServiceBuilder webServiceBuilder = null;
+    private Environment defaultEnvironment = new Environment();
     private JettyModuleBuilder builder;
 
     public PlanParsingTest() throws Exception {
-        builder = new JettyModuleBuilder(new URI[]{URI.create("defaultParent")}, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, null, jettyContainerObjectName, new HashSet(), new HashSet(), new HashSet(), pojoWebServiceTemplate, webServiceBuilder, null, null);
     }
 
     public void testContents() throws Exception {
@@ -102,8 +106,7 @@ public class PlanParsingTest extends TestCase {
     public void testConstructPlan() throws Exception {
         JettyWebAppDocument jettyWebAppDoc = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType webApp = jettyWebAppDoc.addNewWebApp();
-        webApp.setConfigId("configId");
-        webApp.setParentId("parentId");
+        addEnvironment(webApp);
         webApp.setContextPriorityClassloader(false);
         GerResourceRefType ref = webApp.addNewResourceRef();
         ref.setRefName("ref");
@@ -111,6 +114,16 @@ public class PlanParsingTest extends TestCase {
 
         SchemaConversionUtils.validateDD(webApp);
         System.out.println(webApp.toString());
+    }
+
+    private void addEnvironment(JettyWebAppType webApp) {
+        EnvironmentType environmentType = webApp.addNewEnvironment();
+        ArtifactType configId = environmentType.addNewConfigId();
+        configId.setGroupId("g");
+        configId.setArtifactId("a");
+        configId.setVersion("1");
+        configId.setType("car");
+        environmentType.addNewClassloader();
     }
 
     public void testContextPriorityClassloader() throws Exception {
@@ -140,7 +153,7 @@ public class PlanParsingTest extends TestCase {
 
         JettyWebAppDocument jettyWebAppDoc = JettyWebAppDocument.Factory.newInstance();
         JettyWebAppType webApp = jettyWebAppDoc.addNewWebApp();
-        webApp.setConfigId("myId");
+        addEnvironment(webApp);
         webApp.setContextRoot("myContextRoot");
         webApp.setContextPriorityClassloader(false);
 

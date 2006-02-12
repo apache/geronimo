@@ -9,6 +9,7 @@ import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -38,7 +39,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
     private final static int MAX_WIDTH=70;
     private PrintStream out;
     private String currentOperation;
-    private URI[] configurations;
+    private Artifact[] configurations;
     private char[] configStatus = new char[0];
     private long started;
     private int percent = 0;
@@ -59,7 +60,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         currentOperation = "Loading";
     }
 
-    public synchronized void foundConfigurations(URI[] configurations) {
+    public synchronized void foundConfigurations(Artifact[] configurations) {
         this.configurations = configurations;
         configStatus = new char[configurations.length];
         for (int i = 0; i < configStatus.length; i++) {
@@ -100,7 +101,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         this.percent = percent;
     }
 
-    public synchronized void configurationLoading(URI configuration) {
+    public synchronized void configurationLoading(Artifact configuration) {
         currentOperation = " Loading "+configuration;
         for (int i = 0; i < configurations.length; i++) {
             if(configurations[i].equals(configuration)) {
@@ -110,7 +111,7 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         repaint();
     }
 
-    public synchronized void configurationLoaded(URI configuration) {
+    public synchronized void configurationLoaded(Artifact configuration) {
         for (int i = 0; i < configurations.length; i++) {
             if(configurations[i].equals(configuration)) {
                 configStatus[i] = STATUS_LOADED;
@@ -120,11 +121,11 @@ public class ProgressBarStartupMonitor implements StartupMonitor {
         repaint();
     }
 
-    public synchronized void configurationStarting(URI configuration) {
+    public synchronized void configurationStarting(Artifact configuration) {
         currentOperation = "Starting "+configuration;
     }
 
-    public synchronized void configurationStarted(URI configuration) {
+    public synchronized void configurationStarted(Artifact configuration) {
         for (int i = 0; i < configurations.length; i++) {
             if(configurations[i].equals(configuration)) {
                 configStatus[i] = STATUS_STARTED;

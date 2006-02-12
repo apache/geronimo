@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.repository.FileSystemRepository;
 import org.apache.geronimo.gbean.GBeanData;
 
@@ -108,11 +109,11 @@ public class BaseConfigInstaller {
     }
 
     protected void execute(InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
-        URI configId = URI.create(artifact);
+        Artifact configId = Artifact.create(artifact);
         execute(configId, installAdapter, sourceRepo,  targetRepo);
     }
 
-    protected void execute(URI configId, InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
+    protected void execute(Artifact configId, InstallAdapter installAdapter, Repository sourceRepo, FileSystemRepository targetRepo) throws IOException, InvalidConfigException {
         if (installAdapter.containsConfiguration(configId)) {
             System.out.println("Configuration " + configId + " already present in configuration store");
             return;
@@ -134,10 +135,10 @@ public class BaseConfigInstaller {
                 targetRepo.copyToRepository(in, dependency, monitor);
             }
         }
-        URI[] parentId = (URI[]) config.getAttribute("parentId");
+        Artifact[] parentId = (Artifact[]) config.getAttribute("parentId");
         if (parentId != null) {
             for (int i = 0; i < parentId.length; i++) {
-                URI parent = parentId[i];
+                Artifact parent = parentId[i];
                 execute(parent, installAdapter, sourceRepo, targetRepo);
             }
         }
@@ -145,9 +146,9 @@ public class BaseConfigInstaller {
 
     protected interface InstallAdapter {
 
-        GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException;
+        GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException;
 
-        boolean containsConfiguration(URI configID);
+        boolean containsConfiguration(Artifact configID);
     }
 
     protected static class StartFileWriteMonitor implements FileWriteMonitor {
@@ -189,7 +190,7 @@ public class BaseConfigInstaller {
          * todo if the uri has a scheme, don't dissect it.
          *
          * @param uri
-         * @return
+         * @return uri 
          */
         private URI resolve(final URI uri) {
             String[] bits = uri.toString().split("/");

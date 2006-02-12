@@ -16,14 +16,13 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.util.Set;
-import java.net.URI;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.management.ObjectName;
-
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -40,6 +39,6 @@ public interface NamingContext {
 
     GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException;
 
-    URI getConfigID();
+    Artifact getConfigID();
 
 }

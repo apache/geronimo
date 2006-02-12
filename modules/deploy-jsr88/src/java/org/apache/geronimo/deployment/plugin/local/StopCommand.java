@@ -17,21 +17,14 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.net.URI;
-import java.util.Map;
-import java.util.HashMap;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 
 /**
  * @version $Rev$ $Date$
@@ -52,7 +45,7 @@ public class StopCommand extends CommandSupport {
             try {
                 for (int i = 0; i < modules.length; i++) {
                     TargetModuleID module = modules[i];
-                    URI moduleID = URI.create(module.getModuleID());
+                    Artifact moduleID = Artifact.create(module.getModuleID());
                     try {
                         configurationManager.stop(moduleID);
                     } catch (InvalidConfigException e) {

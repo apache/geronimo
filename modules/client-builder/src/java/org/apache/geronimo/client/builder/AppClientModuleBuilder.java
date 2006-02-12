@@ -27,10 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -46,9 +44,9 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.gbean.GBeanData;
@@ -93,8 +91,8 @@ import org.apache.xmlbeans.XmlObject;
  */
 public class AppClientModuleBuilder implements ModuleBuilder {
 
-    private final List defaultClientParentId;
-    private final List defaultServerParentId;
+    private final Environment defaultClientEnvironment;
+    private final Environment defaultServerEnvironment;
     private final ObjectName corbaGBeanObjectName;
     private final Kernel kernel;
     private final Repository repository;
@@ -109,8 +107,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
     private static final String GERAPPCLIENT_NAMESPACE = GerApplicationClientDocument.type.getDocumentElementName().getNamespaceURI();
 
-    public AppClientModuleBuilder(URI[] defaultClientParentId,
-                                  URI[] defaultServerParentId,
+    public AppClientModuleBuilder(Environment defaultClientEnvironment,
+                                  Environment defaultServerEnvironment,
                                   ObjectName transactionContextManagerObjectName,
                                   ObjectName connectionTrackerObjectName,
                                   ObjectName corbaGBeanObjectName,
@@ -121,8 +119,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                   ConfigurationStore store,
                                   Repository repository,
                                   Kernel kernel) throws DeploymentException {
-        this.defaultClientParentId = defaultClientParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultClientParentId);
-        this.defaultServerParentId = defaultServerParentId == null? Collections.EMPTY_LIST: Arrays.asList(defaultServerParentId);
+        this.defaultClientEnvironment = defaultClientEnvironment;
+        this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
         this.kernel = kernel;
         this.repository = repository;
@@ -175,28 +173,15 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         // parse vendor dd
         GerApplicationClientType gerAppClient = getGeronimoAppClient(plan, moduleFile, standAlone, targetPath, appClient, environment);
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(gerAppClient.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + gerAppClient.getConfigId(), e);
-        }
 
-        List parentId = null;
-        if (gerAppClient.isSetParentId()) {
-            String parentIdString = gerAppClient.getParentId();
-            try {
-                parentId = new ArrayList();
-                parentId.add(new URI(parentIdString));
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Could not create parentId uri from " + parentIdString, e);
-            }
-        } else {
-            parentId = new ArrayList(defaultServerParentId);
-        }
+        EnvironmentType clientEnvironmentType = gerAppClient.getClientEnvironment();
+        Environment clientEnvironment = EnvironmentBuilder.buildEnvironment(clientEnvironmentType, defaultClientEnvironment);
+        EnvironmentType serverEnvironmentType = gerAppClient.getServerEnvironment();
+        Environment serverEnvironment = EnvironmentBuilder.buildEnvironment(serverEnvironmentType, defaultServerEnvironment);
 
-        return new AppClientModule(standAlone, configId, moduleFile, targetPath, appClient, gerAppClient, specDD);
+
+
+        return new AppClientModule(standAlone, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD);
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
@@ -251,7 +236,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         GerApplicationClientType geronimoAppClient = GerApplicationClientType.Factory.newInstance();
-        EnvironmentType environmentType = geronimoAppClient.addNewEnvironment();
+        EnvironmentType clientEnvironmentType = geronimoAppClient.addNewClientEnvironment();
+        EnvironmentType serverEnvironmentType = geronimoAppClient.addNewServerEnvironment();
         //TODO configid fill in environment with configids
         // set the parentId and configId
 //        if (standAlone) {
@@ -266,7 +252,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
-        earContext.addParentId(defaultServerParentId);
         // extract the app client jar file into a standalone packed jar file and add the contents to the output
         JarFile moduleFile = module.getModuleFile();
         try {
@@ -344,11 +329,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 // construct the app client deployment context... this is the same class used by the ear context
                 try {
 
-                    Artifact clientConfigId = URI.create(geronimoAppClient.getClientConfigId());
-                    List clientParentId = ServiceConfigBuilder.toArtifacts(geronimoAppClient.getClientParentId(), geronimoAppClient.getImportArray());
-                    clientParentId.addAll(defaultClientParentId);
                     appClientDeploymentContext = new EARContext(appClientDir,
-                            clientConfigId,
+                            appClientModule.getClientEnvironment(),
                             ConfigurationModuleType.CAR,
                             kernel,
                             clientApplicationName,
@@ -374,14 +356,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 } catch (IOException e) {
                     throw new DeploymentException("Unable to copy app client module jar into configuration: " + moduleFile.getName());
                 }
-
-                // add the includes
-                DependencyType[] includes = geronimoAppClient.getIncludeArray();
-                ServiceConfigBuilder.addIncludes(appClientDeploymentContext, includes, repository);
-
-                // add the dependencies
-                DependencyType[] dependencies = geronimoAppClient.getDependencyArray();
-                ServiceConfigBuilder.addDependencies(appClientDeploymentContext, dependencies, repository);
 
                 // add manifest class path entries to the app client context
                 addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
@@ -626,8 +600,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(AppClientModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultClientParentId", URI[].class, true, true);
-        infoBuilder.addAttribute("defaultServerParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultClientEnvironment", Environment.class, true, true);
+        infoBuilder.addAttribute("defaultServerEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
         infoBuilder.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
         infoBuilder.addAttribute("corbaGBeanObjectName", ObjectName.class, true);
@@ -642,8 +616,8 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         infoBuilder.addInterface(ModuleBuilder.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultClientParentId",
-                                                "defaultServerParentId",
+        infoBuilder.setConstructor(new String[]{"defaultClientEnvironment",
+                                                "defaultServerEnvironment",
                                                 "transactionContextManagerObjectName",
                                                 "connectionTrackerObjectName",
                                                 "corbaGBeanObjectName",

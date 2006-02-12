@@ -66,11 +66,11 @@ public class SchemaConversionUtils {
         GERONIMO_SCHEMA_CONVERSIONS.put("default-principal", new NamespaceElementConverter(GERONIMO_SECURITY_NAMESPACE));
 
         GERONIMO_SCHEMA_CONVERSIONS.put("gbean", new GBeanElementConverter());
-        GERONIMO_SCHEMA_CONVERSIONS.put("import", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("hidden-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("non-overridable-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("dependency", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
-        GERONIMO_SCHEMA_CONVERSIONS.put("include", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+        GERONIMO_SCHEMA_CONVERSIONS.put("environment", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+//        GERONIMO_SCHEMA_CONVERSIONS.put("hidden-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+//        GERONIMO_SCHEMA_CONVERSIONS.put("non-overridable-classes", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+//        GERONIMO_SCHEMA_CONVERSIONS.put("dependency", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
+//        GERONIMO_SCHEMA_CONVERSIONS.put("include", new NamespaceElementConverter(GERONIMO_SERVICE_NAMESPACE));
     }
 
     private SchemaConversionUtils() {
@@ -425,7 +425,7 @@ public class SchemaConversionUtils {
         } finally {
             cursor.dispose();
         }
-        throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "/n" + xmlObject);
+        throw new IllegalArgumentException("xmlobject did not have desired element: " + desiredElement + "\n" + xmlObject);
     }
 
 

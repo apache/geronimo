@@ -1,11 +1,11 @@
 package org.apache.geronimo.system.main;
 
-import java.net.URI;
 import java.util.Set;
 import java.util.Iterator;
 
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
@@ -28,19 +28,19 @@ public class SilentStartupMonitor implements StartupMonitor {
         this.kernel = kernel;
     }
 
-    public void foundConfigurations(URI[] configurations) {
+    public void foundConfigurations(Artifact[] configurations) {
     }
 
-    public void configurationLoading(URI configuration) {
+    public void configurationLoading(Artifact configuration) {
     }
 
-    public void configurationLoaded(URI configuration) {
+    public void configurationLoaded(Artifact configuration) {
     }
 
-    public void configurationStarting(URI configuration) {
+    public void configurationStarting(Artifact configuration) {
     }
 
-    public void configurationStarted(URI configuration) {
+    public void configurationStarted(Artifact configuration) {
     }
 
     public void startupFinished() {

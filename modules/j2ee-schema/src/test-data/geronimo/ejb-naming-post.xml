@@ -1,9 +1,14 @@
 <?xml version="1.0"?>
 
-<openejb-jar configId="org/openejb/Itests" parentId="org/apache/geronimo/DefaultDatabase" xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-    <dep:dependency>
-        <dep:uri>junit/jars/junit-3.8.jar</dep:uri>
-    </dep:dependency>
+<openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1" xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.0" xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+    <dep:environment>
+        <dep:configId>
+            <dep:groupId>test</dep:groupId>
+            <dep:type>car</dep:type>
+            <dep:artifactId>testclient</dep:artifactId>
+            <dep:version>1</dep:version>
+        </dep:configId>
+    </dep:environment>
     <nam:cmp-connection-factory>
         <nam:application>null</nam:application>
         <nam:module>org/apache/geronimo/DefaultDatabase</nam:module>

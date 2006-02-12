@@ -51,11 +51,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -116,7 +117,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private static final Log log = LogFactory.getLog(TomcatModuleBuilder.class);
 
-    private final List defaultParentId;
+    private final Environment defaultEnvironment;
     private final boolean defaultContextPriorityClassloader;
     private final ObjectName tomcatContainerObjectName;
 
@@ -125,12 +126,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     private final Repository repository;
     private static final String TOMCAT_NAMESPACE = TomcatWebAppDocument.type.getDocumentElementName().getNamespaceURI();
 
-    public TomcatModuleBuilder(URI[] defaultParentId,
+    public TomcatModuleBuilder(Environment defaultEnvironment,
                                boolean defaultContextPriorityClassloader,
                                ObjectName tomcatContainerObjectName,
                                WebServiceBuilder webServiceBuilder,
                                Repository repository) {
-        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
+        this.defaultEnvironment = defaultEnvironment;
 
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
         this.tomcatContainerObjectName = tomcatContainerObjectName;
@@ -181,18 +182,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
 
-        // get the ids from either the application plan or for a stand alone module from the specific deployer
-        URI configId = null;
-        try {
-            configId = new URI(tomcatWebApp.getConfigId());
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + tomcatWebApp.getConfigId(), e);
-        }
-
-        List parentId = ServiceConfigBuilder.toArtifacts(tomcatWebApp.getParentId(), tomcatWebApp.getImportArray());
-        if (parentId.isEmpty()) {
-            parentId = new ArrayList(defaultParentId);
-        }
+        EnvironmentType environmentType = tomcatWebApp.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
         if (contextRoot == null) {
             if (tomcatWebApp.isSetContextRoot()) {
@@ -214,7 +205,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
         }
 
-        WebModule module = new WebModule(standAlone, configId, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
+        WebModule module = new WebModule(standAlone, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
         return module;
     }
 
@@ -224,7 +215,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
      *
      * @param webApp
      * @param contextRoot
-     * @return
+     * @return map of servlet names to path mapped to them.  Possibly inaccurate except for web services.
      */
     private Map buildServletNameToPathMap(WebAppType webApp, String contextRoot) {
         contextRoot = "/" + contextRoot;
@@ -315,7 +306,13 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private TomcatWebAppType createDefaultPlan(String path) {
         TomcatWebAppType tomcatWebApp = TomcatWebAppType.Factory.newInstance();
-        tomcatWebApp.setConfigId(path);
+        EnvironmentType environmentType = tomcatWebApp.addNewEnvironment();
+        ArtifactType artifact = environmentType.addNewConfigId();
+        //TODO this version is incomplete.
+        artifact.setGroupId("unknown");
+        artifact.setArtifactId(path);
+        artifact.setVersion("1");
+        artifact.setType("car");
         tomcatWebApp.setContextRoot("/" + path);
         tomcatWebApp.setContextPriorityClassloader(defaultContextPriorityClassloader);
         return tomcatWebApp;
@@ -324,7 +321,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
     public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) module.getVendorDD();
 
-        earContext.addParentId(defaultParentId);
         try {
             URI baseDir = URI.create(module.getTargetPath() + "/");
 
@@ -346,24 +342,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             // and the url class loader will not pick up a manifiest from an unpacked dir
             earContext.addManifestClassPath(warFile, URI.create(module.getTargetPath()));
 
-            // add the dependencies declared in the geronimo-web.xml file
-            DependencyType[] dependencies = tomcatWebApp.getDependencyArray();
-            ServiceConfigBuilder.addDependencies(earContext, dependencies, repository);
         } catch (IOException e) {
             throw new DeploymentException("Problem deploying war", e);
         } catch (URISyntaxException e) {
             throw new DeploymentException("Could not construct URI for location of war entry", e);
         }
 
-        if (tomcatWebApp.isSetInverseClassloading()) {
-            earContext.setInverseClassloading(tomcatWebApp.getInverseClassloading());
-        }
-
-        ClassFilterType[] filters = tomcatWebApp.getHiddenClassesArray();
-        ServiceConfigBuilder.addHiddenClasses(earContext, filters);
-
-        filters = tomcatWebApp.getNonOverridableClassesArray();
-        ServiceConfigBuilder.addNonOverridableClasses(earContext, filters);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
@@ -986,7 +970,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
-        infoBuilder.addAttribute("defaultParentId", URI[].class, true, true);
+        infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
         infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
@@ -994,7 +978,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         infoBuilder.addInterface(ModuleBuilder.class);
 
         infoBuilder.setConstructor(new String[]{
-            "defaultParentId",
+            "defaultEnvironment",
             "defaultContextPriorityClassloader",
             "tomcatContainerObjectName",
             "WebServiceBuilder",

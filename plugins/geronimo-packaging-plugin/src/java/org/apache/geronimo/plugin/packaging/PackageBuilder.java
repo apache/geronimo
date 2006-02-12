@@ -16,32 +16,32 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
-import java.io.File;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.log4j.BasicConfigurator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
  * infrastructure.
  *
- * @version $Rev: 355876 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class PackageBuilder {
 
@@ -101,7 +101,7 @@ public class PackageBuilder {
 
     private File repository;
     private String deploymentConfigString;
-    private URI[] deploymentConfig;
+    private Artifact[] deploymentConfig;
     private ObjectName deployerName;
 
     private File planFile;
@@ -154,10 +154,10 @@ public class PackageBuilder {
     public void setDeploymentConfig(String deploymentConfigString) {
         this.deploymentConfigString = deploymentConfigString;
         String[] configNames = deploymentConfigString.split(",");
-        deploymentConfig = new URI[configNames.length];
+        deploymentConfig = new Artifact[configNames.length];
         for (int i = 0; i < configNames.length; i++) {
             String configName = configNames[i];
-            deploymentConfig[i] = URI.create(configName);
+            deploymentConfig[i] = Artifact.create(configName);
         }
     }
 
@@ -262,11 +262,11 @@ public class PackageBuilder {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
                 for (int i = 0; i < deploymentConfig.length; i++) {
-                    URI configName = deploymentConfig[i];
+                    Artifact configName = deploymentConfig[i];
                     if (!configurationManager.isLoaded(configName)) {
                         List configs = configurationManager.loadRecursive(configName);
                         for (Iterator iterator = configs.iterator(); iterator.hasNext(); ) {
-                            URI ancestorConfigName = (URI) iterator.next();
+                            Artifact ancestorConfigName = (Artifact) iterator.next();
                             try {
                                 configurationManager.loadGBeans(ancestorConfigName);
                             } catch (Throwable e) {

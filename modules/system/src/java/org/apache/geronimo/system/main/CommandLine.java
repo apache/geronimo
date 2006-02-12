@@ -32,6 +32,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -129,10 +130,10 @@ public class CommandLine {
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
         try {
             for (Iterator i = configurations.iterator(); i.hasNext();) {
-                URI configID = (URI) i.next();
+                Artifact configID = (Artifact) i.next();
                 List list = configurationManager.loadRecursive(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    URI name = (URI) iterator.next();
+                    Artifact name = (Artifact) iterator.next();
                     configurationManager.loadGBeans(name);
                     configurationManager.start(name);
                 }

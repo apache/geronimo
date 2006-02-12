@@ -17,18 +17,18 @@
 
 package org.apache.geronimo.plugin.assembly;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
-
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.repository.FileSystemRepository;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 /**
  * JellyBean that installs configuration artifacts into a LocalConfigurationStore,  It also copies all
@@ -43,13 +43,18 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
         store.doStart();
         InstallAdapter installAdapter = new InstallAdapter() {
 
-            public GBeanData install(Repository sourceRepo, URI configId) throws IOException, InvalidConfigException {
-                URL artifact = sourceRepo.getURL(configId);
+            public GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException {
+                URL artifact = null;
+                try {
+                    artifact = sourceRepo.getURL(configId.toURI());
+                } catch (URISyntaxException e) {
+                    throw new InvalidConfigException(e);
+                }
                 GBeanData config = store.install2(artifact);
                 return config;
             }
 
-            public boolean containsConfiguration(URI configID) {
+            public boolean containsConfiguration(Artifact configID) {
                 return store.containsConfiguration(configID);
             }
         };

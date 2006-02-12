@@ -16,9 +16,17 @@
     limitations under the License.
 -->
 <web-app
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.0"
-    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1"
-    configId="org/apache/geronimo/test">
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/web-1.1"
+    xmlns:sec="http://geronimo.apache.org/xml/ns/security-1.1">
+    <environment>
+        <configId>
+            <groupId>foo</groupId>
+            <type>car</type>
+            <artifactId>bar</artifactId>
+            <version>1</version>
+        </configId>
+        <classloader></classloader>
+    </environment>
 
     <context-root>/test</context-root>
     <context-priority-classloader>false</context-priority-classloader>

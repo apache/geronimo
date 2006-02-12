@@ -39,6 +39,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
@@ -317,20 +318,20 @@ public class Daemon {
                 }
             }
 
-            monitor.foundConfigurations((URI[]) configs.toArray(new URI[configs.size()]));
+            monitor.foundConfigurations((Artifact[]) configs.toArray(new Artifact[configs.size()]));
 
             // load the rest of the configurations
             try {
                 ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
                 try {
                     for (Iterator i = configs.iterator(); i.hasNext();) {
-                        URI configID = (URI) i.next();
+                        Artifact configID = (Artifact) i.next();
                         monitor.configurationLoading(configID);
                         List list = configurationManager.loadRecursive(configID);
                         monitor.configurationLoaded(configID);
                         monitor.configurationStarting(configID);
                         for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                            URI name = (URI) iterator.next();
+                            Artifact name = (Artifact) iterator.next();
                             configurationManager.loadGBeans(name);
                             configurationManager.start(name);
                         }

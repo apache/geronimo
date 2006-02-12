@@ -1,13 +1,16 @@
 <?xml version="1.0"?>
 
 <openejb-jar
-    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
-    configId="org/openejb/Itests"
-    parentId="org/apache/geronimo/DefaultDatabase">
+    xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1">
 
-    <dependency>
-        <uri>junit/jars/junit-3.8.jar</uri>
-    </dependency>
+    <environment>
+        <configId>
+            <groupId>test</groupId>
+            <type>car</type>
+            <artifactId>testclient</artifactId>
+            <version>1</version>
+        </configId>
+    </environment>
 
     <cmp-connection-factory>
         <application>null</application>

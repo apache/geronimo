@@ -47,12 +47,13 @@ public class GenericToSpecificPlanConverterTest extends TestCase {
         URL srcXml = classLoader.getResource(prePlanName);
         URL expectedOutputXml = classLoader.getResource("plans/tomcat-post.xml");
         XmlObject rawPlan = XmlBeansUtil.parse(srcXml);
+        System.out.println("RAW PLAN " + rawPlan.toString());
         XmlObject expected = XmlObject.Factory.parse(expectedOutputXml);
         XmlObject webPlan = new GenericToSpecificPlanConverter("http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0",
-                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0", "tomcat").convertToSpecificPlan(rawPlan);
+                "http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1", "tomcat").convertToSpecificPlan(rawPlan);
 
-//        System.out.println(webPlan.toString());
-//        System.out.println(expected.toString());
+        System.out.println("PROCESSED: " + webPlan.toString());
+        System.out.println("EXPECTED: " + expected.toString());
         List problems = new ArrayList();
         boolean ok = compareXmlObjects(webPlan, expected, problems);
         assertTrue("Differences: " + problems, ok);

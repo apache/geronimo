@@ -1,5 +1,13 @@
 <?xml version="1.0"?>
-<web-app xmlns="http://geronimo.apache.org/xml/ns/web" configId="org/apache/jetspeed/web">
+<web-app xmlns="http://geronimo.apache.org/xml/ns/web">
+    <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:configId>
+            <dep:groupId>test</dep:groupId>
+            <dep:type>car</dep:type>
+            <dep:artifactId>testclient</dep:artifactId>
+            <dep:version>1</dep:version>
+        </dep:configId>
+    </dep:environment>
     <context-priority-classloader>false</context-priority-classloader>
     <container-config>
         <tomcat xmlns="http://geronimo.apache.org/xml/ns/web/tomcat/config-1.0">
@@ -22,7 +30,7 @@
             </role>
         </role-mappings>
     </security>
-    <gbean name="jetspeed-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0">
+    <gbean name="jetspeed-realm" class="org.apache.geronimo.security.realm.GenericSecurityRealm" xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <attribute name="realmName">jetspeed-realm</attribute>
         <xml-reference name="LoginModuleConfiguration">
             <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">

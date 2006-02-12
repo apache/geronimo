@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -103,7 +104,8 @@ public class JettyModuleBuilderTest extends TestCase {
     private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
-    private List parentId = Arrays.asList(new URI[] {URI.create("org/apache/geronimo/Foo")});
+    private List parentId = Arrays.asList(new Artifact[] {Artifact.create("geronimo/Foo/1/car")});
+    private Environment defaultEnvironment = new Environment();
 
     public void testDeployWar4() throws Exception {
         File outputPath = new File(basedir, "target/test-resources/deployables/war4");
@@ -112,8 +114,7 @@ public class JettyModuleBuilderTest extends TestCase {
         File path = new File(basedir, "src/test-resources/deployables/war4");
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
-        Environment id = new Environment();
-        EARContext earContext = createEARContext(outputPath, id);
+        EARContext earContext = createEARContext(outputPath, defaultEnvironment);
         ObjectName serverName = earContext.getServerObjectName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
@@ -132,14 +133,14 @@ public class JettyModuleBuilderTest extends TestCase {
         if (kernel.getGBeanState(configData.getName()) != State.RUNNING_INDEX) {
             fail("gbean not started: " + configData.getName());
         }
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=war4")));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,j2eeType=WebModule,name=unknown/war4/1/car")));
         Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,WebModule=war4,*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
             assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
         }
-        GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,Servlet=Servlet1,WebFilter=Filter2,WebModule=war4,j2eeType=WebFilterMapping"));
+        GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,Servlet=Servlet1,WebFilter=Filter2,WebModule=unknown/war4/1/car,j2eeType=WebFilterMapping"));
 //        assertEquals(Collections.singleton(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,Servlet=Servlet1,WebFilter=Filter1,WebModule=war4,j2eeType=WebFilterMapping")), filterMapping2Data.getReferencePatterns("Previous"));
 
         kernel.stopGBean(configName);
@@ -165,7 +166,8 @@ public class JettyModuleBuilderTest extends TestCase {
                 ctcName,
                 null,
                 null,
-                null, new RefContext(new EJBReferenceBuilder() {
+                null,
+                new RefContext(new EJBReferenceBuilder() {
 
                     public Reference createEJBLocalReference(String objectName, GBeanData gbeanData, boolean isSession, String localHome, String local) throws DeploymentException {
                         return null;
@@ -289,8 +291,10 @@ public class JettyModuleBuilderTest extends TestCase {
         securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
         start(securityServiceGBean);
 
-
-        builder = new JettyModuleBuilder(new URI[] {new URI("null")}, new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
+        defaultEnvironment.addImports(parentId);
+        Artifact artifact = Artifact.create("foo/bar/1/car");
+        defaultEnvironment.setConfigId(artifact);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
 
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 
@@ -362,8 +366,10 @@ public class JettyModuleBuilderTest extends TestCase {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             configData.setAttribute("id", configId);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
+            Map nameKeys = new HashMap();
+            nameKeys.put("domain", "test");
+            nameKeys.put("J2EEServer", "server");
+            configData.setAttribute("nameKeys", nameKeys);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
             try {

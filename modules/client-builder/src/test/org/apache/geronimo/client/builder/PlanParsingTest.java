@@ -7,6 +7,9 @@ import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientDocument;
 import org.apache.geronimo.xbeans.geronimo.client.GerApplicationClientType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
+import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 
 /**
  */
@@ -16,7 +19,7 @@ public class PlanParsingTest extends TestCase {
     File basedir = new File(System.getProperty("basedir", "."));
 
     protected void setUp() throws Exception {
-        builder = new AppClientModuleBuilder(null, null, null, null, null, null, null, null, null, null, null, null);
+        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null, null, null, null);
     }
 
     public void testResourceRef() throws Exception {
@@ -29,9 +32,16 @@ public class PlanParsingTest extends TestCase {
     public void testConstructPlan() throws Exception {
         GerApplicationClientDocument appClientDoc = GerApplicationClientDocument.Factory.newInstance();
         GerApplicationClientType appClient = appClientDoc.addNewApplicationClient();
-        appClient.setClientConfigId("clientConfigId");
-        appClient.setConfigId("configId");
-        appClient.setParentId("parentId");
+        EnvironmentType clientEnvironmentType = appClient.addNewClientEnvironment();
+        ArtifactType clientId = clientEnvironmentType.addNewConfigId();
+        clientId.setGroupId("group");
+        clientId.setArtifactId("artifact");
+        EnvironmentType serverEnvironmentType = appClient.addNewServerEnvironment();
+        serverEnvironmentType.setConfigId(clientId);
+
+//        appClient.setClientConfigId("clientConfigId");
+//        appClient.setConfigId("configId");
+//        appClient.setParentId("parentId");
         GerResourceRefType ref = appClient.addNewResourceRef();
         ref.setRefName("ref");
         ref.setTargetName("target");

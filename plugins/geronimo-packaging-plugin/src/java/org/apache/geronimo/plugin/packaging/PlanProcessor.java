@@ -35,6 +35,9 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xbeans.ClassloaderType;
 
 /**
  * @version $Rev$ $Date$
@@ -43,11 +46,9 @@ public class PlanProcessor {
     private static Log log = LogFactory.getLog(PlanProcessor.class);
 
     private static final String IMPORT_PROPERTY = "geronimo.import";
-    private static final QName IMPORT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.0", "import");
     private static final String INCLUDE_PROPERTY = "geronimo.include";
-    private static final QName INCLUDE_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.0", "include");
     private static final String DEPENDENCY_PROPERTY = "geronimo.dependency";
-    private static final QName DEPENDENCY_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.0", "dependency");
+    private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "environment");
 
     private List artifacts;
     private String sourceDir;
@@ -55,6 +56,9 @@ public class PlanProcessor {
     private String planFile;
     private String targetFile;
     private Context context;
+    private String groupId;
+    private String artifactId;
+    private String version;
 
     public List getArtifacts() {
         return artifacts;
@@ -100,6 +104,30 @@ public class PlanProcessor {
         this.context = new JellyContextAdapter(context);
     }
 
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
     public void execute() throws Exception, XmlException {
         try {
             if (artifacts == null) {
@@ -131,11 +159,60 @@ public class PlanProcessor {
 
                 xmlCursor.toFirstContentToken();
                 xmlCursor.toFirstChild();
+                QName childName = xmlCursor.getName();
+                EnvironmentType environmentType;
+                if (childName.equals(ENVIRONMENT_QNAME)) {
+                    environmentType = (EnvironmentType) xmlCursor.getObject();
+                } else {
+                    environmentType = EnvironmentType.Factory.newInstance();
+                    xmlCursor.beginElement(ENVIRONMENT_QNAME);
+                    XmlCursor element = environmentType.newCursor();
+                    try {
+                        element.copyXmlContents(xmlCursor);
+                    } finally {
+                        element.dispose();
+                    }
+                }
 
+                ArtifactType configId = environmentType.getConfigId();
+                if (configId == null) {
+                    configId = environmentType.addNewConfigId();
+                    configId.setGroupId(groupId);
+                    configId.setArtifactId(artifactId);
+                    configId.setVersion(version);
+                    configId.setType("car");
+                }
 
-                insertPlanElements(xmlCursor, IMPORT_PROPERTY, IMPORT_QNAME);
-                insertPlanElements(xmlCursor, INCLUDE_PROPERTY, INCLUDE_QNAME);
-                insertPlanElements(xmlCursor, DEPENDENCY_PROPERTY, DEPENDENCY_QNAME);
+                insertPlanElements(environmentType, IMPORT_PROPERTY, new Inserter() {
+
+                    public ArtifactType insert(EnvironmentType environmentType) {
+                        ClassloaderType classloaderType = environmentType.getClassloader();
+                        if (classloaderType == null) {
+                            classloaderType = environmentType.addNewClassloader();
+                        }
+                        return classloaderType.addNewImport();
+                    }
+                });
+                insertPlanElements(environmentType, INCLUDE_PROPERTY, new Inserter() {
+
+                    public ArtifactType insert(EnvironmentType environmentType) {
+                        ClassloaderType classloaderType = environmentType.getClassloader();
+                        if (classloaderType == null) {
+                            classloaderType = environmentType.addNewClassloader();
+                        }
+                        return classloaderType.addNewInclude();
+                    }
+                });
+                insertPlanElements(environmentType, DEPENDENCY_PROPERTY, new Inserter() {
+
+                    public ArtifactType insert(EnvironmentType environmentType) {
+                        ClassloaderType classloaderType = environmentType.getClassloader();
+                        if (classloaderType == null) {
+                            classloaderType = environmentType.addNewClassloader();
+                        }
+                        return classloaderType.addNewDependency();
+                    }
+                });
 
                 File targetDir = new File(this.targetDir);
                 if (targetDir.exists()) {
@@ -158,37 +235,30 @@ public class PlanProcessor {
         }
     }
 
-    private void insertPlanElements(XmlCursor xmlCursor, String artifactProperty, QName elementQName) {
-        if (xmlCursor.toNextSibling(elementQName)) {
-            while(xmlCursor.toNextSibling(elementQName));
-            xmlCursor.toEndToken();
-            xmlCursor.toNextToken();
-        }
+    private void insertPlanElements(EnvironmentType environmentType, String artifactProperty, Inserter inserter) {
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            Dependency dependency = (Dependency) artifact.getDependency();
+            Dependency dependency = artifact.getDependency();
             if ("true".equals(dependency.getProperty(artifactProperty))) {
                 String groupId = dependency.getGroupId();
                 String artifactId = dependency.getArtifactId();
                 String version = dependency.getVersion();
                 String type = dependency.getType();
-                org.apache.geronimo.deployment.xbeans.DependencyType dependencyType = org.apache.geronimo.deployment.xbeans.DependencyType.Factory.newInstance();
-                dependencyType.setGroupId(groupId);
-                dependencyType.setArtifactId(artifactId);
-                dependencyType.setVersion(version);
+                ArtifactType artifactType = inserter.insert(environmentType);
+                artifactType.setGroupId(groupId);
+                artifactType.setArtifactId(artifactId);
+                artifactType.setVersion(version);
                 if (type != null && !"jar".equals(type)) {
-                    dependencyType.setType(type);
+                    artifactType.setType(type);
                 }
 
-                xmlCursor.beginElement(elementQName);
-                XmlCursor element = dependencyType.newCursor();
-                try {
-                    element.copyXmlContents(xmlCursor);
-                } finally {
-                    element.dispose();
-                }
-                xmlCursor.toNextToken();
             }
         }
     }
+
+    interface Inserter {
+        ArtifactType insert(EnvironmentType environmentType);
+    }
+
+
 }

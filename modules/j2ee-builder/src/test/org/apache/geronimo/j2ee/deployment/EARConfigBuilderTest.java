@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -79,12 +80,13 @@ public class EARConfigBuilderTest extends TestCase {
     private static final ObjectName connectionTrackerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ConnectionTracker");
     private static final ObjectName transactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=TransactionalThreaPooledTimer");
     private static final ObjectName nonTransactionalTimerObjectName = JMXUtil.getObjectName(j2eeServerName + ":type=ThreadPooledTimer,name=NonTransactionalThreaPooledTimer");
-    private Artifact[] defaultParentId;
+    private Environment defaultParentId;
     private static String contextRoot = "test";
     private static final Map portMap = null;
 
     protected void setUp() throws Exception {
-        defaultParentId = new Artifact[] {new Artifact("geronimo", "test", "1", "car", true)};
+        defaultParentId = new Environment();
+        defaultParentId.getImports().add(new Artifact("geronimo", "test", "1", "car", true));
     }
 
     public static Test suite() throws Exception {

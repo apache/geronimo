@@ -22,13 +22,10 @@ import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.ClassloaderType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
-import org.apache.geronimo.deployment.xbeans.NameKeyType;
 import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
@@ -69,18 +66,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
-    private final List defaultParentId;
+    private final Environment defaultEnvironment;
     private final Repository repository;
     private final Kernel kernel;
 
@@ -92,12 +85,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private static final QName SERVICE_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.0", "configuration");
 
 
-    public ServiceConfigBuilder(URI[] defaultParentId, Repository repository) {
-        this(defaultParentId, repository, null, null, null);
+    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository) {
+        this(defaultEnvironment, repository, null, null, null);
     }
 
-    public ServiceConfigBuilder(URI[] defaultParentId, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
-        this.defaultParentId = defaultParentId == null ? Collections.EMPTY_LIST : Arrays.asList(defaultParentId);
+    public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository, Collection xmlAttributeBuilders, Collection xmlReferenceBuilders, Kernel kernel) {
+        EnvironmentBuilder environmentBuilder = new EnvironmentBuilder();
+        xmlAttributeBuilderMap.put(environmentBuilder.getNamespace(), environmentBuilder);
+        this.defaultEnvironment = defaultEnvironment;
 
         this.repository = repository;
         this.kernel = kernel;
@@ -158,7 +153,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         EnvironmentType environmentType = configType.getEnvironment();
-        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType);
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
         Artifact configId = environment.getConfigId();
         try {
             return configId.toURI();
@@ -175,7 +170,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     public ConfigurationData buildConfiguration(ConfigurationType configurationType, File outfile) throws DeploymentException, IOException {
 
-        Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment());
+        Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
 
 
         DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, kernel);
@@ -213,10 +208,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
+    //TODO this is part of Environment resolution
     public static void addDependencies(DeploymentContext context, ArtifactType[] deps, Repository repository) throws DeploymentException {
         for (int i = 0; i < deps.length; i++) {
             URI dependencyURI = getDependencyURI(deps[i], repository);
-            context.addDependency(dependencyURI);
+//            context.addDependency(dependencyURI);
 
             URL url;
             try {
@@ -368,13 +364,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.addInterface(ConfigurationBuilder.class);
 
-        infoFactory.addAttribute("defaultParentId", URI[].class, true);
+        infoFactory.addAttribute("defaultEnvironment", Environment.class, true);
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("XmlAttributeBuilders", XmlAttributeBuilder.class, "XmlAttributeBuilder");
         infoFactory.addReference("XmlReferenceBuilders", XmlReferenceBuilder.class, "XmlReferenceBuilder");
         infoFactory.addAttribute("kernel", Kernel.class, false);
 
-        infoFactory.setConstructor(new String[]{"defaultParentId", "Repository", "XmlAttributeBuilders", "XmlReferenceBuilders", "kernel"});
+        infoFactory.setConstructor(new String[]{"defaultEnvironment", "Repository", "XmlAttributeBuilders", "XmlReferenceBuilders", "kernel"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

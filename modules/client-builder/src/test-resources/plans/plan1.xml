@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
-    clientConfigId="test-client"
+<application-client xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1">
+    <!-- clientConfigId="test-client"
     configId="client"
-    parentId="org/apache/geronimo/DefaultDatabase">
-    <resource-ref>
-        <ref-name>jdbc/DB1</ref-name>
-        <target-name>DefaultDatabase</target-name>
-    </resource-ref>
+    parentId="org/apache/geronimo/DefaultDatabase">-->
+    <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:configId>
+            <dep:groupId>test</dep:groupId>
+            <dep:type>car</dep:type>
+            <dep:artifactId>testclient</dep:artifactId>
+            <dep:version>1</dep:version>
+        </dep:configId>
+    </dep:client-environment>
+    <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:configId>
+            <dep:groupId>test</dep:groupId>
+            <dep:type>car</dep:type>
+            <dep:artifactId>testserver</dep:artifactId>
+            <dep:version>1</dep:version>
+        </dep:configId>
+    </dep:server-environment>
+    <nam:resource-ref xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1">
+        <nam:ref-name>jdbc/DB1</nam:ref-name>
+        <nam:target-name>DefaultDatabase</nam:target-name>
+    </nam:resource-ref>
     <realm-name>default</realm-name>
     <callback-handler>org.apache.geronimo.client.DefaultCallbackHandler</callback-handler>
 </application-client>

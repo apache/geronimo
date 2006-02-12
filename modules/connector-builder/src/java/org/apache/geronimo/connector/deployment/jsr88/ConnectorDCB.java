@@ -32,7 +32,6 @@ import javax.enterprise.deploy.spi.DConfigBean;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
 
 import org.apache.geronimo.deployment.plugin.DConfigBeanSupport;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.xbeans.geronimo.GerConnectorType;
 import org.apache.geronimo.xbeans.geronimo.GerResourceadapterType;
 import org.apache.geronimo.xbeans.geronimo.GerAdminobjectType;
@@ -250,7 +249,7 @@ public class ConnectorDCB extends DConfigBeanSupport {
 //        if(suppress == null) {
 //            getConnector().unsetSuppressDefaultParentId();
 //        } else {
-//            getConnector().setSuppressDefaultParentId(suppress.booleanValue());
+//            getConnector().setSuppressDefaultEnvironment(suppress.booleanValue());
 //        }
 //        pcs.firePropertyChange("suppressDefaultParentID", old, suppress);
 //    }

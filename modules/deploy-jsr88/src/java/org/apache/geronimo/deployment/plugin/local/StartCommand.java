@@ -17,24 +17,19 @@
 
 package org.apache.geronimo.deployment.plugin.local;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Iterator;
+import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.deployment.plugin.TargetModuleIDImpl;
+import java.util.List;
 
 /**
  *
@@ -59,7 +54,7 @@ public class StartCommand extends CommandSupport {
                     TargetModuleID module = modules[i];
 
                     // Check to see whether the module is already started
-                    URI moduleID = URI.create(module.getModuleID());
+                    Artifact moduleID = Artifact.create(module.getModuleID());
                     try {
                         if(kernel.getGBeanState(Configuration.getConfigurationObjectName(moduleID)) == State.RUNNING_INDEX) {
                             updateStatus("Module "+moduleID+" is already running");
@@ -74,7 +69,7 @@ public class StartCommand extends CommandSupport {
                     // Load and start the module
                     List list = configurationManager.loadRecursive(moduleID);
                     for (int j = 0; j < list.size(); j++) {
-                        URI name = (URI) list.get(j);
+                        Artifact name = (Artifact) list.get(j);
                         configurationManager.loadGBeans(name);
                         configurationManager.start(name);
                         String configName = name.toString();

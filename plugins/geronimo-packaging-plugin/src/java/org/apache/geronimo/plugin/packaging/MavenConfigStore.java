@@ -138,8 +138,13 @@ public class MavenConfigStore implements ConfigurationStore {
         if (!source.isDirectory()) {
             throw new InvalidConfigException("Source must be a directory: source=" + source);
         }
-        URI configId = configurationData.getId();
-        URL targetURL = repository.getURL(configId);
+        Artifact configId = configurationData.getId();
+        URL targetURL = null;
+        try {
+            targetURL = repository.getURL(configId.toURI());
+        } catch (URISyntaxException e) {
+            throw new InvalidConfigException(e);
+        }
         File targetFile;
         if (targetURL.getProtocol().equalsIgnoreCase("file")) {
             try {

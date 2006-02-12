@@ -2,13 +2,13 @@ package org.apache.geronimo.system.main;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.net.URI;
 import java.net.InetSocketAddress;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.NoSuchAttributeException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
@@ -60,27 +60,28 @@ public class LongStartupMonitor implements StartupMonitor {
         this.kernel = kernel;
     }
 
-    public synchronized void foundConfigurations(URI[] configurations) {
+    public synchronized void foundConfigurations(Artifact[] configurations) {
         numConfigs = configurations.length;
         numConfigsDigits = Integer.toString(numConfigs).length();
-        
     }
 
-    public synchronized void configurationLoading(URI configuration) {
+    public synchronized void configurationLoading(Artifact configuration) {
+        StringBuffer buf = new StringBuffer("Configuration ").append(configuration);
+        out.print(buf.toString());
         configNum++;
     }
 
-    public synchronized void configurationLoaded(URI configuration) {
+    public synchronized void configurationLoaded(Artifact configuration) {
     }
 
-    public synchronized void configurationStarting(URI configuration) {
+    public synchronized void configurationStarting(Artifact configuration) {
         configStarted = System.currentTimeMillis();        
     }
 
-    public synchronized void configurationStarted(URI configuration) {
+    public synchronized void configurationStarted(Artifact configuration) {
         int time = Math.round((float)(System.currentTimeMillis() - configStarted)/1000f);
         StringBuffer buf = new StringBuffer();
-        buf.append("Started configuration ");
+        buf.append(" started in ");
         // pad config index
         int configIndexDigits = Integer.toString(configNum).length();
         for(; configIndexDigits < numConfigsDigits; configIndexDigits++) {
@@ -92,7 +93,7 @@ public class LongStartupMonitor implements StartupMonitor {
         for(; timeDigits < MIN_TIME_WIDTH; timeDigits++) {
             buf.append(' ');
         }
-        buf.append(time+"s "+configuration);
+        buf.append(time).append("s ");
         out.println(buf.toString());
     }
 

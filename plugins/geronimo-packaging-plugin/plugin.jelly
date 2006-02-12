@@ -42,6 +42,9 @@
 
     <goal name="car:prepare-plan" description="Add dependencies to a plan and process with velocity">
         <car:dependencies
+                groupId="${pom.groupId}"
+                artifactId="${pom.artifactId}"
+                version="${pom.currentVersion}"
             artifacts="${pom.artifacts}"
             targetDir="${geronimo.packaging.buildDir}"
             sourceDir="${geronimo.packaging.srcDir}"

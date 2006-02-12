@@ -144,14 +144,15 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     private File basedir = new File(System.getProperty("basedir", "."));
 
-    private List parentId = Arrays.asList(new URI[] {URI.create("org/apache/geronimo/Foo")});
+    private List parentId = Arrays.asList(new Artifact[] {Artifact.create("geronimo/Foo/1/car")});
+    private Environment defaultEnvironment = new Environment();
 
     public void testDeployWar4() throws Exception {
-        deployWar("war4", "org/apache/geronimo/test");
+        deployWar("war4", "foo/bar/1/car");
     }
 
     public void testDeployWar5() throws Exception {
-        deployWar("war5", "hello");
+        deployWar("war5", "unknown/hello/1/car");
     }
 
     public void deployWar(String warName, String name) throws Exception {
@@ -165,7 +166,6 @@ public class TomcatModuleBuilderTest extends TestCase {
         recursiveCopy(path, dest);
         UnpackedJarFile jarFile = new UnpackedJarFile(dest);
         Module module = builder.createModule(null, jarFile);
-        URI id = new URI(warName);
 
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
@@ -179,7 +179,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         jaccBeanData.setAttribute("roleDesignates", new HashMap());
         start(jaccBeanData);
 
-        EARContext earContext = createEARContext(outputPath, id);
+        EARContext earContext = createEARContext(outputPath, defaultEnvironment);
         earContext.setJaccManagerName(jaccBeanName);
         ObjectName serverName = earContext.getServerObjectName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
@@ -199,9 +199,9 @@ public class TomcatModuleBuilderTest extends TestCase {
             fail("gbean not started: " + configName);
         }
 
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,j2eeType=WebModule,name=" + name)));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,j2eeType=WebModule,name=" + name)));
 
-        Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,*"));
+        Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
@@ -335,6 +335,12 @@ public class TomcatModuleBuilderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        Artifact artifact = Artifact.create("test/foo/1/car");
+        defaultEnvironment.setConfigId(artifact);
+        Map nameKeys = new HashMap();
+        nameKeys.put("domain", "test");
+        nameKeys.put("J2EEServer", "server");
+        defaultEnvironment.addNameKeys(nameKeys);
         cl = this.getClass().getClassLoader();
         containerName = NameFactory.getWebComponentName(null, null, null, null,
                 "tomcatContainer", "WebResource", moduleContext);
@@ -394,7 +400,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         WebServiceBuilder webServiceBuilder = new AxisBuilder();
 
-        builder = new TomcatModuleBuilder(new URI[] {new URI("null")}, true, containerName, webServiceBuilder, null);
+        builder = new TomcatModuleBuilder(defaultEnvironment, true, containerName, webServiceBuilder, null);
 
         // Default Realm
         Map initParams = new HashMap();
@@ -502,8 +508,10 @@ public class TomcatModuleBuilderTest extends TestCase {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             configData.setAttribute("id", configId);
-            configData.setAttribute("domain", "test");
-            configData.setAttribute("server", "bar");
+            Map nameKeys = new HashMap();
+            nameKeys.put("domain", "test");
+            nameKeys.put("J2EEServer", "server");
+            configData.setAttribute("nameKeys", nameKeys);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
             try {

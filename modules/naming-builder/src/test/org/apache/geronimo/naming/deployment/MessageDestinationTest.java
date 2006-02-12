@@ -40,6 +40,7 @@ import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.GBeanDataRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
@@ -206,8 +207,8 @@ public class MessageDestinationTest extends TestCase {
             return gbeans.getGBeanInstance(name);
         }
 
-        public URI getConfigID() {
-            return URI.create("MockNamingContextID");
+        public Artifact getConfigID() {
+            return new Artifact("groupId", "MockNamingContextID", "1", "car", true);
         }
     }
 

@@ -37,7 +37,8 @@
 
     <xs:complexType name="application-clientType">
         <xs:sequence>
-            <xs:element ref="sys:environment"/>
+            <xs:element ref="sys:client-environment"/>
+            <xs:element ref="sys:server-environment"/>
 
             <xs:element ref="naming:ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element ref="naming:service-ref" minOccurs="0" maxOccurs="unbounded"/>
@@ -58,10 +59,6 @@
             <xs:element ref="sys:gbean" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="configId" type="xs:string" use="required"/>
-        <xs:attribute name="parentId" type="xs:string" use="optional"/>
-        <xs:attribute name="clientConfigId" type="xs:string" use="required"/>
-        <xs:attribute name="clientParentId" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="resourceType">
