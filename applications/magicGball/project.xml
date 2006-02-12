@@ -33,13 +33,34 @@
     <!-- ============ -->
     <!-- Dependencies -->
     <!-- ============ -->
-
+    
     <dependencies>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-            <version>${geronimo_spec_j2ee_version}</version>
+            <artifactId>geronimo-servlet_2.4_spec</artifactId>
+            <version>${geronimo_spec_servlet_version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jsp_2.0_spec</artifactId>
+            <version>${geronimo_spec_jsp_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-qname_1.1_spec</artifactId>
+            <version>${geronimo_spec_qname_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-ejb_2.1_spec</artifactId>
+            <version>${geronimo_spec_ejb_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
+            <version>${geronimo_spec_jaxrpc_version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-deployment-plugin</artifactId>
