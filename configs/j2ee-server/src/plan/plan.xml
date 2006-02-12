@@ -60,11 +60,17 @@ by the server.
         <attribute name="maxLogFiles">2</attribute>
         <attribute name="minBuffers">4</attribute>
         <attribute name="threadsWaitingForceThreshold">-1</attribute>
+        <reference name="XidFactory"><name>XidFactory</name></reference>
         <reference name="ServerInfo"><module>geronimo/j2ee-system/${pom.currentVersion}/car</module><name>ServerInfo</name></reference>
+    </gbean>
+    
+    <gbean name="XidFactory" class="org.apache.geronimo.transaction.manager.XidFactoryImplGBean">
+        <attribute name="tmId">71,84,77,73,68</attribute>
     </gbean>
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <attribute name="defaultTransactionTimeoutSeconds">600</attribute>
+        <reference name="XidFactory"><name>XidFactory</name></reference>
         <reference name="TransactionLog"><name>HOWLTransactionLog</name></reference>
         <references name="ResourceManagers">
             <pattern><gbean-name>geronimo.server:j2eeType=JCAManagedConnectionFactory,*</gbean-name></pattern>

@@ -22,6 +22,7 @@ import javax.resource.ResourceException;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
 /**
  *
@@ -37,7 +38,8 @@ public class TransactionCachingInterceptorTest extends ConnectionInterceptorTest
 
     protected void setUp() throws Exception {
         super.setUp();
-        transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        transactionManager = new TransactionManagerImpl(10 * 1000, 
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         transactionCachingInterceptor = new TransactionCachingInterceptor(this, transactionContextManager);
     }

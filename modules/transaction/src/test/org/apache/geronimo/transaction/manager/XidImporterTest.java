@@ -44,7 +44,8 @@ public class XidImporterTest extends TestCase{
     XidFactory xidFactory = new XidFactoryImpl();
 
     protected void setUp() throws Exception {
-        tm = new TransactionManagerImpl(10 * 1000, null, null);
+        tm = new TransactionManagerImpl(10 * 1000, 
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
     }
 
     public void testImportXid() throws Exception {
