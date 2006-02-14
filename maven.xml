@@ -281,7 +281,7 @@
         <!--gscm:checkout module="howl/logger" root="${geronimo.howl.cvs.access}@cvs.forge.objectweb.org:/cvsroot/howl"/-->
         <!-- http isn't working to svn.codehaus.org. so using https for now... -->
         <ant:exec dir="${basedir}" executable="svn">
-            <ant:arg line="checkout https://svn.codehaus.org/openejb/branches/v2_0/openejb2 openejb"/>
+            <ant:arg line="checkout https://svn.codehaus.org/openejb/branches/configid/openejb2 openejb"/>
         </ant:exec>
 <!--        <gscm:checkout-tag module="openejb" root="${geronimo.openejb.cvs.access}@cvs.openejb.org:/home/projects/openejb/scm" tag="v2_0"/> -->
 <!--
