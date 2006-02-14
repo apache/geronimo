@@ -181,23 +181,6 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>activecluster</groupId>
-            <artifactId>activecluster</artifactId>
-            <version>${wadi_activecluster_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>${wadi_spring_version}</version>
-            <url>http://www.springframework.org/</url>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina</artifactId>
             <version>${tomcat_version}</version>
@@ -403,17 +386,11 @@
             <groupId>wadi</groupId>
             <artifactId>wadi-core</artifactId>
             <version>${wadi_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
         </dependency>
         <dependency>
             <groupId>wadi</groupId>
             <artifactId>wadi-tomcat55</artifactId>
             <version>${wadi_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
         </dependency>
     </dependencies>
 </project>

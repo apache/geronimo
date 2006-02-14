@@ -76,41 +76,51 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
-             </properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
+        </dependency>
+        <!--required as parent of this derby db to get derby engine classes -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>system-database</artifactId>
+            <version>${geronimo_version}</version>
+            <type>car</type>
+            <properties>
+                <geronimo.import>true</geronimo.import>
+            </properties>
         </dependency>
 
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>geronimo-daytrader-derby-db</artifactId>
-        <version>${pom.currentVersion}</version>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-daytrader-derby-db</artifactId>
+            <version>${pom.currentVersion}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-    </dependency>
-    <dependency>
-        <groupId>geronimo</groupId>
-        <artifactId>daytrader-ear</artifactId>
-        <version>${pom.currentVersion}</version>
-        <type>ear</type>
-    </dependency>
+                <geronimo.dependency>true</geronimo.dependency>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>daytrader-ear</artifactId>
+            <version>${pom.currentVersion}</version>
+            <type>ear</type>
+        </dependency>
 
-    <dependency>
-        <groupId>activemq</groupId>
-        <artifactId>activemq-ra</artifactId>
-        <version>${activemq_version}</version>
-         <type>rar</type>
-    </dependency>
+        <dependency>
+            <groupId>activemq</groupId>
+            <artifactId>activemq-ra</artifactId>
+            <version>${activemq_version}</version>
+            <type>rar</type>
+        </dependency>
 
-    <dependency>
-        <groupId>tranql</groupId>
-        <artifactId>tranql-connector-derby-embed-xa</artifactId>
-        <version>${tranql_vendors_version}</version>
-        <type>rar</type>
-    </dependency>
+        <dependency>
+            <groupId>tranql</groupId>
+            <artifactId>tranql-connector-derby-embed-xa</artifactId>
+            <version>${tranql_vendors_version}</version>
+            <type>rar</type>
+        </dependency>
 
 
-<!--inessentials -->
+        <!--inessentials -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-system</artifactId>

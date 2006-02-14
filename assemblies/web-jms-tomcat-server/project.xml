@@ -80,26 +80,6 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>directory</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>ldap-realm</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>system-database</artifactId>
@@ -128,45 +108,6 @@
             </properties>
         </dependency>
 <!-- client -->
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>client-system</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-                <geronimo.assemble.executable>bin/client.jar</geronimo.assemble.executable>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>client</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>client-security</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>client-corba</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
 <!--deployers-->
         <dependency>
             <groupId>geronimo</groupId>
@@ -232,17 +173,6 @@
             </properties>
         </dependency>
 <!--applications-->
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>ldap-demo-tomcat</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>welcome-tomcat</artifactId>
@@ -297,17 +227,6 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>uddi-tomcat</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
 
         <!-- unpack --> 
         <dependency>
@@ -400,7 +319,6 @@
             <version>${geronimo_spec_qname_version}</version>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
-                <!--<geronimo.assemble>repository</geronimo.assemble>-->
             </properties>
         </dependency>
 
@@ -470,7 +388,6 @@
             <version>${geronimo_spec_j2ee_deployment_version}</version>
             <properties>
                 <geronimo.assemble>library</geronimo.assemble>
-                <!--<geronimo.assemble>repository</geronimo.assemble>-->
             </properties>
         </dependency>
         <dependency>
@@ -481,17 +398,6 @@
                 <geronimo.assemble>library</geronimo.assemble>
             </properties>
         </dependency>
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>geronimo</groupId>
-        #    <artifactId>geronimo-deploy-tool</artifactId>
-        #    <version>${pom.currentVersion}</version>
-        #    <properties>
-        #        <geronimo.assemble>library</geronimo.assemble>
-        #    </properties>
-        #</dependency>
-        -->
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -598,26 +504,6 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-corba_2.3_spec</artifactId>
-            <version>${geronimo_spec_corba_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-ejb_2.1_spec</artifactId>
-            <version>${geronimo_spec_ejb_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee_1.4_spec</artifactId>
@@ -634,16 +520,6 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
-        #    <version>${geronimo_spec_j2ee_deployment_version}</version>
-        #    <properties>
-        #        <geronimo.assemble>repository</geronimo.assemble>
-        #    </properties>
-        #</dependency>
-        -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
@@ -660,34 +536,6 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-            <version>${geronimo_spec_javamail_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        -->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxr_1.0_spec</artifactId>
-            <version>${geronimo_spec_jaxr_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
-            <version>${geronimo_spec_jaxrpc_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jms_1.1_spec</artifactId>
@@ -712,26 +560,6 @@
                 <geronimo.assemble>repository</geronimo.assemble>
             </properties>
         </dependency>
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-qname_1.1_spec</artifactId>
-        #    <version>${geronimo_spec_qname_version}</version>
-        #    <properties>
-        #        <geronimo.assemble>repository</geronimo.assemble>
-        #    </properties>
-        #</dependency>
-        -->
-<!--
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-saaj_1.1_spec</artifactId>
-            <version>${geronimo_spec_saaj_version}</version>
-            <properties>
-                <geronimo.assemble>repository</geronimo.assemble>
-            </properties>
-        </dependency>
--->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-servlet_2.4_spec</artifactId>
@@ -774,14 +602,6 @@
             <artifactId>asm</artifactId>
             <version>${asm_version}</version>                                                         
         </dependency>
-
-        <!--
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>${axis_version}</version>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>commons-collections</groupId>
@@ -828,73 +648,6 @@
             <version>${concurrent_version}</version>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>directory</groupId>
-            <artifactId>apacheds-core</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory</groupId>
-            <artifactId>apacheds-shared</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-asn1</groupId>
-            <artifactId>asn1-ber</artifactId>
-            <version>${asn1_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-asn1</groupId>
-            <artifactId>asn1-codec</artifactId>
-            <version>${asn1_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-asn1</groupId>
-            <artifactId>asn1-der</artifactId>
-            <version>${asn1_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-network</groupId>
-            <artifactId>mina</artifactId>
-            <version>${mina_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-protocols</groupId>
-            <artifactId>kerberos-protocol</artifactId>
-            <version>${kerberos_protocols_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-protocols</groupId>
-            <artifactId>ldap-protocol</artifactId>
-            <version>${ldap_protocols_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-shared</groupId>
-            <artifactId>apache-ldapber-provider</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-shared</groupId>
-            <artifactId>kerberos-common</artifactId>
-            <version>${kerberos_common_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>directory-shared</groupId>
-            <artifactId>ldap-common</artifactId>
-            <version>${apacheds_version}</version>
-        </dependency>
-        -->
 
 <!-- geronimo jars -->
 <!-- geronimo spec jars -->
@@ -917,33 +670,6 @@
             <artifactId>jdom</artifactId>
             <version>${jdom_version}</version>
         </dependency>
-
-
-        <!--
-        <dependency>
-            <groupId>juddi</groupId>
-            <artifactId>juddi</artifactId>
-            <version>${juddi_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-builder</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-core</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>openejb</groupId>
-            <artifactId>openejb-pkgen-builder</artifactId>
-            <version>${openejb_version}</version>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>org.apache.derby</groupId>
@@ -1171,74 +897,12 @@
 
         <!-- Specification dependencies to preload into the repository -->
         
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-        #    <version>${geronimo_spec_j2ee_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-        #    <version>${geronimo_spec_j2ee_jacc_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-activation_1.0.2_spec</artifactId>
-        #    <version>${geronimo_spec_activation_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-        #    <version>${geronimo_spec_javamail_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-corba_2.3_spec</artifactId>
-        #    <version>${geronimo_spec_corba_version}</version>
-        #</dependency>
-        -->
-
         <!-- Geronimo modules to preload into the repository -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-activation</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis</artifactId>
-            <version>${pom.currentVersion}</version>
-         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-axis-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-         </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-client</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-client-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-         -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-connector</artifactId>
@@ -1279,30 +943,11 @@
             <artifactId>geronimo-j2ee-schema</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-jmxremoting</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-mail</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-management</artifactId>
@@ -1328,13 +973,6 @@
             <artifactId>geronimo-security-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-service-builder</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-timer</artifactId>
@@ -1350,25 +988,11 @@
             <artifactId>geronimo-transaction</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>geronimo</groupId>
-        #    <artifactId>geronimo-util</artifactId>
-        #    <version>${pom.currentVersion}</version>
-        #</dependency>
-        -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-web-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-webservices</artifactId>
-            <version>${pom.currentVersion}</version>
-        </dependency>
-        -->
 
     </dependencies>
 </project>

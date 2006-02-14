@@ -25,6 +25,7 @@
     <name>Server Configuration for the J2EE Server</name>
 
     <dependencies>
+
         <!-- dependency on deployer -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -38,6 +39,7 @@
             <version>${geronimo_version}</version>
             <type>car</type>
         </dependency>
+
         <!-- parent config -->
         <dependency>
             <groupId>geronimo</groupId>
@@ -48,6 +50,7 @@
                  <geronimo.import>true</geronimo.import>
              </properties>
         </dependency>
+
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
@@ -104,30 +107,6 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>openejb</groupId>-->
-            <!--<artifactId>openejb-core</artifactId>-->
-            <!--<version>${openejb_version}</version>-->
-            <!--<properties>-->
-                 <!--<geronimo.dependency>true</geronimo.dependency>-->
-             <!--</properties>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
-        <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-            <version>${xpp3_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
         <dependency>
             <groupId>asm</groupId>
             <artifactId>asm</artifactId>
@@ -136,16 +115,6 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-<!--
-        <dependency>
-            <groupId>activemq</groupId>
-            <artifactId>activemq-gbean-management</artifactId>
-            <version>${activemq_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-             </properties>
-        </dependency>
--->
         <dependency>
             <groupId>activeio</groupId>
             <artifactId>activeio</artifactId>
@@ -154,71 +123,6 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
-       <dependency>
-            <groupId>scout</groupId>
-            <artifactId>jaxr-api</artifactId>
-            <version>${scout_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>scout</groupId>
-            <artifactId>scout</artifactId>
-            <version>${scout_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>juddi</groupId>
-            <artifactId>juddi</artifactId>
-            <version>${juddi_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>${jdom_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-
-        <!-- TODO why are these here rather than in system-database??? -->
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>geronimo-derby</artifactId>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derby</artifactId>
-            <version>${derby_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbynet</artifactId>
-            <version>${derby_version}</version>
-            <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
-            </properties>
-        </dependency>
-
 
         <dependency>
             <groupId>geronimo</groupId>
@@ -285,11 +189,6 @@
             <artifactId>concurrent</artifactId>
             <version>${concurrent_version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>tranql</groupId>-->
-            <!--<artifactId>tranql</artifactId>-->
-            <!--<version>${tranql_version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>howl</groupId>
             <artifactId>howl-logger</artifactId>
