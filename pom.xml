@@ -24,7 +24,7 @@
   <artifactId>geronimo</artifactId>
   <packaging>pom</packaging>
   <name>Geronimo</name>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
   <description>Geronimo parent</description>
   <url>http://geronimo.apache.org</url>
 
@@ -289,12 +289,17 @@
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-servlet_2.4_spec</artifactId>
         <version>${geronimoSpecServletVersion}</version>
-      </dependency>            
+      </dependency>          
       <!--
        |
        | External dependency versions
        |
-       -->    
+       --> 
+      <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib-nodep</artifactId>
+        <version>${cglibVersion}</version>
+      </dependency>   
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
@@ -324,12 +329,82 @@
         <groupId>mockobjects</groupId>
         <artifactId>mockobjects-core</artifactId>
         <version>${mockobjectsVersion}</version>
-      </dependency>                                    
+      </dependency>
+      <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derby</artifactId>
+        <version>${derbyVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.derby</groupId>
+        <artifactId>derbynet</artifactId>
+        <version>${derbyVersion}</version>
+      </dependency>
       <dependency>
         <groupId>scout</groupId>
         <artifactId>scout</artifactId>
         <version>${scoutVersion}</version>
-      </dependency>                        
+      </dependency>
+      <dependency>
+        <groupId>stax</groupId>
+        <artifactId>stax-api</artifactId>
+        <version>${staxApiVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>xmlbeans</groupId>
+        <artifactId>xbean</artifactId>
+        <version>${xmlbeansVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>xml-resolver</groupId>
+        <artifactId>xml-resolver</artifactId>
+        <version>${xmlResolverVersion}</version>
+      </dependency>
+      <!-- 
+        |
+        | Geronimo module versions
+        |
+      -->
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-activation</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-common</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-core</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-derby</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-kernel</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-management</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-system</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-util</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
    </dependencies>
   </dependencyManagement>
 
@@ -359,7 +434,16 @@
   </distributionManagement>
 
   <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <testSourceDirectory>src/test</testSourceDirectory>
     <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-one-plugin</artifactId>
@@ -412,4 +496,20 @@
       <url>http://snapshots.maven.codehaus.org/maven2</url>
     </pluginRepository>
   </pluginRepositories>
+  
+  <modules>
+    <module>modules/activation</module>
+    <module>modules/common</module>
+    <module>modules/converter</module>
+    <module>modules/core</module>
+    <module>modules/deployment</module>
+    <module>modules/derby</module>
+    <module>modules/j2ee</module>
+    <module>modules/j2ee-schema</module>
+    <module>modules/kernel</module>
+    <module>modules/management</module>
+    <module>modules/system</module>
+    <module>modules/util</module>
+  </modules>
+  
 </project>

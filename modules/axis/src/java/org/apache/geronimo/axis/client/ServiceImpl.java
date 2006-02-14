@@ -43,7 +43,7 @@ import org.apache.axis.configuration.SimpleProvider;
 
 
 /**
- * @version $Revision:$ $Date:$
+ * @version $Revision$ $Date$
  */
 public class ServiceImpl implements javax.xml.rpc.Service, Serializable {
 
