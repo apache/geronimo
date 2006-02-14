@@ -21,6 +21,7 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.SecurityConstants;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -41,11 +42,11 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Collections;
 
@@ -97,14 +98,14 @@ public class ConfigManagerPortlet extends BasePortlet {
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);
             String config = getConfigID(actionRequest);
-            URI configID = URI.create(config);
+            Artifact configID = Artifact.create(config);
 
             if (START_ACTION.equals(action)) {
-                List list = configurationManager.loadRecursive(configID);
-                for (Iterator it = list.iterator(); it.hasNext();) {
-                    URI uri = (URI) it.next();
-                    configurationManager.loadGBeans(uri);
-                    configurationManager.start(uri);
+                List ancestors = configurationManager.loadRecursive(configID);
+                for (Iterator it = ancestors.iterator(); it.hasNext();) {
+                    Artifact ancestor = (Artifact) it.next();
+                    configurationManager.loadGBeans(ancestor);
+                    configurationManager.start(ancestor);
                 }
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {
@@ -147,13 +148,13 @@ public class ConfigManagerPortlet extends BasePortlet {
         List configStores = configManager.listStores();
         int size = configStores.size();
         String configID = getConfigID(actionRequest);
-        URI configURI = URI.create(configID);
+        Artifact configURI = Artifact.create(configID);
         for (int i = 0; i < size; i++) {
             ObjectName configStore = (ObjectName) configStores.get(i);
             Boolean result = (Boolean) kernel.invoke(configStore,
                     CONTAINSCONFIG_METHOD,
                     new Object[]{configURI}, CONTAINSCONFIG_SIG);
-            if (result.booleanValue() == true) {
+            if (result.booleanValue()) {
                 // stop config if running
                 if (configManager.isLoaded(configURI)) {
                     int state = kernel.getGBeanState(Configuration.getConfigurationObjectName(configURI));
@@ -224,6 +225,8 @@ public class ConfigManagerPortlet extends BasePortlet {
             } catch (NoSuchStoreException e) {
                 // we just got this list so this should not happen
                 // in the unlikely event it does, just continue
+            } catch (URISyntaxException e) {
+                throw new AssertionError(e);
             }
         }
         Collections.sort(configInfo, new Comparator() {

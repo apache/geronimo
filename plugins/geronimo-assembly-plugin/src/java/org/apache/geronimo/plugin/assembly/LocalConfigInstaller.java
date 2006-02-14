@@ -17,18 +17,16 @@
 
 package org.apache.geronimo.plugin.assembly;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
-import org.apache.geronimo.system.repository.FileSystemRepository;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
+import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.system.repository.Maven2Repository;
 
 /**
  * JellyBean that installs configuration artifacts into a LocalConfigurationStore,  It also copies all
@@ -44,13 +42,8 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
         InstallAdapter installAdapter = new InstallAdapter() {
 
             public GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException {
-                URL artifact = null;
-                try {
-                    artifact = sourceRepo.getURL(configId.toURI());
-                } catch (URISyntaxException e) {
-                    throw new InvalidConfigException(e);
-                }
-                GBeanData config = store.install2(artifact);
+                File artifact = sourceRepo.getLocation(configId);
+                GBeanData config = store.install2(artifact.toURL());
                 return config;
             }
 
@@ -58,21 +51,13 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
                 return store.containsConfiguration(configID);
             }
         };
-        Repository sourceRepo = new InnerRepository();
-        URI rootURI = targetRoot.toURI().resolve(targetRepository);
-        FileSystemRepository targetRepo = new FileSystemRepository(rootURI, null);
-        targetRepo.doStart();
+        Repository sourceRepo = new Maven1Repository(getSourceRepository());
+        Maven2Repository targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
 
         try {
-            try {
-                execute(installAdapter, sourceRepo, targetRepo);
-            } finally {
-                store.doStop();
-            }
+            execute(installAdapter, sourceRepo, targetRepo);
         } finally {
-            targetRepo.doStop();
+            store.doStop();
         }
-
     }
-
 }

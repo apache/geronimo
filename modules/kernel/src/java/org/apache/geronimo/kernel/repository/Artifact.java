@@ -20,11 +20,16 @@ package org.apache.geronimo.kernel.repository;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.io.Serializable;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @version $Rev:$ $Date:$
  */
 public class Artifact implements Comparable, Serializable {
+    public static final String DEFAULT_GROUP_ID = "Unspecified";
     private String groupId;
     private String artifactId;
     private Version version;
@@ -129,5 +134,5 @@ public class Artifact implements Comparable, Serializable {
     public String toString() {
         return groupId + "/" + artifactId + "/" + version + "/" + type;
     }
-    
+
 }

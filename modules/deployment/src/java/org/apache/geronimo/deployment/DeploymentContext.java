@@ -608,8 +608,8 @@ public class DeploymentContext {
         try {
             int index = 0;
             for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-                URI uri = (URI) iterator.next();
-                urls[index++] = repository.getURL(uri);
+                Artifact artifact = (Artifact) iterator.next();
+                urls[index++] = repository.getLocation(artifact).toURL();
             }
 
             for (Iterator i = classPath.iterator(); i.hasNext();) {

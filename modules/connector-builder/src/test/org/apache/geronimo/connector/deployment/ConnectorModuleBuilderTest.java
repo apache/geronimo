@@ -92,12 +92,11 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private int defaultidleTimeoutMinutes = 15;
     private Environment defaultEnvironment;
     private Repository repository = new Repository() {
-
-        public boolean hasURI(URI uri) {
+        public boolean contains(Artifact artifact) {
             return false;
         }
 
-        public URL getURL(URI uri) {
+        public File getLocation(Artifact artifact) {
             return null;
         }
     };

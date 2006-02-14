@@ -16,8 +16,7 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * For repositories that can provide a list of their contents.
@@ -29,6 +28,6 @@ import java.net.URISyntaxException;
 public interface ListableRepository extends Repository {
     /**
      * Gets a list of all the items available in the repository.
-     */ 
-    public URI[] listURIs() throws URISyntaxException;
+     */
+    public List list();
 }

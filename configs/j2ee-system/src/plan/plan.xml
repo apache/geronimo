@@ -67,7 +67,7 @@ specific services - those should be provided by children.
     </gbean>
 
     <!-- Repository -->
-    <gbean name="Repository" class="org.apache.geronimo.system.repository.FileSystemRepository">
+    <gbean name="Repository" class="org.apache.geronimo.system.repository.Maven2Repository">
         <attribute name="root">repository/</attribute>
         <reference name="ServerInfo">
             <name>ServerInfo</name>

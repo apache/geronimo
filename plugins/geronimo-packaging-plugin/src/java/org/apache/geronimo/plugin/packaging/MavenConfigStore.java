@@ -20,10 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URISyntaxException;
 import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -31,15 +28,15 @@ import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 
 /**
@@ -67,18 +64,12 @@ public class MavenConfigStore implements ConfigurationStore {
     }
 
     public synchronized ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        URI uri;
-        try {
-             uri = configId.toURI();
-        } catch (URISyntaxException e) {
-            throw new NoSuchConfigException("Configuration not found: " + configId, e);
+        if (!repository.contains(configId)) {
+            throw new NoSuchConfigException("Configuration not found: " + configId);
         }
-            if (!repository.hasURI(uri)) {
-                throw new NoSuchConfigException("Configuration not found: " + configId);
-            }
 
         GBeanData config = new GBeanData();
-        URL baseURL = new URL("jar:" + repository.getURL(uri).toString() + "!/");
+        URL baseURL = new URL("jar:" + repository.getLocation(configId).toString() + "!/");
         InputStream jis = null;
         try {
             URL stateURL = new URL(baseURL, "META-INF/config.ser");
@@ -108,11 +99,7 @@ public class MavenConfigStore implements ConfigurationStore {
 
 
     public boolean containsConfiguration(Artifact configID) {
-        try {
-            return repository.hasURI(configID.toURI());
-        } catch (URISyntaxException e) {
-            return false;
-        }
+        return repository.contains(configID);
     }
 
     public File createNewConfigurationDir() {
@@ -139,23 +126,7 @@ public class MavenConfigStore implements ConfigurationStore {
             throw new InvalidConfigException("Source must be a directory: source=" + source);
         }
         Artifact configId = configurationData.getId();
-        URL targetURL = null;
-        try {
-            targetURL = repository.getURL(configId.toURI());
-        } catch (URISyntaxException e) {
-            throw new InvalidConfigException(e);
-        }
-        File targetFile;
-        if (targetURL.getProtocol().equalsIgnoreCase("file")) {
-            try {
-                targetFile = new File(URLDecoder.decode(targetURL.getFile(), "UTF-8"));
-            } catch (IOException e) {
-                throw new InvalidConfigException("Could not construct File for car location", e);
-            }
-        } else {
-            URI targetURI = URI.create(targetURL.toString());
-            targetFile = new File(targetURI);
-        }
+        File targetFile =repository.getLocation(configId);
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, source, targetFile);
     }
 

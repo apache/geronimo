@@ -20,6 +20,7 @@ package org.apache.geronimo.kernel.repository;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.io.File;
 
 /**
  * Provides access to things like JARs via a standard API.  Generally
@@ -31,7 +32,7 @@ import java.net.URL;
  * @version $Rev$ $Date$
  */
 public interface Repository {
-    boolean hasURI(URI uri);
+    boolean contains(Artifact artifact);
 
-    URL getURL(URI uri) throws MalformedURLException;
+    File getLocation(Artifact artifact);
 }

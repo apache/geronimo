@@ -16,21 +16,20 @@
  */
 package org.apache.geronimo.console.securitymanager.realm;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.BufferedReader;
-import java.io.StringReader;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Arrays;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
@@ -58,33 +56,37 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import javax.security.auth.Subject;
 import javax.security.auth.spi.LoginModule;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
+import org.apache.geronimo.deployment.xbeans.ClassloaderType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
-import org.apache.geronimo.deployment.xbeans.DependencyType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
+import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.realm.providers.FileAuditLoginModule;
 import org.apache.geronimo.security.realm.providers.GeronimoPasswordCredentialLoginModule;
 import org.apache.geronimo.security.realm.providers.RepeatedFailureLockoutLoginModule;
-import org.apache.geronimo.security.jaas.JaasLoginModuleChain;
-import org.apache.geronimo.security.jaas.LoginModuleSettings;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerControlFlagType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigDocument;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginConfigType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerLoginModuleType;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -271,18 +273,16 @@ public class SecurityRealmPortlet extends BasePortlet {
         ClassLoader loader = getClass().getClassLoader();
         if(data.jar != null && !data.jar.equals("")) {
             try {
-                URI one = new URI(data.getJar());
+                Artifact one = Artifact.create(data.getJar());
                 ListableRepository[] repos = PortletManager.getListableRepositories(request);
                 for (int i = 0; i < repos.length; i++) {
                     ListableRepository repo = repos[i];
-                    URL url = repo.getURL(one);
-                    if(url != null) {
-                        loader = new URLClassLoader(new URL[]{url}, loader);
+                    File file = repo.getLocation(one);
+                    if(file != null) {
+                        loader = new URLClassLoader(new URL[]{file.toURL()}, loader);
                         break;
                     }
                 }
-            } catch (URISyntaxException e) {
-                log.warn("Unable to construct JAR file reference", e);
             } catch (MalformedURLException e) {
                 log.warn("Repository unable to look up JAR file", e);
             }
@@ -317,12 +317,21 @@ public class SecurityRealmPortlet extends BasePortlet {
         normalize(data);
         ConfigurationDocument doc = ConfigurationDocument.Factory.newInstance();
         ConfigurationType root = doc.addNewConfiguration();
-        root.setConfigId("SecurityRealm-"+data.getName());
+        EnvironmentType environment = root.addNewEnvironment();
+        ArtifactType configId = environment.addNewConfigId();
+        configId.setGroupId(Artifact.DEFAULT_GROUP_ID);
+        configId.setArtifactId(data.getName());
+
         // Use a parentId of null to pick up the default
         // Dependencies
         if(data.getJar() != null) {
-            DependencyType jar = root.addNewDependency();
-            jar.setUri(data.getJar());
+            ClassloaderType classloaderType = environment.addNewClassloader();
+            ArtifactType artifactType = classloaderType.addNewDependency();
+            Artifact artifact = Artifact.create(data.getJar());
+            artifactType.setGroupId(artifact.getGroupId());
+            artifactType.setArtifactId(artifact.getArtifactId());
+            artifactType.setVersion(artifact.getVersion().toString());
+            artifactType.setType(artifact.getType());
         }
         // Build the realm GBean
         GbeanType realm = root.addNewGbean();
@@ -378,8 +387,20 @@ public class SecurityRealmPortlet extends BasePortlet {
                             final String testApp = objectName.getKeyProperty(NameFactory.J2EE_APPLICATION);
                             if(testName.equals(poolName) && testApp.equals(appName)) {
                                 String moduleName = objectName.getKeyProperty(NameFactory.JCA_RESOURCE);
-                                DependencyType imp = root.addNewImport();
-                                imp.setUri(moduleName);
+
+                                ClassloaderType classloader;
+                                if (environment.isSetClassloader()) {
+                                    classloader = environment.getClassloader();
+                                } else {
+                                    classloader = environment.addNewClassloader();
+                                }
+
+                                ArtifactType artifactType = classloader.addNewImport();
+                                Artifact artifact = Artifact.create(moduleName);
+                                artifactType.setGroupId(artifact.getGroupId());
+                                artifactType.setArtifactId(artifact.getArtifactId());
+                                artifactType.setVersion(artifact.getVersion().toString());
+                                artifactType.setType(artifact.getType());
                                 break;
                             }
                         } catch (MalformedObjectNameException e) {
@@ -603,24 +624,20 @@ public class SecurityRealmPortlet extends BasePortlet {
         ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
-            try {
-                final URI[] uris = repo.listURIs();
-                outer:
-                for (int j = 0; j < uris.length; j++) {
-                    if(uris[j] == null) {
-                        continue; // probably a JAR lacks a version number in the name, etc.
+
+            List artifacts = repo.list();
+            outer:
+            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+                Artifact artifact = (Artifact) iterator.next();
+                String test = artifact.toString();
+                // todo should only test groupId and should check for long (org.apache.geronimo) and short form
+                for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
+                    String skip = SKIP_ENTRIES_WITH[k];
+                    if(test.indexOf(skip) > -1) {
+                        continue outer;
                     }
-                    String test = uris[j].toString();
-                    for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
-                        String skip = SKIP_ENTRIES_WITH[k];
-                        if(test.indexOf(skip) > -1) {
-                            continue outer;
-                        }
-                    }
-                    list.add(test);
                 }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+                list.add(test);
             }
         }
         Collections.sort(list);

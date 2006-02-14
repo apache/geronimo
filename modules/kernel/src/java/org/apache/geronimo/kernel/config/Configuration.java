@@ -23,6 +23,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -374,19 +375,19 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         URL[] urls = new URL[dependencies.size() + classPath.size()];
         int idx = 0;
         for (Iterator i = dependencies.iterator(); i.hasNext();) {
-            URI uri = (URI) i.next();
-            URL url = null;
+            Artifact artifact = (Artifact) i.next();
+            File file = null;
             for (Iterator j = repositories.iterator(); j.hasNext();) {
                 Repository repository = (Repository) j.next();
-                if (repository.hasURI(uri)) {
-                    url = repository.getURL(uri);
+                if (repository.contains(artifact)) {
+                    file = repository.getLocation(artifact);
                     break;
                 }
             }
-            if (url == null) {
-                throw new MissingDependencyException("Unable to resolve dependency " + uri);
+            if (file == null) {
+                throw new MissingDependencyException("Unable to resolve dependency " + artifact);
             }
-            urls[idx++] = url;
+            urls[idx++] = file.toURL();
         }
         for (Iterator i = classPath.iterator(); i.hasNext();) {
             URI uri = (URI) i.next();

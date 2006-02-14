@@ -28,30 +28,28 @@ import java.util.Set;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.repository.ReadOnlyRepository;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConfigurationDump {
-    private static Log log;
     static {
         // This MUST be done before the first log is acquired
         GeronimoLogging.initialize(GeronimoLogging.WARN);
-        log = LogFactory.getLog(ConfigurationDump.class.getName());
+        LogFactory.getLog(ConfigurationDump.class.getName());
     }
     private static ClassLoader classLoader = ConfigurationDump.class.getClassLoader();
 
@@ -71,7 +69,7 @@ public class ConfigurationDump {
 
             // add the repositories
             ObjectName geronimoRepositoryName = new ObjectName("configdump:name=Repository,type=Geronimo");
-            GBeanData geronimoRepositoryData = new GBeanData(geronimoRepositoryName, ReadOnlyRepository.GBEAN_INFO);
+            GBeanData geronimoRepositoryData = new GBeanData(geronimoRepositoryName, Maven2Repository.GBEAN_INFO);
             geronimoRepositoryData.setAttribute("root", URI.create("repository"));
             geronimoRepositoryData.setReferencePattern("ServerInfo", serverInfoName);
             startGBean(kernel, geronimoRepositoryData);
@@ -86,7 +84,7 @@ public class ConfigurationDump {
             }
             if (mavenRepositoryDir.isDirectory()) {
                 ObjectName mavenRepositoryName = new ObjectName("configdump:name=Repository,type=Maven");
-                GBeanData mavenRepositoryData = new GBeanData(mavenRepositoryName, ReadOnlyRepository.GBEAN_INFO);
+                GBeanData mavenRepositoryData = new GBeanData(mavenRepositoryName, Maven2Repository.GBEAN_INFO);
                 mavenRepositoryData.setAttribute("root", mavenRepositoryDir.getAbsoluteFile().toURI());
                 mavenRepositoryData.setReferencePattern("ServerInfo", serverInfoName);
                 startGBean(kernel, mavenRepositoryData);

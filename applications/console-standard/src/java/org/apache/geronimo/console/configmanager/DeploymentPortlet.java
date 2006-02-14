@@ -19,7 +19,6 @@ package org.apache.geronimo.console.configmanager;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import javax.portlet.ActionRequest;
@@ -39,6 +38,7 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.ObjectNameConstants;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 
@@ -118,7 +118,7 @@ public class DeploymentPortlet extends BasePortlet {
                 ConfigurationManager configurationManager = ConfigurationUtil
                         .getConfigurationManager(kernel);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    URI configID = URI.create((String)iterator.next());
+                    Artifact configID = Artifact.create((String)iterator.next());
                     if (!configurationManager.isLoaded(configID)) {
                         configurationManager.load(configID);
                     }

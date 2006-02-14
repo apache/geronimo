@@ -22,8 +22,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -34,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.namespace.QName;
@@ -42,13 +39,13 @@ import javax.xml.namespace.QName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.Environment;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -59,8 +56,8 @@ import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
@@ -600,23 +597,13 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                     }
                 } else {
                     String path = gerExtModule.getExternalPath().trim();
-                    URI pathURI = null;
-                    try {
-                        pathURI = new URI(path);
-                    } catch (URISyntaxException e) {
-                        throw new DeploymentException("Bad path to external module, " + moduleTypeName, e);
-                    }
-                    if (!repository.hasURI(pathURI)) {
+                    Artifact artifact = Artifact.create(path);
+                    if (!repository.contains(artifact)) {
                         throw new DeploymentException(moduleTypeName + " is missing in repository: " + path);
                     }
-                    URL pathURL = null;
+                    File location = repository.getLocation(artifact);
                     try {
-                        pathURL = repository.getURL(pathURI);
-                    } catch (MalformedURLException e) {
-                        throw new DeploymentException("Could not locate " + moduleTypeName + " in repository", e);
-                    }
-                    try {
-                        moduleFile = new JarFile(URLDecoder.decode(pathURL.getFile(), "UTF-8"));
+                        moduleFile = new JarFile(location);
                     } catch (IOException e) {
                         throw new DeploymentException("Could not access contents of " + moduleTypeName, e);
                     }

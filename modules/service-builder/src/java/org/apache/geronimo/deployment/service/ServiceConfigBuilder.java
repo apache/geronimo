@@ -62,9 +62,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -191,19 +189,19 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static void addIncludes(DeploymentContext context, ArtifactType[] includes, Repository repository) throws DeploymentException {
         for (int i = 0; i < includes.length; i++) {
             ArtifactType include = includes[i];
-            URI uri = getDependencyURI(include, repository);
+            Artifact artifact = getDependencyURI(include, repository);
             String name = getDependencyFileName(include);
             URI path;
             try {
                 path = new URI(name);
             } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to generate path for include: " + uri, e);
+                throw new DeploymentException("Unable to generate path for include: " + artifact, e);
             }
             try {
-                URL url = repository.getURL(uri);
-                context.addInclude(path, url);
+                File file = repository.getLocation(artifact);
+                context.addInclude(path, file.toURL());
             } catch (IOException e) {
-                throw new DeploymentException("Unable to add include: " + uri, e);
+                throw new DeploymentException("Unable to add include: " + artifact, e);
             }
         }
     }
@@ -211,14 +209,15 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     //TODO this is part of Environment resolution
     public static void addDependencies(DeploymentContext context, ArtifactType[] deps, Repository repository) throws DeploymentException {
         for (int i = 0; i < deps.length; i++) {
-            URI dependencyURI = getDependencyURI(deps[i], repository);
+            Artifact artifact = getDependencyURI(deps[i], repository);
 //            context.addDependency(dependencyURI);
 
             URL url;
             try {
-                url = repository.getURL(dependencyURI);
+                File location = repository.getLocation(artifact);
+                url = location.toURL();
             } catch (MalformedURLException e) {
-                throw new DeploymentException("Unable to get URL for dependency " + dependencyURI, e);
+                throw new DeploymentException("Unable to get URL for dependency " + artifact, e);
             }
             ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
             InputStream is = depCL.getResourceAsStream("META-INF/geronimo-service.xml");
@@ -334,26 +333,19 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         return objectName;
     }
 
-    private static URI getDependencyURI(ArtifactType dep, Repository repository) throws DeploymentException {
-        URI uri = null;
-        try {
-            uri = EnvironmentBuilder.toArtifact(dep).toURI();
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
+    private static Artifact getDependencyURI(ArtifactType dep, Repository repository) throws DeploymentException {
+        Artifact artifact = EnvironmentBuilder.toArtifact(dep);
+        if (!repository.contains(artifact)) {
+            throw new DeploymentException(new MissingDependencyException("Artifact " + artifact + " not found in repository"));
         }
-        if (!repository.hasURI(uri)) {
-            throw new DeploymentException(new MissingDependencyException("uri " + uri + " not found in repository"));
-        }
-        return uri;
+        return artifact;
     }
 
-    private static String getDependencyFileName(ArtifactType dep) throws DeploymentException {
-        String name;
-            String groupId = dep.getGroupId().trim();
-            String type = dep.isSetType() ? dep.getType().trim() : "jar";
-            String artifactId = dep.getArtifactId().trim();
-            String version = dep.getVersion().trim();
-            name = artifactId + "-" + version + "." + type;
+    private static String getDependencyFileName(ArtifactType dep) {
+        String type = dep.isSetType() ? dep.getType().trim() : "jar";
+        String artifactId = dep.getArtifactId().trim();
+        String version = dep.getVersion().trim();
+        String name = artifactId + "-" + version + "." + type;
         return name;
     }
 

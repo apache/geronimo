@@ -33,6 +33,8 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Version;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -101,7 +103,11 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
             adminObjectData.setAttribute("PhysicalName",
                     destinationPhysicalName);
 
-            URI configId = new URI(BASE_CONFIG_URI + destinationName);
+            Artifact configId = new Artifact();
+            configId.setGroupId(Artifact.DEFAULT_GROUP_ID);
+            configId.setArtifactId(BASE_CONFIG_URI + destinationName);
+            configId.setVersion(new Version("0"));
+            configId.setType("car");
 
             ConfigurationManager configurationManager = ConfigurationUtil
                     .getConfigurationManager(kernel);

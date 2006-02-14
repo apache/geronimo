@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.maven.jelly.MavenJellyContext;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
+import org.apache.geronimo.system.repository.Maven1Repository;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -215,7 +216,7 @@ public class PackageBuilderShell {
             set("setPackageFile", packageFile, File.class, packageBuilder);
             set("setPlanFile", planFile, File.class, packageBuilder);
             set("setRepository", repository, File.class, packageBuilder);
-            set("setRepositoryClass", MavenRepository.class.getName(), String.class, packageBuilder);
+            set("setRepositoryClass", Maven1Repository.class.getName(), String.class, packageBuilder);
             set("setConfigurationStoreClass", MavenConfigStore.class.getName(), String.class, packageBuilder);
 
             Method m = packageBuilder.getClass().getMethod("execute", new Class[]{});

@@ -25,7 +25,7 @@ import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-import org.apache.geronimo.system.repository.ReadOnlyRepository;
+import org.apache.geronimo.system.repository.Maven1Repository;
 
 /**
  * @version $Rev$ $Date$
@@ -55,7 +55,7 @@ public class PluginBootstrap {
     public void bootstrap() throws Exception {
         ConfigurationType config = ConfigurationDocument.Factory.parse(plan).getConfiguration();
 
-        ReadOnlyRepository repository = new ReadOnlyRepository(localRepo);
+        Maven1Repository repository = new Maven1Repository(localRepo);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository);
         ConfigurationData configurationData = builder.buildConfiguration(config, null, buildDir);
 

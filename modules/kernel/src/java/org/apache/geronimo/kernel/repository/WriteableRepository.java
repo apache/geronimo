@@ -26,7 +26,7 @@ import java.io.InputStream;
  *
  * @version $Rev$ $Date$
  */
-public interface WriteableRepository {
+public interface WriteableRepository extends Repository {
     /**
      * Copies a file from the server's filesystem into the repository.
      * Obviously to use this remotely, you must have some other way
@@ -34,7 +34,7 @@ public interface WriteableRepository {
      * the server is just going to turn around and upload it to some
      * other remote location.
      */
-    public void copyToRepository(File source, URI destination, FileWriteMonitor monitor) throws IOException;
+    public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException;
 
     /**
      * Copies the contents of an arbitrary stream into the repository.
@@ -43,5 +43,5 @@ public interface WriteableRepository {
      * is just going to turn around and upload it to some other remote
      * location.  The source will be closed when the write completes.
      */
-    public void copyToRepository(InputStream source, URI destination, FileWriteMonitor monitor) throws IOException;
+    public void copyToRepository(InputStream source, Artifact destination, FileWriteMonitor monitor) throws IOException;
 }

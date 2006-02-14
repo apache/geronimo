@@ -17,18 +17,20 @@
 
 package org.apache.geronimo.plugin.assembly;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.URI;
 import java.net.URL;
-import java.net.URISyntaxException;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.repository.FileSystemRepository;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.system.repository.Maven2Repository;
 
 /**
  * JellyBean that installs configuration artifacts into a repository based ConfigurationStore,  It also copies all
@@ -39,47 +41,34 @@ import org.apache.geronimo.system.repository.FileSystemRepository;
 public class RepoConfigInstaller extends BaseConfigInstaller {
 
     public void execute() throws Exception {
-        Repository sourceRepo = new InnerRepository();
-        URI rootURI = targetRoot.toURI().resolve(targetRepository);
-        FileSystemRepository targetRepo = new FileSystemRepository(rootURI, null);
+        Repository sourceRepo = new Maven1Repository(getSourceRepository());
+        Maven2Repository targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
         InstallAdapter installAdapter = new CopyConfigStore(targetRepo);
-        targetRepo.doStart();
 
-        try {
-            execute(installAdapter, sourceRepo, targetRepo);
-        } finally {
-            targetRepo.doStop();
-        }
-
-    }
+        execute(installAdapter, sourceRepo, targetRepo);
+   }
 
     private static class CopyConfigStore implements InstallAdapter {
+        private final WriteableRepository targetRepo;
 
-        private final FileSystemRepository targetRepo;
-
-        public CopyConfigStore(FileSystemRepository targetRepo) {
+        public CopyConfigStore(WriteableRepository targetRepo) {
             this.targetRepo = targetRepo;
         }
 
         public GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException {
-            URI sourceURI;
-            try {
-                sourceURI = configId.toURI();
-            } catch (URISyntaxException e) {
-                throw new InvalidConfigException(e);
-            }
-            URL sourceURL = sourceRepo.getURL(sourceURI);
-            InputStream in = sourceURL.openStream();
-            try {
-                if (!targetRepo.hasURI(sourceURI)) {
-                    targetRepo.copyToRepository(in, sourceURI, new StartFileWriteMonitor());
+            if (!targetRepo.contains(configId)) {
+                File sourceFile = sourceRepo.getLocation(configId);
+                InputStream in = new FileInputStream(sourceFile);
+                try {
+                    targetRepo.copyToRepository(in, configId, new StartFileWriteMonitor());
+                } finally {
+                    in.close();
                 }
-            } finally {
-                in.close();
             }
-            URL targetURL = targetRepo.getURL(sourceURI);
+
+            File targetFile = targetRepo.getLocation(configId);
             GBeanData config = new GBeanData();
-            URL baseURL = new URL("jar:" + targetURL.toString() + "!/");
+            URL baseURL = new URL("jar:" + targetFile.toString() + "!/");
             InputStream jis = null;
             try {
                 URL stateURL = new URL(baseURL, "META-INF/config.ser");
@@ -97,11 +86,7 @@ public class RepoConfigInstaller extends BaseConfigInstaller {
         }
 
         public boolean containsConfiguration(Artifact configID) {
-            try {
-                return targetRepo.hasURI(configID.toURI());
-            } catch (URISyntaxException e) {
-                throw (IllegalArgumentException)new IllegalArgumentException("bad artifact").initCause(e);
-            }
+            return targetRepo.contains(configID);
         }
     }
 

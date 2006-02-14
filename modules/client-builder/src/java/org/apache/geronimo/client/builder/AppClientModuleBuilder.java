@@ -18,11 +18,9 @@ package org.apache.geronimo.client.builder;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,19 +34,18 @@ import java.util.zip.ZipEntry;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.Environment;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.util.NestedJarFile;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -68,8 +65,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
@@ -118,7 +115,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                   ServiceReferenceBuilder serviceReferenceBuilder,
                                   ConfigurationStore store,
                                   Repository repository,
-                                  Kernel kernel) throws DeploymentException {
+                                  Kernel kernel) {
         this.defaultClientEnvironment = defaultClientEnvironment;
         this.defaultServerEnvironment = defaultServerEnvironment;
         this.corbaGBeanObjectName = corbaGBeanObjectName;
@@ -377,23 +374,13 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             JarFile connectorFile;
                             if (resource.isSetExternalRar()) {
                                 path = resource.getExternalRar().trim();
-                                URI pathURI = null;
-                                try {
-                                    pathURI = new URI(path);
-                                } catch (URISyntaxException e) {
-                                    throw new DeploymentException("Bad path to external rar", e);
-                                }
-                                if (!repository.hasURI(pathURI)) {
+                                Artifact artifact = Artifact.create(path);
+                                if (!repository.contains(artifact)) {
                                     throw new DeploymentException("Missing rar in repository: " + path);
                                 }
-                                URL pathURL = null;
+                                File file = repository.getLocation(artifact);
                                 try {
-                                    pathURL = repository.getURL(pathURI);
-                                } catch (MalformedURLException e) {
-                                    throw new DeploymentException("Could not locate external rar in repository", e);
-                                }
-                                try {
-                                    connectorFile = new JarFile(URLDecoder.decode(pathURL.getFile(), "UTF-8"));
+                                    connectorFile = new JarFile(file);
                                 } catch (IOException e) {
                                     throw new DeploymentException("Could not access rar contents", e);
                                 }

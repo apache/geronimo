@@ -75,6 +75,8 @@ import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
 import org.apache.geronimo.connector.deployment.jsr88.Artifact;
@@ -743,26 +745,22 @@ public class DatabasePoolPortlet extends BasePortlet {
         ListableRepository[] repos = PortletManager.getListableRepositories(renderRequest);
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
-            try {
-                final URI[] uris = repo.listURIs();
-                outer:
-                for (int j = 0; j < uris.length; j++) {
-                    if(uris[j] == null) {
-                        continue; // probably a JAR lacks a version number in the name, etc.
+
+            List artifacts = repo.list();
+            outer:
+            for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+                Artifact artifact = (Artifact) iterator.next();
+                String test = artifact.toString();
+                // todo should only test groupId and should check for long (org.apache.geronimo) and short form
+                for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
+                    String skip = SKIP_ENTRIES_WITH[k];
+                    if(test.indexOf(skip) > -1) {
+                        continue outer;
                     }
-                    String test = uris[j].toString();
-                    for (int k = 0; k < SKIP_ENTRIES_WITH.length; k++) {
-                        String skip = SKIP_ENTRIES_WITH[k];
-                        if(test.indexOf(skip) > -1) {
-                            continue outer;
-                        }
-                    }
-                    list.add(test);
                 }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+                list.add(test);
             }
-        }
+    }
         Collections.sort(list);
         renderRequest.setAttribute("jars", list);
     }
