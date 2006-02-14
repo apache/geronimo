@@ -40,8 +40,8 @@
 
     <inceptionYear>2003</inceptionYear>
     <logo>http://incubator.apache.org/geronimo/images/geronimo.gif</logo>
-    <description>Geronimo J2EE Application Server</description>
-    <shortDescription>Geronimo J2EE Application Server</shortDescription>
+    <description>Apache Geronimo - J2EE Application Server</description>
+    <shortDescription>Apache Geronimo - J2EE Application Server</shortDescription>
     <url>http://geronimo.apache.org/</url>
     <issueTrackingUrl>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220</issueTrackingUrl>
 
