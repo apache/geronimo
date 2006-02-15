@@ -25,8 +25,8 @@ after the system GBeans but before the server GBeans.
 
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
 
     <gbean name="RMIRegistry" class="org.apache.geronimo.system.rmi.RMIRegistryService">

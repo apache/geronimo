@@ -18,8 +18,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
+
     >
     <resourceadapter>
         <resourceadapter-instance>

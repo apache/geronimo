@@ -69,7 +69,7 @@ public class MavenConfigStore implements ConfigurationStore {
         }
 
         GBeanData config = new GBeanData();
-        URL baseURL = new URL("jar:" + repository.getLocation(configId).toString() + "!/");
+        URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
         InputStream jis = null;
         try {
             URL stateURL = new URL(baseURL, "META-INF/config.ser");

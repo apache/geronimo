@@ -16,12 +16,19 @@
     limitations under the License.
 -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-               domain="geronimo.maven"
-               server="geronimo"
-        >
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
+    <environment>
+        <name-key>
+            <key>domain</key>
+            <value>geronimo.maven</value>
+        </name-key>
+        <name-key>
+            <key>J2EEServer</key>
+            <value>geronimo</value>
+        </name-key>
+        <classloader></classloader>
+    </environment>
 
     <!-- Deployer used to process modules and plans -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
@@ -37,7 +44,7 @@
 
     <!-- Builder for handling plans defining Geronimo configurations -->
     <gbean name="ServiceBuilder" class="org.apache.geronimo.deployment.service.ServiceConfigBuilder">
-        <attribute name="defaultParentId">geronimo/j2ee-server/${pom.currentVersion}/car</attribute>
+        <!--<attribute name="defaultParentId">geronimo/j2ee-server/${pom.currentVersion}/car</attribute>-->
         <references name="Repository">
             <pattern><gbean-name>geronimo.maven:name=Repository</gbean-name></pattern>
             <pattern><gbean-name>geronimo.server:name=Repository,*</gbean-name></pattern>
@@ -51,4 +58,5 @@
             <name>*</name>
         </reference>
     </gbean>
+    
 </configuration>

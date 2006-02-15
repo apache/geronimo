@@ -16,8 +16,8 @@
     limitations under the License.
 -->
 
-<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
         >
 
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
@@ -57,7 +57,7 @@
 
     <!-- web switching builder -->
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
-        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.0</attribute>
+        <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1</attribute>
         <references name="ModuleBuilders">
             <pattern><gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/jetty-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=JettyWebBuilder</gbean-name></pattern>
             <pattern><gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/tomcat-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=TomcatWebBuilder</gbean-name></pattern>

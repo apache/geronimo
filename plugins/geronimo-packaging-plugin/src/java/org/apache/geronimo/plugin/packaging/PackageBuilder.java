@@ -36,6 +36,7 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.net.URI;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -323,7 +324,8 @@ public class PackageBuilder {
         ClassLoader cl = PackageBuilder.class.getClassLoader();
         GBeanInfo repoInfo = GBeanInfo.getGBeanInfo(repoClass, cl);
         GBeanData repoGBean = new GBeanData(REPOSITORY_NAME, repoInfo);
-        repoGBean.setAttribute("root", repository);
+        URI repositoryURI = repository.toURI();
+        repoGBean.setAttribute("root", repositoryURI);
         kernel.loadGBean(repoGBean, cl);
         kernel.startGBean(REPOSITORY_NAME);
 

@@ -2,7 +2,7 @@
 
 <configuration
     xmlns="http://geronimo.apache.org/xml/ns/deployment"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+
     >
 
    <gbean name="ldap-login"

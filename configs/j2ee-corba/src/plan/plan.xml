@@ -24,8 +24,8 @@ Configuration for corba on a Geronimo serverl, including client and target secur
 
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
 
     <!-- CORBA -->

@@ -19,10 +19,7 @@
 <!-- $Rev$ $Date$ -->
 <!--               parentId="${pom.groupId}/system-database/${pom.currentVersion}/car"
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
-    >
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
 
     <!-- management -->

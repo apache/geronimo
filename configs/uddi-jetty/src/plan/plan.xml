@@ -17,14 +17,14 @@
 -->
 
 <!-- $Rev$ $Date$ -->
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"
+    >
 
     <ext-module>
         <web>uddi-jetty</web>
         <external-path>geronimo/geronimo-uddi-server/${pom.currentVersion}/war</external-path>
         <web-app
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1"
                        configId="juddi-server"
             >
 
@@ -53,7 +53,7 @@
     <ext-module>
         <connector>uddi-db</connector>
         <external-path>tranql/tranql-connector-derby-embed-local/${tranql_vendors_version}/rar</external-path>
-        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+        <connector xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
                        configId="uddi-db"
                   >
             <resourceadapter>

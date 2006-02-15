@@ -60,7 +60,7 @@
 
     <xs:complexType name="environmentType">
         <xs:sequence>
-            <xs:element name="configId" type="sys:artifactType">
+            <xs:element name="configId" type="sys:artifactType" minOccurs="0" >
                 <xs:annotation>
                     <xs:documentation>
                         "configId" holds elements for the groupId, artifactId, and version of the configuration

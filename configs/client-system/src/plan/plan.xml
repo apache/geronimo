@@ -27,8 +27,8 @@ This configuration should *NOT* be used to provide server or application
 specific services - those should be provided by children.
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     domain="geronimo.client"
     server="client"
     >

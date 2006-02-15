@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"
+    >
 
     <module>
         <web>daytrader-web-${daytrader_version}.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1"
             configId="Web" parentId="Trade">
             <context-priority-classloader>false</context-priority-classloader>
             <service-ref>
@@ -31,7 +31,7 @@
     -->
     <module>
         <ejb>daytrader-ejb-${daytrader_version}.jar</ejb>     <!--  Note this must match the -->
-        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.0"
+        <openejb-jar xmlns="http://www.openejb.org/xml/ns/openejb-jar-2.1"
                      configId="TradeEJBs"
                      >
 
@@ -506,7 +506,7 @@
 
     <module>
         <java>daytrader-streamer-${daytrader_version}.jar</java>
-        <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.0"
+        <application-client  xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-client-1.1"
             configId="foo"
             clientConfigId="${pom.groupId}/${pom.artifactId}-streamer-client/${daytrader_version}/car">
             <resource>
@@ -565,7 +565,7 @@
         <connector>TradeDataSource</connector>
         <external-path>tranql/tranql-connector-derby-embed-xa/${tranql_vendors_version}/rar</external-path>
         <connector
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
             configId="TradeDataSource"
             >
 
@@ -605,7 +605,7 @@
         <connector>TradeJMS</connector>
         <external-path>activemq/activemq-ra/${activemq_version}/rar</external-path>
         <connector
-            xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.0"
+            xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
             xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
             configId="TradeJMS"
             >

@@ -162,7 +162,11 @@ public class PlanProcessor {
                 QName childName = xmlCursor.getName();
                 EnvironmentType environmentType;
                 if (childName.equals(ENVIRONMENT_QNAME)) {
-                    environmentType = (EnvironmentType) xmlCursor.getObject();
+                    XmlObject xmlObject = xmlCursor.getObject();
+                    System.out.println("Expected EnvironmentType, actual: " + xmlObject.getClass().getName());
+                    System.out.println(xmlObject.toString());
+                    environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
+                    xmlCursor.removeXml();
                 } else {
                     environmentType = EnvironmentType.Factory.newInstance();
                     xmlCursor.beginElement(ENVIRONMENT_QNAME);
@@ -213,6 +217,14 @@ public class PlanProcessor {
                         return classloaderType.addNewDependency();
                     }
                 });
+
+                xmlCursor.beginElement(ENVIRONMENT_QNAME);
+                XmlCursor element = environmentType.newCursor();
+                try {
+                    element.copyXmlContents(xmlCursor);
+                } finally {
+                    element.dispose();
+                }
 
                 File targetDir = new File(this.targetDir);
                 if (targetDir.exists()) {

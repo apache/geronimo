@@ -25,8 +25,8 @@ This configuration should contain those services normally provided
 by the server.
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
 
     <gbean gbeanName="geronimo.server:name=DirectoryService" class="org.apache.geronimo.directory.DirectoryGBean">

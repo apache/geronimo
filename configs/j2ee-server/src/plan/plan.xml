@@ -27,8 +27,8 @@ by the server.
 
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
-               configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+
     >
 
     <gbean name="DefaultThreadPool" class="org.apache.geronimo.pool.ThreadPool">

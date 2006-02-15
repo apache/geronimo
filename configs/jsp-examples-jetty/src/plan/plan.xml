@@ -18,8 +18,8 @@
 
 <!-- $Rev$ $Date$ -->
 
-<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0"
-      configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+<web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1"
+
     >
 
     <context-root>/jsp-examples</context-root>

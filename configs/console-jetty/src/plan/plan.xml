@@ -19,13 +19,13 @@
 <!-- $Rev$ $Date$ -->
 
 <application
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.0"
-    configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
+    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"
+
     >
 
     <module>
         <web>geronimo-console-framework-${pom.currentVersion}.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0" configId="console">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1" configId="console">
             <context-root>/console</context-root>
             <context-priority-classloader>false</context-priority-classloader>
             <security-realm-name>geronimo-properties-realm</security-realm-name>
@@ -46,7 +46,7 @@
 
     <module>
         <web>geronimo-console-standard-${pom.currentVersion}.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.0" configId="console-standard">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/jetty-1.1" configId="console-standard">
             <context-root>/console-standard</context-root>
             <context-priority-classloader>false</context-priority-classloader>
         </web-app>

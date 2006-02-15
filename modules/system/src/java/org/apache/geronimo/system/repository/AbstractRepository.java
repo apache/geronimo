@@ -60,7 +60,7 @@ public abstract class AbstractRepository implements WriteableRepository {
 
     private static File resolveRoot(URI root, ServerInfo serverInfo) {
         if (root == null) throw new NullPointerException("root is null");
-        if (serverInfo == null) throw new NullPointerException("serverInfo is null");
+//        if (serverInfo == null) throw new NullPointerException("serverInfo is null");
 
         if (!root.toString().endsWith("/")) {
             try {
@@ -70,7 +70,12 @@ public abstract class AbstractRepository implements WriteableRepository {
             }
         }
 
-        URI resolvedUri = serverInfo.resolve(root);
+        URI resolvedUri;
+        if (serverInfo != null) {
+            resolvedUri = serverInfo.resolve(root);
+        } else {
+            resolvedUri = root;
+        }
 
         if (!resolvedUri.getScheme().equals("file")) {
             throw new IllegalStateException("FileSystemRepository must have a root that's a local directory (not " + resolvedUri + ")");
