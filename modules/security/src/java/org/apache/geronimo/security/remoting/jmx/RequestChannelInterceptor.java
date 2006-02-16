@@ -36,9 +36,9 @@ import org.activeio.net.SocketMetadata;
 import org.activeio.net.SocketSyncChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 
 /**

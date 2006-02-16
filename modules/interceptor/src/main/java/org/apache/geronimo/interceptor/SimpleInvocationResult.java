@@ -15,11 +15,11 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.core.service;
+package org.apache.geronimo.interceptor;
 
 import java.io.Serializable;
 
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.InvocationResult;
 
 /**
  *

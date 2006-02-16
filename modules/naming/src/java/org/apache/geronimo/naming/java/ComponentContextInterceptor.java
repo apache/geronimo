@@ -17,16 +17,11 @@
 
 package org.apache.geronimo.naming.java;
 
-import java.util.Properties;
-import java.util.Iterator;
-import java.util.Map;
 import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
-import org.apache.geronimo.core.service.Interceptor;
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationResult;
+import org.apache.geronimo.interceptor.Interceptor;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationResult;
 
 /**
  * An interceptor that pushes the current component's java:comp context into

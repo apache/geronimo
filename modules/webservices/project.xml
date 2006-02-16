@@ -59,6 +59,12 @@
 
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-interceptor</artifactId>
+            <version>${geronimo_version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-kernel</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>

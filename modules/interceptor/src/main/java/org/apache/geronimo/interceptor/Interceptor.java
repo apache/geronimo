@@ -15,16 +15,24 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.core.service;
+package org.apache.geronimo.interceptor;
+
 
 /**
+ *
+ *
+ *
  * @version $Rev$ $Date$
  */
-public interface InvocationKey {
-    
+public interface Interceptor {
+
     /**
-     * 
-     * @return
+     * Interceptor does a little work for the invocation and then invokes the next interceptor
+     * in the chain.
+     *
+     * @param invocation the invocation for which work will be done
+     * @return the result of the invocation (includes return or application Exception)
+     * @throws java.lang.Throwable if a system exception occures while doing the work
      */
-    boolean isTransient();
+    InvocationResult invoke(Invocation invocation) throws Throwable;
 }

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.core.service;
+package org.apache.geronimo.interceptor;
 
 /**
  * The result of an Invocation.

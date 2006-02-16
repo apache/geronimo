@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.geronimo.core.service.Invocation;
-import org.apache.geronimo.core.service.InvocationKey;
+import org.apache.geronimo.interceptor.Invocation;
+import org.apache.geronimo.interceptor.InvocationKey;
 
 /**
  * @version $Rev$ $Date$
