@@ -82,6 +82,13 @@ public class GBeanInfoBuilder {
         return createStatic(sourceClass, gbeanType.getName(), gbeanType, null, j2eeType);
     }
 
+    public static GBeanInfoBuilder createStatic(Class sourceClass, String name, Class gbeanType, String j2eeType) {
+        if (sourceClass == null) throw new NullPointerException("sourceClass is null");
+        if (name == null) throw new NullPointerException("name is null");
+        if (gbeanType == null) throw new NullPointerException("gbeanType is null");
+        return createStatic(sourceClass, name, gbeanType, null, j2eeType);
+    }
+
     public static GBeanInfoBuilder createStatic(Class sourceClass, String name, Class gbeanType, GBeanInfo source, String j2eeType) {
         if (sourceClass == null) throw new NullPointerException("sourceClass is null");
         if (name == null) throw new NullPointerException("name is null");
