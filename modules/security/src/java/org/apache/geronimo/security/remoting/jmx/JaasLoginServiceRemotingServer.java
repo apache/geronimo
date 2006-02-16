@@ -43,7 +43,6 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.management.geronimo.NetworkConnector;
-import org.apache.geronimo.proxy.ReflexiveInterceptor;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 
 

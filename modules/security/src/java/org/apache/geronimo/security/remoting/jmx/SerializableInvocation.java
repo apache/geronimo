@@ -15,29 +15,45 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.core.service;
+package org.apache.geronimo.security.remoting.jmx;
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Externalizable;
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+
+import org.apache.geronimo.core.service.Invocation;
+import org.apache.geronimo.core.service.InvocationKey;
 
 /**
- *
- *
- *
  * @version $Rev$ $Date$
  */
-public class SimpleInvocation implements Invocation, Externalizable {
-    
+final public class SerializableInvocation implements Invocation, Externalizable {
+
     private Map data;
+    private Method method;
+    private Object args[];
+    private Object proxy;
+
+    public SerializableInvocation() {
+        super();
+    }
+
+    public SerializableInvocation(Method method, Object[] args, Object proxy) {
+        super();
+        this.method = method;
+        this.args = args;
+        this.proxy = proxy;
+    }
 
     public Object get(InvocationKey key) {
-        if(data==null)
+        if(data==null) {
             return null;
+        }
         return data.get(key);
     }
 
@@ -47,9 +63,6 @@ public class SimpleInvocation implements Invocation, Externalizable {
         data.put(key, value);
     }
 
-    /* (non-Javadoc)
-     * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
-     */
     public void writeExternal(ObjectOutput out) throws IOException {
         if( data !=null ) {
             Iterator iterator = data.keySet().iterator();
@@ -60,28 +73,35 @@ public class SimpleInvocation implements Invocation, Externalizable {
                 Object value = data.get(key);
                 out.writeObject(key);
                 out.writeObject(value);
-            }        
+            }
         }
         // write end of list terminator.
         out.writeObject(null);
+        out.writeObject(args);
+        out.writeObject(new MarshalledMethod(method));
     }
 
-    /**
-     * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
-     */
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        
+
         if( data!=null )
             data.clear();
-            
+
         InvocationKey key = (InvocationKey) in.readObject();
         while( key!=null ) {
             Object value = in.readObject();
             put(key,value);
             key = (InvocationKey) in.readObject();
         }
-        
+        args = (Object[]) in.readObject();
+        method = ((MarshalledMethod) in.readObject()).getMethod();
     }
 
+    public Method getMethod() {
+        return method;
+    }
+
+    public Object[] getArgs() {
+        return args;
+    }
 
 }

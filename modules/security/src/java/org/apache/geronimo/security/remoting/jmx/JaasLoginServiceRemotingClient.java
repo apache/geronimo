@@ -20,8 +20,8 @@ package org.apache.geronimo.security.remoting.jmx;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.lang.reflect.Proxy;
 
-import org.apache.geronimo.proxy.ProxyContainer;
 import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 
 
@@ -49,9 +49,8 @@ public class JaasLoginServiceRemotingClient {
 
         // Setup the client side container..
         RequestChannelInterceptor remoteInterceptor = new RequestChannelInterceptor(target, cl);
-        ProxyContainer clientContainer = new ProxyContainer(remoteInterceptor);
-        return (JaasLoginServiceMBean) clientContainer.createProxy(cl , new Class[]{JaasLoginServiceMBean.class});
-
+        Class[] interfaces = new Class[]{JaasLoginServiceMBean.class};
+        return (JaasLoginServiceMBean) Proxy.newProxyInstance(cl, interfaces, remoteInterceptor);
     }
 
 }

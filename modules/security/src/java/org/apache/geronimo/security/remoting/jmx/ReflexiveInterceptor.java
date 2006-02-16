@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.security.remoting.jmx;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,9 +38,9 @@ public class ReflexiveInterceptor implements Interceptor {
 
     public InvocationResult invoke(Invocation invocation) throws Throwable {
         try {
-
-            Method m = ProxyInvocation.getMethod(invocation);
-            Object args[] = ProxyInvocation.getArguments(invocation);
+            SerializableInvocation proxyInvocation = (SerializableInvocation) invocation;
+            Method m = proxyInvocation.getMethod();
+            Object args[] = proxyInvocation.getArgs();
             Object rc = m.invoke(target, args);
             return new SimpleInvocationResult(true, rc);
 

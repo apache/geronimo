@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.proxy;
+package org.apache.geronimo.security.remoting.jmx;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
