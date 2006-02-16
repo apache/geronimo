@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,17 +19,10 @@ package org.apache.geronimo.kernel.repository;
 import java.util.List;
 
 /**
- * For repositories that can provide a list of their contents.
- * Normally local ones can handle it, but remote ones may or may
- * not implement this.
- *
  * @version $Rev$ $Date$
  */
-public interface ListableRepository extends Repository {
-    /**
-     * Gets a list of all the items available in the repository.
-     */
-    public List list();
-
-    public List list(String groupId, String artifactId, String type);
+public interface ArtifactManager {
+    void loadArtifacts(List artifacts);
+    void unloadArtifacts(List artifacts);
+    List getLoadedArtifacts(String groupId, String artifactId, String type);
 }

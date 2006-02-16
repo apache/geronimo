@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -143,6 +144,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     private final Artifact[] parentId;
 
+    /**
+     * List of the parent configurations
+     */
+    private final List parents;
+
     private final List dependencies;
     private final List classPath;
     private final boolean inverseClassLoading;
@@ -187,6 +193,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         id = null;
         moduleType = null;
         parentId = null;
+        parents = null;
         nameKeys = null;
         objectNames = null;
         configurationClassLoader = null;
@@ -258,6 +265,16 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
 
         this.nameKeys = nameKeys;
+
+        parents = new ArrayList();
+        if (parentId != null && parentId.length > 0) {
+            for (int i = 0; i < parentId.length; i++) {
+                Artifact artifact = parentId[i];
+                ObjectName parentName = getConfigurationObjectName(artifact);
+                parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
+            }
+        }
+
         addParentDependencies(kernel, id, parentId);
     }
 
@@ -267,6 +284,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public Map getNameKeys() {
         return nameKeys;
+    }
+
+    public List getDependencies() {
+        return dependencies;
     }
 
     public void doStart() throws Exception {
@@ -452,6 +473,21 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     public Artifact[] getParentId() {
         return parentId;
+    }
+
+    /**
+     * Gets the parent configurations of this configuration.
+     * @return the parents of this configuration
+     */
+    public List getParents() {
+        return parents;
+    }
+
+    /**
+     * If true the configuration will search local dependencies for classes before searching parents.
+     */
+    public boolean isInverseClassLoading() {
+        return inverseClassLoading;
     }
 
     /**

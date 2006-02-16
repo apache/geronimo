@@ -24,12 +24,13 @@ import java.util.List;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Maven2Repository extends AbstractRepository {
+public class Maven2Repository extends AbstractRepository implements ListableRepository {
     public Maven2Repository(URI root, ServerInfo serverInfo) {
         super(root, serverInfo);
     }
@@ -59,6 +60,31 @@ public class Maven2Repository extends AbstractRepository {
                     if (versionDir.canRead() && versionDir.isDirectory()) {
                         artifacts.addAll(getArtifacts(null, versionDir));
                     }
+                }
+            }
+        }
+        return artifacts;
+    }
+
+    public List list(String groupId, String artifactId, String type) {
+        File path = new File(rootFile, groupId.replace('.', File.separatorChar));
+        path = new File(path, artifactId);
+
+        List artifacts = new ArrayList();
+
+        File[] versionDirs = path.listFiles();
+        for (int i = 0; i < versionDirs.length; i++) {
+            File versionDir = versionDirs[i];
+            if (versionDir.canRead() && versionDir.isDirectory()) {
+                String version = versionDir.getName();
+                String fileName = artifactId + "-" + version + "." + type;
+                File file = new File(versionDir, fileName);
+                if (file.canRead() && file.isFile()) {
+                    artifacts.add(new Artifact(groupId,
+                            artifactId,
+                            version,
+                            type,
+                            true));
                 }
             }
         }

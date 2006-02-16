@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**

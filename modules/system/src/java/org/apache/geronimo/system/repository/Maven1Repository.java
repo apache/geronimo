@@ -27,12 +27,13 @@ import java.util.regex.Pattern;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Maven1Repository extends AbstractRepository {
+public class Maven1Repository extends AbstractRepository implements ListableRepository {
     public Maven1Repository(URI root, ServerInfo serverInfo) {
         super(root, serverInfo);
     }
@@ -47,6 +48,25 @@ public class Maven1Repository extends AbstractRepository {
         path = new File(path, artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getType());
 
         return path;
+    }
+
+    public List list(String groupId, String artifactId, String type) {
+        List artifacts = new ArrayList();
+
+        File path = new File(rootFile, groupId);
+        path = new File(path, type + "s");
+
+        File[] files = path.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File file = files[i];
+            String fileName = file.getName();
+            if (fileName.startsWith(artifactId + "-") && fileName.endsWith("." + type)) {
+                String version = fileName.substring(artifactId.length() + 1);
+                version = version.substring(0, version.length() - 1 - type.length());
+                artifacts.add(new Artifact(groupId, artifactId, version, type, true));
+            }
+        }
+        return artifacts;
     }
 
     //thanks to Brett Porter for this regex lifted from a maven1-2 porting tool
