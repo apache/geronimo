@@ -18,11 +18,10 @@ package org.apache.geronimo.j2ee.deployment;
 
 import java.io.File;
 import java.net.URL;
-import java.net.URI;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$

@@ -65,7 +65,7 @@ import org.apache.geronimo.axis.client.SEIFactory;
 import org.apache.geronimo.axis.client.ServiceImpl;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.j2ee.deployment.EJBModule;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -106,7 +106,7 @@ public class ServiceReferenceTest extends TestCase {
         environment.setConfigId(configID);
         Map nameKeys = new HashMap();
         nameKeys.put("domain", "geronimo");
-        environment.setNameKeys(nameKeys);
+        environment.setProperties(nameKeys);
         context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, null);
 
         File moduleLocation = new File(tmpbasedir, "ejb");

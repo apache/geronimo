@@ -18,13 +18,15 @@
 package org.apache.geronimo.deployment.service;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
-import org.apache.geronimo.deployment.xbeans.ClassloaderType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentDocument;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.NameKeyType;
+import org.apache.geronimo.deployment.xbeans.PropertyType;
+import org.apache.geronimo.deployment.xbeans.ImportType;
+import org.apache.geronimo.deployment.xbeans.PropertiesType;
+import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
@@ -37,6 +39,8 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @version $Rev:$ $Date:$
@@ -51,35 +55,58 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             environment.setConfigId(toArtifact(environmentType.getConfigId()));
         }
 
-        NameKeyType[] nameKeyArray = environmentType.getNameKeyArray();
-        Map nameKeyMap = new HashMap();
-        for (int i = 0; i < nameKeyArray.length; i++) {
-            NameKeyType nameKey = nameKeyArray[i];
-            String key = nameKey.getKey().trim();
-            String value = nameKey.getValue().trim();
-            nameKeyMap.put(key, value);
+        Map propertiesMap = new HashMap();
+        if (environmentType.isSetProperties()) {
+            PropertyType[] propertiesArray = environmentType.getProperties().getPropertyArray();
+            for (int i = 0; i < propertiesArray.length; i++) {
+                PropertyType property = propertiesArray[i];
+                String key = property.getName().trim();
+                String value = property.getValue().trim();
+                propertiesMap.put(key, value);
+            }
         }
-        environment.setNameKeys(nameKeyMap);
+        environment.setProperties(propertiesMap);
 
-        if (environmentType.isSetClassloader()) {
-            ClassloaderType classloaderType = environmentType.getClassloader();
-            environment.setImports(toArtifacts(classloaderType.getImportArray()));
-            environment.setDependencies(toArtifacts(classloaderType.getDependencyArray()));
-            environment.setIncludes(toArtifacts(classloaderType.getIncludeArray()));
+        if (environmentType.isSetDependencies()) {
+            ArtifactType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
+            Collection dependencies = new LinkedHashSet();
+            Collection imports = new LinkedHashSet();
+            Collection references = new LinkedHashSet();
+            for (int i = 0; i < dependencyArray.length; i++) {
+                ArtifactType artifactType = dependencyArray[i];
+                Artifact artifact = toArtifact(artifactType);
+                if (artifact.getType() == null) {
+                    artifact.setType("jar");
+                }
+                String type = artifact.getType();
+                if (type.equals("jar")) {
+                    dependencies.add(artifact);
+                } else if (type.equals("car")) {
+                    if ("classes".equals(artifactType.getImport())) {
+                        throw new IllegalArgumentException("classes-only dependency on car files not yet supported");
+                    } else if ("services".equals(artifactType.getImport())) {
+                        references.add(artifact);
+                    } else {
+                        imports.add(artifact);
+                    }
+                }
+            }
+            environment.setImports(imports);
+            environment.setDependencies(dependencies);
+            environment.setReferences(references);
 
-            environment.setInverseClassloading(classloaderType.isSetInverseClassloading());
-            environment.setSuppressDefaultEnvironment(classloaderType.isSetSuppressDefaultEnvironment());
-            environment.setHiddenClasses(toFilters(classloaderType.getHiddenClassesArray()));
-            environment.setNonOverrideableClasses(toFilters(classloaderType.getNonOverridableClassesArray()));
         }
-        environment.setReferences(toArtifacts(environmentType.getReferenceArray()));
+        environment.setInverseClassloading(environmentType.isSetInverseClassloading());
+        environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
+        environment.setHiddenClasses(toFilters(environmentType.getHiddenClassesArray()));
+        environment.setNonOverrideableClasses(toFilters(environmentType.getNonOverridableClassesArray()));
 
         return environment;
     }
 
     public static void mergeEnvironments(Environment environment, Environment additionalEnvironment) {
         if (additionalEnvironment != null) {
-            environment.addNameKeys(additionalEnvironment.getNameKeys());
+            environment.addProperties(additionalEnvironment.getProperties());
             environment.addImports(additionalEnvironment.getImports());
             environment.addDependencies(additionalEnvironment.getDependencies());
             environment.addIncludes(additionalEnvironment.getIncludes());
@@ -99,29 +126,36 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
     public static EnvironmentType buildEnvironmentType(Environment environment) {
         EnvironmentType environmentType = EnvironmentType.Factory.newInstance();
-        ArtifactType configId = environmentType.addNewConfigId();
-        toArtifactType(configId, environment.getConfigId());
-        for (Iterator iterator = environment.getNameKeys().entrySet().iterator(); iterator.hasNext();) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
-            NameKeyType nameKeyType = environmentType.addNewNameKey();
-            nameKeyType.setKey(key);
-            nameKeyType.setValue(value);
+        ArtifactType configId = toArtifactType(environment.getConfigId(), null);
+        environmentType.setConfigId(configId);
+
+        if (environment.getProperties().size() >0) {
+            PropertiesType propertiesType = environmentType.addNewProperties();
+            for (Iterator iterator = environment.getProperties().entrySet().iterator(); iterator.hasNext();) {
+                Map.Entry entry = (Map.Entry) iterator.next();
+                String name = (String) entry.getKey();
+                String value = (String) entry.getValue();
+                PropertyType propertyType = propertiesType.addNewProperty();
+                propertyType.setName(name);
+                propertyType.setValue(value);
+            }
         }
-        ClassloaderType classloaderType = environmentType.addNewClassloader();
-        classloaderType.setImportArray(toArtifactTypes(environment.getImports()));
-        classloaderType.setIncludeArray(toArtifactTypes(environment.getIncludes()));
-        classloaderType.setDependencyArray(toArtifactTypes(environment.getDependencies()));
+        List dependencies = new ArrayList();
+        toArtifactTypes(environment.getImports(), null, dependencies);
+//        toArtifactTypes(environment.getIncludes(), null, dependencies));
+        toArtifactTypes(environment.getDependencies(), null, dependencies);
+        toArtifactTypes(environment.getReferences(), ImportType.SERVICES, dependencies);
+        ArtifactType[] artifactTypes = (ArtifactType[]) dependencies.toArray(new ArtifactType[dependencies.size()]);
+        DependenciesType dependenciesType = environmentType.addNewDependencies();
+        dependenciesType.setDependencyArray(artifactTypes);
         if (environment.isInverseClassloading()) {
-            classloaderType.addNewInverseClassloading();
+            environmentType.addNewInverseClassloading();
         }
         if (environment.isSuppressDefaultEnvironment()) {
-            classloaderType.addNewSuppressDefaultEnvironment();
+            environmentType.addNewSuppressDefaultEnvironment();
         }
-        classloaderType.setHiddenClassesArray(toFilterType(environment.getHiddenClasses()));
-        classloaderType.setNonOverridableClassesArray(toFilterType(environment.getNonOverrideableClasses()));
-        environmentType.setReferenceArray(toArtifactTypes(environment.getReferences()));
+        environmentType.setHiddenClassesArray(toFilterType(environment.getHiddenClasses()));
+        environmentType.setNonOverridableClassesArray(toFilterType(environment.getNonOverrideableClasses()));
         return environmentType;
     }
 
@@ -137,19 +171,16 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         return classFilters;
     }
 
-    private static ArtifactType[] toArtifactTypes(Collection artifacts) {
-        ArtifactType[] artifactTypes = new ArtifactType[artifacts.size()];
-        int i = 0;
+    private static void toArtifactTypes(Collection artifacts, ImportType.Enum importType, List dependencies) {
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            ArtifactType artifactType = ArtifactType.Factory.newInstance();
-            toArtifactType(artifactType, artifact);
-            artifactTypes[i++] = artifactType;
+            ArtifactType artifactType = toArtifactType(artifact, importType);
+            dependencies.add(artifactType);
         }
-        return artifactTypes;
     }
 
-    private static void toArtifactType(ArtifactType artifactType, Artifact artifact) {
+    private static ArtifactType toArtifactType(Artifact artifact, ImportType.Enum importType) {
+        ArtifactType artifactType = ArtifactType.Factory.newInstance();
         if (artifact.getGroupId() != null) {
             artifactType.setGroupId(artifact.getGroupId());
         }
@@ -162,6 +193,10 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         if (artifact.getType() != null) {
             artifactType.setType(artifact.getType());
         }
+        if (importType != null) {
+            artifactType.setImport(importType);
+        }
+        return artifactType;
     }
 
     private static Set toFilters(ClassFilterType[] filterArray) {

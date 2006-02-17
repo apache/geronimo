@@ -14,69 +14,69 @@
     limitations under the License.-->
 <!--$Rev: 356113 $ $Date: 2005-12-11 21:54:02 -0500 (Sun, 11 Dec 2005) $-->
 <connector configId="TestJMSConfig" xmlns="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1">
-  <dep:import xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
-    <dep:groupId>geronimo</dep:groupId>
-    <dep:type>car</dep:type>
-    <dep:artifactId>activemq-broker</dep:artifactId>
-    <dep:version>1.0</dep:version>
-  </dep:import>
-  <resourceadapter>
-    <resourceadapter-instance>
-      <resourceadapter-name>Test ActiveMQ RA</resourceadapter-name>
-      <config-property-setting name="ServerUrl">tcp://localhost:61616</config-property-setting>
-      <config-property-setting name="UserName">geronimo-user</config-property-setting>
-      <config-property-setting name="Password">geronimo-pw</config-property-setting>
-      <workmanager>
-        <gbean-link>DefaultWorkManager</gbean-link>
-      </workmanager>
-    </resourceadapter-instance>
-    <outbound-resourceadapter>
-      <connection-definition>
-        <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
-        <connectiondefinition-instance>
-          <name>DefaultActiveMQConnectionFactory</name>
-          <implemented-interface>javax.jms.QueueConnectionFactory</implemented-interface>
-          <implemented-interface>javax.jms.TopicConnectionFactory</implemented-interface>
-          <connectionmanager>
-            <xa-transaction>
-              <transaction-caching/>
-            </xa-transaction>
-            <single-pool>
-              <max-size>10</max-size>
-              <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
-              <match-one/>
-            </single-pool>
-          </connectionmanager>
-        </connectiondefinition-instance>
-      </connection-definition>
-    </outbound-resourceadapter>
-  </resourceadapter>
-  <adminobject>
-    <adminobject-interface>javax.jms.Queue</adminobject-interface>
-    <adminobject-class>org.activemq.message.ActiveMQQueue</adminobject-class>
-    <adminobject-instance>
-      <message-destination-name>TestQueue1Name</message-destination-name>
-      <config-property-setting name="PhysicalName">TestQueue1Physical</config-property-setting>
-    </adminobject-instance>
-  </adminobject>
-  <adminobject>
-    <adminobject-interface>javax.jms.Queue</adminobject-interface>
-    <adminobject-class>org.activemq.message.ActiveMQQueue</adminobject-class>
-    <adminobject-instance>
-      <message-destination-name>TestQueue2Name</message-destination-name>
-      <config-property-setting name="PhysicalName">TestQueue2Physical</config-property-setting>
-    </adminobject-instance>
-    <adminobject-instance>
-      <message-destination-name>TestQueue3Name</message-destination-name>
-      <config-property-setting name="PhysicalName">TestQueue3Physical</config-property-setting>
-    </adminobject-instance>
-  </adminobject>
-  <adminobject>
-    <adminobject-interface>javax.jms.Topic</adminobject-interface>
-    <adminobject-class>org.activemq.message.ActiveMQTopic</adminobject-class>
-    <adminobject-instance>
-      <message-destination-name>TestTopic1Name</message-destination-name>
-      <config-property-setting name="PhysicalName">TestTopic1Physical</config-property-setting>
-    </adminobject-instance>
-  </adminobject>
+    <dep:import xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
+        <dep:groupId>geronimo</dep:groupId>
+        <dep:artifactId>activemq-broker</dep:artifactId>
+        <dep:version>1.0</dep:version>
+        <dep:type>car</dep:type>
+    </dep:import>
+    <resourceadapter>
+        <resourceadapter-instance>
+            <resourceadapter-name>Test ActiveMQ RA</resourceadapter-name>
+            <config-property-setting name="ServerUrl">tcp://localhost:61616</config-property-setting>
+            <config-property-setting name="UserName">geronimo-user</config-property-setting>
+            <config-property-setting name="Password">geronimo-pw</config-property-setting>
+            <workmanager>
+                <gbean-link>DefaultWorkManager</gbean-link>
+            </workmanager>
+        </resourceadapter-instance>
+        <outbound-resourceadapter>
+            <connection-definition>
+                <connectionfactory-interface>javax.jms.ConnectionFactory</connectionfactory-interface>
+                <connectiondefinition-instance>
+                    <name>DefaultActiveMQConnectionFactory</name>
+                    <implemented-interface>javax.jms.QueueConnectionFactory</implemented-interface>
+                    <implemented-interface>javax.jms.TopicConnectionFactory</implemented-interface>
+                    <connectionmanager>
+                        <xa-transaction>
+                            <transaction-caching/>
+                        </xa-transaction>
+                        <single-pool>
+                            <max-size>10</max-size>
+                            <blocking-timeout-milliseconds>5000</blocking-timeout-milliseconds>
+                            <match-one/>
+                        </single-pool>
+                    </connectionmanager>
+                </connectiondefinition-instance>
+            </connection-definition>
+        </outbound-resourceadapter>
+    </resourceadapter>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>TestQueue1Name</message-destination-name>
+            <config-property-setting name="PhysicalName">TestQueue1Physical</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Queue</adminobject-interface>
+        <adminobject-class>org.activemq.message.ActiveMQQueue</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>TestQueue2Name</message-destination-name>
+            <config-property-setting name="PhysicalName">TestQueue2Physical</config-property-setting>
+        </adminobject-instance>
+        <adminobject-instance>
+            <message-destination-name>TestQueue3Name</message-destination-name>
+            <config-property-setting name="PhysicalName">TestQueue3Physical</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
+    <adminobject>
+        <adminobject-interface>javax.jms.Topic</adminobject-interface>
+        <adminobject-class>org.activemq.message.ActiveMQTopic</adminobject-class>
+        <adminobject-instance>
+            <message-destination-name>TestTopic1Name</message-destination-name>
+            <config-property-setting name="PhysicalName">TestTopic1Physical</config-property-setting>
+        </adminobject-instance>
+    </adminobject>
 </connector>

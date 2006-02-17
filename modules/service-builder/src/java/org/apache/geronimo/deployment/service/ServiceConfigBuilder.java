@@ -20,7 +20,7 @@ package org.apache.geronimo.deployment.service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
@@ -31,19 +31,18 @@ import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
 import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
@@ -177,8 +176,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         J2eeContext j2eeContext = null;
         try {
-            j2eeContext = new J2eeContextImpl(context.getDomain(), context.getServer(), NameFactory.NULL, NameFactory.J2EE_MODULE, environment.getConfigId().toURI().toString(), null, null);
-        } catch (URISyntaxException e) {
+            j2eeContext = NameFactory.buildJ2eeContext(environment.getProperties(), NameFactory.NULL, NameFactory.J2EE_MODULE, environment.getConfigId().toString(), null, null);
+        } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
         GbeanType[] gbeans = configurationType.getGbeanArray();

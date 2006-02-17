@@ -20,20 +20,18 @@
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <configId>
             <groupId>geronimo</groupId>
-            <type>car</type>
             <artifactId>test-ear</artifactId>
             <version>1.0</version>
+            <type>car</type>
         </configId>
-        <name-key>
-            <key>domain</key>
-            <value>geronimo.test</value>
-        </name-key>
-        <name-key>
-            <key>J2EEServer</key>
-            <value>geronimo</value>
-        </name-key>
+        <properties>
+            <property>
+                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
+                <value>geronimo.test:J2EEServer=geronimo</value>
+            </property>
+        </properties>
     </environment>
-                                                                        
+
     <resourceadapter>
         <resourceadapter-instance>
             <resourceadapter-name>testRA</resourceadapter-name>
@@ -81,7 +79,8 @@
                 </connectiondefinition-instance>
             </connection-definition>
             <connection-definition>
-                <connectionfactory-interface>org.apache.geronimo.connector.mock.ConnectionFactoryExtension</connectionfactory-interface>
+                <connectionfactory-interface>
+                    org.apache.geronimo.connector.mock.ConnectionFactoryExtension</connectionfactory-interface>
                 <connectiondefinition-instance>
                     <name>ThirdTestOutboundConnectionFactory</name>
                     <config-property-setting name="OutboundStringProperty1">StringValue3</config-property-setting>
@@ -116,27 +115,39 @@
     </adminobject>
 
     <!--normally this is in the j2ee-server-plan.xml.  It is included here so the gbeans can start in unit tests-->
-    <gbean name="ConnectionTracker" class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
+    <gbean name="ConnectionTracker"
+           class="org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean">
     </gbean>
 
     <gbean name="DefaultWorkManager" class="org.apache.geronimo.connector.work.GeronimoWorkManagerGBean">
         <attribute name="syncMaximumPoolSize">10</attribute>
         <attribute name="startMaximumPoolSize">10</attribute>
         <attribute name="scheduledMaximumPoolSize">10</attribute>
-        <reference name="TransactionContextManager"><gbean-name>*:name=TransactionContextManager,*</gbean-name></reference>
+        <reference name="TransactionContextManager">
+            <gbean-name>*:name=TransactionContextManager,*</gbean-name>
+        </reference>
     </gbean>
 
     <gbean name="TransactionManager" class="org.apache.geronimo.transaction.manager.TransactionManagerImplGBean">
         <attribute name="defaultTransactionTimeoutSeconds">10</attribute>
         <references name="ResourceManagers">
-            <pattern><gbean-name>*:j2eeType=JCAManagedConnectionFactory,*</gbean-name></pattern>
-            <pattern><gbean-name>*:j2eeType=MessageDrivenBean,*</gbean-name></pattern>
+            <pattern>
+                <gbean-name>*:j2eeType=JCAManagedConnectionFactory,*</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>*:j2eeType=MessageDrivenBean,*</gbean-name>
+            </pattern>
         </references>
     </gbean>
 
-    <gbean name="TransactionContextManager" class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
-        <reference name="TransactionManager"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
-        <reference name="XidImporter"><gbean-name>*:name=TransactionManager,*</gbean-name></reference>
+    <gbean name="TransactionContextManager"
+           class="org.apache.geronimo.transaction.context.TransactionContextManagerGBean">
+        <reference name="TransactionManager">
+            <gbean-name>*:name=TransactionManager,*</gbean-name>
+        </reference>
+        <reference name="XidImporter">
+            <gbean-name>*:name=TransactionManager,*</gbean-name>
+        </reference>
     </gbean>
 
 </connector>

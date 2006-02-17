@@ -38,7 +38,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -354,11 +354,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
-                try {
-                    gbeanData.setReferencePattern("j2eeServer", NameFactory.getServerName(earContext.getDomain(), earContext.getServer(), earContext.getJ2eeContext()));
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Error constructing J2EEServer name for application", e);
-                }
+                gbeanData.setReferencePattern("j2eeServer", earContext.getServerObjectName());
                 earContext.addGBean(gbeanData);
             }
 

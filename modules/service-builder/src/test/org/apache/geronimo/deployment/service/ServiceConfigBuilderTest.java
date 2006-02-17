@@ -18,7 +18,7 @@ package org.apache.geronimo.deployment.service;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.FooBarBean;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;

@@ -6,17 +6,17 @@
     <dep:client-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <dep:configId>
             <dep:groupId>test</dep:groupId>
-            <dep:type>car</dep:type>
             <dep:artifactId>testclient</dep:artifactId>
             <dep:version>1</dep:version>
+            <dep:type>car</dep:type>
         </dep:configId>
     </dep:client-environment>
     <dep:server-environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <dep:configId>
             <dep:groupId>test</dep:groupId>
-            <dep:type>car</dep:type>
             <dep:artifactId>testserver</dep:artifactId>
             <dep:version>1</dep:version>
+            <dep:type>car</dep:type>
         </dep:configId>
     </dep:server-environment>
     <nam:resource-ref xmlns:nam="http://geronimo.apache.org/xml/ns/naming-1.1">
@@ -29,17 +29,17 @@
             <dep:environment xmlns:dep="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dep:configId>
                     <dep:groupId>test</dep:groupId>
-                    <dep:type>car</dep:type>
                     <dep:artifactId>testclient</dep:artifactId>
                     <dep:version>1</dep:version>
+                    <dep:type>car</dep:type>
                 </dep:configId>
-                <dep:classloader>
+                <dep:dependencies>
                     <dep:dependency>
                         <dep:groupId>axion</dep:groupId>
                         <dep:artifactId>axion</dep:artifactId>
                         <dep:version>1</dep:version>
                     </dep:dependency>
-                </dep:classloader>
+                </dep:dependencies>
 
             </dep:environment>
 

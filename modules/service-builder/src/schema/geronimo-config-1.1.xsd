@@ -68,83 +68,11 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="name-key" type="sys:name-keyType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="classloader" type="sys:classloaderType" minOccurs="0">
+            <xs:element name="properties" type="sys:propertiesType" minOccurs="0"/>
+            <xs:element name="dependencies" type="sys:dependenciesType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
-                        "classloader" holds all classloader configuration information for the configuration
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="reference" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>
-                        "reference" refers to a configuration that must be present to load this configuration, but
-                        which should not be a parent classloader for this configuration.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="name-keyType">
-        <xs:annotation>
-            <xs:documentation>
-                name-key holds a key name and value for the object-name like name for the gbeans in the configuration
-                These name-keys will be repeated in child configurations of this configuration.  Normally these
-                are domain and server for jsr-77 style object names.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
-            <xs:element name="key" type="xs:string"/>
-            <xs:element name="value" type="xs:string"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="classloaderType">
-        <xs:sequence>
-            <xs:element name="import" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>
-                        "import" holds a URI, where the URI matches the configId of another configuration.
-                        That configuration will be added as a parent of this configuration (the main
-                        impact being that it's ClassLoader will be a parent of the ClassLoader for this
-                        configuration.
-
-                        Generally this URI will have the Maven form (groupId/artifactId/version/type),
-                        and you can also use the sub-elements (groupId, type, ...) accordingly.
-                        However, if you deploy a custom module with a simple configId like "Foo",
-                        you can use that as the URI value here, and in that case you could not use the
-                        subelements because you wouldn't have values for all of them.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="include" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>
-                        "include" holds a URI, where the URI identifies an entry in the server's Repository.
-                        When this module is being built, the content of that repository entry will be
-                        copied into this module and added to the ClassPath of this module.  This is
-                        currently only supported for a small number of module types, and is typically used
-                        to create more "standalone" modules that don't need a populated repository to run.
-
-                        This URI must always have a form acceptable to the Repository, which currently
-                        takes Maven-style URIs (groupId/artifactId/version/type).  You can also use the
-                        sub-elements (groupId, type, ...) instead of a full URI.
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
-                <xs:annotation>
-                    <xs:documentation>
-                        "dependency" holds a URI, where the URI identifies an entry in the server's
-                        Repository.  That repository entry will be added to the ClassPath of this module.
-                        Essentially, this module's ClassPath points to that location in the server's
-                        repository, so that entry must be in the repository at runtime for this to work.
-
-                        This URI must always have a form acceptable to the Repository, which currently
-                        takes Maven-style URIs (groupId/artifactId/version/type).  You can also use the
-                        sub-elements (groupId, type, ...) instead of a full URI.
+                        "dependences" holds all classloader and dependency configuration information for the configuration
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
@@ -182,6 +110,42 @@
             </xs:element>
             <xs:element name="inverse-classloading" type="sys:emptyType" minOccurs="0"/>
             <xs:element name="suppress-default-environment" type="sys:emptyType" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="propertiesType">
+        <xs:sequence>
+            <xs:element name="property" type="sys:propertyType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="propertyType">
+        <xs:annotation>
+            <xs:documentation>
+                property holds name and value for the deployment system.  When written the only use for this
+                is to supply part of an object-name like name for the gbeans in the configuration
+                These name-keys will be repeated in child configurations of this configuration.  Normally these
+                are domain and server for jsr-77 style object names.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="dependenciesType">
+        <xs:sequence>
+            <xs:element name="dependency" type="sys:artifactType" minOccurs="0" maxOccurs="unbounded">
+                <xs:annotation>
+                    <xs:documentation>
+                        "dependency" holds an artifact locating an artifact in a repo or config store.
+                        Depending on the type of artifact and value of the import element, the artifact may be
+                        included in the current classpath, be loaded as a parent, may require the services
+                        in the artifact to be started, or may not be added to the classpath.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -232,20 +196,29 @@
                 corresponds to the xml:
 
                 <groupId>postgresql</groupId>
-                <type>jar</type>
                 <artifactId>postgresql-8.0-jdbc</artifactId>
                 <version>313</version>
+                <type>jar</type>
 
           ]]></xs:documentation>
         </xs:annotation>
             <xs:sequence>
                 <!-- TODO not sure if groupId can in fact be optional -->
                 <xs:element name="groupId" type="xs:string" minOccurs="0"/>
-                <xs:element name="type" type="xs:string" minOccurs="0"/>
                 <xs:element name="artifactId" type="xs:string"/>
                 <xs:element name="version" type="xs:string" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0"/>
+                <xs:element name="import" type="sys:importType" minOccurs="0"/>
+
             </xs:sequence>
     </xs:complexType>
+
+    <xs:simpleType name="importType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="classes"/>
+            <xs:enumeration value="services"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="gbeanType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">

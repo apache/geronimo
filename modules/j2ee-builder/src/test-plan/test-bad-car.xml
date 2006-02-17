@@ -20,9 +20,9 @@
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <configId>
             <groupId>geronimo</groupId>
-            <type>car</type>
             <artifactId>test-ear</artifactId>
             <version>1.0</version>
+            <type>car</type>
         </configId>
     </environment>
 

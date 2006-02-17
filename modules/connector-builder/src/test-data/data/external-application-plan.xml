@@ -21,18 +21,10 @@
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <configId>
             <groupId>geronimo</groupId>
-            <type>car</type>
             <artifactId>test-ear</artifactId>
             <version>1.0</version>
+            <type>car</type>
         </configId>
-        <name-key>
-            <key>domain</key>
-            <value>geronimo.test</value>
-        </name-key>
-        <name-key>
-            <key>J2EEServer</key>
-            <value>geronimo</value>
-        </name-key>
     </environment>
 
     <module>
@@ -41,18 +33,10 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <configId>
                     <groupId>geronimo</groupId>
-                    <type>car</type>
                     <artifactId>test-ear</artifactId>
                     <version>1.0</version>
+                    <type>car</type>
                 </configId>
-                <name-key>
-                    <key>domain</key>
-                    <value>geronimo.test</value>
-                </name-key>
-                <name-key>
-                    <key>J2EEServer</key>
-                    <value>geronimo</value>
-                </name-key>
             </environment>
 
             <resourceadapter>
@@ -115,18 +99,10 @@
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <configId>
                     <groupId>geronimo</groupId>
-                    <type>car</type>
                     <artifactId>test-ear</artifactId>
                     <version>1.0</version>
+                    <type>car</type>
                 </configId>
-                <name-key>
-                    <key>domain</key>
-                    <value>geronimo.test</value>
-                </name-key>
-                <name-key>
-                    <key>J2EEServer</key>
-                    <value>geronimo</value>
-                </name-key>
             </environment>
 
 

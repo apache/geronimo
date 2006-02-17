@@ -3,11 +3,10 @@
     <environment>
         <configId>
             <groupId>foo</groupId>
-            <type>car</type>
             <artifactId>bar</artifactId>
             <version>1</version>
+            <type>car</type>
         </configId>
-        <classloader></classloader>
     </environment>
     <context-priority-classloader>false</context-priority-classloader>
     <security-realm-name>public-properties-realm</security-realm-name>

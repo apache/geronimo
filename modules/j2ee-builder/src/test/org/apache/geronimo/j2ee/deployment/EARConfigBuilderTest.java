@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -87,6 +87,7 @@ public class EARConfigBuilderTest extends TestCase {
     protected void setUp() throws Exception {
         defaultParentId = new Environment();
         defaultParentId.getImports().add(new Artifact("geronimo", "test", "1", "car", true));
+        defaultParentId.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
     }
 
     public static Test suite() throws Exception {

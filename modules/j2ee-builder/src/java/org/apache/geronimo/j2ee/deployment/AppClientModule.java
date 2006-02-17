@@ -20,11 +20,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.List;
 import java.util.jar.JarFile;
 
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.xmlbeans.XmlObject;

@@ -20,8 +20,6 @@ import java.io.File;
 import java.net.URI;
 import java.net.URLClassLoader;
 import java.net.URL;
-import java.util.LinkedHashSet;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -29,6 +27,7 @@ import javax.sql.DataSource;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.core.DefaultGeneratorStrategy;
@@ -50,7 +49,7 @@ public class DeploymentContextTest extends TestCase {
             environment.setConfigId(new Artifact("foo", "artifact", "1", "car", true));
             Map nameKeys = new HashMap();
             nameKeys.put("domain", "d");
-            environment.setNameKeys(nameKeys);
+            environment.setProperties(nameKeys);
             DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, null);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});

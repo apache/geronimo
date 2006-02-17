@@ -5,11 +5,10 @@
     <dep:environment>
         <dep:configId>
             <dep:groupId>foo</dep:groupId>
-            <dep:type>car</dep:type>
             <dep:artifactId>bar</dep:artifactId>
             <dep:version>1</dep:version>
+            <dep:type>car</dep:type>
         </dep:configId>
-        <dep:classloader/>
     </dep:environment>
     <context-priority-classloader>true</context-priority-classloader>
 

@@ -16,12 +16,10 @@
  */
 package org.apache.geronimo.j2ee;
 
-import java.net.URI;
 import java.util.Set;
-import java.util.List;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlObject;
 
 /**

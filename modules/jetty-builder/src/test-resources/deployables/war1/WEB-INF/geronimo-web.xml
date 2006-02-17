@@ -21,11 +21,10 @@
     <environment>
         <configId>
             <groupId>foo</groupId>
-            <type>car</type>
             <artifactId>bar</artifactId>
             <version>1</version>
+            <type>car</type>
         </configId>
-        <classLoader></classLoader>
     </environment>
 
     <jetty:context-root>/test</jetty:context-root>

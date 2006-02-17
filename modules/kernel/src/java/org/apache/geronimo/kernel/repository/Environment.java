@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package org.apache.geronimo.deployment;
+package org.apache.geronimo.kernel.repository;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -35,7 +35,7 @@ public class Environment {
 
     private Artifact configId;
 
-    private final Map nameKeys = new HashMap();
+    private final Map properties = new HashMap();
 
     private final LinkedHashSet imports = new LinkedHashSet();
     private final LinkedHashSet references = new LinkedHashSet();
@@ -59,17 +59,17 @@ public class Environment {
         this.configId = configId;
     }
 
-    public Map getNameKeys() {
-        return nameKeys;
+    public Map getProperties() {
+        return properties;
     }
 
-    public void addNameKeys(Map nameKeys) {
-        this.nameKeys.putAll(nameKeys);
+    public void addProperties(Map nameKeys) {
+        this.properties.putAll(nameKeys);
     }
 
-    public void setNameKeys(Map nameKeys) {
-        this.nameKeys.clear();
-        addNameKeys(nameKeys);
+    public void setProperties(Map properties) {
+        this.properties.clear();
+        addProperties(properties);
     }
 
     public LinkedHashSet getImports() {

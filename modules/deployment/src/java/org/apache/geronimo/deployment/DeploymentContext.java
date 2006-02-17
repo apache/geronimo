@@ -32,6 +32,7 @@ import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 
 import javax.management.ObjectName;
@@ -100,7 +101,7 @@ public class DeploymentContext {
         configurationData.setModuleType(type);
         //TODO configid this is broken, need Artifact to URI conversion or configData to use Artifacts.
         configurationData.setParentId(new ArrayList(environment.getImports()));
-        configurationData.setNameKeys(environment.getNameKeys());
+        configurationData.setNameKeys(environment.getProperties());
 
         determineNaming();
         determineInherited();
@@ -214,14 +215,6 @@ public class DeploymentContext {
 
     public File getBaseDir() {
         return baseDir;
-    }
-
-    public String getDomain() {
-        return (String) configurationData.getNameKeys().get("domain");
-    }
-
-    public String getServer() {
-        return (String) configurationData.getNameKeys().get("J2EEServer");
     }
 
     public void addGBean(GBeanData gbean) {

@@ -24,25 +24,23 @@
     <environment>
         <configId>
             <groupId>geronimo</groupId>
-            <type>car</type>
             <artifactId>foo4</artifactId>
             <version>DEV</version>
+            <type>car</type>
         </configId>
-        <name-key>
-            <key>domain</key>
-            <value>geronimo.server</value>
-        </name-key>
-        <name-key>
-            <key>J2EEServer</key>
-            <value>geronimo</value>
-        </name-key>
-        <classloader>
-            <import>
+        <properties>
+            <property>
+                <name>domain</name>
+                <value>geronimo.server</value>
+            </property>
+        </properties>
+        <dependencies>
+            <dependency>
                 <groupId>geronimo</groupId>
-                <type>car</type>
                 <artifactId>foo4</artifactId>
                 <version>DEV</version>
-            </import>
+                <type>car</type>
+            </dependency>
 
             <dependency>
                 <groupId>geronimo</groupId>
@@ -62,7 +60,7 @@
                 </version>
             </dependency>
 
-        </classloader>
+        </dependencies>
     </environment>
     <gbean gbeanName="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
         <attribute name="value">1234</attribute>

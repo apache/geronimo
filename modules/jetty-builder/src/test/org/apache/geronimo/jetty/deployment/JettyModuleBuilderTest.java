@@ -40,7 +40,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -84,6 +84,9 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
  * @version $Rev$ $Date$
  */
 public class JettyModuleBuilderTest extends TestCase {
+    private String DOMAIN_NAME = "geronimo.test";
+    private String SERVER_NAME = "geronimo";
+    private String BASE_NAME = DOMAIN_NAME + ":J2EEServer=" + SERVER_NAME;
 
     protected Kernel kernel;
     private GBeanData container;
@@ -101,10 +104,12 @@ public class JettyModuleBuilderTest extends TestCase {
     private ObjectName tcmName;
     private GBeanData tcm;
     private ClassLoader cl;
-    private J2eeContext moduleContext = new J2eeContextImpl("jetty.test", "test", "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
+    private J2eeContext moduleContext = new J2eeContextImpl(DOMAIN_NAME, SERVER_NAME, "null", NameFactory.WEB_MODULE, "jettyTest", null, null);
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
-    private List parentId = Arrays.asList(new Artifact[] {Artifact.create("geronimo/Foo/1/car")});
+    private String PARENT_ARTIFACT_ID = "geronimo/Foo/1/car";
+    private String ARTIFACT_ID = "unknown/war4/1/car";
+    private List parentId = Arrays.asList(new Artifact[] {Artifact.create(PARENT_ARTIFACT_ID)});
     private Environment defaultEnvironment = new Environment();
 
     public void testDeployWar4() throws Exception {
@@ -133,15 +138,14 @@ public class JettyModuleBuilderTest extends TestCase {
         if (kernel.getGBeanState(configData.getName()) != State.RUNNING_INDEX) {
             fail("gbean not started: " + configData.getName());
         }
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,j2eeType=WebModule,name=unknown/war4/1/car")));
-        Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,WebModule=war4,*"));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance(BASE_NAME + ",J2EEApplication=null,j2eeType=WebModule,name=" + ARTIFACT_ID)));
+        Set names = kernel.listGBeans(ObjectName.getInstance(DOMAIN_NAME + ":J2EEApplication=null,WebModule=" + ARTIFACT_ID + ",*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
             assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(objectName));
         }
-        GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,Servlet=Servlet1,WebFilter=Filter2,WebModule=unknown/war4/1/car,j2eeType=WebFilterMapping"));
-//        assertEquals(Collections.singleton(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=bar,Servlet=Servlet1,WebFilter=Filter1,WebModule=war4,j2eeType=WebFilterMapping")), filterMapping2Data.getReferencePatterns("Previous"));
+        GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance(BASE_NAME + ",J2EEApplication=null,Servlet=Servlet1,WebFilter=Filter2,WebModule=" + ARTIFACT_ID + ",j2eeType=WebFilterMapping"));
 
         kernel.stopGBean(configName);
         kernel.unloadGBean(configName);
@@ -245,6 +249,7 @@ public class JettyModuleBuilderTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
         cl = this.getClass().getClassLoader();
         containerName = NameFactory.getWebComponentName(null, null, null, null, "jettyContainer", "WebResource", moduleContext);
         connectorName = NameFactory.getWebComponentName(null, null, null, null, "jettyConnector", "WebResource", moduleContext);

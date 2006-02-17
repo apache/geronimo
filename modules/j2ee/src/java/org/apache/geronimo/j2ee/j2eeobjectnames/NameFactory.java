@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.j2eeobjectnames;
 
 import java.util.Properties;
+import java.util.Map;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -24,6 +25,9 @@ import javax.management.ObjectName;
  * @version $Rev$ $Date$
  */
 public class NameFactory {
+
+    public static final Object JSR77_BASE_NAME_PROPERTY = "org.apache.geronimo.name.javax.management.j2ee.BaseName";
+
 
     // Manadatory key properties from JSR77.3.1.1.1.3
     public static final String J2EE_TYPE = "j2eeType";
@@ -107,6 +111,17 @@ public class NameFactory {
     public static final String CORBA_CSS = "CORBACSS";
     public static final String CORBA_TSS = "CORBATSS";
     public static final String WEB_SERVICE_LINK = "WSLink";
+
+    public static J2eeContext buildJ2eeContext(Map properties, String applicationName, String moduleType, String moduleName, String j2eeName, String j2eeType) throws MalformedObjectNameException {
+        String baseNameString = (String) properties.get(JSR77_BASE_NAME_PROPERTY);
+        ObjectName baseName = ObjectName.getInstance(baseNameString);
+        String domain = baseName.getDomain();
+        String serverName = baseName.getKeyProperty(J2EE_SERVER);
+        if (serverName == null) {
+            throw new MalformedObjectNameException("No J2EEServer key in " + baseNameString);
+        }
+        return new J2eeContextImpl(domain, serverName, applicationName, moduleType, moduleName, j2eeName, j2eeType);
+    }
 
     public static ObjectName getDomainName(String j2eeDomainName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();

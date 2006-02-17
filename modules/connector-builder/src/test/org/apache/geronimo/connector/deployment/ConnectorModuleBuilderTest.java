@@ -21,7 +21,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -561,6 +561,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
         configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         defaultEnvironment = new Environment();
         defaultEnvironment.getImports().add(Artifact.create("org/apache/geronimo/Server"));
+        defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
     }
 
     private abstract class InstallAction {

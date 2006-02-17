@@ -16,16 +16,14 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.util.Iterator;
-import java.util.List;
-import javax.xml.namespace.QName;
-
-import org.apache.commons.jelly.tags.velocity.JellyContextAdapter;
 import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.jelly.tags.velocity.JellyContextAdapter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.xbeans.ArtifactType;
+import org.apache.geronimo.deployment.xbeans.EnvironmentType;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
 import org.apache.velocity.Template;
@@ -35,9 +33,14 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
-import org.apache.geronimo.deployment.xbeans.ClassloaderType;
+
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.StringWriter;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * @version $Rev$ $Date$
@@ -46,8 +49,9 @@ public class PlanProcessor {
     private static Log log = LogFactory.getLog(PlanProcessor.class);
 
     private static final String IMPORT_PROPERTY = "geronimo.import";
-    private static final String INCLUDE_PROPERTY = "geronimo.include";
+//    private static final String INCLUDE_PROPERTY = "geronimo.include";
     private static final String DEPENDENCY_PROPERTY = "geronimo.dependency";
+    private static final String REFERENCE_PROPERTY = "geronimo.reference";
     private static final QName ENVIRONMENT_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.1", "environment");
 
     private List artifacts;
@@ -160,17 +164,17 @@ public class PlanProcessor {
                 xmlCursor.toFirstContentToken();
                 xmlCursor.toFirstChild();
                 QName childName = xmlCursor.getName();
-                EnvironmentType environmentType;
+                Environment oldEnvironment = null;
                 if (childName.equals(ENVIRONMENT_QNAME)) {
                     XmlObject xmlObject = xmlCursor.getObject();
                     System.out.println("Expected EnvironmentType, actual: " + xmlObject.getClass().getName());
                     System.out.println(xmlObject.toString());
-                    environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
+                    EnvironmentType environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
+                    oldEnvironment = EnvironmentBuilder.buildEnvironment(environmentType);
                     xmlCursor.removeXml();
                 } else {
-                    environmentType = EnvironmentType.Factory.newInstance();
                     xmlCursor.beginElement(ENVIRONMENT_QNAME);
-                    XmlCursor element = environmentType.newCursor();
+                    XmlCursor element = EnvironmentType.Factory.newInstance().newCursor();
                     try {
                         element.copyXmlContents(xmlCursor);
                     } finally {
@@ -178,45 +182,21 @@ public class PlanProcessor {
                     }
                 }
 
-                ArtifactType configId = environmentType.getConfigId();
-                if (configId == null) {
-                    configId = environmentType.addNewConfigId();
-                    configId.setGroupId(groupId);
-                    configId.setArtifactId(artifactId);
-                    configId.setVersion(version);
-                    configId.setType("car");
-                }
+                   org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car", true);
 
-                insertPlanElements(environmentType, IMPORT_PROPERTY, new Inserter() {
+                Collection imports = toArtifacts(IMPORT_PROPERTY);
+//                Collection includes = toArtifacts(INCLUDE_PROPERTY);
+                Collection dependencies = toArtifacts(DEPENDENCY_PROPERTY);
+                Collection references = toArtifacts(REFERENCE_PROPERTY);
 
-                    public ArtifactType insert(EnvironmentType environmentType) {
-                        ClassloaderType classloaderType = environmentType.getClassloader();
-                        if (classloaderType == null) {
-                            classloaderType = environmentType.addNewClassloader();
-                        }
-                        return classloaderType.addNewImport();
-                    }
-                });
-                insertPlanElements(environmentType, INCLUDE_PROPERTY, new Inserter() {
+                Environment newEnvironment = new Environment();
+                newEnvironment.setConfigId(configId);
+                newEnvironment.setImports(imports);
+                newEnvironment.setDependencies(dependencies);
+                newEnvironment.setReferences(references);
 
-                    public ArtifactType insert(EnvironmentType environmentType) {
-                        ClassloaderType classloaderType = environmentType.getClassloader();
-                        if (classloaderType == null) {
-                            classloaderType = environmentType.addNewClassloader();
-                        }
-                        return classloaderType.addNewInclude();
-                    }
-                });
-                insertPlanElements(environmentType, DEPENDENCY_PROPERTY, new Inserter() {
-
-                    public ArtifactType insert(EnvironmentType environmentType) {
-                        ClassloaderType classloaderType = environmentType.getClassloader();
-                        if (classloaderType == null) {
-                            classloaderType = environmentType.addNewClassloader();
-                        }
-                        return classloaderType.addNewDependency();
-                    }
-                });
+                EnvironmentBuilder.mergeEnvironments(oldEnvironment, newEnvironment);
+                EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(oldEnvironment);
 
                 xmlCursor.beginElement(ENVIRONMENT_QNAME);
                 XmlCursor element = environmentType.newCursor();
@@ -247,7 +227,8 @@ public class PlanProcessor {
         }
     }
 
-    private void insertPlanElements(EnvironmentType environmentType, String artifactProperty, Inserter inserter) {
+    private Collection toArtifacts(String artifactProperty) {
+        Collection artifactList = new LinkedHashSet();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             Dependency dependency = artifact.getDependency();
@@ -256,16 +237,13 @@ public class PlanProcessor {
                 String artifactId = dependency.getArtifactId();
                 String version = dependency.getVersion();
                 String type = dependency.getType();
-                ArtifactType artifactType = inserter.insert(environmentType);
-                artifactType.setGroupId(groupId);
-                artifactType.setArtifactId(artifactId);
-                artifactType.setVersion(version);
-                if (type != null && !"jar".equals(type)) {
-                    artifactType.setType(type);
+                if (type == null) {
+                    type = "jar";
                 }
-
+                artifactList.add(new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId,  version, type, false));
             }
         }
+        return artifactList;
     }
 
     interface Inserter {

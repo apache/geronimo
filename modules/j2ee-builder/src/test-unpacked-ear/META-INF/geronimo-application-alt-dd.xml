@@ -20,18 +20,18 @@
     <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
         <configId>
             <groupId>geronimo</groupId>
-            <type>car</type>
             <artifactId>test-ear</artifactId>
             <version>1.0</version>
+            <type>car</type>
         </configId>
-        <name-key>
-            <key>domain</key>
-            <value>geronimo.test</value>
-        </name-key>
-        <name-key>
-            <key>J2EEServer</key>
-            <value>geronimo</value>
-        </name-key>
+<!--
+        <properties>
+            <property>
+                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
+                <value>geronimo.test:J2EEServer=geronimo</value>
+            </property>
+        </properties>
+-->
     </environment>
 
     <module>

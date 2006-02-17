@@ -44,7 +44,7 @@ import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -92,6 +92,9 @@ import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
  * @version $Rev$ $Date$
  */
 public class TomcatModuleBuilderTest extends TestCase {
+    private String DOMAIN_NAME = "geronimo.test";
+    private String SERVER_NAME = "geronimo";
+    private String BASE_NAME = DOMAIN_NAME + ":J2EEServer=" + SERVER_NAME;
 
     protected Kernel kernel;
 
@@ -137,8 +140,8 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     private ClassLoader cl;
 
-    private J2eeContext moduleContext = new J2eeContextImpl("tomcat.test",
-            "test", "null", NameFactory.WEB_MODULE, "Test", null, null);
+    private J2eeContext moduleContext = new J2eeContextImpl(DOMAIN_NAME,
+            SERVER_NAME, "null", NameFactory.WEB_MODULE, "Test", null, null);
 
     private TomcatModuleBuilder builder;
 
@@ -199,9 +202,8 @@ public class TomcatModuleBuilderTest extends TestCase {
             fail("gbean not started: " + configName);
         }
 
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,j2eeType=WebModule,name=" + name)));
-
-        Set names = kernel.listGBeans(ObjectName.getInstance("test:J2EEApplication=null,J2EEServer=server,*"));
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance(BASE_NAME + ",J2EEApplication=null,j2eeType=WebModule,name=" + name)));
+        Set names = kernel.listGBeans(ObjectName.getInstance(DOMAIN_NAME + ":J2EEApplication=null,WebModule=" + name + ",*"));
         System.out.println("Object names: " + names);
         for (Iterator iterator = names.iterator(); iterator.hasNext();) {
             ObjectName objectName = (ObjectName) iterator.next();
@@ -337,10 +339,9 @@ public class TomcatModuleBuilderTest extends TestCase {
     protected void setUp() throws Exception {
         Artifact artifact = Artifact.create("test/foo/1/car");
         defaultEnvironment.setConfigId(artifact);
-        Map nameKeys = new HashMap();
-        nameKeys.put("domain", "test");
-        nameKeys.put("J2EEServer", "server");
-        defaultEnvironment.addNameKeys(nameKeys);
+        Map properties = new HashMap();
+        properties.put(NameFactory.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
+        defaultEnvironment.addProperties(properties);
         cl = this.getClass().getClassLoader();
         containerName = NameFactory.getWebComponentName(null, null, null, null,
                 "tomcatContainer", "WebResource", moduleContext);

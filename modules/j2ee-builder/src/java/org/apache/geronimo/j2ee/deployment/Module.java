@@ -17,7 +17,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.jar.JarFile;
-import java.util.List;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.io.IOException;
@@ -25,9 +24,9 @@ import java.io.File;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.Environment;
 import org.apache.geronimo.common.DeploymentException;
 
 /**

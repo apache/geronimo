@@ -43,7 +43,6 @@ public class PlanParsingTest extends TestCase {
         ArtifactType artifactType = environmentType.addNewConfigId();
         artifactType.setArtifactId("foo");
 
-        environmentType.addNewClassloader();
         tomcatWebAppType.setContextPriorityClassloader(false);
         GerResourceRefType ref = tomcatWebAppType.addNewResourceRef();
         ref.setRefName("ref");
