@@ -192,44 +192,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Constructor that can be used to create an offline Configuration, typically
      * only used publically during the deployment process for initial configuration.
      *
-     * @param id           the unique id of this Configuration
-     * @param moduleType   the module type identifier
-     * @param properties
-     * @param classPath    a List<URI> of locations that define the codebase for this Configuration
-     * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
-     * @param repositories a Collection<Repository> of repositories used to resolve dependencies
-     * @param dependencies a List<URI> of dependencies
-     */
-    public Configuration(Kernel kernel,
-                         String objectName,
-                         Artifact id,
-                         ConfigurationModuleType moduleType,
-                         URL baseURL,
-                         Artifact[] parentIds,
-                         Map properties,
-                         List classPath,
-                         boolean inverseClassLoading,
-                         String[] hiddenClasses,
-                         String[] nonOverridableClasses,
-                         byte[] gbeanState,
-                         Collection repositories,
-                         List dependencies,
-                         ConfigurationStore configurationStore) throws Exception {
-        this(kernel,
-                objectName,
-                moduleType,
-                createEnvironment(id, properties, parentIds, inverseClassLoading, hiddenClasses, nonOverridableClasses, dependencies),
-                baseURL,
-                classPath,
-                gbeanState,
-                repositories,
-                configurationStore);
-    }
-
-    /**
-     * Constructor that can be used to create an offline Configuration, typically
-     * only used publically during the deployment process for initial configuration.
-     *
      * @param moduleType   the module type identifier
      * @param environment
      * @param classPath    a List<URI> of locations that define the codebase for this Configuration
@@ -265,10 +227,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         LinkedHashSet imports = environment.getImports();
         for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            if (artifact.getType().equals("car")) {
-                ObjectName parentName = getConfigurationObjectName(artifact);
-                parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
-            }
+            ObjectName parentName = getConfigurationObjectName(artifact);
+            parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
         }
 
         // build configurationClassLoader
@@ -283,33 +243,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } else {
             configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, getParentClassLoaders());
         }
-    }
-
-    private static Environment createEnvironment(Artifact id, Map properties, Artifact[] parentIds, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses, List dependencies) {
-        Environment environment = new Environment();
-        environment.setConfigId(id);
-        if (properties != null) {
-            environment.setProperties(properties);
-        }
-        environment.setInverseClassLoading(inverseClassLoading);
-        if (hiddenClasses != null) {
-            environment.setHiddenClasses(Arrays.asList(hiddenClasses));
-        }
-
-        if (nonOverridableClasses != null) {
-            environment.setNonOverrideableClasses(Arrays.asList(nonOverridableClasses));
-        }
-
-        List deps = new ArrayList();
-        if (parentIds != null) {
-            deps.addAll(Arrays.asList(parentIds));
-        }
-        if (dependencies != null) {
-            deps.addAll(dependencies);
-        }
-        environment.setDependencies(deps);
-
-        return environment;
     }
 
     public String getObjectName() {
@@ -384,20 +317,18 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         List urls = new ArrayList(dependencies.size() + classPath.size());
         for (Iterator i = dependencies.iterator(); i.hasNext();) {
             Artifact artifact = (Artifact) i.next();
-            if (artifact.getType().equals("car")) {
-                File file = null;
-                for (Iterator j = repositories.iterator(); j.hasNext();) {
-                    Repository repository = (Repository) j.next();
-                    if (repository.contains(artifact)) {
-                        file = repository.getLocation(artifact);
-                        break;
-                    }
+            File file = null;
+            for (Iterator j = repositories.iterator(); j.hasNext();) {
+                Repository repository = (Repository) j.next();
+                if (repository.contains(artifact)) {
+                    file = repository.getLocation(artifact);
+                    break;
                 }
-                if (file == null) {
-                    throw new MissingDependencyException("Unable to resolve dependency " + artifact);
-                }
-                urls.add(file.toURL());
             }
+            if (file == null) {
+                throw new MissingDependencyException("Unable to resolve dependency " + artifact);
+            }
+            urls.add(file.toURL());
         }
         for (Iterator i = classPath.iterator(); i.hasNext();) {
             URI uri = (URI) i.next();
@@ -661,13 +592,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addAttribute("objectName", String.class, false);
         infoFactory.addAttribute("environment", Environment.class, true, false);
         infoFactory.addAttribute("type", ConfigurationModuleType.class, true, false);
-//        infoFactory.addAttribute("parentId", Artifact[].class, true, false);
-//        infoFactory.addAttribute("properties", Map.class, true, false);
         infoFactory.addAttribute("classPath", List.class, true, false);
-//        infoFactory.addAttribute("inverseClassLoading", boolean.class, true, false);
-//        infoFactory.addAttribute("hiddenClasses", String[].class, true, false);
-//        infoFactory.addAttribute("nonOverridableClasses", String[].class, true, false);
-//        infoFactory.addAttribute("dependencies", List.class, true, false);
         infoFactory.addAttribute("gBeanState", byte[].class, true, false);
         infoFactory.addAttribute("baseURL", URL.class, true, false);
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
@@ -690,15 +615,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 "type",
                 "environment",
                 "baseURL",
-//                "parentId",
-//                "properties",
                 "classPath",
-//                "inverseClassLoading",
-//                "hiddenClasses",
-//                "nonOverridableClasses",
                 "gBeanState",
                 "Repositories",
-//                "dependencies",
                 "ConfigurationStore"
         });
 
