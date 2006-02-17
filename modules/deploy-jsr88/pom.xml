@@ -26,62 +26,23 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.geronimo</groupId>
-  <artifactId>geronimo-system</artifactId>
+  <artifactId>geronimo-deploy-jsr88</artifactId>
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
-  <name>Geronimo :: System</name>
-  
-  <build>
-    <testResources>
-      <testResource>
-        <directory>src/test-data</directory>
-      </testResource>
-    </testResources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-          <forkMode>pertest</forkMode>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <name>Geronimo :: Deploy :: JSR-88</name>
 
   <!-- ============ -->
   <!-- Dependencies -->
   <!-- ============ -->
-
   <dependencies>
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-common</artifactId>
+      <groupId>xmlbeans</groupId>
+      <artifactId>xbean</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-util</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-kernel</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
     </dependency>
 
     <dependency>
@@ -90,8 +51,66 @@
     </dependency>
 
     <dependency>
-      <groupId>concurrent</groupId>
-      <artifactId>concurrent</artifactId>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j-remote</artifactId>
+    </dependency>
+
+    <!-- Module Dependencies -->
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-kernel</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-system</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-deployment</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-util</artifactId>
+    </dependency>
+
+    <!-- only until we move out various DConfigBean trees -->
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-deploy-config</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-service-builder</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-connector-builder</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-web-builder</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-j2ee</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
     </dependency>
 
   </dependencies>

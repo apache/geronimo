@@ -19,32 +19,30 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.geronimo</groupId>
     <artifactId>geronimo</artifactId>
     <version>1.1-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>geronimo-activation</artifactId>
-  <name>Geronimo :: Activation</name>
+  <groupId>org.apache.geronimo</groupId>
+  <artifactId>geronimo-javamail-transport</artifactId>
   <version>${geronimoVersion}</version>
-  
-  <build>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-      </resource>
-    </resources>
-  </build>
-  
+  <packaging>jar</packaging>
+  <name>Geronimo :: JavaMail Transport</name>
+
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-activation_1.0.2_spec</artifactId>
     </dependency>
+
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-    </dependency>    
+    </dependency>
   </dependencies>
 </project>

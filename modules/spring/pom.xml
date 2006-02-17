@@ -19,32 +19,48 @@
 <!-- $Rev$ $Date$ -->
 
 <project>
+  <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.geronimo</groupId>
     <artifactId>geronimo</artifactId>
     <version>1.1-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>geronimo-activation</artifactId>
-  <name>Geronimo :: Activation</name>
+  <groupId>org.apache.geronimo</groupId>
+  <artifactId>geronimo-spring</artifactId>
   <version>${geronimoVersion}</version>
-  
-  <build>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-      </resource>
-    </resources>
-  </build>
-  
+  <packaging>jar</packaging>
+  <name>Geronimo :: Spring</name>
+
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+
   <dependencies>
+    <!-- Module Dependencies -->
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-activation_1.0.2_spec</artifactId>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-transaction</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-kernel</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-    </dependency>    
+      <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>springframework</groupId>
+      <artifactId>spring</artifactId>
+    </dependency>
+
   </dependencies>
 </project>

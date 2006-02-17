@@ -26,34 +26,17 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.geronimo</groupId>
-  <artifactId>geronimo-system</artifactId>
+  <artifactId>geronimo-webservices</artifactId>
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
-  <name>Geronimo :: System</name>
-  
-  <build>
-    <testResources>
-      <testResource>
-        <directory>src/test-data</directory>
-      </testResource>
-    </testResources>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-          <forkMode>pertest</forkMode>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
+  <name>Geronimo :: Web Services</name>
   <!-- ============ -->
   <!-- Dependencies -->
   <!-- ============ -->
 
   <dependencies>
+    <!-- Module Dependencies -->
+
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-common</artifactId>
@@ -61,13 +44,35 @@
 
     <dependency>
       <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-util</artifactId>
+      <artifactId>geronimo-core</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-kernel</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-j2ee</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-qname_1.1_spec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-servlet_2.4_spec</artifactId>
+    </dependency>
+
+    <!-- Thirdparty -->
 
     <dependency>
       <groupId>cglib</groupId>
@@ -80,19 +85,40 @@
     </dependency>
 
     <dependency>
+      <groupId>castor</groupId>
+      <artifactId>castor</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>mx4j</groupId>
-      <artifactId>mx4j</artifactId>
+      <groupId>xfire</groupId>
+      <artifactId>xfire</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>concurrent</groupId>
-      <artifactId>concurrent</artifactId>
+      <groupId>xfire</groupId>
+      <artifactId>xfire-java</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>wsdl4j</groupId>
+      <artifactId>wsdl4j</artifactId>
+    </dependency>
+
+    <!-- JAXR (Apache Scout) -->
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jaxr_1.0_spec</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <groupId>scout</groupId>
+      <artifactId>scout</artifactId>
+    </dependency>
   </dependencies>
 </project>

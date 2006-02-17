@@ -26,24 +26,61 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.geronimo</groupId>
-  <artifactId>geronimo-util</artifactId>
+  <artifactId>geronimo-transaction</artifactId>
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
-  <name>Geronimo :: Util</name>
+  <name>Geronimo :: Transaction</name>
+
   <!-- ============ -->
   <!-- Dependencies -->
   <!-- ============ -->
 
   <dependencies>
     <!-- Module Dependencies -->
+    <!-- temp, for ServerInfo. Remove when it is moved to Kernel-->
     <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-system</artifactId>
+    </dependency>
+
+    <!-- thread pool, for timer -->
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-core</artifactId>
+    </dependency>
+
+
+    <!-- actual tx dependencies -->
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-j2ee</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-kernel</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+      <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-ejb_2.1_spec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+    </dependency>
+
+    <!-- Thirdparty -->
+
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
     </dependency>
 
     <dependency>
@@ -51,5 +88,15 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
 
+    <!--compiled by David Jencks, but tagged version-->
+    <dependency>
+      <groupId>howl</groupId>
+      <artifactId>howl-logger</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j</artifactId>
+    </dependency>
   </dependencies>
 </project>

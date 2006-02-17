@@ -25,10 +25,9 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>geronimo-j2ee-schema</artifactId>
-  <name>Geronimo :: J2EE Schema</name>
+  <artifactId>geronimo-naming-builder</artifactId>
+  <name>Geronimo :: Naming :: Builder</name>
   <version>${geronimoVersion}</version>
-  <description>Geronimo J2EE schema</description>
 
   <build>
     <plugins>
@@ -44,32 +43,25 @@
         </executions>
         <configuration>
           <download>true</download>
-          <schemaDirectory>src/j2ee_1_4schema</schemaDirectory>
+          <schemaDirectory>src/schema</schemaDirectory>
           <xmlConfigs>
-            <xmlConfig implementation="java.io.File">
-              src/conf
-            </xmlConfig>
+            <xmlConfig implementation="java.io.File">src/schema/xmlconfig.xml</xmlConfig>
           </xmlConfigs>
         </configuration>
       </plugin>
     </plugins>
-    <testResources>
-      <testResource>
-        <directory>src/test-data</directory>
-      </testResource>
-    </testResources>
   </build>
-
+  
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
   <dependencies>
+    <!-- needed for xmlbeans runtime-->
     <dependency>
       <groupId>xmlbeans</groupId>
       <artifactId>xbean</artifactId>
     </dependency>
-    <dependency>
-      <groupId>stax</groupId>
-      <artifactId>stax-api</artifactId>
-      <scope>test</scope>
-    </dependency>
+
     <!--  The following prevents xmlbeans-jsr173-api from being downloaded.
       This is good, since it does not exist in the repos. Very hackish. -->
     <dependency>
@@ -84,5 +76,70 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+
+    <!-- Module Dependencies -->
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-kernel</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-deployment</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-deploy-config</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-j2ee</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-j2ee-builder</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-j2ee-schema</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-naming</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j</artifactId>
+    </dependency>
+
   </dependencies>
+
 </project>

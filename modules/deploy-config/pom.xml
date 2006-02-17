@@ -26,30 +26,32 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.geronimo</groupId>
-  <artifactId>geronimo-util</artifactId>
+  <artifactId>geronimo-deploy-config</artifactId>
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
-  <name>Geronimo :: Util</name>
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
+  <name>Geronimo :: Deploy :: Common Config</name>
+    <description>The deployment module contains basic infrastructure and
+      base classes for module builders / deployers.  This module contains
+      infrastructure and base classes for JSR-88 DConfigBeans.</description>
+      
+    <!-- ============ -->
+    <!-- Dependencies -->
+    <!-- ============ -->
+    <dependencies>
+        <dependency>
+            <groupId>xmlbeans</groupId>
+            <artifactId>xbean</artifactId>
+        </dependency>
 
-  <dependencies>
-    <!-- Module Dependencies -->
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>stax</groupId>
+            <artifactId>stax-api</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-
-  </dependencies>
+    </dependencies>
 </project>

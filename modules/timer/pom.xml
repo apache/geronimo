@@ -26,11 +26,11 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
   <groupId>org.apache.geronimo</groupId>
-  <artifactId>geronimo-deployment</artifactId>
+  <artifactId>geronimo-timer</artifactId>
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
-  <name>Geronimo :: Deployment</name>
-  <description>Geronimo Deployment</description>
+  <name>Geronimo :: Timer</name>
+
   <!-- ============ -->
   <!-- Dependencies -->
   <!-- ============ -->
@@ -38,13 +38,18 @@
   <dependencies>
 
     <dependency>
-      <groupId>xmlbeans</groupId>
-      <artifactId>xbean</artifactId>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-connector</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>stax</groupId>
-      <artifactId>stax-api</artifactId>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-j2ee</artifactId>
     </dependency>
 
     <dependency>
@@ -54,27 +59,56 @@
 
     <dependency>
       <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-common</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-system</artifactId>
+      <artifactId>geronimo-transaction</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+      <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.geronimo.specs</groupId>
+      <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+    </dependency>
+
+
+    <!-- Thirdparty -->
     <dependency>
       <groupId>mx4j</groupId>
       <artifactId>mx4j</artifactId>
     </dependency>
 
+    <!-- jdbc timer WorkerPersistence -->
     <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
+      <groupId>xstream</groupId>
+      <artifactId>xstream</artifactId>
+    </dependency>
+
+    <dependency>
+      <!--License is at http://www.extreme.indiana.edu/viewcvs/~checkout~/XPP3/java/LICENSE.txt -->
+      <!-- it is modified BSD -->
+      <groupId>xpp3</groupId>
+      <artifactId>xpp3</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+    </dependency>
+
+    <!--
+      <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+      <version>${commons_primitives_version}</version>
+      </dependency>
+    -->
+
+
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
     </dependency>
 
     <dependency>
@@ -82,9 +116,15 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>xml-resolver</groupId>
-      <artifactId>xml-resolver</artifactId>
-   </dependency>
+    <!-- needed for axion tests-->
+    <!--
+      <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+      <version>${regexp_version}</version>
+      <url>http://jakarta.apache.org/regexp</url>
+      </dependency>
+    -->
+
   </dependencies>
 </project>
