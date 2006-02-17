@@ -600,12 +600,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
         public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
-            configData.setAttribute("id", configId);
-            Map nameKeys = new HashMap();
-            nameKeys.put("domain", "test");
-            nameKeys.put("J2EEServer", "bar");
-
-            configData.setAttribute("nameKeys", nameKeys);
+            Environment environment = new Environment();
+            environment.setConfigId(configId);
+            environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
+            configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
             try {

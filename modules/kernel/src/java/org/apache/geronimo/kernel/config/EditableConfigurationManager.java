@@ -20,6 +20,7 @@ import java.net.URI;
 import javax.management.ObjectName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * A specialized ConfigurationManager that can change the set of GBeans
@@ -34,7 +35,7 @@ public interface EditableConfigurationManager extends ConfigurationManager {
      * @param gbean     The data representing the GBean to add.
      * @param start     If true, the GBean should be started as part of this call.
      */
-    void addGBeanToConfiguration(URI configID, GBeanData gbean, boolean start) throws InvalidConfigException;
+    void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start) throws InvalidConfigException;
 
     /**
      * Removes a GBean from a configuration.  Note: this may simply mark it to
@@ -43,5 +44,5 @@ public interface EditableConfigurationManager extends ConfigurationManager {
      * @param configID  The configuration to remove the GBean from.
      * @param gbean     The ObjectName of the GBean to remove.
      */
-    void removeGBeanFromConfiguration(URI configID, ObjectName gbean) throws InvalidConfigException, GBeanNotFoundException;
+    void removeGBeanFromConfiguration(Artifact configID, ObjectName gbean) throws InvalidConfigException, GBeanNotFoundException;
 }

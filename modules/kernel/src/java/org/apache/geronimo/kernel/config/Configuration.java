@@ -596,6 +596,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addAttribute("gBeanState", byte[].class, true, false);
         infoFactory.addAttribute("baseURL", URL.class, true, false);
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
+        //make id readable for convenience
+        infoFactory.addAttribute("id", Artifact.class, false);
 
         infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addReference("ConfigurationStore", ConfigurationStore.class, "GBean");

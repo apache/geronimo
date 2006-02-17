@@ -109,9 +109,6 @@ public class TomcatManagerImpl implements WebManager {
             } catch (InvalidConfigException e) {
                 log.error("Unable to add GBean", e);
                 return null;
-            } catch (URISyntaxException e) {
-                log.error("Should never happen", e);
-                return null;
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
             }
@@ -174,8 +171,6 @@ public class TomcatManagerImpl implements WebManager {
                     mgr.removeGBeanFromConfiguration(Configuration.getConfigurationID(config), name);
                 } catch (InvalidConfigException e) {
                     log.error("Unable to add GBean", e);
-                } catch (URISyntaxException e) {
-                    log.error("Should never happen", e);
                 } finally {
                     ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
                 }

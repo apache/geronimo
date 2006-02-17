@@ -156,7 +156,7 @@ public final class ExecutableConfigurationUtil {
         try {
             Artifact id = configurationData.getId();
             GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-            config.setAttribute("id", id);
+//            config.setAttribute("id", id);
             config.setAttribute("type", configurationData.getModuleType());
             //TODO configid this might need further improvmement
 //            Map nameKeys = configurationData.getNameKeys();

@@ -16,35 +16,35 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Hashtable;
-import java.net.URISyntaxException;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.EditableConfigurationManager;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.j2ee.management.impl.Util;
+import org.apache.geronimo.jetty.connector.AJP13Connector;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.connector.HTTPSConnector;
-import org.apache.geronimo.jetty.connector.AJP13Connector;
 import org.apache.geronimo.jetty.connector.JettyConnector;
 import org.apache.geronimo.jetty.requestlog.JettyLogManager;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
-import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Jetty implementation of WebManager.  Knows how to manipulate
@@ -105,9 +105,6 @@ public class JettyManagerImpl implements WebManager {
             } catch (InvalidConfigException e) {
                 log.error("Unable to add GBean", e);
                 return null;
-            } catch (URISyntaxException e) {
-                log.error("Should never happen", e);
-                return null;
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
             }
@@ -146,7 +143,7 @@ public class JettyManagerImpl implements WebManager {
      * is responsible for.
      */
     public void removeConnector(String objectName) {
-        ObjectName name = null;
+        ObjectName name;
         try {
             name = ObjectName.getInstance(objectName);
         } catch (MalformedObjectNameException e) {
@@ -172,8 +169,6 @@ public class JettyManagerImpl implements WebManager {
                     mgr.removeGBeanFromConfiguration(Configuration.getConfigurationID(config), name);
                 } catch (InvalidConfigException e) {
                     log.error("Unable to add GBean", e);
-                } catch (URISyntaxException e) {
-                    log.error("Should never happen", e);
                 } finally {
                     ConfigurationUtil.releaseConfigurationManager(kernel, mgr);
                 }

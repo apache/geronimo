@@ -17,10 +17,10 @@
 package org.apache.geronimo.kernel.config;
 
 import java.util.Collection;
-import java.net.URI;
 import javax.management.ObjectName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -37,7 +37,7 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
         super(kernel, stores, attributeStore, configurationList);
     }
 
-    public void addGBeanToConfiguration(URI configID, GBeanData gbean, boolean start) throws InvalidConfigException {
+    public void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start) throws InvalidConfigException {
         try {
             ObjectName name = Configuration.getConfigurationObjectName(configID);
             kernel.invoke(name, "addGBean", new Object[]{gbean, start ? Boolean.TRUE : Boolean.FALSE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
@@ -48,7 +48,7 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
         attributeStore.addGBean(configID.toString(), gbean);
     }
 
-    public void removeGBeanFromConfiguration(URI configID, ObjectName gbean) throws GBeanNotFoundException, InvalidConfigException {
+    public void removeGBeanFromConfiguration(Artifact configID, ObjectName gbean) throws GBeanNotFoundException, InvalidConfigException {
         // Make sure the specified configuration has the specified GBean
         try {
             ObjectName name = Configuration.getConfigurationObjectName(configID);
