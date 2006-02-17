@@ -25,13 +25,14 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.HashSet;
+import java.io.Serializable;
 
 /**
  * holds the data from the EnvironmentType xml while it is being resolved, transitively closed, etc.
  *
  * @version $Rev:$ $Date:$
  */
-public class Environment {
+public class Environment implements Serializable {
 
     private Artifact configId;
 

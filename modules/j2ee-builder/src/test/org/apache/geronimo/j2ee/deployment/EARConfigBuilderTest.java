@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -406,11 +407,10 @@ public class EARConfigBuilderTest extends TestCase {
         public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
-            configData.setAttribute("id", configId);
-            Map nameKeys = new HashMap();
-            nameKeys.put("domain", "geronimo.test");
-            nameKeys.put("J2EEServer", "geronimo");
-            configData.setAttribute("nameKeys", nameKeys);
+            Environment environment = new Environment();
+            environment.setConfigId(configId);
+            environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
+            configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
             try {
@@ -435,6 +435,10 @@ public class EARConfigBuilderTest extends TestCase {
         }
 
         public File createNewConfigurationDir() {
+            return null;
+        }
+
+        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
             return null;
         }
 

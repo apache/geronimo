@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.security.PermissionCollection;
 import java.security.Permissions;
 import java.util.Collection;
@@ -537,6 +538,10 @@ public class TomcatModuleBuilderTest extends TestCase {
         }
 
         public File createNewConfigurationDir() {
+            return null;
+        }
+
+        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
             return null;
         }
 

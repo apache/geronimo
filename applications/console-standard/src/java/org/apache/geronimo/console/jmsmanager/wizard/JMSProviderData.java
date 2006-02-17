@@ -28,6 +28,8 @@ import org.xml.sax.SAXException;
 import java.io.Serializable;
 import java.io.InputStream;
 import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipEntry;
@@ -203,8 +205,8 @@ public class JMSProviderData implements Serializable {
     }
 
     private static void loadRARData(JMSProviderData data, PortletRequest request) throws IOException {
-        URL url = PortletManager.getRepositoryEntry(request, data.getRaURI());
-        ZipInputStream in = new ZipInputStream(url.openStream());
+        File url = PortletManager.getRepositoryEntry(request, data.getRaURI());
+        ZipInputStream in = new ZipInputStream(new FileInputStream(url));
         ZipEntry entry;
         Document doc = null;
         try {

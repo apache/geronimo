@@ -35,6 +35,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Version;
+import org.apache.geronimo.kernel.repository.Environment;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -47,6 +48,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public class CreateDestinationHandler extends AbstractJMSManager implements PortletResponseHandler {
     protected static Log log = LogFactory
@@ -117,15 +121,11 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
             ObjectName storeName = (ObjectName) stores.iterator().next();
             File installDir = (File) kernel.invoke(storeName,
                     "createNewConfigurationDir");
-            //DeploymentContext deploymentContext = new
-            // DeploymentContext(installDir, configId,
-            // ConfigurationModuleType.SERVICE, parentId, kernel);
-            ConfigurationData configData = new ConfigurationData();
-            configData.setId(configId);
-            configData.setParentId(parentId);
-            configData.setModuleType(ConfigurationModuleType.SERVICE);
-            //deploymentContext.addGBean(adminObjectData);
-            configData.addGBean(adminObjectData);
+            Environment environment = new Environment();
+            environment.setConfigId(configId);
+            environment.setImports(parentId);
+            List gbeans = new ArrayList();
+            gbeans.add(adminObjectData);
             // If we are adding a topic we have to add a browser so we can view
             // its messages later.
             if (Topic.class.getName().equals(destinationType)) {
@@ -144,8 +144,13 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
                 tBrowserBeanData.setReferencePattern("TopicWrapper",
                         adminObjectName);
 
-                configData.addGBean(tBrowserBeanData);
+                gbeans.add(tBrowserBeanData);
             }
+            ConfigurationData configData = new ConfigurationData(ConfigurationModuleType.SERVICE,
+                    new LinkedHashSet(),
+                    gbeans,
+                    Collections.EMPTY_LIST,
+                    environment);
 
             //saves it.
             //deploymentContext.close();

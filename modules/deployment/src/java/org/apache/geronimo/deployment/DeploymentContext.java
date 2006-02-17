@@ -26,9 +26,9 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.MultiParentClassLoader;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.LinkedHashSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -69,15 +70,17 @@ import java.util.zip.ZipFile;
  */
 public class DeploymentContext {
 
-    private static final ClassLoader[] DEFAULT_PARENT_CLASSLOADERS = new ClassLoader[]{DeploymentContext.class.getClassLoader()};
+    private final Environment environment;
+    private final ConfigurationModuleType moduleType;
+    private final LinkedHashSet classpath = new LinkedHashSet();
     private final Kernel kernel;
-    private final ConfigurationData configurationData;
     private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
     private final List loadedAncestors = new ArrayList();
     private final List startedAncestors = new ArrayList();
+    private final List childConfigurationDatas = new ArrayList();
 
 
     public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType type, Kernel kernel) throws DeploymentException {
@@ -85,6 +88,8 @@ public class DeploymentContext {
         assert environment != null: "environment is null";
         assert type != null: "type is null";
 
+        this.environment = environment;
+        this.moduleType = type;
         this.kernel = kernel;
 
         if (!baseDir.exists()) {
@@ -96,26 +101,20 @@ public class DeploymentContext {
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
-        configurationData = new ConfigurationData();
-            configurationData.setId(environment.getConfigId());
-        configurationData.setModuleType(type);
-        //TODO configid this is broken, need Artifact to URI conversion or configData to use Artifacts.
-        configurationData.setParentId(new ArrayList(environment.getImports()));
-        configurationData.setNameKeys(environment.getProperties());
-
         determineNaming();
         determineInherited();
+        determineMinimalParents();
     }
 
     private void determineNaming() throws DeploymentException {
-        if (configurationData.getNameKeys() != null && !configurationData.getNameKeys().isEmpty()) {
+        if (environment.getProperties() != null && !environment.getProperties().isEmpty()) {
             return;
         }
-        List parentId = configurationData.getParentId();
+        Collection parentId = environment.getImports();
         if (kernel == null || parentId == null || parentId.isEmpty()) {
-            throw new DeploymentException("neither domain and server nor any way to determine them was provided for configuration " + configurationData.getId());
+            throw new DeploymentException("neither domain and server nor any way to determine them was provided for configuration " + environment.getConfigId());
         }
-        Artifact parent = (Artifact) parentId.get(0);
+        Artifact parent = (Artifact) parentId.iterator().next();
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         try {
@@ -126,7 +125,7 @@ public class DeploymentContext {
             }
             try {
                 ObjectName parentName = Configuration.getConfigurationObjectName(parent);
-                configurationData.setNameKeys((Map) kernel.getAttribute(parentName, "nameKeys"));
+                environment.setProperties((Map) kernel.getAttribute(parentName, "properties"));
             } catch (Exception e) {
                 throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
             } finally {
@@ -136,15 +135,14 @@ public class DeploymentContext {
                 }
             }
         } catch (Exception e) {
-            throw new DeploymentException("Unable to load first parent of configuration " + configurationData.getId(), e);
+            throw new DeploymentException("Unable to load first parent of configuration " + environment.getConfigId(), e);
         } finally {
             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
         }
 
         //check that domain and server are now known
-        if (configurationData.getNameKeys() == null || configurationData.getNameKeys().isEmpty()) {
-            throw new IllegalStateException("Domain or server could not be determined from explicit args or parent configuration. ParentID: " + parentId
-                    + ", name keys: " + configurationData.getNameKeys());
+        if (environment.getProperties() == null || environment.getProperties().isEmpty()) {
+            throw new IllegalStateException("Properties not be determined from explicit args or parent configuration. ParentID: " + parentId);
         }
     }
 
@@ -153,7 +151,7 @@ public class DeploymentContext {
             return;
         }
 
-        List parentId = configurationData.getParentId();
+        Collection parentId = environment.getImports();
         if (parentId != null && parentId.size() > 0) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             List inherited = new ArrayList();
@@ -186,32 +184,16 @@ public class DeploymentContext {
             } catch (Exception e) {
                 throw new DeploymentException(e);
             }
-            configurationData.getNonOverridableClasses().addAll(inherited);
+            environment.addNonOverrideableClasses(inherited);
         }
     }
 
     public Artifact getConfigID() {
-        return configurationData.getId();
-    }
-
-    public void setInverseClassloading(boolean inverseClassloading) {
-        configurationData.setInverseClassloading(inverseClassloading);
-    }
-
-    public void addHiddenClasses(Set hiddenClasses) {
-        configurationData.getHiddenClasses().addAll(hiddenClasses);
-    }
-
-    public void addNonOverridableClasses(Set nonOverridableClasses) {
-        configurationData.getNonOverridableClasses().addAll(nonOverridableClasses);
-    }
-
-    public void addParentId(List parentId) {
-        configurationData.getParentId().addAll(parentId);
+        return environment.getConfigId();
     }
 
     public ConfigurationModuleType getType() {
-        return configurationData.getModuleType();
+        return moduleType;
     }
 
     public File getBaseDir() {
@@ -235,10 +217,6 @@ public class DeploymentContext {
         return gbeans.getGBeanInstance(name);
     }
 
-    public void addDependency(Artifact artifact) {
-        configurationData.addDependency(artifact);
-    }
-
     /**
      * Copy a packed jar file into the deployment context and place it into the
      * path specified in the target path.  The newly added packed jar is added
@@ -255,7 +233,7 @@ public class DeploymentContext {
     public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
         File targetFile = getTargetFile(targetPath);
         DeploymentUtil.copyToPackedJar(jarFile, targetFile);
-        configurationData.addClassPathLocation(targetPath);
+        classpath.add(targetPath);
     }
 
     /**
@@ -275,7 +253,7 @@ public class DeploymentContext {
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, zipFile, zipEntry);
-        configurationData.addClassPathLocation(targetPath);
+        classpath.add(targetPath);
     }
 
     /**
@@ -294,7 +272,7 @@ public class DeploymentContext {
     public void addInclude(URI targetPath, URL source) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
-        configurationData.addClassPathLocation(targetPath);
+        classpath.add(targetPath);
     }
 
     /**
@@ -313,7 +291,7 @@ public class DeploymentContext {
     public void addInclude(URI targetPath, File source) throws IOException {
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
-        configurationData.addClassPathLocation(targetPath);
+        classpath.add(targetPath);
     }
 
     /**
@@ -363,7 +341,7 @@ public class DeploymentContext {
             }
 
             URI targetUri = moduleBaseUri.resolve(pathUri);
-            configurationData.addClassPathLocation(targetUri);
+            classpath.add(targetUri);
         }
     }
 
@@ -387,7 +365,7 @@ public class DeploymentContext {
         assert location.toString().endsWith("/");
 
         if (addToClasspath) {
-            configurationData.addClassPathLocation(location);
+            classpath.add(location);
         }
         String classFileName = fqcn.replace('.', '/') + ".class";
         addFile(getTargetFile(new URI(location.toString() + classFileName)), new ByteArrayInputStream(bytes));
@@ -498,12 +476,8 @@ public class DeploymentContext {
                 throw new DeploymentException("Cannot convert ID to ObjectName: ", e);
             }
             try {
-                Artifact[] parents = (Artifact[]) kernel.getAttribute(configName, "parentId");
-                if (parents == null) {
-                    return Collections.EMPTY_LIST;
-                } else {
-                    return Arrays.asList(parents);
-                }
+                Environment environment =  (Environment) kernel.getAttribute(configName, "environment");
+                return environment.getImports();
             } catch (Exception e) {
                 throw new DeploymentException("Cannot find parents of alleged config: ", e);
             }
@@ -511,16 +485,15 @@ public class DeploymentContext {
 
     }
 
-    private ClassLoader[] determineParents() throws DeploymentException {
-        ClassLoader[] parentCL;
-        List parentId = configurationData.getParentId();
+    private void determineMinimalParents() throws DeploymentException {
+        Collection parentId = environment.getImports();
         if (kernel != null && parentId != null && parentId.size() > 0) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
                 loadAncestors(kernel, parentId, loadedAncestors, configurationManager);
                 ParentSource parentSource = new ConfigurationParentSource(kernel);
                 parentId = getExtremalSet(parentId, parentSource);
-                configurationData.setParentId(parentId);
+                environment.setImports(parentId);
 
                 try {
                     for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
@@ -537,29 +510,10 @@ public class DeploymentContext {
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
-            try {
-                parentCL = new ClassLoader[parentId.size()];
-                for (int i = 0; i < parentId.size(); i++) {
-                    Artifact uri = (Artifact) parentId.get(i);
-                    ObjectName parentName = Configuration.getConfigurationObjectName(uri);
-                    parentCL[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
-                }
-
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-        } else {
-            // no explicit parent set, so use the class loader of this class as
-            // the parent... this class should be in the root geronimo classloader,
-            // which is normally the system class loader but not always, so be safe
-            parentCL = DEFAULT_PARENT_CLASSLOADERS;
         }
-
-
-        return parentCL;
     }
 
-    private void loadAncestors(Kernel kernel, List parentId, List loadedAncestors, ConfigurationManager configurationManager) throws DeploymentException {
+    private void loadAncestors(Kernel kernel, Collection parentId, List loadedAncestors, ConfigurationManager configurationManager) throws DeploymentException {
         if (kernel != null && parentId != null) {
             try {
                 for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
@@ -595,33 +549,55 @@ public class DeploymentContext {
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
-        // shouldn't user classpath come before dependencies?
-        List dependencies = configurationData.getDependencies();
-        List classPath = configurationData.getClassPath();
-        URL[] urls = new URL[dependencies.size() + classPath.size()];
         try {
-            int index = 0;
-            for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-                Artifact artifact = (Artifact) iterator.next();
-                urls[index++] = repository.getLocation(artifact).toURL();
-            }
+            Configuration configuration = new Configuration(kernel,
+                    null,
+                    moduleType,
+                    environment,
+                    null,
+                    new ArrayList(classpath),
+                    null,
+                    Collections.singleton(repository),
+                    new ConfigurationStore() {
 
-            for (Iterator i = classPath.iterator(); i.hasNext();) {
-                URI path = (URI) i.next();
-                urls[index++] = getTargetFile(path).toURL();
-            }
-        } catch (MalformedURLException e) {
-            throw new DeploymentException(e);
+                        public Artifact install(URL source) {
+                            return null;
+                        }
+
+                        public void install(ConfigurationData configurationData, File source) {
+                        }
+
+                        public void uninstall(Artifact configID) {
+                        }
+
+                        public ObjectName loadConfiguration(Artifact configId) {
+                            return null;
+                        }
+
+                        public boolean containsConfiguration(Artifact configID) {
+                            return false;
+                        }
+
+                        public String getObjectName() {
+                            return null;
+                        }
+
+                        public List listConfigurations() {
+                            return null;
+                        }
+
+                        public File createNewConfigurationDir() {
+                            return null;
+                        }
+
+                        public URL resolve(Artifact configId, URI uri) throws MalformedURLException {
+                            return new File(baseDir, uri.toString()).toURL();
+                        }
+                    });
+            return configuration.getConfigurationClassLoader();
+        } catch (Exception e) {
+            throw new DeploymentException("Could not construct configuration classloader for deployment context", e);
         }
-        ClassLoader[] parentCL = determineParents();
-
-        boolean inverseClassloading = configurationData.isInverseClassloading();
-        Set filter = configurationData.getHiddenClasses();
-        String[] hiddenFilter = (String[]) filter.toArray(new String[0]);
-        filter = configurationData.getNonOverridableClasses();
-        String[] nonOverridableFilter = (String[]) filter.toArray(new String[0]);
-
-        return new MultiParentClassLoader(configurationData.getId(), urls, parentCL, inverseClassloading, hiddenFilter, nonOverridableFilter);
     }
 
     public void close() throws IOException, DeploymentException {
@@ -648,12 +624,11 @@ public class DeploymentContext {
     }
 
     public void addChildConfiguration(ConfigurationData configurationData) {
-        this.configurationData.addChildConfiguration(configurationData);
+        childConfigurationDatas.add(configurationData);
     }
 
     public ConfigurationData getConfigurationData() {
-        ConfigurationData configurationData = new ConfigurationData(this.configurationData);
-        configurationData.setGBeans(Arrays.asList(gbeans.getGBeans()));
+        ConfigurationData configurationData = new ConfigurationData(moduleType, classpath, Arrays.asList(gbeans.getGBeans()), childConfigurationDatas, environment);
         return configurationData;
     }
 

@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import javax.management.ObjectName;
@@ -95,4 +96,11 @@ public interface ConfigurationStore {
 
     File createNewConfigurationDir();
 
+    /**
+     * Locate the classpath component for the supplied uri in the given artifact
+     * @param configId
+     * @param uri
+     * @return URL for the configuration component.
+     */
+    URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException;
 }

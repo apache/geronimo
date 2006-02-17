@@ -17,239 +17,72 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.net.URI;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
  */
 public class ConfigurationData {
-    /**
-     * URI used to referr to this configuration in the configuration manager
-     */
-    private Artifact id;
 
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
      */
-    private ConfigurationModuleType moduleType;
+    private final ConfigurationModuleType moduleType;
 
-    /**
-     * The uris of the parents of this configuration.
-     */
-    private List parentId = new ArrayList();
-
-    /**
-     * The uris of the references (configurations required by but not in classpath) of this configuration.
-     */
-    private List references = new ArrayList();
-
-    /**
-     * map of key-value pairs for names inside this and child configurations.  Typically domain and server
-     * Note that domain doesn't have a key name in an object name.
-     */
-    private Map nameKeys = new HashMap();
-
-    /**
-     * List of URIs of jar files on which this configuration is dependent on.
-     */
-    private final LinkedHashSet dependencies = new LinkedHashSet();
 
     /**
      * List of URIs in this configuration's classpath.  These are for the classes directly included in the configuration
      */
-    private final LinkedHashSet classPath = new LinkedHashSet();
+    private final LinkedHashSet classPath;
 
     /**
      * GBeans contained in this configuration.
      */
-    private final List gbeans = new ArrayList();
+    private final List gbeans;
 
     /**
      * Child configurations of this configuration
      */
-    private final List childConfigurations = new ArrayList();
+    private final  List childConfigurations;
 
-    /**
-     * If true, then inverse the standard class loading delegation model.
-     */
-    private boolean inverseClassLoading;
+    private final Environment environment;
 
-    /**
-     * Class filters defining the classes hidden from the configuration.
-     */
-    private final Set hiddenClasses = new HashSet();
-
-    /**
-     * Class filters defining the classes that the configuration cannot
-     * override.  
-     */
-    private final Set nonOverridableClasses = new HashSet();
-
-    public ConfigurationData() {
-    }
-
-    public ConfigurationData(ConfigurationData configurationData) {
-        id = configurationData.id;
-        moduleType = configurationData.moduleType;
-        parentId.addAll(configurationData.getParentId());
-        references.addAll(configurationData.getReferences());
-        this.nameKeys.putAll(configurationData.nameKeys);
-        setDependencies(new ArrayList(configurationData.dependencies));
-        setClassPath(new ArrayList(configurationData.classPath));
-        setGBeans(configurationData.gbeans);
-        setChildConfigurations(configurationData.childConfigurations);
-        inverseClassLoading = configurationData.inverseClassLoading;
-        hiddenClasses.addAll(configurationData.hiddenClasses);
-        nonOverridableClasses.addAll(configurationData.nonOverridableClasses);
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment) {
+        this.moduleType = moduleType;
+        this.classPath = classPath;
+        this.gbeans = gbeans;
+        this.childConfigurations = childConfigurations;
+        this.environment = environment;
     }
 
     public Artifact getId() {
-        return id;
-    }
-
-    public void setId(Artifact id) {
-        this.id = id;
+        return environment.getConfigId();
     }
 
     public ConfigurationModuleType getModuleType() {
         return moduleType;
     }
 
-    public void setModuleType(ConfigurationModuleType moduleType) {
-        this.moduleType = moduleType;
-    }
-
-    public List getParentId() {
-        return new ArrayList(parentId);
-    }
-
-    public void setParentId(List parentId) {
-        this.parentId.clear();
-        this.parentId.addAll(parentId);
-    }
-
-    public void addParent(URI parentId) {
-        this.parentId.add(parentId);
-    }
-
-    public List getReferences() {
-        return new ArrayList(references);
-    }
-
-    public void setReferences(List references) {
-        this.references.clear();
-        this.references.addAll(references);
-    }
-
-    public void addReference(URI reference) {
-        this.references.add(reference);
-    }
-
-    public Map getNameKeys() {
-        return new HashMap(nameKeys);
-    }
-
-    public void setNameKeys(Map nameKeys) {
-        this.nameKeys.clear();
-        this.nameKeys.putAll(nameKeys);
-    }
-
-    public void addNameKey(String key, String value) {
-        nameKeys.put(key, value);
-    }
-
-    public List getDependencies() {
-        return Collections.unmodifiableList(new ArrayList(dependencies));
-    }
-
-    public void setDependencies(List dependencies) {
-        this.dependencies.clear();
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            Artifact dependency = (Artifact) iterator.next();
-            addDependency(dependency);
-        }
-    }
-
-    public void addDependency(Artifact dependency) {
-        assert dependency != null;
-        this.dependencies.add(dependency);
-    }
-
     public List getClassPath() {
         return Collections.unmodifiableList(new ArrayList(classPath));
-    }
-
-    public void setClassPath(List classPath) {
-        this.classPath.clear();
-        for (Iterator iterator = classPath.iterator(); iterator.hasNext();) {
-            URI location = (URI) iterator.next();
-            addClassPathLocation(location);
-        }
-    }
-
-    public void addClassPathLocation(URI location) {
-        assert location != null;
-        this.classPath.add(location);
     }
 
     public List getGBeans() {
         return Collections.unmodifiableList(gbeans);
     }
 
-    public void setGBeans(List gbeans) {
-        this.gbeans.clear();
-        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
-            addGBean(gbeanData);
-        }
-    }
-
-    public void addGBean(GBeanData gbeanData) {
-        assert gbeanData != null;
-        gbeans.add(gbeanData);
-    }
-
     public List getChildConfigurations() {
         return Collections.unmodifiableList(childConfigurations);
     }
 
-    public void setChildConfigurations(List childConfigurations) {
-        this.childConfigurations.clear();
-        for (Iterator iterator = childConfigurations.iterator(); iterator.hasNext();) {
-            ConfigurationData configurationData = (ConfigurationData) iterator.next();
-            addChildConfiguration(configurationData);
-        }
-    }
-    public void addChildConfiguration(ConfigurationData configurationData) {
-        assert configurationData != null;
-        childConfigurations.add(configurationData);
+    public Environment getEnvironment() {
+        return environment;
     }
 
-    public boolean isInverseClassloading() {
-        return inverseClassLoading;
-    }
-
-    public void setInverseClassloading(boolean inverseClassLoading) {
-        this.inverseClassLoading = inverseClassLoading;
-    }
-
-    public Set getHiddenClasses() {
-        return hiddenClasses;
-    }
-
-    public Set getNonOverridableClasses() {
-        return nonOverridableClasses;
-    }
 }

@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
+import java.net.URI;
+import java.net.MalformedURLException;
 import java.util.List;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -115,6 +117,11 @@ public class MavenConfigStore implements ConfigurationStore {
             // doh why can't I throw this?
             return null;
         }
+    }
+
+    public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        //unless we actually need to set up the configuration's classloader, this won't get called
+        return null;
     }
 
     public Artifact install(URL source) throws IOException, InvalidConfigException {

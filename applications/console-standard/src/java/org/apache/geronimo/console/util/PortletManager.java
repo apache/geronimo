@@ -25,6 +25,7 @@ import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.management.geronimo.*;
@@ -52,6 +53,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URISyntaxException;
 import java.net.MalformedURLException;
+import java.io.File;
 
 /**
  * @version $Rev$ $Date$
@@ -65,7 +67,7 @@ public class PortletManager {
     private final static String JVM_KEY = "org.apache.geronimo.console.JVM";
     private final static String SYSTEM_LOG_KEY = "org.apache.geronimo.console.SystemLog";
     // The following may change based on the user's selections
-        // nothing yet
+    // nothing yet
 
     private static ManagementHelper createHelper() {
         //todo: consider making this configurable; we could easily connect to a remote kernel if we wanted to
@@ -75,7 +77,7 @@ public class PortletManager {
         } catch (NamingException e) {
 //            log.error("Unable to look up kernel in JNDI", e);
         }
-        if(kernel == null) {
+        if (kernel == null) {
             log.debug("Unable to find kernel in JNDI; using KernelRegistry instead");
             kernel = KernelRegistry.getSingleKernel();
         }
@@ -94,7 +96,7 @@ public class PortletManager {
 
     public static ManagementHelper getManagementHelper(PortletRequest request) {
         ManagementHelper helper = (ManagementHelper) request.getPortletSession(true).getAttribute(HELPER_KEY, PortletSession.APPLICATION_SCOPE);
-        if(helper == null) {
+        if (helper == null) {
             helper = createHelper();
             request.getPortletSession().setAttribute(HELPER_KEY, helper, PortletSession.APPLICATION_SCOPE);
         }
@@ -103,7 +105,7 @@ public class PortletManager {
 
     public static ManagementHelper getManagementHelper(HttpSession session) {
         ManagementHelper helper = (ManagementHelper) session.getAttribute(HELPER_KEY);
-        if(helper == null) {
+        if (helper == null) {
             helper = createHelper();
             session.setAttribute(HELPER_KEY, helper);
         }
@@ -112,7 +114,7 @@ public class PortletManager {
 
     public static J2EEDomain getCurrentDomain(PortletRequest request) {
         J2EEDomain domain = (J2EEDomain) request.getPortletSession(true).getAttribute(DOMAIN_KEY, PortletSession.APPLICATION_SCOPE);
-        if(domain == null) {
+        if (domain == null) {
             domain = getManagementHelper(request).getDomains()[0]; //todo: some day, select a domain
             request.getPortletSession().setAttribute(DOMAIN_KEY, domain, PortletSession.APPLICATION_SCOPE);
         }
@@ -122,12 +124,11 @@ public class PortletManager {
 
     public static J2EEServer getCurrentServer(PortletRequest request) {
         J2EEServer server = (J2EEServer) request.getPortletSession(true).getAttribute(SERVER_KEY, PortletSession.APPLICATION_SCOPE);
-        if(server == null) {
+        if (server == null) {
             ManagementHelper helper = getManagementHelper(request);
             server = helper.getServers(getCurrentDomain(request))[0]; //todo: some day, select a server from the domain
             request.getPortletSession().setAttribute(SERVER_KEY, server, PortletSession.APPLICATION_SCOPE);
-        }
-        else {
+        } else {
             // to do     handle "should not occur" error   - message?
         }
         return server;
@@ -135,7 +136,7 @@ public class PortletManager {
 
     public static JVM getCurrentJVM(PortletRequest request) {
         JVM jvm = (JVM) request.getPortletSession(true).getAttribute(JVM_KEY, PortletSession.APPLICATION_SCOPE);
-        if(jvm == null) {
+        if (jvm == null) {
             ManagementHelper helper = getManagementHelper(request);
             jvm = helper.getJavaVMs(getCurrentServer(request))[0]; //todo: some day, select a JVM from the server
             request.getPortletSession().setAttribute(JVM_KEY, jvm, PortletSession.APPLICATION_SCOPE);
@@ -174,7 +175,7 @@ public class PortletManager {
         List result = new ArrayList();
         for (int i = 0; i < list.length; i++) {
             Repository repository = list[i];
-            if(repository instanceof ListableRepository) {
+            if (repository instanceof ListableRepository) {
                 result.add(repository);
             }
         }
@@ -187,7 +188,7 @@ public class PortletManager {
         List result = new ArrayList();
         for (int i = 0; i < list.length; i++) {
             Repository repository = list[i];
-            if(repository instanceof WriteableRepository) {
+            if (repository instanceof WriteableRepository) {
                 result.add(repository);
             }
         }
@@ -216,12 +217,12 @@ public class PortletManager {
 
     public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, String resourceAdapterModuleName) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getOutboundFactories((ResourceAdapterModule)helper.getObject(resourceAdapterModuleName));
+        return helper.getOutboundFactories((ResourceAdapterModule) helper.getObject(resourceAdapterModuleName));
     }
 
     public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, String resourceAdapterModuleName, String iface) {
         ManagementHelper helper = getManagementHelper(request);
-        return helper.getOutboundFactories((ResourceAdapterModule)helper.getObject(resourceAdapterModuleName), iface);
+        return helper.getOutboundFactories((ResourceAdapterModule) helper.getObject(resourceAdapterModuleName), iface);
     }
 
     public static JCAManagedConnectionFactory[] getOutboundFactoriesForRA(PortletRequest request, ResourceAdapterModule module) {
@@ -280,7 +281,7 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         WebManager manager = (WebManager) helper.getObject(managerObjectName);
         String objectName = manager.addConnector(containerObjectName, name, protocol, host, port);
-        return (WebConnector)helper.getObject(objectName);
+        return (WebConnector) helper.getObject(objectName);
     }
 
     public static WebConnector[] getWebConnectors(PortletRequest request, String managerObjectName) {
@@ -341,7 +342,7 @@ public class PortletManager {
         ManagementHelper helper = getManagementHelper(request);
         JMSManager manager = (JMSManager) helper.getObject(managerObjectName);
         String objectName = manager.addConnector(containerObjectName, name, protocol, host, port);
-        return (JMSConnector)helper.getObject(objectName);
+        return (JMSConnector) helper.getObject(objectName);
     }
 
     public static JMSConnector[] getJMSConnectors(PortletRequest request, String managerObjectName) {
@@ -390,7 +391,7 @@ public class PortletManager {
 
     public static SystemLog getCurrentSystemLog(PortletRequest request) {
         SystemLog log = (SystemLog) request.getPortletSession(true).getAttribute(SYSTEM_LOG_KEY, PortletSession.APPLICATION_SCOPE);
-        if(log == null) {
+        if (log == null) {
             ManagementHelper helper = getManagementHelper(request);
             log = helper.getSystemLog(getCurrentJVM(request));
             request.getPortletSession().setAttribute(SYSTEM_LOG_KEY, log, PortletSession.APPLICATION_SCOPE);
@@ -418,20 +419,14 @@ public class PortletManager {
         return helper.getConfigurationNameFor(objectName);
     }
 
-    public static URL getRepositoryEntry(PortletRequest request, String repositoryURI) {
-        try {
-            Repository[] repos = getRepositories(request);
-            URI uri = new URI(repositoryURI);
-            for (int i = 0; i < repos.length; i++) {
-                Repository repo = repos[i];
-                if(repo.hasURI(uri)) {
-                    return repo.getURL(uri);
-                }
+    public static File getRepositoryEntry(PortletRequest request, String repositoryURI) {
+        Repository[] repos = getRepositories(request);
+        Artifact uri = Artifact.create(repositoryURI);
+        for (int i = 0; i < repos.length; i++) {
+            Repository repo = repos[i];
+            if (repo.contains(uri)) {
+                return repo.getLocation(uri);
             }
-        } catch (URISyntaxException e) {
-            log.error("Unable to access repository entry '"+repositoryURI+"'", e);
-        } catch (MalformedURLException e) {
-            log.error("Unable to access repository entry '"+repositoryURI+"'", e);
         }
         return null;
     }
@@ -441,14 +436,14 @@ public class PortletManager {
      * is in one of the portlets.  We're kind of hacking our way there, but hey,
      * it beats hardcoding.
      */
-    public static String getConsoleFrameworkServletPath (HttpServletRequest request) {
+    public static String getConsoleFrameworkServletPath(HttpServletRequest request) {
         String contextPath = "";
         Object o = request.getAttribute("javax.portlet.response");
-        if (o!=null && o instanceof RenderResponse) { // request came from a portlet
-            RenderResponse renderResponse = (RenderResponse)o;
+        if (o != null && o instanceof RenderResponse) { // request came from a portlet
+            RenderResponse renderResponse = (RenderResponse) o;
             contextPath = renderResponse.createRenderURL().toString();
             int index = contextPath.indexOf(request.getPathInfo());
-            contextPath = contextPath.substring(0,index);
+            contextPath = contextPath.substring(0, index);
         } else { // request did not come from a portlet
             contextPath = request.getContextPath();
         }

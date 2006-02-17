@@ -28,6 +28,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -179,13 +180,11 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             //put the earliest ancestors first, even if we have already started them.
             ancestors.remove(configID);
             ancestors.addFirst(configID);
-            Artifact[] parents = (Artifact[]) kernel.getAttribute(name, "parentId");
-            if (parents != null) {
-                for (int i = 0; i < parents.length; i++) {
-                    Artifact parent = parents[i];
+            Environment environment = (Environment) kernel.getAttribute(name, "environment");
+            for (Iterator iterator = environment.getImports().iterator(); iterator.hasNext();) {
+                Artifact parent = (Artifact) iterator.next();
                     loadRecursive(parent, ancestors, preloaded);
                 }
-            }
         } catch (NoSuchConfigException e) {
             throw e;
         } catch (IOException e) {

@@ -42,6 +42,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -158,23 +159,20 @@ public final class ExecutableConfigurationUtil {
             config.setAttribute("id", id);
             config.setAttribute("type", configurationData.getModuleType());
             //TODO configid this might need further improvmement
-            Map nameKeys = configurationData.getNameKeys();
-            config.setAttribute("nameKeys", nameKeys);
+//            Map nameKeys = configurationData.getNameKeys();
+//            config.setAttribute("nameKeys", nameKeys);
 
-            List parentId = configurationData.getParentId();
-            if (parentId.size() > 0) {
-                config.setAttribute("parentId", parentId.toArray(new Artifact[parentId.size()]));
-            }
-
+            Environment environment = configurationData.getEnvironment();
+            config.setAttribute("environment", environment);
             config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
             config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
-            config.setAttribute("dependencies", configurationData.getDependencies());
+//            config.setAttribute("dependencies", configurationData.getDependencies());
             config.setAttribute("classPath", configurationData.getClassPath());
-            config.setAttribute("inverseClassLoading", Boolean.valueOf(configurationData.isInverseClassloading()));
-            Set set = configurationData.getHiddenClasses();
-            config.setAttribute("hiddenClasses", set.toArray(new String[set.size()]));
-            set = configurationData.getNonOverridableClasses();
-            config.setAttribute("nonOverridableClasses", set.toArray(new String[set.size()]));
+//            config.setAttribute("inverseClassLoading", Boolean.valueOf(configurationData.isInverseClassloading()));
+//            Set set = configurationData.getHiddenClasses();
+//            config.setAttribute("hiddenClasses", set.toArray(new String[set.size()]));
+//            set = configurationData.getNonOverridableClasses();
+//            config.setAttribute("nonOverridableClasses", set.toArray(new String[set.size()]));
 
             return config;
         } catch (MalformedObjectNameException e) {

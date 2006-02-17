@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -399,6 +400,10 @@ public class JettyModuleBuilderTest extends TestCase {
         }
 
         public File createNewConfigurationDir() {
+            return null;
+        }
+
+        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
             return null;
         }
 

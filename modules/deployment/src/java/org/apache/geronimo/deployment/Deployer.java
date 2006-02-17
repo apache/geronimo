@@ -247,13 +247,6 @@ public class Deployer {
                 // this is good
             }
 
-            // create a configuration dir to write the configuration during the building proces
-            configurationDir = store.createNewConfigurationDir();
-
-            // create te meta-inf dir
-            File metaInf = new File(configurationDir, "META-INF");
-            metaInf.mkdirs();
-
             // create the manifest
             Manifest manifest;
             if (mainClass != null) {
@@ -276,21 +269,22 @@ public class Deployer {
                 manifest = null;
             }
 
+//TODO this is ludicrous!  give the builder a location factory!
+            // create a configuration dir to write the configuration during the building proces
+            configurationDir = store.createNewConfigurationDir();
+
+            // create te meta-inf dir
+            File metaInf = new File(configurationDir, "META-INF");
+            metaInf.mkdirs();
+
             ConfigurationData configurationData = builder.buildConfiguration(plan, module, configurationDir);
             try {
                 if (targetFile != null) {
                     ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, configurationDir, targetFile);
                 }
                 if (install) {
-                    store.install(configurationData, configurationDir);
                     List deployedURIs = new ArrayList();
-                    deployedURIs.add(configurationData.getId().toString());
-                    // todo this should support a tree structure since configurations could be nested to any depth
-                    for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
-                        ConfigurationData childConfiguration = (ConfigurationData) iterator.next();
-                        deployedURIs.add(childConfiguration.getId().toString());
-                        // todo install the child conifgurations here
-                    }
+                    recursiveInstall(configurationData, configurationDir, deployedURIs);
                     return deployedURIs;
                 } else {
                     if (!DeploymentUtil.recursiveDelete(configurationDir)) {
@@ -324,6 +318,23 @@ public class Deployer {
             throw new Error(e);
         } finally {
             DeploymentUtil.close(module);
+        }
+    }
+
+    private void recursiveInstall(ConfigurationData configurationData, File configurationDir, List deployedURIs) throws IOException, InvalidConfigException {
+        //TODO use 2nd copy, commented out
+        deployedURIs.add(configurationData.getId().toString());
+        //TODO FIXME
+        if (configurationDir == null) {
+            return;
+        }
+        store.install(configurationData, configurationDir);
+        //TODO uncomment
+//        deployedURIs.add(configurationData.getId().toString());
+        for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
+            ConfigurationData childConfiguration = (ConfigurationData) iterator.next();
+            //TODO extremely broken... configDir should NOT BE IN THIS SIG! should be in configurationData.
+            recursiveInstall(childConfiguration, null, deployedURIs);
         }
     }
 

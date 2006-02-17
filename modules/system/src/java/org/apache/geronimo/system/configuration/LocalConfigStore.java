@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -88,7 +89,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         serverInfo = null;
         this.root = null;
         this.rootDir = rootDir;
-        log = LogFactory.getLog("LocalConfigStore:"+rootDir.getName());
+        log = LogFactory.getLog("LocalConfigStore:" + rootDir.getName());
     }
 
     public LocalConfigStore(Kernel kernel, String objectName, URI root, ServerInfo serverInfo) throws MalformedObjectNameException {
@@ -96,7 +97,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         this.objectName = new ObjectName(objectName);
         this.root = root;
         this.serverInfo = serverInfo;
-        log = LogFactory.getLog("LocalConfigStore:"+root.toString());
+        log = LogFactory.getLog("LocalConfigStore:" + root.toString());
     }
 
     public String getObjectName() {
@@ -120,7 +121,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         File indexfile = new File(rootDir, INDEX_NAME);
         InputStream indexIs = null;
         try {
-            indexIs = new BufferedInputStream(new FileInputStream(indexfile)); 
+            indexIs = new BufferedInputStream(new FileInputStream(indexfile));
             index.load(indexIs);
             for (Iterator i = index.values().iterator(); i.hasNext();) {
                 String id = (String) i.next();
@@ -145,7 +146,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             if (pendingIs != null)
                 pendingIs.close();
         }
-        
+
         // Create and start the reaper...
         reaper = new ConfigStoreReaper(REAPER_INTERVAL);
         Thread t = new Thread(reaper, "Geronimo Config Store Reaper");
@@ -154,13 +155,13 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     }
 
     public void doStop() {
-        if (reaper !=null) {
+        if (reaper != null) {
             reaper.close();
         }
     }
 
     public void doFail() {
-        if (reaper !=null) {
+        if (reaper != null) {
             reaper.close();
         }
     }
@@ -222,6 +223,10 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         } while (configurationDir.exists());
         configurationDir.mkdir();
         return configurationDir;
+    }
+
+    public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+        return new URL(getRoot(configId).toURL(), uri.toString());
     }
 
     public Artifact install(URL source) throws IOException, InvalidConfigException {
@@ -288,7 +293,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
         File configDir;
         String storeID;
-        synchronized(this) {
+        synchronized (this) {
             storeID = index.getProperty(id);
             if (storeID == null) {
                 throw new NoSuchConfigException();
@@ -299,7 +304,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
 
         delete(configDir);
-        
+
         // On windoze, any open file descriptor (e.g. a MultiParentClassLoader) will prevent
         // the directory/files from being deleted. If we're unable to delete, save the directory
         // to the pendingDeletionIndex. ConfigStoreReaper will delete when the classloader has been GC'ed.
@@ -319,6 +324,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
         ObjectName name = Configuration.getConfigurationObjectName(configId);
         config.setName(name);
+        //TODO configId remove this
         config.setAttribute("baseURL", getRoot(configId).toURL());
 
         try {
@@ -377,11 +383,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
     private synchronized File getRoot(Artifact configID) throws NoSuchConfigException {
         String id = null;
-        try {
-            id = index.getProperty(configID.toURI().toString());
-        } catch (URISyntaxException e) {
-
-        }
+        id = index.getProperty(configID.toString());
         if (id == null) {
             throw new NoSuchConfigException("No such config: " + configID);
         }
@@ -445,15 +447,14 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
     private static void delete(File root) throws IOException {
         File[] files = root.listFiles();
-        if ( null == files ) {
+        if (null == files) {
             return;
         }
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
             if (file.isDirectory()) {
                 delete(file);
-            }
-            else {
+            } else {
                 file.delete();
             }
         }
@@ -499,7 +500,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
 
         public void run() {
             log.debug("ConfigStoreReaper started");
-            while(!done) {
+            while (!done) {
                 try {
                     Thread.sleep(reaperInterval);
                 } catch (InterruptedException e) {
@@ -510,7 +511,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
 
         /**
-         * For every directory in the pendingDeletionIndex, attempt to delete all 
+         * For every directory in the pendingDeletionIndex, attempt to delete all
          * sub-directories and files.
          */
         public void reap() {
@@ -521,7 +522,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             Enumeration list = pendingDeletionIndex.propertyNames();
             boolean dirDeleted = false;
             while (list.hasMoreElements()) {
-                String dirName = (String)list.nextElement();
+                String dirName = (String) list.nextElement();
                 File deleteFile = new File(dirName);
                 try {
                     delete(deleteFile);
@@ -531,7 +532,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
                 if (!deleteFile.exists()) {
                     String configName = pendingDeletionIndex.getProperty(dirName);
                     pendingDeletionIndex.remove(dirName);
-                    dirDeleted = true; 
+                    dirDeleted = true;
                     log.debug("Reaped configuration " + configName + " in directory " + dirName);
                 }
             }

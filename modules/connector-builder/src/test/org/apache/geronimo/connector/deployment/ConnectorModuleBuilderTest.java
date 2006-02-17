@@ -633,6 +633,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
+        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+            return null;
+        }
+
         public final static GBeanInfo GBEAN_INFO;
 
         private static final byte[] NO_OBJECTS_OS;
