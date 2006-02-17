@@ -29,9 +29,9 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     >
 
     <!-- CORBA -->
-    <gbean name="DynamicORBStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>
+    <gbean name="DynamicORBStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoaderGBean"/>
 
-    <gbean name="NameServer" class="org.openejb.corba.SunNameService">
+    <gbean name="NameServer" class="org.openejb.corba.SunNameServiceGBean">
         <reference name="ServerInfo">
             <module>geronimo/j2ee-system/${pom.currentVersion}/car</module>
             <name>ServerInfo</name>
@@ -41,7 +41,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     </gbean>
 
     <!-- connections require SSL, no client cert, client logs in with password, no identity token -->
-    <gbean name="Server" class="org.openejb.corba.CORBABean">
+    <gbean name="Server" class="org.openejb.corba.CORBABeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -78,7 +78,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientCert" class="org.openejb.corba.TSSBean">
+    <gbean name="SSLClientCert" class="org.openejb.corba.TSSBeanGBean">
         <attribute name="POAName">SSLClientCert</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -105,7 +105,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientPassword" class="org.openejb.corba.TSSBean">
+    <gbean name="SSLClientPassword" class="org.openejb.corba.TSSBeanGBean">
         <attribute name="POAName">SSLClientPassword</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -133,7 +133,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLIdentityToken" class="org.openejb.corba.TSSBean">
+    <gbean name="SSLIdentityToken" class="org.openejb.corba.TSSBeanGBean">
         <attribute name="POAName">SSLIdentityToken</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -164,7 +164,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     </gbean>
 
     <!-- orb with no security whatsoever -->
-    <gbean name="UnprotectedServer" class="org.openejb.corba.CORBABean">
+    <gbean name="UnprotectedServer" class="org.openejb.corba.CORBABeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -201,7 +201,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </dependency>
     </gbean>
 
-    <gbean name="IdentityTokenNoSecurity" class="org.openejb.corba.TSSBean">
+    <gbean name="IdentityTokenNoSecurity" class="org.openejb.corba.TSSBeanGBean">
         <attribute name="POAName">IdentityTokenNoSecurity</attribute>
         <reference name="Server">
             <name>UnprotectedServer</name>
@@ -227,7 +227,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientCertIdentityToken" class="org.openejb.corba.TSSBean">
+    <gbean name="SSLClientCertIdentityToken" class="org.openejb.corba.TSSBeanGBean">
         <attribute name="POAName">SSLClientCertIdentityToken</attribute>
         <reference name="Server">
             <name>Server</name>
@@ -258,7 +258,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
     </gbean>
 
     <!--CSS beans for client security.  These specify what the client is willing to provide -->
-    <gbean name="SSLClientCert" class="org.openejb.corba.CSSBean">
+    <gbean name="SSLClientCert" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -298,7 +298,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBean">
+    <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -339,7 +339,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLIdentityTokenPrincipal" class="org.openejb.corba.CSSBean">
+    <gbean name="SSLIdentityTokenPrincipal" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -379,7 +379,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLIdentityTokenCert" class="org.openejb.corba.CSSBean">
+    <gbean name="SSLIdentityTokenCert" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -419,7 +419,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurityIdentityTokenPrincipal" class="org.openejb.corba.CSSBean">
+    <gbean name="NoSecurityIdentityTokenPrincipal" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -455,7 +455,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurityIdentityTokenCert" class="org.openejb.corba.CSSBean">
+    <gbean name="NoSecurityIdentityTokenCert" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -491,7 +491,7 @@ Configuration for corba on a Geronimo serverl, including client and target secur
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurity" class="org.openejb.corba.CSSBean">
+    <gbean name="NoSecurity" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/j2ee-server/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>

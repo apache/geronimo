@@ -26,9 +26,9 @@ CSSBean examples for app client
                configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car"
     >
 
-    <gbean name="DyanmicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoader"/>
+    <gbean name="DyanmicStubClassLoader" class="org.openejb.corba.util.DynamicStubClassLoaderGBean"/>
 
-    <gbean name="Server" class="org.openejb.corba.CORBABean">
+    <gbean name="Server" class="org.openejb.corba.CORBABeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -44,7 +44,7 @@ CSSBean examples for app client
         </attribute>
     </gbean>
 
-    <gbean name="SSLClientCert" class="org.openejb.corba.CSSBean">
+    <gbean name="SSLClientCert" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -84,7 +84,7 @@ CSSBean examples for app client
         </xml-attribute>
     </gbean>
 
-    <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBean">
+    <gbean name="SSLClientPassword" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>
@@ -125,7 +125,7 @@ CSSBean examples for app client
         </xml-attribute>
     </gbean>
 
-    <gbean name="NoSecurity" class="org.openejb.corba.CSSBean">
+    <gbean name="NoSecurity" class="org.openejb.corba.CSSBeanGBean">
         <reference name="ThreadPool">
             <module>geronimo/client/${pom.currentVersion}/car</module>
             <name>DefaultThreadPool</name>

@@ -98,6 +98,14 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-interceptor</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
     <!-- for property editor support for some login modules/principals -->
         <dependency>
             <groupId>geronimo</groupId>

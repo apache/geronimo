@@ -135,6 +135,14 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>geronimo-interceptor</artifactId>
+            <version>${geronimo_version}</version>
+            <properties>
+                <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>geronimo-core</artifactId>
             <version>${geronimo_version}</version>
             <properties>

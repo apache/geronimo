@@ -29,7 +29,7 @@ by the server.
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.0"
                configId="${pom.groupId}/${pom.artifactId}/${pom.currentVersion}/car">
 
-  <gbean name="StatelessEjbContainer" class="org.openejb.slsb.DefaultStatelessEjbContainer">
+  <gbean name="StatelessEjbContainer" class="org.openejb.slsb.DefaultStatelessEjbContainerGBean">
     <reference name="TransactionContextManager">
       <module>*</module>
       <name>TransactionContextManager</name>
@@ -51,7 +51,7 @@ by the server.
     <attribute name="useContextHandler">true</attribute>
   </gbean>
 
-  <gbean name="StatefulEjbContainer" class="org.openejb.sfsb.DefaultStatefulEjbContainer">
+  <gbean name="StatefulEjbContainer" class="org.openejb.sfsb.DefaultStatefulEjbContainerGBean">
     <reference name="TransactionContextManager">
       <module>*</module>
       <name>TransactionContextManager</name>
@@ -65,29 +65,7 @@ by the server.
     <attribute name="useContextHandler">true</attribute>
   </gbean>
 
-  <gbean name="BmpEjbContainer" class="org.openejb.entity.bmp.DefaultBmpEjbContainer">
-    <reference name="TransactionContextManager">
-      <module>*</module>
-      <name>TransactionContextManager</name>
-    </reference>
-    <reference name="TrackedConnectionAssociator">
-      <module>*</module>
-      <name>ConnectionTracker</name>
-    </reference>
-    <reference name="TransactedTimer">
-      <module>*</module>
-      <name>TransactionalThreadPooledTimer</name>
-    </reference>
-    <reference name="NontransactedTimer">
-      <module>*</module>
-      <name>NonTransactionalThreadPooledTimer</name>
-    </reference>
-    <attribute name="securityEnabled">true</attribute>
-    <attribute name="doAsCurrentCaller">true</attribute>
-    <attribute name="useContextHandler">true</attribute>
-  </gbean>
-
-  <gbean name="CmpEjbContainer" class="org.openejb.entity.cmp.DefaultCmpEjbContainer">
+  <gbean name="BmpEjbContainer" class="org.openejb.entity.bmp.DefaultBmpEjbContainerGBean">
     <reference name="TransactionContextManager">
       <module>*</module>
       <name>TransactionContextManager</name>
@@ -109,7 +87,29 @@ by the server.
     <attribute name="useContextHandler">true</attribute>
   </gbean>
 
-  <gbean name="MdbEjbContainer" class="org.openejb.mdb.DefaultMdbContainer">
+  <gbean name="CmpEjbContainer" class="org.openejb.entity.cmp.DefaultCmpEjbContainerGBean">
+    <reference name="TransactionContextManager">
+      <module>*</module>
+      <name>TransactionContextManager</name>
+    </reference>
+    <reference name="TrackedConnectionAssociator">
+      <module>*</module>
+      <name>ConnectionTracker</name>
+    </reference>
+    <reference name="TransactedTimer">
+      <module>*</module>
+      <name>TransactionalThreadPooledTimer</name>
+    </reference>
+    <reference name="NontransactedTimer">
+      <module>*</module>
+      <name>NonTransactionalThreadPooledTimer</name>
+    </reference>
+    <attribute name="securityEnabled">true</attribute>
+    <attribute name="doAsCurrentCaller">true</attribute>
+    <attribute name="useContextHandler">true</attribute>
+  </gbean>
+
+  <gbean name="MdbEjbContainer" class="org.openejb.mdb.DefaultMdbContainerGBean">
     <reference name="TransactionContextManager">
       <module>*</module>
       <name>TransactionContextManager</name>
@@ -156,7 +156,7 @@ by the server.
   </gbean>
 
   <!-- pattern domain name must match the domain of the j2eeServer attribute of the EAR builder in the deployer plan -->
-  <gbean gbeanName="openejb:type=DeploymentIndex" class="org.openejb.DeploymentIndex">
+  <gbean gbeanName="openejb:type=DeploymentIndex" class="org.openejb.DeploymentIndexGBean">
     <references name="EjbDeployments">
       <pattern>
         <gbean-name>geronimo.server:j2eeType=StatelessSessionBean,*</gbean-name>
@@ -172,7 +172,7 @@ by the server.
 
   <gbean
       gbeanName="geronimo.server:J2EEApplication=null,EJBModule=geronimo/openejb/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=StatelessSessionBean,name=ejb/mgmt/MEJB"
-      class="org.openejb.mejb.MEJB"/>
+      class="org.openejb.mejb.MEJBGBean"/>
 
 
 </configuration>
