@@ -35,6 +35,8 @@ import net.sf.cglib.proxy.NoOp;
 import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
 import net.sf.cglib.core.DefaultGeneratorStrategy;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * @version $Rev$ $Date$
@@ -49,7 +51,7 @@ public class MultiParentClassLoaderTest extends TestCase {
     private URLClassLoader[] parents;
     private File myFile;
     private MultiParentClassLoader classLoader;
-    private static final URI NAME = URI.create("myTestClassLoader");
+    private static final Artifact NAME = new Artifact("test", "fake", "1.0", "car", true);
 
     /**
      * Verify that the test jars are valid
@@ -139,7 +141,7 @@ public class MultiParentClassLoaderTest extends TestCase {
         ClassLoader cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl);
         Class clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());
-        
+
         cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, true, new String[0], new String[0]);
         clazz = cl.loadClass(CLASS_NAME);
         assertSame(cl, clazz.getClassLoader());
@@ -152,7 +154,7 @@ public class MultiParentClassLoaderTest extends TestCase {
         ClassLoader cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl);
         Class clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());
-        
+
         cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, false, new String[] {CLASS_NAME}, new String[0]);
         clazz = cl.loadClass(CLASS_NAME);
         assertSame(cl, clazz.getClassLoader());
@@ -165,7 +167,7 @@ public class MultiParentClassLoaderTest extends TestCase {
         ClassLoader cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl);
         Class clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());
-        
+
         cl = new MultiParentClassLoader(NAME, new URL[]{myJar.toURL()}, parentCl, true, new String[0], new String[] {CLASS_NAME});
         clazz = cl.loadClass(CLASS_NAME);
         assertSame(parentCl, clazz.getClassLoader());

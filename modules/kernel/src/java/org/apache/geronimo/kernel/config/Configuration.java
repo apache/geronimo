@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.ListIterator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -58,6 +60,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -129,10 +132,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final String objectNameString;
     private final ObjectName objectName;
 
-    /**
-     * URI used to referr to this configuration in the configuration manager
-     */
-    private final Artifact id;
+    private final Environment environment;
 
     /**
      * Identifies the type of configuration (WAR, RAR et cetera)
@@ -140,21 +140,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final ConfigurationModuleType moduleType;
 
     /**
-     * The uri of the parent of this configuration.  May be null.
-     */
-    private final Artifact[] parentId;
-
-    /**
      * List of the parent configurations
      */
     private final List parents;
 
-    private final List dependencies;
     private final List classPath;
-    private final boolean inverseClassLoading;
-    private final String[] hiddenClasses;
-    private final String[] nonOverridableClasses;
-    private final Map nameKeys;
 
     /**
      * The names of all GBeans contained in this configuration.
@@ -187,21 +177,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Only used to allow declaration as a reference.
      */
     public Configuration() {
+        environment = null;
         kernel = null;
         objectNameString = null;
         objectName = null;
-        id = null;
         moduleType = null;
-        parentId = null;
         parents = null;
-        nameKeys = null;
         objectNames = null;
         configurationClassLoader = null;
-        dependencies = null;
         classPath = null;
-        inverseClassLoading = false;
-        hiddenClasses = null;
-        nonOverridableClasses = null;
         baseURL = null;
         repositories = null;
     }
@@ -223,7 +207,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                          Artifact id,
                          ConfigurationModuleType moduleType,
                          URL baseURL,
-                         Artifact[] parentId,
+                         Artifact[] parentIds,
                          Map nameKeys,
                          List classPath,
                          boolean inverseClassLoading,
@@ -232,14 +216,41 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                          byte[] gbeanState,
                          Collection repositories,
                          List dependencies) throws Exception {
+        this(kernel,
+                objectName,
+                moduleType,
+                createEnvironment(id, nameKeys, parentIds, inverseClassLoading, hiddenClasses, nonOverridableClasses, dependencies),
+                baseURL,
+                classPath,
+                gbeanState,
+                repositories);
+    }
+
+    /**
+     * Constructor that can be used to create an offline Configuration, typically
+     * only used publically during the deployment process for initial configuration.
+     *
+     * @param moduleType   the module type identifier
+     * @param environment
+     * @param classPath    a List<URI> of locations that define the codebase for this Configuration
+     * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
+     * @param repositories a Collection<Repository> of repositories used to resolve dependencies
+     */
+    public Configuration(Kernel kernel,
+            String objectName,
+            ConfigurationModuleType moduleType,
+            Environment environment,
+            URL baseURL,
+            List classPath,
+            byte[] gbeanState,
+            Collection repositories) throws Exception {
 
         this.kernel = kernel;
+        this.environment = environment;
         this.objectNameString = objectName;
         this.objectName = JMXUtil.getObjectName(objectName);
-        this.id = id;
         this.moduleType = moduleType;
         this.baseURL = baseURL;
-        this.parentId = parentId;
         this.gbeanState = gbeanState;
         this.repositories = repositories;
         if (classPath != null) {
@@ -247,64 +258,71 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } else {
             this.classPath = Collections.EMPTY_LIST;
         }
-        this.inverseClassLoading = inverseClassLoading;
-        if (null != hiddenClasses) {
-            this.hiddenClasses = hiddenClasses;
-        } else {
-            this.hiddenClasses = new String[0];
-        }
-        if (null != nonOverridableClasses) {
-            this.nonOverridableClasses = nonOverridableClasses;
-        } else {
-            this.nonOverridableClasses = new String[0];
-        }
-        if (dependencies != null) {
-            this.dependencies = dependencies;
-        } else {
-            this.dependencies = Collections.EMPTY_LIST;
-        }
 
-        this.nameKeys = nameKeys;
-
+        // get proxies to my parent configurations
         parents = new ArrayList();
-        if (parentId != null && parentId.length > 0) {
-            for (int i = 0; i < parentId.length; i++) {
-                Artifact artifact = parentId[i];
+        LinkedHashSet dependencies = environment.getDependencies();
+        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            if (artifact.getType().equals("car")) {
                 ObjectName parentName = getConfigurationObjectName(artifact);
                 parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
             }
         }
 
-        addParentDependencies(kernel, id, parentId);
+        // declarae dependencies on parents
+        Set parentNames = new HashSet();
+        for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
+            Configuration configuration = (Configuration) iterator.next();
+            ObjectName parentName = getConfigurationObjectName(configuration.getId());
+            parentNames.add(parentName);
+        }
+        DependencyManager dependencyManager = this.kernel.getDependencyManager();
+        dependencyManager.addDependencies(this.objectName, parentNames);
+
+        // build configurationClassLoader
+        URL[] urls = buildClassPath();
+        log.debug("ClassPath for " + environment.getConfigId() + " resolved to " + Arrays.asList(urls));
+
+        if (parents.size() == 0) {
+            // no explicit parent set, so use the class loader of this class as
+            // the parent... this class should be in the root geronimo classloader,
+            // which is normally the system class loader but not always, so be safe
+            configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, getClass().getClassLoader());
+        } else {
+            configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, getParentClassLoaders());
+        }
+    }
+
+    private static Environment createEnvironment(Artifact id, Map nameKeys, Artifact[] parentIds, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses, List dependencies) {
+        Environment environment = new Environment();
+        environment.setConfigId(id);
+        if (nameKeys != null) {
+            environment.setProperties(nameKeys);
+        }
+        environment.setInverseClassLoading(inverseClassLoading);
+        if (hiddenClasses != null) {
+            environment.setHiddenClasses(Arrays.asList(hiddenClasses));
+        }
+
+        if (nonOverridableClasses != null) {
+            environment.setNonOverrideableClasses(Arrays.asList(nonOverridableClasses));
+        }
+
+        List deps = new ArrayList();
+        if (parentIds != null) {
+            deps.addAll(Arrays.asList(parentIds));
+        }
+        if (dependencies != null) {
+            deps.addAll(dependencies);
+        }
+        environment.setDependencies(deps);
+
+        return environment;
     }
 
     public String getObjectName() {
         return objectNameString;
-    }
-
-    public Map getNameKeys() {
-        return nameKeys;
-    }
-
-    public List getDependencies() {
-        return dependencies;
-    }
-
-    public void doStart() throws Exception {
-        // build configurationClassLoader
-        URL[] urls = resolveClassPath(classPath, baseURL, dependencies, repositories);
-        log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
-
-        if (parentId == null || parentId.length == 0) {
-            // no explicit parent set, so use the class loader of this class as
-            // the parent... this class should be in the root geronimo classloader,
-            // which is normally the system class loader but not always, so be safe
-            configurationClassLoader = new MultiParentClassLoader(id.toURI(), urls, getClass().getClassLoader(), inverseClassLoading, hiddenClasses, nonOverridableClasses);
-        } else {
-            configurationClassLoader = new MultiParentClassLoader(id.toURI(), urls, getClassLoaders(parentId), inverseClassLoading, hiddenClasses, nonOverridableClasses);
-        }
-
-        log.debug("Started configuration " + id);
     }
 
     public void loadGBeans(ManageableAttributeStore attributeStore) throws InvalidConfigException, GBeanAlreadyExistsException {
@@ -318,7 +336,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             Collection gbeans = loadGBeans();
             if (attributeStore != null) {
                 try {
-                    gbeans = attributeStore.setAttributes(id.toURI(), gbeans, configurationClassLoader);
+                    gbeans = attributeStore.setAttributes(environment.getConfigId().toURI(), gbeans, configurationClassLoader);
                 } catch (URISyntaxException e) {
                     throw new InvalidConfigException(e);
                 }
@@ -361,61 +379,40 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private void addParentDependencies(Kernel kernel, Artifact id, Artifact[] parentId) throws InvalidConfigException {
-        if (parentId != null && parentId.length > 0) {
-            ObjectName name = getConfigurationObjectName(id);
-            Set parentNames = new HashSet();
-            for (int i = 0; i < parentId.length; i++) {
-                Artifact artifact = parentId[i];
-                ObjectName parentName = getConfigurationObjectName(artifact);
-                parentNames.add(parentName);
-            }
-            DependencyManager dependencyManager = kernel.getDependencyManager();
-            dependencyManager.addDependencies(name, parentNames);
-        }
-    }
-
-    private ClassLoader[] getClassLoaders(Artifact[] parentId) throws Exception {
-        ClassLoader[] classLoaders = new ClassLoader[parentId.length];
-        for (int i = 0; i < parentId.length; i++) {
-            Artifact uri = parentId[i];
-            ObjectName parentName = getConfigurationObjectName(uri);
-            classLoaders[i] = (ClassLoader) kernel.getAttribute(parentName, "configurationClassLoader");
+    private ClassLoader[] getParentClassLoaders() throws Exception {
+        ClassLoader[] classLoaders = new ClassLoader[parents.size()];
+        for (ListIterator iterator = parents.listIterator(); iterator.hasNext();) {
+            Configuration configuration = (Configuration) iterator.next();
+            classLoaders[iterator.previousIndex()] = configuration.getConfigurationClassLoader();
         }
         return classLoaders;
     }
 
-    private static URL[] resolveClassPath(List classPath, URL baseURL, List dependencies, Collection repositories) throws MalformedURLException, MissingDependencyException {
-        if (classPath == null) {
-            classPath = Collections.EMPTY_LIST;
-        }
-        if (dependencies == null) {
-            dependencies = Collections.EMPTY_LIST;
-        }
-
-        URL[] urls = new URL[dependencies.size() + classPath.size()];
-        int idx = 0;
+    private URL[] buildClassPath() throws MalformedURLException, MissingDependencyException {
+        LinkedHashSet dependencies = environment.getDependencies();
+        List urls = new ArrayList(dependencies.size() + classPath.size());
         for (Iterator i = dependencies.iterator(); i.hasNext();) {
             Artifact artifact = (Artifact) i.next();
-            File file = null;
-            for (Iterator j = repositories.iterator(); j.hasNext();) {
-                Repository repository = (Repository) j.next();
-                if (repository.contains(artifact)) {
-                    file = repository.getLocation(artifact);
-                    break;
+            if (artifact.getType().equals("car")) {
+                File file = null;
+                for (Iterator j = repositories.iterator(); j.hasNext();) {
+                    Repository repository = (Repository) j.next();
+                    if (repository.contains(artifact)) {
+                        file = repository.getLocation(artifact);
+                        break;
+                    }
                 }
+                if (file == null) {
+                    throw new MissingDependencyException("Unable to resolve dependency " + artifact);
+                }
+                urls.add(file.toURL());
             }
-            if (file == null) {
-                throw new MissingDependencyException("Unable to resolve dependency " + artifact);
-            }
-            urls[idx++] = file.toURL();
         }
         for (Iterator i = classPath.iterator(); i.hasNext();) {
             URI uri = (URI) i.next();
-            urls[idx++] = new URL(baseURL, uri.toString());
+            urls.add(new URL(baseURL, uri.toString()));
         }
-        assert idx == urls.length;
-        return urls;
+        return (URL[]) urls.toArray(new URL[urls.size()]);
     }
 
     private static void setGBeanBaseUrl(GBeanData gbeanData, URL baseUrl) {
@@ -430,8 +427,16 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
+    public void doStart() throws Exception {
+        log.debug("Started configuration " + environment.getConfigId());
+    }
+
+    public void doFail() {
+        shutdown();
+    }
+
     public synchronized void doStop() throws Exception {
-        log.debug("Stopping configuration " + id);
+        log.debug("Stopping configuration " + environment.getConfigId());
         // shutdown the configuration and unload all beans
         shutdown();
 
@@ -462,19 +467,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    public void doFail() {
-        shutdown();
-    }
-
-    /**
-     * Return the unique id of this Configuration's parent
-     *
-     * @return the unique id of the parent, or null if it does not have one
-     */
-    public Artifact[] getParentId() {
-        return parentId;
-    }
-
     /**
      * Gets the parent configurations of this configuration.
      * @return the parents of this configuration
@@ -483,11 +475,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return parents;
     }
 
-    /**
-     * If true the configuration will search local dependencies for classes before searching parents.
-     */
-    public boolean isInverseClassLoading() {
-        return inverseClassLoading;
+    public Environment getEnvironment() {
+        return environment;
     }
 
     /**
@@ -496,7 +485,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @return the unique Id
      */
     public Artifact getId() {
-        return id;
+        return environment.getConfigId();
     }
 
     /**
@@ -514,14 +503,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public ClassLoader getConfigurationClassLoader() {
         return configurationClassLoader;
-    }
-
-    public String[] getHiddenClasses() {
-        return hiddenClasses;
-    }
-
-    public String[] getNonOverridableClasses() {
-        return nonOverridableClasses;
     }
 
     public synchronized boolean containsGBean(ObjectName gbean) {

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 
 import org.apache.geronimo.kernel.config.Configuration;
 
@@ -99,9 +100,10 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         for (Iterator iterator = parentConfigurations.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
 
-            if (configuration.isInverseClassLoading()) {
+            Environment environment = configuration.getEnvironment();
+            if (environment.isInverseClassLoading()) {
                 // Search dependencies of the configuration before searching the parents
-                List dependencies = configuration.getDependencies();
+                LinkedHashSet dependencies = environment.getDependencies();
                 Version version = getArtifactVersion(dependencies, groupId, artifactId, type);
                 if (version != null) {
                     return version;
@@ -121,7 +123,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
                 }
 
                 // wasn't declared in a parent check the dependencies of the configuration
-                List dependencies = configuration.getDependencies();
+                LinkedHashSet dependencies = environment.getDependencies();
                 version = getArtifactVersion(dependencies, groupId, artifactId, type);
                 if (version != null) {
                     return version;
@@ -131,7 +133,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return null;
     }
 
-    private Version getArtifactVersion(List artifacts, String groupId, String artifactId, String type) {
+    private Version getArtifactVersion(LinkedHashSet artifacts, String groupId, String artifactId, String type) {
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             if (groupId.equals(artifact.getGroupId()) &&

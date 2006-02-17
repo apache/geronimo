@@ -45,7 +45,7 @@ public class Environment {
     private final Set hiddenClasses = new HashSet();
     private final Set nonOverrideableClasses = new HashSet();
 
-    private boolean inverseClassloading;
+    private boolean inverseClassLoading;
     private boolean suppressDefaultEnvironment;
 
     public Environment() {
@@ -150,12 +150,12 @@ public class Environment {
         addNonOverrideableClasses(nonOverrideableClasses);
     }
 
-    public boolean isInverseClassloading() {
-        return inverseClassloading;
+    public boolean isInverseClassLoading() {
+        return inverseClassLoading;
     }
 
-    public void setInverseClassloading(boolean inverseClassloading) {
-        this.inverseClassloading = inverseClassloading;
+    public void setInverseClassLoading(boolean inverseClassLoading) {
+        this.inverseClassLoading = inverseClassLoading;
     }
 
     public boolean isSuppressDefaultEnvironment() {

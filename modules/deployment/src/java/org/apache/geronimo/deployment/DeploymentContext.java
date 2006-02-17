@@ -168,11 +168,12 @@ public class DeploymentContext {
                             parentName = configurationManager.load(parent);
                             loaded = true;
                         }
-                        String[] nonOverridableClasses = (String[]) kernel.getAttribute(parentName, "nonOverridableClasses");
-                        if (null != nonOverridableClasses) {
-                            for (int i = 0; i < nonOverridableClasses.length; i++) {
-                                inherited.add(nonOverridableClasses[i]);
-                            }
+
+                        Environment environment = (Environment) kernel.getAttribute(parentName, "environment");
+                        Set nonOverridableClasses = environment.getNonOverrideableClasses();
+                        for (Iterator iterator1 = nonOverridableClasses.iterator(); iterator1.hasNext();) {
+                            String nonOverridableClass = (String) iterator1.next();
+                            inherited.add(nonOverridableClass);
                         }
                     } finally {
                         if (loaded) {
@@ -620,11 +621,7 @@ public class DeploymentContext {
         filter = configurationData.getNonOverridableClasses();
         String[] nonOverridableFilter = (String[]) filter.toArray(new String[0]);
 
-        try {
-            return new MultiParentClassLoader(configurationData.getId().toURI(), urls, parentCL, inverseClassloading, hiddenFilter, nonOverridableFilter);
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
-        }
+        return new MultiParentClassLoader(configurationData.getId(), urls, parentCL, inverseClassloading, hiddenFilter, nonOverridableFilter);
     }
 
     public void close() throws IOException, DeploymentException {

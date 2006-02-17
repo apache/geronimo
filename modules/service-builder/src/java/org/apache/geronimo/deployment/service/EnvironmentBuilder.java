@@ -96,7 +96,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             environment.setReferences(references);
 
         }
-        environment.setInverseClassloading(environmentType.isSetInverseClassloading());
+        environment.setInverseClassLoading(environmentType.isSetInverseClassloading());
         environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
         environment.setHiddenClasses(toFilters(environmentType.getHiddenClassesArray()));
         environment.setNonOverrideableClasses(toFilters(environmentType.getNonOverridableClassesArray()));
@@ -110,7 +110,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             environment.addImports(additionalEnvironment.getImports());
             environment.addDependencies(additionalEnvironment.getDependencies());
             environment.addIncludes(additionalEnvironment.getIncludes());
-            environment.setInverseClassloading(environment.isInverseClassloading() || additionalEnvironment.isInverseClassloading());
+            environment.setInverseClassLoading(environment.isInverseClassLoading() || additionalEnvironment.isInverseClassLoading());
             environment.setSuppressDefaultEnvironment(environment.isSuppressDefaultEnvironment() || additionalEnvironment.isSuppressDefaultEnvironment());
             environment.addHiddenClasses(additionalEnvironment.getHiddenClasses());
             environment.addNonOverrideableClasses(additionalEnvironment.getNonOverrideableClasses());
@@ -148,7 +148,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         ArtifactType[] artifactTypes = (ArtifactType[]) dependencies.toArray(new ArtifactType[dependencies.size()]);
         DependenciesType dependenciesType = environmentType.addNewDependencies();
         dependenciesType.setDependencyArray(artifactTypes);
-        if (environment.isInverseClassloading()) {
+        if (environment.isInverseClassLoading()) {
             environmentType.addNewInverseClassloading();
         }
         if (environment.isSuppressDefaultEnvironment()) {

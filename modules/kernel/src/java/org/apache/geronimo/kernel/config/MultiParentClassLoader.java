@@ -16,23 +16,25 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import org.apache.commons.logging.LogFactory;
-
 import java.beans.Introspector;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * A MultiParentClassLoader is a simple extension of the URLClassLoader that simply changes the single parent class
@@ -43,7 +45,7 @@ import java.util.Map;
  * @version $Rev$ $Date$
  */
 public class MultiParentClassLoader extends URLClassLoader {
-    private final URI id;
+    private final Artifact id;
     private final ClassLoader[] parents;
     private final boolean inverseClassLoading;
     private final String[] hiddenClasses;
@@ -54,7 +56,7 @@ public class MultiParentClassLoader extends URLClassLoader {
      * @param id the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      */
-    public MultiParentClassLoader(URI id, URL[] urls) {
+    public MultiParentClassLoader(Artifact id, URL[] urls) {
         super(urls);
         this.id = id;
         parents = new ClassLoader[0];
@@ -63,18 +65,37 @@ public class MultiParentClassLoader extends URLClassLoader {
         nonOverridableClasses = new String[0];
     }
 
+
     /**
      * Creates a named class loader as a child of the specified parent.
      * @param id the id of this class loader
      * @param urls the urls from which this class loader will classes and resources
      * @param parent the parent of this class loader
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent) {
         this(id, urls, new ClassLoader[] {parent});
     }
 
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
         this(id, urls, new ClassLoader[] {parent}, inverseClassLoading, hiddenClasses, nonOverridableClasses);
+    }
+
+    public MultiParentClassLoader(Environment environment, URL[] urls, ClassLoader parent) {
+        this(environment.getConfigId(),
+                urls,
+                new ClassLoader[] {parent},
+                environment.isInverseClassLoading(),
+                environment.getHiddenClasses(),
+                environment.getNonOverrideableClasses());
+    }
+
+    public MultiParentClassLoader(Environment environment, URL[] urls, ClassLoader[] parents) {
+        this(environment.getConfigId(),
+                urls,
+                parents,
+                environment.isInverseClassLoading(),
+                environment.getHiddenClasses(),
+                environment.getNonOverrideableClasses());
     }
 
     /**
@@ -85,7 +106,7 @@ public class MultiParentClassLoader extends URLClassLoader {
      * @param parent the parent of this class loader
      * @param factory the URLStreamHandlerFactory used to access the urls
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
         this(id, urls, new ClassLoader[] {parent}, factory);
     }
 
@@ -95,7 +116,7 @@ public class MultiParentClassLoader extends URLClassLoader {
      * @param urls the urls from which this class loader will classes and resources
      * @param parents the parents of this class loader
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents) {
         super(urls);
         this.id = id;
         this.parents = copyParents(parents);
@@ -104,7 +125,16 @@ public class MultiParentClassLoader extends URLClassLoader {
         nonOverridableClasses = new String[0];
     }
 
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, Collection hiddenClasses, Collection nonOverridableClasses) {
+        super(urls, new FilteringParentCL((String[]) hiddenClasses.toArray(new String[hiddenClasses.size()])));
+        this.id = id;
+        this.parents = copyParents(parents);
+        this.inverseClassLoading = inverseClassLoading;
+        this.hiddenClasses = (String[]) hiddenClasses.toArray(new String[hiddenClasses.size()]);
+        this.nonOverridableClasses = (String[]) nonOverridableClasses.toArray(new String[nonOverridableClasses.size()]);
+    }
+
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, boolean inverseClassLoading, String[] hiddenClasses, String[] nonOverridableClasses) {
         super(urls, new FilteringParentCL(hiddenClasses));
         this.id = id;
         this.parents = copyParents(parents);
@@ -121,7 +151,7 @@ public class MultiParentClassLoader extends URLClassLoader {
      * @param parents the parents of this class loader
      * @param factory the URLStreamHandlerFactory used to access the urls
      */
-    public MultiParentClassLoader(URI id, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
+    public MultiParentClassLoader(Artifact id, URL[] urls, ClassLoader[] parents, URLStreamHandlerFactory factory) {
         super(urls, null, factory);
         this.id = id;
         this.parents = copyParents(parents);
@@ -146,7 +176,7 @@ public class MultiParentClassLoader extends URLClassLoader {
      * Gets the id of this class loader.
      * @return the id of this class loader
      */
-    public URI getId() {
+    public Artifact getId() {
         return id;
     }
 
@@ -204,11 +234,11 @@ public class MultiParentClassLoader extends URLClassLoader {
                 }
             }
         }
-        
+
         if (null == clazz) {
             return super.loadClass(name, resolve);
         }
-        
+
         if (resolve) {
             resolveClass(clazz);
         }
@@ -217,20 +247,20 @@ public class MultiParentClassLoader extends URLClassLoader {
 
     public URL getResource(String name) {
         URL url = null;
-        
+
         if (inverseClassLoading) {
             url = super.getResource(name);
             if (null != url) {
                 return url;
             }
         }
-        
+
         for (int i = 0; i < parents.length && url == null; i++) {
             ClassLoader parent = parents[i];
             url = parent.getResource(name);
         }
 
-        if (url == null && false == inverseClassLoading) {
+        if (url == null && !inverseClassLoading) {
             // parents didn't have the resource; attempt to load it from my urls
             return super.getResource(name);
         } else {
@@ -279,7 +309,7 @@ public class MultiParentClassLoader extends URLClassLoader {
         public FilteringParentCL(String[] hiddenClasses) {
             this.hiddenClasses = hiddenClasses;
         }
-        
+
         protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
             boolean checkParents = true;
             for (int i = 0; i < hiddenClasses.length && checkParents; i++) {
@@ -287,7 +317,7 @@ public class MultiParentClassLoader extends URLClassLoader {
                     checkParents = false;
                 }
             }
-            
+
             if (checkParents) {
                 return super.loadClass(name, resolve);
             }
@@ -295,8 +325,8 @@ public class MultiParentClassLoader extends URLClassLoader {
             throw new ClassNotFoundException(name);
         }
     }
-    
-    private static Object lock = new Object();
+
+    private static final Object lock = new Object();
     private static boolean clearSoftCacheFailed = false;
     private static void clearSoftCache(Class clazz, String fieldName) {
         Map cache = null;
@@ -319,5 +349,5 @@ public class MultiParentClassLoader extends URLClassLoader {
             }
         }
     }
-    
+
 }
