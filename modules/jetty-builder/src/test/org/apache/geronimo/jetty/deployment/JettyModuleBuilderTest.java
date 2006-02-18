@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -121,6 +120,7 @@ public class JettyModuleBuilderTest extends TestCase {
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
         EARContext earContext = createEARContext(outputPath, defaultEnvironment);
+        module.setEarContext(earContext);
         ObjectName serverName = earContext.getServerObjectName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
@@ -362,7 +362,7 @@ public class JettyModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
+        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
@@ -398,7 +398,7 @@ public class JettyModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public File createNewConfigurationDir() {
+        public File createNewConfigurationDir(Artifact configId) {
             return null;
         }
 

@@ -167,22 +167,14 @@ public class PlanProcessor {
                 Environment oldEnvironment = null;
                 if (childName.equals(ENVIRONMENT_QNAME)) {
                     XmlObject xmlObject = xmlCursor.getObject();
-                    System.out.println("Expected EnvironmentType, actual: " + xmlObject.getClass().getName());
-                    System.out.println(xmlObject.toString());
                     EnvironmentType environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
                     oldEnvironment = EnvironmentBuilder.buildEnvironment(environmentType);
                     xmlCursor.removeXml();
                 } else {
-                    xmlCursor.beginElement(ENVIRONMENT_QNAME);
-                    XmlCursor element = EnvironmentType.Factory.newInstance().newCursor();
-                    try {
-                        element.copyXmlContents(xmlCursor);
-                    } finally {
-                        element.dispose();
-                    }
+                    oldEnvironment = new Environment();
                 }
 
-                   org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car");
+                org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car");
 
                 Collection imports = toArtifacts(IMPORT_PROPERTY);
 //                Collection includes = toArtifacts(INCLUDE_PROPERTY);

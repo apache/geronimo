@@ -82,6 +82,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
@@ -234,7 +235,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return new ConnectorModule(standAlone, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore) throws DeploymentException {
         GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
         try {
             JarFile moduleFile = module.getModuleFile();

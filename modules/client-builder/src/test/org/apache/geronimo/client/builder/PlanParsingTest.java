@@ -19,7 +19,7 @@ public class PlanParsingTest extends TestCase {
     File basedir = new File(System.getProperty("basedir", "."));
 
     protected void setUp() throws Exception {
-        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null, null, null, null);
+        builder = new AppClientModuleBuilder(new Environment(), null, null, null, null, null, null, null, null, null, null);
     }
 
     public void testResourceRef() throws Exception {

@@ -48,11 +48,10 @@ public interface ConfigurationStore {
      * Move the unpacked configuration directory into this store
      *
      * @param configurationData the configuration data
-     * @param source the directory which contains a contiguration
      * @throws IOException if the direcotyr could not be moved into the store
      * @throws InvalidConfigException if there is a configuration problem within the source direcotry
      */
-    void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException;
+    void install(ConfigurationData configurationData) throws IOException, InvalidConfigException;
 
     /**
      * Removes a configuration from the store
@@ -94,7 +93,7 @@ public interface ConfigurationStore {
      */
     List listConfigurations();
 
-    File createNewConfigurationDir();
+    File createNewConfigurationDir(Artifact configId);
 
     /**
      * Locate the classpath component for the supplied uri in the given artifact

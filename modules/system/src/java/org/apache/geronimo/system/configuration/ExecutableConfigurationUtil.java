@@ -48,7 +48,8 @@ public final class ExecutableConfigurationUtil {
     private ExecutableConfigurationUtil() {
     }
 
-    public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File configurationDir, File destinationFile) throws IOException, InvalidConfigException {
+    public static void createExecutableConfiguration(ConfigurationData configurationData, Manifest manifest, File destinationFile) throws IOException, InvalidConfigException {
+        File configurationDir = configurationData.getConfigurationDir();
         JarOutputStream out = null;
         try {
             byte[] buffer = new byte[4096];

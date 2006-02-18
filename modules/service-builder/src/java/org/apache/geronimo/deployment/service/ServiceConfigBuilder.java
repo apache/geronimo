@@ -41,6 +41,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
@@ -79,7 +80,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     private static final Map xmlReferenceBuilderMap = new HashMap();
     private Map attrRefMap;
     private Map refRefMap;
-    private static final QName SERVICE_QNAME = new QName("http://geronimo.apache.org/xml/ns/deployment-1.0", "configuration");
+    private static final QName SERVICE_QNAME = ConfigurationDocument.type.getDocumentElementName();
 
 
     public ServiceConfigBuilder(Environment defaultEnvironment, Repository repository) {
@@ -147,29 +148,25 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+    public Artifact getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
         EnvironmentType environmentType = configType.getEnvironment();
+        //TODO default id based on name?
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        Artifact configId = environment.getConfigId();
-        try {
-            return configId.toURI();
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Invalid configId " + configId, e);
-        }
+        return environment.getConfigId();
     }
 
-    public ConfigurationData buildConfiguration(Object plan, JarFile unused, File outfile) throws IOException, DeploymentException {
+    public ConfigurationData buildConfiguration(Object plan, JarFile unused, ConfigurationStore configurationStore) throws IOException, DeploymentException {
         ConfigurationType configType = (ConfigurationType) plan;
 
-        return buildConfiguration(configType, outfile);
+        return buildConfiguration(configType, configurationStore);
     }
 
-    public ConfigurationData buildConfiguration(ConfigurationType configurationType, File outfile) throws DeploymentException, IOException {
+    public ConfigurationData buildConfiguration(ConfigurationType configurationType, ConfigurationStore configurationStore) throws DeploymentException, IOException {
 
         Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
-
-
+        Artifact configId = environment.getConfigId();
+        File outfile = configurationStore.createNewConfigurationDir(configId);
         DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, kernel);
         ClassLoader cl = context.getClassLoader(repository);
 

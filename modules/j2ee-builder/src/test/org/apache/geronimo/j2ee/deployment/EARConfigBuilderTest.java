@@ -52,6 +52,7 @@ import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 
 /**
@@ -62,6 +63,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     private static String WEB_NAMESPACE="foo";
     private static JarFile earFile;
+    private static MockConfigStore configStore = new MockConfigStore(null);
     private static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
     private static MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
     private static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
@@ -249,13 +251,14 @@ public class EARConfigBuilderTest extends TestCase {
 
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, kernel);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
             kernel.shutdown();
         }
     }
@@ -263,120 +266,127 @@ public class EARConfigBuilderTest extends TestCase {
     public void testBadEJBJARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-ejb-jar.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if(e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testBadWARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-war.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if(e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testBadRARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-rar.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if(e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testBadCARConfiguration() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, ejbConfigBuilder, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(new File(basedir, "target/plans/test-bad-car.xml"), earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             if(e.getCause() instanceof IOException) {
                 fail("Should not be complaining about bad vendor DD for invalid module entry");
             }
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testNoEJBDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, null, null, webConfigBuilder, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testNoWARDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, null, null, connectorConfigBuilder, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
     public void testNoConnectorDeployer() throws Exception {
         EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId, transactionManagerObjectName, connectionTrackerObjectName, transactionalTimerObjectName, nonTransactionalTimerObjectName, null, null, ejbConfigBuilder, null, webConfigBuilder, null, resourceReferenceBuilder, appClientConfigBuilder, serviceReferenceBuilder, null);
 
-        File tempDir = null;
+        ConfigurationData configurationData = null;
         try {
-            tempDir = DeploymentUtil.createTempDir();
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
-            configBuilder.buildConfiguration(plan, earFile, tempDir);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
             fail("Should have thrown a DeploymentException");
         } catch (DeploymentException e) {
             // expected
         } finally {
-            DeploymentUtil.recursiveDelete(tempDir);
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
         }
     }
 
@@ -385,9 +395,9 @@ public class EARConfigBuilderTest extends TestCase {
             module.close();
         }
     }
-
     public static class MockConfigStore implements ConfigurationStore {
         private final Kernel kernel;
+        private final Map locations = new HashMap();
 
         public MockConfigStore(Kernel kernel) {
             this.kernel = kernel;
@@ -397,7 +407,7 @@ public class EARConfigBuilderTest extends TestCase {
             return null;
         }
 
-        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
+        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
@@ -433,12 +443,22 @@ public class EARConfigBuilderTest extends TestCase {
             return null;
         }
 
-        public File createNewConfigurationDir() {
-            return null;
+        public File createNewConfigurationDir(Artifact configId) {
+            try {
+                File file = DeploymentUtil.createTempDir();
+                locations.put(configId, file);
+                return file;
+            } catch (IOException e) {
+                return null;
+            }
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return null;
+            File file = (File) locations.get(configId);
+            if (file == null) {
+                throw new NoSuchConfigException("nothing for configid " + configId);
+            }
+            return new URL(file.toURL(), uri.toString());
         }
 
         public final static GBeanInfo GBEAN_INFO;
@@ -462,4 +482,5 @@ public class EARConfigBuilderTest extends TestCase {
             }
         }
     }
+
 }

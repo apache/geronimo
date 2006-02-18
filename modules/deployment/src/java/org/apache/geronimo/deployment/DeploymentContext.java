@@ -125,7 +125,8 @@ public class DeploymentContext {
             }
             try {
                 ObjectName parentName = Configuration.getConfigurationObjectName(parent);
-                environment.setProperties((Map) kernel.getAttribute(parentName, "properties"));
+                Environment environment = (Environment) kernel.getAttribute(parentName, "environment");
+                this.environment.setProperties(environment.getProperties());
             } catch (Exception e) {
                 throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
             } finally {
@@ -564,7 +565,7 @@ public class DeploymentContext {
                             return null;
                         }
 
-                        public void install(ConfigurationData configurationData, File source) {
+                        public void install(ConfigurationData configurationData) {
                         }
 
                         public void uninstall(Artifact configID) {
@@ -586,7 +587,7 @@ public class DeploymentContext {
                             return null;
                         }
 
-                        public File createNewConfigurationDir() {
+                        public File createNewConfigurationDir(Artifact configId) {
                             return null;
                         }
 
@@ -630,7 +631,7 @@ public class DeploymentContext {
     }
 
     public ConfigurationData getConfigurationData() {
-        ConfigurationData configurationData = new ConfigurationData(moduleType, classpath, Arrays.asList(gbeans.getGBeans()), childConfigurationDatas, environment);
+        ConfigurationData configurationData = new ConfigurationData(moduleType, classpath, Arrays.asList(gbeans.getGBeans()), childConfigurationDatas, environment, baseDir);
         return configurationData;
     }
 

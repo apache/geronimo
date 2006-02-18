@@ -145,7 +145,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
                     new LinkedHashSet(),
                     gbeans,
                     Collections.EMPTY_LIST,
-                    environment);
+                    environment, configurationDir);
 
             //saves it.
             //deploymentContext.close();

@@ -500,7 +500,7 @@ public class TomcatModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
+        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
@@ -536,7 +536,7 @@ public class TomcatModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public File createNewConfigurationDir() {
+        public File createNewConfigurationDir(Artifact configId) {
             return null;
         }
 

@@ -27,6 +27,7 @@ import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 
 /**
  * @version $Rev$ $Date$
@@ -44,7 +45,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         return new ConnectorModule(false, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module connectorModule) {
+    public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, ConfigurationStore configurationStore) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;

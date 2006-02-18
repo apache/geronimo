@@ -24,6 +24,7 @@ import java.util.Map;
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 
 /**
  * @version $Rev$ $Date$
@@ -44,7 +45,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return new WebModule(false, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module webModule) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module webModule, ConfigurationStore configurationStore) throws DeploymentException {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;

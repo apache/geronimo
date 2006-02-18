@@ -104,7 +104,7 @@ public class MavenConfigStore implements ConfigurationStore {
         return repository.contains(configID);
     }
 
-    public File createNewConfigurationDir() {
+    public File createNewConfigurationDir(Artifact configId) {
         try {
             File tmpFile = File.createTempFile("package", ".tmpdir");
             tmpFile.delete();
@@ -112,6 +112,9 @@ public class MavenConfigStore implements ConfigurationStore {
             if (!tmpFile.isDirectory()) {
                 return null;
             }
+            // create the meta-inf dir
+            File metaInf = new File(tmpFile, "META-INF");
+            metaInf.mkdirs();
             return tmpFile;
         } catch (IOException e) {
             // doh why can't I throw this?
@@ -128,13 +131,14 @@ public class MavenConfigStore implements ConfigurationStore {
         throw new UnsupportedOperationException();
     }
 
-    public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
+    public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+        File source = configurationData.getConfigurationDir();
         if (!source.isDirectory()) {
             throw new InvalidConfigException("Source must be a directory: source=" + source);
         }
         Artifact configId = configurationData.getId();
         File targetFile =repository.getLocation(configId);
-        ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, source, targetFile);
+        ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, targetFile);
     }
 
     public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {

@@ -45,6 +45,8 @@ public abstract class Module {
     private final String originalSpecDD;
     private final String namespace;
 
+    private EARContext earContext;
+
     private URI uniqueModuleLocation;
 
     protected Module(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) throws DeploymentException {
@@ -60,12 +62,7 @@ public abstract class Module {
         this.namespace = namespace;
 
         if (standAlone) {
-            //TODO configid
-            try {
-                name = environment.getConfigId().toURI().toString();
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Could not construct module name from environment configId");
-            }
+            name = environment.getConfigId().toString();
             moduleURI = URI.create("");
         } else {
             name = targetPath;
@@ -160,6 +157,14 @@ public abstract class Module {
             uniqueModuleLocation = candidateURI;
         }
         return uniqueModuleLocation;
+    }
+
+    public EARContext getEarContext() {
+        return earContext;
+    }
+
+    public void setEarContext(EARContext earContext) {
+        this.earContext = earContext;
     }
 
     public abstract void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException;

@@ -19,15 +19,12 @@
 <configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <environment>
-        <name-key>
-            <key>domain</key>
-            <value>geronimo.maven</value>
-        </name-key>
-        <name-key>
-            <key>J2EEServer</key>
-            <value>geronimo</value>
-        </name-key>
-        <classloader></classloader>
+        <properties>
+            <property>
+                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
+                <value>geronimo.maven:J2EEServer=geronimo</value>
+            </property>
+        </properties>
     </environment>
 
     <!-- Deployer used to process modules and plans -->

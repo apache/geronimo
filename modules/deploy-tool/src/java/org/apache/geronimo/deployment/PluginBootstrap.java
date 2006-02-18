@@ -18,14 +18,25 @@ package org.apache.geronimo.deployment;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.jar.JarOutputStream;
+import java.util.List;
+import java.net.URL;
+import java.net.URI;
+import java.net.MalformedURLException;
 
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
+
+import javax.management.ObjectName;
 
 /**
  * @version $Rev$ $Date$
@@ -57,7 +68,42 @@ public class PluginBootstrap {
 
         Maven1Repository repository = new Maven1Repository(localRepo);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository);
-        ConfigurationData configurationData = builder.buildConfiguration(config, null, buildDir);
+        ConfigurationData configurationData = builder.buildConfiguration(config, null, new ConfigurationStore() {
+
+            public Artifact install(URL source) throws IOException, InvalidConfigException {
+                return null;
+            }
+
+            public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+            }
+
+            public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
+            }
+
+            public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+                return null;
+            }
+
+            public boolean containsConfiguration(Artifact configID) {
+                return false;
+            }
+
+            public String getObjectName() {
+                return null;
+            }
+
+            public List listConfigurations() {
+                return null;
+            }
+
+            public File createNewConfigurationDir(Artifact configId) {
+                return buildDir;
+            }
+
+            public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+                return null;
+            }
+        });
 
         JarOutputStream out = new JarOutputStream(new FileOutputStream(carFile));
         ExecutableConfigurationUtil.writeConfiguration(configurationData, out);

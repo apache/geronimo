@@ -28,6 +28,7 @@ import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 
 
 /**
@@ -46,7 +47,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return new EJBModule(false, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule) {
+    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule, ConfigurationStore configurationStore) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;

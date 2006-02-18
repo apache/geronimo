@@ -28,6 +28,7 @@ import java.util.jar.JarFile;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
@@ -142,10 +143,10 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.installModule(earFile, earContext, module);
+        builder.installModule(earFile, earContext, module, configurationStore);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {

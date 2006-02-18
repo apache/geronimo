@@ -72,7 +72,6 @@ import java.net.URLClassLoader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +90,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     private int defaultBlockingTimeoutMilliseconds = 5000;
     private int defaultidleTimeoutMinutes = 15;
     private Environment defaultEnvironment;
+    private ConfigurationStore configurationStore = new MockConfigStore(null);
     private Repository repository = new Repository() {
         public boolean contains(Artifact artifact) {
             return false;
@@ -185,14 +185,15 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
             EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
-            File tempDir = null;
+            ConfigurationData configData = null;
             try {
-                tempDir = DeploymentUtil.createTempDir();
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
                 Object plan = configBuilder.getDeploymentPlan(planFile, rarFile);
-                configBuilder.buildConfiguration(plan, rarFile, tempDir);
+                configData = configBuilder.buildConfiguration(plan, rarFile, configurationStore);
             } finally {
-                DeploymentUtil.recursiveDelete(tempDir);
+                if (configData != null) {
+                    DeploymentUtil.recursiveDelete(configData.getConfigurationDir());
+                }
             }
         } finally {
             kernel.shutdown();
@@ -357,7 +358,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         moduleBuilder,
                         serviceReferenceBuilder, kernel));
 
-                action.install(moduleBuilder, earContext, module);
+                action.install(moduleBuilder, earContext, module, configurationStore);
                 earContext.getClassLoader(null);
                 moduleBuilder.initContext(earContext, module, cl);
                 moduleBuilder.addGBeans(earContext, module, cl);
@@ -575,8 +576,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
         public abstract File getRARFile();
 
-        public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module) throws Exception {
-            moduleBuilder.installModule(module.getModuleFile(), earContext, module);
+        public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module, ConfigurationStore configurationStore) throws Exception {
+            moduleBuilder.installModule(module.getModuleFile(), earContext, module, configurationStore);
         }
     }
 
@@ -591,7 +592,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
+        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
@@ -627,8 +628,12 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public File createNewConfigurationDir() {
-            return null;
+        public File createNewConfigurationDir(Artifact configId) {
+            try {
+                return DeploymentUtil.createTempDir();
+            } catch (IOException e) {
+                return null;
+            }
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {

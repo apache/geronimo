@@ -208,7 +208,13 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
-    public File createNewConfigurationDir() {
+    /**
+     * we don't use the configId to locate the target directory.  Some callers send null.
+     *
+     * @param configId
+     * @return directory to put the new configuration into, unpacked.
+     */
+    public File createNewConfigurationDir(Artifact configId) {
         // loop until we find a directory that doesn't alredy exist
         // this can happen when a deployment fails (leaving an bad directory)
         // and the server reboots without saving out the index.propreties file
@@ -222,6 +228,9 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             configurationDir = new File(rootDir, newId);
         } while (configurationDir.exists());
         configurationDir.mkdir();
+        // create the meta-inf dir
+        File metaInf = new File(configurationDir, "META-INF");
+        metaInf.mkdirs();
         return configurationDir;
     }
 
@@ -234,7 +243,8 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
     }
 
     public GBeanData install2(URL source) throws IOException, InvalidConfigException {
-        File configurationDir = createNewConfigurationDir();
+        //this  implementation doesn't use the artifactId to locate the target
+        File configurationDir = createNewConfigurationDir(null);
 
         InputStream is = source.openStream();
         try {
@@ -265,7 +275,8 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return config;
     }
 
-    public void install(ConfigurationData configurationData, File source) throws IOException, InvalidConfigException {
+    public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+        File source = configurationData.getConfigurationDir();
         if (!source.isDirectory()) {
             throw new InvalidConfigException("Source must be a directory: source=" + source);
         }

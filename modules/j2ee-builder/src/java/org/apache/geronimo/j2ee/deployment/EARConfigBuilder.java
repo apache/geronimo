@@ -56,6 +56,7 @@ import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -277,24 +278,23 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         return gerApplication;
     }
 
-    public URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
+    public Artifact getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException {
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
-        try {
-            return applicationInfo.getEnvironment().getConfigId().toURI();
-        } catch (URISyntaxException e) {
-            throw new DeploymentException(e);
-        }
+        return applicationInfo.getEnvironment().getConfigId();
     }
 
-    public ConfigurationData buildConfiguration(Object plan, JarFile earFile, File outfile) throws IOException, DeploymentException {
+    public ConfigurationData buildConfiguration(Object plan, JarFile earFile, ConfigurationStore configurationStore) throws IOException, DeploymentException {
         assert plan != null;
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         try {
             // Create the output ear context
             EARContext earContext = null;
             ConfigurationModuleType applicationType = applicationInfo.getType();
+            Environment environment = applicationInfo.getEnvironment();
+            Artifact configId = environment.getConfigId();
+            File configurationDir = configurationStore.createNewConfigurationDir(configId);
             try {
-                earContext = new EARContext(outfile,
+                earContext = new EARContext(configurationDir,
                         applicationInfo.getEnvironment(),
                         applicationType,
                         kernel,
@@ -326,7 +326,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).installModule(earFile, earContext, module);
+                getBuilder(module).installModule(earFile, earContext, module, configurationStore);
             }
 
             // give each module a chance to populate the earContext now that a classloader is available
@@ -357,7 +357,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 gbeanData.setReferencePattern("j2eeServer", earContext.getServerObjectName());
                 earContext.addGBean(gbeanData);
             }
-
 
             //TODO this might need to be constructed only if there is security...
             ObjectName jaccBeanName = null;
@@ -456,7 +455,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         altVendorDDs.put(path, anys[0]);
                     }
                 }
-
 
                 // get a set containing all of the files in the ear that are actually modules
                 for (int i = 0; i < moduleTypes.length; i++) {
@@ -694,21 +692,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         infoFactory.addInterface(ConfigurationBuilder.class);
 
         infoFactory.setConstructor(new String[]{
-            "defaultEnvironment",
-            "transactionContextManagerObjectName",
-            "connectionTrackerObjectName",
-            "transactionalTimerObjectName",
-            "nonTransactionalTimerObjectName",
-            "corbaGBeanObjectName",
-            "Repository",
-            "EJBConfigBuilder",
-            "EJBReferenceBuilder",
-            "WebConfigBuilder",
-            "ConnectorConfigBuilder",
-            "ResourceReferenceBuilder",
-            "AppClientConfigBuilder",
-            "ServiceReferenceBuilder",
-            "kernel"
+                "defaultEnvironment",
+                "transactionContextManagerObjectName",
+                "connectionTrackerObjectName",
+                "transactionalTimerObjectName",
+                "nonTransactionalTimerObjectName",
+                "corbaGBeanObjectName",
+                "Repository",
+                "EJBConfigBuilder",
+                "EJBReferenceBuilder",
+                "WebConfigBuilder",
+                "ConnectorConfigBuilder",
+                "ResourceReferenceBuilder",
+                "AppClientConfigBuilder",
+                "ServiceReferenceBuilder",
+                "kernel"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

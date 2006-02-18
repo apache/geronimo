@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.io.File;
 
 /**
  * @version $Rev$ $Date$
@@ -53,12 +54,15 @@ public class ConfigurationData {
 
     private final Environment environment;
 
-    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment) {
+    private final File configurationDir;
+
+    public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment, File configurationDir) {
         this.moduleType = moduleType;
         this.classPath = classPath;
         this.gbeans = gbeans;
         this.childConfigurations = childConfigurations;
         this.environment = environment;
+        this.configurationDir = configurationDir;
     }
 
     public Artifact getId() {
@@ -83,6 +87,10 @@ public class ConfigurationData {
 
     public Environment getEnvironment() {
         return environment;
+    }
+
+    public File getConfigurationDir() {
+        return configurationDir;
     }
 
 }

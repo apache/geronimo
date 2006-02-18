@@ -20,10 +20,11 @@ package org.apache.geronimo.deployment;
 import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarFile;
-import java.net.URI;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -47,17 +48,17 @@ public interface ConfigurationBuilder {
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    URI getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException;
+    Artifact getConfigurationID(Object plan, JarFile module) throws IOException, DeploymentException;
 
     /**
      * Build a configuration from a local file
      *
      * @param plan the deployment plan
      * @param module the module to build
-     * @param outfile the file in which the configiguration files should be written
+     * @param configurationStore
      * @return the Configuration information
      * @throws IOException if there was a problem reading or writing the files
      * @throws org.apache.geronimo.common.DeploymentException if there was a problem with the configuration
      */
-    ConfigurationData buildConfiguration(Object plan, JarFile module, File outfile) throws IOException, DeploymentException;
+    ConfigurationData buildConfiguration(Object plan, JarFile module, ConfigurationStore configurationStore) throws IOException, DeploymentException;
 }

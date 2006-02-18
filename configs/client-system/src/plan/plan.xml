@@ -18,20 +18,18 @@
 
 
 <!--
-Configuration for the innermost ring of a Geronimo server.
-This configuration should only contain critical services needed to
-run other Configurations - for example, the ServerInfo, Logging
-and Repository services used to load them.
-
-This configuration should *NOT* be used to provide server or application
-specific services - those should be provided by children.
+Configuration for root app client
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    domain="geronimo.client"
-    server="client"
-    >
+    <environment>
+        <properties>
+            <property>
+                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
+                <value>geronimo.client:J2EEServer=client</value>
+            </property>
+        </properties>
+    </environment>
 
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>

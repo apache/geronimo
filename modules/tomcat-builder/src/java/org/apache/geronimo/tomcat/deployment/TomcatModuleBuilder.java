@@ -67,6 +67,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.StoredObject;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
@@ -315,7 +316,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         return tomcatWebApp;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore) throws DeploymentException {
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) module.getVendorDD();
 
         try {

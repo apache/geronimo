@@ -103,6 +103,10 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
     public static void mergeEnvironments(Environment environment, Environment additionalEnvironment) {
         if (additionalEnvironment != null) {
+            //TODO merge configIds??
+            if (environment.getConfigId() == null){
+                environment.setConfigId(additionalEnvironment.getConfigId());
+            }
             environment.addProperties(additionalEnvironment.getProperties());
             environment.addImports(additionalEnvironment.getImports());
             environment.addDependencies(additionalEnvironment.getDependencies());

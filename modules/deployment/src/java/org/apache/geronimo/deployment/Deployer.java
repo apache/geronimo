@@ -30,13 +30,13 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.main.CommandLineManifest;
 
 import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -220,7 +220,7 @@ public class Deployer {
             }
         }
 
-        File configurationDir = null;
+//        File configurationDir = null;
         try {
             Object plan = null;
             ConfigurationBuilder builder = null;
@@ -239,7 +239,7 @@ public class Deployer {
             }
 
             // Make sure this configuration doesn't already exist
-            URI configID = builder.getConfigurationID(plan, module);
+            Artifact configID = builder.getConfigurationID(plan, module);
             try {
                 kernel.getGBeanState(Configuration.getConfigurationObjectName(configID));
                 throw new DeploymentException("Module "+configID+" already exists in the server.  Try to undeploy it first or use the redeploy command.");
@@ -271,40 +271,40 @@ public class Deployer {
 
 //TODO this is ludicrous!  give the builder a location factory!
             // create a configuration dir to write the configuration during the building proces
-            configurationDir = store.createNewConfigurationDir();
+//            configurationDir = store.createNewConfigurationDir();
 
             // create te meta-inf dir
-            File metaInf = new File(configurationDir, "META-INF");
-            metaInf.mkdirs();
+//            File metaInf = new File(configurationDir, "META-INF");
+//            metaInf.mkdirs();
 
-            ConfigurationData configurationData = builder.buildConfiguration(plan, module, configurationDir);
+            ConfigurationData configurationData = builder.buildConfiguration(plan, module, store);
             try {
                 if (targetFile != null) {
-                    ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, configurationDir, targetFile);
+                    ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, manifest, targetFile);
                 }
                 if (install) {
                     List deployedURIs = new ArrayList();
-                    recursiveInstall(configurationData, configurationDir, deployedURIs);
+                    recursiveInstall(configurationData, deployedURIs);
                     return deployedURIs;
                 } else {
-                    if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-                        pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
-                        log.debug("Queued deployment directory to be reaped " + configurationDir);                        
-                    }
+                    cleanupConfigurationDirs(configurationData);
                     return Collections.EMPTY_LIST;
                 }
             } catch (InvalidConfigException e) {
+                cleanupConfigurationDirs(configurationData);
                 // unlikely as we just built this
                 throw new DeploymentException(e);
             }
         } catch(Throwable e) {
-            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-                pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
-                log.debug("Queued deployment directory to be reaped " + configurationDir);                        
-            }
-            if (targetFile != null) {
-                targetFile.delete();
-            }
+            //TODO not clear all errors will result in total cleanup
+//            File configurationDir = configurationData.getConfigurationDir();
+//            if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+//                pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
+//                log.debug("Queued deployment directory to be reaped " + configurationDir);
+//            }
+//            if (targetFile != null) {
+//                targetFile.delete();
+//            }
 
             if (e instanceof Error) {
                 log.error("Deployment failed due to ", e);
@@ -321,20 +321,24 @@ public class Deployer {
         }
     }
 
-    private void recursiveInstall(ConfigurationData configurationData, File configurationDir, List deployedURIs) throws IOException, InvalidConfigException {
-        //TODO use 2nd copy, commented out
-        deployedURIs.add(configurationData.getId().toString());
-        //TODO FIXME
-        if (configurationDir == null) {
-            return;
+    private void cleanupConfigurationDirs(ConfigurationData configurationData) {
+        File configurationDir = configurationData.getConfigurationDir();
+        if (!DeploymentUtil.recursiveDelete(configurationDir)) {
+            pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
+            log.debug("Queued deployment directory to be reaped " + configurationDir);
         }
-        store.install(configurationData, configurationDir);
-        //TODO uncomment
-//        deployedURIs.add(configurationData.getId().toString());
+        for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
+            ConfigurationData data = (ConfigurationData) iterator.next();
+            cleanupConfigurationDirs(data);
+        }
+    }
+
+    private void recursiveInstall(ConfigurationData configurationData, List deployedURIs) throws IOException, InvalidConfigException {
+        store.install(configurationData);
+        deployedURIs.add(configurationData.getId().toString());
         for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {
             ConfigurationData childConfiguration = (ConfigurationData) iterator.next();
-            //TODO extremely broken... configDir should NOT BE IN THIS SIG! should be in configurationData.
-            recursiveInstall(childConfiguration, null, deployedURIs);
+            recursiveInstall(childConfiguration, deployedURIs);
         }
     }
 

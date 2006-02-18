@@ -26,12 +26,16 @@ and Repository services used to load them.
 This configuration should *NOT* be used to provide server or application
 specific services - those should be provided by children.
 -->
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
-    domain="geronimo.server"
-    server="geronimo"
-    >
+    <environment>
+        <properties>
+            <property>
+                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
+                <value>geronimo.server:J2EEServer=geronimo</value>
+            </property>
+        </properties>
+    </environment>
 
     <!-- ServerInfo service -->
     <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
