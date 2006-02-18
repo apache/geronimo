@@ -77,6 +77,10 @@ public class Environment implements Serializable {
         return imports;
     }
 
+    public void addImport(Artifact importArtifact) {
+        this.imports.add(importArtifact);
+    }
+
     public void addImports(Collection imports) {
         this.imports.addAll(imports);
     }
@@ -88,6 +92,10 @@ public class Environment implements Serializable {
 
     public LinkedHashSet getReferences() {
         return references;
+    }
+
+    public void addReference(Artifact reference) {
+        this.references.add(reference);
     }
 
     public void addReferences(Collection references) {
@@ -103,6 +111,10 @@ public class Environment implements Serializable {
         return dependencies;
     }
 
+    public void addDependency(Artifact dependency) {
+        this.dependencies.add(dependency);
+    }
+
     public void addDependencies(Collection dependencies) {
         this.dependencies.addAll(dependencies);
     }
@@ -114,6 +126,10 @@ public class Environment implements Serializable {
 
     public LinkedHashSet getIncludes() {
         return includes;
+    }
+
+    public void addInclude(Artifact include) {
+        this.includes.add(include);
     }
 
     public void addIncludes(Collection includes) {

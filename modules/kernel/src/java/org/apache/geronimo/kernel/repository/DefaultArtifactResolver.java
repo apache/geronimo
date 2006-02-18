@@ -16,7 +16,6 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -35,6 +34,11 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     private final ArtifactManager artifactManager;
     private final Collection repositories;
 
+    public DefaultArtifactResolver(ArtifactManager artifactManager, ListableRepository repository) {
+        this.artifactManager = artifactManager;
+        this.repositories = Collections.singleton(repository);
+    }
+
     public DefaultArtifactResolver(ArtifactManager artifactManager, Collection repositories) {
         this.artifactManager = artifactManager;
         this.repositories = repositories;
@@ -49,14 +53,18 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             if (!artifact.isResolved()) {
-                artifact = resolveArtifact(parentConfigurations, artifact);
+                artifact = resolve(parentConfigurations, artifact);
             }
             resolvedArtifacts.add(artifact);
         }
         return resolvedArtifacts;
     }
 
-    private Artifact resolveArtifact(Collection parentConfigurations, Artifact artifact) throws MissingDependencyException {
+    public Artifact resolve(Artifact artifact) throws MissingDependencyException {
+        return this.resolve(Collections.EMPTY_SET, artifact);
+    }
+
+    public Artifact resolve(Collection parentConfigurations, Artifact artifact) throws MissingDependencyException {
         if (artifact.getType() == null) {
             throw new IllegalArgumentException("Type not set " + artifact);
         }
@@ -94,7 +102,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
 
         // if we have no existing loaded artifacts grab the highest version from the repository
         if (existingArtifacts.size() == 0) {
-            SortedSet list = (SortedSet) new ArrayList();
+            SortedSet list = new TreeSet();
             for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
                 ListableRepository repository = (ListableRepository) iterator.next();
                 list.addAll(repository.list(groupId, artifactId, type));

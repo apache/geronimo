@@ -26,4 +26,8 @@ public interface ArtifactResolver {
     LinkedHashSet resolve(LinkedHashSet artifacts) throws MissingDependencyException;
 
     LinkedHashSet resolve(Collection parentConfigurations, LinkedHashSet artifacts) throws MissingDependencyException;
+
+    Artifact resolve(Artifact artifact) throws MissingDependencyException;
+
+    Artifact resolve(Collection parentConfigurations, Artifact artifact) throws MissingDependencyException;
 }
