@@ -20,6 +20,7 @@ package org.apache.geronimo.kernel;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
+import java.util.Set;
 import javax.management.ObjectName;
 
 import junit.framework.TestCase;
@@ -40,6 +41,19 @@ public class GBeanTest extends TestCase {
     private ObjectName name;
     private ObjectName name2;
     private Kernel kernel;
+
+    public void testListGBeans() throws Exception {
+        ObjectName name = new ObjectName(":name=test");
+        GBeanData gbean = new GBeanData(name, MockGBean.getGBeanInfo());
+        
+        kernel.loadGBean(gbean, getClass().getClassLoader());
+        kernel.startGBean(name);
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(name));
+
+        Set gbeans = kernel.listGBeans(name);
+        assertEquals(1, gbeans.size());
+        assertEquals(name, gbeans.iterator().next());
+    }
 
     public void testLoad() throws Exception {
         ClassLoader cl = getClass().getClassLoader();

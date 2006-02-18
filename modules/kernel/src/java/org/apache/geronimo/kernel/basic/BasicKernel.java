@@ -242,6 +242,10 @@ public class BasicKernel implements Kernel {
 
     public Set listGBeans(ObjectName pattern) {
         String domain = (pattern == null || pattern.isDomainPattern()) ? null : pattern.getDomain();
+        if (domain != null && domain.length() == 0) {
+            domain = kernelName;
+        }
+
         Map props = pattern == null ? null : pattern.getKeyPropertyList();
         Set gbeans = registry.listGBeans(domain, props);
         Set result = new HashSet(gbeans.size());
