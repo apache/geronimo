@@ -25,14 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
@@ -90,10 +88,6 @@ public abstract class AbstractRepository implements WriteableRepository {
         File location = getLocation(artifact);
         return location.isFile() && location.canRead();
     }
-
-    public abstract File getLocation(Artifact artifact);
-
-    public abstract List list();
 
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {
         if (!source.exists() || !source.canRead() || source.isDirectory()) {

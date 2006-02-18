@@ -105,7 +105,7 @@ public class LocalConfigStoreTest extends TestCase {
             kernel.startGBean(configurationManagerName);
             configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-            artifact = new Artifact("group", "test", "1", "car", true);
+            artifact = new Artifact("group", "test", "1", "car");
             GBeanData gbean = new GBeanData(Configuration.getConfigurationObjectName(artifact), Configuration.GBEAN_INFO);
             gbean.setAttribute("id", artifact);
             gbean.setAttribute("gBeanState", state);

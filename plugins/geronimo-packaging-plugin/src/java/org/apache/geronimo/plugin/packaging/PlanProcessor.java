@@ -182,7 +182,7 @@ public class PlanProcessor {
                     }
                 }
 
-                   org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car", true);
+                   org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car");
 
                 Collection imports = toArtifacts(IMPORT_PROPERTY);
 //                Collection includes = toArtifacts(INCLUDE_PROPERTY);
@@ -240,7 +240,7 @@ public class PlanProcessor {
                 if (type == null) {
                     type = "jar";
                 }
-                artifactList.add(new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId,  version, type, false));
+                artifactList.add(new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId,  version, type));
             }
         }
         return artifactList;

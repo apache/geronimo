@@ -35,6 +35,9 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -120,16 +123,19 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     /**
-     * The kernel in which this configuration is registered
+     * The kernel in which this configuration is registered.
      */
     private final Kernel kernel;
 
     /**
-     * The registered objectName for this configuraion
+     * The registered objectName for this configuraion.
      */
     private final String objectNameString;
     private final ObjectName objectName;
 
+    /**
+     * Defines the environment requred for this configuration.
+     */
     private final Environment environment;
 
     /**
@@ -142,6 +148,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     private final List parents;
 
+    /**
+     * The paths within the this configuration artifact that should be added to the class loader.
+     */
     private final List classPath;
 
     /**
@@ -172,6 +181,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final Collection repositories;
 
     /**
+     * The artifact manager in which loaded artifacts are registered.
+     */
+    private final ArtifactManager artifactManager;
+
+    /**
      * Only used to allow declaration as a reference.
      */
     public Configuration() {
@@ -186,6 +200,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         classPath = null;
         baseURL = null;
         repositories = null;
+        artifactManager = null;
     }
 
     /**
@@ -206,8 +221,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                          List classPath,
                          byte[] gbeanState,
                          Collection repositories,
-                         ConfigurationStore configurationStore) throws Exception {
-
+                         ConfigurationStore configurationStore,
+                         ArtifactManager artifactManager,
+                         ArtifactResolver artifactResolver) throws Exception {
         this.kernel = kernel;
         this.environment = environment;
         this.objectNameString = objectName;
@@ -222,14 +238,34 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             this.classPath = Collections.EMPTY_LIST;
         }
 
-        // get proxies to my parent configurations
-        parents = new ArrayList();
+        this.artifactManager = artifactManager;
+
+        if (artifactResolver == null) {
+            artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
+        }
+
+        // resolve imports artifacts
         LinkedHashSet imports = environment.getImports();
+        imports = artifactResolver.resolve(imports);
+        environment.setImports(imports);
+
+        // get proxies to my parent configurations (now that the imports have been resolved)
+        parents = new ArrayList();
         for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             ObjectName parentName = getConfigurationObjectName(artifact);
             parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
         }
+
+        // resolve dependencies
+        LinkedHashSet dependencies = environment.getDependencies();
+        dependencies = artifactResolver.resolve(parents, dependencies);
+        environment.setDependencies(dependencies);
+
+        // resolve references
+        LinkedHashSet references = environment.getReferences();
+        references = artifactResolver.resolve(parents, references);
+        environment.setReferences(references);
 
         // build configurationClassLoader
         URL[] urls = buildClassPath(configurationStore);
@@ -241,7 +277,12 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // which is normally the system class loader but not always, so be safe
             configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, getClass().getClassLoader());
         } else {
-            configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, getParentClassLoaders());
+            ClassLoader[] parentClassLoaders = new ClassLoader[parents.size()];
+            for (ListIterator iterator = parents.listIterator(); iterator.hasNext();) {
+                Configuration configuration = (Configuration) iterator.next();
+                parentClassLoaders[iterator.previousIndex()] = configuration.getConfigurationClassLoader();
+            }
+            configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, parentClassLoaders);
         }
     }
 
@@ -303,15 +344,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private ClassLoader[] getParentClassLoaders() throws Exception {
-        ClassLoader[] classLoaders = new ClassLoader[parents.size()];
-        for (ListIterator iterator = parents.listIterator(); iterator.hasNext();) {
-            Configuration configuration = (Configuration) iterator.next();
-            classLoaders[iterator.previousIndex()] = configuration.getConfigurationClassLoader();
-        }
-        return classLoaders;
-    }
-
     private URL[] buildClassPath(ConfigurationStore configurationStore) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
         LinkedHashSet dependencies = environment.getDependencies();
         List urls = new ArrayList(dependencies.size() + classPath.size());
@@ -352,7 +384,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     public void doStart() throws Exception {
         assert objectName != null;
-        // declare imports on parents
+
+        // declare dependencies on parents
         Set parentNames = new HashSet();
         for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
@@ -361,6 +394,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
         DependencyManager dependencyManager = this.kernel.getDependencyManager();
         dependencyManager.addDependencies(this.objectName, parentNames);
+
+        // declare the artifacts as loaded
+        LinkedHashSet artifacts = new LinkedHashSet();
+        artifacts.addAll(environment.getDependencies());
+        artifacts.addAll(environment.getReferences());
+        if (artifactManager != null) {
+            artifactManager.loadArtifacts(environment.getConfigId(), artifacts);
+        }
 
         log.debug("Started configuration " + environment.getConfigId());
     }
@@ -398,6 +439,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         if (configurationClassLoader != null) {
             configurationClassLoader.destroy();
             configurationClassLoader = null;
+        }
+
+        // declare all artifacts as unloaded
+        if (artifactManager != null) {
+            artifactManager.unloadAllArtifacts(environment.getConfigId());
         }
     }
 
@@ -601,6 +647,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addReference("ConfigurationStore", ConfigurationStore.class, "GBean");
+        infoFactory.addReference("ArtifactManager", ArtifactManager.class);
+        infoFactory.addReference("ArtifactResolver", ArtifactResolver.class);
 
         infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
         infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
@@ -620,7 +668,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 "classPath",
                 "gBeanState",
                 "Repositories",
-                "ConfigurationStore"
+                "ConfigurationStore",
+                "ArtifactManager",
+                "ArtifactResolver"
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

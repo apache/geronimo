@@ -17,7 +17,6 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.util.Set;
-import java.net.URI;
 
 import javax.management.ObjectName;
 
@@ -60,6 +59,6 @@ public class MockNamingContext implements NamingContext {
     }
 
     public Artifact getConfigID() {
-        return new Artifact("groupId", "MockNamingContextID", "1", "car", true);
+        return new Artifact("groupId", "MockNamingContextID", "1", "car");
     }
 }

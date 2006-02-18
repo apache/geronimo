@@ -16,7 +16,7 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.util.List;
+import java.util.SortedSet;
 
 /**
  * For repositories that can provide a list of their contents.
@@ -29,7 +29,7 @@ public interface ListableRepository extends Repository {
     /**
      * Gets a list of all the items available in the repository.
      */
-    public List list();
+    public SortedSet list();
 
-    public List list(String groupId, String artifactId, String type);
+    public SortedSet list(String groupId, String artifactId, String type);
 }

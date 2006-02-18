@@ -17,10 +17,13 @@
 package org.apache.geronimo.kernel.repository;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface ArtifactResolver {
-    void resolve(Collection parentConfigurations, Collection artifacts) throws MissingDependencyException;
+    LinkedHashSet resolve(LinkedHashSet artifacts) throws MissingDependencyException;
+
+    LinkedHashSet resolve(Collection parentConfigurations, LinkedHashSet artifacts) throws MissingDependencyException;
 }

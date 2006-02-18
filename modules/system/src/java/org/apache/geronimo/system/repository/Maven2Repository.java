@@ -20,6 +20,8 @@ import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -48,8 +50,8 @@ public class Maven2Repository extends AbstractRepository implements ListableRepo
         return path;
     }
 
-    public List list() {
-        List artifacts = new ArrayList();
+    public SortedSet list() {
+        SortedSet artifacts = new TreeSet();
         File[] groupIds = rootFile.listFiles();
         for (int i = 0; i < groupIds.length; i++) {
             File groupId = groupIds[i];
@@ -66,11 +68,11 @@ public class Maven2Repository extends AbstractRepository implements ListableRepo
         return artifacts;
     }
 
-    public List list(String groupId, String artifactId, String type) {
+    public SortedSet list(String groupId, String artifactId, String type) {
         File path = new File(rootFile, groupId.replace('.', File.separatorChar));
         path = new File(path, artifactId);
 
-        List artifacts = new ArrayList();
+        SortedSet artifacts = new TreeSet();
 
         File[] versionDirs = path.listFiles();
         for (int i = 0; i < versionDirs.length; i++) {
@@ -83,8 +85,8 @@ public class Maven2Repository extends AbstractRepository implements ListableRepo
                     artifacts.add(new Artifact(groupId,
                             artifactId,
                             version,
-                            type,
-                            true));
+                            type
+                    ));
                 }
             }
         }
@@ -123,8 +125,8 @@ public class Maven2Repository extends AbstractRepository implements ListableRepo
                             artifacts.add(new Artifact(groupId,
                                     artifactId,
                                     version,
-                                    type,
-                                    true));
+                                    type
+                            ));
                         }
                     }
                 }

@@ -16,13 +16,14 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface ArtifactManager {
-    void loadArtifacts(List artifacts);
-    void unloadArtifacts(List artifacts);
-    List getLoadedArtifacts(String groupId, String artifactId, String type);
+    void loadArtifacts(Artifact artifact, Set artifacts);
+    void unloadAllArtifacts(Artifact artifact);
+    SortedSet getLoadedArtifacts(String groupId, String artifactId, String type);
 }

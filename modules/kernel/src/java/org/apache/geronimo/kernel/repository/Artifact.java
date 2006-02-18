@@ -20,31 +20,31 @@ package org.apache.geronimo.kernel.repository;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.io.Serializable;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * @version $Rev:$ $Date:$
  */
 public class Artifact implements Comparable, Serializable {
+    private static final long serialVersionUID = -3459638899709893444L;
     public static final String DEFAULT_GROUP_ID = "Unspecified";
-    private String groupId;
-    private String artifactId;
-    private Version version;
-    private String type;
-    private boolean resolved;
 
-    public Artifact() {
+    private final String groupId;
+    private final String artifactId;
+    private final Version version;
+    private final String type;
+    private final boolean resolved;
+
+    public Artifact(String groupId, String artifactId, String version, String type) {
+        this(groupId, artifactId, new Version(version), type);
     }
 
-    public Artifact(String groupId, String artifactId, String version, String type, boolean resolved) {
+    public Artifact(String groupId, String artifactId, Version version, String type) {
+        if (artifactId == null) throw new NullPointerException("artifactId is null");
         this.groupId = groupId;
         this.artifactId = artifactId;
-        this.version = new Version(version);
+        this.version = version;
         this.type = type;
-        this.resolved = resolved;
+        this.resolved = groupId != null && artifactId != null && version != null && type != null;
     }
 
     public static Artifact create(String id) {
@@ -52,47 +52,27 @@ public class Artifact implements Comparable, Serializable {
          if (parts.length != 4) {
              throw new IllegalArgumentException("Invalid id: " + id);
          }
-         return new Artifact(parts[0], parts[1], parts[2], parts[3], true);
+         return new Artifact(parts[0], parts[1], parts[2], parts[3]);
     }
 
     public String getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
     public String getArtifactId() {
         return artifactId;
-    }
-
-    public void setArtifactId(String artifactId) {
-        this.artifactId = artifactId;
     }
 
     public Version getVersion() {
         return version;
     }
 
-    public void setVersion(Version version) {
-        this.version = version;
-    }
-
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
     public boolean isResolved() {
         return resolved;
-    }
-
-    public void setResolved(boolean resolved) {
-        this.resolved = resolved;
     }
 
     public int compareTo(Object object) {
@@ -120,6 +100,40 @@ public class Artifact implements Comparable, Serializable {
         }
         if (right == null) return GREATER;
         return left.compareTo(right);
+    }
+
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final Artifact artifact = (Artifact) o;
+
+        if (!artifactId.equals(artifact.artifactId)) {
+            return false;
+        }
+
+        if (groupId != null ? !groupId.equals(artifact.groupId) : artifact.groupId != null) {
+            return false;
+        }
+
+        if (type != null ? !type.equals(artifact.type) : artifact.type != null) {
+            return false;
+        }
+
+        if (version != null ? !version.equals(artifact.version) : artifact.version != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public int hashCode() {
+        int result;
+        result = (groupId != null ? groupId.hashCode() : 0);
+        result = 29 * result + artifactId.hashCode();
+        result = 29 * result + (version != null ? version.hashCode() : 0);
+        result = 29 * result + (type != null ? type.hashCode() : 0);
+        return result;
     }
 
     /**

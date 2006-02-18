@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 import java.net.URLClassLoader;
 import java.net.URL;
-import java.net.URI;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import java.util.jar.JarEntry;
@@ -36,7 +35,6 @@ import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
 import net.sf.cglib.core.DefaultGeneratorStrategy;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * @version $Rev$ $Date$
@@ -51,7 +49,7 @@ public class MultiParentClassLoaderTest extends TestCase {
     private URLClassLoader[] parents;
     private File myFile;
     private MultiParentClassLoader classLoader;
-    private static final Artifact NAME = new Artifact("test", "fake", "1.0", "car", true);
+    private static final Artifact NAME = new Artifact("test", "fake", "1.0", "car");
 
     /**
      * Verify that the test jars are valid

@@ -593,7 +593,9 @@ public class DeploymentContext {
                         public URL resolve(Artifact configId, URI uri) throws MalformedURLException {
                             return new File(baseDir, uri.toString()).toURL();
                         }
-                    });
+                    },
+                    null,
+                    null);
             return configuration.getConfigurationClassLoader();
         } catch (Exception e) {
             throw new DeploymentException("Could not construct configuration classloader for deployment context", e);

@@ -75,9 +75,6 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             for (int i = 0; i < dependencyArray.length; i++) {
                 ArtifactType artifactType = dependencyArray[i];
                 Artifact artifact = toArtifact(artifactType);
-                if (artifact.getType() == null) {
-                    artifact.setType("jar");
-                }
                 String type = artifact.getType();
                 if (type.equals("jar")) {
                     dependencies.add(artifact);
@@ -226,7 +223,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         String type = artifactType.isSetType() ? artifactType.getType().trim() : "jar";
         String artifactId = artifactType.getArtifactId().trim();
         String version = artifactType.isSetVersion() ? artifactType.getVersion().trim() : null;
-        return new Artifact(groupId, artifactId, version, type, false);
+        return new Artifact(groupId, artifactId, version, type);
     }
 
 

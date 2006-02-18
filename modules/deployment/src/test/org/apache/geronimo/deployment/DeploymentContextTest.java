@@ -46,7 +46,7 @@ public class DeploymentContextTest extends TestCase {
         try {
             basedir.deleteOnExit();
             Environment environment = new Environment();
-            environment.setConfigId(new Artifact("foo", "artifact", "1", "car", true));
+            environment.setConfigId(new Artifact("foo", "artifact", "1", "car"));
             Map nameKeys = new HashMap();
             nameKeys.put("domain", "d");
             environment.setProperties(nameKeys);

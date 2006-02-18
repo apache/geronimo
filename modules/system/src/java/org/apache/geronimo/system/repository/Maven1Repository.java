@@ -21,6 +21,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,8 +52,8 @@ public class Maven1Repository extends AbstractRepository implements ListableRepo
         return path;
     }
 
-    public List list(String groupId, String artifactId, String type) {
-        List artifacts = new ArrayList();
+    public SortedSet list(String groupId, String artifactId, String type) {
+        SortedSet artifacts = new TreeSet();
 
         File path = new File(rootFile, groupId);
         path = new File(path, type + "s");
@@ -63,7 +65,7 @@ public class Maven1Repository extends AbstractRepository implements ListableRepo
             if (fileName.startsWith(artifactId + "-") && fileName.endsWith("." + type)) {
                 String version = fileName.substring(artifactId.length() + 1);
                 version = version.substring(0, version.length() - 1 - type.length());
-                artifacts.add(new Artifact(groupId, artifactId, version, type, true));
+                artifacts.add(new Artifact(groupId, artifactId, version, type));
             }
         }
         return artifacts;
@@ -72,9 +74,9 @@ public class Maven1Repository extends AbstractRepository implements ListableRepo
     //thanks to Brett Porter for this regex lifted from a maven1-2 porting tool
     private static final Pattern MAVEN_1_PATTERN = Pattern.compile("(.+)/(.+)s/(.+)-([0-9].+)\\.([^0-9]+)");
 
-    public List list() {
+    public SortedSet list() {
+        SortedSet artifacts = new TreeSet();
         String[] names = getFiles(rootFile, "");
-        List results = new ArrayList(names.length);
         Matcher matcher = MAVEN_1_PATTERN.matcher("");
         for (int i = 0; i < names.length; i++) {
             matcher.reset(names[i]);
@@ -83,7 +85,7 @@ public class Maven1Repository extends AbstractRepository implements ListableRepo
                 String artifactId = matcher.group(3);
                 String version = matcher.group(4);
                 String type = matcher.group(5);
-                results.add(new Artifact(groupId, artifactId, version, type, true));
+                artifacts.add(new Artifact(groupId, artifactId, version, type));
             } else {
             	log.warn("could not resolve URI for malformed repository entry: " + names[i] +
             	" - the filename should look like: <groupId>/<type>s/<artifactId>-<version>.<type>   "+
@@ -91,7 +93,7 @@ public class Maven1Repository extends AbstractRepository implements ListableRepo
             }
 
         }
-       	return results;
+       	return artifacts;
     }
 
     public String[] getFiles(File base, String prefix) {

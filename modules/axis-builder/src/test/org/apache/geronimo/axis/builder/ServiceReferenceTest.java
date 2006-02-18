@@ -86,7 +86,7 @@ public class ServiceReferenceTest extends TestCase {
     public final static String NAMESPACE = "http://geronimo.apache.org/axis/mock";
     private File tmpbasedir;
     private Environment environment = new Environment();
-    private Artifact configID = new Artifact("group", "test", "1", "car", true);
+    private Artifact configID = new Artifact("group", "test", "1", "car");
     private DeploymentContext context;
     private ClassLoader isolatedCl = new URLClassLoader(new URL[0], this.getClass().getClassLoader());
     private final String operationName = "doMockOperation";

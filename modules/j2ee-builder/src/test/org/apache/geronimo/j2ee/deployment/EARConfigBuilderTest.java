@@ -50,7 +50,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -87,7 +86,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         defaultParentId = new Environment();
-        defaultParentId.getImports().add(new Artifact("geronimo", "test", "1", "car", true));
+        defaultParentId.getImports().add(new Artifact("geronimo", "test", "1", "car"));
         defaultParentId.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
     }
 

@@ -208,7 +208,7 @@ public class MessageDestinationTest extends TestCase {
         }
 
         public Artifact getConfigID() {
-            return new Artifact("groupId", "MockNamingContextID", "1", "car", true);
+            return new Artifact("groupId", "MockNamingContextID", "1", "car");
         }
     }
 
