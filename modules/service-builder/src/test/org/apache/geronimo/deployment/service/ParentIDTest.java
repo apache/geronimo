@@ -16,12 +16,9 @@
  */
 package org.apache.geronimo.deployment.service;
 
-import java.net.URI;
-import java.util.List;
 import java.util.LinkedHashSet;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.kernel.repository.Artifact;
 

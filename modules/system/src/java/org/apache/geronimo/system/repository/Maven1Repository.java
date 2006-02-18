@@ -45,7 +45,7 @@ public class Maven1Repository extends AbstractRepository implements ListableRepo
     }
 
     public File getLocation(Artifact artifact) {
-        File path = new File(rootFile, artifact.getGroupId().replace('.', File.separatorChar));
+        File path = new File(rootFile, artifact.getGroupId());
         path = new File(path, artifact.getType() + "s");
         path = new File(path, artifact.getArtifactId() + "-" + artifact.getVersion() + "." + artifact.getType());
 

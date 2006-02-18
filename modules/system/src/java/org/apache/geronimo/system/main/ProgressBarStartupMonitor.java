@@ -2,7 +2,6 @@ package org.apache.geronimo.system.main;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.net.URI;
 import java.net.InetSocketAddress;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
