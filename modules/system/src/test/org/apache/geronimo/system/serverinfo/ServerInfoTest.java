@@ -18,6 +18,7 @@ package org.apache.geronimo.system.serverinfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -25,6 +26,7 @@ import junit.framework.TestCase;
  * @version $Rev$ $Date$
  */
 public class ServerInfoTest extends TestCase {
+    private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
 
     public final void testResolvePath() {
         ServerInfo si = null;
@@ -76,7 +78,7 @@ public class ServerInfoTest extends TestCase {
 			try {
 				file = File.createTempFile("geronimo", null);
 				// a workaround - ServerInfo sets system-wide property
-				System.setProperty("org.apache.geronimo.base.dir", file.getName());
+				System.setProperty(BasicServerInfo.BASE_DIR_SYS_PROP, file.getName());
 				new BasicServerInfo(file.getName());
 				fail("ServerInfo should throw exception when given non-directory path");
 			} catch (IOException ioe) {
@@ -86,12 +88,61 @@ public class ServerInfoTest extends TestCase {
 
 			String basedir = ".";
 			// a workaround - ServerInfo sets system-wide property
-			System.setProperty("org.apache.geronimo.base.dir", basedir);
+			System.setProperty(BasicServerInfo.BASE_DIR_SYS_PROP, basedir);
 			ServerInfo si = new BasicServerInfo(basedir);
-			assertNotNull(System.getProperty("org.apache.geronimo.base.dir"));
+			assertNotNull(System.getProperty(BasicServerInfo.BASE_DIR_SYS_PROP));
 			assertEquals("base directory is incorrect", basedir, si.getBaseDirectory());
 		} finally {
-			System.getProperties().remove("org.apache.geronimo.base.dir");
+            Properties sysProps = System.getProperties();
+            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
+            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
 		}
+    }
+
+    public void testWithServerName() throws Exception {
+        String serverName = "target/serverName";
+        File serverDir = new File(basedir, serverName);
+        serverDir.mkdirs();
+        try {
+            System.setProperty(BasicServerInfo.SERVER_NAME_SYS_PROP, serverName);
+            new BasicServerInfo(basedir.getAbsolutePath());
+            assertEquals(serverDir.getAbsolutePath(), System.getProperty(BasicServerInfo.SERVER_DIR_SYS_PROP));
+        } finally {
+            Properties sysProps = System.getProperties();
+            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
+            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+            serverDir.delete();
+        }
+    }
+    
+    public void testWithServerDirAbsolute() throws Exception {
+        String serverDirName = "./target/serverDir";
+        File serverDir = new File(basedir, serverDirName);
+        serverDir.mkdirs();
+        try {
+            System.setProperty(BasicServerInfo.SERVER_DIR_SYS_PROP, serverDir.getAbsolutePath());
+            new BasicServerInfo(basedir.getAbsolutePath());
+            assertEquals(serverDir.getAbsolutePath(), System.getProperty(BasicServerInfo.SERVER_DIR_SYS_PROP));
+        } finally {
+            Properties sysProps = System.getProperties();
+            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
+            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+            serverDir.delete();
+        }
+    }
+    
+    public void testWithServerDirRelative() throws Exception {
+        String serverDirName = "./target/serverDir";
+        File serverDir = new File(basedir, serverDirName);
+        serverDir.mkdirs();
+        try {
+            System.setProperty(BasicServerInfo.SERVER_DIR_SYS_PROP, serverDirName);
+            new BasicServerInfo(basedir.getAbsolutePath());
+            assertEquals(serverDir.getAbsolutePath(), System.getProperty(BasicServerInfo.SERVER_DIR_SYS_PROP));
+        } finally {
+            Properties sysProps = System.getProperties();
+            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
+            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+        }
     }
 }

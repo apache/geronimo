@@ -71,7 +71,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements TomcatSecureC
      */
     public void setKeystoreFileName(String name) {
         keystoreFileName = name;
-        connector.setAttribute("keystoreFile", serverInfo.resolvePath(keystoreFileName));
+        connector.setAttribute("keystoreFile", serverInfo.resolveServerPath(keystoreFileName));
     }
 
     public String getTruststoreFileName() {
@@ -80,7 +80,7 @@ public class HttpsConnectorGBean extends ConnectorGBean implements TomcatSecureC
 
     public void setTruststoreFileName(String name) {
         truststoreFileName = name;
-        connector.setAttribute("truststoreFile", serverInfo.resolvePath(truststoreFileName));
+        connector.setAttribute("truststoreFile", serverInfo.resolveServerPath(truststoreFileName));
     }
 
     /**

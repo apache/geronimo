@@ -46,7 +46,7 @@ public class SystemProperties {
                 Map.Entry entry = (Map.Entry) iterator.next();
                 String propertyName = (String) entry.getKey();
                 String propertyValue = (String) entry.getValue();
-                propertyValue = serverInfo.resolvePath(propertyValue);
+                propertyValue = serverInfo.resolveServerPath(propertyValue);
                 if (System.getProperty(propertyName) == null) {
                     System.setProperty(propertyName, propertyValue);
                 }

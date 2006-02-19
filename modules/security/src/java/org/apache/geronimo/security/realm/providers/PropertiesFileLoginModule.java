@@ -87,8 +87,8 @@ public class PropertiesFileLoginModule implements LoginModule {
 
     public void loadProperties(Kernel kernel, ServerInfo serverInfo, URI userURI, URI groupURI) throws GeronimoSecurityException {
         try {
-            URI userFile = serverInfo.resolve(userURI);
-            URI groupFile = serverInfo.resolve(groupURI);
+            URI userFile = serverInfo.resolveServer(userURI);
+            URI groupFile = serverInfo.resolveServer(groupURI);
             InputStream stream = userFile.toURL().openStream();
             users.load(stream);
             stream.close();

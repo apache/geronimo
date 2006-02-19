@@ -84,10 +84,10 @@ public class SecurityServiceImpl implements SecurityService {
                 currentThread.setContextClassLoader(oldClassLoader);
             }
         }
-        if (keyStore != null) sysOverRide(serverInfo.resolvePath(keyStore), KEYSTORE);
+        if (keyStore != null) sysOverRide(serverInfo.resolveServerPath(keyStore), KEYSTORE);
         if (keyStorePassword != null) sysOverRide(keyStorePassword, KEYSTORE_PASSWORD);
 
-        if (trustStore != null) sysOverRide(serverInfo.resolvePath(trustStore), TRUSTSTORE);
+        if (trustStore != null) sysOverRide(serverInfo.resolveServerPath(trustStore), TRUSTSTORE);
         if (trustStorePassword != null) sysOverRide(trustStorePassword, TRUSTSTORE_PASSWORD);
 
         log.debug(KEYSTORE + ": " + System.getProperty(KEYSTORE));

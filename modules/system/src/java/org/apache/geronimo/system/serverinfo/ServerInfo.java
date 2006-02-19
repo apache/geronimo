@@ -29,6 +29,8 @@ import java.net.URI;
 public interface ServerInfo {
     public String resolvePath(final String filename);
 
+    public String resolveServerPath(final String filename);
+
     /**
      * Resolves an abstract pathname to a File.
      *
@@ -39,7 +41,11 @@ public interface ServerInfo {
      */
     public File resolve(final String filename);
 
+    public File resolveServer(final String filename);
+
     public URI resolve(final URI uri);
+
+    public URI resolveServer(final URI uri);
 
     /**
      * A config.xml setting for the base directory.  This is normally

@@ -124,7 +124,7 @@ public class HTTPSConnector extends JettyConnector implements JettySecureConnect
     }
 
     public void doStart() throws Exception {
-        https.setKeystore(serverInfo.resolvePath(keystore));
+        https.setKeystore(serverInfo.resolveServerPath(keystore));
         super.doStart();
     }
 

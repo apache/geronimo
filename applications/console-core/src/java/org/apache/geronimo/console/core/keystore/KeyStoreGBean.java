@@ -19,6 +19,7 @@ package org.apache.geronimo.console.core.keystore;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -40,6 +41,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -89,10 +91,9 @@ public class KeyStoreGBean implements GBeanLifecycle {
         InputStream is = null;
 
         try {
-            log.debug("loading keystore from "
-                    + serverInfo.resolvePath(this.keyStoreLocation));
-            is = new java.io.FileInputStream(serverInfo
-                    .resolvePath(this.keyStoreLocation));
+            File keyStore = serverInfo.resolveServer(this.keyStoreLocation);
+            log.debug("loading keystore from " + keyStore);
+            is = new java.io.FileInputStream(keyStore);
             this.keystore.load(is, this.keyStorePassword.toCharArray());
         } catch (java.io.FileNotFoundException e) {
             keystoreExistsFlag = false;
@@ -298,8 +299,8 @@ public class KeyStoreGBean implements GBeanLifecycle {
         FileOutputStream os = null;
 
         try {
-            os = new FileOutputStream(serverInfo
-                    .resolvePath(this.keyStoreLocation));
+            File keyStore = serverInfo.resolveServer(this.keyStoreLocation);
+            os = new FileOutputStream(keyStore);
 
             keystore.store(os, keyStorePassword.toCharArray());
         } finally {

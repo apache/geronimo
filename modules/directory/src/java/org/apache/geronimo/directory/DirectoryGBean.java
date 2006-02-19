@@ -186,7 +186,7 @@ public class DirectoryGBean implements GBeanLifecycle {
         
         MutableServerStartupConfiguration startup = new MutableServerStartupConfiguration();
         // put some mandatory JNDI properties here
-        startup.setWorkingDirectory(serverInfo.resolve(workingDir));
+        startup.setWorkingDirectory(serverInfo.resolveServer(workingDir));
         startup.setAllowAnonymousAccess(anonymousAccess);
         startup.setLdapPort(port);
         startup.setEnableNetworking(enableNetworking);

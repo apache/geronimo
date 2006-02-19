@@ -92,7 +92,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
         if (catalinaHome == null)
             catalinaHome = DEFAULT_CATALINA_HOME;
 
-        setCatalinaHome(serverInfo.resolvePath(catalinaHome));
+        setCatalinaHome(serverInfo.resolveServerPath(catalinaHome));
 
         if (classLoader == null){
             throw new IllegalArgumentException("classLoader cannot be null.");

@@ -59,7 +59,7 @@ public class DirectoryInitializationGBean {
             if (entry.getName().startsWith(sourceEntry.getName())) {
                 String entryName = entry.getName();
                 String entryPath = entryName.substring(prefixLength);
-                File targetPath = serverInfo.resolve(entryPath);
+                File targetPath = serverInfo.resolveServer(entryPath);
                 if (!targetPath.exists()) {
                     if (entry.isDirectory()) {
                         targetPath.mkdirs();

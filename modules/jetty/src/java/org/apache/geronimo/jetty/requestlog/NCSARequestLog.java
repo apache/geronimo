@@ -109,7 +109,7 @@ public class NCSARequestLog implements GBeanLifecycle, JettyRequestLog {
     }
 
     public void doStart() throws Exception {
-        requestLog.setFilename(serverInfo.resolvePath(filename));
+        requestLog.setFilename(serverInfo.resolveServerPath(filename));
         container.setRequestLog(requestLog);
         requestLog.start();
     }

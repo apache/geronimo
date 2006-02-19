@@ -30,26 +30,32 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev$ $Date$
  */
 public class BasicServerInfo implements ServerInfo {
+    public static final String SERVER_NAME_SYS_PROP = "org.apache.geronimo.server.name";
+    public static final String SERVER_DIR_SYS_PROP = "org.apache.geronimo.server.dir";
+    public static final String BASE_DIR_SYS_PROP = "org.apache.geronimo.base.dir";
+    
     private final String baseDirectory;
     private final File base;
+    private final File baseServer;
     private final URI baseURI;
+    private final URI baseServerURI;
 
     public BasicServerInfo() {
         baseDirectory = null;
         base = null;
+        baseServer = null;
         baseURI = null;
+        baseServerURI = null;
     }
-
     public BasicServerInfo(String baseDirectory) throws Exception {
-        this.baseDirectory = baseDirectory;
+        // Before we try the persistent value, we always check the
+        // system properties first.  This lets an admin override this
+        // on the command line.
+        this.baseDirectory = System.getProperty(BASE_DIR_SYS_PROP, baseDirectory);
 
         // force load of server constants
         ServerConstants.getVersion();
 
-        // Before we try the persistent value, we always check the
-        // system properties first.  This lets an admin override this
-        // on the command line.
-        baseDirectory = System.getProperty("org.apache.geronimo.base.dir", baseDirectory);
         if (baseDirectory == null || baseDirectory.length() == 0) {
             base = DirectoryUtils.getGeronimoInstallDirectory();
             if (base == null) {
@@ -64,7 +70,11 @@ public class BasicServerInfo implements ServerInfo {
         }
 
         baseURI = base.toURI();
-        System.setProperty("org.apache.geronimo.base.dir", base.getAbsolutePath());
+        System.setProperty(BASE_DIR_SYS_PROP, base.getAbsolutePath());
+
+        baseServer = deriveBaseServer();
+        baseServerURI = baseServer.toURI();
+        System.setProperty(SERVER_DIR_SYS_PROP, baseServer.getAbsolutePath());
     }
 
     /**
@@ -84,6 +94,10 @@ public class BasicServerInfo implements ServerInfo {
         return resolve(filename).getAbsolutePath();
     }
 
+    public String resolveServerPath(String filename) {
+        return resolveServer(filename).getAbsolutePath();
+    }
+    
     /**
      * Resolves an abstract pathname to a File.
      *
@@ -93,17 +107,21 @@ public class BasicServerInfo implements ServerInfo {
      * @return a <code>File</code> value
      */
     public File resolve(final String filename) {
-        File file = new File(filename);
-        if (file.isAbsolute()) {
-            return file;
-        }
-        return new File(base, filename);
+        return resolveWithBase(base, filename);
+    }
+
+    public File resolveServer(String filename) {
+        return resolveWithBase(baseServer, filename);
     }
 
     public URI resolve(final URI uri) {
         return baseURI.resolve(uri);
     }
 
+    public URI resolveServer(URI uri) {
+        return baseServerURI.resolve(uri);
+    }
+    
     public String getBaseDirectory() {
         return baseDirectory;
     }
@@ -128,20 +146,49 @@ public class BasicServerInfo implements ServerInfo {
         return ServerConstants.getCopyright();
     }
 
+    private File resolveWithBase(File baseDir, String filename) {
+        File file = new File(filename);
+        if (file.isAbsolute()) {
+            return file;
+        }
+        return new File(baseDir, filename);
+    }
+
+    private File deriveBaseServer() {
+        File baseServerDir;
+        
+        // first check if the base server directory has been provided via
+        // system property override.
+        String baseServerDirPath = System.getProperty(SERVER_DIR_SYS_PROP);
+        if (null == baseServerDirPath) {
+            // then check if a server name has been provided
+            String serverName = System.getProperty(SERVER_NAME_SYS_PROP);
+            if (null == serverName) {
+                // default base server directory.
+                baseServerDir = base;
+            } else {
+                baseServerDir = new File(base, serverName);
+            }
+        } else {
+            baseServerDir = new File(baseServerDirPath);
+            if (false == baseServerDir.isAbsolute()) {
+                baseServerDir = new File(base, baseServerDirPath);
+            }
+        }
+
+        if (!baseServerDir.isDirectory()) {
+            throw new IllegalArgumentException("Server directory is not a directory: " + baseServerDir);
+        }
+        
+        return baseServerDir;
+    }
+    
     public static final GBeanInfo GBEAN_INFO;
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(BasicServerInfo.class);
 
         infoFactory.addAttribute("baseDirectory", String.class, true);
-        infoFactory.addAttribute("version", String.class, false);
-        infoFactory.addAttribute("buildDate", String.class, false);
-        infoFactory.addAttribute("buildTime", String.class, false);
-        infoFactory.addAttribute("copyright", String.class, false);
-
-        infoFactory.addOperation("resolvePath", new Class[]{String.class});
-        infoFactory.addOperation("resolve", new Class[]{String.class});
-        infoFactory.addOperation("resolve", new Class[]{URI.class});
 
         infoFactory.addInterface(ServerInfo.class);
 
