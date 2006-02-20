@@ -168,7 +168,7 @@ public class GBeanNameTest extends TestCase {
         String codeBase = System.getProperty(codeBaseProperty);
         MarshalledObject o;
         try {
-            System.clearProperty(codeBaseProperty);
+            System.setProperty(codeBaseProperty, "");
             o = new MarshalledObject(name);
         } finally {
             if (null != codeBase) {
