@@ -22,6 +22,10 @@ import java.util.Set;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Comparator;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.rmi.MarshalledObject;
 
 import junit.framework.TestCase;
@@ -164,18 +168,15 @@ public class GBeanNameTest extends TestCase {
 
     public void testSerialization() throws Exception {
         GBeanName name = new GBeanName("testDomain:prop1=value1,prop2=value2");
-        String codeBaseProperty = "java.rmi.server.codebase";
-        String codeBase = System.getProperty(codeBaseProperty);
-        MarshalledObject o;
-        try {
-            System.setProperty(codeBaseProperty, "");
-            o = new MarshalledObject(name);
-        } finally {
-            if (null != codeBase) {
-                System.setProperty(codeBaseProperty, codeBase);
-            }
-        }
-        GBeanName name2 = (GBeanName) o.get();
+        ByteArrayOutputStream memOut = new ByteArrayOutputStream();
+        ObjectOutputStream os = new ObjectOutputStream(memOut);
+        os.writeObject(name);
+        os.close();
+        ByteArrayInputStream memIn = new ByteArrayInputStream(memOut.toByteArray());
+        ObjectInputStream in = new ObjectInputStream(memIn);
+        Object opaque = in.readObject();
+        assertTrue(opaque instanceof GBeanName);
+        GBeanName name2 = (GBeanName) opaque;
         assertEquals(name, name2);
     }
 
