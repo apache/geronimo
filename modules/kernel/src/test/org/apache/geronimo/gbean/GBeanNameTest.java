@@ -164,7 +164,17 @@ public class GBeanNameTest extends TestCase {
 
     public void testSerialization() throws Exception {
         GBeanName name = new GBeanName("testDomain:prop1=value1,prop2=value2");
-        MarshalledObject o = new MarshalledObject(name);
+        String codeBaseProperty = "java.rmi.server.codebase";
+        String codeBase = System.getProperty(codeBaseProperty);
+        MarshalledObject o;
+        try {
+            System.clearProperty(codeBaseProperty);
+            o = new MarshalledObject(name);
+        } finally {
+            if (null != codeBase) {
+                System.setProperty(codeBaseProperty, codeBase);
+            }
+        }
         GBeanName name2 = (GBeanName) o.get();
         assertEquals(name, name2);
     }
