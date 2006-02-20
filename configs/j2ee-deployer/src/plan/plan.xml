@@ -21,14 +21,15 @@
         >
 
     <gbean name="EARBuilder" class="org.apache.geronimo.j2ee.deployment.EARConfigBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
         <!--domain set to wildcard so datasources may be deployed independently on client. -->
         <!--a better solution is to get the domain and server from the parent configuration -->
         <attribute name="transactionContextManagerObjectName">*:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">*:name=ConnectionTracker,*</attribute>
         <attribute name="transactionalTimerObjectName">geronimo.server:name=TransactionalThreadPooledTimer,*</attribute>
-        <attribute name="nonTransactionalTimerObjectName">geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
-        <attribute name="corbaGBeanObjectName">geronimo.server:J2EEApplication=null,J2EEModule=geronimo/server-corba/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=CORBABean,name=Server</attribute>
+        <attribute name="nonTransactionalTimerObjectName">
+            geronimo.server:name=NonTransactionalThreadPooledTimer,*</attribute>
+        <attribute name="corbaGBeanObjectName">
+            geronimo.server:J2EEApplication=null,J2EEModule=geronimo/server-corba/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=CORBABean,name=Server</attribute>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
@@ -53,20 +54,38 @@
         <reference name="EJBReferenceBuilder">
             <name>ServerEJBReferenceBuilder</name>
         </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
     </gbean>
 
     <!-- web switching builder -->
     <gbean name="WebBuilder" class="org.apache.geronimo.j2ee.deployment.SwitchingModuleBuilder">
         <attribute name="defaultNamespace">http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1</attribute>
         <references name="ModuleBuilders">
-            <pattern><gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/jetty-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=JettyWebBuilder</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/tomcat-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=TomcatWebBuilder</gbean-name></pattern>
+            <pattern>
+                <gbean-name>
+                    geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/jetty-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=JettyWebBuilder</gbean-name>
+            </pattern>
+            <pattern>
+                <gbean-name>
+                    geronimo.maven:J2EEApplication=null,J2EEModule=${pom.groupId}/tomcat-deployer/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=ModuleBuilder,name=TomcatWebBuilder</gbean-name>
+            </pattern>
         </references>
-     </gbean>
+    </gbean>
 
     <gbean name="EJBBuilder" class="org.openejb.deployment.OpenEJBModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
-        <attribute name="listener">geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
+        <attribute name="listener">
+            geronimo.server:J2EEApplication=null,J2EEModule=${pom.groupId}/j2ee-server/${pom.currentVersion}/car,J2EEServer=geronimo,j2eeType=GBean,name=WebContainer</attribute>
         <reference name="WebServiceLinkTemplate">
             <name>WebServiceEJBLinkTemplate</name>
         </reference>
@@ -76,10 +95,21 @@
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
     </gbean>
 
     <gbean name="ConnectorBuilder" class="org.apache.geronimo.connector.deployment.ConnectorModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
         <attribute name="defaultMaxSize">10</attribute>
         <attribute name="defaultMinSize">0</attribute>
         <attribute name="defaultBlockingTimeoutMilliseconds">5000</attribute>
@@ -89,14 +119,26 @@
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
     </gbean>
 
     <gbean name="AppClientBuilder" class="org.apache.geronimo.client.builder.AppClientModuleBuilder">
-        <attribute name="defaultClientParentId">${pom.groupId}/client/${pom.currentVersion}/car</attribute>
-        <attribute name="defaultServerParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car</attribute>
-        <attribute name="transactionContextManagerObjectName">geronimo.client:name=TransactionContextManager,*</attribute>
+        <attribute name="transactionContextManagerObjectName">
+            geronimo.client:name=TransactionContextManager,*</attribute>
         <attribute name="connectionTrackerObjectName">geronimo.client:name=ConnectionTracker,*</attribute>
-        <attribute name="corbaGBeanObjectName">geronimo.client:J2EEApplication=null,J2EEModule=geronimo/client-corba/${pom.currentVersion}/car,J2EEServer=client,j2eeType=CORBABean,name=Server</attribute>
+        <attribute name="corbaGBeanObjectName">
+            geronimo.client:J2EEApplication=null,J2EEModule=geronimo/client-corba/${pom.currentVersion}/car,J2EEServer=client,j2eeType=CORBABean,name=Server</attribute>
         <reference name="EJBReferenceBuilder">
             <name>ClientEJBReferenceBuilder</name>
         </reference>
@@ -109,21 +151,41 @@
         <reference name="ServiceReferenceBuilder">
             <name>WebServiceBuilder</name>
         </reference>
-        <references name="Store">
-            <!-- todo replace with a store the Client Builder can write to -->
-            <pattern><gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationStore,name=Local</gbean-name></pattern>
-        </references>
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
+        <xml-attribute name="defaultServerEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
+        <xml-attribute name="defaultClientEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>client</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
     </gbean>
 
     <gbean name="CSSAttributeBuilder" class="org.openejb.corba.security.config.css.CSSConfigEditor"/>
     <gbean name="TSSAttributeBuilder" class="org.openejb.corba.security.config.tss.TSSConfigEditor"/>
     <gbean name="LoginConfigurationBuilder" class="org.apache.geronimo.security.deployment.LoginConfigBuilder"/>
     <gbean name="SecurityService" class="org.apache.geronimo.security.SecurityServiceImpl">
-        <attribute name="policyConfigurationFactory">org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
+        <attribute name="policyConfigurationFactory">
+            org.apache.geronimo.security.jacc.GeronimoPolicyConfigurationFactory</attribute>
         <attribute name="policyProvider">org.apache.geronimo.security.jacc.GeronimoPolicy</attribute>
     </gbean>
     <gbean name="ClientEJBReferenceBuilder" class="org.openejb.deployment.RemoteEJBReferenceBuilder"/>

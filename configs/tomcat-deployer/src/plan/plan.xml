@@ -18,13 +18,9 @@
 
 <!-- $Rev$ $Date$ -->
 
-<configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
-
-    >
+<configuration xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
 
     <gbean name="TomcatWebBuilder" class="org.apache.geronimo.tomcat.deployment.TomcatModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/tomcat/${pom.currentVersion}/car</attribute>
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="tomcatContainerObjectName">geronimo.server:name=TomcatWebContainer,*</attribute>
         <reference name="WebServiceBuilder">
@@ -34,6 +30,24 @@
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>tomcat</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
     </gbean>
 
 </configuration>

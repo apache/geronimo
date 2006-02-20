@@ -53,6 +53,8 @@ import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
@@ -76,6 +78,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 /**
@@ -98,6 +101,10 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
         public File getLocation(Artifact artifact) {
             return null;
+        }
+
+        public LinkedHashSet getDependencies(Artifact artifact) {
+            return new LinkedHashSet();
         }
     };
 
@@ -388,6 +395,16 @@ public class ConnectorModuleBuilderTest extends TestCase {
             GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
+
+            GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+            kernel.loadGBean(manager, this.getClass().getClassLoader());
+            kernel.startGBean(manager.getName());
+
+            GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+            resolver.setReferencePattern("ArtifactManager", manager.getName());
+//            resolver.setReferencePattern("Repositories", repository.getName());
+            kernel.loadGBean(resolver, this.getClass().getClassLoader());
+            kernel.startGBean(resolver.getName());
 
             GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
             configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));

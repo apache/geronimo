@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.io.File;
+import java.util.LinkedHashSet;
 
 /**
  * Provides access to things like JARs via a standard API.  Generally
@@ -35,4 +36,6 @@ public interface Repository {
     boolean contains(Artifact artifact);
 
     File getLocation(Artifact artifact);
+
+    LinkedHashSet getDependencies(Artifact artifact);
 }

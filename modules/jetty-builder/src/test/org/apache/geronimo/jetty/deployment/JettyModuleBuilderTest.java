@@ -63,6 +63,8 @@ import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -108,7 +110,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private JettyModuleBuilder builder;
     private File basedir = new File(System.getProperty("basedir", "."));
     private String PARENT_ARTIFACT_ID = "geronimo/Foo/1/car";
-    private String ARTIFACT_ID = "unknown/war4/1/car";
+    private String ARTIFACT_ID = "foo/bar/1/car";
     private List parentId = Arrays.asList(new Artifact[] {Artifact.create(PARENT_ARTIFACT_ID)});
     private Environment defaultEnvironment = new Environment();
 
@@ -266,6 +268,16 @@ public class JettyModuleBuilderTest extends TestCase {
         GBeanData store = new GBeanData(JMXUtil.getObjectName("foo:j2eeType=ConfigurationStore,name=mock"), MockConfigStore.GBEAN_INFO);
         kernel.loadGBean(store, this.getClass().getClassLoader());
         kernel.startGBean(store.getName());
+
+        GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+        kernel.loadGBean(manager, this.getClass().getClassLoader());
+        kernel.startGBean(manager.getName());
+
+        GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+        resolver.setReferencePattern("ArtifactManager", manager.getName());
+//            resolver.setReferencePattern("Repositories", repository.getName());
+        kernel.loadGBean(resolver, this.getClass().getClassLoader());
+        kernel.startGBean(resolver.getName());
 
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);

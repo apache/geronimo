@@ -55,5 +55,7 @@
             <name>*</name>
         </reference>
     </gbean>
-    
+
+    <!--<gbean name="EnvironmentBuilder" class="org.apache.geronimo.deployment.service.EnvironmentBuilder"/>-->
+
 </configuration>

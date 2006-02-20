@@ -31,6 +31,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -51,52 +52,54 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
     public static Environment buildEnvironment(EnvironmentType environmentType) {
         Environment environment = new Environment();
-        if (environmentType.isSetConfigId()) {
-            environment.setConfigId(toArtifact(environmentType.getConfigId()));
-        }
-
-        Map propertiesMap = new HashMap();
-        if (environmentType.isSetProperties()) {
-            PropertyType[] propertiesArray = environmentType.getProperties().getPropertyArray();
-            for (int i = 0; i < propertiesArray.length; i++) {
-                PropertyType property = propertiesArray[i];
-                String key = property.getName().trim();
-                String value = property.getValue().trim();
-                propertiesMap.put(key, value);
+        if (environmentType != null) {
+            if (environmentType.isSetConfigId()) {
+                environment.setConfigId(toArtifact(environmentType.getConfigId()));
             }
-        }
-        environment.setProperties(propertiesMap);
 
-        if (environmentType.isSetDependencies()) {
-            ArtifactType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
-            Collection dependencies = new LinkedHashSet();
-            Collection imports = new LinkedHashSet();
-            Collection references = new LinkedHashSet();
-            for (int i = 0; i < dependencyArray.length; i++) {
-                ArtifactType artifactType = dependencyArray[i];
-                Artifact artifact = toArtifact(artifactType);
-                String type = artifact.getType();
-                if (type.equals("jar")) {
-                    dependencies.add(artifact);
-                } else if (type.equals("car")) {
-                    if ("classes".equals(artifactType.getImport())) {
-                        throw new IllegalArgumentException("classes-only dependency on car files not yet supported");
-                    } else if ("services".equals(artifactType.getImport())) {
-                        references.add(artifact);
-                    } else {
-                        imports.add(artifact);
-                    }
+            Map propertiesMap = new HashMap();
+            if (environmentType.isSetProperties()) {
+                PropertyType[] propertiesArray = environmentType.getProperties().getPropertyArray();
+                for (int i = 0; i < propertiesArray.length; i++) {
+                    PropertyType property = propertiesArray[i];
+                    String key = property.getName().trim();
+                    String value = property.getValue().trim();
+                    propertiesMap.put(key, value);
                 }
             }
-            environment.setImports(imports);
-            environment.setDependencies(dependencies);
-            environment.setReferences(references);
+            environment.setProperties(propertiesMap);
 
+            if (environmentType.isSetDependencies()) {
+                ArtifactType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
+                Collection dependencies = new LinkedHashSet();
+                Collection imports = new LinkedHashSet();
+                Collection references = new LinkedHashSet();
+                for (int i = 0; i < dependencyArray.length; i++) {
+                    ArtifactType artifactType = dependencyArray[i];
+                    Artifact artifact = toArtifact(artifactType);
+                    String type = artifact.getType();
+                    if (type.equals("jar")) {
+                        dependencies.add(artifact);
+                    } else if (type.equals("car")) {
+                        if ("classes".equals(artifactType.getImport())) {
+                            throw new IllegalArgumentException("classes-only dependency on car files not yet supported");
+                        } else if ("services".equals(artifactType.getImport())) {
+                            references.add(artifact);
+                        } else {
+                            imports.add(artifact);
+                        }
+                    }
+                }
+                environment.setImports(imports);
+                environment.setDependencies(dependencies);
+                environment.setReferences(references);
+
+            }
+            environment.setInverseClassLoading(environmentType.isSetInverseClassloading());
+            environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
+            environment.setHiddenClasses(toFilters(environmentType.getHiddenClassesArray()));
+            environment.setNonOverrideableClasses(toFilters(environmentType.getNonOverridableClassesArray()));
         }
-        environment.setInverseClassLoading(environmentType.isSetInverseClassloading());
-        environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
-        environment.setHiddenClasses(toFilters(environmentType.getHiddenClassesArray()));
-        environment.setNonOverrideableClasses(toFilters(environmentType.getNonOverridableClassesArray()));
 
         return environment;
     }
@@ -244,7 +247,13 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             environmentType = (EnvironmentType) xmlObject.copy().changeType(EnvironmentType.type);
         }
         try {
-            SchemaConversionUtils.validateDD(environmentType);
+            XmlOptions xmlOptions = new XmlOptions();
+            xmlOptions.setLoadLineNumbers();
+            Collection errors = new ArrayList();
+            xmlOptions.setErrorListener(errors);
+            if (!environmentType.validate(xmlOptions)) {
+                throw new XmlException("Invalid deployment descriptor: " + errors + "\nDescriptor: " + environmentType.toString(), null, errors);
+            }
         } catch (XmlException e) {
             throw new DeploymentException(e);
         }

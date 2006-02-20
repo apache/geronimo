@@ -23,7 +23,7 @@ Configuration for the security of a Geronimo app client.
 
 -->
 <configuration
-    xmlns="http://geronimo.apache.org/xml/ns/deployment"
+    xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1"
 
     >
 
@@ -79,7 +79,7 @@ Configuration for the security of a Geronimo app client.
         class="org.apache.geronimo.security.realm.GenericSecurityRealm">
         <attribute name="realmName">client-properties-realm</attribute>
         <xml-reference name="LoginModuleConfiguration">
-            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig">
+            <lc:login-config xmlns:lc="http://geronimo.apache.org/xml/ns/loginconfig-1.0">
                 <lc:login-module control-flag="REQUIRED" server-side="true" wrap-principals="true">
                     <lc:login-domain-name>client-properties-realm</lc:login-domain-name>
                     <lc:login-module-class>org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule</lc:login-module-class>

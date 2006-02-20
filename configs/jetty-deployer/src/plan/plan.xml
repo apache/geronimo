@@ -24,7 +24,6 @@
     >
 
     <gbean name="JettyWebBuilder" class="org.apache.geronimo.jetty.deployment.JettyModuleBuilder">
-        <attribute name="defaultParentId">${pom.groupId}/j2ee-server/${pom.currentVersion}/car,${pom.groupId}/jetty/${pom.currentVersion}/car</attribute>
         <attribute name="defaultSessionTimeoutSeconds">1800</attribute>
         <attribute name="defaultContextPriorityClassloader">false</attribute>
         <attribute name="defaultWelcomeFiles">index.html,index.htm,index.jsp</attribute>
@@ -43,6 +42,24 @@
         <reference name="Repository">
             <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
+        <xml-attribute name="defaultEnvironment">
+            <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
+                <dependencies>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>j2ee-server</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>${pom.groupId}</groupId>
+                        <artifactId>jetty</artifactId>
+                        <version>${pom.currentVersion}</version>
+                        <type>car</type>
+                    </dependency>
+                </dependencies>
+            </environment>
+        </xml-attribute>
     </gbean>
 
     <gbean name="StaticContent" class="org.apache.geronimo.jetty.JettyServletHolder">

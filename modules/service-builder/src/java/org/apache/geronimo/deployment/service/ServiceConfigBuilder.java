@@ -20,7 +20,6 @@ package org.apache.geronimo.deployment.service;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
@@ -29,7 +28,6 @@ import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.PatternType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
 import org.apache.geronimo.deployment.xbeans.ReferencesType;
-import org.apache.geronimo.deployment.xbeans.ServiceDocument;
 import org.apache.geronimo.deployment.xbeans.XmlAttributeType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
@@ -44,7 +42,6 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -55,12 +52,6 @@ import javax.management.ObjectName;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -171,7 +162,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ClassLoader cl = context.getClassLoader(repository);
 
 
-        J2eeContext j2eeContext = null;
+        J2eeContext j2eeContext;
         try {
             j2eeContext = NameFactory.buildJ2eeContext(environment.getProperties(), NameFactory.NULL, NameFactory.J2EE_MODULE, environment.getConfigId().toString(), null, null);
         } catch (MalformedObjectNameException e) {
@@ -181,62 +172,6 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         addGBeans(gbeans, cl, j2eeContext, context);
         context.close();
         return context.getConfigurationData();
-    }
-    public static void addIncludes(DeploymentContext context, ArtifactType[] includes, Repository repository) throws DeploymentException {
-        for (int i = 0; i < includes.length; i++) {
-            ArtifactType include = includes[i];
-            Artifact artifact = getDependencyURI(include, repository);
-            String name = getDependencyFileName(include);
-            URI path;
-            try {
-                path = new URI(name);
-            } catch (URISyntaxException e) {
-                throw new DeploymentException("Unable to generate path for include: " + artifact, e);
-            }
-            try {
-                File file = repository.getLocation(artifact);
-                context.addInclude(path, file.toURL());
-            } catch (IOException e) {
-                throw new DeploymentException("Unable to add include: " + artifact, e);
-            }
-        }
-    }
-
-    //TODO this is part of Environment resolution
-    public static void addDependencies(DeploymentContext context, ArtifactType[] deps, Repository repository) throws DeploymentException {
-        for (int i = 0; i < deps.length; i++) {
-            Artifact artifact = getDependencyURI(deps[i], repository);
-//            context.addDependency(dependencyURI);
-
-            URL url;
-            try {
-                File location = repository.getLocation(artifact);
-                url = location.toURL();
-            } catch (MalformedURLException e) {
-                throw new DeploymentException("Unable to get URL for dependency " + artifact, e);
-            }
-            ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
-            InputStream is = depCL.getResourceAsStream("META-INF/geronimo-service.xml");
-            if (is != null) {
-                // it has a geronimo-service.xml file
-                ServiceDocument serviceDoc = null;
-                try {
-                    Collection errors = new ArrayList();
-                    serviceDoc = ServiceDocument.Factory.parse(is, XmlBeansUtil.createXmlOptions(errors));
-                    if (errors.size() > 0) {
-                        throw new DeploymentException("Invalid service doc: " + errors);
-                    }
-                } catch (XmlException e) {
-                    throw new DeploymentException("Invalid geronimo-service.xml file in " + url, e);
-                } catch (IOException e) {
-                    throw new DeploymentException("Unable to parse geronimo-service.xml file in " + url, e);
-                }
-                ArtifactType[] dependencyDeps = serviceDoc.getService().getDependencyArray();
-                if (dependencyDeps != null) {
-                    addDependencies(context, dependencyDeps, repository);
-                }
-            }
-        }
     }
 
     public static void addGBeans(GbeanType[] gbeans, ClassLoader cl, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException {
@@ -327,22 +262,6 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         GBeanData gBeanData = builder.getGBeanData();
         context.addGBean(gBeanData);
         return objectName;
-    }
-
-    private static Artifact getDependencyURI(ArtifactType dep, Repository repository) throws DeploymentException {
-        Artifact artifact = EnvironmentBuilder.toArtifact(dep);
-        if (!repository.contains(artifact)) {
-            throw new DeploymentException(new MissingDependencyException("Artifact " + artifact + " not found in repository"));
-        }
-        return artifact;
-    }
-
-    private static String getDependencyFileName(ArtifactType dep) {
-        String type = dep.isSetType() ? dep.getType().trim() : "jar";
-        String artifactId = dep.getArtifactId().trim();
-        String version = dep.getVersion().trim();
-        String name = artifactId + "-" + version + "." + type;
-        return name;
     }
 
     public static final GBeanInfo GBEAN_INFO;

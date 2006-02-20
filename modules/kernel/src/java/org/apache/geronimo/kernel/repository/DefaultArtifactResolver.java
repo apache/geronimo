@@ -94,7 +94,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             existingArtifacts = new TreeSet();
         }
 
-        // if we have exactally one artifact loaded use it's version
+        // if we have exactly one artifact loaded use its' version
         if (existingArtifacts.size() == 1) {
             Artifact existingArtifact = (Artifact) existingArtifacts.first();
             return existingArtifact.getVersion();
@@ -177,16 +177,16 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactResolver.class);
-        infoFactory.addReference("ArtifactManager", ArtifactManager.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactResolver.class, "GBean");
+        infoFactory.addReference("ArtifactManager", ArtifactManager.class, "GBean");
         infoFactory.addReference("Repositories", Repository.class, "GBean");
+        infoFactory.addInterface(ArtifactResolver.class);
 
         infoFactory.setConstructor(new String[]{
                 "ArtifactManager",
                 "Repositories",
         });
 
-        infoFactory.addInterface(ArtifactResolver.class);
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

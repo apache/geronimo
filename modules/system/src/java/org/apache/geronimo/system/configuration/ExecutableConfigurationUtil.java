@@ -154,23 +154,14 @@ public final class ExecutableConfigurationUtil {
         try {
             Artifact id = configurationData.getId();
             GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-//            config.setAttribute("id", id);
             config.setAttribute("type", configurationData.getModuleType());
-            //TODO configid this might need further improvmement
-//            Map nameKeys = configurationData.getNameKeys();
-//            config.setAttribute("nameKeys", nameKeys);
-
             Environment environment = configurationData.getEnvironment();
             config.setAttribute("environment", environment);
             config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
-            config.setReferencePatterns("Repositories", Collections.singleton(new ObjectName("*:name=Repository,*")));
-//            config.setAttribute("dependencies", configurationData.getDependencies());
             config.setAttribute("classPath", configurationData.getClassPath());
-//            config.setAttribute("inverseClassLoading", Boolean.valueOf(configurationData.isInverseClassloading()));
-//            Set set = configurationData.getHiddenClasses();
-//            config.setAttribute("hiddenClasses", set.toArray(new String[set.size()]));
-//            set = configurationData.getNonOverridableClasses();
-//            config.setAttribute("nonOverridableClasses", set.toArray(new String[set.size()]));
+            config.setReferencePattern("Repositories", new ObjectName("*:name=Repository,*"));
+            config.setReferencePattern("ArtifactManager", new ObjectName("*:name=ArtifactManager,*"));
+            config.setReferencePattern("ArtifactResolver", new ObjectName("*:name=ArtifactResolver,*"));
 
             return config;
         } catch (MalformedObjectNameException e) {

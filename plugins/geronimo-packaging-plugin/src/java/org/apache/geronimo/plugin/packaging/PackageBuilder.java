@@ -28,6 +28,8 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.log4j.BasicConfigurator;
 
 import javax.management.MalformedObjectNameException;
@@ -53,7 +55,8 @@ public class PackageBuilder {
      * The name of the GBean that will load dependencies from the Maven repository.
      */
     private static final ObjectName REPOSITORY_NAME;
-
+    private static final ObjectName ARTIFACT_MANAGER_NAME;
+    private static final ObjectName ARTIFACT_RESOLVER_NAME;
     /**
      * The name of the GBean that will load Configurations from the Maven repository.
      */
@@ -89,6 +92,8 @@ public class PackageBuilder {
     static {
         try {
             REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository");
+            ARTIFACT_MANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactManager");
+            ARTIFACT_RESOLVER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactResolver");
             CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=MavenConfigStore,j2eeType=ConfigurationStore");
             CONFIGMANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ConfigurationManager,j2eeType=ConfigurationManager");
             ATTRIBUTESTORE_NAME = new ObjectName(KERNEL_NAME + ":name=ManagedAttributeStore");
@@ -328,6 +333,17 @@ public class PackageBuilder {
         repoGBean.setAttribute("root", repositoryURI);
         kernel.loadGBean(repoGBean, cl);
         kernel.startGBean(REPOSITORY_NAME);
+
+        //TODO parameterize these?
+        GBeanData artifactManagerGBean = new GBeanData(ARTIFACT_MANAGER_NAME, DefaultArtifactManager.GBEAN_INFO);
+        kernel.loadGBean(artifactManagerGBean, cl);
+        kernel.startGBean(ARTIFACT_MANAGER_NAME);
+
+        GBeanData artifactResolverGBean = new GBeanData(ARTIFACT_RESOLVER_NAME, DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverGBean.setReferencePattern("Repositories", REPOSITORY_NAME);
+        artifactResolverGBean.setReferencePattern("ArtifactManager", ARTIFACT_MANAGER_NAME);
+        kernel.loadGBean(artifactResolverGBean, cl);
+        kernel.startGBean(ARTIFACT_RESOLVER_NAME);
 
         GBeanInfo configStoreInfo = GBeanInfo.getGBeanInfo(configStoreClass, cl);
         GBeanData storeGBean = new GBeanData(CONFIGSTORE_NAME, configStoreInfo);

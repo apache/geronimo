@@ -78,6 +78,18 @@ specific services - those should be provided by children.
         </reference>
     </gbean>
 
+    <gbean name="ArtifactManager" class="org.apache.geronimo.kernel.repository.DefaultArtifactManager">
+    </gbean>
+
+    <gbean name="ArtifactResolver" class="org.apache.geronimo.kernel.repository.DefaultArtifactResolver">
+        <reference name="ArtifactManager">
+            <name>ArtifactManager</name>
+        </reference>
+        <reference name="Repositories">
+            <gbean-name>*:name=Repository,*</gbean-name>
+        </reference>
+    </gbean>
+
     <!-- Logging service -->
     <gbean name="Logger" class="org.apache.geronimo.system.logging.log4j.Log4jService">
         <attribute name="configFileName">var/log/server-log4j.properties</attribute>

@@ -65,6 +65,8 @@ import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -156,7 +158,7 @@ public class TomcatModuleBuilderTest extends TestCase {
     }
 
     public void testDeployWar5() throws Exception {
-        deployWar("war5", "unknown/hello/1/car");
+        deployWar("war5", "test/foo/1/car");
     }
 
     public void deployWar(String warName, String name) throws Exception {
@@ -377,6 +379,17 @@ public class TomcatModuleBuilderTest extends TestCase {
         configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
         kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
         kernel.startGBean(configurationManagerName);
+
+        GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+        kernel.loadGBean(manager, this.getClass().getClassLoader());
+        kernel.startGBean(manager.getName());
+
+        GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+        resolver.setReferencePattern("ArtifactManager", manager.getName());
+//            resolver.setReferencePattern("Repositories", repository.getName());
+        kernel.loadGBean(resolver, this.getClass().getClassLoader());
+        kernel.startGBean(resolver.getName());
+
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
         configurationManager.load((Artifact) parentId.get(0));

@@ -259,7 +259,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         // resolve dependencies
         LinkedHashSet dependencies = environment.getDependencies();
-        dependencies = artifactResolver.resolve(parents, dependencies);
+        dependencies = recursiveResolve(artifactResolver, dependencies);
         environment.setDependencies(dependencies);
 
         // resolve references
@@ -284,6 +284,22 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             }
             configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, parentClassLoaders);
         }
+    }
+
+    private LinkedHashSet recursiveResolve(ArtifactResolver artifactResolver, LinkedHashSet dependencies) throws MissingDependencyException {
+        dependencies = artifactResolver.resolve(parents, dependencies);
+        for (Iterator iterator = new ArrayList(dependencies).iterator(); iterator.hasNext();) {
+            Artifact dependency = (Artifact) iterator.next();
+            for (Iterator iterator1 = repositories.iterator(); iterator1.hasNext();) {
+                Repository repository = (Repository) iterator1.next();
+                if (repository.contains(dependency)) {
+                    LinkedHashSet subDependencies = repository.getDependencies(dependency);
+                    subDependencies = recursiveResolve(artifactResolver, subDependencies);
+                    dependencies.addAll(subDependencies);
+                }
+            }
+        }
+        return dependencies;
     }
 
     public String getObjectName() {
@@ -644,9 +660,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
         //make id readable for convenience
         infoFactory.addAttribute("id", Artifact.class, false);
+        //NOTE THIS IS NOT A REFERENCE
+        infoFactory.addAttribute("configurationStore", ConfigurationStore.class, true);
 
         infoFactory.addReference("Repositories", Repository.class, "GBean");
-        infoFactory.addReference("ConfigurationStore", ConfigurationStore.class, "GBean");
         infoFactory.addReference("ArtifactManager", ArtifactManager.class);
         infoFactory.addReference("ArtifactResolver", ArtifactResolver.class);
 
@@ -668,7 +685,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 "classPath",
                 "gBeanState",
                 "Repositories",
-                "ConfigurationStore",
+                "configurationStore",
                 "ArtifactManager",
                 "ArtifactResolver"
         });

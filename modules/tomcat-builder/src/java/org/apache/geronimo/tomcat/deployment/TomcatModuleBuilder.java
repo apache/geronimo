@@ -69,6 +69,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -176,12 +177,8 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         }
         check(webApp);
 
-
         // parse vendor dd
         TomcatWebAppType tomcatWebApp = getTomcatWebApp(plan, moduleFile, standAlone, targetPath, webApp);
-
-        EnvironmentType environmentType = tomcatWebApp.getEnvironment();
-        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
         if (contextRoot == null) {
             if (tomcatWebApp.isSetContextRoot()) {
@@ -190,6 +187,14 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 contextRoot = determineDefaultContextRoot(webApp, standAlone, moduleFile, targetPath);
             }
         }
+
+        EnvironmentType environmentType = tomcatWebApp.getEnvironment();
+        Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+        if (environment.getConfigId() == null) {
+            Artifact configID = new Artifact(Artifact.DEFAULT_GROUP_ID, contextRoot, "1", "car");
+            environment.setConfigId(configID);
+        }
+
         //look for a webservices dd
         Map portMap = Collections.EMPTY_MAP;
         //TODO Jeff, please review
@@ -304,13 +309,6 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private TomcatWebAppType createDefaultPlan(String path) {
         TomcatWebAppType tomcatWebApp = TomcatWebAppType.Factory.newInstance();
-        EnvironmentType environmentType = tomcatWebApp.addNewEnvironment();
-        ArtifactType artifact = environmentType.addNewConfigId();
-        //TODO this version is incomplete.
-        artifact.setGroupId("unknown");
-        artifact.setArtifactId(path);
-        artifact.setVersion("1");
-        artifact.setType("car");
         tomcatWebApp.setContextRoot("/" + path);
         tomcatWebApp.setContextPriorityClassloader(defaultContextPriorityClassloader);
         return tomcatWebApp;

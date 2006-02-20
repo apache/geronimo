@@ -54,11 +54,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.LinkedHashSet;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -532,12 +532,10 @@ public class DeploymentContext {
         if (configID != null) {
             ObjectName configName = Configuration.getConfigurationObjectName(configID);
             if (!isRunning(kernel, configName)) {
-                Artifact[] patterns = (Artifact[]) kernel.getGBeanData(configName).getAttribute("parentId");
-                if (patterns != null) {
-                    for (int i = 0; i < patterns.length; i++) {
-                        Artifact pattern = patterns[i];
-                        startAncestors(pattern, kernel, started, configurationManager);
-                    }
+                LinkedHashSet patterns = ((Environment) kernel.getAttribute(configName, "environment")).getImports();
+                for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
+                    Artifact pattern = (Artifact) iterator.next();
+                    startAncestors(pattern, kernel, started, configurationManager);
                 }
                 configurationManager.loadGBeans(configID);
                 started.add(configID);

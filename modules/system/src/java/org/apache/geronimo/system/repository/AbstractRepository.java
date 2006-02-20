@@ -16,6 +16,21 @@
  */
 package org.apache.geronimo.system.repository;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -23,15 +38,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.LinkedHashSet;
 
 /**
  * @version $Rev$ $Date$
@@ -87,6 +99,65 @@ public abstract class AbstractRepository implements WriteableRepository {
     public boolean contains(Artifact artifact) {
         File location = getLocation(artifact);
         return location.isFile() && location.canRead();
+    }
+
+    private static final String NAMESPACE = "http://geronimo.apache.org/xml/ns/deployment-1.1";
+    public LinkedHashSet getDependencies(Artifact artifact) {
+        LinkedHashSet dependencies = new LinkedHashSet();
+        URL url;
+        try {
+            File location = getLocation(artifact);
+            url = location.toURL();
+        } catch (MalformedURLException e) {
+            throw (IllegalStateException)new IllegalStateException("Unable to get URL for dependency " + artifact).initCause(e);
+        }
+        ClassLoader depCL = new URLClassLoader(new URL[]{url}, ClassLoader.getSystemClassLoader());
+        InputStream is = depCL.getResourceAsStream("META-INF/geronimo-service.xml");
+        if (is != null) {
+            InputSource in = new InputSource(is);
+            DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
+            dfactory.setNamespaceAware(true);
+            try {
+                Document doc = dfactory.newDocumentBuilder().parse(in);
+                Element root = doc.getDocumentElement();
+                NodeList configs = root.getElementsByTagNameNS(NAMESPACE, "dependency");
+                for (int i = 0; i < configs.getLength(); i++) {
+                    Element dependencyElement = (Element) configs.item(i);
+                    String groupId = getString(dependencyElement, "groupId");
+                    String artifactId = getString(dependencyElement, "artifactId");
+                    String version = getString(dependencyElement, "version");
+                    String type = getString(dependencyElement, "type");
+                    if (type == null) {
+                        type = "jar";
+                    }
+                    dependencies.add(new Artifact(groupId, artifactId,  version, type));
+                }
+            } catch (IOException e) {
+//                throw new DeploymentException("Unable to parse geronimo-service.xml file in " + url, e);
+                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-service.xml file in " + url).initCause(e);
+            } catch (ParserConfigurationException e) {
+                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-service.xml file in " + url).initCause(e);
+            } catch (SAXException e) {
+                throw (IllegalStateException)new IllegalStateException("Unable to parse geronimo-service.xml file in " + url).initCause(e);
+            }
+        }
+        return dependencies;
+    }
+
+    private String getString(Element dependencyElement, String childName) {
+        NodeList children = dependencyElement.getElementsByTagNameNS(NAMESPACE, childName);
+        if (children == null || children.getLength() == 0) {
+        return null;
+        }
+        String value = "";
+        NodeList text = children.item(0).getChildNodes();
+        for (int t = 0; t < text.getLength(); t++) {
+            Node n = text.item(t);
+            if (n.getNodeType() == Node.TEXT_NODE) {
+                value += n.getNodeValue();
+            }
+        }
+        return value.trim();
     }
 
     public void copyToRepository(File source, Artifact destination, FileWriteMonitor monitor) throws IOException {

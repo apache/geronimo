@@ -139,7 +139,7 @@ public class Maven2Repository extends AbstractRepository implements ListableRepo
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2Repository.class);
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2Repository.class, "GBean");
 
         infoFactory.addAttribute("root", URI.class, true);
 

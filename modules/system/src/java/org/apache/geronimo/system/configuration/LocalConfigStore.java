@@ -337,6 +337,8 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         config.setName(name);
         //TODO configId remove this
         config.setAttribute("baseURL", getRoot(configId).toURL());
+        //TODO NOTE THIS IS NOT A PROXY
+        config.setAttribute("configurationStore", this);
 
         try {
             kernel.loadGBean(config, Configuration.class.getClassLoader());

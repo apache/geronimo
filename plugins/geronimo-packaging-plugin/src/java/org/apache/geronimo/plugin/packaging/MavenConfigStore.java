@@ -88,6 +88,7 @@ public class MavenConfigStore implements ConfigurationStore {
 
         ObjectName name = Configuration.getConfigurationObjectName(configId);
         config.setName(name);
+        config.setAttribute("configurationStore", this);
         config.setAttribute("baseURL", baseURL);
 
         try {
@@ -123,8 +124,8 @@ public class MavenConfigStore implements ConfigurationStore {
     }
 
     public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-        //unless we actually need to set up the configuration's classloader, this won't get called
-        return null;
+        URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
+        return new URL(baseURL, uri.toString());
     }
 
     public Artifact install(URL source) throws IOException, InvalidConfigException {

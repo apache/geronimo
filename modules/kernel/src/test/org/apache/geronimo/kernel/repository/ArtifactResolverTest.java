@@ -127,5 +127,9 @@ public class ArtifactResolverTest extends TestCase {
         public File getLocation(Artifact artifact) {
             return new File(".");
         }
+
+        public LinkedHashSet getDependencies(Artifact artifact) {
+            return new LinkedHashSet();
+        }
     }
 }

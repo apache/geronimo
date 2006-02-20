@@ -18,14 +18,11 @@
 
 <!-- $Rev$ $Date$ -->
 
-<application
-    xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1"
-
-    >
+<application xmlns="http://geronimo.apache.org/xml/ns/j2ee/application-1.1">
 
     <module>
         <web>geronimo-console-framework-${pom.currentVersion}.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1" configId="console">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
             <context-root>/console</context-root>
             <context-priority-classloader>false</context-priority-classloader>
             <cross-context/>
@@ -47,7 +44,7 @@
 
     <module>
         <web>geronimo-console-standard-${pom.currentVersion}.war</web>
-        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1" configId="console-standard">
+        <web-app xmlns="http://geronimo.apache.org/xml/ns/j2ee/web/tomcat-1.1">
             <context-root>/console-standard</context-root>
             <context-priority-classloader>false</context-priority-classloader>
             <cross-context/>
