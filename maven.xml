@@ -71,6 +71,26 @@
         <attainGoal name="new3"/>
         <attainGoal name="new4"/>
         <attainGoal name="new5"/>
+        <j:if test="${m2}">
+            <attainGoal name="m2"/>
+        </j:if>
+    </goal>
+
+    <!-- ============= -->
+    <!--    Maven 2    -->
+    <!-- ============= -->
+    <goal name="m2">
+        <j:set var="goal" value="install" />
+        <attainGoal name="execmvn" />
+    </goal>
+
+    <goal name="execmvn">
+        <ant:exec executable="mvn.bat" os="Windows XP">
+            <ant:arg line="-Dmodule=kernel ${goal}" />
+        </ant:exec>
+        <ant:exec executable="mvn" os="unix,mac">
+            <ant:arg line="-Dmodule=kernel ${goal}" />
+        </ant:exec>
     </goal>
 
     <!-- ============= -->
