@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright 2004 The Apache Software Foundation
+    Copyright 2006 The Apache Software Foundation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -30,7 +30,9 @@
 
   <issueManagement>
     <system>jira</system>
-    <url>http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220</url>
+    <url>
+      http://issues.apache.org/jira/secure/BrowseProject.jspa?id=10220
+    </url>
   </issueManagement>
 
   <ciManagement>
@@ -38,31 +40,37 @@
     <notifiers>
       <notifier>
         <type>mail</type>
-        <sendOnError/>
-        <sendOnFailure/>
+        <sendOnError />
+        <sendOnFailure />
         <address>dev@geronimo.org</address>
       </notifier>
     </notifiers>
   </ciManagement>
-  
+
   <mailingLists>
     <mailingList>
       <name>Geronimo User List</name>
       <subscribe>users-subscribe@geronimo.apache.org</subscribe>
       <unsubscribe>users-unsubscribe@geronimo.apache.org</unsubscribe>
-      <archive>http://mail-archives.apache.org/mod_mbox/geronimo-user/</archive>
+      <archive>
+        http://mail-archives.apache.org/mod_mbox/geronimo-user/
+      </archive>
     </mailingList>
     <mailingList>
       <name>Geronimo Developer List</name>
       <subscribe>dev-subscribe@geronimo.apache.org</subscribe>
       <unsubscribe>dev-unsubscribe@geronimo.apache.org</unsubscribe>
-      <archive>http://mail-archives.apache.org/mod_mbox/geronimo-dev/</archive>
+      <archive>
+        http://mail-archives.apache.org/mod_mbox/geronimo-dev/
+      </archive>
     </mailingList>
     <mailingList>
       <name>Source Control List</name>
       <subscribe>scm-subscribe@geronimo.apache.org</subscribe>
       <unsubscribe>scm-unsubscribe@geronimo.apache.org</unsubscribe>
-      <archive>http://mail-archives.apache.org/mod_mbox/geronimo-scm/</archive>
+      <archive>
+        http://mail-archives.apache.org/mod_mbox/geronimo-scm/
+      </archive>
     </mailingList>
   </mailingLists>
 
@@ -75,8 +83,12 @@
   </licenses>
 
   <scm>
-    <connection>scm:svn:https://svn.apache.org/repos/asf/geronimo/</connection>
-    <developerConnection>scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/</developerConnection>
+    <connection>
+      scm:svn:https://svn.apache.org/repos/asf/geronimo/
+    </connection>
+    <developerConnection>
+      scm:svn:https://${maven.username}@svn.apache.org/repos/asf/geronimo/
+    </developerConnection>
     <url>https://svn.apache.org/repos/asf/geronimo/</url>
   </scm>
 
@@ -87,26 +99,34 @@
 
   <properties>
     <!--
-     |
-     | Geronimo module versions
-     |
-     -->
+      |
+      | Geronimo module versions
+      |
+    -->
     <geronimoVersion>1.1-SNAPSHOT</geronimoVersion>
-    
+
     <!--
-     |
-     | Geronimo specification versions
-     |
-     -->
+      |
+      | Geronimo specification versions
+      |
+    -->
     <geronimoSpecActivationVersion>1.0</geronimoSpecActivationVersion>
     <geronimoSpecCorbaVersion>1.1-SNAPSHOT</geronimoSpecCorbaVersion>
     <geronimoSpecEjbVersion>1.0</geronimoSpecEjbVersion>
     <geronimoSpecJ2eeVersion>1.1-SNAPSHOT</geronimoSpecJ2eeVersion>
-    <geronimoSpecJ2eeConnectorVersion>1.0</geronimoSpecJ2eeConnectorVersion>
-    <geronimoSpecJ2eeDeploymentVersion>1.0</geronimoSpecJ2eeDeploymentVersion>
+    <geronimoSpecJ2eeConnectorVersion>
+      1.0
+    </geronimoSpecJ2eeConnectorVersion>
+    <geronimoSpecJ2eeDeploymentVersion>
+      1.0
+    </geronimoSpecJ2eeDeploymentVersion>
     <geronimoSpecJ2eeJaccVersion>1.0</geronimoSpecJ2eeJaccVersion>
-    <geronimoSpecJ2eeManagementVersion>1.0</geronimoSpecJ2eeManagementVersion>
-    <geronimoSpecJavamailVersion>1.1-SNAPSHOT</geronimoSpecJavamailVersion>
+    <geronimoSpecJ2eeManagementVersion>
+      1.0
+    </geronimoSpecJ2eeManagementVersion>
+    <geronimoSpecJavamailVersion>
+      1.1-SNAPSHOT
+    </geronimoSpecJavamailVersion>
     <geronimoSpecJaxrVersion>1.0</geronimoSpecJaxrVersion>
     <geronimoSpecJaxrpcVersion>1.0</geronimoSpecJaxrpcVersion>
     <geronimoSpecJmsVersion>1.0</geronimoSpecJmsVersion>
@@ -116,10 +136,10 @@
     <geronimoSpecSaajVersion>1.0</geronimoSpecSaajVersion>
     <geronimoSpecServletVersion>1.0</geronimoSpecServletVersion>
     <!--
-     |
-     | External dependency versions
-     |
-     -->
+      |
+      | External dependency versions
+      |
+    -->
     <activeIoVersion>2.0-r118</activeIoVersion>
     <activeMqVersion>3.2</activeMqVersion>
     <antlrVersion>2.7.2</antlrVersion>
@@ -127,7 +147,9 @@
     <asmVersion>1.4.3</asmVersion>
     <asn1Version>0.3.2</asn1Version>
     <axisVersion>1.3</axisVersion>
-    <backportUtilConcurrentVersion>2.0_01_pd</backportUtilConcurrentVersion>
+    <backportUtilConcurrentVersion>
+      2.0_01_pd
+    </backportUtilConcurrentVersion>
     <castorVersion>0.9.5.3</castorVersion>
     <cglibVersion>2.1_3</cglibVersion>
     <commonsBeanutilsVersion>1.6.1</commonsBeanutilsVersion>
@@ -197,15 +219,15 @@
     <xmlResolverVersion>1.1</xmlResolverVersion>
     <xpp3Version>1.1.3.3</xpp3Version>
     <xstreamVersion>1.0.2</xstreamVersion>
-  </properties> 
+  </properties>
 
   <dependencyManagement>
     <dependencies>
       <!--
-       |
-       | Geronimo specification versions
-       |
-       -->          
+        |
+        | Geronimo specification versions
+        |
+      -->
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-activation_1.0.2_spec</artifactId>
@@ -220,27 +242,27 @@
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-ejb_2.1_spec</artifactId>
         <version>${geronimoSpecEjbVersion}</version>
-      </dependency>                        
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-j2ee_1.4_spec</artifactId>
         <version>${geronimoSpecJ2eeVersion}</version>
-      </dependency>                        
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
         <version>${geronimoSpecJ2eeConnectorVersion}</version>
-      </dependency>                        
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
         <version>${geronimoSpecJ2eeDeploymentVersion}</version>
-      </dependency>                        
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
         <version>${geronimoSpecJ2eeJaccVersion}</version>
-      </dependency>                              
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
@@ -250,52 +272,52 @@
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
         <version>${geronimoSpecJavamailVersion}</version>
-      </dependency>                                                
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jaxr_1.0_spec</artifactId>
         <version>${geronimoSpecJaxrVersion}</version>
-      </dependency>                                                
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
         <version>${geronimoSpecJaxrpcVersion}</version>
-      </dependency>                                                
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jsp_2.0_spec</artifactId>
         <version>${geronimoSpecJspVersion}</version>
-      </dependency>                                          
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jms_1.1_spec</artifactId>
         <version>${geronimoSpecJmsVersion}</version>
-      </dependency>                                    
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
         <version>${geronimoSpecJtaVersion}</version>
-      </dependency>                                          
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-qname_1.1_spec</artifactId>
         <version>${geronimoSpecQnameVersion}</version>
-      </dependency>            
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-saaj_1.1_spec</artifactId>
         <version>${geronimoSpecSaajVersion}</version>
-      </dependency>                  
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo.specs</groupId>
         <artifactId>geronimo-servlet_2.4_spec</artifactId>
         <version>${geronimoSpecServletVersion}</version>
-      </dependency>          
+      </dependency>
       <!--
-       |
-       | External dependency versions
-       |
-       --> 
+        |
+        | External dependency versions
+        |
+      -->
       <dependency>
         <groupId>activeio</groupId>
         <artifactId>activeio</artifactId>
@@ -315,7 +337,7 @@
         <groupId>cglib</groupId>
         <artifactId>cglib-nodep</artifactId>
         <version>${cglibVersion}</version>
-      </dependency>   
+      </dependency>
       <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
@@ -350,12 +372,12 @@
         <groupId>mx4j</groupId>
         <artifactId>mx4j-remote</artifactId>
         <version>${mx4jVersion}</version>
-      </dependency>                        
+      </dependency>
       <dependency>
         <groupId>mockobjects</groupId>
         <artifactId>mockobjects-jdk1.4-j2ee1.3</artifactId>
         <version>${mockobjectsVersion}</version>
-      </dependency>                              
+      </dependency>
       <dependency>
         <groupId>mockobjects</groupId>
         <artifactId>mockobjects-core</artifactId>
@@ -492,7 +514,7 @@
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo-deploy-tool</artifactId>
         <version>${geronimoVersion}</version>
-      </dependency>      
+      </dependency>
       <dependency>
         <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo-deployment</artifactId>
@@ -578,7 +600,7 @@
         <artifactId>geronimo-web-builder</artifactId>
         <version>${geronimoVersion}</version>
       </dependency>
-   </dependencies>
+    </dependencies>
   </dependencyManagement>
 
   <dependencies>
@@ -593,16 +615,22 @@
     <repository>
       <id>apache-repo</id>
       <name>Apache CVS Repository</name>
-      <url>scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository</url>
+      <url>
+        scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository
+      </url>
     </repository>
     <snapshotRepository>
       <id>apache-snapshots</id>
       <name>Apache CVS Development Repository</name>
-      <url>scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository</url>
+      <url>
+        scpexe://cvs.apache.org/www/cvs.apache.org/maven-snapshot-repository
+      </url>
     </snapshotRepository>
     <site>
       <id>geronimo-website</id>
-      <url>scpexe://minotaur.apache.org/www/geronimo.apache.org/maven/</url>
+      <url>
+        scpexe://minotaur.apache.org/www/geronimo.apache.org/maven/
+      </url>
     </site>
   </distributionManagement>
 
@@ -624,7 +652,9 @@
         <executions>
           <execution>
             <configuration>
-              <remoteRepositoryUrl>scpexe://cvs.apache.org/www/cvs.apache.org/repository</remoteRepositoryUrl>
+              <remoteRepositoryUrl>
+                scpexe://cvs.apache.org/www/cvs.apache.org/repository
+              </remoteRepositoryUrl>
             </configuration>
             <goals>
               <goal>install-maven-one-repository</goal>
@@ -669,42 +699,60 @@
       <url>http://snapshots.maven.codehaus.org/maven2</url>
     </pluginRepository>
   </pluginRepositories>
-  
-  <modules>
-    <module>modules/activation</module>
-    <module>modules/client</module>
-    <module>modules/common</module>
-    <module>modules/connector</module>
-    <module>modules/connector-builder</module>
-    <module>modules/converter</module>
-    <module>modules/core</module>
-    <module>modules/deploy-config</module>
-    <module>modules/deploy-jsr88</module>
-    <module>modules/deploy-tool</module>
-    <module>modules/deployment</module>
-    <module>modules/derby</module>
-    <module>modules/j2ee</module>
-    <module>modules/j2ee-builder</module>
-    <module>modules/j2ee-schema</module>
-    <module>modules/javamail-transport</module>
-    <module>modules/jmx-remoting</module>
-    <module>modules/kernel</module>
-    <module>modules/mail</module>
-    <module>modules/management</module>
-    <module>modules/naming</module>
-    <module>modules/scripts</module>
-    <module>modules/security</module>
-    <module>modules/security-builder</module>
-    <module>modules/service-builder</module>
-    <module>modules/session</module>
-    <module>modules/spring</module>
-    <module>modules/system</module>
-    <module>modules/test-ddbean</module>
-    <module>modules/timer</module>
-    <module>modules/transaction</module>
-    <module>modules/util</module>
-    <module>modules/web-builder</module>
-    <module>modules/webservices</module>
-  </modules>
-  
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>modules/activation</module>
+        <module>modules/client</module>
+        <module>modules/common</module>
+        <module>modules/connector</module>
+        <module>modules/connector-builder</module>
+        <module>modules/converter</module>
+        <module>modules/core</module>
+        <module>modules/deploy-config</module>
+        <module>modules/deploy-jsr88</module>
+        <module>modules/deploy-tool</module>
+        <module>modules/deployment</module>
+        <module>modules/derby</module>
+        <module>modules/j2ee</module>
+        <module>modules/j2ee-builder</module>
+        <module>modules/j2ee-schema</module>
+        <module>modules/javamail-transport</module>
+        <module>modules/jmx-remoting</module>
+        <module>modules/kernel</module>
+        <module>modules/mail</module>
+        <module>modules/management</module>
+        <module>modules/naming</module>
+        <module>modules/scripts</module>
+        <module>modules/security-builder</module>
+        <module>modules/service-builder</module>
+        <module>modules/session</module>
+        <module>modules/spring</module>
+        <module>modules/system</module>
+        <module>modules/test-ddbean</module>
+        <module>modules/timer</module>
+        <module>modules/transaction</module>
+        <module>modules/util</module>
+        <module>modules/web-builder</module>
+        <module>modules/webservices</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>singlemodule</id>
+      <activation>
+        <property>
+          <name>module</name>
+        </property>
+      </activation>
+      <modules>
+        <module>modules/${module}</module>
+      </modules>
+    </profile>
+  </profiles>
+
 </project>

@@ -34,9 +34,10 @@
   <build>
     <resources>
       <resource>
-        <directory>${basedir}/src</directory>
+        <directory>${basedir}/src/java</directory>
         <includes>
-          <include>META-INF/**/*.*</include>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
         </includes>
       </resource>
     </resources>
@@ -46,11 +47,13 @@
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+      <version>${geronimoSpecJ2eeManagementVersion}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
+      <version>${geronimoSpecJ2eeDeploymentVersion}</version>
     </dependency>
 
     <!-- Thirdparty -->
@@ -58,21 +61,25 @@
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
+      <version>${cglibVersion}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
+      <version>${commonsLoggingVersion}</version>
     </dependency>
 
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
+      <version>${log4jVersion}</version>
     </dependency>
 
     <dependency>
       <groupId>mx4j</groupId>
       <artifactId>mx4j</artifactId>
+      <version>${mx4jVersion}</version>
     </dependency>
   </dependencies>
 
