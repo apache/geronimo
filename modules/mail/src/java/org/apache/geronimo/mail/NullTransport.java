@@ -34,4 +34,8 @@ public class NullTransport extends Transport {
     public void sendMessage(Message message, Address[] addresses) throws MessagingException {
         // do nothing
     }
+
+    protected boolean protocolConnect(String host, int port, String user, String password) throws MessagingException {
+        return true; // always connect
+    }
 }
