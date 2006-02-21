@@ -93,9 +93,7 @@ public class ServerInfoTest extends TestCase {
 			assertNotNull(System.getProperty(BasicServerInfo.BASE_DIR_SYS_PROP));
 			assertEquals("base directory is incorrect", basedir, si.getBaseDirectory());
 		} finally {
-            Properties sysProps = System.getProperties();
-            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
-            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+            resetSysProperties();
 		}
     }
 
@@ -108,13 +106,11 @@ public class ServerInfoTest extends TestCase {
             new BasicServerInfo(basedir.getAbsolutePath());
             assertEquals(serverDir.getAbsolutePath(), System.getProperty(BasicServerInfo.SERVER_DIR_SYS_PROP));
         } finally {
-            Properties sysProps = System.getProperties();
-            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
-            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+            resetSysProperties();
             serverDir.delete();
         }
     }
-    
+
     public void testWithServerDirAbsolute() throws Exception {
         String serverDirName = "./target/serverDir";
         File serverDir = new File(basedir, serverDirName);
@@ -124,13 +120,11 @@ public class ServerInfoTest extends TestCase {
             new BasicServerInfo(basedir.getAbsolutePath());
             assertEquals(serverDir.getAbsolutePath(), System.getProperty(BasicServerInfo.SERVER_DIR_SYS_PROP));
         } finally {
-            Properties sysProps = System.getProperties();
-            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
-            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+            resetSysProperties();
             serverDir.delete();
         }
     }
-    
+
     public void testWithServerDirRelative() throws Exception {
         String serverDirName = "./target/serverDir";
         File serverDir = new File(basedir, serverDirName);
@@ -140,9 +134,14 @@ public class ServerInfoTest extends TestCase {
             new BasicServerInfo(basedir.getAbsolutePath());
             assertEquals(serverDir.getAbsolutePath(), System.getProperty(BasicServerInfo.SERVER_DIR_SYS_PROP));
         } finally {
-            Properties sysProps = System.getProperties();
-            sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
-            sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+            resetSysProperties();
         }
+    }
+    
+    private void resetSysProperties() {
+        Properties sysProps = System.getProperties();
+        sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
+        sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
+        sysProps.remove(BasicServerInfo.SERVER_NAME_SYS_PROP);
     }
 }

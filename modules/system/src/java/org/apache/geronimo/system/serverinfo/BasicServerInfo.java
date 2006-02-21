@@ -47,11 +47,11 @@ public class BasicServerInfo implements ServerInfo {
         baseURI = null;
         baseServerURI = null;
     }
-    public BasicServerInfo(String baseDirectory) throws Exception {
+    public BasicServerInfo(String defaultBaseDirectory) throws Exception {
         // Before we try the persistent value, we always check the
         // system properties first.  This lets an admin override this
         // on the command line.
-        this.baseDirectory = System.getProperty(BASE_DIR_SYS_PROP, baseDirectory);
+        this.baseDirectory = System.getProperty(BASE_DIR_SYS_PROP, defaultBaseDirectory);
 
         // force load of server constants
         ServerConstants.getVersion();
