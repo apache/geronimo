@@ -173,6 +173,14 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         }
         return getProtocol().toLowerCase()+"://"+connectHost+(getPort() == getDefaultPort() ? "" : ":"+getPort());
     }
+    
+    public boolean isEmptySessionPath(){
+        return connector.getEmptySessionPath();
+    }
+    
+    public void setEmptySessionPath(boolean emptySessionPath){
+       connector.setEmptySessionPath(emptySessionPath); 
+    }
 
     /**
      * Gets the network protocol that this connector handles.
@@ -429,7 +437,7 @@ public class ConnectorGBean extends BaseGBean implements GBeanLifecycle, ObjectR
         infoFactory.addAttribute("protocol", String.class, true);
         infoFactory.addReference(CONNECTOR_CONTAINER_REFERENCE, TomcatContainer.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addOperation("getInternalObject");
-        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl","maxPostSize","maxSavePostSize"},
+        infoFactory.addInterface(TomcatWebConnector.class, new String[]{"host","port","bufferSizeBytes","maxThreads","acceptQueueSize","lingerMillis","tcpNoDelay","redirectPort","minSpareThreads","maxSpareThreads","maxHttpHeaderSizeBytes","hostLookupEnabled","connectionTimeoutMillis","uploadTimeoutEnabled","connectUrl","maxPostSize","maxSavePostSize","emptySessionPath"},
                                                            new String[]{"host","port","redirectPort"});
         infoFactory.setConstructor(new String[] { "name", "protocol", "host", "port", "TomcatContainer"});
         GBEAN_INFO = infoFactory.getBeanInfo();
