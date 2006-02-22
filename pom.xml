@@ -111,22 +111,14 @@
       |
     -->
     <geronimoSpecActivationVersion>1.0</geronimoSpecActivationVersion>
-    <geronimoSpecCorbaVersion>1.1-SNAPSHOT</geronimoSpecCorbaVersion>
+    <geronimoSpecCorbaVersion>1.0-SNAPSHOT</geronimoSpecCorbaVersion>
     <geronimoSpecEjbVersion>1.0</geronimoSpecEjbVersion>
     <geronimoSpecJ2eeVersion>1.1-SNAPSHOT</geronimoSpecJ2eeVersion>
-    <geronimoSpecJ2eeConnectorVersion>
-      1.0
-    </geronimoSpecJ2eeConnectorVersion>
-    <geronimoSpecJ2eeDeploymentVersion>
-      1.0
-    </geronimoSpecJ2eeDeploymentVersion>
+    <geronimoSpecJ2eeConnectorVersion>1.0</geronimoSpecJ2eeConnectorVersion>
+    <geronimoSpecJ2eeDeploymentVersion>1.0</geronimoSpecJ2eeDeploymentVersion>
     <geronimoSpecJ2eeJaccVersion>1.0</geronimoSpecJ2eeJaccVersion>
-    <geronimoSpecJ2eeManagementVersion>
-      1.0
-    </geronimoSpecJ2eeManagementVersion>
-    <geronimoSpecJavamailVersion>
-      1.1-SNAPSHOT
-    </geronimoSpecJavamailVersion>
+    <geronimoSpecJ2eeManagementVersion>1.0</geronimoSpecJ2eeManagementVersion>
+    <geronimoSpecJavamailVersion>1.1-SNAPSHOT</geronimoSpecJavamailVersion>
     <geronimoSpecJaxrVersion>1.0</geronimoSpecJaxrVersion>
     <geronimoSpecJaxrpcVersion>1.0</geronimoSpecJaxrpcVersion>
     <geronimoSpecJmsVersion>1.0</geronimoSpecJmsVersion>
@@ -234,8 +226,8 @@
         <version>${geronimoSpecActivationVersion}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.geronimo.specs</groupId>
-        <artifactId>geronimo-corba_2.3_spec</artifactId>
+        <groupId>geronimo-spec</groupId>
+        <artifactId>geronimo-spec-corba</artifactId>
         <version>${geronimoSpecCorbaVersion}</version>
       </dependency>
       <dependency>

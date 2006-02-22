@@ -646,8 +646,8 @@
             </properties>
         </dependency>
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-corba_2.3_spec</artifactId>
+            <groupId>geronimo-spec</groupId>
+            <artifactId>geronimo-spec-corba</artifactId>
             <version>${geronimo_spec_corba_version}</version>
             <properties>
                 <geronimo.assemble>repository</geronimo.assemble>
@@ -1196,48 +1196,6 @@
             <artifactId>geronimo-console-core</artifactId>
             <version>${geronimo_version}</version>
         </dependency>
-
-        <!-- Specification dependencies to preload into the repository -->
-        
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-j2ee_1.4_spec</artifactId>
-        #    <version>${geronimo_spec_j2ee_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-j2ee-jacc_1.0_spec</artifactId>
-        #    <version>${geronimo_spec_j2ee_jacc_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-activation_1.0.2_spec</artifactId>
-        #    <version>${geronimo_spec_activation_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
-        #    <version>${geronimo_spec_javamail_version}</version>
-        #</dependency>
-        -->
-
-        <!-- duplicate dependency - commented out to avoid eclipse project errors
-        #<dependency>
-        #    <groupId>org.apache.geronimo.specs</groupId>
-        #    <artifactId>geronimo-corba_2.3_spec</artifactId>
-        #    <version>${geronimo_spec_corba_version}</version>
-        #</dependency>
-        -->
 
         <!-- Geronimo modules to preload into the repository -->
         <dependency>
