@@ -17,15 +17,13 @@
 
 package org.apache.geronimo.kernel.repository;
 
-import org.apache.geronimo.kernel.repository.Artifact;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.HashSet;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * holds the data from the EnvironmentType xml while it is being resolved, transitively closed, etc.
@@ -50,6 +48,18 @@ public class Environment implements Serializable {
     private boolean suppressDefaultEnvironment;
 
     public Environment() {
+    }
+
+    public Environment(Environment environment) {
+        this.configId = environment.getConfigId();
+        this.imports.addAll(environment.getImports());
+        this.references.addAll(environment.getReferences());
+        this.dependencies.addAll(environment.getDependencies());
+        this.includes.addAll(environment.getIncludes());
+        this.hiddenClasses.addAll(environment.getHiddenClasses());
+        this.nonOverrideableClasses.addAll(environment.getNonOverrideableClasses());
+        this.inverseClassLoading = environment.isInverseClassLoading();
+        this.suppressDefaultEnvironment = environment.isSuppressDefaultEnvironment();
     }
 
     public Artifact getConfigId() {

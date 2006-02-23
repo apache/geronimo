@@ -50,7 +50,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -219,6 +218,30 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                          ConfigurationStore configurationStore,
                          ArtifactManager artifactManager,
                          ArtifactResolver artifactResolver) throws Exception {
+
+        this(buildParents(environment, artifactResolver, artifactManager, repositories, kernel), kernel, objectName, moduleType, environment, classPath, gbeanState, repositories, configurationStore, artifactManager, artifactResolver);
+    }
+
+    public static ArrayList buildParents(Environment environment, ArtifactResolver artifactResolver, ArtifactManager artifactManager, Collection repositories, Kernel kernel) throws MissingDependencyException, InvalidConfigException {
+        if (artifactResolver == null) {
+            artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
+        }
+        LinkedHashSet imports = environment.getImports();
+        imports = artifactResolver.resolve(imports);
+        environment.setImports(imports);
+
+        // get proxies to my parent configurations (now that the imports have been resolved)
+        ArrayList parents = new ArrayList();
+        for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            ObjectName parentName = getConfigurationObjectName(artifact);
+            parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
+        }
+        return parents;
+    }
+
+    public Configuration(ArrayList parents, Kernel kernel, String objectName, ConfigurationModuleType moduleType, Environment environment, List classPath, byte[] gbeanState, Collection repositories, ConfigurationStore configurationStore, ArtifactManager artifactManager, ArtifactResolver artifactResolver) throws MissingDependencyException, MalformedURLException, NoSuchConfigException {
+        this.parents = parents;
         this.kernel = kernel;
         this.environment = environment;
         this.objectNameString = objectName;
@@ -226,6 +249,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         this.moduleType = moduleType;
         this.gbeanState = gbeanState;
         this.repositories = repositories;
+
         if (classPath != null) {
             this.classPath = classPath;
         } else {
@@ -237,19 +261,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         if (artifactResolver == null) {
             artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
-        }
-
-        // resolve imports artifacts
-        LinkedHashSet imports = environment.getImports();
-        imports = artifactResolver.resolve(imports);
-        environment.setImports(imports);
-
-        // get proxies to my parent configurations (now that the imports have been resolved)
-        parents = new ArrayList();
-        for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
-            ObjectName parentName = getConfigurationObjectName(artifact);
-            parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
         }
 
         //propagate non overridable classes etc from parents.
@@ -326,11 +337,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             // create and initialize GBeans
             Collection gbeans = loadGBeans();
             if (attributeStore != null) {
-                try {
-                    gbeans = attributeStore.setAttributes(environment.getConfigId().toURI(), gbeans, configurationClassLoader);
-                } catch (URISyntaxException e) {
-                    throw new InvalidConfigException(e);
-                }
+                gbeans = attributeStore.setAttributes(environment.getConfigId(), gbeans, configurationClassLoader);
             }
 
             // register all the GBeans

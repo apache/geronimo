@@ -22,17 +22,17 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
 import javax.management.ObjectName;
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -41,7 +41,7 @@ public class LocalAttributeManagerTest extends TestCase {
     private static final String basedir = System.getProperties().getProperty("basedir", ".");
 
     private LocalAttributeManager localAttributeManager;
-    private URI configurationName;
+    private Artifact configurationName;
     private ObjectName gbeanName;
     private GAttributeInfo attributeInfo;
     private GReferenceInfo referenceInfo;
@@ -170,7 +170,7 @@ public class LocalAttributeManagerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         localAttributeManager = new LocalAttributeManager("target/test-config.xml", false, new BasicServerInfo(basedir));
-        configurationName = URI.create("configuration/name");
+        configurationName = Artifact.create("configuration/name/1/car");
         gbeanName = ObjectName.getInstance(":name=gbean");
         attributeInfo = GBEAN_INFO.getAttribute("attribute");
         referenceInfo = GBEAN_INFO.getReference("reference");

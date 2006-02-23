@@ -44,6 +44,7 @@ import org.apache.geronimo.jetty.JettyServletHolder;
 import org.apache.geronimo.jetty.JettyWebAppContext;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -370,7 +371,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Artifact earConfigId = earContext.getConfigID();
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             environment.setConfigId(configId);
-            environment.addImport(earConfigId);
             File configurationDir = configurationStore.createNewConfigurationDir(environment.getConfigId());
 
             // construct the web app deployment context... this is the same class used by the ear context
@@ -391,7 +391,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 DeploymentUtil.recursiveDelete(configurationDir);
                 throw new DeploymentException("Could not create a deployment context for the web app", e);
             }
-
+            //TODO this is extremely fishy
+            //Add the ear parent here since it can't be loaded by any config store.
+            environment.addImport(earConfigId);
         }
         module.setEarContext(moduleContext);
 
@@ -408,7 +410,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                     moduleContext.addFile(targetPath, module.getOriginalSpecDD());
                 } else if (entry.getName().startsWith("WEB-INF/lib") && entry.getName().endsWith(".jar")) {
                     moduleContext.addInclude(targetPath, warFile, entry);
-                } else if (entry.getName().equals("WEB-INF/classes")) {
+                } else if (entry.getName().equals("WEB-INF/classes/")) {
                     moduleContext.addInclude(targetPath, warFile, entry);
                 } else {
                     moduleContext.addFile(targetPath, warFile, entry);
@@ -451,7 +453,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
-        ClassLoader moduleClassLoader = moduleContext.getClassLoader(repository);
+        Configuration knownParent = null;
+        if (!module.isStandAlone()) {
+            knownParent = earContext.getConfiguration(repository, null);
+        }
+        ClassLoader moduleClassLoader = moduleContext.getClassLoader(repository, knownParent);
         J2eeContext earJ2eeContext = moduleContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
         WebModule webModule = (WebModule) module;

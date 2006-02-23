@@ -45,7 +45,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -96,7 +95,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         return readOnly;
     }
 
-    public synchronized Collection setAttributes(URI configurationName, Collection gbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
+    public synchronized Collection setAttributes(Artifact configurationName, Collection gbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
         // clone the datas since we will be modifying this collection
         gbeanDatas = new ArrayList(gbeanDatas);
 

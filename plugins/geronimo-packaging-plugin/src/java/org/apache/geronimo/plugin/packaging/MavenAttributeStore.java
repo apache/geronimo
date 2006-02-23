@@ -16,18 +16,18 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collection;
-import java.util.Set;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.management.ObjectName;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -36,7 +36,7 @@ public class MavenAttributeStore implements ManageableAttributeStore {
     public MavenAttributeStore() {
     }
 
-    public Collection setAttributes(URI configurationName, Collection datas, ClassLoader classLoader) {
+    public Collection setAttributes(Artifact configurationName, Collection datas, ClassLoader classLoader) {
         return datas;
     }
 

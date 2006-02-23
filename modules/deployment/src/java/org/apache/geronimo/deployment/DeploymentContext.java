@@ -505,14 +505,34 @@ public class DeploymentContext {
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
+        return getClassLoader(repository, null);
+    }
+
+    public ClassLoader getClassLoader(Repository repository, Configuration knownParent) throws DeploymentException {
+        return getConfiguration(repository, knownParent).getConfigurationClassLoader();
+    }
+
+    public Configuration getConfiguration(Repository repository, Configuration knownParent) throws DeploymentException {
+        Environment environmentCopy = new Environment(environment);
+        if (knownParent != null) {
+            LinkedHashSet allImports = environmentCopy.getImports();
+            Artifact knownParentId = knownParent.getId();
+            allImports.remove(knownParentId);
+        }
+        Set repositories = Collections.singleton(repository);
         try {
-            Configuration configuration = new Configuration(kernel,
+            ArrayList parents = Configuration.buildParents(environmentCopy, null, null, repositories, kernel);
+            if (knownParent != null) {
+                parents.add(knownParent);
+            }
+            Configuration configuration = new Configuration(parents,
+                    kernel,
                     null,
                     moduleType,
-                    environment,
+                    environmentCopy,
                     new ArrayList(classpath),
                     null,
-                    Collections.singleton(repository),
+                    repositories,
                     new ConfigurationStore() {
 
                         public Artifact install(URL source) {
@@ -551,7 +571,7 @@ public class DeploymentContext {
                     },
                     null,
                     null);
-            return configuration.getConfigurationClassLoader();
+            return configuration;
         } catch (Exception e) {
             throw new DeploymentException("Could not construct configuration classloader for deployment context", e);
         }
