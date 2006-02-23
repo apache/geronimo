@@ -51,6 +51,15 @@
                  <geronimo.import>true</geronimo.import>
              </properties>
     </dependency>
+    <dependency>
+        <groupId>geronimo</groupId>
+        <type>car</type>
+        <artifactId>client</artifactId>
+        <version>${pom.currentVersion}</version>
+            <properties>
+                 <geronimo.import>true</geronimo.import>
+             </properties>
+    </dependency>
 
         <!-- dependencies from gbean-deployer needed as maven adds service builder to the maven.root classloader -->
         <dependency>

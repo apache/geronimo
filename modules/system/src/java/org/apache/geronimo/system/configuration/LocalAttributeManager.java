@@ -16,28 +16,6 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import java.beans.PropertyEditor;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
@@ -50,11 +28,34 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.beans.PropertyEditor;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Stores managed attributes in an XML file on the local filesystem.
@@ -150,6 +151,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
      * @param classLoader
      * @return true if the gbean should be loaded, false otherwise.
      * @throws org.apache.geronimo.kernel.config.InvalidConfigException
+     *
      */
     private synchronized boolean setAttributes(GBeanData data, ConfigurationOverride configuration, String configName, ClassLoader classLoader) throws InvalidConfigException {
         ObjectName gbeanName = data.getName();
@@ -380,12 +382,8 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             ConfigurationOverride configuration = (ConfigurationOverride) entry.getValue();
             if (configuration.isLoad()) {
                 String configName = (String) entry.getKey();
-                try {
-                    URI configID = new URI(configName);
-                    configs.add(configID);
-                } catch (URISyntaxException e) {
-                    throw new IOException("Could not construct URI configID for " + configName);
-                }
+                Artifact configID = Artifact.create(configName);
+                configs.add(configID);
             }
         }
         return configs;

@@ -17,27 +17,28 @@
 
 package org.apache.geronimo.system.main;
 
-import java.io.ObjectInputStream;
-import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collections;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+
+import javax.management.ObjectName;
+import java.io.ObjectInputStream;
+import java.net.URI;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -113,8 +114,9 @@ public class CommandLine {
         ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
         configuration.setName(configName);
         // todo: JNB for now we clear out the dependency list but we really need a way to resolve them
-        configuration.setAttribute("dependencies", Collections.EMPTY_LIST);
-        configuration.setAttribute("baseURL", classLoader.getResource("/"));
+        Environment environment = (Environment) configuration.getAttribute("environment");
+        environment.setDependencies(Collections.EMPTY_LIST);
+//        configuration.setAttribute("baseURL", classLoader.getResource("/"));
 
         // boot the kernel
         kernel = KernelFactory.newInstance().createKernel("geronimo");

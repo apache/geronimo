@@ -16,15 +16,16 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.File;
-import java.net.URL;
-import java.util.jar.JarFile;
-import java.util.Map;
-
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
+
+import java.io.File;
+import java.net.URL;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 /**
  * @version $Rev$ $Date$
@@ -65,7 +66,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         this.cl = cl;
     }
 
-    public void addGBeans(EARContext earContext, Module webModule, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module webModule, ClassLoader cl, Repository repository) throws DeploymentException {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.webModule, webModule);
         assertEquals(this.cl, cl);

@@ -16,29 +16,10 @@
  */
 package org.apache.geronimo.client.builder;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.client.AppClientContainer;
 import org.apache.geronimo.client.StaticJndiContextPlugin;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -66,6 +47,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -81,6 +63,24 @@ import org.apache.geronimo.xbeans.j2ee.EjbLocalRefType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 
 /**
@@ -256,6 +256,11 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         appClientModule.setEarFile(earFile);
         //create the ear context for the app client.
         Environment clientEnvironment = appClientModule.getClientEnvironment();
+        if (clientEnvironment.getConfigId() == null) {
+            Artifact earConfigId = earContext.getConfigID();
+            Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
+            clientEnvironment.setConfigId(configId);
+        }
         File appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
 
         // construct the app client deployment context... this is the same class used by the ear context
@@ -283,7 +288,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     public void initContext(EARContext earContext, Module clientModule, ClassLoader cl) {
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Repository repository) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
 
         AppClientModule appClientModule = (AppClientModule) module;
@@ -359,7 +364,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 addManifestClassPath(appClientDeploymentContext, appClientModule.getEarFile(), moduleFile, moduleBase);
 
                 // get the classloader
-                ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
+                ClassLoader appClientClassLoader = appClientDeploymentContext.getClassLoader(this.repository);
 
                 // pop in all the gbeans declared in the geronimo app client file
                 if (geronimoAppClient != null) {
@@ -376,10 +381,10 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             if (resource.isSetExternalRar()) {
                                 path = resource.getExternalRar().trim();
                                 Artifact artifact = Artifact.create(path);
-                                if (!repository.contains(artifact)) {
+                                if (!this.repository.contains(artifact)) {
                                     throw new DeploymentException("Missing rar in repository: " + path);
                                 }
-                                File file = repository.getLocation(artifact);
+                                File file = this.repository.getLocation(artifact);
                                 try {
                                     connectorFile = new JarFile(file);
                                 } catch (IOException e) {
@@ -400,7 +405,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                             connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule, null);
                         }
                         //the install step could have added more dependencies... we need a new cl.
-                        appClientClassLoader = appClientDeploymentContext.getClassLoader(repository);
+                        appClientClassLoader = appClientDeploymentContext.getClassLoader(this.repository);
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
                             Module connectorModule = (Module) iterator.next();
                             connectorModuleBuilder.initContext(appClientDeploymentContext, connectorModule, appClientClassLoader);
@@ -408,7 +413,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {
                             Module connectorModule = (Module) iterator.next();
-                            connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader);
+                            connectorModuleBuilder.addGBeans(appClientDeploymentContext, connectorModule, appClientClassLoader, repository);
                         }
                     } finally {
                         for (Iterator iterator = resourceModules.iterator(); iterator.hasNext();) {

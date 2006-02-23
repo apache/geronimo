@@ -16,18 +16,6 @@
  */
 package org.apache.geronimo.system.configuration;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.net.URI;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.Kernel;
@@ -41,6 +29,18 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.repository.Maven2Repository;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.PrintWriter;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -277,7 +277,8 @@ public class ConfigurationDump {
             return;
         }
         if (!kernel.isLoaded(name)) {
-            configurationStore.loadConfiguration(configID);
+            //TODO THIS IS NOW BROKEN
+//            configurationStore.loadConfiguration(configID);
         }
         //put the earliest ancestors first, even if we have already started them.
         ancestors.remove(configID);

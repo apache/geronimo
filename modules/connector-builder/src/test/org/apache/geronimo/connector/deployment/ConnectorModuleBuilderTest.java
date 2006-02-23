@@ -21,7 +21,6 @@ import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -52,9 +51,10 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
@@ -75,10 +75,10 @@ import java.sql.Connection;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashSet;
 import java.util.jar.JarFile;
 
 /**
@@ -368,7 +368,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 action.install(moduleBuilder, earContext, module, configurationStore);
                 earContext.getClassLoader(null);
                 moduleBuilder.initContext(earContext, module, cl);
-                moduleBuilder.addGBeans(earContext, module, cl);
+                moduleBuilder.addGBeans(earContext, module, cl, repository);
                 earContext.close();
 
                 verifyDeployment(earContext.getConfigurationData(), tempDir, oldCl, j2eeContext, resourceAdapterName, is15);
@@ -432,7 +432,6 @@ public class ConnectorModuleBuilderTest extends TestCase {
             assertRunning(kernel, j2eeServerObjectName);
 
             // load the configuration
-            config.setAttribute("baseURL", unpackedDir.toURL());
             kernel.loadGBean(config, cl);
             kernel.startGBean(configName);
             kernel.invoke(configName, "loadGBeans", new Object[]{null}, new String[]{ManageableAttributeStore.class.getName()});
@@ -605,17 +604,13 @@ public class ConnectorModuleBuilderTest extends TestCase {
             this.kernel = kernel;
         }
 
-        public Artifact install(URL source) throws IOException, InvalidConfigException {
-            return null;
-        }
-
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
@@ -624,13 +619,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
-            try {
-                kernel.loadGBean(configData, Configuration.class.getClassLoader());
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to register configuration", e);
-            }
 
-            return configurationObjectName;
+            return configData;
         }
 
         public boolean containsConfiguration(Artifact configID) {

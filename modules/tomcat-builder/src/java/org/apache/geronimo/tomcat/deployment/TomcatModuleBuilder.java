@@ -17,41 +17,12 @@
 
 package org.apache.geronimo.tomcat.deployment;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
@@ -68,8 +39,9 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.StoredObject;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.deployment.GBeanResourceEnvironmentBuilder;
 import org.apache.geronimo.schema.SchemaConversionUtils;
@@ -107,6 +79,33 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
+import javax.transaction.UserTransaction;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 
 /**
@@ -362,7 +361,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         }
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
         WebModule webModule = (WebModule) module;
@@ -391,6 +390,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
         UserTransaction userTransaction = new OnlineUserTransaction();
         //this may add to the web classpath with enhanced classes.
+        //N.B. we use the ear context which has all the possible objects we could look up.
         Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp, userTransaction, webClassLoader);
 
         GBeanData webModuleData = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
@@ -420,6 +420,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
+            //N.B. use earContext not moduleContext
             ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), tomcatWebApp.getResourceRefArray());
 
             webModuleData.setAttribute("contextPriorityClassLoader", Boolean.valueOf(contextPriorityClassLoader));
@@ -530,6 +531,12 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
 
             earContext.addGBean(webModuleData);
+
+            if (!module.isStandAlone()) {
+//TODO finish this configid
+//                ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
+//                earContext.addChildConfiguration(moduleConfigurationData);
+            }
 
         } catch (DeploymentException de) {
             throw de;

@@ -17,16 +17,6 @@
 
 package org.apache.geronimo.tomcat;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.management.ObjectName;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Realm;
@@ -53,6 +43,15 @@ import org.apache.geronimo.transaction.TrackedConnectionAssociator;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 
+import javax.management.ObjectName;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
  *
@@ -68,7 +67,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     protected Context context = null;
 
-    private final URI webAppRoot;
+//    private final URI webAppRoot;
 
     private String path = null;
 
@@ -152,18 +151,18 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
 
         this.objectName = objectName;
-        URI root = null;
-        //TODO is there a simpler way to do this?
+        URI root;
+//        TODO is there a simpler way to do this?
         if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
             root = new URI("file", configurationBaseUrl.getPath(), null);
         } else {
             root = URI.create(configurationBaseUrl.toString());
         }
-        this.webAppRoot = root.resolve(relativeWebAppRoot);
+        URI webAppRoot = root.resolve(relativeWebAppRoot);
+        this.setDocBase(webAppRoot.getPath());
         this.container = container;
         this.originalSpecDD = originalSpecDD;
 
-        this.setDocBase(this.webAppRoot.getPath());
         this.virtualServer = virtualServer;
         this.securityHolder = securityHolder;
 
@@ -215,16 +214,17 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.webServices = webServices;
 
-        URL webAppRootURL = webAppRoot.toURL();
+//        URL webAppRootURL = webAppRoot.toURL();
 
-        URL[] urls = new URL[webClassPath.length];
-        for (int i = 0; i < webClassPath.length; i++) {
-            URI classPathEntry = webClassPath[i];
-            classPathEntry = root.resolve(classPathEntry);
-            urls[i] = classPathEntry.toURL();
-        }
+//        URL[] urls = new URL[webClassPath.length];
+//        for (int i = 0; i < webClassPath.length; i++) {
+//            URI classPathEntry = webClassPath[i];
+//            classPathEntry = root.resolve(classPathEntry);
+//            urls[i] = classPathEntry.toURL();
+//        }
 
-        this.webClassLoader = new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
+        this.webClassLoader = classLoader;
+//        new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
 
         this.kernel = kernel;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);

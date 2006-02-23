@@ -21,9 +21,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.AdminObjectWrapper;
 import org.apache.geronimo.connector.AdminObjectWrapperGBean;
+import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.console.core.jms.TopicBrowserGBean;
 import org.apache.geronimo.console.jmsmanager.AbstractJMSManager;
-import org.apache.geronimo.console.GeronimoVersion;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -45,11 +45,11 @@ import javax.portlet.PortletException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 public class CreateDestinationHandler extends AbstractJMSManager implements PortletResponseHandler {
     protected static Log log = LogFactory
@@ -141,6 +141,8 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
 
                 gbeans.add(tBrowserBeanData);
             }
+            //TODO configid FIXME set configurationDir correctly
+            File configurationDir = null;
             ConfigurationData configData = new ConfigurationData(ConfigurationModuleType.SERVICE,
                     new LinkedHashSet(),
                     gbeans,

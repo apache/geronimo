@@ -17,17 +17,15 @@
 
 package org.apache.geronimo.kernel.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.List;
-
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.repository.Artifact;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
 
 /**
  * Interface to a store for Configurations.
@@ -42,7 +40,7 @@ public interface ConfigurationStore {
      * @throws IOException if the CAR could not be read
      * @throws InvalidConfigException if there is a configuration problem with the CAR
      */
-    Artifact install(URL source) throws IOException, InvalidConfigException;
+//    Artifact install(URL source) throws IOException, InvalidConfigException;
 
     /**
      * Move the unpacked configuration directory into this store
@@ -69,7 +67,7 @@ public interface ConfigurationStore {
      * @throws IOException if a problem occurs loading the configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException;
+//    ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Determines if the store contains a configuration with the spedified ID.
@@ -102,4 +100,7 @@ public interface ConfigurationStore {
      * @return URL for the configuration component.
      */
     URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException;
+
+    GBeanData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException;
+
 }

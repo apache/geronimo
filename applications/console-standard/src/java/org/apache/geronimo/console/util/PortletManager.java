@@ -22,13 +22,26 @@ import org.apache.geronimo.deployment.plugin.factories.DeploymentFactoryImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.management.J2EEDomain;
 import org.apache.geronimo.management.ResourceAdapter;
-import org.apache.geronimo.management.geronimo.*;
+import org.apache.geronimo.management.geronimo.EJBManager;
+import org.apache.geronimo.management.geronimo.J2EEServer;
+import org.apache.geronimo.management.geronimo.JCAAdminObject;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAResource;
+import org.apache.geronimo.management.geronimo.JMSBroker;
+import org.apache.geronimo.management.geronimo.JMSConnector;
+import org.apache.geronimo.management.geronimo.JMSManager;
+import org.apache.geronimo.management.geronimo.JVM;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
+import org.apache.geronimo.management.geronimo.WebAccessLog;
+import org.apache.geronimo.management.geronimo.WebConnector;
+import org.apache.geronimo.management.geronimo.WebContainer;
+import org.apache.geronimo.management.geronimo.WebManager;
 import org.apache.geronimo.pool.GeronimoExecutor;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
@@ -44,16 +57,12 @@ import javax.portlet.RenderResponse;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.net.URI;
-import java.net.URL;
-import java.net.URISyntaxException;
-import java.net.MalformedURLException;
-import java.io.File;
 
 /**
  * @version $Rev$ $Date$
@@ -414,7 +423,7 @@ public class PortletManager {
         return (GeronimoManagedBean) helper.getObject(name);
     }
 
-    public static URI getConfigurationFor(PortletRequest request, String objectName) {
+    public static Artifact getConfigurationFor(PortletRequest request, String objectName) {
         ManagementHelper helper = getManagementHelper(request);
         return helper.getConfigurationNameFor(objectName);
     }

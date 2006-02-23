@@ -27,6 +27,7 @@ import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
@@ -42,13 +43,12 @@ import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 
 public class RepositoryViewPortlet extends BasePortlet {
 
@@ -73,9 +73,8 @@ public class RepositoryViewPortlet extends BasePortlet {
     }
 
     public void processAction(ActionRequest actionRequest,
-            ActionResponse actionResponse) throws PortletException, IOException {
+                              ActionResponse actionResponse) throws PortletException, IOException {
         try {
-
 
 
             List list = new ArrayList();
@@ -109,20 +108,19 @@ public class RepositoryViewPortlet extends BasePortlet {
                             String fileChar = "\\";
                             int fileNameIndex = name.lastIndexOf(fileChar);
                             if (fileNameIndex == -1) {
-                               fileChar = "/";
-                               fileNameIndex = name.lastIndexOf(fileChar);
+                                fileChar = "/";
+                                fileNameIndex = name.lastIndexOf(fileChar);
                             }
                             if (fileNameIndex != -1) {
-                               basename = name.substring(fileNameIndex + 1);
-                            }
-                            else {
-                               basename = name;
+                                basename = name.substring(fileNameIndex + 1);
+                            } else {
+                                basename = name;
                             }
 
                             // Create the temporary file to be used for import to the server
                             file = File.createTempFile("geronimo-import", "");
                             file.deleteOnExit();
-                            log.debug("Writing repository import file to "+file.getAbsolutePath());
+                            log.debug("Writing repository import file to " + file.getAbsolutePath());
                         }
 
                         if ("local".equals(fieldName)) {
@@ -136,7 +134,7 @@ public class RepositoryViewPortlet extends BasePortlet {
                                 throw new PortletException(e);
                             }
                         }
-                    // This is not the file itself, but one of the form fields for the URI
+                        // This is not the file itself, but one of the form fields for the URI
                     } else {
                         String fieldName = item.getFieldName().trim();
                         if ("group".equals(fieldName)) {
@@ -151,11 +149,10 @@ public class RepositoryViewPortlet extends BasePortlet {
                     }
                 }
 
-                String uri = group + "/" + artifact + "/" + version + "/" + fileType;
 
-                repo.copyToRepository(file, new URI(uri), new FileWriteMonitor() {
+                repo.copyToRepository(file, new Artifact(group, artifact, version, fileType), new FileWriteMonitor() {
                     public void writeStarted(String fileDescription) {
-                        System.out.print("Copying into repository "+fileDescription+"...");
+                        System.out.print("Copying into repository " + fileDescription + "...");
                         System.out.flush();
                     }
 
@@ -168,8 +165,6 @@ public class RepositoryViewPortlet extends BasePortlet {
                 });
             } catch (FileUploadException e) {
                 throw new PortletException(e);
-            } catch (URISyntaxException e) {
-                throw new IOException("Unable to save to repository URI: "+e.getMessage());
             }
         } catch (PortletException e) {
             throw e;
@@ -188,17 +183,10 @@ public class RepositoryViewPortlet extends BasePortlet {
             ListableRepository[] repos = PortletManager.getListableRepositories(request);
             for (int i = 0; i < repos.length; i++) {
                 ListableRepository repo = repos[i];
-                try {
-                    final URI[] uris = repo.listURIs();
-                    for (int j = 0; j < uris.length; j++) {
-                        if(uris[j] == null) {
-                            continue; // probably a JAR lacks a version number in the name, etc.
-                        }
-                        String fileName = uris[j].toString();
-                        list.add(fileName);
-                    }
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
+                final SortedSet artifacts = repo.list();
+                for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
+                    String fileName = iterator.next().toString();
+                    list.add(fileName);
                 }
             }
             Collections.sort(list);

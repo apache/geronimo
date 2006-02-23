@@ -17,20 +17,6 @@
 
 package org.apache.geronimo.jetty;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
-import java.security.PermissionCollection;
-import java.util.Collection;
-import java.util.EventListener;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Context;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -39,9 +25,6 @@ import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.management.J2EEApplication;
-import org.apache.geronimo.management.J2EEServer;
-import org.apache.geronimo.management.geronimo.WebModule;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.jetty.interceptor.BeforeAfter;
@@ -54,9 +37,12 @@ import org.apache.geronimo.jetty.interceptor.TransactionContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.WebApplicationContextBeforeAfter;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
+import org.apache.geronimo.management.J2EEApplication;
+import org.apache.geronimo.management.J2EEServer;
+import org.apache.geronimo.management.geronimo.WebModule;
+import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.naming.reference.ClassLoaderAwareReference;
 import org.apache.geronimo.naming.reference.KernelAwareReference;
-import org.apache.geronimo.naming.enc.EnterpriseNamingContext;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.jacc.RoleDesignateSource;
 import org.apache.geronimo.transaction.TrackedConnectionAssociator;
@@ -74,6 +60,20 @@ import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.servlet.SessionManager;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Context;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.security.PermissionCollection;
+import java.util.Collection;
+import java.util.EventListener;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Wrapper for a WebApplicationContext that sets up its J2EE environment.
@@ -93,7 +93,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final ClassLoader webClassLoader;
     private final JettyContainer jettyContainer;
 
-    private final URI webAppRoot;
+    private final String webAppRoot;
     private final WebApplicationHandler handler;
     private String displayName;
     private final String[] welcomeFiles;
@@ -107,38 +107,38 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
     private String sessionManager;
 
-    
+
     public class SessionManagerConfiguration implements WebApplicationContext.Configuration {
 
-    	private WebApplicationContext webAppContext;
-    	
-    	
-		public void setWebApplicationContext(WebApplicationContext webAppContext) {
-			this.webAppContext = webAppContext;
-		}
+        private WebApplicationContext webAppContext;
 
-		public WebApplicationContext getWebApplicationContext() {
-			return this.webAppContext;
-		}
 
-		public void configureClassPath() throws Exception {
-		}
+        public void setWebApplicationContext(WebApplicationContext webAppContext) {
+            this.webAppContext = webAppContext;
+        }
 
-		public void configureDefaults() throws Exception {	
-		}
+        public WebApplicationContext getWebApplicationContext() {
+            return this.webAppContext;
+        }
 
-	
-		public void configureWebApp() throws Exception {
-		       //setup a SessionManager
-	        if (getSessionManager() != null) {
-	        	Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
-	          Object o = clazz.newInstance();
-	        	this.webAppContext.getServletHandler().setSessionManager((SessionManager)o);
-	        }
-		}
-    	
+        public void configureClassPath() throws Exception {
+        }
+
+        public void configureDefaults() throws Exception {
+        }
+
+
+        public void configureWebApp() throws Exception {
+            //setup a SessionManager
+            if (getSessionManager() != null) {
+                Class clazz = Thread.currentThread().getContextClassLoader().loadClass(getSessionManager());
+                Object o = clazz.newInstance();
+                this.webAppContext.getServletHandler().setSessionManager((SessionManager) o);
+            }
+        }
+
     }
-    
+
     /**
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
@@ -225,27 +225,29 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         setConfigurationClassNames(new String[]{});
 
-        URI root = null;
+//        URI root = null;
         //TODO is there a simpler way to do this?
-        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
-            root = new URI("file", configurationBaseUrl.getPath(), null);
-        } else {
-            root = URI.create(configurationBaseUrl.toString());
-        }
-        webAppRoot = root.resolve(uri);
-        URL webAppRootURL = webAppRoot.toURL();
+//        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
+//            root = new URI("file", configurationBaseUrl.getPath(), null);
+//        } else {
+//            root = URI.create(configurationBaseUrl.toString());
+//        }
 
-        URL[] urls = new URL[webClassPath.length];
-        for (int i = 0; i < webClassPath.length; i++) {
-            URI classPathEntry = webClassPath[i];
-            classPathEntry = root.resolve(classPathEntry);
-            urls[i] = classPathEntry.toURL();
-        }
-        this.webClassLoader = new JettyClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
+        webAppRoot = new URL(configurationBaseUrl, uri.toString()).toString();
+//        URL webAppRootURL = webAppRoot.toURL();
+
+//        URL[] urls = new URL[webClassPath.length];
+//        for (int i = 0; i < webClassPath.length; i++) {
+//            URI classPathEntry = webClassPath[i];
+//            classPathEntry = root.resolve(classPathEntry);
+//            urls[i] = classPathEntry.toURL();
+//        }
+        this.webClassLoader = classLoader;
+        //new JettyClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
         setClassLoader(this.webClassLoader);
 
         setVirtualHosts(virtualHosts);
-        
+
         handler = new WebApplicationHandler();
         addHandler(handler);
 
@@ -266,19 +268,16 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         setSessionTimeoutSeconds(sessionTimeoutSeconds);
 
         // create ReadOnlyContext
-        Context enc = null;
-        if (componentContext != null) {
-            for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
-                Object value = iterator.next();
-                if (value instanceof KernelAwareReference) {
-                    ((KernelAwareReference) value).setKernel(kernel);
-                }
-                if (value instanceof ClassLoaderAwareReference) {
-                    ((ClassLoaderAwareReference) value).setClassLoader(this.webClassLoader);
-                }
+        for (Iterator iterator = componentContext.values().iterator(); iterator.hasNext();) {
+            Object value = iterator.next();
+            if (value instanceof KernelAwareReference) {
+                ((KernelAwareReference) value).setKernel(kernel);
             }
-            enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
+            if (value instanceof ClassLoaderAwareReference) {
+                ((ClassLoaderAwareReference) value).setClassLoader(this.webClassLoader);
+            }
         }
+        Context enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
 
         int index = 0;
         BeforeAfter interceptor = new InstanceContextBeforeAfter(null, index++, unshareableResources, applicationManagedSecurityResources, trackedConnectionAssociator);
@@ -304,18 +303,17 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         interceptor = new RequestWrappingBeforeAfter(interceptor, handler);
         chain = interceptor;
         contextLength = index;
-        
+
         //cheat -- add jsr154 filter not as a gbean
         FilterHolder jsr154FilterHolder = new FilterHolder(handler, "jsr154", JSR154Filter.class.getName());
         handler.addFilterHolder(jsr154FilterHolder);
         jsr154FilterHolder.setInitParameter("unwrappedDispatch", "true");
         handler.addFilterPathMapping("/*", "jsr154", Dispatcher.__REQUEST | Dispatcher.__FORWARD | Dispatcher.__INCLUDE | Dispatcher.__ERROR);
-        
-        configureSessionManager (sessionManager);
-      
+
+        configureSessionManager(sessionManager);
+
     }
 
-    
 
     public String getObjectName() {
         return objectName;
@@ -356,8 +354,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     public void doStart() throws Exception {
         // reset the classsloader... jetty likes to set it to null when stopping
         setClassLoader(webClassLoader);
-        
- 
+
         // merge Geronimo and Jetty Lifecycles
         if (!isStarting()) {
             super.start();
@@ -366,7 +363,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         ((AbstractSessionManager) getServletHandler().getSessionManager()).setUseRequestedId(true);
 
-        setWAR(webAppRoot.toString());
+        setWAR(webAppRoot);
 
         jettyContainer.addContext(this);
 
@@ -415,7 +412,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         log.warn("JettyWebAppContext failed");
     }
-
 
     //pass through attributes.  They should be constructor params
 
@@ -512,27 +508,26 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
 
-    public String getSessionManager(){
-    	return this.sessionManager;
+    public String getSessionManager() {
+        return this.sessionManager;
     }
 
 
-    private void configureSessionManager (String sessionManagerClassName) {
-    	  this.sessionManager = sessionManagerClassName;
-          if (this.sessionManager != null) {
-        	  addConfiguration (SessionManagerConfiguration.class.getName());
-          }
+    private void configureSessionManager(String sessionManagerClassName) {
+        this.sessionManager = sessionManagerClassName;
+        if (this.sessionManager != null) {
+            addConfiguration(SessionManagerConfiguration.class.getName());
+        }
     }
-    
-    private void addConfiguration (String configClassName) {
-          String[] configClassNames = getConfigurationClassNames();
-          String[] newConfigClassNames = new String[configClassNames==null?1:configClassNames.length+1];
-          for (int i=0;i<configClassNames.length;i++)
-        	  newConfigClassNames[i] = configClassNames[i];
-          
-          newConfigClassNames[newConfigClassNames.length-1] = configClassName;
+
+    private void addConfiguration(String configClassName) {
+        String[] configClassNames = getConfigurationClassNames();
+        String[] newConfigClassNames = new String[configClassNames == null ? 1 : configClassNames.length + 1];
+        System.arraycopy(configClassNames, 0, newConfigClassNames, 0, configClassNames.length);
+
+        newConfigClassNames[newConfigClassNames.length - 1] = configClassName;
     }
-    
+
     /**
      * ObjectName must match this pattern:
      * <p/>
@@ -586,7 +581,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         }
         return super.checkSecurityConstraints(pathInContext, request, response);
     }
-
 
 
     public static final GBeanInfo GBEAN_INFO;
@@ -652,48 +646,48 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addInterface(WebModule.class);
 
         infoBuilder.setConstructor(new String[]{
-            "objectName",
-            "deploymentDescriptor",
-            "uri",
-            "virtualHosts",
-            "sessionManager",
-            "componentContext",
-            "userTransaction",
-            "classLoader",
-            "webClassPath",
-            "contextPriorityClassLoader",
-            "configurationBaseUrl",
-            "unshareableResources",
-            "applicationManagedSecurityResources",
+                "objectName",
+                "deploymentDescriptor",
+                "uri",
+                "virtualHosts",
+                "sessionManager",
+                "componentContext",
+                "userTransaction",
+                "classLoader",
+                "webClassPath",
+                "contextPriorityClassLoader",
+                "configurationBaseUrl",
+                "unshareableResources",
+                "applicationManagedSecurityResources",
 
-            "displayName",
-            "contextParamMap",
-            "listenerClassNames",
-            "distributable",
-            "mimeMap",
-            "welcomeFiles",
-            "localeEncodingMapping",
-            "errorPages",
-            "authenticator",
-            "realmName",
-            "tagLibMap",
-            "sessionTimeoutSeconds",
+                "displayName",
+                "contextParamMap",
+                "listenerClassNames",
+                "distributable",
+                "mimeMap",
+                "welcomeFiles",
+                "localeEncodingMapping",
+                "errorPages",
+                "authenticator",
+                "realmName",
+                "tagLibMap",
+                "sessionTimeoutSeconds",
 
-            "policyContextID",
-            "securityRealmName",
-            "defaultPrincipal",
+                "policyContextID",
+                "securityRealmName",
+                "defaultPrincipal",
 
-            "checkedPermissions",
-            "excludedPermissions",
+                "checkedPermissions",
+                "excludedPermissions",
 
-            "TransactionContextManager",
-            "TrackedConnectionAssociator",
-            "JettyContainer",
-            "RoleDesignateSource",
+                "TransactionContextManager",
+                "TrackedConnectionAssociator",
+                "JettyContainer",
+                "RoleDesignateSource",
 
-            "J2EEServer",
-            "J2EEApplication",
-            "kernel"
+                "J2EEServer",
+                "J2EEApplication",
+                "kernel"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

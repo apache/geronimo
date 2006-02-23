@@ -16,6 +16,21 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.ReferenceCollection;
+import org.apache.geronimo.gbean.ReferenceCollectionEvent;
+import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -24,20 +39,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.jar.JarFile;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.ReferenceCollection;
-import org.apache.geronimo.gbean.ReferenceCollectionEvent;
-import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 
 /**
  * @version $Rev$ $Date$
@@ -155,10 +156,10 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         builder.initContext(earContext, module, cl);
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.addGBeans(earContext, module, cl);
+        builder.addGBeans(earContext, module, cl, repository);
     }
 
     public String getSchemaNamespace() {

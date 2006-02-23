@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
@@ -110,9 +111,23 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         for (int i = 0; i < storeSnapshot.size(); i++) {
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configID)) {
-                ObjectName configName = store.loadConfiguration(configID);
-                return configName;
+                GBeanData config = store.loadConfiguration(configID);
+
+                ObjectName name = Configuration.getConfigurationObjectName(configID);
+                config.setName(name);
+                config.setAttribute("configurationStore", store);
+
+                try {
+                    kernel.loadGBean(config, Configuration.class.getClassLoader());
+                } catch (Exception e) {
+                    throw new InvalidConfigException("Unable to register configuration", e);
+                }
+
+                log.debug("Loaded Configuration " + name);
+
+                return name;
             }
+
         }
         throw new NoSuchConfigException("No configuration with id: " + configID);
     }
@@ -183,8 +198,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             Environment environment = (Environment) kernel.getAttribute(name, "environment");
             for (Iterator iterator = environment.getImports().iterator(); iterator.hasNext();) {
                 Artifact parent = (Artifact) iterator.next();
-                    loadRecursive(parent, ancestors, preloaded);
-                }
+                loadRecursive(parent, ancestors, preloaded);
+            }
         } catch (NoSuchConfigException e) {
             throw e;
         } catch (IOException e) {

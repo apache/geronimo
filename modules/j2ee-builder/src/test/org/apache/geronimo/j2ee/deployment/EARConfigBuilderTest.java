@@ -23,7 +23,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -39,6 +38,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 
 import javax.management.ObjectName;
 import javax.xml.namespace.QName;
@@ -46,13 +46,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.MalformedURLException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.jar.JarFile;
 
 /**
@@ -403,17 +403,13 @@ public class EARConfigBuilderTest extends TestCase {
             this.kernel = kernel;
         }
 
-        public Artifact install(URL source) throws IOException, InvalidConfigException {
-            return null;
-        }
-
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
 
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
@@ -422,13 +418,7 @@ public class EARConfigBuilderTest extends TestCase {
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
-            try {
-                kernel.loadGBean(configData, Configuration.class.getClassLoader());
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to register configuration", e);
-            }
-
-            return configurationObjectName;
+            return configData;
         }
 
         public boolean containsConfiguration(Artifact configID) {

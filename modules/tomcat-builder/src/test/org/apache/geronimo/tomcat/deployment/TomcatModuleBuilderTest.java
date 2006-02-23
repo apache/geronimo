@@ -16,36 +16,12 @@
  */
 package org.apache.geronimo.tomcat.deployment;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.axis.builder.AxisBuilder;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -64,9 +40,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEServerImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -74,15 +47,19 @@ import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
 import org.apache.geronimo.tomcat.HostGBean;
@@ -90,6 +67,29 @@ import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -191,11 +191,11 @@ public class TomcatModuleBuilderTest extends TestCase {
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
         builder.initContext(earContext, module, cl);
-        builder.addGBeans(earContext, module, cl);
+        builder.addGBeans(earContext, module, cl, null);
         earContext.close();
         module.close();
         GBeanData configData = ExecutableConfigurationUtil.getConfigurationGBeanData(earContext.getConfigurationData());
-        configData.setAttribute("baseURL", outputPath.toURL());
+        configData.setAttribute("configurationStore", new MockConfigStore());
         kernel.loadGBean(configData, cl);
         ObjectName configName = configData.getName();
         kernel.startGBean(configName);
@@ -503,14 +503,8 @@ public class TomcatModuleBuilderTest extends TestCase {
     }
 
     public static class MockConfigStore implements ConfigurationStore {
-        private final Kernel kernel;
 
-        public MockConfigStore(Kernel kernel) {
-            this.kernel = kernel;
-        }
-
-        public Artifact install(URL source) throws IOException, InvalidConfigException {
-            return null;
+        public MockConfigStore() {
         }
 
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
@@ -519,7 +513,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
@@ -527,14 +521,9 @@ public class TomcatModuleBuilderTest extends TestCase {
             environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
+            configData.setAttribute("configurationStore", this);
 
-            try {
-                kernel.loadGBean(configData, Configuration.class.getClassLoader());
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to register configuration", e);
-            }
-
-            return configurationObjectName;
+            return configData;
         }
 
         public boolean containsConfiguration(Artifact configID) {
@@ -554,7 +543,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return null;
+            return new File("foo").toURL();
         }
 
         public final static GBeanInfo GBEAN_INFO;
@@ -564,8 +553,6 @@ public class TomcatModuleBuilderTest extends TestCase {
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
-            infoBuilder.addAttribute("kernel", Kernel.class, false);
-            infoBuilder.setConstructor(new String[] {"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

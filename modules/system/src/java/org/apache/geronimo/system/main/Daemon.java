@@ -17,21 +17,6 @@
 
 package org.apache.geronimo.system.main;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
@@ -39,15 +24,29 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.system.jmx.MBeanServerKernelBridge;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -132,14 +131,7 @@ public class Daemon {
         boolean help = false;
         for (int i = 0; i < args.length; i++) {
             if(override) {
-                try {
-                    configs.add(new URI(args[i]));
-                } catch (URISyntaxException e) {
-                    System.err.println("Invalid configuration-id: " + args[i]);
-                    e.printStackTrace();
-                    System.exit(1);
-                    throw new AssertionError();
-                }
+                configs.add(Artifact.create(args[i]));
             } else if (args[i].equals(ARGUMENT_NO_PROGRESS)) {
                 noProgressArg = ARGUMENT_NO_PROGRESS;
             } else if (args[i].equals(ARGUMENT_LONG_PROGRESS)) {
@@ -198,7 +190,7 @@ public class Daemon {
     }
 
     private void JVMCheck() {
-        String jvmVersion = (String)System.getProperty("java.specification.version");
+        String jvmVersion = System.getProperty("java.specification.version");
         if (! jvmVersion.equals("1.4"))
             log.warn("\n====================================== Warning =======================================\n" +
                      " Geronimo is currently only certified on version 1.4 of the Java Virtual Machine.\n" +
@@ -250,13 +242,16 @@ public class Daemon {
             } finally {
                 ois.close();
             }
-            URI configurationId = (URI) configuration.getAttribute("id");
+            Environment environment = (Environment) configuration.getAttribute("environment");
+            Artifact configurationId = environment.getConfigId();
             ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
             configuration.setName(configName);
+            configuration.setReferencePattern("ArtifactManager", null);
+            configuration.setReferencePattern("ArtifactResolver", null);
 
             // todo: JNB for now we clear out the dependency list but we really need a way to resolve them
-            configuration.setAttribute("dependencies", Collections.EMPTY_LIST);
-            configuration.setAttribute("baseURL", classLoader.getResource("/"));
+            environment.setDependencies(Collections.EMPTY_LIST);
+//        configuration.setAttribute("baseURL", classLoader.getResource("/"));
 
             // create a mbean server
             MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");

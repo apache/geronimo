@@ -16,31 +16,10 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -62,9 +41,6 @@ import org.apache.geronimo.jetty.JettyContainerImpl;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -72,15 +48,39 @@ import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
+import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -118,6 +118,7 @@ public class JettyModuleBuilderTest extends TestCase {
         File outputPath = new File(basedir, "target/test-resources/deployables/war4");
         recursiveDelete(outputPath);
         outputPath.mkdirs();
+        new File(outputPath, "war").mkdir();
         File path = new File(basedir, "src/test-resources/deployables/war4");
         UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
@@ -127,13 +128,13 @@ public class JettyModuleBuilderTest extends TestCase {
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
         builder.initContext(earContext, module, cl);
-        builder.addGBeans(earContext, module, cl);
+        builder.addGBeans(earContext, module, cl, null);
         earContext.close();
         module.close();
 
         GBeanData configData = ExecutableConfigurationUtil.getConfigurationGBeanData(earContext.getConfigurationData());
         ObjectName configName = configData.getName();
-        configData.setAttribute("baseURL", path.toURL());
+        configData.setAttribute("configurationStore", new MockConfigStore(outputPath.toURL()));
         kernel.loadGBean(configData, cl);
         kernel.startGBean(configName);
         kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
@@ -312,7 +313,7 @@ public class JettyModuleBuilderTest extends TestCase {
         defaultEnvironment.addImports(parentId);
         Artifact artifact = Artifact.create("foo/bar/1/car");
         defaultEnvironment.setConfigId(artifact);
-        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, null, kernel);
+        builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, kernel);
 
         container = new GBeanData(containerName, JettyContainerImpl.GBEAN_INFO);
 
@@ -364,14 +365,14 @@ public class JettyModuleBuilderTest extends TestCase {
     }
 
     public static class MockConfigStore implements ConfigurationStore {
-        private final Kernel kernel;
 
-        public MockConfigStore(Kernel kernel) {
-            this.kernel = kernel;
+        URL baseURL;
+
+        public MockConfigStore() {
         }
 
-        public Artifact install(URL source) throws IOException, InvalidConfigException {
-            return null;
+        public MockConfigStore(URL baseURL) {
+            this.baseURL = baseURL;
         }
 
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
@@ -380,7 +381,7 @@ public class JettyModuleBuilderTest extends TestCase {
         public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
         }
 
-        public ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
             ObjectName configurationObjectName = Configuration.getConfigurationObjectName(configId);
             GBeanData configData = new GBeanData(configurationObjectName, Configuration.GBEAN_INFO);
             Environment environment = new Environment();
@@ -389,13 +390,7 @@ public class JettyModuleBuilderTest extends TestCase {
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
 
-            try {
-                kernel.loadGBean(configData, Configuration.class.getClassLoader());
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to register configuration", e);
-            }
-
-            return configurationObjectName;
+            return configData;
         }
 
         public boolean containsConfiguration(Artifact configID) {
@@ -415,7 +410,7 @@ public class JettyModuleBuilderTest extends TestCase {
         }
 
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return null;
+            return baseURL;
         }
 
         public final static GBeanInfo GBEAN_INFO;
@@ -425,8 +420,7 @@ public class JettyModuleBuilderTest extends TestCase {
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
-            infoBuilder.addAttribute("kernel", Kernel.class, false);
-            infoBuilder.setConstructor(new String[] {"kernel"});
+//            infoBuilder.setConstructor(new String[] {"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

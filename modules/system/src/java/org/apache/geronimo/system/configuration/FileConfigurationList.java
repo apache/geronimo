@@ -16,6 +16,23 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.NoSuchStoreException;
+import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,28 +40,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import javax.management.ObjectName;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
-import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.NoSuchStoreException;
-import org.apache.geronimo.kernel.config.PersistentConfigurationList;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * GBean that saves a list of configurations, for example to allow
@@ -101,13 +100,13 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         this.configFile = configDir;
         this.listener = new LifecycleAdapter() {
             public void stopped(ObjectName objectName) {
-                if(kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
+                if (kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
                     doSave();
                 }
             }
 
             public void running(ObjectName objectName) {
-                if(kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
+                if (kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
                     doSave();
                 }
             }
@@ -196,14 +195,10 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
             String line;
             while ((line = reader.readLine()) != null) {
                 line = line.trim();
-                if(line.equals("") || line.startsWith("#")) {
+                if (line.equals("") || line.startsWith("#")) {
                     continue;
                 }
-                try {
-                    configs.add(new URI(line));
-                } catch (URISyntaxException e) {
-                    throw new IOException("Invalid URI in config list: " + line);
-                }
+                configs.add(Artifact.create(line));
             }
             return configs;
         } finally {

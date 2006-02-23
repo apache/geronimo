@@ -16,11 +16,7 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.net.URI;
-import java.util.Map;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
@@ -58,6 +54,11 @@ import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import java.util.Map;
 
 /**
  * A helper interface to navigate between management objects.  This is not
@@ -155,7 +156,7 @@ public interface ManagementHelper {
 
     // Generic utility methods
     Object getObject(String objectName);
-    URI getConfigurationNameFor(String objectName);
+    Artifact getConfigurationNameFor(String objectName);
     String getGBeanDescription(String objectName);
 
     // Misc

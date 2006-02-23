@@ -16,13 +16,14 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
+
 import java.io.File;
 import java.net.URL;
 import java.util.jar.JarFile;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 
 /**
  * @version $Rev$ $Date$
@@ -36,7 +37,7 @@ public interface ModuleBuilder {
 
     void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
 
-    void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException;
+    void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException;
 
     String getSchemaNamespace();
 }

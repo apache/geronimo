@@ -16,29 +16,8 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.ConfigurationBuilder;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
@@ -58,6 +37,7 @@ import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
@@ -70,6 +50,26 @@ import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
  * @version $Rev$ $Date$
@@ -383,7 +383,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             // each module can now add it's GBeans
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).addGBeans(earContext, module, cl);
+                getBuilder(module).addGBeans(earContext, module, cl, repository);
             }
 
             //add the JACC gbean if there is a principal-role mapping

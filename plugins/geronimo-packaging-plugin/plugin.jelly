@@ -19,6 +19,7 @@
 <!-- $Rev$ $Date$ -->
 
 <project
+        xmlns:j="jelly:core"
     xmlns:artifact="artifact"
     xmlns:ant="jelly:ant"
     xmlns:velocity="jelly:velocity"
@@ -72,7 +73,9 @@
     </goal>
 
     <goal name="car:install" prereqs="car:package" description="Install the package in the local repository">
-        <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
+        <j:catch>
+            <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
+        </j:catch>
     </goal>
 
     <goal name="car:distribute" prereqs="car:package" description="Distribute the package to a server">

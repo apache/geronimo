@@ -16,91 +16,89 @@
  */
 package org.apache.geronimo.console.databasemanager.wizard;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.File;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.StringReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Properties;
-import java.net.URISyntaxException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.MalformedURLException;
-import java.sql.Driver;
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.WindowState;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletSession;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.DDBean;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import org.apache.geronimo.console.BasePortlet;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
-import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
-import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.ArtifactType;
-import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
-import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.portlet.PortletFileUpload;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.connector.deployment.jsr88.Artifact;
-import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
+import org.apache.geronimo.connector.deployment.jsr88.ConfigPropertySetting;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
-import org.apache.geronimo.connector.deployment.jsr88.ConfigPropertySetting;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectionManager;
+import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
+import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
+import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
 import org.apache.geronimo.connector.outbound.PoolingAttributes;
+import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.converter.DatabaseConversionStatus;
 import org.apache.geronimo.converter.JDBCPool;
 import org.apache.geronimo.converter.bea.WebLogic81DatabaseConverter;
 import org.apache.geronimo.converter.jboss.JBoss4DatabaseConverter;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.fileupload.portlet.PortletFileUpload;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.FileItem;
+import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
+import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.SortedSet;
 
 /**
  * A portlet that lets you configure and deploy JDBC connection pools.
@@ -464,7 +462,7 @@ public class DatabasePoolPortlet extends BasePortlet {
     private ResourceAdapterParams loadConfigPropertiesByPath(PortletRequest request, String rarPath) {
         DeploymentManager mgr = PortletManager.getDeploymentManager(request);
         try {
-            URL url = getRAR(request, rarPath);
+            URL url = getRAR(request, rarPath).toURL();
             ConnectorDeployable deployable = new ConnectorDeployable(url);
             final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
             String adapterName = null, adapterDesc = null;
@@ -746,7 +744,7 @@ public class DatabasePoolPortlet extends BasePortlet {
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
 
-            List artifacts = repo.list();
+            SortedSet artifacts = repo.list();
             outer:
             for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
@@ -824,7 +822,7 @@ public class DatabasePoolPortlet extends BasePortlet {
             data.name = data.name.replaceAll("\\s", "");
             DeploymentManager mgr = PortletManager.getDeploymentManager(request);
             try {
-                URL url = getRAR(request, data.getRarPath());
+                URL url = getRAR(request, data.getRarPath()).toURL();
                 String str = url.toString();
                 if(str.indexOf(' ') > -1) {
                     url = new URL(str.replaceAll(" ", "%20")); // try to avoid problems with spaces in path on Windows
@@ -834,31 +832,32 @@ public class DatabasePoolPortlet extends BasePortlet {
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
-                connector.setConfigID("console-db-pool-"+data.getName());
+//TODO configid FIXME!!
+//                connector.setConfigID("console-db-pool-"+data.getName());
                 // Use a parentId of null to pick up the default
-                if(data.jar1 != null && !data.jar1.equals("")) {
-                    Artifact dep = new Artifact();
-                    connector.setDependency(new Artifact[]{dep});
-                    dep.setURI(data.jar1);
-                }
-                if(data.jar2 != null && !data.jar2.equals("")) {
-                    Artifact dep = new Artifact();
-                    Artifact[] old = connector.getDependency();
-                    Artifact[] longer = new Artifact[old.length+1];
-                    System.arraycopy(old, 0, longer, 0, old.length);
-                    longer[old.length] = dep;
-                    connector.setDependency(longer);
-                    dep.setURI(data.jar2);
-                }
-                if(data.jar3 != null && !data.jar3.equals("")) {
-                    Artifact dep = new Artifact();
-                    Artifact[] old = connector.getDependency();
-                    Artifact[] longer = new Artifact[old.length+1];
-                    System.arraycopy(old, 0, longer, 0, old.length);
-                    longer[old.length] = dep;
-                    connector.setDependency(longer);
-                    dep.setURI(data.jar3);
-                }
+//                if(data.jar1 != null && !data.jar1.equals("")) {
+//                    Artifact dep = new Artifact();
+//                    connector.setDependency(new Artifact[]{dep});
+//                    dep.setURI(data.jar1);
+//                }
+//                if(data.jar2 != null && !data.jar2.equals("")) {
+//                    Artifact dep = new Artifact();
+//                    Artifact[] old = connector.getDependency();
+//                    Artifact[] longer = new Artifact[old.length+1];
+//                    System.arraycopy(old, 0, longer, 0, old.length);
+//                    longer[old.length] = dep;
+//                    connector.setDependency(longer);
+//                    dep.setURI(data.jar2);
+//                }
+//                if(data.jar3 != null && !data.jar3.equals("")) {
+//                    Artifact dep = new Artifact();
+//                    Artifact[] old = connector.getDependency();
+//                    Artifact[] longer = new Artifact[old.length+1];
+//                    System.arraycopy(old, 0, longer, 0, old.length);
+//                    longer[old.length] = dep;
+//                    connector.setDependency(longer);
+//                    dep.setURI(data.jar3);
+//                }
                 ResourceAdapter adapter = connector.getResourceAdapter()[0];
                 ConnectionDefinition definition = new ConnectionDefinition();
                 adapter.setConnectionDefinition(new ConnectionDefinition[]{definition});
@@ -988,24 +987,17 @@ public class DatabasePoolPortlet extends BasePortlet {
         return (ImportStatus) request.getPortletSession(true).getAttribute("ImportStatus");
     }
 
-    private static URL getRAR(PortletRequest request, String rarPath) {
-        try {
-            URI uri = new URI(rarPath);
-            Repository[] repos = PortletManager.getRepositories(request);
-            for (int i = 0; i < repos.length; i++) {
-                Repository repo = repos[i];
-                URL url = repo.getURL(uri);
-                if(url != null && url.getProtocol().equals("file")) {
-                    File file = new File(url.getPath());
-                    if(file.exists() && file.canRead() && !file.isDirectory()) {
-                        return url;
-                    }
+    private static File getRAR(PortletRequest request, String rarPath) {
+        org.apache.geronimo.kernel.repository.Artifact uri = org.apache.geronimo.kernel.repository.Artifact.create(rarPath);
+        Repository[] repos = PortletManager.getRepositories(request);
+        for (int i = 0; i < repos.length; i++) {
+            Repository repo = repos[i];
+            File url = repo.getLocation(uri);
+            if (url != null) {
+                if (url.exists() && url.canRead() && !url.isDirectory()) {
+                    return url;
                 }
             }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -1017,31 +1009,31 @@ public class DatabasePoolPortlet extends BasePortlet {
     private static Class attemptDriverLoad(PortletRequest request, PoolData data) {
         List list = new ArrayList();
         try {
-            URI one = data.getJar1() == null ? null : new URI(data.getJar1());
-            URI two = data.getJar2() == null ? null : new URI(data.getJar2());
-            URI three = data.getJar3() == null ? null : new URI(data.getJar3());
+            org.apache.geronimo.kernel.repository.Artifact one = data.getJar1() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar1());
+            org.apache.geronimo.kernel.repository.Artifact two = data.getJar2() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar2());
+            org.apache.geronimo.kernel.repository.Artifact three = data.getJar3() == null ? null : org.apache.geronimo.kernel.repository.Artifact.create(data.getJar3());
 
             ListableRepository[] repos = PortletManager.getListableRepositories(request);
             for (int i = 0; i < repos.length; i++) {
                 ListableRepository repo = repos[i];
                 if(one != null) {
-                    URL url = repo.getURL(one);
+                    File url = repo.getLocation(one);
                     if(url != null) {
-                        list.add(url);
+                        list.add(url.toURL());
                         one = null;
                     }
                 }
                 if(two != null) {
-                    URL url = repo.getURL(two);
+                    File url = repo.getLocation(two);
                     if(url != null) {
-                        list.add(url);
+                        list.add(url.toURL());
                         two = null;
                     }
                 }
                 if(three != null) {
-                    URL url = repo.getURL(three);
+                    File url = repo.getLocation(three);
                     if(url != null) {
-                        list.add(url);
+                        list.add(url.toURL());
                         three = null;
                     }
                 }

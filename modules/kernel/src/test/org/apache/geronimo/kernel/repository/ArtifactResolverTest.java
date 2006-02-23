@@ -16,17 +16,18 @@
  */
 package org.apache.geronimo.kernel.repository;
 
-import java.io.File;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Collections;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-
 import junit.framework.TestCase;
+import org.apache.geronimo.kernel.ConfigTest;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @version $Rev$ $Date$
@@ -94,9 +95,8 @@ public class ArtifactResolverTest extends TestCase {
                 environment,
                 null,
                 null,
-                null,
                 Collections.singleton(mockRepository),
-                null,
+                new ConfigTest.MockConfigStore(new File("foo").toURL()),
                 artifactManager,
                 artifactResolver);
         LinkedHashSet parents = new LinkedHashSet();

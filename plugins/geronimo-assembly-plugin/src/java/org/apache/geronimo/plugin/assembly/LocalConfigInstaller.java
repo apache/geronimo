@@ -17,16 +17,17 @@
 
 package org.apache.geronimo.plugin.assembly;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.repository.Maven1Repository;
 import org.apache.geronimo.system.repository.Maven2Repository;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * JellyBean that installs configuration artifacts into a LocalConfigurationStore,  It also copies all
@@ -43,7 +44,13 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
 
             public GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException {
                 File artifact = sourceRepo.getLocation(configId);
-                GBeanData config = store.install2(artifact.toURL());
+                store.install(artifact.toURL(), configId);
+                GBeanData config = null;
+                try {
+                    config = store.loadConfiguration(configId);
+                } catch (NoSuchConfigException e) {
+                    throw new InvalidConfigException(e);
+                }
                 return config;
             }
 

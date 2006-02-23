@@ -16,56 +16,15 @@
  */
 package org.apache.geronimo.console.securitymanager.realm;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.PortletConfig;
-import javax.portlet.PortletException;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletRequestDispatcher;
-import javax.portlet.PortletSession;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
-import javax.portlet.WindowState;
-import javax.security.auth.Subject;
-import javax.security.auth.spi.LoginModule;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.BasePortlet;
 import org.apache.geronimo.console.util.PortletManager;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.AttributeType;
-import org.apache.geronimo.deployment.xbeans.ClassloaderType;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
+import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.ReferenceType;
@@ -90,6 +49,48 @@ import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletSession;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.WindowState;
+import javax.security.auth.Subject;
+import javax.security.auth.spi.LoginModule;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * A portlet that lists, creates, and edits security realms.
@@ -325,8 +326,8 @@ public class SecurityRealmPortlet extends BasePortlet {
         // Use a parentId of null to pick up the default
         // Dependencies
         if(data.getJar() != null) {
-            ClassloaderType classloaderType = environment.addNewClassloader();
-            ArtifactType artifactType = classloaderType.addNewDependency();
+            DependenciesType dependenciesType = environment.addNewDependencies();
+            ArtifactType artifactType = dependenciesType.addNewDependency();
             Artifact artifact = Artifact.create(data.getJar());
             artifactType.setGroupId(artifact.getGroupId());
             artifactType.setArtifactId(artifact.getArtifactId());
@@ -388,14 +389,14 @@ public class SecurityRealmPortlet extends BasePortlet {
                             if(testName.equals(poolName) && testApp.equals(appName)) {
                                 String moduleName = objectName.getKeyProperty(NameFactory.JCA_RESOURCE);
 
-                                ClassloaderType classloader;
-                                if (environment.isSetClassloader()) {
-                                    classloader = environment.getClassloader();
+                                DependenciesType dependenciesType;
+                                if (environment.isSetDependencies()) {
+                                    dependenciesType = environment.getDependencies();
                                 } else {
-                                    classloader = environment.addNewClassloader();
+                                    dependenciesType = environment.addNewDependencies();
                                 }
 
-                                ArtifactType artifactType = classloader.addNewImport();
+                                ArtifactType artifactType = dependenciesType.addNewDependency();
                                 Artifact artifact = Artifact.create(moduleName);
                                 artifactType.setGroupId(artifact.getGroupId());
                                 artifactType.setArtifactId(artifact.getArtifactId());
@@ -625,7 +626,7 @@ public class SecurityRealmPortlet extends BasePortlet {
         for (int i = 0; i < repos.length; i++) {
             ListableRepository repo = repos[i];
 
-            List artifacts = repo.list();
+            SortedSet artifacts = repo.list();
             outer:
             for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();

@@ -16,39 +16,47 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
-import javax.portlet.*;
-import javax.enterprise.deploy.spi.DeploymentManager;
-import javax.enterprise.deploy.spi.DeploymentConfiguration;
-import javax.enterprise.deploy.spi.Target;
-import javax.enterprise.deploy.spi.TargetModuleID;
-import javax.enterprise.deploy.spi.status.ProgressObject;
-import javax.enterprise.deploy.model.DDBeanRoot;
-import javax.enterprise.deploy.model.DDBean;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.util.Properties;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Iterator;
-import java.net.URL;
-import org.apache.geronimo.console.util.PortletManager;
-import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
+import org.apache.geronimo.connector.deployment.jsr88.AdminObjectInstance;
+import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
+import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
 import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapter;
 import org.apache.geronimo.connector.deployment.jsr88.ResourceAdapterInstance;
-import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinition;
-import org.apache.geronimo.connector.deployment.jsr88.ConnectionDefinitionInstance;
 import org.apache.geronimo.connector.deployment.jsr88.SinglePool;
-import org.apache.geronimo.connector.deployment.jsr88.AdminObjectDCB;
-import org.apache.geronimo.connector.deployment.jsr88.AdminObjectInstance;
+import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.naming.deployment.jsr88.GBeanLocator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import javax.enterprise.deploy.model.DDBean;
+import javax.enterprise.deploy.model.DDBeanRoot;
+import javax.enterprise.deploy.spi.DeploymentConfiguration;
+import javax.enterprise.deploy.spi.DeploymentManager;
+import javax.enterprise.deploy.spi.Target;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Base class for portlet helpers
@@ -523,10 +531,11 @@ public abstract class AbstractHandler {
                 final DDBeanRoot ddBeanRoot = deployable.getDDBeanRoot();
                 Connector15DCBRoot root = (Connector15DCBRoot) config.getDConfigBeanRoot(ddBeanRoot);
                 ConnectorDCB connector = (ConnectorDCB) root.getDConfigBean(ddBeanRoot.getChildBean(root.getXpaths()[0])[0]);
-                connector.setConfigID("console-jms-"+data.instanceName);
-                if(!isEmpty(data.dependency)) {
-                    connector.setParentID(data.dependency);
-                }
+//TODO FIXME configid
+//                connector.setConfigID("console-jms-"+data.instanceName);
+//                if(!isEmpty(data.dependency)) {
+//                    connector.setParentID(data.dependency);
+//                }
 
                 // Basic settings on RA plan and RA instance
                 ResourceAdapter ra;

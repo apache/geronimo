@@ -32,12 +32,12 @@ import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -127,6 +127,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     private final Kernel kernel;
 
+    private final ConfigurationStore configurationStore;
     /**
      * The registered objectName for this configuraion.
      */
@@ -171,11 +172,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private byte[] gbeanState;
 
     /**
-     * Base path used to resolve relative class path entries.
-     */
-    private final URL baseURL;
-
-    /**
      * The repositories used dependencies.
      */
     private final Collection repositories;
@@ -191,6 +187,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     public Configuration() {
         environment = null;
         kernel = null;
+        configurationStore = null;
         objectNameString = null;
         objectName = null;
         moduleType = null;
@@ -198,7 +195,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         objectNames = null;
         configurationClassLoader = null;
         classPath = null;
-        baseURL = null;
         repositories = null;
         artifactManager = null;
     }
@@ -217,7 +213,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                          String objectName,
                          ConfigurationModuleType moduleType,
                          Environment environment,
-                         URL baseURL,
                          List classPath,
                          byte[] gbeanState,
                          Collection repositories,
@@ -229,7 +224,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         this.objectNameString = objectName;
         this.objectName = objectName == null ? null : JMXUtil.getObjectName(objectName);
         this.moduleType = moduleType;
-        this.baseURL = baseURL;
         this.gbeanState = gbeanState;
         this.repositories = repositories;
         if (classPath != null) {
@@ -237,6 +231,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } else {
             this.classPath = Collections.EMPTY_LIST;
         }
+        this.configurationStore = configurationStore;
 
         this.artifactManager = artifactManager;
 
@@ -256,6 +251,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             ObjectName parentName = getConfigurationObjectName(artifact);
             parents.add(kernel.getProxyManager().createProxy(parentName, Configuration.class));
         }
+
+        //propagate non overridable classes etc from parents.
+        determineInherited();
 
         // resolve dependencies
         LinkedHashSet dependencies = environment.getDependencies();
@@ -284,6 +282,18 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             }
             configurationClassLoader = new MultiParentClassLoader(environment.getConfigId(), urls, parentClassLoaders);
         }
+    }
+
+    private void determineInherited() {
+
+        for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
+            Configuration parent = (Configuration) iterator.next();
+
+            Environment parentEnvironment = parent.getEnvironment();
+            Set nonOverridableClasses = parentEnvironment.getNonOverrideableClasses();
+            environment.addNonOverrideableClasses(nonOverridableClasses);
+        }
+
     }
 
     private LinkedHashSet recursiveResolve(ArtifactResolver artifactResolver, LinkedHashSet dependencies) throws MissingDependencyException {
@@ -328,9 +338,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             for (Iterator i = gbeans.iterator(); i.hasNext();) {
                 GBeanData gbeanData = (GBeanData) i.next();
                 // massage the GBeanData and add the GBean to the kernel
+                setGBeanBaseUrl(gbeanData);
                 loadGBean(gbeanData, objectNames);
             }
             this.objectNames = objectNames;
+        } catch (MalformedURLException e) {
+            throw new InvalidConfigException(e);
+        } catch (NoSuchConfigException e) {
+            throw new InvalidConfigException(e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
@@ -386,13 +401,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     //TODO remove this when web app cl are config. cl.
-    private static void setGBeanBaseUrl(GBeanData gbeanData, URL baseUrl) {
+    private void setGBeanBaseUrl(GBeanData gbeanData) throws MalformedURLException, NoSuchConfigException {
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         Set attributes = gbeanInfo.getAttributes();
         for (Iterator iterator = attributes.iterator(); iterator.hasNext();) {
             GAttributeInfo attribute = (GAttributeInfo) iterator.next();
             if (attribute.getName().equals("configurationBaseUrl") && attribute.getType().equals("java.net.URL")) {
-                gbeanData.setAttribute("configurationBaseUrl", baseUrl);
+                URL baseURL = configurationStore.resolve(environment.getConfigId(), URI.create(""));
+                gbeanData.setAttribute("configurationBaseUrl", baseURL);
                 return;
             }
         }
@@ -541,7 +557,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     private ObjectName loadGBean(GBeanData beanData, Set objectNames) throws GBeanAlreadyExistsException {
         ObjectName name = beanData.getName();
-        setGBeanBaseUrl(beanData, baseURL);
 
         log.trace("Registering GBean " + name);
         kernel.loadGBean(beanData, configurationClassLoader);
@@ -656,7 +671,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addAttribute("type", ConfigurationModuleType.class, true, false);
         infoFactory.addAttribute("classPath", List.class, true, false);
         infoFactory.addAttribute("gBeanState", byte[].class, true, false);
-        infoFactory.addAttribute("baseURL", URL.class, true, false);
         infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
         //make id readable for convenience
         infoFactory.addAttribute("id", Artifact.class, false);
@@ -681,7 +695,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 "objectName",
                 "type",
                 "environment",
-                "baseURL",
                 "classPath",
                 "gBeanState",
                 "Repositories",

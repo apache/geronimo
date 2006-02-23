@@ -102,8 +102,7 @@ public class DeploymentContext {
         this.baseUri = baseDir.toURI();
 
         determineNaming();
-        determineInherited();
-        determineMinimalParents();
+        setupParents();
     }
 
     private void determineNaming() throws DeploymentException {
@@ -144,48 +143,6 @@ public class DeploymentContext {
         //check that domain and server are now known
         if (environment.getProperties() == null || environment.getProperties().isEmpty()) {
             throw new IllegalStateException("Properties not be determined from explicit args or parent configuration. ParentID: " + parentId);
-        }
-    }
-
-    private void determineInherited() throws DeploymentException {
-        if (null == kernel) {
-            return;
-        }
-
-        Collection parentId = environment.getImports();
-        if (parentId != null && parentId.size() > 0) {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-            List inherited = new ArrayList();
-            try {
-                for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
-                    Artifact parent = (Artifact) iterator.next();
-                    //TODO configid
-                    ObjectName parentName = Configuration.getConfigurationObjectName(parent);
-                    boolean loaded = false;
-                    try {
-                        if (!configurationManager.isLoaded(parent)) {
-                            parentName = configurationManager.load(parent);
-                            loaded = true;
-                        }
-
-                        Environment environment = (Environment) kernel.getAttribute(parentName, "environment");
-                        Set nonOverridableClasses = environment.getNonOverrideableClasses();
-                        for (Iterator iterator1 = nonOverridableClasses.iterator(); iterator1.hasNext();) {
-                            String nonOverridableClass = (String) iterator1.next();
-                            inherited.add(nonOverridableClass);
-                        }
-                    } finally {
-                        if (loaded) {
-                            configurationManager.unload(parent);
-                        }
-                    }
-                }
-            } catch (DeploymentException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DeploymentException(e);
-            }
-            environment.addNonOverrideableClasses(inherited);
         }
     }
 
@@ -309,7 +266,7 @@ public class DeploymentContext {
      *                             the manifest
      */
     public void addManifestClassPath(JarFile moduleFile, URI moduleBaseUri) throws DeploymentException {
-        Manifest manifest = null;
+        Manifest manifest;
         try {
             manifest = moduleFile.getManifest();
         } catch (IOException e) {
@@ -486,15 +443,15 @@ public class DeploymentContext {
 
     }
 
-    private void determineMinimalParents() throws DeploymentException {
+    private void setupParents() throws DeploymentException {
         Collection parentId = environment.getImports();
         if (kernel != null && parentId != null && parentId.size() > 0) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
                 loadAncestors(kernel, parentId, loadedAncestors, configurationManager);
-                ParentSource parentSource = new ConfigurationParentSource(kernel);
-                parentId = getExtremalSet(parentId, parentSource);
-                environment.setImports(parentId);
+//                ParentSource parentSource = new ConfigurationParentSource(kernel);
+//                parentId = getExtremalSet(parentId, parentSource);
+//                environment.setImports(parentId);
 
                 try {
                     for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
@@ -553,7 +510,6 @@ public class DeploymentContext {
                     null,
                     moduleType,
                     environment,
-                    null,
                     new ArrayList(classpath),
                     null,
                     Collections.singleton(repository),
@@ -569,7 +525,7 @@ public class DeploymentContext {
                         public void uninstall(Artifact configID) {
                         }
 
-                        public ObjectName loadConfiguration(Artifact configId) {
+                        public GBeanData loadConfiguration(Artifact configId) {
                             return null;
                         }
 

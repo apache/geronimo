@@ -16,6 +16,12 @@
  */
 package org.apache.geronimo.console.databasemanager.wizard;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,8 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +40,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
 
 /**
  * A utility that handles listing and downloading available JDBC driver JARs.
@@ -117,67 +117,69 @@ public class DriverDownloader {
      * Downloads a driver and loads it into the local repository.
      */
     public void loadDriver(WriteableRepository repo, DriverInfo driver, FileWriteMonitor monitor) throws IOException {
-        try {
-            int urlIndex = 0;
-            if(driver.urls.length > 1) {
-                if(random == null) {
-                    random = new Random();
-                }
-                urlIndex = random.nextInt(driver.urls.length);
+        int urlIndex = 0;
+        if (driver.urls.length > 1) {
+            if (random == null) {
+                random = new Random();
             }
-            URL url = driver.urls[urlIndex];
-            InputStream in;
-            String uri = driver.getRepositoryURI();
-            if(driver.unzipPath != null) {
-                byte[] buf = new byte[1024];
-                int size;
-                int total = 0;
-                int threshold = 10240;
-                InputStream net = url.openStream();
-                JarFile jar = null;
-                File download = null;
+            urlIndex = random.nextInt(driver.urls.length);
+        }
+        URL url = driver.urls[urlIndex];
+        InputStream in;
+        String uri = driver.getRepositoryURI();
+        if (driver.unzipPath != null) {
+            byte[] buf = new byte[1024];
+            int size;
+            int total = 0;
+            int threshold = 10240;
+            InputStream net = url.openStream();
+            JarFile jar = null;
+            File download = null;
+            try {
+                download = File.createTempFile("geronimo-driver-download", ".zip");
+                OutputStream out = new BufferedOutputStream(new FileOutputStream(download));
+                if (monitor != null) {
+                    monitor.writeStarted("Download driver archive to " + download);
+                }
                 try {
-                    download = File.createTempFile("geronimo-driver-download", ".zip");
-                    OutputStream out = new BufferedOutputStream(new FileOutputStream(download));
-                    if(monitor != null) {
-                        monitor.writeStarted("Download driver archive to "+download);
-                    }
-                    try {
-                        while((size = net.read(buf)) > -1) {
-                            out.write(buf, 0, size);
-                            if(monitor != null) {
-                                total += size;
-                                if(total > threshold) {
-                                    monitor.writeProgress(total);
-                                    threshold += 10240;
-                                }
+                    while ((size = net.read(buf)) > -1) {
+                        out.write(buf, 0, size);
+                        if (monitor != null) {
+                            total += size;
+                            if (total > threshold) {
+                                monitor.writeProgress(total);
+                                threshold += 10240;
                             }
                         }
-                        out.flush();
-                        out.close();
-                    } finally {
-                        if(monitor != null) {
-                            monitor.writeComplete(total);
-                        }
                     }
-                    jar = new JarFile(download);
-                    JarEntry entry = jar.getJarEntry(driver.unzipPath);
-                    if(entry == null) {
-                        log.error("Cannot extract driver JAR "+driver.unzipPath+" from download file "+url);
-                    } else {
-                        in = jar.getInputStream(entry);
-                        repo.copyToRepository(in, new URI(uri), monitor);
-                    }
+                    out.flush();
+                    out.close();
                 } finally {
-                    if(jar != null) try{jar.close();}catch(IOException e) {log.error("Unable to close JAR file", e);}
-                    if(download != null) {download.delete();}
+                    if (monitor != null) {
+                        monitor.writeComplete(total);
+                    }
                 }
-            } else {
-                in = url.openStream();
-                repo.copyToRepository(in, new URI(uri), monitor);
+                jar = new JarFile(download);
+                JarEntry entry = jar.getJarEntry(driver.unzipPath);
+                if (entry == null) {
+                    log.error("Cannot extract driver JAR " + driver.unzipPath + " from download file " + url);
+                } else {
+                    in = jar.getInputStream(entry);
+                    repo.copyToRepository(in, Artifact.create(uri), monitor);
+                }
+            } finally {
+                if (jar != null) try {
+                    jar.close();
+                } catch (IOException e) {
+                    log.error("Unable to close JAR file", e);
+                }
+                if (download != null) {
+                    download.delete();
+                }
             }
-        } catch (URISyntaxException e) {
-            throw new IOException("Unable to save to repository URI: "+e.getMessage());
+        } else {
+            in = url.openStream();
+            repo.copyToRepository(in, Artifact.create(uri), monitor);
         }
     }
 

@@ -16,19 +16,20 @@
  */
 package org.apache.geronimo.plugin.assembly;
 
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.List;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
+import java.util.LinkedHashSet;
 
 /**
  * @version $Rev$ $Date$
@@ -107,7 +108,8 @@ public class BaseConfigInstaller {
             return;
         }
         GBeanData config = installAdapter.install(sourceRepo, configId);
-        List dependencies = (List) config.getAttribute("dependencies");
+        Environment environment = (Environment) config.getAttribute("environment");
+        LinkedHashSet dependencies = environment.getDependencies();
         System.out.println("Installed configuration " + configId);
 
         FileWriteMonitor monitor = new StartFileWriteMonitor();

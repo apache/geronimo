@@ -16,19 +16,19 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import junit.framework.Assert;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
+
+import javax.management.ObjectName;
+import javax.naming.Reference;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.jar.JarFile;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-
-import junit.framework.Assert;
-
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 
 
 /**
@@ -67,7 +67,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         this.cl = cl;
     }
 
-    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl) {
+    public void addGBeans(EARContext earContext, Module ejbModule, ClassLoader cl, Repository repository) {
         assertEquals(this.earContext, earContext);
 //        assertEquals(this.ejbModule, ejbModule);
         assertEquals(this.cl, cl);

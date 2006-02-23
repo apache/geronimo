@@ -16,26 +16,6 @@
  */
 package org.apache.geronimo.console.util;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.LoginException;
-import javax.security.auth.spi.LoginModule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanQuery;
@@ -45,6 +25,7 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.management.AppClientModule;
 import org.apache.geronimo.management.EJB;
@@ -83,6 +64,26 @@ import org.apache.geronimo.security.jaas.server.JaasLoginServiceMBean;
 import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.system.logging.SystemLog;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginException;
+import javax.security.auth.spi.LoginModule;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An implementation of the ManagementHelper interface that uses a Geronimo
@@ -1006,7 +1007,7 @@ public class KernelManagementHelper implements ManagementHelper {
         }
     }
 
-    public URI getConfigurationNameFor(String objectName) {
+    public Artifact getConfigurationNameFor(String objectName) {
         try {
             Set parents = kernel.getDependencyManager().getParents(ObjectName.getInstance(objectName));
             if(parents.size() == 0) {

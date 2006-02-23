@@ -16,28 +16,6 @@
  */
 package org.apache.geronimo.connector.deployment;
 
-import java.beans.Introspector;
-import java.beans.PropertyEditor;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.connector.ActivationSpecWrapperGBean;
@@ -59,13 +37,12 @@ import org.apache.geronimo.connector.outbound.connectionmanagerconfig.SinglePool
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionLog;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.TransactionSupport;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.XATransactions;
-import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.service.EnvironmentBuilder;
+import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
-import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.deployment.xbeans.GbeanType;
+import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.DynamicGAttributeInfo;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
@@ -83,6 +60,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
 import org.apache.geronimo.naming.reference.ResourceReference;
@@ -106,9 +84,31 @@ import org.apache.geronimo.xbeans.j2ee.ConnectorDocument;
 import org.apache.geronimo.xbeans.j2ee.ConnectorType;
 import org.apache.geronimo.xbeans.j2ee.MessagelistenerType;
 import org.apache.geronimo.xbeans.j2ee.ResourceadapterType;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+import java.beans.Introspector;
+import java.beans.PropertyEditor;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
  * @version $Rev$ $Date$
@@ -369,7 +369,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     }
 
-    public void addGBeans(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
+    public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
         J2eeContext earJ2eeContext = earContext.getJ2eeContext();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
         J2eeContext resourceJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.JCA_RESOURCE, module.getName());

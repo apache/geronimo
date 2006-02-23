@@ -17,19 +17,6 @@
 
 package org.apache.geronimo.console.jmsmanager.activemqCF;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URISyntaxException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import javax.portlet.PortletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.DeploymentException;
@@ -41,6 +28,20 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+
+import javax.portlet.PortletRequest;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.URISyntaxException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
 
 public class ActiveMQConnectorHelper {
     //todo: this class is horrible and needs to be burned!
@@ -184,7 +185,7 @@ public class ActiveMQConnectorHelper {
         List dependencies = new ArrayList();
         for (int i = 0; i < repo.length; i++) {
             ListableRepository repository = repo[i];
-            List artifacts = repository.list();
+            SortedSet artifacts = repository.list();
             for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
                 Artifact artifact = (Artifact) iterator.next();
                 dependencies.add(artifact.toString());

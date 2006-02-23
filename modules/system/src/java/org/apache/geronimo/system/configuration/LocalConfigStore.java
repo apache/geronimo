@@ -17,6 +17,26 @@
 
 package org.apache.geronimo.system.configuration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationInfo;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.system.serverinfo.ServerInfo;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -27,10 +47,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URISyntaxException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -38,26 +58,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationInfo;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * Implementation of ConfigurationStore using the local filesystem.
@@ -238,11 +238,8 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return new URL(getRoot(configId).toURL(), uri.toString());
     }
 
-    public Artifact install(URL source) throws IOException, InvalidConfigException {
-        return (Artifact) install2(source).getAttribute("id");
-    }
 
-    public GBeanData install2(URL source) throws IOException, InvalidConfigException {
+    public void install(URL source, Artifact configId) throws IOException, InvalidConfigException {
         //this  implementation doesn't use the artifactId to locate the target
         File configurationDir = createNewConfigurationDir(null);
 
@@ -256,23 +253,13 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
             is.close();
         }
 
-        Artifact configId;
-        GBeanData config;
-        try {
-            config = loadConfig(configurationDir);
-            configId = (Artifact) config.getAttribute("id");
-            index.setProperty(configId.toURI().toString(), configurationDir.getName());
-        } catch (Exception e) {
-            delete(configurationDir);
-            throw new InvalidConfigException("Unable to get ID from downloaded configuration", e);
-        }
+            index.setProperty(configId.toString(), configurationDir.getName());
 
         synchronized (this) {
             saveIndex();
         }
 
         log.debug("Installed configuration (URL) " + configId + " in location " + configurationDir.getName());
-        return config;
     }
 
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
@@ -330,27 +317,6 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         }
     }
 
-    public synchronized ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        GBeanData config = loadConfig(getRoot(configId));
-
-        ObjectName name = Configuration.getConfigurationObjectName(configId);
-        config.setName(name);
-        //TODO configId remove this
-        config.setAttribute("baseURL", getRoot(configId).toURL());
-        //TODO NOTE THIS IS NOT A PROXY
-        config.setAttribute("configurationStore", this);
-
-        try {
-            kernel.loadGBean(config, Configuration.class.getClassLoader());
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to register configuration", e);
-        }
-
-        log.debug("Loaded Configuration " + name);
-
-        return name;
-    }
-
     public List listConfigurations() {
         List configs;
         synchronized (this) {
@@ -372,7 +338,7 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
                         state = State.STOPPED;
                     }
 
-                    GBeanData bean = loadConfig(getRoot(configId));
+                    GBeanData bean = loadConfiguration(configId);
                     ConfigurationModuleType type = (ConfigurationModuleType) bean.getAttribute("type");
 
                     configs.add(new ConfigurationInfo(objectName, configId, state, type));
@@ -403,7 +369,8 @@ public class LocalConfigStore implements ConfigurationStore, GBeanLifecycle {
         return new File(rootDir, id);
     }
 
-    private GBeanData loadConfig(File configRoot) throws IOException, InvalidConfigException {
+    public GBeanData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException {
+        File configRoot = getRoot(configId);
         File file = new File(configRoot, "META-INF/config.ser");
         if (!file.isFile()) {
             throw new InvalidConfigException("Configuration does not contain a META-INF/config.ser file");

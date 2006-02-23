@@ -35,10 +35,10 @@ import org.apache.log4j.BasicConfigurator;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.File;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.net.URI;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -389,7 +389,8 @@ public class PackageBuilder {
     }
 
     private List invokeDeployer(Kernel kernel, ObjectName deployer) throws Exception {
-        Object[] args = {planFile, moduleFile, packageFile, Boolean.FALSE, mainClass, classPath, endorsedDirs, extensionDirs};
+        boolean isExecutable = mainClass != null;
+        Object[] args = {planFile, moduleFile, isExecutable? packageFile: null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }
