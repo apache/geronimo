@@ -529,10 +529,9 @@ public class SchemaConversionUtils {
                         }
                     } else {
                         //cursor pointing at activation-config
-                        //cursor.toNextSibling();
+                        cursor.toNextSibling();
                         //cursor should now be at first element in JNDIEnvironmentRefsGroup
                     }
-                    cursor.toNextSibling();
                     convertToJNDIEnvironmentRefsGroup(cursor, moveable);
                 }
                 cursor.pop();
