@@ -43,6 +43,12 @@
             <attribute name="args">-ORBInitRef, NameService=corbaloc::${PlanCOSNamingHost}:${PlanCOSNamingPort}/NameService</attribute>
         </gbean>
     </configuration>
+    <configuration name="geronimo/system-database/${pom.currentVersion}/car">
+        <gbean name="DerbyNetwork">
+            <attribute name="host">${PlanServerHostname}</attribute>
+            <attribute name="port">${PlanDerbyPort}</attribute>
+        </gbean>
+    </configuration>
     <configuration name="geronimo/activemq-broker/${pom.currentVersion}/car">
         <gbean name="ActiveMQ.tcp.default">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -50,12 +56,6 @@
         </gbean>
     </configuration>
     <configuration name="geronimo/activemq/${pom.currentVersion}/car"/>
-    <configuration name="geronimo/system-database/${pom.currentVersion}/car">
-        <gbean name="DerbyNetwork">
-            <attribute name="host">${PlanServerHostname}</attribute>
-            <attribute name="port">${PlanDerbyPort}</attribute>
-        </gbean>
-    </configuration>
     <configuration name="geronimo/directory/${pom.currentVersion}/car">
         <gbean name="geronimo.server:name=DirectoryService">
             <attribute name="host">${PlanServerHostname}</attribute>
@@ -95,9 +95,12 @@
     <configuration name="geronimo/servlets-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jsp-examples-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/webconsole-jetty/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/webconsole-jetty_geronimo-console-framework-${pom.currentVersion}.war/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/webconsole-jetty_geronimo-console-standard-${pom.currentVersion}.war/${pom.currentVersion}/car"/>
     <configuration name="geronimo/uddi-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/jmxdebug-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/daytrader-derby-jetty/${pom.currentVersion}/car"/>
+    <configuration name="geronimo/daytrader-derby-jetty_daytrader-web-${pom.currentVersion}.war/${pom.currentVersion}/car"/>
     <configuration name="geronimo/remote-deploy-jetty/${pom.currentVersion}/car"/>
     <configuration name="geronimo/hot-deployer/${pom.currentVersion}/car" />
 </attributes>

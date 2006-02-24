@@ -142,7 +142,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         assert classLoader != null;
         assert relativeWebAppRoot != null;
-        assert webClassPath != null;
+//        assert webClassPath != null;
         assert configurationBaseUrl != null;
         assert transactionContextManager != null;
         assert trackedConnectionAssociator != null;

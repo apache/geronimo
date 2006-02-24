@@ -341,7 +341,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
         earContext.addGBean(appClientModuleGBeanData);
 
-        // create another child configuration within the config store for the client application
         EARContext appClientDeploymentContext = appClientModule.getEarContext();
         ConfigurationData appClientConfigurationData = null;
         try {

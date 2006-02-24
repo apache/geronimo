@@ -29,7 +29,6 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -319,12 +318,10 @@ public class DeploymentContext {
         addFile(getTargetFile(targetPath), new ByteArrayInputStream(source.getBytes()));
     }
 
-    public void addClass(URI location, String fqcn, byte[] bytes, boolean addToClasspath) throws IOException, URISyntaxException {
+    public void addClass(URI location, String fqcn, byte[] bytes) throws IOException, URISyntaxException {
         assert location.toString().endsWith("/");
 
-        if (addToClasspath) {
-            classpath.add(location);
-        }
+        classpath.add(location);
         String classFileName = fqcn.replace('.', '/') + ".class";
         addFile(getTargetFile(new URI(location.toString() + classFileName)), new ByteArrayInputStream(bytes));
     }
@@ -434,7 +431,7 @@ public class DeploymentContext {
                 throw new DeploymentException("Cannot convert ID to ObjectName: ", e);
             }
             try {
-                Environment environment =  (Environment) kernel.getAttribute(configName, "environment");
+                Environment environment = (Environment) kernel.getAttribute(configName, "environment");
                 return environment.getImports();
             } catch (Exception e) {
                 throw new DeploymentException("Cannot find parents of alleged config: ", e);
@@ -582,7 +579,10 @@ public class DeploymentContext {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
                 startedAncestors.clear();
-                Collections.reverse(loadedAncestors);
+                //TODO configid WE NEED REFERENCE COUNTING ON THIS STUFF!!!
+                //right now it is impossible to deploy 2 app clients in an ear. 
+//                Collections.reverse(loadedAncestors);
+/*
                 for (Iterator iterator = loadedAncestors.iterator(); iterator.hasNext();) {
                     Artifact configID = (Artifact) iterator.next();
                     if (configurationManager.isLoaded(configID)) {
@@ -593,6 +593,7 @@ public class DeploymentContext {
                         }
                     }
                 }
+*/
                 loadedAncestors.clear();
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

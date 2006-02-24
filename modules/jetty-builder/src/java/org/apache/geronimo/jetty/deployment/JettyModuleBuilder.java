@@ -37,7 +37,6 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.jetty.JettyClassLoader;
 import org.apache.geronimo.jetty.JettyFilterHolder;
 import org.apache.geronimo.jetty.JettyFilterMapping;
 import org.apache.geronimo.jetty.JettyServletHolder;
@@ -107,7 +106,6 @@ import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -186,8 +184,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             return null;
         }
         ObjectName templateName = kernel.getProxyManager().getProxyTarget(template);
-        GBeanData templateData = kernel.getGBeanData(templateName);
-        return templateData;
+        return kernel.getGBeanData(templateName);
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
@@ -257,8 +254,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             //no descriptor
         }
 
-        WebModule module = new WebModule(standAlone, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
-        return module;
+        return new WebModule(standAlone, environment, moduleFile, targetPath, webApp, jettyWebApp, specDD, contextRoot, portMap, JETTY_NAMESPACE);
     }
 
     /**
@@ -380,7 +376,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                         environment,
                         ConfigurationModuleType.WAR,
                         kernel,
-                        null,//????
+                        earContext.getJ2EEApplicationName(),
                         earContext.getTransactionContextManagerObjectName(),
                         earContext.getConnectionTrackerObjectName(),
                         earContext.getTransactedTimerName(),
@@ -447,7 +443,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 throw new DeploymentException("You have supplied a security configuration for web app " + module.getName() + " but no security-realm-name to allow login");
             }
             SecurityConfiguration securityConfiguration = SecurityBuilder.buildSecurityConfiguration(gerWebApp.getSecurity(), cl);
-            moduleContext.setSecurityConfiguration(securityConfiguration);
+            earContext.setSecurityConfiguration(securityConfiguration);
         }
     }
 
@@ -469,13 +465,14 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         if (jettyWebApp.isSetContextPriorityClassloader()) {
             contextPriorityClassLoader = jettyWebApp.getContextPriorityClassloader();
         }
+        //TODO set inverseclassloading from contextprioritycl.
         // construct the webClassLoader
 //        ClassLoader webClassLoader = getWebClassLoader(moduleContext, webModule, moduleClassLoader, contextPriorityClassLoader);
 
         GbeanType[] gbeans = jettyWebApp.getGbeanArray();
         ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleJ2eeContext, moduleContext);
 
-        ObjectName webModuleName = null;
+        ObjectName webModuleName;
         try {
             webModuleName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
         } catch (MalformedObjectNameException e) {
@@ -518,14 +515,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
             //classpath may have been augmented with enhanced classes
-            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
+//            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
             ENCConfigBuilder.setResourceEnvironment(earContext, webModule.getModuleURI(), rebuilder, webApp.getResourceRefArray(), jettyWebApp.getResourceRefArray());
 
             webModuleData.setAttribute("contextPath", webModule.getContextRoot());
-            webModuleData.setAttribute("contextPriorityClassLoader", Boolean.valueOf(contextPriorityClassLoader));
 
             webModuleData.setReferencePattern("TransactionContextManager", moduleContext.getTransactionContextManagerObjectName());
             webModuleData.setReferencePattern("TrackedConnectionAssociator", moduleContext.getConnectionTrackerObjectName());
@@ -830,7 +826,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             addServlets(webModuleName, webModule.getModuleFile(), servletTypes, servletMappings, securityRoles, rolePermissions, portMap, moduleClassLoader, moduleJ2eeContext, moduleContext);
 
             if (jettyWebApp.isSetSecurityRealmName()) {
-                if (moduleContext.getSecurityConfiguration() == null) {
+                if (earContext.getSecurityConfiguration() == null) {
                      throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + webModuleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
                 }
                 String securityRealmName = jettyWebApp.getSecurityRealmName().trim();
@@ -855,11 +851,11 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 }
                 webModuleData.setAttribute("checkedPermissions", checkedPermissions);
 
-                moduleContext.addSecurityContext(policyContextID, componentPermissions);
-                DefaultPrincipal defaultPrincipal = moduleContext.getSecurityConfiguration().getDefaultPrincipal();
+                earContext.addSecurityContext(policyContextID, componentPermissions);
+                DefaultPrincipal defaultPrincipal = earContext.getSecurityConfiguration().getDefaultPrincipal();
                 webModuleData.setAttribute("defaultPrincipal", defaultPrincipal);
 
-                webModuleData.setReferencePattern("RoleDesignateSource", moduleContext.getJaccManagerName());
+                webModuleData.setReferencePattern("RoleDesignateSource", earContext.getJaccManagerName());
             }
             if (!module.isStandAlone()) {
                 ConfigurationData moduleConfigurationData = moduleContext.getConfigurationData();
@@ -875,31 +871,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
     public String getSchemaNamespace() {
         return JETTY_NAMESPACE;
     }
-
-    private ClassLoader getWebClassLoader(EARContext earContext, WebModule webModule, ClassLoader cl, boolean contextPriorityClassLoader) throws DeploymentException {
-        getWebClassPath(earContext, webModule);
-        URI[] webClassPath = webModule.getWebClasspath();
-        URI baseUri = earContext.getBaseDir().toURI();
-        URL baseUrl = null;
-        try {
-            baseUrl = baseUri.resolve(webModule.getTargetPathURI()).toURL();
-        } catch (MalformedURLException e) {
-            throw new DeploymentException("Invalid module location: " + webModule.getTargetPathURI() + ", baseUri: " + baseUri);
-        }
-        URL[] webClassPathURLs = new URL[webClassPath.length];
-        for (int i = 0; i < webClassPath.length; i++) {
-            URI path = baseUri.resolve(webClassPath[i]);
-            try {
-                webClassPathURLs[i] = path.toURL();
-            } catch (MalformedURLException e) {
-                throw new DeploymentException("Invalid web class path element: path=" + path + ", baseUri=" + baseUri);
-            }
-        }
-
-        ClassLoader webClassLoader = new JettyClassLoader(webClassPathURLs, baseUrl, cl, contextPriorityClassLoader);
-        return webClassLoader;
-    }
-
 
     /**
      * Adds the provided servlets, taking into account the load-on-startup ordering.
@@ -978,13 +949,13 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         GBeanData servletData;
         if (servletType.isSetServletClass()) {
             String servletClassName = servletType.getServletClass().getStringValue().trim();
-            Class servletClass = null;
+            Class servletClass;
             try {
                 servletClass = webClassLoader.loadClass(servletClassName);
             } catch (ClassNotFoundException e) {
                 throw new DeploymentException("Could not load servlet class " + servletClassName, e);
             }
-            Class baseServletClass = null;
+            Class baseServletClass;
             try {
                 baseServletClass = webClassLoader.loadClass(Servlet.class.getName());
             } catch (ClassNotFoundException e) {
@@ -1252,8 +1223,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             uncheckedPermissions.add(new WebUserDataPermission(item.getName(), actions));
         }
 
-        ComponentPermissions componentPermissions = new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
-        return componentPermissions;
+        return new ComponentPermissions(excludedPermissions, uncheckedPermissions, rolePermissions);
 
     }
 
@@ -1286,34 +1256,6 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         }
 
         return roleNames;
-    }
-
-    private static void getWebClassPath(EARContext earContext, WebModule webModule) {
-        File baseDir = earContext.getTargetFile(webModule.getTargetPathURI());
-        File webInfDir = new File(baseDir, "WEB-INF");
-
-        // check for a classes dir
-        File classesDir = new File(webInfDir, "classes");
-        if (classesDir.isDirectory()) {
-            webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/classes/")));
-        }
-
-        // add all of the libs
-        File libDir = new File(webInfDir, "lib");
-        if (libDir.isDirectory()) {
-            File[] libs = libDir.listFiles(new FileFilter() {
-                public boolean accept(File file) {
-                    return file.isFile() && file.getName().endsWith(".jar");
-                }
-            });
-
-            if (libs != null) {
-                for (int i = 0; i < libs.length; i++) {
-                    File lib = libs[i];
-                    webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/lib/" + lib.getName())));
-                }
-            }
-        }
     }
 
     private Map buildComponentContext(EARContext earContext, Module webModule, WebAppType webApp, JettyWebAppType jettyWebApp, UserTransaction userTransaction, ClassLoader cl) throws DeploymentException {

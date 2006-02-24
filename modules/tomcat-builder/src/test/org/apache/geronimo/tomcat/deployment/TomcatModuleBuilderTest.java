@@ -157,7 +157,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         deployWar("war4", "foo/bar/1/car");
     }
 
-    public void testDeployWar5() throws Exception {
+    public void XtestDeployWar5() throws Exception {
         deployWar("war5", "test/foo/1/car");
     }
 

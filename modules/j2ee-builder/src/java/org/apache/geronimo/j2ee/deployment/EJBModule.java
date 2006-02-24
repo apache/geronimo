@@ -16,16 +16,16 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.xmlbeans.XmlObject;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
-import java.io.IOException;
-
-import org.apache.xmlbeans.XmlObject;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.common.DeploymentException;
 
 /**
  * @version $Rev$ $Date$
@@ -40,7 +40,7 @@ public class EJBModule extends Module {
     }
 
     public void addClass(URI location, String fqcn, byte[] bytes, DeploymentContext context) throws IOException, URISyntaxException {
-        context.addClass(location, fqcn, bytes, true);
+        context.addClass(location, fqcn, bytes);
     }
 }
 

@@ -16,22 +16,21 @@
  */
 package org.apache.geronimo.deployment;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URLClassLoader;
-import java.net.URL;
-import java.util.Map;
-import java.util.HashMap;
-
-import javax.sql.DataSource;
-
+import junit.framework.TestCase;
+import net.sf.cglib.core.DefaultGeneratorStrategy;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.core.DefaultGeneratorStrategy;
-import junit.framework.TestCase;
+
+import javax.sql.DataSource;
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -63,7 +62,7 @@ public class DeploymentContextTest extends TestCase {
             enhancer.setClassLoader(new URLClassLoader(new URL[0], this.getClass().getClassLoader()));
             Class type = enhancer.createClass();
             URI location = new URI("cglib/");
-            context.addClass(location, type.getName(), classBytes, true);
+            context.addClass(location, type.getName(), classBytes);
             ClassLoader cl = context.getClassLoader(null);
             Class loadedType = cl.loadClass(type.getName());
             assertTrue(DataSource.class.isAssignableFrom(loadedType));

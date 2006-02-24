@@ -168,8 +168,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                               Map componentContext,
                               OnlineUserTransaction userTransaction,
                               ClassLoader classLoader,
-                              URI[] webClassPath,
-                              boolean contextPriorityClassLoader,
                               URL configurationBaseUrl,
                               Set unshareableResources,
                               Set applicationManagedSecurityResources,
@@ -205,7 +203,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         assert componentContext != null;
         assert userTransaction != null;
         assert classLoader != null;
-        assert webClassPath != null;
         assert configurationBaseUrl != null;
         assert transactionContextManager != null;
         assert trackedConnectionAssociator != null;
@@ -611,8 +608,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         infoBuilder.addAttribute("componentContext", Map.class, true);
         infoBuilder.addAttribute("userTransaction", OnlineUserTransaction.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
-        infoBuilder.addAttribute("webClassPath", URI[].class, true);
-        infoBuilder.addAttribute("contextPriorityClassLoader", boolean.class, true);
         infoBuilder.addAttribute("configurationBaseUrl", URL.class, true);
         infoBuilder.addAttribute("unshareableResources", Set.class, true);
         infoBuilder.addAttribute("applicationManagedSecurityResources", Set.class, true);
@@ -654,8 +649,6 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 "componentContext",
                 "userTransaction",
                 "classLoader",
-                "webClassPath",
-                "contextPriorityClassLoader",
                 "configurationBaseUrl",
                 "unshareableResources",
                 "applicationManagedSecurityResources",

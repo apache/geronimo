@@ -417,7 +417,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);
             //classpath may have been augmented with enhanced classes
-            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
+//            webModuleData.setAttribute("webClassPath", webModule.getWebClasspath());
             // unsharableResources, applicationManagedSecurityResources
             GBeanResourceEnvironmentBuilder rebuilder = new GBeanResourceEnvironmentBuilder(webModuleData);
             //N.B. use earContext not moduleContext
@@ -551,7 +551,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private ClassLoader getWebClassLoader(EARContext earContext, WebModule webModule, ClassLoader cl, boolean contextPriorityClassLoader) throws DeploymentException {
         getWebClassPath(earContext, webModule);
-        URI[] webClassPath = webModule.getWebClasspath();
+        URI[] webClassPath = new URI[0];// webModule.getWebClasspath();
         URI baseUri = earContext.getBaseDir().toURI();
         URL baseUrl = null;
         try {
@@ -830,7 +830,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         // check for a classes dir
         File classesDir = new File(webInfDir, "classes");
         if (classesDir.isDirectory()) {
-            webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/classes/")));
+//            webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/classes/")));
         }
 
         // add all of the libs
@@ -845,7 +845,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             if (libs != null) {
                 for (int i = 0; i < libs.length; i++) {
                     File lib = libs[i];
-                    webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/lib/" + lib.getName())));
+//                    webModule.addToWebClasspath(webModule.getTargetPathURI().resolve(URI.create("WEB-INF/lib/" + lib.getName())));
                 }
             }
         }

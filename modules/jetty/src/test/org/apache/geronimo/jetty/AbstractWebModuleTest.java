@@ -16,20 +16,7 @@
  */
 package org.apache.geronimo.jetty;
 
-import java.io.File;
-import java.net.URI;
-import java.security.PermissionCollection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import javax.management.ObjectName;
-
 import junit.framework.TestCase;
-import org.mortbay.jetty.servlet.FormAuthenticator;
-
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
@@ -53,6 +40,18 @@ import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
+import org.mortbay.jetty.servlet.FormAuthenticator;
+
+import javax.management.ObjectName;
+import java.io.File;
+import java.net.URI;
+import java.security.PermissionCollection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 
 /**
@@ -118,8 +117,6 @@ public class AbstractWebModuleTest extends TestCase {
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
         //we have no classes or libs.
-        app.setAttribute("webClassPath", new URI[]{});
-        app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
@@ -158,9 +155,6 @@ public class AbstractWebModuleTest extends TestCase {
 
         OnlineUserTransaction userTransaction = new OnlineUserTransaction();
         app.setAttribute("userTransaction", userTransaction);
-        //we have no classes or libs.
-        app.setAttribute("webClassPath", new URI[]{});
-        app.setAttribute("contextPriorityClassLoader", Boolean.FALSE);
         app.setAttribute("configurationBaseUrl", new File("src/test-resources/deployables/").toURL());
         app.setReferencePattern("TransactionContextManager", tcmName);
         app.setReferencePattern("TrackedConnectionAssociator", ctcName);
