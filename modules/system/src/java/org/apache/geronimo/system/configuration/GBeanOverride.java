@@ -29,6 +29,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.beans.PropertyEditor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -43,7 +44,9 @@ class GBeanOverride {
     private final Object name;
     private boolean load;
     private final Map attributes = new LinkedHashMap();
+    private final ArrayList clearAttributes = new ArrayList();
     private final Map references = new LinkedHashMap();
+    private final ArrayList clearReferences = new ArrayList();
     private final String gbeanInfo;
 
     public GBeanOverride(String name, boolean load) {
@@ -110,6 +113,12 @@ class GBeanOverride {
             Element attribute = (Element) attributes.item(a);
 
             String attributeName = attribute.getAttribute("name");
+            String emptyStr = attribute.getAttribute("empty");
+            boolean empty = "true".equals(emptyStr);
+            if (empty){
+                clearAttributes.add(attributeName);
+                return;
+            }
             String attributeValue = (String)EncryptionManager.decrypt(getContentsAsText(attribute));
             setAttribute(attributeName, attributeValue);
         }
@@ -120,6 +129,12 @@ class GBeanOverride {
             Element reference = (Element) references.item(r);
 
             String referenceName = reference.getAttribute("name");
+            String emptyStr = reference.getAttribute("empty");
+            boolean empty = "true".equals(emptyStr);
+            if (empty){
+                clearReferences.add(referenceName);
+                return;
+            }
 
             Set objectNamePatterns = new LinkedHashSet();
             NodeList patterns = reference.getElementsByTagName("pattern");
@@ -175,6 +190,23 @@ class GBeanOverride {
     public String getAttribute(String attributeName) {
         return (String) attributes.get(attributeName);
     }
+    
+    public ArrayList getClearAttributes(){
+        return clearAttributes;
+    }
+    
+    public boolean getClearAttribute(String attributeName){
+        return clearAttributes.contains(attributeName);
+    }
+    
+    public ArrayList getClearRefrences(){
+        return clearReferences;
+    }
+    
+    public boolean getClearReference(String referenceName){
+        return clearReferences.contains(referenceName);
+    }
+
 
     public void setAttribute(String attributeName, Object attributeValue, String attributeType) throws InvalidAttributeException {
         String stringValue = getAsText(attributeValue, attributeType);
@@ -228,6 +260,12 @@ class GBeanOverride {
             }
             out.println("      <attribute name=\"" + name + "\">" +  value + "</attribute>");
         }
+        
+        // cleared attributes
+        for (Iterator iterator = clearAttributes.iterator(); iterator.hasNext();) {
+            String name = (String) iterator.next();
+            out.println("      <attribute name=\"" + name + "\" empty=\"true\" />");
+        }
 
         // references
         for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
@@ -243,6 +281,11 @@ class GBeanOverride {
                 out.println("</gbean-name></pattern>");
             }
             out.println("      </reference>");
+        }
+        // cleared references
+        for (Iterator iterator = clearReferences.iterator(); iterator.hasNext();) {
+            String name = (String) iterator.next();
+            out.println("      <reference name=\"" + name + "\" empty=\"true\" />");
         }
 
         out.println("    </gbean>");

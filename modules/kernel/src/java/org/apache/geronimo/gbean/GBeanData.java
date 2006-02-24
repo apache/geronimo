@@ -94,6 +94,13 @@ public class GBeanData implements Externalizable {
     public void setAttribute(String name, Object value) {
         attributes.put(name, value);
     }
+    
+    public void clearAttribute(String name){
+        attributes.remove(name);
+    }
+    public void clearReference(String name){
+        references.remove(name);
+    }
 
     public Map getReferences() {
         return new HashMap(references);
