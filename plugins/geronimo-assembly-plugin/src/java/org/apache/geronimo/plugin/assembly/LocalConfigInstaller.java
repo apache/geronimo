@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.system.configuration.LocalConfigStore;
 import org.apache.geronimo.system.repository.Maven1Repository;
@@ -45,7 +46,7 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
             public GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException {
                 File artifact = sourceRepo.getLocation(configId);
                 store.install(artifact.toURL(), configId);
-                GBeanData config = null;
+                GBeanData config;
                 try {
                     config = store.loadConfiguration(configId);
                 } catch (NoSuchConfigException e) {
@@ -58,7 +59,7 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
                 return store.containsConfiguration(configID);
             }
         };
-        Repository sourceRepo = new Maven1Repository(getSourceRepository());
+        ListableRepository sourceRepo = new Maven1Repository(getSourceRepository());
         Maven2Repository targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
 
         try {

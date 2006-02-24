@@ -19,8 +19,14 @@ package org.apache.geronimo.plugin.assembly;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.WriteableRepository;
 
@@ -28,6 +34,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
@@ -97,19 +104,28 @@ public class BaseConfigInstaller {
         this.sourceRepository = sourceRepository;
     }
 
-    protected void execute(InstallAdapter installAdapter, Repository sourceRepo, WriteableRepository targetRepo) throws IOException, InvalidConfigException {
+    protected void execute(InstallAdapter installAdapter, ListableRepository sourceRepo, WriteableRepository targetRepo) throws IOException, InvalidConfigException, MissingDependencyException {
         Artifact configId = Artifact.create(artifact);
-        execute(configId, installAdapter, sourceRepo,  targetRepo);
+        ArtifactManager artifactManager = new DefaultArtifactManager();
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, sourceRepo);
+        execute(configId, installAdapter, sourceRepo, targetRepo, artifactManager, artifactResolver);
     }
 
-    protected void execute(Artifact configId, InstallAdapter installAdapter, Repository sourceRepo, WriteableRepository targetRepo) throws IOException, InvalidConfigException {
+    protected void execute(Artifact configId, InstallAdapter installAdapter, Repository sourceRepo, WriteableRepository targetRepo, ArtifactManager artifactManager, ArtifactResolver artifactResolver) throws IOException, InvalidConfigException, MissingDependencyException {
         if (installAdapter.containsConfiguration(configId)) {
             System.out.println("Configuration " + configId + " already present in configuration store");
             return;
         }
         GBeanData config = installAdapter.install(sourceRepo, configId);
         Environment environment = (Environment) config.getAttribute("environment");
+        LinkedHashSet imports = environment.getImports();
+        recursiveExecute(artifactResolver, imports, installAdapter, sourceRepo, targetRepo, artifactManager);
+
+        LinkedHashSet references = environment.getReferences();
+        recursiveExecute(artifactResolver, references, installAdapter, sourceRepo, targetRepo, artifactManager);
+
         LinkedHashSet dependencies = environment.getDependencies();
+        dependencies = recursiveResolve(artifactResolver, dependencies, sourceRepo);
         System.out.println("Installed configuration " + configId);
 
         FileWriteMonitor monitor = new StartFileWriteMonitor();
@@ -129,9 +145,30 @@ public class BaseConfigInstaller {
         if (parentId != null) {
             for (int i = 0; i < parentId.length; i++) {
                 Artifact parent = parentId[i];
-                execute(parent, installAdapter, sourceRepo, targetRepo);
+                execute(parent, installAdapter, sourceRepo, targetRepo, artifactManager, artifactResolver);
             }
         }
+    }
+
+    private void recursiveExecute(ArtifactResolver artifactResolver, LinkedHashSet imports, InstallAdapter installAdapter, Repository sourceRepo, WriteableRepository targetRepo, ArtifactManager artifactManager) throws MissingDependencyException, IOException, InvalidConfigException {
+        imports = artifactResolver.resolve(imports);
+        for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
+            Artifact parentId = (Artifact) iterator.next();
+            execute(parentId, installAdapter, sourceRepo, targetRepo, artifactManager, artifactResolver);
+        }
+    }
+
+    private LinkedHashSet recursiveResolve(ArtifactResolver artifactResolver, LinkedHashSet dependencies, Repository repository) throws MissingDependencyException {
+        dependencies = artifactResolver.resolve(dependencies);
+        for (Iterator iterator = new ArrayList(dependencies).iterator(); iterator.hasNext();) {
+            Artifact dependency = (Artifact) iterator.next();
+            if (repository.contains(dependency)) {
+                LinkedHashSet subDependencies = repository.getDependencies(dependency);
+                subDependencies = recursiveResolve(artifactResolver, subDependencies, repository);
+                dependencies.addAll(subDependencies);
+            }
+        }
+        return dependencies;
     }
 
     protected interface InstallAdapter {
@@ -141,7 +178,7 @@ public class BaseConfigInstaller {
         boolean containsConfiguration(Artifact configID);
     }
 
-    protected static class StartFileWriteMonitor implements FileWriteMonitor {
+    static class StartFileWriteMonitor implements FileWriteMonitor {
         public void writeStarted(String fileDescription) {
             System.out.println("Copying " + fileDescription);
         }

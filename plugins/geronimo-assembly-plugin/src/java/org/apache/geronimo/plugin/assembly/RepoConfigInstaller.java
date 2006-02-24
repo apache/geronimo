@@ -17,20 +17,21 @@
 
 package org.apache.geronimo.plugin.assembly;
 
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.system.repository.Maven2Repository;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.URL;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
-import org.apache.geronimo.system.repository.Maven1Repository;
-import org.apache.geronimo.system.repository.Maven2Repository;
 
 /**
  * JellyBean that installs configuration artifacts into a repository based ConfigurationStore,  It also copies all
@@ -41,7 +42,7 @@ import org.apache.geronimo.system.repository.Maven2Repository;
 public class RepoConfigInstaller extends BaseConfigInstaller {
 
     public void execute() throws Exception {
-        Repository sourceRepo = new Maven1Repository(getSourceRepository());
+        ListableRepository sourceRepo = new Maven1Repository(getSourceRepository());
         Maven2Repository targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
         InstallAdapter installAdapter = new CopyConfigStore(targetRepo);
 
