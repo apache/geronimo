@@ -36,6 +36,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -292,7 +293,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             ConfigurationModuleType applicationType = applicationInfo.getType();
             Environment environment = applicationInfo.getEnvironment();
             Artifact configId = environment.getConfigId();
-            File configurationDir = configurationStore.createNewConfigurationDir(configId);
+            File configurationDir = null;
+            try {
+                configurationDir = configurationStore.createNewConfigurationDir(configId);
+            } catch (ConfigurationAlreadyExistsException e) {
+                throw new DeploymentException(e);
+            }
             try {
                 earContext = new EARContext(configurationDir,
                         applicationInfo.getEnvironment(),

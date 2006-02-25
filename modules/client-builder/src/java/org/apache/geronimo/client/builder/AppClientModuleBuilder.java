@@ -46,6 +46,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -261,7 +262,12 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             clientEnvironment.setConfigId(configId);
         }
-        File appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
+        File appClientDir = null;
+        try {
+            appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
+        } catch (ConfigurationAlreadyExistsException e) {
+            throw new DeploymentException(e);
+        }
 
         // construct the app client deployment context... this is the same class used by the ear context
         try {

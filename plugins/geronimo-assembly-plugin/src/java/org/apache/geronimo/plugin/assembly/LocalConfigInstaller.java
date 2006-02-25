@@ -17,18 +17,20 @@
 
 package org.apache.geronimo.plugin.assembly;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileInputStream;
+
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.configuration.LocalConfigStore;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 import org.apache.geronimo.system.repository.Maven1Repository;
 import org.apache.geronimo.system.repository.Maven2Repository;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * JellyBean that installs configuration artifacts into a LocalConfigurationStore,  It also copies all
@@ -39,13 +41,20 @@ import java.io.IOException;
 public class LocalConfigInstaller extends BaseConfigInstaller {
 
     public void execute() throws Exception {
-        final LocalConfigStore store = new LocalConfigStore(new File(targetRoot, targetConfigStore));
-        store.doStart();
+        final Maven2Repository targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
+
+        final RepositoryConfigurationStore store = new RepositoryConfigurationStore(targetRepo);
+
         InstallAdapter installAdapter = new InstallAdapter() {
 
             public GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException {
                 File artifact = sourceRepo.getLocation(configId);
-                store.install(artifact.toURL(), configId);
+                InputStream in = new FileInputStream(artifact);
+                try {
+                    store.install(in, configId, new StartFileWriteMonitor());
+                } finally {
+                    in.close();
+                }
                 GBeanData config;
                 try {
                     config = store.loadConfiguration(configId);
@@ -60,12 +69,7 @@ public class LocalConfigInstaller extends BaseConfigInstaller {
             }
         };
         ListableRepository sourceRepo = new Maven1Repository(getSourceRepository());
-        Maven2Repository targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
 
-        try {
-            execute(installAdapter, sourceRepo, targetRepo);
-        } finally {
-            store.doStop();
-        }
+        execute(installAdapter, sourceRepo, targetRepo);
     }
 }

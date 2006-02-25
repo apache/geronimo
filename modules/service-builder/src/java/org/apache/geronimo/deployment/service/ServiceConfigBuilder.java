@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -157,7 +158,12 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         Environment environment = EnvironmentBuilder.buildEnvironment(configurationType.getEnvironment(), defaultEnvironment);
         Artifact configId = environment.getConfigId();
-        File outfile = configurationStore.createNewConfigurationDir(configId);
+        File outfile;
+        try {
+            outfile = configurationStore.createNewConfigurationDir(configId);
+        } catch (ConfigurationAlreadyExistsException e) {
+            throw new DeploymentException(e);
+        }
         DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, kernel);
         ClassLoader cl = context.getClassLoader(repository);
 

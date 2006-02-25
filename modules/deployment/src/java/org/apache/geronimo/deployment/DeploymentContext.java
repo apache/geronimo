@@ -532,10 +532,6 @@ public class DeploymentContext {
                     repositories,
                     new ConfigurationStore() {
 
-                        public Artifact install(URL source) {
-                            return null;
-                        }
-
                         public void install(ConfigurationData configurationData) {
                         }
 

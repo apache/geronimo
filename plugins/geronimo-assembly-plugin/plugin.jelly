@@ -29,9 +29,7 @@
         >
 
     <define:taglib uri="geronimo:assembly">
-        <define:jellybean name="installConfig" className="org.apache.geronimo.plugin.assembly.LocalConfigInstaller"
-                          method="execute"/>
-        <define:jellybean name="installConfigToRepo" className="org.apache.geronimo.plugin.assembly.RepoConfigInstaller"
+        <define:jellybean name="installConfig" className="org.apache.geronimo.plugin.assembly.RepoConfigInstaller"
                           method="execute"/>
         <define:jellybean name="repoCopier" className="org.apache.geronimo.plugin.assembly.RepoCopier"
                           method="execute"/>
@@ -202,7 +200,7 @@
             <j:set var="dependency" value="${artifact.dependency}"/>
             <j:if test="${dependency.type == 'car'}">
                 <j:if test="${dependency.getProperty('geronimo.assemble') == 'install'}">
-                    <assemble:installConfigToRepo
+                    <assemble:installConfig
                             targetRoot="${geronimo.assembly.dest}"
                             targetConfigStore="config-store"
                             targetRepository="repository"

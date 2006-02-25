@@ -17,9 +17,6 @@
 
 package org.apache.geronimo.kernel.config;
 
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.repository.Artifact;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,21 +24,15 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.repository.Artifact;
+
 /**
  * Interface to a store for Configurations.
  *
  * @version $Rev$ $Date$
  */
 public interface ConfigurationStore {
-    /**
-     * Add the CAR at the supplied URL into this store
-     *
-     * @param source the URL of a CAR format archive
-     * @throws IOException if the CAR could not be read
-     * @throws InvalidConfigException if there is a configuration problem with the CAR
-     */
-//    Artifact install(URL source) throws IOException, InvalidConfigException;
-
     /**
      * Move the unpacked configuration directory into this store
      *
@@ -53,29 +44,29 @@ public interface ConfigurationStore {
 
     /**
      * Removes a configuration from the store
-     * @param configID the id of the configuration to remove
+     * @param configId the id of the configuration to remove
      * @throws NoSuchConfigException if the configuration is not contained in the store
      * @throws IOException if a problem occurs during the removal
      */
-    void uninstall(Artifact configID) throws NoSuchConfigException, IOException;
+    void uninstall(Artifact configId) throws NoSuchConfigException, IOException;
 
     /**
      * Loads the specified configuration into the kernel
      * @param configId the id of the configuration to load
-     * @return the object name of the configuration in the kernel
+     * @return the the configuration object
      * @throws NoSuchConfigException if the configuration is not contained in the kernel
      * @throws IOException if a problem occurs loading the configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-//    ObjectName loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException;
+    GBeanData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException;
 
     /**
      * Determines if the store contains a configuration with the spedified ID.
      *
-     * @param configID the unique ID of the configuration
+     * @param configId the unique ID of the configuration
      * @return true if the store contains the configuration
      */
-    boolean containsConfiguration(Artifact configID);
+    boolean containsConfiguration(Artifact configId);
 
     /**
      * Return the object name for the store.
@@ -91,7 +82,13 @@ public interface ConfigurationStore {
      */
     List listConfigurations();
 
-    File createNewConfigurationDir(Artifact configId);
+    /**
+     * Creates an empty diretory for a new configuration with the specified configId
+     * @param configId the unique ID of the configuration
+     * @return the location of the new directory
+     * @throws ConfigurationAlreadyExistsException if the configuration already exists in this store
+     */
+    File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException;
 
     /**
      * Locate the classpath component for the supplied uri in the given artifact
@@ -100,7 +97,4 @@ public interface ConfigurationStore {
      * @return URL for the configuration component.
      */
     URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException;
-
-    GBeanData loadConfiguration(Artifact configId) throws IOException, InvalidConfigException, NoSuchConfigException;
-
 }

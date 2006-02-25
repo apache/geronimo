@@ -28,18 +28,10 @@
     >
     <define:taglib uri="geronimo:packaging">
         <define:jellybean name="package" className="org.apache.geronimo.plugin.packaging.PackageBuilderShell" method="execute"/>
-        <define:jellybean name="jmxDistribute" className="org.apache.geronimo.plugin.packaging.JMXDistributor" method="execute"/>
         <define:jellybean name="dependencies" className="org.apache.geronimo.plugin.packaging.PlanProcessor" method="execute"/>
     </define:taglib>
 
     <goal name="car" description="Package a Geronimo Configuration" prereqs="car:package"/>
-
-<!--
-    <goal name="car:prepare-plan" description="Prepare a plan by processing with velocity">
-        <ant:mkdir dir="${geronimo.packaging.buildDir}"/>
-        <velocity:merge basedir="${geronimo.packaging.srcDir}" template="${geronimo.packaging.planFile}" name="${geronimo.packaging.buildFile}"/>
-    </goal>
--->
 
     <goal name="car:prepare-plan" description="Add dependencies to a plan and process with velocity">
         <car:dependencies
@@ -76,15 +68,5 @@
         <j:catch>
             <artifact:install artifact="${maven.build.dir}/${maven.final.name}.car" type="car" project="${pom}"/>
         </j:catch>
-    </goal>
-
-    <goal name="car:distribute" prereqs="car:package" description="Distribute the package to a server">
-        <car:jmxDistribute
-            user="${geronimo.packaging.user}"
-            password="${geronimo.packaging.password}"
-            url="${geronimo.packaging.url}"
-            storeName="${geronimo.packaging.storeName}"
-            artifact="${maven.build.dir}/${maven.final.name}.car"
-            />
     </goal>
 </project>

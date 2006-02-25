@@ -63,10 +63,9 @@ specific services - those should be provided by children.
     </gbean>
 
     <!-- Configuration Store service -->
-    <gbean name="Local" class="org.apache.geronimo.system.configuration.LocalConfigStore">
-        <attribute name="root">config-store</attribute>
-        <reference name="ServerInfo">
-            <name>ServerInfo</name>
+    <gbean name="Local" class="org.apache.geronimo.system.configuration.RepositoryConfigurationStore">
+        <reference name="Repository">
+            <name>Repository</name>
         </reference>
     </gbean>
 

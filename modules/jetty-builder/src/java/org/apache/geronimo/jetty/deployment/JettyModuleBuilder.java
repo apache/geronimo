@@ -47,6 +47,7 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -367,7 +368,12 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             Artifact earConfigId = earContext.getConfigID();
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             environment.setConfigId(configId);
-            File configurationDir = configurationStore.createNewConfigurationDir(environment.getConfigId());
+            File configurationDir = null;
+            try {
+                configurationDir = configurationStore.createNewConfigurationDir(environment.getConfigId());
+            } catch (ConfigurationAlreadyExistsException e) {
+                throw new DeploymentException(e);                
+            }
 
             // construct the web app deployment context... this is the same class used by the ear context
             try {

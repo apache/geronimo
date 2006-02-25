@@ -26,13 +26,13 @@ import java.util.TreeSet;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 /**
  * @version $Rev$ $Date$
  */
-public class Maven2Repository extends AbstractRepository implements ListableRepository {
+public class Maven2Repository extends AbstractRepository implements WritableListableRepository {
     public Maven2Repository(URI root, ServerInfo serverInfo) {
         super(root, serverInfo);
     }
@@ -139,7 +139,7 @@ public class Maven2Repository extends AbstractRepository implements ListableRepo
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2Repository.class, "GBean");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Maven2Repository.class, "Repository");
 
         infoFactory.addAttribute("root", URI.class, true);
 

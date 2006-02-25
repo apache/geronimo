@@ -82,21 +82,20 @@ public class ConfigurationDump {
                 mavenRepositoryDir = new File(System.getProperty("user.home"), ".maven");
                 mavenRepositoryDir = new File(mavenRepositoryDir, "repository");
             }
+            ObjectName mavenRepositoryName = new ObjectName("configdump:name=Repository,type=Maven");
             if (mavenRepositoryDir.isDirectory()) {
-                ObjectName mavenRepositoryName = new ObjectName("configdump:name=Repository,type=Maven");
                 GBeanData mavenRepositoryData = new GBeanData(mavenRepositoryName, Maven2Repository.GBEAN_INFO);
                 mavenRepositoryData.setAttribute("root", mavenRepositoryDir.getAbsoluteFile().toURI());
                 mavenRepositoryData.setReferencePattern("ServerInfo", serverInfoName);
                 startGBean(kernel, mavenRepositoryData);
             }
 
-            ObjectName localConfigStoreName = new ObjectName("configdump:name=LocalConfigStore");
-            GBeanData localConfigStoreData = new GBeanData(localConfigStoreName, LocalConfigStore.GBEAN_INFO);
-            localConfigStoreData.setAttribute("root", URI.create("config-store"));
-            localConfigStoreData.setReferencePattern("ServerInfo", serverInfoName);
-            startGBean(kernel, localConfigStoreData);
+            ObjectName configStoreName = new ObjectName("configdump:name=ConfigStore");
+            GBeanData configStoreData = new GBeanData(configStoreName, RepositoryConfigurationStore.GBEAN_INFO);
+            configStoreData.setReferencePattern("Repository", mavenRepositoryName);
+            startGBean(kernel, configStoreData);
 
-            ConfigurationStore configurationStore = (ConfigurationStore) kernel.getProxyManager().createProxy(localConfigStoreName, classLoader);
+            ConfigurationStore configurationStore = (ConfigurationStore) kernel.getProxyManager().createProxy(configStoreName, classLoader);
             List configurationInfos = configurationStore.listConfigurations();
             for (Iterator iterator = configurationInfos.iterator(); iterator.hasNext();) {
                 ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
@@ -271,18 +270,19 @@ public class ConfigurationDump {
         }
     }
 
-    private static void loadRecursive(Kernel kernel, ConfigurationStore configurationStore, Artifact configID, LinkedList ancestors, Set preloaded) throws Exception {
-        ObjectName name = Configuration.getConfigurationObjectName(configID);
+    private static void loadRecursive(Kernel kernel, ConfigurationStore configurationStore, Artifact configId, LinkedList ancestors, Set preloaded) throws Exception {
+        ObjectName name = Configuration.getConfigurationObjectName(configId);
         if (preloaded.contains(name)) {
             return;
         }
         if (!kernel.isLoaded(name)) {
-            //TODO THIS IS NOW BROKEN
-//            configurationStore.loadConfiguration(configID);
+            GBeanData gbeanData = configurationStore.loadConfiguration(configId);
+            kernel.loadGBean(gbeanData, ConfigurationDump.class.getClassLoader());
+            kernel.startGBean(name);
         }
         //put the earliest ancestors first, even if we have already started them.
-        ancestors.remove(configID);
-        ancestors.addFirst(configID);
+        ancestors.remove(configId);
+        ancestors.addFirst(configId);
         Artifact[] parents = (Artifact[]) kernel.getAttribute(name, "parentId");
         if (parents != null) {
             for (int i = 0; i < parents.length; i++) {
