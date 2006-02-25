@@ -627,6 +627,7 @@
   </distributionManagement>
 
   <build>
+    <defaultGoal>install</defaultGoal>
     <sourceDirectory>src/java</sourceDirectory>
     <testSourceDirectory>src/test</testSourceDirectory>
     <plugins>
@@ -640,7 +641,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-one-plugin</artifactId>
-        <version>1.0-SNAPSHOT</version>
         <executions>
           <execution>
             <configuration>
@@ -660,7 +660,7 @@
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-ssh-external</artifactId>
-        <version>1.0-alpha-5</version>
+        <version>1.0-alpha-6</version>
       </extension>
     </extensions>
   </build>
