@@ -58,7 +58,7 @@ public class SpringTransactionManager extends AbstractPlatformTransactionManager
     /**
      * Construct the spring transaction manager wrapper around our transaction context manager.
      * @param kernelName normally "geronimo"
-     * @param transactionContextManagerName normally "geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-server/1.1-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=TransactionContextManager,name=TransactionContextManager"
+     * @param transactionContextManagerName normally "geronimo.server:J2EEApplication=null,J2EEModule=geronimo/j2ee-server/1.2-SNAPSHOT/car,J2EEServer=geronimo,j2eeType=TransactionContextManager,name=TransactionContextManager"
      * although the version may change.
      * @throws MalformedObjectNameException
      */
