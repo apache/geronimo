@@ -216,6 +216,7 @@ public class SchemaConversionUtils {
         }
         XmlCursor cursor = xmlObject.newCursor();
         XmlCursor moveable = xmlObject.newCursor();
+        //cursor is intially located before the logical STARTDOC token
         try {
             cursor.toFirstChild();
             if ("http://java.sun.com/xml/ns/j2ee".equals(cursor.getName().getNamespaceURI())) {
@@ -223,6 +224,7 @@ public class SchemaConversionUtils {
                 validateDD(result);
                 return (EjbJarDocument) result;
             }
+            // deployment descriptor is probably in EJB 1.1 or 2.0 format
             XmlDocumentProperties xmlDocumentProperties = cursor.documentProperties();
             String publicId = xmlDocumentProperties.getDoctypePublicId();
             String cmpVersion;
@@ -497,14 +499,15 @@ public class SchemaConversionUtils {
                         cursor.toNextSibling(J2EE_NAMESPACE, "transaction-type");
                     } else {
                         cursor.toNextSibling(J2EE_NAMESPACE, "transaction-type");
-                        //add messaging-type
+                        //insert messaging-type (introduced in EJB 2.1 spec) before transaction-type
                         cursor.insertElementWithText("messaging-type", J2EE_NAMESPACE, "javax.jms.MessageListener");
+                        //cursor still on transaction-type
                     }
                     if (!cursor.toNextSibling(J2EE_NAMESPACE, "activation-config")) {
                         boolean hasProperties = false;
                         //skip transaction-type
                         cursor.toNextSibling();
-                        //add activation-config-properties.
+                        //convert EJB 2.0 elements to activation-config-properties.
                         moveable.toCursor(cursor);
                         cursor.push();
                         cursor.beginElement("activation-config", J2EE_NAMESPACE);
@@ -521,11 +524,16 @@ public class SchemaConversionUtils {
                         }
                         cursor.pop();
                         if (!hasProperties) {
+                            //the activation-config element that we created is empty so delete it
                             cursor.toPrevSibling();
                             cursor.removeXml();
+                            //cursor should now be at first element in JNDIEnvironmentRefsGroup
                         }
+                    } else {
+                        //cursor pointing at activation-config
+                        cursor.toNextSibling();
+                        //cursor should now be at first element in JNDIEnvironmentRefsGroup
                     }
-                    cursor.toNextSibling();
                     convertToJNDIEnvironmentRefsGroup(cursor, moveable);
                 }
                 cursor.pop();
