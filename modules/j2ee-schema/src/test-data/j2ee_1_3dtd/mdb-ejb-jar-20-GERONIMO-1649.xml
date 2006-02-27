@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Copyright 2003-2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.-->
+    
+<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" "http://java.sun.com/dtd/ejb-jar_2_0.dtd">
+
+<ejb-jar id="ejb-jar_1">
+
+   <description>Test EJB JAR for GERONIMO-1649</description>
+   <display-name>Test for GERONIMO-1649</display-name>
+
+   <enterprise-beans>
+
+      <!-- Message Driven Beans -->
+
+      <message-driven id="MessageDriven_1">
+         <description>Message driven bean 1</description>
+         <display-name>MDBean</display-name>
+
+         <ejb-name>SimpleStatelessSession</ejb-name>
+
+         <ejb-class>org.openejb.test.simple.slsb.SimpleStatelessSessionEJB</ejb-class>
+
+         <transaction-type>Container</transaction-type>
+         <acknowledge-mode>Auto-acknowledge</acknowledge-mode>
+         <message-driven-destination>
+            <destination-type>javax.jms.Queue</destination-type>
+            <subscription-durability>Durable</subscription-durability>
+         </message-driven-destination>
+
+         <security-identity>
+            <run-as>
+               <role-name>rolename</role-name>
+            </run-as>
+         </security-identity>
+
+         <resource-ref id="ResRef_1">
+            <res-ref-name>jdbc/MYDS</res-ref-name>
+            <res-type>javax.sql.DataSource</res-type>
+            <res-auth>Container</res-auth>
+         </resource-ref>
+         <resource-ref id="ResRef_2">
+            <res-ref-name>jdbc/MYDS2</res-ref-name>
+            <res-type>javax.sql.DataSource</res-type>
+            <res-auth>Container</res-auth>
+         </resource-ref>
+         <resource-ref id="ResRef_3">
+            <res-ref-name>jdbc/MYDS3</res-ref-name>
+            <res-type>javax.sql.DataSource</res-type>
+            <res-auth>Container</res-auth>
+         </resource-ref>
+         <resource-ref id="ResRef_4">
+            <res-ref-name>jms/wpConnectionFactory</res-ref-name>
+            <res-type>javax.jms.QueueConnectionFactory</res-type>
+            <res-auth>Container</res-auth>
+         </resource-ref>
+
+      </message-driven>
+
+   </enterprise-beans>
+
+   <assembly-descriptor id="AssemblyDescriptor_1">
+
+      <security-role>
+         <description>A description</description>
+         <role-name>rolename</role-name>
+      </security-role>
+
+   <method-permission id="MethodPermission_1">
+      <description>A description</description>
+      <role-name>rolename</role-name>
+      <method id="MethodElement_1">
+         <description>A description</description>
+         <ejb-name>SimpleStatelessSession</ejb-name>
+         <method-name>*</method-name>
+      </method>
+   </method-permission>
+    
+   <container-transaction id="MethodTransaction_2">
+      <method id="MethodElement_2">
+         <ejb-name>SimpleStatelessSession</ejb-name>
+          <method-name>*</method-name>
+       </method>
+       <trans-attribute>NotSupported</trans-attribute>
+    </container-transaction>
+   </assembly-descriptor>
+
+</ejb-jar>
