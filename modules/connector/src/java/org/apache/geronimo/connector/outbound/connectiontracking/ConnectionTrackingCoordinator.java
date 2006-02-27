@@ -124,7 +124,9 @@ public class ConnectionTrackingCoordinator implements TrackedConnectionAssociato
             Collection toRemove = mci.getConnectionInfos();
             infos.removeAll(toRemove);
         } else {
-            infos.remove(connectionInfo);
+            if (infos != null){
+                infos.remove(connectionInfo);
+            }
         }
     }
 
