@@ -24,11 +24,25 @@
 # This script is based upon Tomcat's catalina.sh file to enable
 # those familiar with Tomcat to quickly get started with Geronimo.
 #
-# For usage information, just run geronimo.sh without any arguments.
+# This script file can be used directly instead of startup.sh and 
+# shutdown.sh as they call this script file anyway.
 #
-# Environment Variable Prequisites
+# You should not have to edit this file.  If you wish to have environment
+# variables set each time you run this script refer to the information
+# on the setenv.sh script that is called by this script below. 
 #
-#   GERONIMO_HOME   May point at your Geronimo top-level directory.
+# Invocation Syntax:
+#
+#   geronimo.sh command [geronimo_args] 
+#
+#   For detailed command usage information, just run geronimo.sh without any 
+#   arguments.
+#
+# Environment Variable Prequisites:
+#
+#   GERONIMO_HOME   (Optional) May point at your Geronimo top-level directory.
+#                   If not specified, it will default to the parent directory
+#                   of the location of this script.
 #
 #   GERONIMO_BASE   (Optional) Base directory for resolving dynamic portions
 #                   of a Geronimo installation.  If not present, resolves to
@@ -79,12 +93,22 @@
 #                   the OS provides a command that allows you to start a process
 #                   with in a specified CPU or priority.
 #
+# Troubleshooting execution of this script file:
+#
+#  GERONIMO_ENV_INFO (Optional) Environment variable that when set to "on"
+#                    (the default) outputs the values of the GERONIMO_HOME,
+#                    GERONIMO_BASE, GERONIMO_TMPDIR, JAVA_HOME and
+#                    JRE_HOME before the command is issued. Set to "off"    
+#                    if you do not want this information displayed.
+#
 # Scripts called by this script:
 # 
 #   $GERONIMO_HOME/bin/setenv.sh
 #                   (Optional) This script file is called if it is present.
 #                   Its contents may set one or more of the above environment
-#                   variables.
+#                   variables.  It is preferable (to simplify migration to
+#                   future Geronimo releases) to set environment variables
+#                   in this file rather than modifying Geronimo's script files.
 #
 #   $GERONIMO_HOME/bin/setjavaenv.sh
 #                   This batch file is called to set environment variables
@@ -201,21 +225,24 @@ if $cygwin; then
 fi
 
 # ----- Execute The Requested Command -----------------------------------------
-
-echo "Using GERONIMO_BASE:   $GERONIMO_BASE"
-echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
-echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
-if [ "$1" = "debug" ] ; then
-  echo "Using JAVA_HOME:       $JAVA_HOME"
-  echo "Using JDB_SRCPATH:     $JDB_SRCPATH"
-else
-  echo "Using JRE_HOME:        $JRE_HOME"
+if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
+  echo "Using GERONIMO_BASE:   $GERONIMO_BASE"
+  echo "Using GERONIMO_HOME:   $GERONIMO_HOME"
+  echo "Using GERONIMO_TMPDIR: $GERONIMO_TMPDIR"
+  if [ "$1" = "debug" ] ; then
+    echo "Using JAVA_HOME:       $JAVA_HOME"
+    echo "Using JDB_SRCPATH:     $JDB_SRCPATH"
+  else
+    echo "Using JRE_HOME:        $JRE_HOME"
+  fi
 fi
 
 LONG_OPT=
 if [ "$1" = "start" ] ; then
   LONG_OPT=--long
-  echo "Using GERONIMO_OUT:    $GERONIMO_OUT"
+  if [ "$GERONIMO_ENV_INFO" != "off" ] ; then
+    echo "Using GERONIMO_OUT:    $GERONIMO_OUT"
+  fi
 fi
 
 if [ "$1" = "jpda" ] ; then
@@ -255,7 +282,6 @@ elif [ "$1" = "run" ]; then
 
   shift
   exec "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" 
@@ -265,12 +291,12 @@ elif [ "$1" = "start" ] ; then
   shift
   touch "$GERONIMO_OUT"
   $START_OS_CMD "$_RUNJAVA" $JAVA_OPTS $GERONIMO_OPTS \
-    -Djava.endorsed.dirs="$JAVA_ENDORSED_DIRS" \
     -Dorg.apache.geronimo.base.dir="$GERONIMO_BASE" \
     -Djava.io.tmpdir="$GERONIMO_TMPDIR" \
     -jar "$GERONIMO_HOME"/bin/server.jar $LONG_OPT "$@" \
     >> $GERONIMO_OUT 2>&1 &
-
+    echo ""
+    echo "Geronimo started in background. PID: $!"
     if [ ! -z "$GERONIMO_PID" ]; then
       echo $! > $GERONIMO_PID
     fi

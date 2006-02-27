@@ -38,7 +38,8 @@ public class TransactionContextManagerTest extends TestCase {
     private XidFactory xidFactory = new XidFactoryImpl("geronimo.test.tm".getBytes());
 
     protected void setUp() throws Exception {
-        TransactionManagerImpl tm = new TransactionManagerImpl(1000, null, null);
+        TransactionManagerImpl tm = new TransactionManagerImpl(1000, 
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         transactionContextManager = new TransactionContextManager(tm, tm);
     }
 

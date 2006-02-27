@@ -14,15 +14,25 @@
 @REM   limitations under the License.
 @REM
 @REM --------------------------------------------------------------------
+@REM $Rev$ $Date$
+@REM --------------------------------------------------------------------
+
+@REM --------------------------------------------------------------------
 @REM Set environment variables relating to the execution of java commands
 @REM
-@REM This batch file is called by the geronimo.bat file.
+@REM This batch file is called by the geronimo.bat file (which is 
+@REM invoked by the startup.bat, shutdown.bat files).  This file is
+@REM also invoked by the deploy.bat file.
 @REM
-@REM (based upon Apache Tomcat 5.5.12's setclasspath.bat although modified
+@REM It is preferable (to simplify migration to future Geronimo releases) 
+@REM to set any environment variables you need in the setenv.bat file
+@REM rather than modifying Geronimo's script files.  See the documentation
+@REM in the geronimo.bat file for further information.
+@REM
+@REM (Based upon Apache Tomcat 5.5.12's setclasspath.bat although modified
 @REM to be more consistent with the shell script version's support of
 @REM JDK_HOME and JRE_HOME)
 @REM
-@REM $Rev$ $Date$
 @REM --------------------------------------------------------------------
 
 @REM Begin all @REM lines with '@' in case GERONIMO_BATCH_ECHO is 'on'

@@ -14,13 +14,14 @@
 @REM   limitations under the License.
 @REM
 @REM --------------------------------------------------------------------
+@REM $Rev$ $Date$
+@REM --------------------------------------------------------------------
+
+@REM --------------------------------------------------------------------
 @REM Startup batch file for Geronimo that starts Geronimo in a new window.
 @REM
 @REM This batch file calls the geronimo.bat script passing "start" as the
 @REM first argument followed by the arguments supplied by the caller.
-@REM
-@REM Refer to the documentation in the geronimo.bat file for information
-@REM on environment variables etc.
 @REM
 @REM This batch file is based upon Tomcat's startup.bat file to enable
 @REM those familiar with Tomcat to quickly get started with Geronimo.
@@ -28,9 +29,15 @@
 @REM Alternatively you can use the more comprehensive geronimo.bat file 
 @REM directly.
 @REM
-@REM Usage:  startup [geronimo.bat_args] [geronimo_args ...]
+@REM Invocation Syntax:
 @REM
-@REM $Rev$ $Date$
+@REM   startup [geronimo_args ...]
+@REM
+@REM Environment Variable Prequisites:
+@REM
+@REM   Refer to the documentation in the geronimo.bat file for information
+@REM   on environment variables etc.
+@REM
 @REM --------------------------------------------------------------------
 
 @if "%GERONIMO_BATCH_ECHO%" == "on"  echo on

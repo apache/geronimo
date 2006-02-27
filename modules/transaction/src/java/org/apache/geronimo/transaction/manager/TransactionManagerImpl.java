@@ -46,14 +46,14 @@ public class TransactionManagerImpl implements ExtendedTransactionManager, XidIm
     /**
      * TODO NOTE!!! this should be called in an unspecified transaction context, but we cannot enforce this restriction!
      */
-    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
+    public TransactionManagerImpl(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
         if (defaultTransactionTimeoutSeconds <= 0) {
             throw new IllegalArgumentException("defaultTransactionTimeoutSeconds must be positive: attempted value: " + defaultTransactionTimeoutSeconds);
         }
 
         this.defaultTransactionTimeoutMilliseconds = defaultTransactionTimeoutSeconds * 1000;
         this.transactionLog = transactionLog == null ? new UnrecoverableLog() : transactionLog;
-        this.xidFactory = new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes());
+        this.xidFactory = xidFactory;
         this.resourceManagers = resourceManagers;
         recovery = new RecoveryImpl(this.transactionLog, this.xidFactory);
 

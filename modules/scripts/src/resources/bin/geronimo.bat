@@ -19,13 +19,25 @@
 
 @REM ---------------------------------------------------------------------------
 @REM Start/Stop Batch file for Geronimo
-@REM
-@REM For usage information, just run geronimo.bat without any arguments.
 @REM 
-@REM This script is based upon Tomcat's catalina.sh file to enable
+@REM This batch file is based upon Tomcat's catalina.bat file to enable
 @REM those familiar with Tomcat to quickly get started with Geronimo.
 @REM
-@REM Environment Variable Prequisites
+@REM This batch file can be used directly instead of startup.bat and 
+@REM shutdown.bat as they call this batch file anyway.
+@REM
+@REM You should not have to edit this file.  If you wish to have environment
+@REM variables set each time you run this batch file refer to the information
+@REM on the setenv.bat file below. 
+@REM
+@REM Invocation Syntax:
+@REM
+@REM   geronimo command [geronimo_args] 
+@REM
+@REM   For detailed usage information, just run geronimo.bat without any 
+@REM   arguments.
+@REM
+@REM Environment Variable Prequisites:
 @REM 
 @REM   GERONIMO_HOME   May point at your Geronimo top-level directory.
 @REM                   If not specified, this batch file will attempt to
@@ -42,6 +54,11 @@
 @REM   GERONIMO_TMPDIR (Optional) Directory path location of temporary directory
 @REM                   the JVM should use (java.io.tmpdir).  Defaults to
 @REM                   %GERONIMO_BASE%\var\temp.
+@REM
+@REM   GERONIMO_WIN_START_ARGS  (Optional) additional arguments to the Windows
+@REM                            START command when the "start" command
+@REM                            is executed. E.G, you could set this to /MIN 
+@REM                            to start Geronimo in a minimized window.
 @REM
 @REM   JAVA_HOME       Points to your Java Development Kit installation.
 @REM                   JAVA_HOME doesn't need to be set if JRE_HOME is set
@@ -76,12 +93,21 @@
 @REM                        "on" results in each batch file to pause at the
 @REM                        end of execution
 @REM
+@REM   GERONIMO_ENV_INFO    (Optional) Environment variable that when set to
+@REM                        "on" (the default) outputs the values of  
+@REM                        GERONIMO_HOME, GERONIMO_BASE, GERONIMO_TMPDIR,
+@REM                        JAVA_HOME and JRE_HOME before the command is
+@REM                        issued. Set to "off" if you do not want this
+@REM                        information displayed.
+@REM
 @REM Batch files called by this batch file:
 @REM 
 @REM   %GERONIMO_HOME%\bin\setenv.bat
 @REM                   (Optional) This batch file is called if it is present.
 @REM                   Its contents may set one or more of the above environment
-@REM                   variables.
+@REM                   variables. It is preferable (to simplify migration to
+@REM                   future Geronimo releases) to set environment variables
+@REM                   in this file rather than modifying Geronimo's script files.
 @REM
 @REM   %GERONIMO_HOME%\bin\setjavaenv.bat
 @REM                   This batch file is called to set environment variables
@@ -132,7 +158,7 @@ if not %errorlevel% == 0 goto end
 @REM Get standard Java environment variables (based upon Tomcat's setclasspath.bat
 @REM but renamed since Geronimo's classpath is set in the JAR manifest)
 if exist "%GERONIMO_HOME%\bin\setjavaenv.bat" goto okSetJavaEnv
-echo Cannot find %GERONIMO_HOME%\bin\setclasspath.bat
+echo Cannot find %GERONIMO_HOME%\bin\setjavaenv.bat
 echo This file is needed to run this program
 set ERRORLEVEL=1
 goto end
@@ -150,12 +176,13 @@ set GERONIMO_TMPDIR=%GERONIMO_BASE%\var\temp
 :gotTmpdir
 
 @REM ----- Execute The Requested Command ---------------------------------------
-
+@if "%GERONIMO_ENV_INFO%" == "off" goto skipEnvInfo
 echo Using GERONIMO_BASE:   %GERONIMO_BASE%
 echo Using GERONIMO_HOME:   %GERONIMO_HOME%
 echo Using GERONIMO_TMPDIR: %GERONIMO_TMPDIR%
 if "%_REQUIRE_JDK%" == "1" echo Using JAVA_HOME:       %JAVA_HOME%
 if "%_REQUIRE_JDK%" == "0" echo Using JRE_HOME:        %JRE_HOME%
+:skipEnvInfo
 
 set _EXECJAVA=%_RUNJAVA%
 @REM MAINCLASS required for jdb debugger as it requires the mainclass
@@ -222,16 +249,18 @@ shift
 goto execCmd
 
 :doStart
+echo.
+echo Starting Geronimo in a separate window...
 shift
 @REM use long format of startup progress to be consistent with 
 @REM the unix version of the start processing
 set _LONG_OPT=--long
 
 if not "%OS%" == "Windows_NT" goto noTitle
-set _EXECJAVA=start "Geronimo" %_RUNJAVA%
+set _EXECJAVA=start "Geronimo" %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
 goto gotTitle
 :noTitle
-set _EXECJAVA=start %_RUNJAVA%
+set _EXECJAVA=start %GERONIMO_WIN_START_ARGS% %_RUNJAVA%
 :gotTitle
 goto execCmd
 

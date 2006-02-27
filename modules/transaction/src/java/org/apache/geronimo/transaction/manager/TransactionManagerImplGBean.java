@@ -36,10 +36,11 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
     /**
      * TODO NOTE!!! this should be called in an unspecified transaction context, but we cannot enforce this restriction!
      */
-    public TransactionManagerImplGBean(int defaultTransactionTimeoutSeconds, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
-        super(defaultTransactionTimeoutSeconds, transactionLog, resourceManagers);
+    public TransactionManagerImplGBean(int defaultTransactionTimeoutSeconds, XidFactory xidFactory, TransactionLog transactionLog, Collection resourceManagers) throws XAException {
+        super(defaultTransactionTimeoutSeconds, xidFactory, transactionLog, resourceManagers);
     }
 
+    
     /**
      * We can track as resources are added into the geronimo kernel.
      *
@@ -74,13 +75,18 @@ public class TransactionManagerImplGBean extends TransactionManagerImpl {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TransactionManagerImplGBean.class, NameFactory.TRANSACTION_MANAGER);
 
         infoBuilder.addAttribute("defaultTransactionTimeoutSeconds", int.class, true);
+        infoBuilder.addReference("XidFactory", XidFactory.class, NameFactory.XID_FACTORY);
         infoBuilder.addReference("TransactionLog", TransactionLog.class, NameFactory.TRANSACTION_LOG);
         infoBuilder.addReference("ResourceManagers", ResourceManager.class);//two kinds of things, so specify the type in each pattern.
 
         infoBuilder.addInterface(ExtendedTransactionManager.class);
         infoBuilder.addInterface(XidImporter.class);
 
-        infoBuilder.setConstructor(new String[]{"defaultTransactionTimeoutSeconds", "TransactionLog", "ResourceManagers"});
+        infoBuilder.setConstructor(new String[]{
+                "defaultTransactionTimeoutSeconds",
+                "XidFactory",
+                "TransactionLog",
+                "ResourceManagers"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

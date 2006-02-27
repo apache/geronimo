@@ -15,13 +15,14 @@
 #   limitations under the License.
 
 # --------------------------------------------------------------------
+# $Rev$ $Date$
+# --------------------------------------------------------------------
+
+# --------------------------------------------------------------------
 # Shutdown script file for Geronimo.
 #
 # This script calls the geronimo.sh script passing "stop" as the
 # first argument followed by the arguments supplied by the caller.
-#
-# Refer to the documentation in the geronimo.sh file for information
-# on environment variables etc.
 #
 # This script is based upon Tomcat's shutdown.sh file to enable
 # those familiar with Tomcat to easily stop Geronimo.
@@ -29,9 +30,19 @@
 # Alternatively you can use the more comprehensive geronimo.sh file 
 # directly.
 #
-# Usage:  shutdown.sh [geronimo_args ...]
+# Invocation Syntax:
 #
-# $Rev$ $Date$
+#   shutdown.sh [geronimo.sh stop command args] 
+#
+#   Invoke the shutdown.sh file without any arguments for information
+#   on arguments for the geronimo.sh stop command that is invoked
+#   by this script.
+#
+# Environment Variable Prequisites:
+#
+#   Refer to the documentation in the geronimo.sh file for information
+#   on environment variables etc.
+#
 # --------------------------------------------------------------------
 
 # resolve links - $0 may be a softlink

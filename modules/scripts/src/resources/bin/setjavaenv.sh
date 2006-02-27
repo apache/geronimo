@@ -15,13 +15,23 @@
 #   limitations under the License.
 
 # --------------------------------------------------------------------
-# Set environment variables relating to the execution of java commands
-#
-# This script file is called by the geronimo.sh file.
-#
-# (based upon Apache Tomcat 5.5.12's setclasspath.sh)
-#
 # $Rev$ $Date$
+# --------------------------------------------------------------------
+
+# --------------------------------------------------------------------
+# Set environment variables relating to the execution of java commands.
+#
+# This script file is called by the geronimo.sh file (which is invoked
+# by the startup.sh, shutdown.sh files).  This file is also invoked
+# by the deploy.sh file.
+#
+# It is preferable (to simplify migration to future Geronimo releases) 
+# to set any environment variables you need in the setenv.sh file
+# rather than modifying Geronimo's script files.  See the documentation
+# in the geronimo.sh file for further information.
+#
+# (Based upon Apache Tomcat 5.5.12's setclasspath.sh)
+#
 # --------------------------------------------------------------------
 
 # Make sure prerequisite environment variables are set

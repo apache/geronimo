@@ -31,6 +31,12 @@
             <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
             <createForPack name="J2EE Features"/>
         </field>
+        <field type="rule" variable="PlanJMXPort">
+            <description txt="The network port that should be used for remote JMX management"/>
+            <spec txt="Remote Mgmt Port [9999]:" layout="N:5:5" set="0:9999"/>
+            <validator class="com.izforge.izpack.util.NotEmptyValidator"/>
+            <createForPack name="J2EE Features"/>
+        </field>
         <field type="check" variable="J2EE.Features.enable">
             <description txt="Active at runtime"/>
             <!--description align="left" txt="Enable J2EE features"

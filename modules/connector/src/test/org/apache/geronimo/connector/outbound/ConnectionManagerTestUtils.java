@@ -39,6 +39,7 @@ import org.apache.geronimo.transaction.InstanceContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.context.UserTransactionImpl;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
 /**
  *
@@ -90,7 +91,8 @@ public class ConnectionManagerTestUtils extends TestCase implements DefaultInter
 
     protected void setUp() throws Exception {
         connectionTrackingCoordinator = new ConnectionTrackingCoordinator();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000,
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         mockManagedConnectionFactory = new MockManagedConnectionFactory();
         subject = new Subject();

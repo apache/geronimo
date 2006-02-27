@@ -49,7 +49,8 @@ public class TransactionManagerImplTest extends TestCase {
     TransactionManagerImpl tm;
 
     protected void setUp() throws Exception {
-        tm = new TransactionManagerImplGBean(10, transactionLog, resourceManagers);
+        tm = new TransactionManagerImplGBean(10,
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), transactionLog, resourceManagers);
     }
 
     protected void tearDown() throws Exception {

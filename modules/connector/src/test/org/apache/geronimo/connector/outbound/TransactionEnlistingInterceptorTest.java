@@ -26,6 +26,7 @@ import org.apache.geronimo.transaction.context.TransactionContext;
 import org.apache.geronimo.transaction.context.TransactionContextManager;
 import org.apache.geronimo.transaction.manager.NamedXAResource;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
+import org.apache.geronimo.transaction.manager.XidFactoryImpl;
 
 /**
  *
@@ -45,7 +46,8 @@ public class TransactionEnlistingInterceptorTest extends ConnectionInterceptorTe
 
     protected void setUp() throws Exception {
         super.setUp();
-        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, null, null);
+        TransactionManagerImpl transactionManager = new TransactionManagerImpl(10 * 1000, 
+                new XidFactoryImpl("WHAT DO WE CALL IT?".getBytes()), null, null);
         transactionContextManager = new TransactionContextManager(transactionManager, transactionManager);
         transactionEnlistingInterceptor = new TransactionEnlistingInterceptor(this, transactionContextManager);
     }
