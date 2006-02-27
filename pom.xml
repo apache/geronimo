@@ -195,8 +195,8 @@
     <standardTaglibsVersion>1.1.1</standardTaglibsVersion>
     <staxApiVersion>1.0</staxApiVersion>
     <staxVersion>1.1.1-dev</staxVersion>
-    <tomcatAjpVersion>5.5.9</tomcatAjpVersion>
-    <tomcatVersion>5.5.9</tomcatVersion>
+    <tomcatAjpVersion>5.5.15</tomcatAjpVersion>
+    <tomcatVersion>5.5.15</tomcatVersion>
     <tranqlConnectorVersion>1.0</tranqlConnectorVersion>
     <tranqlVendorsVersion>1.0</tranqlVendorsVersion>
     <tranqlVersion>1.2.2</tranqlVersion>
