@@ -55,6 +55,14 @@
                         <type>car</type>
                     </dependency>
                 </dependencies>
+                <non-overridable-classes>
+                    <filter>java.</filter>
+                    <filter>javax.</filter>
+                    <filter>org.apache.geronimo.</filter>
+                    <filter>org.mortbay.</filter>
+                    <filter>org.xml.</filter>
+                    <filter>org.w3c.</filter>
+                </non-overridable-classes>
             </environment>
         </xml-attribute>
     </gbean>

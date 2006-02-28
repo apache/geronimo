@@ -18,30 +18,29 @@
 package org.apache.geronimo.deployment.service;
 
 import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.xbeans.ArtifactType;
 import org.apache.geronimo.deployment.xbeans.ClassFilterType;
+import org.apache.geronimo.deployment.xbeans.DependenciesType;
 import org.apache.geronimo.deployment.xbeans.EnvironmentDocument;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
-import org.apache.geronimo.deployment.xbeans.PropertyType;
 import org.apache.geronimo.deployment.xbeans.ImportType;
 import org.apache.geronimo.deployment.xbeans.PropertiesType;
-import org.apache.geronimo.deployment.xbeans.DependenciesType;
+import org.apache.geronimo.deployment.xbeans.PropertyType;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.schema.SchemaConversionUtils;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * @version $Rev:$ $Date:$
@@ -97,8 +96,8 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             }
             environment.setInverseClassLoading(environmentType.isSetInverseClassloading());
             environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
-            environment.setHiddenClasses(toFilters(environmentType.getHiddenClassesArray()));
-            environment.setNonOverrideableClasses(toFilters(environmentType.getNonOverridableClassesArray()));
+            environment.setHiddenClasses(toFilters(environmentType.getHiddenClasses()));
+            environment.setNonOverrideableClasses(toFilters(environmentType.getNonOverridableClasses()));
         }
 
         return environment;
@@ -158,21 +157,16 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         if (environment.isSuppressDefaultEnvironment()) {
             environmentType.addNewSuppressDefaultEnvironment();
         }
-        environmentType.setHiddenClassesArray(toFilterType(environment.getHiddenClasses()));
-        environmentType.setNonOverridableClassesArray(toFilterType(environment.getNonOverrideableClasses()));
+        environmentType.setHiddenClasses(toFilterType(environment.getHiddenClasses()));
+        environmentType.setNonOverridableClasses(toFilterType(environment.getNonOverrideableClasses()));
         return environmentType;
     }
 
-    private static ClassFilterType[] toFilterType(Set filters) {
-        ClassFilterType[] classFilters = new ClassFilterType[filters.size()];
-        int i = 0;
-        for (Iterator iterator = filters.iterator(); iterator.hasNext();) {
-            String filter = (String) iterator.next();
-            ClassFilterType classFilter  = ClassFilterType.Factory.newInstance();
-            classFilter.setFilter(filter);
-            classFilters[i++] = classFilter;
-        }
-        return classFilters;
+    private static ClassFilterType toFilterType(Set filters) {
+        String[] classFilters = (String[]) filters.toArray(new String[filters.size()]);
+        ClassFilterType classFilter  = ClassFilterType.Factory.newInstance();
+        classFilter.setFilterArray(classFilters);
+        return classFilter;
     }
 
     private static void toArtifactTypes(Collection artifacts, ImportType.Enum importType, List dependencies) {
@@ -203,12 +197,14 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         return artifactType;
     }
 
-    private static Set toFilters(ClassFilterType[] filterArray) {
+    private static Set toFilters(ClassFilterType filterType) {
         Set filters = new HashSet();
-        for (int i = 0; i < filterArray.length; i++) {
-            ClassFilterType classFilterType = filterArray[i];
-            String filter = classFilterType.getFilter().trim();
-            filters.add(filter);
+        if (filterType != null) {
+            String[] filterArray = filterType.getFilterArray();
+            for (int i = 0; i < filterArray.length; i++) {
+                String filter = filterArray[i].trim();
+                filters.add(filter);
+            }
         }
         return filters;
     }

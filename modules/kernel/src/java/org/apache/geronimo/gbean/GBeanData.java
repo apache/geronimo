@@ -26,12 +26,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Hashtable;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GBeanData implements Externalizable {
+    private Map nameMap;
+    private Set omit;
     private ObjectName name;
     private GBeanInfo gbeanInfo;
     private final Map attributes;
@@ -39,6 +43,8 @@ public class GBeanData implements Externalizable {
     private final Set dependencies;
 
     public GBeanData() {
+        nameMap = new HashMap();
+        omit = new HashSet();
         attributes = new HashMap();
         references = new HashMap();
         dependencies = new HashSet();
@@ -55,7 +61,18 @@ public class GBeanData implements Externalizable {
         this.gbeanInfo = gbeanInfo;
     }
 
+    public GBeanData(Map nameMap, Set omitMap, GBeanInfo gbeanInfo) {
+        this();
+        this.nameMap.putAll(nameMap);
+        if (omitMap != null) {
+            this.omit.addAll(omitMap);
+        }
+        this.gbeanInfo = gbeanInfo;
+    }
+
     public GBeanData(GBeanData gbeanData) {
+        nameMap = new HashMap(gbeanData.nameMap);
+        omit = new HashSet(gbeanData.omit);
         name = gbeanData.name;
         gbeanInfo = gbeanData.gbeanInfo;
         attributes = new HashMap(gbeanData.attributes);
@@ -69,6 +86,24 @@ public class GBeanData implements Externalizable {
 
     public void setName(ObjectName name) {
         this.name = name;
+    }
+
+    public void initializeName(ObjectName base) throws MalformedObjectNameException {
+        String domain = base.getDomain();
+        Hashtable keys = base.getKeyPropertyList();
+        keys.keySet().removeAll(omit);
+        keys.putAll(nameMap);
+        name = new ObjectName(domain, keys);
+    }
+
+    public void setNameMap(Map nameMap) {
+        this.nameMap.clear();
+        this.nameMap.putAll(nameMap);
+    }
+
+    public void setOmit(Set omit) {
+        this.omit.clear();
+        this.omit.addAll(omit);
     }
 
     public GBeanInfo getGBeanInfo() {
@@ -124,8 +159,11 @@ public class GBeanData implements Externalizable {
         out.writeObject(gbeanInfo);
 
         // write the object name
+        //TODO possibly remove this
         out.writeObject(name);
 
+        out.writeObject(nameMap);
+        out.writeObject(omit);
         // write the attributes
         out.writeInt(attributes.size());
         for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
@@ -169,10 +207,15 @@ public class GBeanData implements Externalizable {
 
         // read the object name
         try {
+            //TODO possibly remove this
             name = (ObjectName) in.readObject();
+            nameMap = (Map) in.readObject();
+            omit = (Set) in.readObject();
         } catch (IOException e) {
             throw (IOException) new IOException("Unable to deserialize ObjectName for GBeanData of type " + gbeanInfo.getClassName()).initCause(e);
         }
+
+
 
         try {
             // read the attributes

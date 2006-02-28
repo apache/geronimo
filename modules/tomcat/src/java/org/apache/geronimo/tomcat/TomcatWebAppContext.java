@@ -214,17 +214,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         this.webServices = webServices;
 
-//        URL webAppRootURL = webAppRoot.toURL();
-
-//        URL[] urls = new URL[webClassPath.length];
-//        for (int i = 0; i < webClassPath.length; i++) {
-//            URI classPathEntry = webClassPath[i];
-//            classPathEntry = root.resolve(classPathEntry);
-//            urls[i] = classPathEntry.toURL();
-//        }
-
         this.classLoader = classLoader;
-//        new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
 
         this.kernel = kernel;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);

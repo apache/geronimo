@@ -76,7 +76,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="hidden-classes" type="sys:classFilterType" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="hidden-classes" type="sys:classFilterType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         A list of classes which will never be loaded from parent ClassLoaders of this
@@ -91,7 +91,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="non-overridable-classes" type="sys:classFilterType" minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="non-overridable-classes" type="sys:classFilterType" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>
                         A list of classes which will only be loaded from parent ClassLodaers of this
@@ -163,7 +163,7 @@
 
     <xs:complexType name="classFilterType">
         <xs:sequence>
-            <xs:element name="filter" type="xs:string"/>
+            <xs:element name="filter" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

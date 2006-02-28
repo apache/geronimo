@@ -222,25 +222,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
 
         setConfigurationClassNames(new String[]{});
 
-//        URI root = null;
-        //TODO is there a simpler way to do this?
-//        if (configurationBaseUrl.getProtocol().equalsIgnoreCase("file")) {
-//            root = new URI("file", configurationBaseUrl.getPath(), null);
-//        } else {
-//            root = URI.create(configurationBaseUrl.toString());
-//        }
-
         webAppRoot = new URL(configurationBaseUrl, uri.toString()).toString();
-//        URL webAppRootURL = webAppRoot.toURL();
-
-//        URL[] urls = new URL[webClassPath.length];
-//        for (int i = 0; i < webClassPath.length; i++) {
-//            URI classPathEntry = webClassPath[i];
-//            classPathEntry = root.resolve(classPathEntry);
-//            urls[i] = classPathEntry.toURL();
-//        }
         this.webClassLoader = classLoader;
-        //new JettyClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
         setClassLoader(this.webClassLoader);
 
         setVirtualHosts(virtualHosts);
