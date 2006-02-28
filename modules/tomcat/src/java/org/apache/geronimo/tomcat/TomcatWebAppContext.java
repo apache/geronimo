@@ -63,7 +63,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
     protected final TomcatContainer container;
 
-    private final ClassLoader webClassLoader;
+    private final ClassLoader classLoader;
 
     protected Context context = null;
 
@@ -178,7 +178,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 
         if (tomcatRealm != null){
             realm = (Realm)tomcatRealm.getInternalObject();
-            if (!(realm instanceof Realm)){
+            if (realm == null){
                 throw new IllegalArgumentException("tomcatRealm must be an instance of org.apache.catalina.Realm.");
             }
         } else{
@@ -223,7 +223,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
 //            urls[i] = classPathEntry.toURL();
 //        }
 
-        this.webClassLoader = classLoader;
+        this.classLoader = classLoader;
 //        new TomcatClassLoader(urls, webAppRootURL, classLoader, contextPriorityClassLoader);
 
         this.kernel = kernel;
@@ -280,8 +280,8 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         return virtualServer;
     }
 
-    public ClassLoader getWebClassLoader() {
-        return webClassLoader;
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     public Kernel getKernel() {
@@ -415,7 +415,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         container.removeContext(this);
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
-        LogFactory.release(webClassLoader);
+//        LogFactory.release(classLoader);
 
         log.debug("TomcatWebAppContext stopped");
     }
@@ -424,7 +424,7 @@ public class TomcatWebAppContext implements GBeanLifecycle, TomcatContext, WebMo
         container.removeContext(this);
 
         // No more logging will occur for this ClassLoader. Inform the LogFactory to avoid a memory leak.
-        LogFactory.release(webClassLoader);
+//        LogFactory.release(classLoader);
 
         log.warn("TomcatWebAppContext failed");
     }

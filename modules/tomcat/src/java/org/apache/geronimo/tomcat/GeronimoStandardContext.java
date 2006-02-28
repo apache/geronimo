@@ -90,7 +90,7 @@ public class GeronimoStandardContext extends StandardContext {
                         ((KernelAwareReference) value).setKernel(ctx.getKernel());
                     }
                     if (value instanceof ClassLoaderAwareReference) {
-                        ((ClassLoaderAwareReference) value).setClassLoader(ctx.getWebClassLoader());
+                        ((ClassLoaderAwareReference) value).setClassLoader(ctx.getClassLoader());
                     }
                 }
                 enc = EnterpriseNamingContext.createEnterpriseNamingContext(componentContext);
@@ -128,7 +128,7 @@ public class GeronimoStandardContext extends StandardContext {
                  */
                 DefaultPrincipal defaultPrincipal = securityHolder.getDefaultPrincipal();
                 if (defaultPrincipal != null) {
-                    defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getWebClassLoader());
+                    defaultSubject = ConfigurationUtil.generateDefaultSubject(defaultPrincipal, ctx.getClassLoader());
                     ContextManager.registerSubject(defaultSubject);
                     SubjectId id = ContextManager.getSubjectId(defaultSubject);
                     defaultSubject.getPrincipals().add(new IdentificationPrincipal(id));

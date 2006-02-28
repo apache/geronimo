@@ -27,7 +27,6 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Realm;
 import org.apache.catalina.connector.Connector;
-import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.realm.JAASRealm;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -206,7 +205,7 @@ public class TomcatContainer implements SoapHandler, GBeanLifecycle, TomcatWebCo
      * @see org.apache.catalina.Host
      */
     public void addContext(TomcatContext ctx) throws Exception{
-        Context anotherCtxObj = embedded.createContext(ctx.getContextPath(), ctx.getDocBase(), ctx.getWebClassLoader());
+        Context anotherCtxObj = embedded.createContext(ctx.getContextPath(), ctx.getDocBase(), ctx.getClassLoader());
 
         // Set the context for the Tomcat implementation
         ctx.setContext(anotherCtxObj);

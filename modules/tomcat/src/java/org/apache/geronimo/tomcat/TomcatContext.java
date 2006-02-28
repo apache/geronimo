@@ -46,7 +46,7 @@ public interface TomcatContext {
     
     public String getVirtualServer();
     
-    public ClassLoader getWebClassLoader();
+    public ClassLoader getClassLoader();
     
     public Map getComponentContext();
 

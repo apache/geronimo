@@ -181,19 +181,10 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-<!--deployers-->
+<!-- deployers -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-gbean-deployer</artifactId>
-            <type>car</type>
-            <version>${pom.currentVersion}</version>
-            <properties>
-                <geronimo.assemble>install</geronimo.assemble>
-            </properties>
-        </dependency>
-        <dependency>
-            <groupId>geronimo</groupId>
-            <artifactId>hot-deployer</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
             <properties>
@@ -211,6 +202,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>hot-deployer</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>tomcat-deployer</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
@@ -218,7 +218,7 @@
                 <geronimo.assemble>install</geronimo.assemble>
             </properties>
         </dependency>
-<!--applications-->
+<!-- applications -->
         <dependency>
             <groupId>geronimo</groupId>
             <artifactId>ldap-demo-tomcat</artifactId>
@@ -266,6 +266,24 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>webconsole-tomcat_geronimo-console-framework-${pom.currentVersion}.war</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>webconsole-tomcat_geronimo-console-standard-${pom.currentVersion}.war</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>jmxdebug-tomcat</artifactId>
             <type>car</type>
             <version>${pom.currentVersion}</version>
@@ -302,6 +320,15 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
+            <artifactId>daytrader-derby-tomcat_daytrader-web-${pom.currentVersion}.war</artifactId>
+            <type>car</type>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <geronimo.assemble>install</geronimo.assemble>
+            </properties>
+        </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
             <artifactId>daytrader-derby-tomcat-streamer-client</artifactId>
             <type>car</type>
             <version>${daytrader_version}</version>
@@ -320,6 +347,7 @@
                 <geronimo.assemble.unpack.exclude.manifest>true</geronimo.assemble.unpack.exclude.manifest>
             </properties>
         </dependency>
+
 
         <!-- lib dependencies -->
         <dependency>
@@ -1270,12 +1298,12 @@
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty</artifactId>
+            <artifactId>geronimo-tomcat</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>
             <groupId>geronimo</groupId>
-            <artifactId>geronimo-jetty-builder</artifactId>
+            <artifactId>geronimo-tomcat-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
         <dependency>

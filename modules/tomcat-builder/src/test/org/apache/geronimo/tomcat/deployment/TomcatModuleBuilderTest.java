@@ -187,6 +187,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         EARContext earContext = createEARContext(outputPath, defaultEnvironment);
         earContext.setJaccManagerName(jaccBeanName);
+        module.setEarContext(earContext);
         ObjectName serverName = earContext.getServerObjectName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
