@@ -207,4 +207,47 @@ public class Version implements Comparable, Serializable {
         }
         return buf.toString();
     }
+
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (this.getClass() != other.getClass()) {
+            return false;
+        }
+        Version v = (Version) other;
+        if (majorVersion == null? v.majorVersion != null: !majorVersion.equals(v.majorVersion)) {
+            return false;
+        }
+        if (minorVersion == null? v.minorVersion != null: !minorVersion.equals(v.minorVersion)) {
+            return false;
+        }
+        if (incrementalVersion == null? v.incrementalVersion != null: !incrementalVersion.equals(v.incrementalVersion)) {
+            return false;
+        }
+        if (buildNumber == null? v.buildNumber != null: !buildNumber.equals(v.buildNumber)) {
+            return false;
+        }
+        return qualifier == null ? v.qualifier == null : qualifier.equals(v.qualifier);
+    }
+
+    public int hashCode() {
+        int hashCode = 0;
+        if (majorVersion != null) {
+            hashCode = majorVersion.intValue();
+        }
+        if (minorVersion != null) {
+            hashCode = 37 * hashCode + minorVersion.intValue();
+        }
+        if (incrementalVersion != null) {
+            hashCode = 37 * hashCode + incrementalVersion.intValue();
+        }
+        if (buildNumber != null) {
+            hashCode = 37 * hashCode + buildNumber.intValue();
+        }
+        if (qualifier != null) {
+            hashCode = 37 * hashCode + qualifier.hashCode();
+        }
+        return hashCode;
+    }
 }
