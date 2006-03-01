@@ -117,7 +117,7 @@ class GBeanOverride {
             boolean empty = "true".equals(emptyStr);
             if (empty){
                 clearAttributes.add(attributeName);
-                return;
+                continue;
             }
             String attributeValue = (String)EncryptionManager.decrypt(getContentsAsText(attribute));
             setAttribute(attributeName, attributeValue);
@@ -133,7 +133,7 @@ class GBeanOverride {
             boolean empty = "true".equals(emptyStr);
             if (empty){
                 clearReferences.add(referenceName);
-                return;
+                continue;
             }
 
             Set objectNamePatterns = new LinkedHashSet();
