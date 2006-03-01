@@ -42,11 +42,19 @@ import java.util.Set;
  */
 class GBeanOverride {
     private final Object name;
+
     private boolean load;
+
     private final Map attributes = new LinkedHashMap();
+
     private final ArrayList clearAttributes = new ArrayList();
+
+    private final ArrayList nullAttributes = new ArrayList();
+
     private final Map references = new LinkedHashMap();
+
     private final ArrayList clearReferences = new ArrayList();
+
     private final String gbeanInfo;
 
     public GBeanOverride(String name, boolean load) {
@@ -65,18 +73,22 @@ class GBeanOverride {
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
         this.gbeanInfo = gbeanInfo.getSourceClass();
         if (this.gbeanInfo == null) {
-            throw new IllegalArgumentException("GBeanInfo must have a source class set");
+            throw new IllegalArgumentException(
+                    "GBeanInfo must have a source class set");
         }
         name = gbeanData.getName();
         load = true;
 
         // set attributes
-        for (Iterator iterator = gbeanData.getAttributes().entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = gbeanData.getAttributes().entrySet()
+                .iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String attributeName = (String) entry.getKey();
-            GAttributeInfo attributeInfo = gbeanInfo.getAttribute(attributeName);
+            GAttributeInfo attributeInfo = gbeanInfo
+                    .getAttribute(attributeName);
             if (attributeInfo == null) {
-                throw new InvalidAttributeException("No attribute: " + attributeName + " for gbean: " + gbeanData.getName());
+                throw new InvalidAttributeException("No attribute: "
+                        + attributeName + " for gbean: " + gbeanData.getName());
             }
             Object attributeValue = entry.getValue();
             setAttribute(attributeName, attributeValue, attributeInfo.getType());
@@ -101,7 +113,9 @@ class GBeanOverride {
             gbeanInfo = null;
         }
         if (gbeanInfo != null && !(name instanceof ObjectName)) {
-            throw new MalformedObjectNameException("A gbean element using the gbeanInfo attribute must be specified using a full ObjectName: name=" + nameString);
+            throw new MalformedObjectNameException(
+                    "A gbean element using the gbeanInfo attribute must be specified using a full ObjectName: name="
+                            + nameString);
         }
 
         String loadString = gbean.getAttribute("load");
@@ -113,13 +127,31 @@ class GBeanOverride {
             Element attribute = (Element) attributes.item(a);
 
             String attributeName = attribute.getAttribute("name");
-            String emptyStr = attribute.getAttribute("empty");
-            boolean empty = "true".equals(emptyStr);
-            if (empty){
-                clearAttributes.add(attributeName);
+
+            // Check to see if there is a value attribute
+            if (attribute.hasAttribute("value")) {
+                setAttribute(attributeName, (String) EncryptionManager
+                        .decrypt(attribute.getAttribute("value")));
                 continue;
             }
-            String attributeValue = (String)EncryptionManager.decrypt(getContentsAsText(attribute));
+            
+            // Check to see if there is a null attribute
+            if (attribute.hasAttribute("null")) {
+                String nullString = attribute.getAttribute("null");
+                if (nullString.equals("true")){
+                    setNullAttribute(attributeName);
+                    continue;
+                }
+            }
+
+            String rawAttribute = getContentsAsText(attribute);
+            // If there are no contents, then it's to be cleared
+            if (rawAttribute.length() == 0) {
+                setClearAttribute(attributeName);
+                continue;
+            }
+            String attributeValue = (String) EncryptionManager
+                    .decrypt(rawAttribute);
             setAttribute(attributeName, attributeValue);
         }
 
@@ -129,24 +161,31 @@ class GBeanOverride {
             Element reference = (Element) references.item(r);
 
             String referenceName = reference.getAttribute("name");
-            String emptyStr = reference.getAttribute("empty");
-            boolean empty = "true".equals(emptyStr);
-            if (empty){
-                clearReferences.add(referenceName);
-                continue;
-            }
 
             Set objectNamePatterns = new LinkedHashSet();
             NodeList patterns = reference.getElementsByTagName("pattern");
-            for (int p = 0; p < references.getLength(); p++) {
+            
+            // If there is no pattern, then its an empty set, so its a
+            // cleared value
+            if (patterns.getLength() == 0) {
+                setClearReference(referenceName);
+                continue;
+            }
+
+            for (int p = 0; p < patterns.getLength(); p++) {
                 Element pattern = (Element) patterns.item(p);
-                NodeList gbeanNames = pattern.getElementsByTagName("gbean-name");
+                if (pattern == null)
+                    continue;
+
+                NodeList gbeanNames = pattern
+                        .getElementsByTagName("gbean-name");
                 if (gbeanNames.getLength() != 1) {
-                    throw new MalformedObjectNameException("pattern does not contain a valid gbean-name:" +
-                            " name=" + nameString +
-                            " referenceName=" + referenceName);
+                    throw new MalformedObjectNameException(
+                            "pattern does not contain a valid gbean-name:"
+                                    + " name=" + nameString + " referenceName="
+                                    + referenceName);
                 }
-                String value = getContentsAsText((Element)gbeanNames.item(0));
+                String value = getContentsAsText((Element) gbeanNames.item(0));
                 ObjectName objectNamePattern = new ObjectName(value);
                 objectNamePatterns.add(objectNamePattern);
             }
@@ -190,28 +229,52 @@ class GBeanOverride {
     public String getAttribute(String attributeName) {
         return (String) attributes.get(attributeName);
     }
-    
-    public ArrayList getClearAttributes(){
+
+    public ArrayList getClearAttributes() {
         return clearAttributes;
     }
     
-    public boolean getClearAttribute(String attributeName){
+    public ArrayList getNullAttributes() {
+        return nullAttributes;
+    }
+
+    public boolean getNullAttribute(String attributeName) {
+        return nullAttributes.contains(attributeName);
+    }
+    
+    public boolean getClearAttribute(String attributeName) {
         return clearAttributes.contains(attributeName);
     }
-    
-    public ArrayList getClearRefrences(){
+
+    public ArrayList getClearReferences() {
         return clearReferences;
     }
-    
-    public boolean getClearReference(String referenceName){
+
+    public boolean getClearReference(String referenceName) {
         return clearReferences.contains(referenceName);
     }
 
+    public void setClearAttribute(String attributeName) {
+        if (!clearAttributes.contains(attributeName))
+            clearAttributes.add(attributeName);
+    }
+    
+    public void setNullAttribute(String attributeName) {
+        if (!nullAttributes.contains(attributeName))
+            nullAttributes.add(attributeName);
+    }
 
-    public void setAttribute(String attributeName, Object attributeValue, String attributeType) throws InvalidAttributeException {
+    public void setClearReference(String referenceName) {
+        if (!clearReferences.contains(referenceName))
+            clearReferences.add(referenceName);
+    }
+
+    public void setAttribute(String attributeName, Object attributeValue,
+            String attributeType) throws InvalidAttributeException {
         String stringValue = getAsText(attributeValue, attributeType);
         attributes.put(attributeName, stringValue);
     }
+
     public void setAttribute(String attributeName, String attributeValue) {
         attributes.put(attributeName, attributeValue);
     }
@@ -244,37 +307,51 @@ class GBeanOverride {
         if (gbeanInfo != null) {
             out.print(" gbeanInfo=\"" + gbeanInfo + "\"");
         }
-        
+
         if (!load) {
             out.print(" load=\"false\"");
         }
         out.println(">");
 
         // attributes
-        for (Iterator iterator = attributes.entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = attributes.entrySet().iterator(); iterator
+                .hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String name = (String) entry.getKey();
             String value = (String) entry.getValue();
-            if(name.toLowerCase().indexOf("password") > -1) {
+            if (name.toLowerCase().indexOf("password") > -1) {
                 value = EncryptionManager.encrypt(value);
             }
-            out.println("      <attribute name=\"" + name + "\">" +  value + "</attribute>");
+            if (value.length() == 0)
+                out.println("      <attribute name=\"" + name
+                        + "\" value=\"\" />");
+            else
+                out.println("      <attribute name=\"" + name + "\">" + value
+                        + "</attribute>");
         }
-        
+
         // cleared attributes
         for (Iterator iterator = clearAttributes.iterator(); iterator.hasNext();) {
             String name = (String) iterator.next();
-            out.println("      <attribute name=\"" + name + "\" empty=\"true\" />");
+            out.println("      <attribute name=\"" + name + "\" />");
+        }
+        
+        // Null attributes
+        for (Iterator iterator = nullAttributes.iterator(); iterator.hasNext();) {
+            String name = (String) iterator.next();
+            out.println("      <attribute name=\"" + name + "\" null=\"true\" />");
         }
 
         // references
-        for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = references.entrySet().iterator(); iterator
+                .hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String name = (String) entry.getKey();
             Set patterns = (Set) entry.getValue();
 
             out.println("      <reference name=\"" + name + "\">");
-            for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
+            for (Iterator patternIterator = patterns.iterator(); patternIterator
+                    .hasNext();) {
                 ObjectName pattern = (ObjectName) patternIterator.next();
                 out.print("          <pattern><gbean-name>");
                 out.print(pattern.getCanonicalName());
@@ -285,27 +362,33 @@ class GBeanOverride {
         // cleared references
         for (Iterator iterator = clearReferences.iterator(); iterator.hasNext();) {
             String name = (String) iterator.next();
-            out.println("      <reference name=\"" + name + "\" empty=\"true\" />");
+            out.println("      <reference name=\"" + name + "\" />");
         }
 
         out.println("    </gbean>");
     }
 
-    public static String getAsText(Object value, String type) throws InvalidAttributeException {
+    public static String getAsText(Object value, String type)
+            throws InvalidAttributeException {
         try {
             String attributeStringValue = null;
             if (value != null) {
-                PropertyEditor editor = PropertyEditors.findEditor(type, GBeanOverride.class.getClassLoader());
+                PropertyEditor editor = PropertyEditors.findEditor(type,
+                        GBeanOverride.class.getClassLoader());
                 if (editor == null) {
-                    throw new InvalidAttributeException("Unable to format attribute of type " + type + "; no editor found");
+                    throw new InvalidAttributeException(
+                            "Unable to format attribute of type " + type
+                                    + "; no editor found");
                 }
                 editor.setValue(value);
                 attributeStringValue = editor.getAsText();
             }
             return attributeStringValue;
         } catch (ClassNotFoundException e) {
-            //todo: use the Configuration's ClassLoader to load the attribute, if this ever becomes an issue
-            throw new InvalidAttributeException("Unable to store attribute type " + type);
+            // todo: use the Configuration's ClassLoader to load the attribute,
+            // if this ever becomes an issue
+            throw new InvalidAttributeException(
+                    "Unable to store attribute type " + type);
         }
     }
 }

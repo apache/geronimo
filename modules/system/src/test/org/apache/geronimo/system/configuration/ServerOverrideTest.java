@@ -103,9 +103,13 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
+        pizza.setAttribute("emptyString", "");
+        pizza.setClearAttribute("greenPeppers");
+        pizza.setNullAttribute("pineapple");
         ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
         ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
         pizza.setReferencePatterns("oven", new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern})));
+        pizza.setClearReference("microwave");
         assertCopyIdentical(dinnerMenu);
 
         dinnerMenu.addGBean(pizza);
@@ -126,9 +130,13 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
+        pizza.setAttribute("emptyString", "");
+        pizza.setClearAttribute("greenPeppers");
+        pizza.setNullAttribute("pineapple");
         ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
         ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
         pizza.setReferencePatterns("oven", new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern})));
+        pizza.setClearReference("microwave");
         dinnerMenu.addGBean(pizza);
         GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
         garlicCheeseBread.setReferencePattern("oven", toasterOvenPattern);
@@ -215,6 +223,9 @@ public class ServerOverrideTest extends TestCase {
         assertEquals(expected.getName(), actual.getName());
         assertEquals(expected.isLoad(), actual.isLoad());
         assertEquals(expected.getAttributes(), actual.getAttributes());
+        assertEquals(expected.getClearAttributes(), actual.getClearAttributes());
+        assertEquals(expected.getNullAttributes(), actual.getNullAttributes());
+        assertEquals(expected.getClearReferences(), actual.getClearReferences());
     }
 
     private ServerOverride copy(ServerOverride server) throws Exception {

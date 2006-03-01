@@ -189,6 +189,14 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
                data.clearAttribute(attribute);
            }
         }
+        
+        //Null attributes
+        for (Iterator iterator = gbean.getNullAttributes().iterator(); iterator.hasNext();){
+           String attribute = (String) iterator.next(); 
+           if (gbean.getNullAttribute(attribute)){
+               data.setAttribute(attribute, null);
+           }
+        }
 
         // set references
         for (Iterator iterator = gbean.getReferences().entrySet().iterator(); iterator.hasNext();) {
@@ -206,7 +214,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
         
         //Clear references
-        for (Iterator iterator = gbean.getClearRefrences().iterator(); iterator.hasNext();){
+        for (Iterator iterator = gbean.getClearReferences().iterator(); iterator.hasNext();){
            String reference = (String) iterator.next(); 
            if (gbean.getClearReference(reference)){
                data.clearReference(reference);
