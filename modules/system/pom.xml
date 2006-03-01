@@ -32,6 +32,12 @@
   <name>Geronimo :: System</name>
   
   <build>
+    <resources>
+      <resource>
+        <directory>src/filtered-resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <testResources>
       <testResource>
         <directory>src/test-data</directory>
