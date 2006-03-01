@@ -157,7 +157,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         deployWar("war4", "foo/bar/1/car");
     }
 
-    public void XtestDeployWar5() throws Exception {
+    public void testDeployWar5() throws Exception {
         deployWar("war5", "test/foo/1/car");
     }
 
@@ -170,7 +170,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         File path = new File(basedir, "src/test-resources/deployables/" + warName);
         File dest = new File(basedir, "target/test-resources/deployables/" + warName + "/war");
         recursiveCopy(path, dest);
-        UnpackedJarFile jarFile = new UnpackedJarFile(dest);
+        UnpackedJarFile jarFile = new UnpackedJarFile(path);
         Module module = builder.createModule(null, jarFile);
 
         ObjectName jaccBeanName = NameFactory.getComponentName(null, null, null, null, "foo", NameFactory.JACC_MANAGER, moduleContext);
@@ -191,6 +191,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         ObjectName serverName = earContext.getServerObjectName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
+        builder.installModule(jarFile, earContext, module, new MockConfigStore());
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl, null);
         earContext.close();

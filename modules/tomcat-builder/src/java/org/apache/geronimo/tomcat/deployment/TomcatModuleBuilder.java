@@ -380,7 +380,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                             throw new DeploymentException("No web service deployment info for servlet name " + servletName);
                         }
 
-                        StoredObject wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, cl);
+                        StoredObject wsContainer = configurePOJO(webModule.getModuleFile(), portInfo, servletClassName, moduleClassLoader);
                         webServices.put(servletName, wsContainer);
                     }
                 }

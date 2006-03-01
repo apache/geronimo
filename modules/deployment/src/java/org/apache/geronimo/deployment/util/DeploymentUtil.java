@@ -253,10 +253,9 @@ public final class DeploymentUtil {
             return;
         }
         for (int i = 0; i < files.length; i++) {
+            collection.add(files[i]);
             if (files[i].isDirectory()) {
                 listRecursiveFiles(files[i], collection);
-            } else {
-                collection.add(files[i]);
             }
         }
     }
