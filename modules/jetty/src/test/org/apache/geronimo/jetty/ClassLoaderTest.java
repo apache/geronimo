@@ -17,10 +17,9 @@
 
 package org.apache.geronimo.jetty;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URLClassLoader;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.config.MultiParentClassLoader;
@@ -40,10 +39,11 @@ public class ClassLoaderTest extends TestCase {
     private static final String[] HIDDEN = {"org.apache.geronimo", "org.mortbay", "org.xml", "org.w3c"};
     private static final String[] NON_OVERRIDABLE = {"java.", "javax."};
 
-    public void setUp() throws MalformedURLException {
+    public void setUp() throws Exception {
+        super.setUp();
         URL url = new File("src/test-resources/deployables/cltest/").toURL();
 //        URL url = getClass().getClassLoader().getResource("deployables/cltest/");
-        System.err.println("URL: "+url);
+        System.err.println("URL: " + url);
         urls = new URL[]{url};
     }
 

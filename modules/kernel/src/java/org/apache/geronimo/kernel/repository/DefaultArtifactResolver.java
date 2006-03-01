@@ -108,6 +108,9 @@ public class DefaultArtifactResolver implements ArtifactResolver {
                 list.addAll(repository.list(groupId, artifactId, type));
             }
 
+            if (list.isEmpty()) {
+                return null;
+            }
             Artifact repositoryArtifact = (Artifact) list.last();
             return repositoryArtifact.getVersion();
         }
@@ -177,7 +180,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactResolver.class, "GBean");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactResolver.class, "ArtifactResolver");
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "GBean");
         infoFactory.addReference("Repositories", Repository.class, "GBean");
         infoFactory.addInterface(ArtifactResolver.class);

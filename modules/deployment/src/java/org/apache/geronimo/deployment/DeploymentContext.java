@@ -524,7 +524,7 @@ public class DeploymentContext {
             }
             Configuration configuration = new Configuration(parents,
                     kernel,
-                    null,
+                    Configuration.getConfigurationObjectName(environmentCopy.getConfigId()).getCanonicalName(),
                     moduleType,
                     environmentCopy,
                     new ArrayList(classpath),

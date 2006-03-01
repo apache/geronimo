@@ -21,6 +21,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -33,8 +34,8 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl implements EditableConfigurationManager {
     public EditableConfigurationManagerImpl(Kernel kernel, Collection stores, ManageableAttributeStore attributeStore,
-                                            PersistentConfigurationList configurationList) {
-        super(kernel, stores, attributeStore, configurationList);
+            PersistentConfigurationList configurationList, ArtifactResolver artifactResolver) {
+        super(kernel, stores, attributeStore, configurationList, artifactResolver);
     }
 
     public void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start) throws InvalidConfigException {
@@ -81,7 +82,7 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EditableConfigurationManagerImpl.class, ConfigurationManagerImpl.GBEAN_INFO, "ConfigurationManager");
         infoFactory.addInterface(EditableConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList"});
+        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactResolver"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

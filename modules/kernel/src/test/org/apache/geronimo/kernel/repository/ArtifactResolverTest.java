@@ -88,6 +88,7 @@ public class ArtifactResolverTest extends TestCase {
 
         // create parent which uses version1 explicitly
         Environment environment = new Environment();
+        environment.setConfigId(loader);
         environment.addDependency(version1);
         Configuration parent = new Configuration(null,
                 Configuration.getConfigurationObjectName(loader).getCanonicalName(),
