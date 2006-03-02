@@ -33,6 +33,7 @@
     </xsd:annotation>
 
 
+    <xsd:element name="gbean-ref" type="gernaming:gbean-refType"/>
     <xsd:element name="ejb-ref" type="gernaming:ejb-refType"/>
     <!--    <xsd:element name="ejb-local-ref" type="gernaming:ejb-local-refType"/>-->
     <xsd:element name="service-ref" type="gernaming:service-refType"/>
@@ -111,8 +112,7 @@
             <xsd:element name="ref-type" type="xsd:string"/>
             <xsd:element name="proxy-type" type="xsd:string" minOccurs="0"/>
             <xsd:choice minOccurs="0" maxOccurs="unbounded">
-                <xsd:group ref="gernaming:objectNameGroup"/>
-                <xsd:element name="target-name" type="xsd:string"/>
+                <xsd:element name="gbean-locator" type="gernaming:gbean-locatorType"/>
             </xsd:choice>
         </xsd:sequence>
     </xsd:complexType>

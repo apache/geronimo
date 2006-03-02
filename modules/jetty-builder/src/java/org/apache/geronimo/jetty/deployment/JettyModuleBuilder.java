@@ -1308,6 +1308,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
                 webApp.getResourceEnvRefArray(), jettyWebApp.getResourceEnvRefArray(),
                 webApp.getMessageDestinationRefArray(),
                 webApp.getServiceRefArray(), jettyWebApp.getServiceRefArray(),
+                jettyWebApp.getGbeanRefArray(),
                 cl);
     }
 

@@ -879,6 +879,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 webApp.getResourceEnvRefArray(), tomcatWebApp.getResourceEnvRefArray(),
                 webApp.getMessageDestinationRefArray(),
                 webApp.getServiceRefArray(), tomcatWebApp.getServiceRefArray(),
+                tomcatWebApp.getGbeanRefArray(),
                 cl);
     }
 

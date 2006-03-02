@@ -17,9 +17,29 @@
 
 package org.apache.geronimo.naming.deployment;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.transaction.UserTransaction;
+import javax.xml.namespace.QName;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.NamingContext;
@@ -30,10 +50,12 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.ClassLoading;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.naming.java.ComponentContextBuilder;
+import org.apache.geronimo.naming.reference.GBeanProxyReference;
 import org.apache.geronimo.xbeans.geronimo.naming.GerCssType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbLocalRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerEjbRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
+import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerMessageDestinationType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceEnvRefType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerResourceRefType;
@@ -51,24 +73,6 @@ import org.apache.geronimo.xbeans.j2ee.ServiceRefHandlerType;
 import org.apache.geronimo.xbeans.j2ee.ServiceRefType;
 import org.apache.geronimo.xbeans.j2ee.XsdQNameType;
 import org.apache.geronimo.xbeans.j2ee.XsdStringType;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.NamingException;
-import javax.naming.Reference;
-import javax.transaction.UserTransaction;
-import javax.xml.namespace.QName;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -745,6 +749,7 @@ public class ENCConfigBuilder {
                                             MessageDestinationRefType[] messageDestinationRefs,
                                             ServiceRefType[] serviceRefs,
                                             GerServiceRefType[] gerServiceRefs,
+                                            GerGbeanRefType[] gerGbeanRefs,
                                             ClassLoader cl) throws DeploymentException {
         ComponentContextBuilder builder = new ComponentContextBuilder();
         RefContext refContext = earContext.getRefContext();
@@ -790,7 +795,67 @@ public class ENCConfigBuilder {
         Map serviceRefMap = mapServiceRefs(gerServiceRefs);
         addServiceRefs(earContext, module, serviceRefs, serviceRefMap, cl, builder);
 
+        addGBeanRefs(earContext, builder, refContext, gerGbeanRefs, cl);
+        
         return builder.getContext();
+    }
+
+    private static void addGBeanRefs(EARContext earContext, ComponentContextBuilder builder, RefContext refContext, GerGbeanRefType[] gerGbeanRefs, ClassLoader cl) throws DeploymentException {
+        if (null == gerGbeanRefs) {
+            return;
+        }
+        
+        J2eeContext j2eeContext = earContext.getJ2eeContext();
+        
+        for (int i = 0; i < gerGbeanRefs.length; i++) {
+            GerGbeanRefType gerGbeanRef = gerGbeanRefs[i];
+            addGBeanRef(earContext, builder, refContext, j2eeContext, gerGbeanRef, cl);
+        }
+    }
+
+    private static void addGBeanRef(EARContext earContext, ComponentContextBuilder builder, RefContext refContext, J2eeContext j2eeContext, GerGbeanRefType gerGbeanRef, ClassLoader cl) throws DeploymentException{
+        // TODO support reference to collection of GBean?
+        GerGbeanLocatorType[] gbeanLocatorArray = gerGbeanRef.getGbeanLocatorArray();
+        if (1 < gbeanLocatorArray.length) {
+            throw new UnsupportedOperationException("Cannot create an ENC binding for " +
+                    "a collection of GBean.");
+        }
+        
+        // Locate the referenced GBean
+        GerGbeanLocatorType locator = gbeanLocatorArray[0];
+        ObjectName query;
+        try {
+            query = NameFactory.getComponentName(locator.getDomain(),
+                    locator.getServer(),
+                    locator.getApplication(),
+                    locator.getType(),
+                    locator.getModule(),
+                    locator.getName(),
+                    gerGbeanRef.getRefType(),
+                    j2eeContext);
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Cannot build GBean query name", e);
+        }
+        ObjectName gBeanName = refContext.locateUniqueName(earContext, query);
+        
+        // Get the GBean proxy type
+        String gBeanTypeName;
+        if (gerGbeanRef.isSetProxyType()) {
+            gBeanTypeName = gerGbeanRef.getProxyType();
+        } else {
+            GBeanData data = refContext.locateComponentData(gBeanName, earContext);
+            gBeanTypeName = data.getGBeanInfo().getClassName();
+        }
+        Class gBeanType;
+        try {
+            gBeanType = ClassLoading.loadClass(gBeanTypeName, cl);
+        } catch (ClassNotFoundException e) {
+            throw new DeploymentException("Cannot load GBean class", e);
+        }
+
+        String refName = gerGbeanRef.getRefName();
+
+        builder.bind(refName, new GBeanProxyReference(gBeanName, gBeanType));
     }
 
     private static Map mapEjbRefs(GerEjbRefType[] refs) {
