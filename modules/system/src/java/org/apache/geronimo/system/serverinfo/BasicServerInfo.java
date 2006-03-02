@@ -32,7 +32,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 public class BasicServerInfo implements ServerInfo {
     public static final String SERVER_NAME_SYS_PROP = "org.apache.geronimo.server.name";
     public static final String SERVER_DIR_SYS_PROP = "org.apache.geronimo.server.dir";
-    public static final String BASE_DIR_SYS_PROP = "org.apache.geronimo.base.dir";
+    public static final String HOME_DIR_SYS_PROP = "org.apache.geronimo.home.dir";
     
     private final String baseDirectory;
     private final File base;
@@ -51,7 +51,7 @@ public class BasicServerInfo implements ServerInfo {
         // Before we try the persistent value, we always check the
         // system properties first.  This lets an admin override this
         // on the command line.
-        this.baseDirectory = System.getProperty(BASE_DIR_SYS_PROP, defaultBaseDirectory);
+        this.baseDirectory = System.getProperty(HOME_DIR_SYS_PROP, defaultBaseDirectory);
 
         // force load of server constants
         ServerConstants.getVersion();
@@ -70,7 +70,7 @@ public class BasicServerInfo implements ServerInfo {
         }
 
         baseURI = base.toURI();
-        System.setProperty(BASE_DIR_SYS_PROP, base.getAbsolutePath());
+        System.setProperty(HOME_DIR_SYS_PROP, base.getAbsolutePath());
 
         baseServer = deriveBaseServer();
         baseServerURI = baseServer.toURI();

@@ -78,7 +78,7 @@ public class ServerInfoTest extends TestCase {
 			try {
 				file = File.createTempFile("geronimo", null);
 				// a workaround - ServerInfo sets system-wide property
-				System.setProperty(BasicServerInfo.BASE_DIR_SYS_PROP, file.getName());
+				System.setProperty(BasicServerInfo.HOME_DIR_SYS_PROP, file.getName());
 				new BasicServerInfo(file.getName());
 				fail("ServerInfo should throw exception when given non-directory path");
 			} catch (IOException ioe) {
@@ -88,9 +88,9 @@ public class ServerInfoTest extends TestCase {
 
 			String basedir = ".";
 			// a workaround - ServerInfo sets system-wide property
-			System.setProperty(BasicServerInfo.BASE_DIR_SYS_PROP, basedir);
+			System.setProperty(BasicServerInfo.HOME_DIR_SYS_PROP, basedir);
 			ServerInfo si = new BasicServerInfo(basedir);
-			assertNotNull(System.getProperty(BasicServerInfo.BASE_DIR_SYS_PROP));
+			assertNotNull(System.getProperty(BasicServerInfo.HOME_DIR_SYS_PROP));
 			assertEquals("base directory is incorrect", basedir, si.getBaseDirectory());
 		} finally {
             resetSysProperties();
@@ -140,7 +140,7 @@ public class ServerInfoTest extends TestCase {
     
     private void resetSysProperties() {
         Properties sysProps = System.getProperties();
-        sysProps.remove(BasicServerInfo.BASE_DIR_SYS_PROP);
+        sysProps.remove(BasicServerInfo.HOME_DIR_SYS_PROP);
         sysProps.remove(BasicServerInfo.SERVER_DIR_SYS_PROP);
         sysProps.remove(BasicServerInfo.SERVER_NAME_SYS_PROP);
     }
