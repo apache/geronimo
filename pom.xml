@@ -118,7 +118,7 @@
     <geronimoSpecJ2eeDeploymentVersion>1.0</geronimoSpecJ2eeDeploymentVersion>
     <geronimoSpecJ2eeJaccVersion>1.0</geronimoSpecJ2eeJaccVersion>
     <geronimoSpecJ2eeManagementVersion>1.0</geronimoSpecJ2eeManagementVersion>
-    <geronimoSpecJavamailVersion>1.2-SNAPSHOT</geronimoSpecJavamailVersion>
+    <geronimoSpecJavamailVersion>1.1-SNAPSHOT</geronimoSpecJavamailVersion>
     <geronimoSpecJaxrVersion>1.0</geronimoSpecJaxrVersion>
     <geronimoSpecJaxrpcVersion>1.0</geronimoSpecJaxrpcVersion>
     <geronimoSpecJmsVersion>1.0</geronimoSpecJmsVersion>
@@ -139,9 +139,7 @@
     <asmVersion>1.4.3</asmVersion>
     <asn1Version>0.3.2</asn1Version>
     <axisVersion>1.3</axisVersion>
-    <backportUtilConcurrentVersion>
-      2.0_01_pd
-    </backportUtilConcurrentVersion>
+    <backportUtilConcurrentVersion>2.0_01_pd</backportUtilConcurrentVersion>
     <castorVersion>0.9.5.3</castorVersion>
     <cglibVersion>2.1_3</cglibVersion>
     <commonsBeanutilsVersion>1.6.1</commonsBeanutilsVersion>
@@ -681,6 +679,12 @@
       <id>snapshots</id>
       <name>Maven Central Development Repository</name>
       <url>http://snapshots.maven.codehaus.org/maven2</url>
+    </repository>
+    <repository>
+      <id>apache-cvs</id>
+      <name>Apache CVS Repository</name>
+      <url>http://cvs.apache.org/repository</url>
+      <layout>legacy</layout>
     </repository>
   </repositories>
 
