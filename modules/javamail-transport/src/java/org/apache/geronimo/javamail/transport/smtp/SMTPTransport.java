@@ -83,7 +83,6 @@ public class SMTPTransport extends Transport {
     /**
      * property keys for top level session properties.
      */
-    protected static final String MAIL_HOST = "mail.host";
     protected static final String MAIL_LOCALHOST = "mail.localhost";
     protected static final String MAIL_SSLFACTORY_CLASS = "mail.SSLSocketFactory.class";
 
@@ -161,9 +160,6 @@ public class SMTPTransport extends Transport {
     protected int defaultPort;
     // the target server port.
     protected int port;
-
-    // the transport that created us...this is the source of configuration information.
-    protected SMTPTransport transport;
 
     // the connection socket...can be a plain socket or SSLSocket, if TLS is being used.
     protected Socket socket;
@@ -548,9 +544,6 @@ public class SMTPTransport extends Transport {
                     unsent = (Address[])unsentAddresses.toArray(new Address[0]);
                     invalid = (Address[])invalidAddresses.toArray(new Address[0]);
 
-                    // notify of the error.
-                    notifyTransportListeners(TransportEvent.MESSAGE_NOT_DELIVERED, sent, unsent, invalid, message);
-
                     // go reset our connection so we can process additional sends.
                     resetConnection();
 
@@ -562,15 +555,33 @@ public class SMTPTransport extends Transport {
                 }
             }
 
+
+            try {
+                // try to send the data
+                sendData(message);
+            } catch (MessagingException e) {
+                // If there's an error at this point, this is a complete delivery failure.
+                // we send along the valid and invalid address lists on the notifications and
+                // exceptions.
+                // however, since we're aborting the entire send, the successes need to become
+                // members of the failure list.
+                unsentAddresses.addAll(sentAddresses);
+
+                // this one is empty.
+                sent = new Address[0];
+                unsent = (Address[])unsentAddresses.toArray(new Address[0]);
+                invalid = (Address[])invalidAddresses.toArray(new Address[0]);
+                // notify of the error.
+                notifyTransportListeners(TransportEvent.MESSAGE_NOT_DELIVERED, sent, unsent, invalid, message);
+                // send a send failure exception.
+                throw new SMTPSendFailedException("DATA", 0, "Send failure", e, sent, unsent, invalid);
+            }
+
+
             // create our lists for notification and exception reporting from this point on.
             sent = (Address[])sentAddresses.toArray(new Address[0]);
             unsent = (Address[])unsentAddresses.toArray(new Address[0]);
             invalid = (Address[])invalidAddresses.toArray(new Address[0]);
-
-            // send data
-            if (!sendData(message)) {
-                throw new MessagingException("Error sending data");
-            }
 
 
             // if sendFailure is true, we had an error during the address phase, but we had permission to
@@ -1240,13 +1251,13 @@ public class SMTPTransport extends Transport {
      * server is in the right place and ready for getting the DATA message
      * and the data right place in the sequence
      */
-    protected boolean sendData(Message msg) throws MessagingException {
+    protected void sendData(Message msg) throws MessagingException {
 
         // send the DATA command
         SMTPReply line = sendCommand("DATA");
 
         if (line.isError()) {
-            return false;
+            throw new MessagingException("Error issuing SMTP 'DATA' command: " + line);
         }
 
         // now the data...  I could look at the type, but
@@ -1272,7 +1283,9 @@ public class SMTPTransport extends Transport {
             throw new MessagingException(e.toString());
 		}
 
-        return !line.isError();
+        if (line.isError()) {
+            throw new MessagingException("Error issuing SMTP 'DATA' command: " + line);
+        }
     }
 
     /**
@@ -1860,7 +1873,7 @@ public class SMTPTransport extends Transport {
         int delimiter = extension.indexOf(' ');
         // if we have a keyword with arguments, parse them out and add to the argument map.
         if (delimiter != -1) {
-            extensionName = extension.substring(0, delimiter);
+            extensionName = extension.substring(0, delimiter).toUpperCase();
             argument = extension.substring(delimiter + 1);
         }
 
