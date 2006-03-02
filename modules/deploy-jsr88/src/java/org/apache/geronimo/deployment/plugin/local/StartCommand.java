@@ -67,11 +67,10 @@ public class StartCommand extends CommandSupport {
                     }
 
                     // Load and start the module
-                    List list = configurationManager.loadRecursive(moduleID);
+                    List list = configurationManager.loadConfiguration(moduleID);
                     for (int j = 0; j < list.size(); j++) {
                         Artifact name = (Artifact) list.get(j);
-                        configurationManager.loadGBeans(name);
-                        configurationManager.start(name);
+                        configurationManager.startConfiguration(name);
                         String configName = name.toString();
                         List kids = loadChildren(kernel, configName);
                         TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), configName,

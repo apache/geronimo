@@ -47,12 +47,12 @@ public class StopCommand extends CommandSupport {
                     TargetModuleID module = modules[i];
                     Artifact moduleID = Artifact.create(module.getModuleID());
                     try {
-                        configurationManager.stop(moduleID);
+                        configurationManager.stopConfiguration(moduleID);
                     } catch (InvalidConfigException e) {
                         updateStatus("Module "+moduleID+" is not running.");
                         continue;
                     }
-                    configurationManager.unload(moduleID);
+                    configurationManager.unloadConfiguration(moduleID);
                     addModule(module);
                 }
             } finally {

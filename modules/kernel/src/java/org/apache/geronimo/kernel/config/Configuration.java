@@ -672,13 +672,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         infoFactory.addReference("ArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
 
         infoFactory.addInterface(Configuration.class);
-//        infoFactory.addOperation("addGBean", new Class[]{GBeanData.class, boolean.class});
-//        infoFactory.addOperation("removeGBean", new Class[]{ObjectName.class});
-//        infoFactory.addOperation("containsGBean", new Class[]{ObjectName.class});
-//        infoFactory.addOperation("loadGBeans", new Class[]{ManageableAttributeStore.class});
-//        infoFactory.addOperation("startRecursiveGBeans");
-//        infoFactory.addOperation("stopGBeans");
-//        infoFactory.addOperation("unloadGBeans");
 
         infoFactory.setConstructor(new String[]{
                 "kernel",

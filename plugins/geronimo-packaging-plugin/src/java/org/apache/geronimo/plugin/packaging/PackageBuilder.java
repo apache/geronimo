@@ -270,16 +270,8 @@ public class PackageBuilder {
                 for (int i = 0; i < deploymentConfig.length; i++) {
                     Artifact configName = deploymentConfig[i];
                     if (!configurationManager.isLoaded(configName)) {
-                        List configs = configurationManager.loadRecursive(configName);
-                        for (Iterator iterator = configs.iterator(); iterator.hasNext(); ) {
-                            Artifact ancestorConfigName = (Artifact) iterator.next();
-                            try {
-                                configurationManager.loadGBeans(ancestorConfigName);
-                            } catch (Throwable e) {
-                                throw new RuntimeException("Could not start configuration: " + configName, e);
-                            }
-                        }
-                        configurationManager.start(configName);
+                        configurationManager.loadConfiguration(configName);
+                        configurationManager.startConfiguration(configName);
                     }
                 }
             } finally {

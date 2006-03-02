@@ -322,13 +322,12 @@ public class Daemon {
                     for (Iterator i = configs.iterator(); i.hasNext();) {
                         Artifact configID = (Artifact) i.next();
                         monitor.configurationLoading(configID);
-                        List list = configurationManager.loadRecursive(configID);
+                        List list = configurationManager.loadConfiguration(configID);
                         monitor.configurationLoaded(configID);
                         monitor.configurationStarting(configID);
                         for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                             Artifact name = (Artifact) iterator.next();
-                            configurationManager.loadGBeans(name);
-                            configurationManager.start(name);
+                            configurationManager.startConfiguration(name);
                         }
                         monitor.configurationStarted(configID);
                     }

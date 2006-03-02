@@ -56,7 +56,7 @@ public class UndeployCommand extends CommandSupport {
                     Artifact moduleID = Artifact.create(module.getModuleID());
                     try {
                         try {
-                            configurationManager.stop(moduleID);
+                            configurationManager.stopConfiguration(moduleID);
                         } catch (InvalidConfigException e) {
                             if(e.getCause() instanceof GBeanNotFoundException) {
                                 GBeanNotFoundException gnf = (GBeanNotFoundException) e.getCause();
@@ -67,7 +67,7 @@ public class UndeployCommand extends CommandSupport {
                                 }
                             }
                         }
-                        configurationManager.unload(moduleID);
+                        configurationManager.unloadConfiguration(moduleID);
                         updateStatus("Module "+moduleID+" unloaded.");
                     } catch (InternalKernelException e) {
                         // this is cause by the kernel being already shutdown

@@ -51,18 +51,6 @@ public interface ConfigurationManager {
     List listConfigurations(ObjectName store) throws NoSuchStoreException;
 
     /**
-     * Load the specified configuration into the kernel. This does not start the configuration gbean
-     * and thus does not load or start any gbeans in the configuration.
-     *
-     * @param configID the id of the configuration
-     * @return the name of the new configuration object mounted into the kernel
-     * @throws NoSuchConfigException if no configuration with the given id exists in the configuration stores
-     * @throws IOException if there is a problem loading te configuration from the store
-     * @throws InvalidConfigException if the configuration is corrupt
-     */
-    ObjectName load(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
-
-    /**
      * Load the specified configuration and all parent configurations into the kernel. This does not
      * start any configuration gbeans or load any gbeans from the configurations loaded.  It does
      * not hurt to call this even if some or all of the GBeans are already loaded -- though only
@@ -74,7 +62,7 @@ public interface ConfigurationManager {
      * @throws IOException if there is a problem loading te configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    List loadRecursive(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
+    List loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     /**
      * Unloads the gbeans of the specified configuration, stops the configuration gbean, and unloads the
@@ -83,17 +71,7 @@ public interface ConfigurationManager {
      * @param configID the name fo the configuration to remove
      * @throws NoSuchConfigException if the configuration is now loaded into the kernel
      */
-    void unload(Artifact configID) throws NoSuchConfigException;
-
-    /**
-     * Load the gbeans of the named configuration into the kernel, but do not start them.
-     * This starts the configuration gbean.  You must have loaded the configuration using load(uri) or loadRecursive(uri)
-     * before calling this method.
-     *
-     * @param configID
-     * @throws InvalidConfigException
-     */
-    void loadGBeans(Artifact configID) throws InvalidConfigException;
+    void unloadConfiguration(Artifact configID) throws NoSuchConfigException;
 
     /**
      * Start the gbeans in this configuration.  You must have called loadGBeans before calling this method.
@@ -101,7 +79,7 @@ public interface ConfigurationManager {
      * @param configID
      * @throws InvalidConfigException
      */
-    void start(Artifact configID) throws InvalidConfigException;
+    void startConfiguration(Artifact configID) throws InvalidConfigException;
 
     /**
      * Stop the gbeans in this configuration, but do not stop the configuration gbean.
@@ -109,5 +87,5 @@ public interface ConfigurationManager {
      * @param configID
      * @throws InvalidConfigException
      */
-    void stop(Artifact configID) throws InvalidConfigException;
+    void stopConfiguration(Artifact configID) throws InvalidConfigException;
 }

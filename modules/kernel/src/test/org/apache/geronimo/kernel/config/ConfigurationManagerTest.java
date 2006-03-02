@@ -56,7 +56,7 @@ public class ConfigurationManagerTest extends TestCase {
     private ConfigurationManagerImpl configurationManager;
 
     public void test() throws Exception {
-        List list = configurationManager.loadRecursive(artifact3);
+        List list = configurationManager.loadConfiguration(artifact3);
         assertTrue(list.contains(artifact3));
         assertTrue(list.contains(artifact2));
         assertTrue(list.contains(artifact1));

@@ -86,7 +86,7 @@ public class RedeployCommand extends AbstractDeployCommand {
                         } else throw e;
                     }
                     try {
-                        configurationManager.unload(configID);
+                        configurationManager.unloadConfiguration(configID);
                         updateStatus("Unloaded "+configID);
                     } catch(InternalKernelException e) {
                         Exception cause = (Exception)e.getCause();
@@ -107,11 +107,10 @@ public class RedeployCommand extends AbstractDeployCommand {
                     doDeploy(module.getTarget(), false);
                     updateStatus("Deployed "+configID);
 
-                    List list = configurationManager.loadRecursive(configID);
+                    List list = configurationManager.loadConfiguration(configID);
                     for (int j = 0; j < list.size(); j++) {
                         Artifact name = (Artifact) list.get(j);
-                        configurationManager.loadGBeans(name);
-                        configurationManager.start(name);
+                        configurationManager.startConfiguration(name);
                         updateStatus("Started " + name);
                     }
                 }

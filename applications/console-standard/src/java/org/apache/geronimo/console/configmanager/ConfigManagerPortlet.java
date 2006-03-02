@@ -101,16 +101,15 @@ public class ConfigManagerPortlet extends BasePortlet {
             Artifact configID = Artifact.create(config);
 
             if (START_ACTION.equals(action)) {
-                List ancestors = configurationManager.loadRecursive(configID);
+                List ancestors = configurationManager.loadConfiguration(configID);
                 for (Iterator it = ancestors.iterator(); it.hasNext();) {
                     Artifact ancestor = (Artifact) it.next();
-                    configurationManager.loadGBeans(ancestor);
-                    configurationManager.start(ancestor);
+                    configurationManager.startConfiguration(ancestor);
                 }
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {
-                configurationManager.stop(configID);
-                configurationManager.unload(configID);
+                configurationManager.stopConfiguration(configID);
+                configurationManager.unloadConfiguration(configID);
                 messageStatus = "Stopped application<br /><br />";
             } else if (UNINSTALL_ACTION.equals(action)) {
                 uninstallConfig(actionRequest);
@@ -160,8 +159,8 @@ public class ConfigManagerPortlet extends BasePortlet {
                     int state = kernel.getGBeanState(Configuration.getConfigurationObjectName(configURI));
                     if (state == State.RUNNING.toInt()) {
 
-                        configManager.stop(configURI);
-                        configManager.unload(configURI);
+                        configManager.stopConfiguration(configURI);
+                        configManager.unloadConfiguration(configURI);
                     }
                 }
                 kernel.invoke(configStore, UNINSTALL_METHOD, new Object[]{configURI}, UNINSTALL_SIG);

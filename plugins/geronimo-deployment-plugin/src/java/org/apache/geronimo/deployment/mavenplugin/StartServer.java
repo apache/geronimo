@@ -122,11 +122,10 @@ public class StartServer {
         try {
             for (Iterator i = configList.iterator(); i.hasNext();) {
                 Artifact configID = (Artifact) i.next();
-                List list = configurationManager.loadRecursive(configID);
+                List list = configurationManager.loadConfiguration(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                     Artifact name = (Artifact) iterator.next();
-                    configurationManager.loadGBeans(name);
-                    configurationManager.start(name);
+                    configurationManager.startConfiguration(name);
                     System.out.println("started gbean: " + name);
                 }
             }

@@ -133,11 +133,10 @@ public class CommandLine {
         try {
             for (Iterator i = configurations.iterator(); i.hasNext();) {
                 Artifact configID = (Artifact) i.next();
-                List list = configurationManager.loadRecursive(configID);
+                List list = configurationManager.loadConfiguration(configID);
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                     Artifact name = (Artifact) iterator.next();
-                    configurationManager.loadGBeans(name);
-                    configurationManager.start(name);
+                    configurationManager.startConfiguration(name);
                 }
             }
         } finally {

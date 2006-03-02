@@ -118,7 +118,7 @@ public class DeploymentContext {
         try {
             boolean loaded = false;
             if (!configurationManager.isLoaded(parent)) {
-                configurationManager.load(parent);
+                configurationManager.loadConfiguration(parent);
                 loaded = true;
             }
             try {
@@ -130,7 +130,7 @@ public class DeploymentContext {
             } finally {
                 if (loaded) {
 //                    we need to unload again so the loadedAncestors list will be in the correct order to start configs.
-                    configurationManager.unload(parent);
+                    configurationManager.unloadConfiguration(parent);
                 }
             }
         } catch (Exception e) {
@@ -473,7 +473,7 @@ public class DeploymentContext {
             try {
                 for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
                     Artifact artifact = (Artifact) iterator.next();
-                    List newAncestors = configurationManager.loadRecursive(artifact);
+                    List newAncestors = configurationManager.loadConfiguration(artifact);
                     loadedAncestors.addAll(newAncestors);
                 }
             } catch (Exception e) {
@@ -491,7 +491,6 @@ public class DeploymentContext {
                     Artifact pattern = (Artifact) iterator.next();
                     startAncestors(pattern, kernel, started, configurationManager);
                 }
-                configurationManager.loadGBeans(configID);
                 started.add(configID);
             }
         }

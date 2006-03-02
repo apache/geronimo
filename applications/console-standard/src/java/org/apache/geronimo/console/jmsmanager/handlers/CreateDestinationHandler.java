@@ -155,9 +155,8 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
                     installDir}, new String[] {
                     ConfigurationData.class.getName(), File.class.getName() });
 
-            configurationManager.load(configId);
-            configurationManager.loadGBeans(configId);
-            configurationManager.start(configId);
+            configurationManager.loadConfiguration(configId);
+            configurationManager.startConfiguration(configId);
 
         } catch (Exception e) {
             log.error("problem", e);

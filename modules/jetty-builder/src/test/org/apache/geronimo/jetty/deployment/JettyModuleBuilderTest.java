@@ -287,9 +287,8 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        configurationManager.load((Artifact) parentId.get(0));
-        configurationManager.loadGBeans((Artifact) parentId.get(0));
-        configurationManager.start((Artifact) parentId.get(0));
+        configurationManager.loadConfiguration((Artifact) parentId.get(0));
+        configurationManager.startConfiguration((Artifact) parentId.get(0));
 
         Collection defaultServlets = new HashSet();
         Collection defaultFilters = new HashSet();

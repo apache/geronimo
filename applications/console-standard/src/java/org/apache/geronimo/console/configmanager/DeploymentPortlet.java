@@ -120,10 +120,9 @@ public class DeploymentPortlet extends BasePortlet {
                 for (Iterator iterator = list.iterator(); iterator.hasNext();) {
                     Artifact configID = Artifact.create((String)iterator.next());
                     if (!configurationManager.isLoaded(configID)) {
-                        configurationManager.load(configID);
+                        configurationManager.loadConfiguration(configID);
                     }
-                    configurationManager.loadGBeans(configID);
-                    configurationManager.start(configID);
+                    configurationManager.startConfiguration(configID);
                 }
             }
         } catch (DeploymentException e) {
