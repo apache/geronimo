@@ -22,6 +22,7 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
@@ -33,9 +34,14 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  * @version $Rev$ $Date$
  */
 public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl implements EditableConfigurationManager {
-    public EditableConfigurationManagerImpl(Kernel kernel, Collection stores, ManageableAttributeStore attributeStore,
-            PersistentConfigurationList configurationList, ArtifactResolver artifactResolver) {
-        super(kernel, stores, attributeStore, configurationList, artifactResolver);
+    public EditableConfigurationManagerImpl(Kernel kernel,
+            Collection stores,
+            ManageableAttributeStore attributeStore,
+            PersistentConfigurationList configurationList,
+            ArtifactManager artifactManager,
+            ArtifactResolver artifactResolver,
+            ClassLoader classLoader) {
+        super(kernel, stores, attributeStore, configurationList, artifactManager, artifactResolver, classLoader);
     }
 
     public void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start) throws InvalidConfigException {
@@ -82,7 +88,7 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EditableConfigurationManagerImpl.class, ConfigurationManagerImpl.GBEAN_INFO, "ConfigurationManager");
         infoFactory.addInterface(EditableConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactResolver"});
+        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

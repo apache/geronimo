@@ -16,6 +16,26 @@
  */
 package org.apache.geronimo.jetty.deployment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTrackingCoordinatorGBean;
@@ -48,7 +68,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -57,30 +76,9 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.SecurityServiceImpl;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -113,6 +111,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private String ARTIFACT_ID = "foo/bar/1/car";
     private List parentId = Arrays.asList(new Artifact[] {Artifact.create(PARENT_ARTIFACT_ID)});
     private Environment defaultEnvironment = new Environment();
+    private ConfigurationManager configurationManager;
 
     public void testDeployWar4() throws Exception {
         File outputPath = new File(basedir, "target/test-resources/deployables/war4");
@@ -132,16 +131,10 @@ public class JettyModuleBuilderTest extends TestCase {
         earContext.close();
         module.close();
 
-        GBeanData configData = ExecutableConfigurationUtil.getConfigurationGBeanData(earContext.getConfigurationData());
-        ObjectName configName = configData.getName();
-        configData.setAttribute("configurationStore", new MockConfigStore(outputPath.toURL()));
-        kernel.loadGBean(configData, cl);
-        kernel.startGBean(configName);
-        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
-        kernel.invoke(configName, "startRecursiveGBeans");
-        if (kernel.getGBeanState(configData.getName()) != State.RUNNING_INDEX) {
-            fail("gbean not started: " + configData.getName());
-        }
+        ConfigurationStore configurationStore = new MockConfigStore(outputPath.toURL());
+        Configuration configuration = configurationManager.loadConfiguration(earContext.getConfigurationData(), configurationStore);
+        configurationManager.startConfiguration(configuration);
+
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance(BASE_NAME + ",J2EEApplication=null,j2eeType=WebModule,name=" + ARTIFACT_ID)));
         Set names = kernel.listGBeans(ObjectName.getInstance(DOMAIN_NAME + ":J2EEApplication=null,WebModule=" + ARTIFACT_ID + ",*"));
         System.out.println("Object names: " + names);
@@ -151,17 +144,14 @@ public class JettyModuleBuilderTest extends TestCase {
         }
         GBeanData filterMapping2Data = kernel.getGBeanData(ObjectName.getInstance(BASE_NAME + ",J2EEApplication=null,Servlet=Servlet1,WebFilter=Filter2,WebModule=" + ARTIFACT_ID + ",j2eeType=WebFilterMapping"));
 
-        kernel.stopGBean(configName);
-        kernel.unloadGBean(configName);
+        configurationManager.stopConfiguration(configuration);
+        configurationManager.unloadConfiguration(configuration);
 
 
         //what is this testing?
-        kernel.loadGBean(configData, cl);
-        kernel.startGBean(configName);
-        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
-        kernel.invoke(configName, "startRecursiveGBeans");
-        kernel.stopGBean(configName);
-        kernel.unloadGBean(configName);
+        configuration = configurationManager.loadConfiguration(earContext.getConfigurationData(), configurationStore);
+        configurationManager.stopConfiguration(configuration);
+        configurationManager.unloadConfiguration(configuration);
     }
 
     private EARContext createEARContext(File outputPath, Environment environment) throws MalformedObjectNameException, DeploymentException {
@@ -270,22 +260,23 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.loadGBean(store, this.getClass().getClassLoader());
         kernel.startGBean(store.getName());
 
-        GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(manager, this.getClass().getClassLoader());
-        kernel.startGBean(manager.getName());
+        GBeanData artifactManager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+        kernel.loadGBean(artifactManager, this.getClass().getClassLoader());
+        kernel.startGBean(artifactManager.getName());
 
-        GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-        resolver.setReferencePattern("ArtifactManager", manager.getName());
-//            resolver.setReferencePattern("Repositories", repository.getName());
-        kernel.loadGBean(resolver, this.getClass().getClassLoader());
-        kernel.startGBean(resolver.getName());
+        GBeanData artifactResolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getName());
+        kernel.loadGBean(artifactResolver, this.getClass().getClassLoader());
+        kernel.startGBean(artifactResolver.getName());
 
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
-        configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+        configurationManagerData.setReferencePattern("Stores", store.getName());
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());
         kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
         kernel.startGBean(configurationManagerName);
-        ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
+        configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
         configurationManager.loadConfiguration((Artifact) parentId.get(0));
         configurationManager.startConfiguration((Artifact) parentId.get(0));

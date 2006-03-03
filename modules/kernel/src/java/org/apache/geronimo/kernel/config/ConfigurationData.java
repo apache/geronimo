@@ -58,7 +58,11 @@ public class ConfigurationData {
 
     public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment, File configurationDir) {
         this.moduleType = moduleType;
-        this.classPath = classPath;
+        if (classPath != null) {
+            this.classPath = classPath;
+        } else {
+            this.classPath = new LinkedHashSet();
+        }
         this.gbeans = gbeans;
         this.childConfigurations = childConfigurations;
         this.environment = environment;

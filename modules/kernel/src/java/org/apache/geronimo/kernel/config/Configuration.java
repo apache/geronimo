@@ -19,7 +19,6 @@ package org.apache.geronimo.kernel.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -154,11 +153,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final List parents;
 
     /**
-     * The paths within the this configuration artifact that should be added to the class loader.
-     */
-    private final List classPath;
-
-    /**
      * The GBeanData objects by ObjectName
      */
     private final Map gbeans = new HashMap();
@@ -190,7 +184,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         moduleType = null;
         parents = null;
         configurationClassLoader = null;
-        classPath = null;
         repositories = null;
         artifactManager = null;
     }
@@ -253,11 +246,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                     "<" + this.objectName.getCanonicalName() + ">");
         }
 
-        if (classPath != null) {
-            this.classPath = classPath;
-        } else {
-            this.classPath = Collections.EMPTY_LIST;
-        }
         this.configurationStore = configurationStore;
 
         this.artifactManager = artifactManager;
@@ -280,7 +268,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         environment.setReferences(references);
 
         // build configurationClassLoader
-        URL[] urls = buildClassPath(configurationStore);
+        URL[] urls = buildClassPath(configurationStore, classPath);
         log.debug("ClassPath for " + id + " resolved to " + Arrays.asList(urls));
         if (parents.size() == 0) {
             // no explicit parent set, so use the class loader of this class as
@@ -357,9 +345,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return dependencies;
     }
 
-    private URL[] buildClassPath(ConfigurationStore configurationStore) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
+    private URL[] buildClassPath(ConfigurationStore configurationStore, List classPath) throws MalformedURLException, MissingDependencyException, NoSuchConfigException {
         LinkedHashSet dependencies = environment.getDependencies();
-        List urls = new ArrayList(dependencies.size() + classPath.size());
+        List urls = new ArrayList();
         for (Iterator i = dependencies.iterator(); i.hasNext();) {
             Artifact artifact = (Artifact) i.next();
             File file = null;
@@ -375,9 +363,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             }
             urls.add(file.toURL());
         }
-        for (Iterator i = classPath.iterator(); i.hasNext();) {
-            URI uri = (URI) i.next();
-            urls.add(configurationStore.resolve(id, uri));
+        if (classPath != null) {
+            for (Iterator i = classPath.iterator(); i.hasNext();) {
+                URI uri = (URI) i.next();
+                urls.add(configurationStore.resolve(id, uri));
+            }
         }
         return (URL[]) urls.toArray(new URL[urls.size()]);
     }
@@ -455,18 +445,28 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(configurationClassLoader);
-            ObjectName name = loadGBean(beanData);
+
+            log.trace("Registering GBean " + beanData.getName());
+
+            // add a dependency on this configuration
+            beanData.getDependencies().add(objectName);
+
+            // register the bean with the kernel
+            kernel.loadGBean(beanData, configurationClassLoader);
+
+            // start the configuration
             if (start) {
                 try {
-                    kernel.startRecursiveGBean(name);
+                    kernel.startRecursiveGBean(beanData.getName());
                 } catch (GBeanNotFoundException e) {
-                    throw new IllegalStateException("How could we not find a GBean that we just loaded ('" + name + "')?");
+                    throw new IllegalStateException("How could we not find a GBean that we just loaded ('" + beanData.getName() + "')?");
                 }
             }
-            gbeans.put(name, beanData);
         } finally {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
+
+        gbeans.put(beanData.getName(), beanData);
     }
 
     public synchronized void removeGBean(ObjectName name) throws GBeanNotFoundException {
@@ -481,71 +481,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } catch (GBeanNotFoundException e) {
             // Bean is no longer loaded
         }
+
         gbeans.remove(name);
-    }
-
-    public void loadGBeans(ManageableAttributeStore attributeStore) throws InvalidConfigException, GBeanAlreadyExistsException {
-        try {
-            // create and initialize GBeans
-            Collection gbeans = this.gbeans.values();
-            if (attributeStore != null) {
-                gbeans = attributeStore.setAttributes(id, gbeans, configurationClassLoader);
-            }
-
-            // register all the GBeans
-            for (Iterator i = gbeans.iterator(); i.hasNext();) {
-                GBeanData gbeanData = (GBeanData) i.next();
-
-                // If the GBean has a configurationBaseUrl attribute, set it
-                // todo remove this when web app cl are config. cl.
-                GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
-                if (attribute != null && attribute.getType().equals("java.net.URL")) {
-                    URL baseURL = configurationStore.resolve(id, URI.create(""));
-                    gbeanData.setAttribute("configurationBaseUrl", baseURL);
-                }
-
-                loadGBean(gbeanData);
-            }
-        } catch (MalformedURLException e) {
-            throw new InvalidConfigException(e);
-        } catch (NoSuchConfigException e) {
-            throw new InvalidConfigException(e);
-        }
-    }
-
-    private ObjectName loadGBean(GBeanData beanData) throws GBeanAlreadyExistsException {
-        ObjectName name = beanData.getName();
-
-        log.trace("Registering GBean " + name);
-        kernel.loadGBean(beanData, configurationClassLoader);
-
-        beanData.getDependencies().add(objectName);
-        return name;
-    }
-
-
-    public void startRecursiveGBeans() throws GBeanNotFoundException {
-        for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-            ObjectName gbeanName = (ObjectName) iterator.next();
-            if (kernel.isGBeanEnabled(gbeanName)) {
-                kernel.startRecursiveGBean(gbeanName);
-            }
-        }
-    }
-
-    public void stopGBeans() throws GBeanNotFoundException {
-        for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-            ObjectName gbeanName = (ObjectName) iterator.next();
-            kernel.stopGBean(gbeanName);
-        }
-    }
-
-    public void unloadGBeans() throws GBeanNotFoundException {
-        for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-            ObjectName gbeanName = (ObjectName) iterator.next();
-            kernel.getDependencyManager().removeDependency(gbeanName, objectName);
-            kernel.unloadGBean(gbeanName);
-        }
     }
 
     public void doStart() throws Exception {
@@ -667,8 +604,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         //NOTE THIS IS NOT A REFERENCE
         infoFactory.addAttribute("configurationStore", ConfigurationStore.class, true);
 
-        infoFactory.addReference("Repositories", Repository.class, "GBean");
-        infoFactory.addReference("ArtifactManager", ArtifactManager.class);
+        infoFactory.addReference("Repositories", Repository.class, "Repository");
+        infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
         infoFactory.addReference("ArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
 
         infoFactory.addInterface(Configuration.class);

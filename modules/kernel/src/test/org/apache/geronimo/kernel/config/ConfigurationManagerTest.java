@@ -98,8 +98,6 @@ public class ConfigurationManagerTest extends TestCase {
         GBeanData gbeanData2 = new GBeanData(Configuration.getConfigurationObjectName(artifact2), Configuration.GBEAN_INFO);
         gbeanData2.setAttribute("environment", e2);
         gbeanData2.setReferencePattern("ArtifactManager", artifactManagerName);
-//        gbeanData2.setAttribute("gBeanState", state);
-//        e2.setAttribute("configurationStore", new MockConfigStore(new File("foo").toURL()));
         configurations.put(artifact2, gbeanData2);
 
         Environment e3 = new Environment();
@@ -115,7 +113,9 @@ public class ConfigurationManagerTest extends TestCase {
                 Collections.singleton(new TestConfigStore()),
                 null,
                 null,
-                new DefaultArtifactResolver(artifactManager, testRepository));
+                artifactManager,
+                new DefaultArtifactResolver(artifactManager, testRepository),
+                ConfigurationManagerImpl.class.getClassLoader());
     }
 
     private class TestConfigStore implements ConfigurationStore {

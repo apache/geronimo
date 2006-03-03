@@ -20,7 +20,6 @@ import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.management.ObjectName;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 /**
@@ -64,6 +63,10 @@ public interface ConfigurationManager {
      */
     List loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
+    Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException;
+
+    Configuration loadConfiguration(ConfigurationData configurationData, ConfigurationStore configurationStore) throws NoSuchConfigException, IOException, InvalidConfigException;
+
     /**
      * Unloads the gbeans of the specified configuration, stops the configuration gbean, and unloads the
      * configuration gbean from the kernel.  Stop should always be called first.
@@ -74,7 +77,7 @@ public interface ConfigurationManager {
     void unloadConfiguration(Artifact configID) throws NoSuchConfigException;
 
     /**
-     * Start the gbeans in this configuration.  You must have called loadGBeans before calling this method.
+     * Start the gbeans in this configuration.  
      *
      * @param configID
      * @throws InvalidConfigException
@@ -88,4 +91,12 @@ public interface ConfigurationManager {
      * @throws InvalidConfigException
      */
     void stopConfiguration(Artifact configID) throws InvalidConfigException;
+
+    Configuration getConfiguration(Artifact configId);
+
+    void startConfiguration(Configuration configuration) throws InvalidConfigException;
+
+    void stopConfiguration(Configuration configuration) throws InvalidConfigException;
+
+    void unloadConfiguration(Configuration configuration) throws NoSuchConfigException;
 }

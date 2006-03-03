@@ -46,7 +46,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -55,7 +54,6 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -385,10 +383,6 @@ public class ConnectorModuleBuilderTest extends TestCase {
         DataSource ds = null;
         Kernel kernel = null;
         try {
-            GBeanData config = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
-            ObjectName configName = ObjectName.getInstance("test:configuration=test-ejb-jar");
-            config.setName(configName);
-
             kernel = KernelFactory.newInstance().createKernel("bar");
             kernel.boot();
 
@@ -396,18 +390,19 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.loadGBean(store, this.getClass().getClassLoader());
             kernel.startGBean(store.getName());
 
-            GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
-            kernel.loadGBean(manager, this.getClass().getClassLoader());
-            kernel.startGBean(manager.getName());
+            GBeanData artifactManager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+            kernel.loadGBean(artifactManager, this.getClass().getClassLoader());
+            kernel.startGBean(artifactManager.getName());
 
-            GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-            resolver.setReferencePattern("ArtifactManager", manager.getName());
-//            resolver.setReferencePattern("Repositories", repository.getName());
-            kernel.loadGBean(resolver, this.getClass().getClassLoader());
-            kernel.startGBean(resolver.getName());
+            GBeanData artifactResolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+            artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getName());
+            kernel.loadGBean(artifactResolver, this.getClass().getClassLoader());
+            kernel.startGBean(artifactResolver.getName());
 
             GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
-            configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+            configurationManagerData.setReferencePattern("Stores", store.getName());
+            configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
+            configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());
             kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
             kernel.startGBean(configurationManagerName);
             ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
@@ -431,10 +426,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             assertRunning(kernel, j2eeServerObjectName);
 
             // load the configuration
-            kernel.loadGBean(config, cl);
-            kernel.startGBean(configName);
-            kernel.invoke(configName, "loadGBeans", new Object[]{null}, new String[]{ManageableAttributeStore.class.getName()});
-            kernel.invoke(configName, "startRecursiveGBeans");
+            Configuration configuration = configurationManager.loadConfiguration(configurationData);
+            configurationManager.startConfiguration(configuration);
             Set gb = kernel.listGBeans(JMXUtil.getObjectName("test:*"));
             for (Iterator iterator = gb.iterator(); iterator.hasNext();) {
                 ObjectName name = (ObjectName) iterator.next();
@@ -442,7 +435,6 @@ public class ConnectorModuleBuilderTest extends TestCase {
                     System.out.println("Not running: " + name);
                 }
             }
-            assertRunning(kernel, configName);
 
             ObjectName applicationObjectName = NameFactory.getApplicationName(null, null, null, j2eeContext);
             if (!j2eeContext.getJ2eeApplicationName().equals("null")) {
@@ -542,7 +534,8 @@ public class ConnectorModuleBuilderTest extends TestCase {
             }
 
 
-            kernel.stopGBean(configName);
+            configurationManager.stopConfiguration(configuration);
+            configurationManager.unloadConfiguration(configuration);
         } finally {
             if (ds != null) {
                 Connection connection = null;

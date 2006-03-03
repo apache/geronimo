@@ -16,6 +16,29 @@
  */
 package org.apache.geronimo.tomcat.deployment;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.naming.Reference;
+import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.geronimo.axis.builder.AxisBuilder;
@@ -47,7 +70,6 @@ import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
@@ -58,7 +80,6 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.tomcat.ConnectorGBean;
 import org.apache.geronimo.tomcat.EngineGBean;
@@ -67,29 +88,6 @@ import org.apache.geronimo.tomcat.RealmGBean;
 import org.apache.geronimo.tomcat.TomcatContainer;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.naming.Reference;
-import javax.xml.namespace.QName;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -152,6 +150,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
     private List parentId = Arrays.asList(new Artifact[] {Artifact.create("geronimo/Foo/1/car")});
     private Environment defaultEnvironment = new Environment();
+    private ConfigurationManager configurationManager;
 
     public void testDeployWar4() throws Exception {
         deployWar("war4", "foo/bar/1/car");
@@ -196,16 +195,10 @@ public class TomcatModuleBuilderTest extends TestCase {
         builder.addGBeans(earContext, module, cl, null);
         earContext.close();
         module.close();
-        GBeanData configData = ExecutableConfigurationUtil.getConfigurationGBeanData(earContext.getConfigurationData());
-        configData.setAttribute("configurationStore", new MockConfigStore());
-        kernel.loadGBean(configData, cl);
-        ObjectName configName = configData.getName();
-        kernel.startGBean(configName);
-        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
-        kernel.invoke(configName, "startRecursiveGBeans");
-        if (kernel.getGBeanState(configName) != State.RUNNING_INDEX) {
-            fail("gbean not started: " + configName);
-        }
+
+        ConfigurationStore configurationStore = new MockConfigStore();
+        Configuration configuration = configurationManager.loadConfiguration(earContext.getConfigurationData(), configurationStore);
+        configurationManager.startConfiguration(configuration);
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(ObjectName.getInstance(BASE_NAME + ",J2EEApplication=null,j2eeType=WebModule,name=" + name)));
         Set names = kernel.listGBeans(ObjectName.getInstance(DOMAIN_NAME + ":J2EEApplication=null,WebModule=" + name + ",*"));
@@ -218,15 +211,14 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         //If we got here with no errors, then Tomcat deployed the war and loaded the classes
 
-        kernel.stopGBean(configName);
-        kernel.unloadGBean(configName);
+        configurationManager.stopConfiguration(configuration);
+        configurationManager.unloadConfiguration(configuration);
 
-        kernel.loadGBean(configData, cl);
-        kernel.startGBean(configName);
-        kernel.invoke(configName, "loadGBeans", new Object[] {null}, new String[] {ManageableAttributeStore.class.getName()});
-        kernel.invoke(configName, "startRecursiveGBeans");
-        kernel.stopGBean(configName);
-        kernel.unloadGBean(configName);
+
+        //what is this testing?
+        configuration = configurationManager.loadConfiguration(earContext.getConfigurationData(), configurationStore);
+        configurationManager.stopConfiguration(configuration);
+        configurationManager.unloadConfiguration(configuration);
     }
 
     private EARContext createEARContext(File outputPath, Environment environment)
@@ -376,23 +368,24 @@ public class TomcatModuleBuilderTest extends TestCase {
         kernel.loadGBean(store, this.getClass().getClassLoader());
         kernel.startGBean(store.getName());
 
+        GBeanData artifactManager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
+        kernel.loadGBean(artifactManager, this.getClass().getClassLoader());
+        kernel.startGBean(artifactManager.getName());
+
+        GBeanData artifactResolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolver.setReferencePattern("ArtifactManager", artifactManager.getName());
+        kernel.loadGBean(artifactResolver, this.getClass().getClassLoader());
+        kernel.startGBean(artifactResolver.getName());
+
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerData.setReferencePatterns("Stores", Collections.singleton(store.getName()));
+        configurationManagerData.setReferencePattern("ArtifactManager", artifactManager.getName());
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolver.getName());
         kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
         kernel.startGBean(configurationManagerName);
 
-        GBeanData manager = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactManager"), DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(manager, this.getClass().getClassLoader());
-        kernel.startGBean(manager.getName());
-
-        GBeanData resolver = new GBeanData(JMXUtil.getObjectName("foo:name=ArtifactResolver"), DefaultArtifactResolver.GBEAN_INFO);
-        resolver.setReferencePattern("ArtifactManager", manager.getName());
-//            resolver.setReferencePattern("Repositories", repository.getName());
-        kernel.loadGBean(resolver, this.getClass().getClassLoader());
-        kernel.startGBean(resolver.getName());
-
-        ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
+        configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
         configurationManager.loadConfiguration((Artifact) parentId.get(0));
         configurationManager.startConfiguration((Artifact) parentId.get(0));

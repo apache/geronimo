@@ -91,7 +91,7 @@ public class PackageBuilder {
 
     static {
         try {
-            REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository");
+            REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository,j2eeType=Repository");
             ARTIFACT_MANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactManager");
             ARTIFACT_RESOLVER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactResolver");
             CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=MavenConfigStore,j2eeType=ConfigurationStore");
@@ -353,6 +353,8 @@ public class PackageBuilder {
         GBeanData configManagerGBean = new GBeanData(CONFIGMANAGER_NAME, ConfigurationManagerImpl.GBEAN_INFO);
         configManagerGBean.setReferencePattern("Stores", CONFIGSTORE_NAME);
         configManagerGBean.setReferencePattern("AttributeStore", ATTRIBUTESTORE_NAME);
+        configManagerGBean.setReferencePattern("ArtifactManager", ARTIFACT_MANAGER_NAME);
+        configManagerGBean.setReferencePattern("ArtifactResolver", ARTIFACT_RESOLVER_NAME);
         kernel.loadGBean(configManagerGBean, cl);
         kernel.startGBean(CONFIGMANAGER_NAME);
 

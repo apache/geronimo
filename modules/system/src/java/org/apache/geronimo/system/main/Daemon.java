@@ -17,6 +17,18 @@
 
 package org.apache.geronimo.system.main;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
@@ -24,29 +36,13 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.system.jmx.MBeanServerKernelBridge;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -232,26 +228,7 @@ public class Daemon {
             List extensionDirsFromManifest = manifestEntries.getExtensionDirs();
             AddToSystemProperty(extensionDirs, extensionDirsFromManifest, geronimoInstallDirectory);
 
-
-            // load this configuration
             ClassLoader classLoader = Daemon.class.getClassLoader();
-            GBeanData configuration = new GBeanData();
-            ObjectInputStream ois = new ObjectInputStream(classLoader.getResourceAsStream("META-INF/config.ser"));
-            try {
-                configuration.readExternal(ois);
-            } finally {
-                ois.close();
-            }
-            Environment environment = (Environment) configuration.getAttribute("environment");
-            Artifact configurationId = environment.getConfigId();
-            ObjectName configName = Configuration.getConfigurationObjectName(configurationId);
-            configuration.setName(configName);
-            configuration.setReferencePattern("ArtifactManager", null);
-            configuration.setReferencePattern("ArtifactResolver", null);
-
-            // todo: JNB for now we clear out the dependency list but we really need a way to resolve them
-            environment.setDependencies(Collections.EMPTY_LIST);
-//        configuration.setAttribute("baseURL", classLoader.getResource("/"));
 
             // create a mbean server
             MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
@@ -269,10 +246,6 @@ public class Daemon {
                 throw new AssertionError();
             }
 
-            // load this configuration into the kernel
-            kernel.loadGBean(configuration, classLoader);
-            kernel.startGBean(configName);
-
             // add our shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread("Geronimo shutdown thread") {
                 public void run() {
@@ -289,9 +262,10 @@ public class Daemon {
             kernel.loadGBean(mbeanServerKernelBridge, classLoader);
             kernel.startGBean(mbeanServerKernelBridgeName);
 
-            // start this configuration
-            kernel.invoke(configName, "loadGBeans", new Object[]{null}, new String[]{ManageableAttributeStore.class.getName()});
-            kernel.invoke(configName, "startRecursiveGBeans");
+            // load this configuration
+            InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
+            ConfigurationUtil.startBootstrapConfiguration(kernel, in, classLoader);
+
             monitor.systemStarted(kernel);
 
             GBeanQuery query = new GBeanQuery(null, PersistentConfigurationList.class.getName());

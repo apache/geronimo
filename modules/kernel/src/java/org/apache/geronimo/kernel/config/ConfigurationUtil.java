@@ -16,15 +16,21 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.util.Set;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import javax.management.ObjectName;
 
-import org.apache.geronimo.kernel.jmx.JMXUtil;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev$ $Date$
@@ -32,6 +38,52 @@ import org.apache.geronimo.gbean.GBeanQuery;
 public final class ConfigurationUtil {
     private ConfigurationUtil() {
     }
+
+    public static ObjectName startBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
+        // load and start the configuration in this jar
+        GBeanData configuration = new GBeanData();
+        ObjectInputStream ois = new ObjectInputStream(in);
+        try {
+            configuration.readExternal(ois);
+        } finally {
+            ois.close();
+        }
+
+        Environment environment = (Environment) configuration.getAttribute("environment");
+        Artifact configId = environment.getConfigId();
+        ObjectName configurationName = Configuration.getConfigurationObjectName(configId);
+        configuration.setName(configurationName);
+
+        // for a bootstrap we should have an empty kernel, so clear the references and dependencies
+        configuration.setReferencePattern("ArtifactManager", null);
+        configuration.setReferencePattern("ArtifactResolver", null);
+        environment.setDependencies(Collections.EMPTY_LIST);
+
+        // load and start the gbean
+        kernel.loadGBean(configuration, classLoader);
+        kernel.startGBean(configurationName);
+
+        // get the gbeans and classloader
+        Map gbeans = (Map) kernel.getAttribute(configurationName, "GBeans");
+        ClassLoader configurationClassLoader = (ClassLoader) kernel.getAttribute(configurationName, "configurationClassLoader");
+
+        // register all the GBeans
+        for (Iterator i = gbeans.values().iterator(); i.hasNext();) {
+            GBeanData gbeanData = (GBeanData) i.next();
+            gbeanData.getDependencies().add(configurationName);
+
+            // load the gbean into the kernel
+            kernel.loadGBean(gbeanData, configurationClassLoader);
+
+            // start the gbean
+            if (kernel.isGBeanEnabled(gbeanData.getName())) {
+                kernel.startRecursiveGBean(gbeanData.getName());
+            }
+        }
+
+        return configurationName;
+    }
+
 
     /**
      * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
