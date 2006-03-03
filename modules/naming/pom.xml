@@ -49,7 +49,7 @@
     <!-- only for ComponentContextInterceptor -->
     <dependency>
       <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-core</artifactId>
+      <artifactId>geronimo-interceptor</artifactId>
     </dependency>
 
     <dependency>

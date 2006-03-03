@@ -44,12 +44,12 @@
 
     <dependency>
       <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-core</artifactId>
+      <artifactId>geronimo-kernel</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo</groupId>
-      <artifactId>geronimo-kernel</artifactId>
+        <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-interceptor</artifactId>
     </dependency>
 
     <dependency>

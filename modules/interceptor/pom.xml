@@ -28,5 +28,9 @@
   <packaging>jar</packaging>
   <name>Geronimo :: Interceptor</name>
 
+  <build>
+    <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+    <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+  </build>
 
 </project>

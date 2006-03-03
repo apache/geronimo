@@ -537,6 +537,11 @@
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo</groupId>
+        <artifactId>geronimo-interceptor</artifactId>
+        <version>${geronimoVersion}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo</groupId>
         <artifactId>geronimo-management</artifactId>
         <version>${geronimoVersion}</version>
       </dependency>
@@ -721,6 +726,7 @@
         <module>modules/javamail-transport</module>
         <module>modules/jmx-remoting</module>
         <module>modules/kernel</module>
+        <module>modules/interceptor</module>
         <module>modules/mail</module>
         <module>modules/management</module>
         <module>modules/naming</module>
