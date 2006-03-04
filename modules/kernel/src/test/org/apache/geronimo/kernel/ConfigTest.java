@@ -46,6 +46,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 /**
  * @version $Rev$ $Date$
@@ -201,9 +202,17 @@ public class ConfigTest extends TestCase {
         kernel.startGBean(artifactManagerName);
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerName));
 
+        ObjectName artifactResolverName = new ObjectName(":j2eeType=ArtifactResolver");
+        GBeanData artifactResolverData = new GBeanData(artifactResolverName, DefaultArtifactResolver.GBEAN_INFO);
+        artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerName);
+        kernel.loadGBean(artifactResolverData, getClass().getClassLoader());
+        kernel.startGBean(artifactResolverName);
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactResolverName));
+
         ObjectName configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         GBeanData configurationManagerData = new GBeanData(configurationManagerName, ConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerName);
+        configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverName);
         kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
         kernel.startGBean(configurationManagerName);
         configurationManager = ConfigurationUtil.getConfigurationManager(kernel);

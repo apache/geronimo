@@ -103,7 +103,7 @@ public class CommandLine {
         kernel.boot();
 
         // load the configuration
-        configurationName = ConfigurationUtil.startBootstrapConfiguration(kernel, in, classLoader);
+        configurationName = ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
 
         // load and start the configurations
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);

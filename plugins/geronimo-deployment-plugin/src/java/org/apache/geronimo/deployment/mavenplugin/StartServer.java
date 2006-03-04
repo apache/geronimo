@@ -98,7 +98,7 @@ public class StartServer {
         Kernel kernel = KernelFactory.newInstance().createKernel(getKernelName());
         kernel.boot();
 
-        ConfigurationUtil.startBootstrapConfiguration(kernel, in, this.getClass().getClassLoader());
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, in, this.getClass().getClassLoader());
 
         // load the rest of the configuration listed on the command line
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);

@@ -181,8 +181,8 @@ public class DefaultArtifactResolver implements ArtifactResolver {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactResolver.class, "ArtifactResolver");
-        infoFactory.addReference("ArtifactManager", ArtifactManager.class, "GBean");
-        infoFactory.addReference("Repositories", Repository.class, "GBean");
+        infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
+        infoFactory.addReference("Repositories", Repository.class, "Repository");
         infoFactory.addInterface(ArtifactResolver.class);
 
         infoFactory.setConstructor(new String[]{

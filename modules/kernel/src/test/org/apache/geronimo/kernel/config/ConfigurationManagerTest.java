@@ -89,7 +89,6 @@ public class ConfigurationManagerTest extends TestCase {
         e1.setConfigId(artifact1);
         GBeanData gbeanData1 = new GBeanData(Configuration.getConfigurationObjectName(artifact1), Configuration.GBEAN_INFO);
         gbeanData1.setAttribute("environment", e1);
-        gbeanData1.setReferencePattern("ArtifactManager", artifactManagerName);
         configurations.put(artifact1, gbeanData1);
 
         Environment e2 = new Environment();
@@ -97,7 +96,6 @@ public class ConfigurationManagerTest extends TestCase {
         e2.addImport(new Artifact("test", "1", (Version) null, "bar"));
         GBeanData gbeanData2 = new GBeanData(Configuration.getConfigurationObjectName(artifact2), Configuration.GBEAN_INFO);
         gbeanData2.setAttribute("environment", e2);
-        gbeanData2.setReferencePattern("ArtifactManager", artifactManagerName);
         configurations.put(artifact2, gbeanData2);
 
         Environment e3 = new Environment();
@@ -105,7 +103,6 @@ public class ConfigurationManagerTest extends TestCase {
         e3.addImport(new Artifact("test", "2", (Version) null, "bar"));
         GBeanData gbeanData3 = new GBeanData(Configuration.getConfigurationObjectName(artifact3), Configuration.GBEAN_INFO);
         gbeanData3.setAttribute("environment", e3);
-        gbeanData3.setReferencePattern("ArtifactManager", artifactManagerName);
         configurations.put(artifact3, gbeanData3);
 
         TestRepository testRepository = new TestRepository();

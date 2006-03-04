@@ -104,7 +104,7 @@ public class DefaultArtifactManager implements ArtifactManager {
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactManager.class, "GBean");
+        GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(DefaultArtifactManager.class, "ArtifactManager");
         infoFactory.addInterface(ArtifactManager.class);
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

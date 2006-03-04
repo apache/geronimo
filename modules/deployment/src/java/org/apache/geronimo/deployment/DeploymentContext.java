@@ -17,24 +17,6 @@
 
 package org.apache.geronimo.deployment;
 
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Repository;
-
-import javax.management.ObjectName;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,6 +45,27 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import javax.management.ObjectName;
+
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * @version $Rev$ $Date$
@@ -510,17 +513,9 @@ public class DeploymentContext {
 
     public Configuration getConfiguration(Repository repository, Configuration knownParent) throws DeploymentException {
         Environment environmentCopy = new Environment(environment);
-        if (knownParent != null) {
-            LinkedHashSet allImports = environmentCopy.getImports();
-            Artifact knownParentId = knownParent.getId();
-            allImports.remove(knownParentId);
-        }
         Set repositories = Collections.singleton(repository);
         try {
-            ArrayList parents = Configuration.buildParents(environmentCopy, null, null, repositories, kernel);
-            if (knownParent != null) {
-                parents.add(knownParent);
-            }
+            List parents = createParentProxies(repositories, knownParent);
             Configuration configuration = new Configuration(parents,
                     kernel,
                     Configuration.getConfigurationObjectName(environmentCopy.getConfigId()).getCanonicalName(),
@@ -567,6 +562,28 @@ public class DeploymentContext {
         } catch (Exception e) {
             throw new DeploymentException("Could not construct configuration classloader for deployment context", e);
         }
+    }
+
+    private List createParentProxies(Set repositories, Configuration knownParent) throws MissingDependencyException, InvalidConfigException {
+        ArtifactResolver artifactResolver = new DefaultArtifactResolver(null, repositories);
+        LinkedHashSet imports = environment.getImports();
+        imports = artifactResolver.resolve(imports);
+        environment.setImports(imports);
+
+        // get proxies to my parent configurations (now that the imports have been resolved)
+        ArrayList parents = new ArrayList();
+        for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            Configuration parent;
+            if (knownParent != null && artifact.equals(knownParent.getId())) {
+                parent = knownParent;
+            } else {
+                ObjectName parentName = Configuration.getConfigurationObjectName(artifact);
+                parent = (Configuration) kernel.getProxyManager().createProxy(parentName, Configuration.class);
+            }
+            parents.add(parent);
+        }
+        return parents;
     }
 
     public void close() throws IOException, DeploymentException {

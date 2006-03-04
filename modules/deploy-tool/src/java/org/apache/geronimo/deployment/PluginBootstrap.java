@@ -16,26 +16,22 @@
  */
 package org.apache.geronimo.deployment;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.List;
+import java.util.jar.JarOutputStream;
+
 import org.apache.geronimo.deployment.service.ServiceConfigBuilder;
 import org.apache.geronimo.deployment.xbeans.ConfigurationDocument;
 import org.apache.geronimo.deployment.xbeans.ConfigurationType;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
 import org.apache.geronimo.system.repository.Maven1Repository;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
-import java.util.jar.JarOutputStream;
 
 /**
  * @version $Rev$ $Date$
@@ -63,19 +59,22 @@ public class PluginBootstrap {
     }
 
     public void bootstrap() throws Exception {
+        System.out.println();
+        System.out.println("    Packaging configuration " + plan);
+        System.out.println();
+
         ConfigurationType config = ConfigurationDocument.Factory.parse(plan).getConfiguration();
 
         Maven1Repository repository = new Maven1Repository(localRepo);
         ServiceConfigBuilder builder = new ServiceConfigBuilder(null, repository);
         ConfigurationData configurationData = builder.buildConfiguration(config, null, new ConfigurationStore() {
-
-            public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
+            public void install(ConfigurationData configurationData) {
             }
 
-            public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
+            public void uninstall(Artifact configID) {
             }
 
-            public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
+            public GBeanData loadConfiguration(Artifact configId) {
                 return null;
             }
 
@@ -95,7 +94,7 @@ public class PluginBootstrap {
                 return buildDir;
             }
 
-            public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
+            public URL resolve(Artifact configId, URI uri) {
                 return null;
             }
         });

@@ -91,6 +91,7 @@ public class ArtifactResolverTest extends TestCase {
         environment.setConfigId(loader);
         environment.addDependency(version1);
         Configuration parent = new Configuration(null,
+                null,
                 Configuration.getConfigurationObjectName(loader).getCanonicalName(),
                 ConfigurationModuleType.SERVICE,
                 environment,

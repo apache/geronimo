@@ -264,7 +264,7 @@ public class Daemon {
 
             // load this configuration
             InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
-            ConfigurationUtil.startBootstrapConfiguration(kernel, in, classLoader);
+            ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
 
             monitor.systemStarted(kernel);
 

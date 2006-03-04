@@ -18,11 +18,15 @@ package org.apache.geronimo.kernel.config;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
@@ -39,7 +43,7 @@ public final class ConfigurationUtil {
     private ConfigurationUtil() {
     }
 
-    public static ObjectName startBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
+    public static ObjectName loadBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
         // load and start the configuration in this jar
         GBeanData configuration = new GBeanData();
         ObjectInputStream ois = new ObjectInputStream(in);
@@ -55,8 +59,8 @@ public final class ConfigurationUtil {
         configuration.setName(configurationName);
 
         // for a bootstrap we should have an empty kernel, so clear the references and dependencies
-        configuration.setReferencePattern("ArtifactManager", null);
-        configuration.setReferencePattern("ArtifactResolver", null);
+        configuration.setAttribute("artifactManager", null);
+        configuration.setAttribute("artifactResolver", null);
         environment.setDependencies(Collections.EMPTY_LIST);
 
         // load and start the gbean
@@ -84,6 +88,46 @@ public final class ConfigurationUtil {
         return configurationName;
     }
 
+    public static void storeBootstrapConfiguration(ConfigurationData configurationData, OutputStream out) throws InvalidConfigException, IOException {
+        ObjectOutputStream objectOutputStream = null;
+        try {
+            GBeanData configurationGBeanData = toConfigurationGBeanData(configurationData, null);
+            objectOutputStream = new ObjectOutputStream(out);
+            configurationGBeanData.writeExternal(objectOutputStream);
+        } catch (MalformedObjectNameException e) {
+            throw new InvalidConfigException(e);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidConfigException("Unable to save configuration state", e);
+        } finally {
+            if (objectOutputStream != null) {
+                try {
+                    objectOutputStream.flush();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+    }
+
+    // This method is package protected in an attempt to hide how we turn ConfigurationData into a GBeanData
+    // user should be using ConfigurationManager to do this work
+    static GBeanData toConfigurationGBeanData(ConfigurationData configurationData, ConfigurationStore configurationStore) throws InvalidConfigException, MalformedObjectNameException {
+        Artifact id = configurationData.getId();
+        ObjectName objectName = Configuration.getConfigurationObjectName(id);
+        GBeanData gbeanData = new GBeanData(objectName, Configuration.GBEAN_INFO);
+        gbeanData.setAttribute("type", configurationData.getModuleType());
+        Environment environment = configurationData.getEnvironment();
+        gbeanData.setAttribute("environment", environment);
+        gbeanData.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
+        gbeanData.setAttribute("classPath", configurationData.getClassPath());
+        if (configurationStore != null) {
+            gbeanData.setAttribute("configurationStore", configurationStore);
+        }
+        gbeanData.setReferencePattern("Repositories", new ObjectName("*:j2eeType=Repository,*"));
+        return gbeanData;
+    }
 
     /**
      * Gets a reference or proxy to the ConfigurationManager running in the specified kernel.
@@ -148,5 +192,4 @@ public final class ConfigurationUtil {
     public static void releaseConfigurationManager(Kernel kernel, ConfigurationManager configurationManager) {
         kernel.getProxyManager().destroyProxy(configurationManager);
     }
-
 }

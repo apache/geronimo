@@ -261,6 +261,9 @@ public class PackageBuilder {
     }
 
     public void execute() throws Exception {
+        System.out.println();
+        System.out.println("    Packaging configuration " + planFile);
+        System.out.println();
         try {
             Kernel kernel = createKernel(repository, repositoryClass, configurationStoreClass);
 

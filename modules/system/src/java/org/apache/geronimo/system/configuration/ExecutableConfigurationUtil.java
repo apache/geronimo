@@ -21,7 +21,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
@@ -31,15 +30,10 @@ import java.util.LinkedList;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -93,49 +87,24 @@ public final class ExecutableConfigurationUtil {
     }
 
     public static void writeConfiguration(ConfigurationData configurationData, JarOutputStream out) throws IOException, InvalidConfigException {
-
-        // convert the configuration data to a gbeandata object
-        GBeanData configurationGBeanData = ExecutableConfigurationUtil.getConfigurationGBeanData(configurationData);
-
         // save the persisted form in the source directory
         out.putNextEntry(new ZipEntry("META-INF/config.ser"));
-        ObjectOutputStream objectOutputStream = null;
         try {
-            objectOutputStream = new ObjectOutputStream(out);
-            configurationGBeanData.writeExternal(objectOutputStream);
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to save configuration state", e);
+            ConfigurationUtil.storeBootstrapConfiguration(configurationData, out);
         } finally {
-            if (objectOutputStream != null) {
-                try {
-                    objectOutputStream.flush();
-                } catch (IOException ignored) {
-                }
-            }
             out.closeEntry();
         }
     }
 
     public static void writeConfiguration(ConfigurationData configurationData, File source) throws InvalidConfigException, IOException {
-        // convert the configuration data to a gbeandata object
-        GBeanData configurationGBeanData = getConfigurationGBeanData(configurationData);
-
         // save the persisted form in the source directory
         File metaInf = new File(source, "META-INF");
         metaInf.mkdirs();
         File configSer = new File(metaInf, "config.ser");
-        ObjectOutputStream out = null;
+
+        OutputStream out = new FileOutputStream(configSer);
         try {
-            out = new ObjectOutputStream(new FileOutputStream(configSer));
-            try {
-                configurationGBeanData.writeExternal(out);
-            } catch (IOException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to save configuration state", e);
-            }
+            ConfigurationUtil.storeBootstrapConfiguration(configurationData, out);
         } finally {
             if (out != null) {
                 try {
@@ -147,25 +116,6 @@ public final class ExecutableConfigurationUtil {
                 } catch (Exception ignored) {
                 }
             }
-        }
-    }
-
-    public static GBeanData getConfigurationGBeanData(ConfigurationData configurationData) throws InvalidConfigException {
-        try {
-            Artifact id = configurationData.getId();
-            GBeanData config = new GBeanData(Configuration.getConfigurationObjectName(id), Configuration.GBEAN_INFO);
-            config.setAttribute("type", configurationData.getModuleType());
-            Environment environment = configurationData.getEnvironment();
-            config.setAttribute("environment", environment);
-            config.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
-            config.setAttribute("classPath", configurationData.getClassPath());
-            config.setReferencePattern("Repositories", new ObjectName("*:name=Repository,*"));
-            config.setReferencePattern("ArtifactManager", new ObjectName("*:name=ArtifactManager,*"));
-            config.setReferencePattern("ArtifactResolver", new ObjectName("*:name=ArtifactResolver,*"));
-
-            return config;
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException(e);
         }
     }
 

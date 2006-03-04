@@ -349,7 +349,7 @@ public final class GBeanInstance implements StateManageable {
                 getReferenceByName(referenceName).setPatterns(referencePattern);
             }
         } catch (Exception e) {
-            throw new InvalidConfigurationException("GBeanData could not be loaded into the GBeanMBean", e);
+            throw new InvalidConfigurationException("Could not inject configuration data into the GBean " + objectName, e);
         }
 
         for (int i = 0; i < references.length; i++) {

@@ -35,6 +35,8 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -87,10 +89,15 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             ArtifactManager artifactManager,
             ArtifactResolver artifactResolver,
             ClassLoader classLoader) {
+
+        if (kernel == null) throw new NullPointerException("kernel is null");
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
+
         this.kernel = kernel;
         this.stores = stores;
         this.attributeStore = attributeStore;
         this.configurationList = configurationList;
+        if (artifactResolver == null) artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET);
         this.artifactManager = artifactManager;
         this.artifactResolver = artifactResolver;
         this.classLoader = classLoader;
@@ -155,22 +162,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
 
     public Configuration loadConfiguration(ConfigurationData configurationData, ConfigurationStore configurationStore) throws NoSuchConfigException, IOException, InvalidConfigException {
         Artifact id = configurationData.getId();
-        ObjectName objectName = Configuration.getConfigurationObjectName(id);
         try {
-            GBeanData gbeanData = new GBeanData(objectName, Configuration.GBEAN_INFO);
-            gbeanData.setAttribute("type", configurationData.getModuleType());
-            Environment environment = configurationData.getEnvironment();
-            gbeanData.setAttribute("environment", environment);
-            gbeanData.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
-            gbeanData.setAttribute("classPath", configurationData.getClassPath());
-            gbeanData.setAttribute("configurationStore", configurationStore);
-            gbeanData.setReferencePattern("Repositories", new ObjectName("*:j2eeType=Repository,*"));
-            if (artifactManager != null) {
-                gbeanData.setReferencePattern("ArtifactManager", kernel.getProxyManager().getProxyTarget(artifactManager));
-            }
-            if (artifactResolver != null) {
-                gbeanData.setReferencePattern("ArtifactResolver", kernel.getProxyManager().getProxyTarget(artifactResolver));
-            }
+            GBeanData gbeanData = ConfigurationUtil.toConfigurationGBeanData(configurationData, configurationStore);
 
             loadConfiguration(id, gbeanData);
             Configuration configuration = getConfiguration(id);
@@ -233,6 +226,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                 return;
             }
 
+            preprocess(gbeanData);
+
             try {
                 kernel.loadGBean(gbeanData, classLoader);
             } catch (Exception e) {
@@ -246,19 +241,6 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             ancestors.addFirst(configId);
 
             Environment environment = (Environment) kernel.getAttribute(name, "environment");
-            LinkedHashSet imports = environment.getImports();
-            for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
-                Artifact artifact = (Artifact) iterator.next();
-                if (!artifact.isResolved()) {
-                    if (artifactResolver == null) {
-                        throw new IllegalStateException("Parent artifact is not resolved, and no artifact resolver is available: " + artifact);
-                    }
-                    imports = artifactResolver.resolve(imports);
-                    environment.setImports(imports);
-                    break;
-                }
-            }
-
             for (Iterator iterator = environment.getImports().iterator(); iterator.hasNext();) {
                 Artifact parent = (Artifact) iterator.next();
                 if (!isLoaded(parent)) {
@@ -293,6 +275,48 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             }
         }
         throw new NoSuchConfigException("No configuration with id: " + configId);
+    }
+
+    private void preprocess(GBeanData gbeanData) throws MissingDependencyException, InvalidConfigException {
+        if (artifactManager != null) {
+            gbeanData.setAttribute("artifactManager", artifactManager);
+        }
+        if (artifactResolver != null) {
+            gbeanData.setAttribute("artifactResolver", artifactResolver);
+        }
+
+        Environment environment = (Environment) gbeanData.getAttribute("environment");
+
+        // resolve the parents
+        LinkedHashSet imports = environment.getImports();
+        imports = artifactResolver.resolve(imports);
+        environment.setImports(imports);
+
+        // resolve the references
+        LinkedHashSet references = environment.getReferences();
+        references = artifactResolver.resolve(references);
+        environment.setReferences(references);
+
+        // convert the parents and reference artifactIds to objectNames
+        LinkedHashSet importNames = new LinkedHashSet();
+        for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            ObjectName importName = Configuration.getConfigurationObjectName(artifact);
+            importNames.add(importName);
+        }
+        LinkedHashSet referenceNames = new LinkedHashSet();
+        for (Iterator iterator = references.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            ObjectName referenceName = Configuration.getConfigurationObjectName(artifact);
+            referenceNames.add(referenceName);
+        }
+
+        // add dependencies on the imports and references
+        gbeanData.getDependencies().addAll(importNames);
+        gbeanData.getDependencies().addAll(referenceNames);
+
+        // imports become the parents
+        gbeanData.setReferencePatterns("Parents", importNames);
     }
 
     private void registerGBeans(Configuration configuration) throws InvalidConfigException, NoSuchConfigException, MalformedURLException {
