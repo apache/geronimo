@@ -52,6 +52,8 @@ import org.apache.geronimo.javamail.authentication.PlainAuthenticator;
 import org.apache.geronimo.mail.util.Base64;
 import org.apache.geronimo.mail.util.XText;
 
+import org.apache.geronimo.javamail.util.MIMEOutputStream;
+
 /**
  * Simple implementation of SMTP transport.  Just does plain RFC821-ish
  * delivery.
@@ -1262,8 +1264,19 @@ public class SMTPTransport extends Transport {
 
         // now the data...  I could look at the type, but
         try {
-            msg.writeTo(outputStream);
-            outputStream.flush();
+            // the data content has two requirements we need to meet by filtering the
+            // output stream.  Requirement 1 is to conicalize any line breaks.  All line
+            // breaks will be transformed into properly formed CRLF sequences.
+            //
+            // Requirement 2 is to perform byte-stuff for any line that begins with a "."
+            // so that data is not confused with the end-of-data marker (a "\r\n.\r\n" sequence.
+            //
+            // The MIME output stream performs those two functions on behalf of the content
+            // writer.
+            OutputStream mimeOut = new MIMEOutputStream(outputStream);
+
+            msg.writeTo(mimeOut);
+            mimeOut.flush();
         } catch (IOException e) {
             throw new MessagingException(e.toString());
         } catch (MessagingException e) {
