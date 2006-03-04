@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright 2004 The Apache Software Foundation
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!-- $Rev$ $Date$ -->
+
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.apache.geronimo</groupId>
+    <artifactId>geronimo</artifactId>
+    <version>1.2-SNAPSHOT</version>
+  </parent>
+  <groupId>org.apache.geronimo</groupId>
+  <artifactId>geronimo-directory</artifactId>
+  <version>${geronimoVersion}</version>
+  <name>Geronimo :: Directory</name>
+  <!-- ============ -->
+  <!--    Build     -->
+  <!-- ============ -->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xmlbeans-maven-plugin</artifactId>
+        <version>${xmlbeansMavenPluginVersion}</version>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>xmlbeans</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>target/classes/schemaorg_apache_xmlbeans</outputDirectory>
+              <defaultXmlConfigDir>src/schema/xmlconfig.xml</defaultXmlConfigDir>
+              <verbose>true</verbose>
+              <sourceSchemas>directory.xsd</sourceSchemas>
+              <!--classGenerationDirectory>target/xmlbeans-classes</classGenerationDirectory-->
+              <schemaDirectory>src/schema</schemaDirectory>
+              <!--sourceGenerationDirectory>target/xmlbeans-classes/schemaorg_apache_xmlbeans</sourceGenerationDirectory-->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <tstamp />
+                <copy todir="target/var/" file="src/test-resources/directory.xml" />
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <!-- ============ -->
+  <!-- Dependencies -->
+  <!-- ============ -->
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-kernel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.geronimo</groupId>
+      <artifactId>geronimo-system</artifactId>
+    </dependency>
+    <!-- Third Party Jars -->
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-nodep</artifactId>
+      <version>${cglibVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>${commonsLoggingVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+      <version>${concurrentVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>mx4j</groupId>
+      <artifactId>mx4j</artifactId>
+      <version>${mx4jVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>regexp</groupId>
+      <artifactId>regexp</artifactId>
+      <version>${regexpVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-core</artifactId>
+      <version>${apachedsVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory</groupId>
+      <artifactId>apacheds-shared</artifactId>
+      <version>${apachedsVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-asn1</groupId>
+      <artifactId>asn1-codec</artifactId>
+      <version>${asn1Version}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-asn1</groupId>
+      <artifactId>asn1-ber</artifactId>
+      <version>${asn1Version}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-asn1</groupId>
+      <artifactId>asn1-der</artifactId>
+      <version>${asn1Version}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>apache-ldapber-provider</artifactId>
+      <version>${apachedsVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>ldap-common</artifactId>
+      <version>${apachedsVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-shared</groupId>
+      <artifactId>kerberos-common</artifactId>
+      <version>${kerberosCommonVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-network</groupId>
+      <artifactId>mina</artifactId>
+      <version>${minaVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>kerberos-protocol</artifactId>
+      <version>${kerberosProtocolVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>directory-protocols</groupId>
+      <artifactId>ldap-protocol</artifactId>
+      <version>${ldapProtocolVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>jdbm</groupId>
+      <artifactId>jdbm</artifactId>
+      <version>${jdbmVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>${oroVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>${commonsLangVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>${commonsCollectionsVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commonsIoVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-primitives</groupId>
+      <artifactId>commons-primitives</artifactId>
+      <version>${commonsPrimitivesVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>antlr</groupId>
+      <artifactId>antlr</artifactId>
+      <version>${antlrVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4jVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>xmlbeans-maven-plugin</artifactId>
+      <version>${xmlbeansMavenPluginVersion}</version>
+    </dependency>
+  </dependencies>
+</project>
