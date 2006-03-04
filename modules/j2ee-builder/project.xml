@@ -26,7 +26,7 @@
     <!-- Module Identification -->
     <!-- ===================== -->
 
-    <name>Geronimo :: J2EE</name>
+    <name>Geronimo :: J2EE :: Builder</name>
     <id>geronimo-j2ee-builder</id>
     <shortDescription>J2EE Deployment Services</shortDescription>
     <description>Geronimo Deployment J2EE Services</description>
