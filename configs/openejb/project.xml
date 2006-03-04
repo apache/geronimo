@@ -324,6 +324,12 @@
             <artifactId>commons-discovery</artifactId>
             <version>${commons_discovery_version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>activecluster</groupId>
+            <artifactId>activecluster</artifactId>
+            <version>${wadi_activecluster_version}</version>
+        </dependency>
     </dependencies>
 </project>
 
