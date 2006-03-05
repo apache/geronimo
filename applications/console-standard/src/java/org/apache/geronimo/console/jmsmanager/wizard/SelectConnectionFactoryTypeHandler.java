@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.console.jmsmanager.wizard;
 
+import org.apache.geronimo.console.MultiPageModel;
+
 import java.io.IOException;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -33,7 +35,8 @@ public class SelectConnectionFactoryTypeHandler extends AbstractHandler {
         super(SELECT_FACTORY_TYPE_MODE, "/WEB-INF/view/jmswizard/factoryType.jsp");
     }
 
-    public String actionBeforeView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         data.createIfNecessary();
         JMSProviderData provider = JMSProviderData.getProviderData(data.getRarURI(), request);
         if(data.getCurrentFactory().getTransaction() == null || data.getCurrentFactory().getTransaction().equals("")) {
@@ -47,12 +50,13 @@ public class SelectConnectionFactoryTypeHandler extends AbstractHandler {
         return getMode();
     }
 
-    public void renderView(RenderRequest request, RenderResponse response, JMSResourceData data) throws PortletException, IOException {
+    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         JMSProviderData provider = JMSProviderData.getProviderData(data.getRarURI(), request);
         request.setAttribute("provider", provider);
     }
 
-    public String actionAfterView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         return ADD_FACTORY_MODE+BEFORE_ACTION;
     }
 }

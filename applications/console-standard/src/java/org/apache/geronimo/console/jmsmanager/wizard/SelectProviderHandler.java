@@ -29,6 +29,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.console.MultiPageModel;
 
 /**
  * Handler for the screen where you select a JMS provider (because
@@ -43,15 +44,16 @@ public class SelectProviderHandler extends AbstractHandler {
         super(SELECT_PROVIDER_MODE, "/WEB-INF/view/jmswizard/provider.jsp");
     }
 
-    public String actionBeforeView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         return getMode();
     }
 
-    public void renderView(RenderRequest request, RenderResponse response, JMSResourceData data) throws PortletException, IOException {
+    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         loadRARList(request);
     }
 
-    public String actionAfterView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         String rar = request.getParameter(RAR_FILE_PARAMETER);
         if(isEmpty(rar)) {
             return SELECT_PROVIDER_MODE+BEFORE_ACTION;

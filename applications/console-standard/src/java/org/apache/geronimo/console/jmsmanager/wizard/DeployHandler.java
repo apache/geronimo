@@ -23,6 +23,7 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.console.MultiPageModel;
 
 /**
  * Can deploy a JMS resource into the server.  There currently no UI associated with this.
@@ -34,15 +35,16 @@ public class DeployHandler extends AbstractHandler {
         super(DEPLOY_MODE, null);
     }
 
-    public String actionBeforeView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         save(request, response, data, false);
         return LIST_MODE;
     }
 
-    public void renderView(RenderRequest request, RenderResponse response, JMSResourceData data) throws PortletException, IOException {
+    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
     }
 
-    public String actionAfterView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         return LIST_MODE;
     }
 }

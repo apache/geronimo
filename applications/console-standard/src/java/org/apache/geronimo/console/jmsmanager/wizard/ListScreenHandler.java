@@ -25,6 +25,7 @@ import org.apache.geronimo.management.geronimo.JCAAdminObject;
 import org.apache.geronimo.management.geronimo.JCAResource;
 import org.apache.geronimo.management.ResourceAdapter;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.console.MultiPageModel;
 
 import javax.portlet.*;
 import javax.management.ObjectName;
@@ -44,15 +45,16 @@ public class ListScreenHandler extends AbstractHandler {
         super(LIST_MODE, "/WEB-INF/view/jmswizard/list.jsp");
     }
 
-    public String actionBeforeView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
         return getMode();
     }
 
-    public void renderView(RenderRequest request, RenderResponse response, JMSResourceData data) throws PortletException, IOException {
+    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
         populateExistingList(request);
     }
 
-    public String actionAfterView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         String provider = request.getParameter(PROVIDER_PARAMETER);
         if(isEmpty(provider)) {
             return SELECT_PROVIDER_MODE+BEFORE_ACTION;

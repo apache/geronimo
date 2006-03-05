@@ -27,20 +27,20 @@ import javax.portlet.RenderResponse;
 import javax.portlet.RenderRequest;
 import javax.portlet.ActionRequest;
 import javax.portlet.WindowState;
+import javax.portlet.PortletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.console.BasePortlet;
+import org.apache.geronimo.console.MultiPagePortlet;
+import org.apache.geronimo.console.MultiPageModel;
 
 /**
  * A portlet that lets you configure and deploy JDBC connection pools.
  *
  * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
  */
-public class JMSResourcePortlet extends BasePortlet {
-    private final static Log log = LogFactory.getLog(JMSResourcePortlet.class);
-    private static final String MODE_KEY = "mode";
-    private Map helpers = new HashMap();
-
+public class JMSResourcePortlet extends MultiPagePortlet {
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
         addHelper(new ListScreenHandler(), config);
@@ -55,79 +55,7 @@ public class JMSResourcePortlet extends BasePortlet {
         addHelper(new ReviewHandler(), config);
     }
 
-    public void destroy() {
-        for (Iterator it = helpers.values().iterator(); it.hasNext();) {
-            AbstractHandler handler = (AbstractHandler) it.next();
-            handler.destroy();
-        }
-        helpers.clear();
-        super.destroy();
-    }
-
-    public void processAction(ActionRequest actionRequest,
-                              ActionResponse actionResponse) throws PortletException, IOException {
-        String mode = actionRequest.getParameter(MODE_KEY);
-        AbstractHandler.JMSResourceData data = new AbstractHandler.JMSResourceData(actionRequest);
-        while(true) {
-            if(mode == null) {
-                break;
-            }
-            int pos = mode.lastIndexOf('-');
-            if(pos == -1) { // Assume it's a render request
-                break;
-            } else {
-                String type = mode.substring(pos+1);
-                mode = mode.substring(0, pos);
-                AbstractHandler handler = (AbstractHandler) helpers.get(mode);
-                if(handler == null) {
-                    log.error("No handler for action mode '"+mode+"'");
-                    break;
-                }
-                log.debug("Using action handler '"+handler.getClass().getName()+"'");
-                if(type.equals("before")) {
-                    mode = handler.actionBeforeView(actionRequest, actionResponse, data);
-                } else if(type.equals("after")) {
-                    mode = handler.actionAfterView(actionRequest, actionResponse, data);
-                } else {
-                    log.error("Unrecognized portlet action '"+mode+"'");
-                    mode = null;
-                }
-            }
-        }
-        if(mode != null) {
-            actionResponse.setRenderParameter(MODE_KEY, mode);
-        }
-        data.save(actionResponse);
-    }
-
-    protected void doView(RenderRequest renderRequest, RenderResponse renderResponse) throws IOException, PortletException {
-        if (WindowState.MINIMIZED.equals(renderRequest.getWindowState())) {
-            return;
-        }
-        String mode = renderRequest.getParameter(MODE_KEY);
-        AbstractHandler.JMSResourceData data = new AbstractHandler.JMSResourceData(renderRequest);
-        if(mode == null || mode.equals("")) {
-            mode = "list";
-        }
-        AbstractHandler handler = (AbstractHandler) helpers.get(mode);
-        try {
-            if(handler == null) {
-                log.error("No handler for render mode '"+mode+"'");
-            } else {
-                log.debug("Using render handler '"+handler.getClass().getName()+"'");
-                handler.renderView(renderRequest, renderResponse, data);
-            }
-        } catch (Throwable e) {
-            log.error("Unable to render portlet", e);
-        }
-        renderRequest.setAttribute("data", data);
-        if(handler != null) {
-            handler.getView().include(renderRequest, renderResponse);
-        }
-    }
-
-    private void addHelper(AbstractHandler handler, PortletConfig config) throws PortletException {
-        handler.init(config);
-        helpers.put(handler.getMode(), handler);
+    protected MultiPageModel getModel(PortletRequest request) {
+        return new AbstractHandler.JMSResourceData(request);
     }
 }

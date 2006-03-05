@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Iterator;
 import java.net.URL;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.console.MultiPageAbstractHandler;
+import org.apache.geronimo.console.MultiPageModel;
 import org.apache.geronimo.deployment.tools.loader.ConnectorDeployable;
 import org.apache.geronimo.connector.deployment.jsr88.Connector15DCBRoot;
 import org.apache.geronimo.connector.deployment.jsr88.ConnectorDCB;
@@ -55,64 +57,8 @@ import org.apache.commons.logging.LogFactory;
  *
  * @version $Rev: 368994 $ $Date: 2006-01-14 02:07:18 -0500 (Sat, 14 Jan 2006) $
  */
-public abstract class AbstractHandler {
+public abstract class AbstractHandler extends MultiPageAbstractHandler {
     private final static Log log = LogFactory.getLog(AbstractHandler.class);
-    protected final static String BEFORE_ACTION="-before";
-    protected final static String AFTER_ACTION="-after";
-    protected PortletRequestDispatcher view;
-    private final String mode;
-    private final String viewName;
-
-    protected AbstractHandler(String mode, String viewName) {
-        this.mode = mode;
-        this.viewName = viewName;
-    }
-
-    public String getMode() {
-        return mode;
-    }
-
-    public void init(PortletConfig portletConfig) throws PortletException {
-        if(viewName != null) {
-            view = portletConfig.getPortletContext().getRequestDispatcher(viewName);
-        }
-    }
-
-    public void destroy() {
-        view = null;
-    }
-
-    public PortletRequestDispatcher getView() {
-        return view;
-    }
-
-    protected static boolean isEmpty(String s) {
-        return s == null || s.trim().equals("");
-    }
-
-    /**
-     * Returns the mode for the next screen to render (usually this one)
-     */
-    public abstract String actionBeforeView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException;
-
-    public abstract void renderView(RenderRequest request, RenderResponse response, JMSResourceData data) throws PortletException, IOException;
-
-    /**
-     * Returns the mode for the next screen to render (usually the one after this in the sequence)
-     */
-    public abstract String actionAfterView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException;
-
-
-    private static void waitForProgress(ProgressObject po) {
-        while(po.getDeploymentStatus().isRunning()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     // ********** This part specific to JMS portlets **********
 
     protected final static String LIST_MODE="list";
@@ -143,7 +89,11 @@ public abstract class AbstractHandler {
     protected final static String IDLE_TIME_PARAMETER="poolIdleTimeout";
     protected final static String BLOCK_TIME_PARAMETER="poolBlockingTimeout";
 
-    public static class JMSResourceData {
+    public AbstractHandler(String mode, String viewName) {
+        super(mode, viewName);
+    }
+
+    public static class JMSResourceData implements MultiPageModel {
         private String rarURI;
         private String dependency;
         private String instanceName;

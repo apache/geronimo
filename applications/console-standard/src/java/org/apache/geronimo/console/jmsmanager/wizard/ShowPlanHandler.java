@@ -23,6 +23,7 @@ import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import org.apache.geronimo.console.util.PortletManager;
+import org.apache.geronimo.console.MultiPageModel;
 
 /**
  * Handles the page that shows a deployment plan
@@ -34,13 +35,15 @@ public class ShowPlanHandler extends AbstractHandler {
         super(SHOW_PLAN_MODE, "/WEB-INF/view/jmswizard/plan.jsp");
     }
 
-    public String actionBeforeView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionBeforeView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         String plan = save(request, response, data, true);
         request.getPortletSession(true).setAttribute("deploymentPlan", plan);
         return getMode();
     }
 
-    public void renderView(RenderRequest request, RenderResponse response, JMSResourceData data) throws PortletException, IOException {
+    public void renderView(RenderRequest request, RenderResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         request.setAttribute("deploymentPlan", request.getPortletSession().getAttribute("deploymentPlan"));
         String path = PortletManager.getRepositoryEntry(request, data.getRarURI()).getPath();
         String base = PortletManager.getServerInfo(request).getCurrentBaseDirectory();
@@ -56,7 +59,8 @@ public class ShowPlanHandler extends AbstractHandler {
         request.setAttribute("rarURL", path);
     }
 
-    public String actionAfterView(ActionRequest request, ActionResponse response, JMSResourceData data) throws PortletException, IOException {
+    public String actionAfterView(ActionRequest request, ActionResponse response, MultiPageModel model) throws PortletException, IOException {
+        JMSResourceData data = (JMSResourceData) model;
         request.getPortletSession(true).removeAttribute("deploymentPlan");
         String next = request.getParameter("nextAction");
         if(next.equals(SELECT_DESTINATION_TYPE_MODE)) {
