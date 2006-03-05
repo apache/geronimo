@@ -28,14 +28,5 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-scripts</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Scripts</name>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-      </resource>
-    </resources>
-  </build>
 </project>

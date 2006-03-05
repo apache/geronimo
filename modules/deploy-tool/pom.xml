@@ -28,13 +28,7 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-deploy-tool</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Deploy :: CLI Tool</name>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-
   <dependencies>
 
     <dependency>

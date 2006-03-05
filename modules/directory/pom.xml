@@ -29,9 +29,6 @@
   <artifactId>geronimo-directory</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Directory</name>
-  <!-- ============ -->
-  <!--    Build     -->
-  <!-- ============ -->
   <build>
     <plugins>
       <plugin>
@@ -76,9 +73,6 @@
       </plugin>
     </plugins>
   </build>
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo</groupId>
@@ -212,11 +206,6 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${slf4jVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>xmlbeans-maven-plugin</artifactId>
-      <version>${xmlbeansMavenPluginVersion}</version>
     </dependency>
   </dependencies>
 </project>

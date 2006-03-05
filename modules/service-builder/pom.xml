@@ -28,19 +28,13 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-service-builder</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Service :: Builder</name>
-
   <build>
-    <testResources>
-      <testResource>
-        <directory>src/test-resources</directory>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
+        <version>${xmlbeansMavenPluginVersion}</version>
         <executions>
           <execution>
             <goals>
@@ -58,27 +52,15 @@
       </plugin>
     </plugins>
   </build>
-  
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
-    <!-- <dependency>
-      <groupId>xmlbeans</groupId>
-      <artifactId>xmlbeans-maven-plugin</artifactId>
-      <version>${xmlbeans_maven_plugin_version}</version>
-      <type>plugin</type>
-    </dependency> -->
-
-    <!-- needed for xmlbeans runtime-->
-    <!-- <dependency>
+    <dependency>
       <groupId>xmlbeans</groupId>
       <artifactId>xbean</artifactId>
-      <version>${xmlbeans_version}</version>
-    </dependency> -->
-
-    <!--  The following prevents xmlbeans-jsr173-api from being downloaded.
-      This is good, since it does not exist in the repos. Very hackish. -->
+    </dependency>
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>stax</groupId>
       <artifactId>stax</artifactId>
@@ -91,7 +73,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-kernel</artifactId>

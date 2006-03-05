@@ -28,15 +28,8 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-webservices</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Web Services</name>
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-
   <dependencies>
-    <!-- Module Dependencies -->
-
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-common</artifactId>
@@ -114,8 +107,6 @@
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jaxr_1.0_spec</artifactId>
     </dependency>
-
-
     <dependency>
       <groupId>scout</groupId>
       <artifactId>scout</artifactId>

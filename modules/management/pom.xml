@@ -28,14 +28,8 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-management</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Management API</name>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
-    <!-- Module Dependencies -->
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>

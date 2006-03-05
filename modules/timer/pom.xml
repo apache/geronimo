@@ -28,13 +28,7 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-timer</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Timer</name>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-
   <dependencies>
 
     <dependency>
@@ -96,16 +90,6 @@
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
     </dependency>
-
-    <!--
-      <dependency>
-      <groupId>commons-primitives</groupId>
-      <artifactId>commons-primitives</artifactId>
-      <version>${commons_primitives_version}</version>
-      </dependency>
-    -->
-
-
     <dependency>
       <groupId>concurrent</groupId>
       <artifactId>concurrent</artifactId>
@@ -115,16 +99,5 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-
-    <!-- needed for axion tests-->
-    <!--
-      <dependency>
-      <groupId>regexp</groupId>
-      <artifactId>regexp</artifactId>
-      <version>${regexp_version}</version>
-      <url>http://jakarta.apache.org/regexp</url>
-      </dependency>
-    -->
-
   </dependencies>
 </project>

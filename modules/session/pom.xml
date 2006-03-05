@@ -28,18 +28,12 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-session</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Session</name>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-
     <dependency>
       <groupId>backport-util-concurrent</groupId>
       <artifactId>backport-util-concurrent</artifactId>

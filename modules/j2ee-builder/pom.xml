@@ -39,6 +39,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
+        <version>${xmlbeansMavenPluginVersion}</version>
         <executions>
           <execution>
             <goals>
@@ -56,18 +57,15 @@
       </plugin>
     </plugins>
   </build>
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
-    <!-- needed for xmlbeans runtime-->
     <dependency>
       <groupId>xmlbeans</groupId>
       <artifactId>xbean</artifactId>
     </dependency>
-
-    <!--  The following prevents xmlbeans-jsr173-api from being downloaded.
-      This is good, since it does not exist in the repos. Very hackish. -->
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>stax</groupId>
       <artifactId>stax</artifactId>
@@ -80,7 +78,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-common</artifactId>
@@ -132,23 +129,18 @@
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jaxrpc_1.1_spec</artifactId>
     </dependency>
-
-    <!-- test only -->
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
     </dependency>
-
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
     </dependency>
-
     <dependency>
       <groupId>mx4j</groupId>
       <artifactId>mx4j</artifactId>

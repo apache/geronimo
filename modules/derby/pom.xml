@@ -28,13 +28,8 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-derby</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Derby</name>
   <description>Wrapper for using Apache Derby as a bundled database.</description>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo</groupId>

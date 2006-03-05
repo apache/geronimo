@@ -30,13 +30,7 @@
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
   <name>Geronimo :: System</name>
-
   <build>
-    <testResources>
-      <testResource>
-        <directory>src/test-data</directory>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -50,7 +44,7 @@
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <phase>process-resources</phase>
+            <phase>process-classes</phase>
             <configuration>
               <tasks>
                 <tstamp>

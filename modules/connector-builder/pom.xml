@@ -28,7 +28,6 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-connector-builder</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Connector :: Builder</name>
 
   <!--  Tests not migrated to m2 -->
@@ -36,15 +35,11 @@
     <maven.test.skip>true</maven.test.skip>
   </properties>
   <build>
-    <testResources>
-      <testResource>
-        <directory>src/test-resources</directory>
-      </testResource>
-    </testResources>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
+        <version>${xmlbeansMavenPluginVersion}</version>
         <executions>
           <execution>
             <goals>
@@ -67,18 +62,26 @@
   <!-- Dependencies -->
   <!-- ============ -->
   <dependencies>
-    <!-- needed for xmlbeans runtime-->
-    <!-- <dependency>
+    <dependency>
       <groupId>xmlbeans</groupId>
       <artifactId>xbean</artifactId>
-      <version>${xmlbeans_version}</version>
-    </dependency> -->
-
+    </dependency>
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>stax</groupId>
       <artifactId>stax</artifactId>
+      <version>1.1.1-dev</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>xmlbeans</groupId>
+          <artifactId>xmlbeans-jsr173-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-
     <!-- real stuff -->
     <dependency>
       <groupId>org.apache.geronimo</groupId>

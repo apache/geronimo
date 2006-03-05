@@ -28,10 +28,6 @@
   <artifactId>geronimo-converter</artifactId>
   <name>Geronimo :: Configuration Converter</name>
   <version>${geronimoVersion}</version>
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo</groupId>

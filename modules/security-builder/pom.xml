@@ -30,12 +30,12 @@
   <version>${geronimoVersion}</version>
   <packaging>jar</packaging>
   <name>Geronimo :: Security :: Builder</name>
-
   <build>
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xmlbeans-maven-plugin</artifactId>
+        <version>${xmlbeansMavenPluginVersion}</version>
         <executions>
           <execution>
             <goals>
@@ -53,19 +53,15 @@
       </plugin>
     </plugins>
   </build>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
-    <!-- needed for xmlbeans runtime-->
     <dependency>
       <groupId>xmlbeans</groupId>
       <artifactId>xbean</artifactId>
     </dependency>
-
-    <!--  The following prevents xmlbeans-jsr173-api from being downloaded.
-      This is good, since it does not exist in the repos. Very hackish. -->
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+    </dependency>
     <dependency>
       <groupId>stax</groupId>
       <artifactId>stax</artifactId>
@@ -78,7 +74,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-security</artifactId>

@@ -28,20 +28,12 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-spring</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: Spring</name>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
-
   <dependencies>
-    <!-- Module Dependencies -->
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-transaction</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.geronimo</groupId>
       <artifactId>geronimo-kernel</artifactId>

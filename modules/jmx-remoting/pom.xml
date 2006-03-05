@@ -28,13 +28,8 @@
   <groupId>org.apache.geronimo</groupId>
   <artifactId>geronimo-jmxremoting</artifactId>
   <version>${geronimoVersion}</version>
-  <packaging>jar</packaging>
   <name>Geronimo :: JMX Remoting</name>
   <description>Provides remote access to a Geronimo server using JSR 160 JMX Remoting</description>
-
-  <!-- ============ -->
-  <!-- Dependencies -->
-  <!-- ============ -->
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo</groupId>
