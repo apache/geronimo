@@ -695,6 +695,12 @@
       <url>http://cvs.apache.org/repository</url>
       <layout>legacy</layout>
     </repository>
+    <repository>
+      <id>maven1</id>
+      <name>Maven1 Repository on iBiblio</name>
+      <url>http://www.ibiblio.org/maven/</url>
+      <layout>legacy</layout>
+    </repository>
   </repositories>
 
   <pluginRepositories>
