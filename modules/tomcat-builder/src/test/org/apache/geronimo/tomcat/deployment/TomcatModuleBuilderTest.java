@@ -217,6 +217,7 @@ public class TomcatModuleBuilderTest extends TestCase {
 
         //what is this testing?
         configuration = configurationManager.loadConfiguration(earContext.getConfigurationData(), configurationStore);
+        configurationManager.startConfiguration(configuration);
         configurationManager.stopConfiguration(configuration);
         configurationManager.unloadConfiguration(configuration);
     }

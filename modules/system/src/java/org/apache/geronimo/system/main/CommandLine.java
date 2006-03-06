@@ -110,11 +110,8 @@ public class CommandLine {
         try {
             for (Iterator i = configurations.iterator(); i.hasNext();) {
                 Artifact configID = (Artifact) i.next();
-                List list = configurationManager.loadConfiguration(configID);
-                for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    Artifact name = (Artifact) iterator.next();
-                    configurationManager.startConfiguration(name);
-                }
+                configurationManager.loadConfiguration(configID);
+                configurationManager.startConfiguration(configID);
             }
         } finally {
             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

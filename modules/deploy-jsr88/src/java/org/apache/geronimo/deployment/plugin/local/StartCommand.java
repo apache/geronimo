@@ -67,11 +67,12 @@ public class StartCommand extends CommandSupport {
                     }
 
                     // Load and start the module
-                    List list = configurationManager.loadConfiguration(moduleID);
-                    for (int j = 0; j < list.size(); j++) {
-                        Artifact name = (Artifact) list.get(j);
-                        configurationManager.startConfiguration(name);
-                        String configName = name.toString();
+                    Configuration configuration = configurationManager.loadConfiguration(moduleID);
+                    // todo review this -- start is recursive, but this is doing more than a recursive start
+//                    for (int j = 0; j < list.size(); j++) {
+//                        Artifact name = (Artifact) list.get(j);
+                        configurationManager.startConfiguration(configuration);
+                        String configName = configuration.getObjectName();
                         List kids = loadChildren(kernel, configName);
                         TargetModuleIDImpl id = new TargetModuleIDImpl(modules[i].getTarget(), configName,
                                 (String[]) kids.toArray(new String[kids.size()]));
@@ -87,7 +88,7 @@ public class StartCommand extends CommandSupport {
                             }
                         }
                         addModule(id);
-                    }
+//                    }
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

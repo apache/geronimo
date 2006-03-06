@@ -59,7 +59,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
@@ -80,8 +80,7 @@ public class DeploymentContext {
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
-    private final List loadedAncestors = new ArrayList();
-    private final List startedAncestors = new ArrayList();
+    private final List loadedConfigurations = new ArrayList();
     private final List childConfigurationDatas = new ArrayList();
 
 
@@ -448,59 +447,25 @@ public class DeploymentContext {
         if (kernel != null && parentId != null && parentId.size() > 0) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
-                loadAncestors(kernel, parentId, loadedAncestors, configurationManager);
-//                ParentSource parentSource = new ConfigurationParentSource(kernel);
-//                parentId = getExtremalSet(parentId, parentSource);
-//                environment.setImports(parentId);
-
-                try {
-                    for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
-                        Artifact artifact = (Artifact) iterator.next();
-                        List started = new ArrayList();
-                        startAncestors(artifact, kernel, started, configurationManager);
-                        startedAncestors.addAll(started);
-                    }
-                } catch (DeploymentException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new DeploymentException(e);
-                }
+                loadConfigurations(parentId, configurationManager);
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }
         }
     }
 
-    private void loadAncestors(Kernel kernel, Collection parentId, List loadedAncestors, ConfigurationManager configurationManager) throws DeploymentException {
-        if (kernel != null && parentId != null) {
+    private void loadConfigurations(Collection configurations, ConfigurationManager configurationManager) throws DeploymentException {
+        if (configurationManager != null && configurations != null) {
             try {
-                for (Iterator iterator = parentId.iterator(); iterator.hasNext();) {
+                for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
                     Artifact artifact = (Artifact) iterator.next();
-                    List newAncestors = configurationManager.loadConfiguration(artifact);
-                    loadedAncestors.addAll(newAncestors);
+                    configurationManager.loadConfiguration(artifact);
+                    loadedConfigurations.add(artifact);
                 }
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
             }
         }
-    }
-
-    private void startAncestors(Artifact configID, Kernel kernel, List started, ConfigurationManager configurationManager) throws Exception {
-        if (configID != null) {
-            ObjectName configName = Configuration.getConfigurationObjectName(configID);
-            if (!isRunning(kernel, configName)) {
-                LinkedHashSet patterns = ((Environment) kernel.getAttribute(configName, "environment")).getImports();
-                for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
-                    Artifact pattern = (Artifact) iterator.next();
-                    startAncestors(pattern, kernel, started, configurationManager);
-                }
-                started.add(configID);
-            }
-        }
-    }
-
-    private static boolean isRunning(Kernel kernel, ObjectName name) throws Exception {
-        return State.RUNNING_INDEX == kernel.getGBeanState(name);
     }
 
     public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
@@ -590,7 +555,7 @@ public class DeploymentContext {
         if (kernel != null) {
             ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
             try {
-                startedAncestors.clear();
+//                startedAncestors.clear();
                 //TODO configid WE NEED REFERENCE COUNTING ON THIS STUFF!!!
                 //right now it is impossible to deploy 2 app clients in an ear. 
 //                Collections.reverse(loadedAncestors);
@@ -606,7 +571,14 @@ public class DeploymentContext {
                     }
                 }
 */
-                loadedAncestors.clear();
+                for (Iterator iterator = loadedConfigurations.iterator(); iterator.hasNext();) {
+                    Artifact artifact = (Artifact) iterator.next();
+                    try {
+                        configurationManager.unloadConfiguration(artifact);
+                    } catch (NoSuchConfigException ignored) {
+                    }
+                }
+                loadedConfigurations.clear();
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
             }

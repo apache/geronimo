@@ -264,8 +264,8 @@ public class ConfigurationDump {
         loadRecursive(kernel, configurationStore, configID, ancestors, preloaded);
 
         for (Iterator iterator = ancestors.iterator(); iterator.hasNext();) {
-            URI name = (URI) iterator.next();
-            ObjectName configName = Configuration.getConfigurationObjectName(name);
+            Artifact id = (Artifact) iterator.next();
+            ObjectName configName = Configuration.getConfigurationObjectName(id);
             kernel.startGBean(configName);
         }
     }

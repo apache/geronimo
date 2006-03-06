@@ -34,7 +34,6 @@ import javax.management.ObjectName;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.List;
 
 /**
  * @version $Rev$ $Date$
@@ -107,12 +106,9 @@ public class RedeployCommand extends AbstractDeployCommand {
                     doDeploy(module.getTarget(), false);
                     updateStatus("Deployed "+configID);
 
-                    List list = configurationManager.loadConfiguration(configID);
-                    for (int j = 0; j < list.size(); j++) {
-                        Artifact name = (Artifact) list.get(j);
-                        configurationManager.startConfiguration(name);
-                        updateStatus("Started " + name);
-                    }
+                    configurationManager.loadConfiguration(configID);
+                    configurationManager.startConfiguration(configID);
+                    updateStatus("Started " + configID);
                 }
             } finally {
                 ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

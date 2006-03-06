@@ -61,7 +61,7 @@ public interface ConfigurationManager {
      * @throws IOException if there is a problem loading te configuration from the store
      * @throws InvalidConfigException if the configuration is corrupt
      */
-    List loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
+    Configuration loadConfiguration(Artifact configID) throws NoSuchConfigException, IOException, InvalidConfigException;
 
     Configuration loadConfiguration(ConfigurationData configurationData) throws NoSuchConfigException, IOException, InvalidConfigException;
 

@@ -95,6 +95,9 @@ import java.util.Set;
 public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
 
+    /**
+     * @deprecated Use artifact version of this method
+     */
     public static ObjectName getConfigurationObjectName(URI configId) throws MalformedObjectNameException {
         return new ObjectName("geronimo.config:name=" + ObjectName.quote(configId.toString()));
     }
@@ -274,11 +277,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 } finally {
                     ois.close();
                 }
-
-                // todo consider applying updates from attribute store
-                // if (attributeStore != null) {
-                //    gbeans = attributeStore.setAttributes(environment.getConfigId(), gbeans, configurationClassLoader);
-                //}
             } catch (Exception e) {
                 throw new InvalidConfigException("Unable to deserialize GBeanState", e);
             } finally {

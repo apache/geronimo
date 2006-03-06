@@ -85,6 +85,8 @@ public final class ConfigurationUtil {
             }
         }
 
+        ConfigurationManager configurationManager = getConfigurationManager(kernel);
+        configurationManager.loadConfiguration(configId);
         return configurationName;
     }
 

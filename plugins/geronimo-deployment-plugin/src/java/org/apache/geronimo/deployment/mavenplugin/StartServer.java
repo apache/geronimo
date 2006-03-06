@@ -105,12 +105,9 @@ public class StartServer {
         try {
             for (Iterator i = configList.iterator(); i.hasNext();) {
                 Artifact configID = (Artifact) i.next();
-                List list = configurationManager.loadConfiguration(configID);
-                for (Iterator iterator = list.iterator(); iterator.hasNext();) {
-                    Artifact name = (Artifact) iterator.next();
-                    configurationManager.startConfiguration(name);
-                    System.out.println("started gbean: " + name);
-                }
+                configurationManager.loadConfiguration(configID);
+                configurationManager.startConfiguration(configID);
+                System.out.println("started gbean: " + configID);
             }
         } finally {
             ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);

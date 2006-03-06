@@ -101,11 +101,8 @@ public class ConfigManagerPortlet extends BasePortlet {
             Artifact configID = Artifact.create(config);
 
             if (START_ACTION.equals(action)) {
-                List ancestors = configurationManager.loadConfiguration(configID);
-                for (Iterator it = ancestors.iterator(); it.hasNext();) {
-                    Artifact ancestor = (Artifact) it.next();
-                    configurationManager.startConfiguration(ancestor);
-                }
+                configurationManager.loadConfiguration(configID);
+                configurationManager.startConfiguration(configID);
                 messageStatus = "Started application<br /><br />";
             } else if (STOP_ACTION.equals(action)) {
                 configurationManager.stopConfiguration(configID);

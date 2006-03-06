@@ -33,7 +33,7 @@ public class GeronimoLogging {
     public static final GeronimoLogging FATAL = new GeronimoLogging("FATAL");
 
     private static boolean initialized = false;
-    private static GeronimoLogging consoleLogLevel;
+    private static GeronimoLogging consoleLogLevel = ERROR;
     private static GeronimoLogging defaultLevel;
 
     /**

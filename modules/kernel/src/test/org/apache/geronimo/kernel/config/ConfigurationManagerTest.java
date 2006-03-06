@@ -53,13 +53,14 @@ public class ConfigurationManagerTest extends TestCase {
     private Artifact artifact2;
     private Artifact artifact3;
     private Map configurations = new HashMap();
-    private ConfigurationManagerImpl configurationManager;
+    private ConfigurationManager configurationManager;
 
     public void test() throws Exception {
-        List list = configurationManager.loadConfiguration(artifact3);
-        assertTrue(list.contains(artifact3));
-        assertTrue(list.contains(artifact2));
-        assertTrue(list.contains(artifact1));
+        Configuration configuration = configurationManager.loadConfiguration(artifact3);
+        assertEquals(artifact3, configuration.getId());
+        assertTrue(configurationManager.isLoaded(artifact3));
+        assertTrue(configurationManager.isLoaded(artifact2));
+        assertTrue(configurationManager.isLoaded(artifact1));
         assertTrue(kernel.isLoaded(Configuration.getConfigurationObjectName(artifact3))) ;
         assertTrue(kernel.isLoaded(Configuration.getConfigurationObjectName(artifact2))) ;
         assertTrue(kernel.isLoaded(Configuration.getConfigurationObjectName(artifact1))) ;
