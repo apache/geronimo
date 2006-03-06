@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.kernel.proxy;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 
@@ -62,6 +64,7 @@ public interface ProxyManager {
      * @return the proxy, or null if the GBeanInfo declares no interfaces
      */
     public Object createProxy(ObjectName target, ClassLoader loader);
+    public Object createProxy(AbstractName target, ClassLoader loader);
 
     /**
      * Create proxies for the specified targets.  The proxies will implement
@@ -87,6 +90,7 @@ public interface ProxyManager {
      * @return the proxy
      */
     public Object createProxy(ObjectName target, Class type);
+    public Object createProxy(AbstractName target, Class type);
 
     /**
      * Cleans up and resources associated with the proxy
@@ -103,6 +107,7 @@ public interface ProxyManager {
 
     /**
      * Get the object name of the specified proxy
+     * TODO convert to abstractName
      * @param proxy the proxy to get the target object name from
      * @return the object name of the target
      */

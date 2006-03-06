@@ -35,14 +35,13 @@ import org.activeio.packet.ByteArrayPacket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
-import org.apache.geronimo.system.serverinfo.BasicServerInfo;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
-import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
@@ -51,7 +50,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
-import java.util.Collections;
 import java.util.Properties;
 
 
@@ -62,9 +60,8 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
 
     final static private Log log = LogFactory.getLog(SubjectCarryingProtocolTest.class);
 
-    protected ObjectName serverInfo;
-    protected ObjectName testCE;
-    protected ObjectName testRealm;
+    protected AbstractName testCE;
+    protected AbstractName testRealm;
 
     private Subject clientSubject;
     private Subject serverSubject;
@@ -111,18 +108,13 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
 
 
     public void setUp() throws Exception {
+        needServerInfo = true;
         super.setUp();
 
         GBeanData gbean;
 
-        serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
-        gbean = new GBeanData(serverInfo, BasicServerInfo.GBEAN_INFO);
-        gbean.setAttribute("baseDirectory", ".");
-        kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
-        kernel.startGBean(serverInfo);
-
-        testCE = new ObjectName("geronimo.security:type=LoginModule,name=properties");
-        gbean = new GBeanData(testCE, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData    ("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
@@ -132,20 +124,17 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         gbean.setAttribute("loginDomainName", "PropertiesDomain");
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        ObjectName testUseName = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
-        gbean = new GBeanData(testUseName, JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", testCE);
+        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testCE));
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
-        gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-//        props = new Properties();
-//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
-//        gbean.setAttribute("loginModuleConfiguration", props);
-        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
-        gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
+        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName));
+        gbean.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfo));
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(testCE);

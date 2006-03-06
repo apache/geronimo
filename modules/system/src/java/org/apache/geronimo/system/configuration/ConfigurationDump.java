@@ -18,6 +18,9 @@ package org.apache.geronimo.system.configuration;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -41,6 +44,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
 
 /**
  * @version $Rev$ $Date$
@@ -51,6 +55,7 @@ public class ConfigurationDump {
         GeronimoLogging.initialize(GeronimoLogging.WARN);
         LogFactory.getLog(ConfigurationDump.class.getName());
     }
+
     private static ClassLoader classLoader = ConfigurationDump.class.getClassLoader();
 
     public static void main(String[] args) throws Exception {
@@ -63,15 +68,13 @@ public class ConfigurationDump {
 
         PrintWriter out = new PrintWriter(System.out, true);
         try {
-            ObjectName serverInfoName = new ObjectName("configdump:name=ServerInfo");
-            GBeanData serverInfoData = new GBeanData(serverInfoName, BasicServerInfo.GBEAN_INFO);
+            GBeanData serverInfoData = buildGBeanData("name", "ServerInfo", BasicServerInfo.GBEAN_INFO);
             startGBean(kernel, serverInfoData);
 
             // add the repositories
-            ObjectName geronimoRepositoryName = new ObjectName("configdump:name=Repository,type=Geronimo");
-            GBeanData geronimoRepositoryData = new GBeanData(geronimoRepositoryName, Maven2Repository.GBEAN_INFO);
+            GBeanData geronimoRepositoryData = buildGBeanData("name", "Repository", Maven2Repository.GBEAN_INFO);
             geronimoRepositoryData.setAttribute("root", URI.create("repository"));
-            geronimoRepositoryData.setReferencePattern("ServerInfo", serverInfoName);
+            geronimoRepositoryData.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfoData.getAbstractName()));
             startGBean(kernel, geronimoRepositoryData);
 
             String mavenLocalRepo = System.getProperty("maven.repo.local");
@@ -82,20 +85,20 @@ public class ConfigurationDump {
                 mavenRepositoryDir = new File(System.getProperty("user.home"), ".maven");
                 mavenRepositoryDir = new File(mavenRepositoryDir, "repository");
             }
-            ObjectName mavenRepositoryName = new ObjectName("configdump:name=Repository,type=Maven");
+
+            GBeanData configStoreData = buildGBeanData("name", "ConfigStore", RepositoryConfigurationStore.GBEAN_INFO);
+
             if (mavenRepositoryDir.isDirectory()) {
-                GBeanData mavenRepositoryData = new GBeanData(mavenRepositoryName, Maven2Repository.GBEAN_INFO);
+                GBeanData mavenRepositoryData = buildGBeanData("name", "MavenRepository", Maven2Repository.GBEAN_INFO);
                 mavenRepositoryData.setAttribute("root", mavenRepositoryDir.getAbsoluteFile().toURI());
-                mavenRepositoryData.setReferencePattern("ServerInfo", serverInfoName);
+                mavenRepositoryData.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfoData.getAbstractName()));
                 startGBean(kernel, mavenRepositoryData);
+                configStoreData.setReferencePattern("Repository", new AbstractNameQuery(mavenRepositoryData.getAbstractName()));
             }
 
-            ObjectName configStoreName = new ObjectName("configdump:name=ConfigStore");
-            GBeanData configStoreData = new GBeanData(configStoreName, RepositoryConfigurationStore.GBEAN_INFO);
-            configStoreData.setReferencePattern("Repository", mavenRepositoryName);
             startGBean(kernel, configStoreData);
 
-            ConfigurationStore configurationStore = (ConfigurationStore) kernel.getProxyManager().createProxy(configStoreName, classLoader);
+            ConfigurationStore configurationStore = (ConfigurationStore) kernel.getProxyManager().createProxy(configStoreData.getAbstractName(), classLoader);
             List configurationInfos = configurationStore.listConfigurations();
             for (Iterator iterator = configurationInfos.iterator(); iterator.hasNext();) {
                 ConfigurationInfo configurationInfo = (ConfigurationInfo) iterator.next();
@@ -109,6 +112,17 @@ public class ConfigurationDump {
             // shutdown the kernel
             kernel.shutdown();
         }
+    }
+
+    private static GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        AbstractName abstractName = buildAbstractName(key, value, info);
+        return new GBeanData(abstractName, info);
+    }
+
+    private static AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        Map names = new HashMap();
+        names.put(key, value);
+        return new AbstractName(new Artifact("geronimo", "configdump", "1", "car"), names, info.getInterfaces(), new ObjectName("geronimo.configdump:" + key + "=" + value));
     }
 
     private static void startGBean(Kernel kernel, GBeanData gbeanData) throws Exception {
@@ -126,7 +140,7 @@ public class ConfigurationDump {
         out.println("==================================================");
 
         loadRecursive(kernel, configurationStore, id);
-        ObjectName name = null;
+        ObjectName name;
         name = Configuration.getConfigurationObjectName(id);
         out.println("objectName: " + name);
 
@@ -191,7 +205,7 @@ public class ConfigurationDump {
         String[] nonOverridableClasses = (String[]) config.getAttribute("nonOverridableClasses");
         if (nonOverridableClasses != null && nonOverridableClasses.length > 0) {
             out.println("nonOverridableClasses: ");
-            for (int i = 0; i < hiddenClasses.length; i++) {
+            for (int i = 0; i < nonOverridableClasses.length; i++) {
                 String nonOverridableClass = nonOverridableClasses[i];
                 out.println("  " + nonOverridableClass);
             }
@@ -227,7 +241,7 @@ public class ConfigurationDump {
                 out.println("attributes: none");
             }
             Map references = gbeanData.getReferences();
-            if (references != null && !attributes.isEmpty()) {
+            if (references != null && !references.isEmpty()) {
                 out.println("references: ");
                 for (Iterator referenceIterator = references.entrySet().iterator(); referenceIterator.hasNext();) {
                     Map.Entry entry = (Map.Entry) referenceIterator.next();
@@ -250,6 +264,7 @@ public class ConfigurationDump {
     }
 
     private static final ObjectName CONFIGURATION_NAME_QUERY;
+
     static {
         try {
             CONFIGURATION_NAME_QUERY = new ObjectName("geronimo.config:*");

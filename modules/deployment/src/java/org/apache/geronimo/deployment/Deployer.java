@@ -24,6 +24,8 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -106,7 +108,7 @@ public class Deployer {
         } finally {
             if (tmpDir != null) {
                 if (!DeploymentUtil.recursiveDelete(tmpDir)) {
-                    pendingDeletionIndex.setProperty(tmpDir.getName(), new String("delete"));
+                    pendingDeletionIndex.setProperty(tmpDir.getName(), "delete");
                 }
             }
         }
@@ -124,18 +126,18 @@ public class Deployer {
      */
     public String getRemoteDeployUploadURL() {
         // Get the token GBean from the remote deployment configuration
-        Set set = kernel.listGBeans(new GBeanQuery(null, "org.apache.geronimo.deployment.remote.RemoteDeployToken"));
+        Set set = kernel.listGBeans(new AbstractNameQuery("org.apache.geronimo.deployment.remote.RemoteDeployToken"));
         if(set.size() == 0) {
             return null;
         }
-        ObjectName token = (ObjectName) set.iterator().next();
+        AbstractName token = (AbstractName) set.iterator().next();
         // Identify the parent configuration for that GBean
         set = kernel.getDependencyManager().getParents(token);
         ObjectName config = null;
         for (Iterator it = set.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            if(Configuration.isConfigurationObjectName(name)) {
-                config = name;
+            AbstractName name = (AbstractName) it.next();
+            if(Configuration.isConfigurationObjectName(name.getObjectName())) {
+                config = name.getObjectName();
                 break;
             }
         }
@@ -145,12 +147,12 @@ public class Deployer {
         }
         // Generate the URL based on the remote deployment configuration
         Hashtable hash = new Hashtable();
-        hash.put("J2EEApplication", token.getKeyProperty("J2EEApplication"));
-        hash.put("J2EEServer", token.getKeyProperty("J2EEServer"));
+        hash.put("J2EEApplication", token.getObjectName().getKeyProperty("J2EEApplication"));
+        hash.put("J2EEServer", token.getObjectName().getKeyProperty("J2EEServer"));
         hash.put("j2eeType", "WebModule");
         try {
             hash.put("name", Configuration.getConfigurationID(config).toString());
-            ObjectName module = new ObjectName(token.getDomain(), hash);
+            ObjectName module = new ObjectName(token.getObjectName().getDomain(), hash);
 
             String containerName = (String) kernel.getAttribute(module, "containerName");
             String contextPath = (String) kernel.getAttribute(module, "contextPath");
@@ -183,7 +185,7 @@ public class Deployer {
                         String url = (String) kernel.getAttribute(cncName, "connectUrl");
                         map.put(protocol, url);
                     }
-                    String urlPrefix = null;
+                    String urlPrefix;
                     if((urlPrefix = (String) map.get("HTTP")) == null) {
                         urlPrefix = (String) map.get("HTTPS");
                     }
@@ -324,7 +326,7 @@ public class Deployer {
     private void cleanupConfigurationDirs(ConfigurationData configurationData) {
         File configurationDir = configurationData.getConfigurationDir();
         if (!DeploymentUtil.recursiveDelete(configurationDir)) {
-            pendingDeletionIndex.setProperty(configurationDir.getName(), new String("delete"));
+            pendingDeletionIndex.setProperty(configurationDir.getName(), "delete");
             log.debug("Queued deployment directory to be reaped " + configurationDir);
         }
         for (Iterator iterator = configurationData.getChildConfigurations().iterator(); iterator.hasNext();) {

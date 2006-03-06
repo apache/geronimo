@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +30,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -38,19 +39,17 @@ import org.apache.geronimo.gbean.runtime.LifecycleBroadcaster;
 public class BasicLifecycleMonitor implements LifecycleMonitor {
     private static final Log log = LogFactory.getLog(BasicLifecycleMonitor.class);
 
-    private final Kernel kernel;
 
     // todo we should only hold weak references to the listeners
     private final Map boundListeners = new HashMap();
     private final Map listenerPatterns = new HashMap();
 
     public BasicLifecycleMonitor(Kernel kernel) {
-        this.kernel = kernel;
 
         // register for state change notifications with all mbeans that match the target patterns
-        Set names = this.kernel.listGBeans((ObjectName)null);
+        Set names = kernel.listGBeans((AbstractNameQuery)null);
         for (Iterator objectNameIterator = names.iterator(); objectNameIterator.hasNext();) {
-            addSource((ObjectName) objectNameIterator.next());
+            addSource((AbstractName) objectNameIterator.next());
         }
     }
 
@@ -59,7 +58,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         listenerPatterns.clear();
     }
 
-    private synchronized void addSource(ObjectName source) {
+    private synchronized void addSource(AbstractName source) {
         if (boundListeners.containsKey(source)) {
             // already registered
             return;
@@ -71,8 +70,8 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
             Map.Entry entry = (Map.Entry) listenerIterator.next();
             Set patterns = (Set) entry.getValue();
             for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
-                ObjectName pattern = (ObjectName) patternIterator.next();
-                if (pattern.apply(source)) {
+                AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
+                if (pattern.matches(source)) {
                     LifecycleListener listener = (LifecycleListener) entry.getKey();
                     listeners.add(listener);
                 }
@@ -82,21 +81,21 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         boundListeners.put(source, listeners);
     }
 
-    private synchronized void removeSource(ObjectName source) {
+    private synchronized void removeSource(AbstractName source) {
         boundListeners.remove(source);
     }
 
-    public synchronized void addLifecycleListener(LifecycleListener listener, ObjectName pattern) {
+    public synchronized void addLifecycleListener(LifecycleListener listener, AbstractNameQuery pattern) {
         addLifecycleListener(listener, Collections.singleton(pattern));
     }
 
     public synchronized void addLifecycleListener(LifecycleListener listener, Set patterns) {
         for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
-            ObjectName pattern = (ObjectName) patternIterator.next();
+            AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
             for (Iterator iterator = boundListeners.entrySet().iterator(); iterator.hasNext();) {
                 Map.Entry entry = (Map.Entry) iterator.next();
-                ObjectName source = (ObjectName) entry.getKey();
-                if (pattern.apply(source)) {
+                AbstractName source = (AbstractName) entry.getKey();
+                if (pattern.matches(source)) {
                     Set listeners = (Set) entry.getValue();
                     listeners.add(listener);
                 }
@@ -113,7 +112,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         listenerPatterns.remove(listener);
     }
 
-    private synchronized Set getTargets(ObjectName source) {
+    private synchronized Set getTargets(AbstractName source) {
         Set targets = (Set) boundListeners.get(source);
         if (targets == null) {
             // no one is interested in this event
@@ -123,19 +122,19 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireLoadedEvent(ObjectName objectName) {
-        Set targets = getTargets(objectName);
+    private void fireLoadedEvent(AbstractName refInfoName) {
+        Set targets = getTargets(refInfoName);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
             try {
-                listener.loaded(objectName);
+                listener.loaded(refInfoName);
             } catch (Throwable e) {
                 log.warn("Exception occured while notifying listener", e);
             }
         }
     }
 
-    private void fireStartingEvent(ObjectName source) {
+    private void fireStartingEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -147,7 +146,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireRunningEvent(ObjectName source) {
+    private void fireRunningEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -159,7 +158,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireStoppingEvent(ObjectName source) {
+    private void fireStoppingEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -171,7 +170,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireStoppedEvent(ObjectName source) {
+    private void fireStoppedEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -183,7 +182,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireFailedEvent(ObjectName source) {
+    private void fireFailedEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -195,7 +194,7 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    private void fireUnloadedEvent(ObjectName source) {
+    private void fireUnloadedEvent(AbstractName source) {
         Set targets = getTargets(source);
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
             LifecycleListener listener = (LifecycleListener) iterator.next();
@@ -207,45 +206,47 @@ public class BasicLifecycleMonitor implements LifecycleMonitor {
         }
     }
 
-    public LifecycleBroadcaster createLifecycleBroadcaster(ObjectName objectName) {
-        return new RawLifecycleBroadcaster(objectName);
+    public LifecycleBroadcaster createLifecycleBroadcaster(AbstractName abstractName) {
+        return new RawLifecycleBroadcaster(abstractName);
     }
 
     private class RawLifecycleBroadcaster implements LifecycleBroadcaster {
-        private final ObjectName objectName;
+        private final AbstractName abstractName;
 
-        public RawLifecycleBroadcaster(ObjectName objectName) {
-            this.objectName = objectName;
+        public RawLifecycleBroadcaster(AbstractName abstractName) {
+            this.abstractName = abstractName;
         }
 
         public void fireLoadedEvent() {
-            addSource(objectName);
-            BasicLifecycleMonitor.this.fireLoadedEvent(objectName);
+            addSource(abstractName);
+            BasicLifecycleMonitor.this.fireLoadedEvent(abstractName);
         }
 
         public void fireStartingEvent() {
-            BasicLifecycleMonitor.this.fireStartingEvent(objectName);
+            BasicLifecycleMonitor.this.fireStartingEvent(abstractName);
         }
 
         public void fireRunningEvent() {
-            BasicLifecycleMonitor.this.fireRunningEvent(objectName);
+            BasicLifecycleMonitor.this.fireRunningEvent(abstractName);
         }
 
         public void fireStoppingEvent() {
-            BasicLifecycleMonitor.this.fireStoppingEvent(objectName);
+            BasicLifecycleMonitor.this.fireStoppingEvent(abstractName);
         }
 
         public void fireStoppedEvent() {
-            BasicLifecycleMonitor.this.fireStoppedEvent(objectName);
+            BasicLifecycleMonitor.this.fireStoppedEvent(abstractName);
         }
 
         public void fireFailedEvent() {
-            BasicLifecycleMonitor.this.fireFailedEvent(objectName);
+            BasicLifecycleMonitor.this.fireFailedEvent(abstractName);
         }
 
         public void fireUnloadedEvent() {
-            BasicLifecycleMonitor.this.fireUnloadedEvent(objectName);
-            removeSource(objectName);
+            BasicLifecycleMonitor.this.fireUnloadedEvent(abstractName);
+            removeSource(abstractName);
         }
     }
+
+
 }

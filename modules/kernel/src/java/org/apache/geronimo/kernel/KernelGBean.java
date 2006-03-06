@@ -24,6 +24,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 
@@ -69,7 +71,15 @@ public class KernelGBean implements Kernel{
         kernel.startGBean(name);
     }
 
+    public void startGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        kernel.startGBean(name);
+    }
+
     public void startRecursiveGBean(ObjectName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        kernel.startRecursiveGBean(name);
+    }
+
+    public void startRecursiveGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         kernel.startRecursiveGBean(name);
     }
 
@@ -77,7 +87,15 @@ public class KernelGBean implements Kernel{
         kernel.stopGBean(name);
     }
 
+    public void stopGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
+        kernel.stopGBean(name);
+    }
+
     public void unloadGBean(ObjectName name) throws GBeanNotFoundException {
+        kernel.unloadGBean(name);
+    }
+
+    public void unloadGBean(AbstractName name) throws GBeanNotFoundException, InternalKernelException, IllegalStateException {
         kernel.unloadGBean(name);
     }
 
@@ -85,7 +103,15 @@ public class KernelGBean implements Kernel{
         return kernel.getGBeanState(name);
     }
 
+    public int getGBeanState(AbstractName name) throws GBeanNotFoundException {
+        return kernel.getGBeanState(name);
+    }
+
     public long getGBeanStartTime(ObjectName name) throws GBeanNotFoundException {
+        return kernel.getGBeanStartTime(name);
+    }
+
+    public long getGBeanStartTime(AbstractName name) throws GBeanNotFoundException {
         return kernel.getGBeanStartTime(name);
     }
 
@@ -93,12 +119,24 @@ public class KernelGBean implements Kernel{
         return kernel.isGBeanEnabled(name);
     }
 
+    public boolean isGBeanEnabled(AbstractName name) throws GBeanNotFoundException {
+        return kernel.isGBeanEnabled(name);
+    }
+
     public void setGBeanEnabled(ObjectName name, boolean enabled) throws GBeanNotFoundException {
+        kernel.setGBeanEnabled(name, enabled);
+    }
+
+    public void setGBeanEnabled(AbstractName name, boolean enabled) throws GBeanNotFoundException {
         kernel.setGBeanEnabled(name, enabled);
     }
 
     public boolean isRunning() {
         return kernel.isRunning();
+    }
+
+    public Set listGBeans(AbstractNameQuery refInfoQuery) {
+        return kernel.listGBeans(refInfoQuery);
     }
 
     public ClassLoader getClassLoaderFor(ObjectName name) throws GBeanNotFoundException, InternalKernelException {
@@ -109,27 +147,55 @@ public class KernelGBean implements Kernel{
         return kernel.getGBeanData(name);
     }
 
+    public GBeanData getGBeanData(AbstractName name) throws GBeanNotFoundException, InternalKernelException {
+        return kernel.getGBeanData(name);
+    }
+
     public Object getAttribute(ObjectName objectName, String attributeName) throws Exception {
         return kernel.getAttribute(objectName, attributeName);
+    }
+
+    public Object getAttribute(AbstractName abstractName, String attributeName) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        return kernel.getAttribute(abstractName, attributeName);
     }
 
     public void setAttribute(ObjectName objectName, String attributeName, Object attributeValue) throws Exception {
         kernel.setAttribute(objectName, attributeName, attributeValue);
     }
 
+    public void setAttribute(AbstractName abstractName, String attributeName, Object attributeValue) throws GBeanNotFoundException, NoSuchAttributeException, Exception {
+        kernel.setAttribute(abstractName, attributeName, attributeValue);
+    }
+
     public Object invoke(ObjectName objectName, String methodName) throws Exception {
         return kernel.invoke(objectName, methodName);
+    }
+
+    public Object invoke(AbstractName abstractName, String methodName) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return kernel.invoke(abstractName, methodName);
     }
 
     public Object invoke(ObjectName objectName, String methodName, Object[] args, String[] types) throws Exception {
         return kernel.invoke(objectName, methodName, args, types);
     }
 
+    public Object invoke(AbstractName abstractName, String methodName, Object[] args, String[] types) throws GBeanNotFoundException, NoSuchOperationException, InternalKernelException, Exception {
+        return kernel.invoke(abstractName, methodName, args, types);
+    }
+
     public boolean isLoaded(ObjectName name) {
         return kernel.isLoaded(name);
     }
 
+    public boolean isLoaded(AbstractName name) {
+        return kernel.isLoaded(name);
+    }
+
     public GBeanInfo getGBeanInfo(ObjectName name) throws GBeanNotFoundException {
+        return kernel.getGBeanInfo(name);
+    }
+
+    public GBeanInfo getGBeanInfo(AbstractName name) throws GBeanNotFoundException {
         return kernel.getGBeanInfo(name);
     }
 

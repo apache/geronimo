@@ -16,12 +16,11 @@
  */
 package org.apache.geronimo.kernel.jmx;
 
-import javax.management.ObjectName;
-
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.basic.BasicProxyManager;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * Pretty much the same as the BasicProxyManager, but it has a different way
@@ -34,7 +33,7 @@ public class JMXProxyManager extends BasicProxyManager {
         super(kernel);
     }
 
-    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, ObjectName target) {
+    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, AbstractName target) {
         return new JMXProxyMethodInterceptor(proxyType, kernel, target);
     }
 
@@ -42,8 +41,8 @@ public class JMXProxyManager extends BasicProxyManager {
          ((JMXProxyMethodInterceptor)methodInterceptor).destroy();
     }
 
-    protected ObjectName getObjectName(MethodInterceptor methodInterceptor) {
-        return ((JMXProxyMethodInterceptor)methodInterceptor).getObjectName();
+    protected AbstractName getAbstractName(MethodInterceptor methodInterceptor) {
+        return ((JMXProxyMethodInterceptor)methodInterceptor).getAbstractName();
     }
 
 }

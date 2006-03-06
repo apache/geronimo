@@ -22,6 +22,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 
@@ -146,7 +147,7 @@ public class LocalAttributeManagerTest extends TestCase {
 
     public void testAddGBean() throws Exception {
         String attributeValue = "attribute value";
-        ObjectName referencePattern = new ObjectName(":name=referencePattern,*");
+        AbstractNameQuery referencePattern = new AbstractNameQuery(LocalAttributeManagerTest.class.getName());
 
         GBeanData gbeanData = new GBeanData(gbeanName, GBEAN_INFO);
         gbeanData.setAttribute(attributeInfo.getName(), attributeValue);

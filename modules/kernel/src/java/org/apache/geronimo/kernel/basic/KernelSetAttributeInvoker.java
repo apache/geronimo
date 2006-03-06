@@ -17,9 +17,8 @@
 
 package org.apache.geronimo.kernel.basic;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -33,8 +32,8 @@ public final class KernelSetAttributeInvoker implements ProxyInvoker {
         this.name = name;
     }
 
-    public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-        kernel.setAttribute(objectName, name, arguments[0]);
+    public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+        kernel.setAttribute(abstractName, name, arguments[0]);
         return null;
     }
 }

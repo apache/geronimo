@@ -23,6 +23,8 @@ import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
@@ -105,8 +107,15 @@ public class BasicProxyManager implements ProxyManager {
         if (type == null) throw new NullPointerException("type is null");
 
         ProxyFactory proxyFactory = createProxyFactory(type);
-        Object proxy = proxyFactory.createProxy(target);
-        return proxy;
+        return proxyFactory.createProxy(target);
+    }
+
+    public Object createProxy(AbstractName target, Class type) {
+        if (target == null) throw new NullPointerException("target is null");
+        if (type == null) throw new NullPointerException("type is null");
+
+        ProxyFactory proxyFactory = createProxyFactory(type);
+        return proxyFactory.createProxy(target);
     }
 
     public Object createProxy(ObjectName target, ClassLoader classLoader) {
@@ -133,6 +142,27 @@ public class BasicProxyManager implements ProxyManager {
         } catch (GBeanNotFoundException e) {
             throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
         }
+    }
+
+    public Object createProxy(AbstractName target, ClassLoader classLoader) {
+        if (target == null) throw new NullPointerException("target is null");
+        if (classLoader == null) throw new NullPointerException("classLoader is null");
+
+            Set interfaces = target.getInterfaceTypes();
+            if(interfaces.size() == 0) {
+                log.warn("No interfaces found for " + target + " ("+target+")");
+                return null;
+            }
+            String[] names = (String[]) interfaces.toArray(new String[0]);
+            List intfs = new ArrayList();
+            for (int i = 0; i < names.length; i++) {
+                try {
+                    intfs.add(classLoader.loadClass(names[i]));
+                } catch (ClassNotFoundException e) {
+                    log.warn("Could not load interface "+names[i]+" in provided ClassLoader for "+target);
+                }
+            }
+            return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()]), classLoader).createProxy(target);
     }
 
     public Object[] createProxies(String[] objectNameStrings, ClassLoader classLoader) throws MalformedObjectNameException {
@@ -163,7 +193,7 @@ public class BasicProxyManager implements ProxyManager {
         if (methodInterceptor == null) {
             return null;
         }
-        return getObjectName(methodInterceptor);
+        return getAbstractName(methodInterceptor).getObjectName();
     }
 
     private class ManagedProxyFactory implements ProxyFactory {
@@ -204,6 +234,35 @@ public class BasicProxyManager implements ProxyManager {
         public Object createProxy(ObjectName target) {
             assert target != null: "target is null";
 
+            Callback callback;
+            try {
+                AbstractName targetName = getAbstractName(target, kernel);
+                callback = getMethodInterceptor(proxyType, kernel, targetName);
+            } catch (GBeanNotFoundException e) {
+                throw new ProxyCreationException(e);
+            }
+
+            Enhancer.registerCallbacks(proxyType, new Callback[]{callback});
+            try {
+                Object proxy = fastClass.newInstance();
+                interceptors.put(proxy, callback);
+                return proxy;
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                  throw (RuntimeException) cause;
+                } else  if (cause instanceof Error) {
+                  throw (Error) cause;
+                } else if (cause != null) {
+                  throw new ProxyCreationException(cause);
+                } else {
+                  throw new ProxyCreationException(e);
+                }
+            }
+        }
+        public Object createProxy(AbstractName target) {
+            assert target != null: "target is null";
+
             Callback callback = getMethodInterceptor(proxyType, kernel, target);
 
             Enhancer.registerCallbacks(proxyType, new Callback[]{callback});
@@ -216,7 +275,7 @@ public class BasicProxyManager implements ProxyManager {
                 if (cause instanceof RuntimeException) {
                   throw (RuntimeException) cause;
                 } else  if (cause instanceof Error) {
-                  throw (RuntimeException) cause;
+                  throw (Error) cause;
                 } else if (cause != null) {
                   throw new ProxyCreationException(cause);
                 } else {
@@ -301,7 +360,11 @@ public class BasicProxyManager implements ProxyManager {
         }
     }
 
-    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, ObjectName target) {
+    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, ObjectName target) throws GBeanNotFoundException {
+        AbstractName targetName = getAbstractName(target, kernel);
+        return new ProxyMethodInterceptor(proxyType, kernel, targetName);
+    }
+    protected Callback getMethodInterceptor(Class proxyType, Kernel kernel, AbstractName target) {
         return new ProxyMethodInterceptor(proxyType, kernel, target);
     }
 
@@ -309,7 +372,12 @@ public class BasicProxyManager implements ProxyManager {
          ((ProxyMethodInterceptor)methodInterceptor).destroy();
     }
 
-     protected ObjectName getObjectName(MethodInterceptor methodInterceptor) {
-        return ((ProxyMethodInterceptor)methodInterceptor).getObjectName();
+     protected AbstractName getAbstractName(MethodInterceptor methodInterceptor) {
+        return ((ProxyMethodInterceptor)methodInterceptor).getAbstractName();
+    }
+
+    private AbstractName getAbstractName(ObjectName objectName, Kernel kernel) throws GBeanNotFoundException {
+        GBeanData gBeanData = kernel.getGBeanData(objectName);
+        return gBeanData.getAbstractName();
     }
 }

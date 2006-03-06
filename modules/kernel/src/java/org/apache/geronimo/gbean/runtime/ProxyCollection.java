@@ -16,24 +16,24 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+
+import javax.management.ObjectName;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -53,7 +53,7 @@ class ProxyCollection implements ReferenceCollection {
         factory = proxyManager.createProxyFactory(type);
 
         for (Iterator iterator = targets.iterator(); iterator.hasNext();) {
-            addTarget((ObjectName) iterator.next());
+            addTarget((AbstractName) iterator.next());
         }
     }
 
@@ -66,7 +66,7 @@ class ProxyCollection implements ReferenceCollection {
         listeners.clear();
     }
 
-    void addTarget(ObjectName target) {
+    void addTarget(AbstractName target) {
         Object proxy;
         ArrayList listenerCopy;
         synchronized (this) {
@@ -94,7 +94,7 @@ class ProxyCollection implements ReferenceCollection {
         }
     }
 
-    void removeTarget(ObjectName target) {
+    void removeTarget(AbstractName target) {
         Object proxy;
         ArrayList listenerCopy;
         synchronized (this) {

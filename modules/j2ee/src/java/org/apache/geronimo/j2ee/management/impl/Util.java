@@ -31,6 +31,8 @@ import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
@@ -81,20 +83,37 @@ public class Util {
      * @return the Configuration the bean is in, or null if it is not in a Configuration
      */
     public synchronized static ObjectName getConfiguration(Kernel kernel, ObjectName objectName) {
+        try {
+            GBeanData data = kernel.getGBeanData(objectName);
+            AbstractName abstractName = data.getAbstractName();
+            AbstractName result = getConfiguration(kernel, abstractName);
+            if (result == null) {
+                return null;
+            }
+            return result.getObjectName();
+        } catch (GBeanNotFoundException e) {
+            log.warn("gbean not found" + objectName);
+            return null;
+        }
+    }
+
+    public synchronized static AbstractName getConfiguration(Kernel kernel, AbstractName abstractName) {
         DependencyManager mgr = kernel.getDependencyManager();
-        Set parents = mgr.getParents(objectName);
+        Set parents = mgr.getParents(abstractName);
         if(parents == null || parents.isEmpty()) {
-            log.warn("No parents found for "+objectName);
+            log.warn("No parents found for "+abstractName);
             return null;
         }
         for (Iterator it = parents.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
+            AbstractName name = (AbstractName) it.next();
             try {
                 GBeanInfo info = kernel.getGBeanInfo(name);
                 if(info.getClassName().equals(Configuration.class.getName())) {
                     return name;
                 }
-            } catch (GBeanNotFoundException e) {} // should never happen
+            } catch (GBeanNotFoundException e) {
+                // should never happen
+            }
         }
         log.warn("No Configuration parent found");
         return null;

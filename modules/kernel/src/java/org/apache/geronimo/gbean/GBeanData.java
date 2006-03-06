@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.gbean;
 
+import org.apache.geronimo.kernel.repository.Artifact;
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -36,11 +38,13 @@ import javax.management.MalformedObjectNameException;
 public class GBeanData implements Externalizable {
     private Map nameMap;
     private Set omit;
+    //TODO remove
     private ObjectName name;
     private GBeanInfo gbeanInfo;
     private final Map attributes;
     private final Map references;
     private final Set dependencies;
+    private AbstractName abstractName;
 
     public GBeanData() {
         nameMap = new HashMap();
@@ -61,6 +65,14 @@ public class GBeanData implements Externalizable {
         this.gbeanInfo = gbeanInfo;
     }
 
+    public GBeanData(AbstractName abstractName, GBeanInfo gbeanInfo) {
+        this();
+        this.abstractName = abstractName;
+        this.nameMap = abstractName.getName();
+        this.omit = new HashSet();
+        this.gbeanInfo = gbeanInfo;
+    }
+
     public GBeanData(Map nameMap, Set omitMap, GBeanInfo gbeanInfo) {
         this();
         this.nameMap.putAll(nameMap);
@@ -78,27 +90,39 @@ public class GBeanData implements Externalizable {
         attributes = new HashMap(gbeanData.attributes);
         references = new HashMap(gbeanData.references);
         dependencies = new HashSet(gbeanData.dependencies);
+        abstractName = gbeanData.abstractName;
     }
 
     public ObjectName getName() {
-        return name;
+        //TODO remove the name attribute
+        return abstractName == null? name: abstractName.getObjectName();
     }
 
+    //TODO remove
     public void setName(ObjectName name) {
         this.name = name;
     }
 
-    public void initializeName(ObjectName base) throws MalformedObjectNameException {
+    public void initializeName(Artifact configName, ObjectName base) throws MalformedObjectNameException {
         String domain = base.getDomain();
         Hashtable keys = base.getKeyPropertyList();
         keys.keySet().removeAll(omit);
         keys.putAll(nameMap);
-        name = new ObjectName(domain, keys);
+        ObjectName objectName = new ObjectName(domain, keys);
+        abstractName = new AbstractName(configName, nameMap, gbeanInfo.getInterfaces(), objectName);
+    }
+
+    public AbstractName getAbstractName() {
+        return abstractName;
     }
 
     public void setNameMap(Map nameMap) {
         this.nameMap.clear();
         this.nameMap.putAll(nameMap);
+    }
+
+    public Map getNameMap() {
+        return nameMap;
     }
 
     public void setOmit(Set omit) {
@@ -142,7 +166,7 @@ public class GBeanData implements Externalizable {
         return (Set) references.get(name);
     }
 
-    public void setReferencePattern(String name, ObjectName pattern) {
+    public void setReferencePattern(String name, AbstractNameQuery pattern) {
         setReferencePatterns(name, Collections.singleton(pattern));
     }
 

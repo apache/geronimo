@@ -25,18 +25,18 @@ public class DomainTest extends Abstract77Test {
     private J2EEDomain domain;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(DOMAIN_NAME.toString(), domain.getObjectName());
-        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, domain.getServers());
+        assertEquals(DOMAIN_DATA.getName().toString(), domain.getObjectName());
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getName().toString()}, domain.getServers());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(DOMAIN_NAME.toString(), kernel.getAttribute(DOMAIN_NAME, "objectName"));
-        assertObjectNamesEqual(new String[]{SERVER_NAME.toString()}, (String[]) kernel.getAttribute(DOMAIN_NAME, "servers"));
+        assertEquals(DOMAIN_DATA.getName().toString(), kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "objectName"));
+        assertObjectNamesEqual(new String[]{SERVER_DATA.getName().toString()}, (String[]) kernel.getAttribute(DOMAIN_DATA.getAbstractName(), "servers"));
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        domain = (J2EEDomain) kernel.getProxyManager().createProxy(DOMAIN_NAME, J2EEDomain.class);
+        domain = (J2EEDomain) kernel.getProxyManager().createProxy(DOMAIN_DATA.getAbstractName(), J2EEDomain.class);
     }
 
     protected void tearDown() throws Exception {

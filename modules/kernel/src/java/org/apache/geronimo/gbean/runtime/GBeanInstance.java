@@ -70,9 +70,9 @@ public final class GBeanInstance implements StateManageable {
     private ManageableAttributeStore manageableStore;
 
     /**
-     * The unique name of this service.
+     * the abstract name of this service
      */
-    private final ObjectName objectName;
+    private final AbstractName abstractName;
 
     /**
      * This handles all state transiitions for this instance.
@@ -195,10 +195,10 @@ public final class GBeanInstance implements StateManageable {
      * mismatched attribute types or the intial data cannot be set
      */
     public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
-        this.objectName = gbeanData.getName();
+        this.abstractName = gbeanData.getAbstractName();
         this.kernel = kernel;
         this.lifecycleBroadcaster = lifecycleBroadcaster;
-        this.gbeanInstanceState = new GBeanInstanceState(objectName, kernel, dependencyManager, this, lifecycleBroadcaster);
+        this.gbeanInstanceState = new GBeanInstanceState(abstractName, kernel, dependencyManager, this, lifecycleBroadcaster);
         this.classLoader = classLoader;
 
         GBeanInfo gbeanInfo = gbeanData.getGBeanInfo();
@@ -247,7 +247,7 @@ public final class GBeanInstance implements StateManageable {
         dependencies = new GBeanDependency[gbeanData.getDependencies().size()];
         int j = 0;
         for (Iterator iterator = gbeanData.getDependencies().iterator(); iterator.hasNext();) {
-            ObjectName dependencyName = (ObjectName) iterator.next();
+            AbstractNameQuery dependencyName = (AbstractNameQuery) iterator.next();
             GBeanDependency dependency = new GBeanDependency(this, dependencyName, kernel, dependencyManager);
             dependencies[j++] = dependency;
         }
@@ -296,7 +296,7 @@ public final class GBeanInstance implements StateManageable {
             Constructor[] constructors = type.getConstructors();
             for (int i = 0; i < constructors.length; i++) {
                 Constructor testConstructor = constructors[i];
-                buf.append("constructor types: " + testConstructor.getParameterTypes() + "\n");
+                buf.append("constructor types: ").append(testConstructor.getParameterTypes()).append("\n");
                 if (testConstructor.getParameterTypes().length == parameterTypes.length) {
                     Class[] testParameterTypes = testConstructor.getParameterTypes();
                     for (int k = 0; k < testParameterTypes.length; k++) {
@@ -349,7 +349,7 @@ public final class GBeanInstance implements StateManageable {
                 getReferenceByName(referenceName).setPatterns(referencePattern);
             }
         } catch (Exception e) {
-            throw new InvalidConfigurationException("Could not inject configuration data into the GBean " + objectName, e);
+            throw new InvalidConfigurationException("Could not inject configuration data into the GBean " + abstractName, e);
         }
 
         for (int i = 0; i < references.length; i++) {
@@ -365,7 +365,7 @@ public final class GBeanInstance implements StateManageable {
         synchronized (this) {
             if (dead) {
                 // someone beat us to the punch... this instance should have never been found in the first place
-                throw new GBeanNotFoundException(objectName);
+                throw new GBeanNotFoundException(abstractName);
             }
             dead = true;
         }
@@ -373,7 +373,7 @@ public final class GBeanInstance implements StateManageable {
         // if the bean is already stopped or failed, this will do nothing; otherwise it will shutdown the bean
         int state = getState();
         if (state != State.STOPPED_INDEX && state != State.FAILED_INDEX) {
-            log.error("GBeanInstance should already be stopped before die() is called: objectName=" + objectName + " state=" + State.fromInt(state));
+            log.error("GBeanInstance should already be stopped before die() is called: abstractName=" + abstractName + " state=" + State.fromInt(state));
         }
 
         gbeanInstanceState.fail();
@@ -436,11 +436,15 @@ public final class GBeanInstance implements StateManageable {
     }
 
     public final String getObjectName() {
-        return objectName.getCanonicalName();
+        return abstractName.getObjectName().getCanonicalName();
     }
 
     public final ObjectName getObjectNameObject() {
-        return objectName;
+        return abstractName.getObjectName();
+    }
+
+    public final AbstractName getAbstractName() {
+        return abstractName;
     }
 
     /**
@@ -511,10 +515,10 @@ public final class GBeanInstance implements StateManageable {
     public final void start() {
         synchronized (this) {
             if (dead) {
-                throw new IllegalStateException("A dead GBean can not be started: objectName=" + objectName);
+                throw new IllegalStateException("A dead GBean can not be started: abstractName=" + abstractName);
             }
             if (!enabled) {
-                throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
+                throw new IllegalStateException("A disabled GBean can not be started: abstractName=" + abstractName);
             }
         }
         gbeanInstanceState.start();
@@ -528,10 +532,10 @@ public final class GBeanInstance implements StateManageable {
     public final void startRecursive() {
         synchronized (this) {
             if (dead) {
-                throw new IllegalStateException("A dead GBean can not be started: objectName=" + objectName);
+                throw new IllegalStateException("A dead GBean can not be started: abstractName=" + abstractName);
             }
             if (!enabled) {
-                throw new IllegalStateException("A disabled GBean can not be started: objectName=" + objectName);
+                throw new IllegalStateException("A disabled GBean can not be started: abstractName=" + abstractName);
             }
         }
         gbeanInstanceState.startRecursive();
@@ -559,7 +563,7 @@ public final class GBeanInstance implements StateManageable {
      * @return the gbean data
      */
     public GBeanData getGBeanData() {
-        GBeanData gbeanData = new GBeanData(objectName, gbeanInfo);
+        GBeanData gbeanData = new GBeanData(abstractName, gbeanInfo);
 
         // copy target into local variables from within a synchronized block to gaurentee a consistent read
         int state;
@@ -597,6 +601,7 @@ public final class GBeanInstance implements StateManageable {
             Set patterns = reference.getPatterns();
             gbeanData.setReferencePatterns(name, patterns);
         }
+        //TODO copy the dependencies??
         return gbeanData;
     }
 
@@ -748,7 +753,7 @@ public final class GBeanInstance implements StateManageable {
                                                                                               ManageableAttributeStore.class);
         }
         String configName = null;
-        Set set = kernel.getDependencyManager().getParents(objectName);
+        Set set = kernel.getDependencyManager().getParents(abstractName);
         for (Iterator iterator = set.iterator(); iterator.hasNext();) {
             ObjectName name = (ObjectName) iterator.next();
             if(Configuration.isConfigurationObjectName(name)) {
@@ -757,16 +762,16 @@ public final class GBeanInstance implements StateManageable {
             }
         }
         if(configName != null) {
-            manageableStore.setValue(configName, objectName, attribute.getAttributeInfo(), value);
+            manageableStore.setValue(configName, abstractName.getObjectName(), attribute.getAttributeInfo(), value);
         } else {
-            log.error("Unable to identify Configuration for GBean "+objectName+".  Manageable attribute "+attribute.getName()+" was not updated in persistent store.");
+            log.error("Unable to identify Configuration for GBean "+abstractName.getObjectName()+".  Manageable attribute "+attribute.getName()+" was not updated in persistent store.");
         }
     }
 
     private GBeanAttribute getAttributeByName(String name) throws NoSuchAttributeException {
         Integer index = (Integer) attributeIndex.get(name);
         if (index == null) {
-            throw new NoSuchAttributeException("Unknown attribute " + name + " in gbean " + objectName);
+            throw new NoSuchAttributeException("Unknown attribute " + name + " in gbean " + abstractName.getObjectName());
         }
         GBeanAttribute attribute = attributes[index.intValue()];
         return attribute;
@@ -795,7 +800,7 @@ public final class GBeanInstance implements StateManageable {
         }
 
         if (state == DESTROYED && !operation.isFramework()) {
-            throw new IllegalStateException("Operations can only be invoke while the GBean instance is running: " + objectName);
+            throw new IllegalStateException("Operations can only be invoke while the GBean instance is running: " + abstractName.getObjectName());
         }
         return operation.invoke(instance, arguments);
     }
@@ -830,7 +835,7 @@ public final class GBeanInstance implements StateManageable {
         }
 
         if (state == DESTROYED && !operation.isFramework()) {
-            throw new IllegalStateException("Operations can only be invoke while the GBean is running: " + objectName);
+            throw new IllegalStateException("Operations can only be invoke while the GBean is running: " + abstractName);
         }
         return operation.invoke(instance, arguments);
     }
@@ -908,7 +913,7 @@ public final class GBeanInstance implements StateManageable {
                 }
                 throw e;
             } catch (IllegalArgumentException e) {
-                log.warn("Constructor mismatch for " + objectName, e);
+                log.warn("Constructor mismatch for " + abstractName.getObjectName(), e);
                 throw e;
             }
 
@@ -954,7 +959,7 @@ public final class GBeanInstance implements StateManageable {
                 try {
                     ((GBeanLifecycle) instance).doFail();
                 } catch (Throwable ignored) {
-                    log.error("Problem in doFail of " + objectName, ignored);
+                    log.error("Problem in doFail of " + abstractName.getObjectName(), ignored);
                 }
             }
 
@@ -1078,13 +1083,13 @@ public final class GBeanInstance implements StateManageable {
                     try {
                         ((GBeanLifecycle) instance).doStop();
                     } catch (Throwable ignored) {
-                        log.error("Problem in doStop of " + objectName, ignored);
+                        log.error("Problem in doStop of " + abstractName.getObjectName(), ignored);
                     }
                 } else {
                     try {
                         ((GBeanLifecycle) instance).doFail();
                     } catch (Throwable ignored) {
-                        log.error("Problem in doFail of " + objectName, ignored);
+                        log.error("Problem in doFail of " + abstractName.getObjectName(), ignored);
                     }
                 }
             }
@@ -1174,14 +1179,14 @@ public final class GBeanInstance implements StateManageable {
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj instanceof GBeanInstance == false) return false;
-        return objectName.equals(((GBeanInstance)obj).objectName);
+        return abstractName.equals(((GBeanInstance)obj).abstractName);
     }
 
     public int hashCode() {
-        return objectName.hashCode();
+        return abstractName.hashCode();
     }
 
     public String toString() {
-        return objectName.toString();
+        return abstractName.toString();
     }
 }

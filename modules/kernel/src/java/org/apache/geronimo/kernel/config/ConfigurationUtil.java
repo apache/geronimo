@@ -30,11 +30,14 @@ import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * @version $Rev$ $Date$
@@ -117,8 +120,8 @@ public final class ConfigurationUtil {
     // user should be using ConfigurationManager to do this work
     static GBeanData toConfigurationGBeanData(ConfigurationData configurationData, ConfigurationStore configurationStore) throws InvalidConfigException, MalformedObjectNameException {
         Artifact id = configurationData.getId();
-        ObjectName objectName = Configuration.getConfigurationObjectName(id);
-        GBeanData gbeanData = new GBeanData(objectName, Configuration.GBEAN_INFO);
+        AbstractName abstractName = Configuration.getConfigurationAbstractName(id);
+        GBeanData gbeanData = new GBeanData(abstractName, Configuration.GBEAN_INFO);
         gbeanData.setAttribute("type", configurationData.getModuleType());
         Environment environment = configurationData.getEnvironment();
         gbeanData.setAttribute("environment", environment);
@@ -127,7 +130,7 @@ public final class ConfigurationUtil {
         if (configurationStore != null) {
             gbeanData.setAttribute("configurationStore", configurationStore);
         }
-        gbeanData.setReferencePattern("Repositories", new ObjectName("*:j2eeType=Repository,*"));
+        gbeanData.setReferencePattern("Repositories", new AbstractNameQuery(Repository.class.getName()));
         return gbeanData;
     }
 

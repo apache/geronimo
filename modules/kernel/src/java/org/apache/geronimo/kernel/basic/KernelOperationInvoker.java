@@ -18,9 +18,9 @@
 package org.apache.geronimo.kernel.basic;
 
 import java.lang.reflect.Method;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -42,7 +42,7 @@ public final class KernelOperationInvoker implements ProxyInvoker {
         }
     }
 
-    public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-        return kernel.invoke(objectName, name, arguments, argumentTypes);
+    public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+        return kernel.invoke(abstractName, name, arguments, argumentTypes);
     }
 }

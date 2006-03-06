@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.kernel;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 import javax.management.ObjectName;
 
 
@@ -33,6 +35,10 @@ public class GBeanNotFoundException extends KernelException {
     public GBeanNotFoundException(ObjectName gBeanName, Throwable cause) {
         super(gBeanName+" not found", cause);
         this.gBeanName = gBeanName;
+    }
+
+    public GBeanNotFoundException(AbstractName abstractName) {
+        super(abstractName + " not found");
     }
 
     public ObjectName getGBeanName() {

@@ -21,11 +21,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationInfo;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.NoSuchStoreException;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
@@ -99,13 +102,13 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
         this.serverInfo = serverInfo;
         this.configFile = configDir;
         this.listener = new LifecycleAdapter() {
-            public void stopped(ObjectName objectName) {
+            public void stopped(AbstractName abstractName) {
                 if (kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
                     doSave();
                 }
             }
 
-            public void running(ObjectName objectName) {
+            public void running(AbstractName abstractName) {
                 if (kernelFullyStarted && FileConfigurationList.this.kernel.isRunning()) {
                     doSave();
                 }
@@ -130,7 +133,7 @@ public class FileConfigurationList implements GBeanLifecycle, PersistentConfigur
                 throw new IOException("Unable to create directory for list:" + parent);
             }
         }
-        kernel.getLifecycleMonitor().addLifecycleListener(listener, new ObjectName("geronimo.config:*"));
+        kernel.getLifecycleMonitor().addLifecycleListener(listener, new AbstractNameQuery(Configuration.class.getName()));
     }
 
     public void doStop() throws Exception {

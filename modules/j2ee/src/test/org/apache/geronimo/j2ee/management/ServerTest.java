@@ -28,27 +28,27 @@ public class ServerTest extends Abstract77Test {
     private String version;
 
     public void testStandardInterface() throws Exception {
-        assertEquals(SERVER_NAME.toString(), server.getObjectName());
+        assertEquals(SERVER_DATA.getName().toString(), server.getObjectName());
         assertEquals(0, server.getDeployedObjects().length);
         assertEquals(0, server.getResources().length);
-        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, server.getJavaVMs());
+        assertObjectNamesEqual(new String[]{JVM_DATA.getName().toString()}, server.getJavaVMs());
         assertEquals("The Apache Software Foundation", server.getServerVendor());
         assertEquals(version, server.getServerVersion());
     }
 
     public void testStandardAttributes() throws Exception {
-        assertEquals(SERVER_NAME.toString(), kernel.getAttribute(SERVER_NAME, "objectName"));
-        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_NAME, "deployedObjects")).length);
-        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_NAME, "resources")).length);
-        assertObjectNamesEqual(new String[]{JVM_NAME.toString()}, (String[]) kernel.getAttribute(SERVER_NAME, "javaVMs"));
-        assertEquals("The Apache Software Foundation", kernel.getAttribute(SERVER_NAME, "serverVendor"));
-        assertEquals(version, kernel.getAttribute(SERVER_NAME, "serverVersion"));
+        assertEquals(SERVER_DATA.getName().toString(), kernel.getAttribute(SERVER_DATA.getName(), "objectName"));
+        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_DATA.getName(), "deployedObjects")).length);
+        assertEquals(0, ((String[]) kernel.getAttribute(SERVER_DATA.getName(), "resources")).length);
+        assertObjectNamesEqual(new String[]{JVM_DATA.getName().toString()}, (String[]) kernel.getAttribute(SERVER_DATA.getName(), "javaVMs"));
+        assertEquals("The Apache Software Foundation", kernel.getAttribute(SERVER_DATA.getName(), "serverVendor"));
+        assertEquals(version, kernel.getAttribute(SERVER_DATA.getName(), "serverVersion"));
     }
 
     protected void setUp() throws Exception {
         super.setUp();
-        server = (J2EEServer) kernel.getProxyManager().createProxy(SERVER_NAME, J2EEServer.class);
-        version = (String) kernel.getAttribute(SERVER_INFO_NAME, "version");
+        server = (J2EEServer) kernel.getProxyManager().createProxy(SERVER_DATA.getName(), J2EEServer.class);
+        version = (String) kernel.getAttribute(SERVER_INFO_DATA.getName(), "version");
     }
 
     protected void tearDown() throws Exception {

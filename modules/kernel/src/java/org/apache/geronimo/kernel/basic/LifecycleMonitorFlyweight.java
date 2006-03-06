@@ -16,11 +16,11 @@
  */
 package org.apache.geronimo.kernel.basic;
 
-import java.util.Set;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -32,8 +32,7 @@ public class LifecycleMonitorFlyweight implements LifecycleMonitor {
         this.lifecycleMonitor = lifecycleMonitor;
     }
 
-    public void addLifecycleListener(LifecycleListener listener, ObjectName pattern) {
-        lifecycleMonitor.addLifecycleListener(listener, pattern);
+    public void addLifecycleListener(LifecycleListener listener, AbstractNameQuery pattern) {
     }
 
     public void addLifecycleListener(LifecycleListener listener, Set patterns) {

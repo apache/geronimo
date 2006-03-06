@@ -17,10 +17,9 @@
 
 package org.apache.geronimo.gbean.runtime;
 
-import javax.management.ObjectName;
-
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
@@ -51,14 +50,14 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
         }
     }
 
-    protected synchronized void targetAdded(ObjectName target) {
+    protected synchronized void targetAdded(AbstractName target) {
         ProxyCollection proxy = (ProxyCollection) getProxy();
         if (proxy != null) {
             proxy.addTarget(target);
         }
     }
 
-    protected synchronized void targetRemoved(ObjectName target) {
+    protected synchronized void targetRemoved(AbstractName target) {
         ProxyCollection proxy = (ProxyCollection) getProxy();
         if (proxy != null) {
             proxy.removeTarget(target);
@@ -67,24 +66,24 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
 
     protected LifecycleListener createLifecycleListener() {
         return new LifecycleAdapter() {
-                    public void running(ObjectName objectName) {
-                        addTarget(objectName);
+                    public void running(AbstractName abstractName) {
+                        addTarget(abstractName);
                     }
 
-                    public void stopping(ObjectName objectName) {
-                        removeTarget(objectName);
+                    public void stopping(AbstractName abstractName) {
+                        removeTarget(abstractName);
                     }
 
-                    public void stopped(ObjectName objectName) {
-                        removeTarget(objectName);
+                    public void stopped(AbstractName abstractName) {
+                        removeTarget(abstractName);
                     }
 
-                    public void failed(ObjectName objectName) {
-                        removeTarget(objectName);
+                    public void failed(AbstractName abstractName) {
+                        removeTarget(abstractName);
                     }
 
-                    public void unloaded(ObjectName objectName) {
-                        removeTarget(objectName);
+                    public void unloaded(AbstractName abstractName) {
+                        removeTarget(abstractName);
                     }
                 };
     }

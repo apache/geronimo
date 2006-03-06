@@ -17,15 +17,22 @@
 package org.apache.geronimo.gbean.runtime;
 
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.MockDynamicGBean;
 import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @version $Rev$ $Date$
@@ -350,12 +357,12 @@ public class GBeanAttributeTest extends TestCase {
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
-        gbeanInstance = new GBeanInstance(new GBeanData(new ObjectName("test:MockGBean=normal"), MockGBean.getGBeanInfo()),
+        gbeanInstance = new GBeanInstance(new GBeanData(buildAbstractName("normal", MockGBean.getGBeanInfo()), MockGBean.getGBeanInfo()),
                 kernel,
                 kernel.getDependencyManager(),
                 new MyLifecycleBroadcaster(),
                 MockGBean.class.getClassLoader());
-        dynamicGBeanInstance = new GBeanInstance(new GBeanData(new ObjectName("test:MockGBean=dynamic"), MockDynamicGBean.getGBeanInfo()),
+        dynamicGBeanInstance = new GBeanInstance(new GBeanData(buildAbstractName("dynamic", MockDynamicGBean.getGBeanInfo()), MockDynamicGBean.getGBeanInfo()),
                 kernel,
                 kernel.getDependencyManager(),
                 new MyLifecycleBroadcaster(),
@@ -379,6 +386,12 @@ public class GBeanAttributeTest extends TestCase {
     protected void tearDown() throws Exception {
         kernel.shutdown();
         gbeanInstance = null;
+    }
+
+    private AbstractName buildAbstractName(String name, GBeanInfo info) throws MalformedObjectNameException {
+        Map names = new HashMap();
+        names.put("name", name);
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:MockGBean=" + name));
     }
 
     private static class MyLifecycleBroadcaster implements LifecycleBroadcaster {

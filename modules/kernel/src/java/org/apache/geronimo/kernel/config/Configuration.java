@@ -23,6 +23,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -94,6 +96,7 @@ import java.util.Set;
  */
 public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
+    public static final Object JSR77_BASE_NAME_PROPERTY = "org.apache.geronimo.name.javax.management.j2ee.BaseName";
 
     /**
      * @deprecated Use artifact version of this method
@@ -108,6 +111,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         } catch (MalformedObjectNameException e) {
             throw new InvalidConfigException("Could not construct object name for configuration", e);
         }
+    }
+
+    public static AbstractName getConfigurationAbstractName(Artifact configId) throws InvalidConfigException {
+        return new AbstractName(configId, Collections.EMPTY_MAP, Configuration.class.getName(), getConfigurationObjectName(configId));
     }
 
     public static boolean isConfigurationObjectName(ObjectName name) {
@@ -139,7 +146,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * The registered objectName for this configuraion.
      */
     private final ObjectName objectName;
-
+    private final AbstractName abstractName;
     /**
      * Defines the environment requred for this configuration.
      */
@@ -184,6 +191,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         configurationStore = null;
         id = null;
         objectName = null;
+        abstractName = null;
         moduleType = null;
         parents = null;
         configurationClassLoader = null;
@@ -216,6 +224,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                     ", but actual objectName is " +
                     "<" + this.objectName.getCanonicalName() + ">");
         }
+        abstractName = getConfigurationAbstractName(id);
 
         this.configurationStore = configurationStore;
 
@@ -266,11 +275,13 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
                 ObjectInputStream ois = new ObjectInputStreamExt(new ByteArrayInputStream(gbeanState), configurationClassLoader);
                 try {
+                    ObjectName baseName = getBaseName();
                     while (true) {
                         GBeanData gbeanData = new GBeanData();
                         gbeanData.readExternal(ois);
+                        gbeanData.initializeName(id, baseName);
 
-                        gbeans.put(gbeanData.getName(), gbeanData);
+                        gbeans.put(gbeanData.getNameMap(), gbeanData);
                     }
                 } catch (EOFException e) {
                     // ok
@@ -379,6 +390,15 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return objectName.getCanonicalName();
     }
 
+    public AbstractName getAbstractName() {
+        return abstractName;
+    }
+
+    public ObjectName getBaseName() {
+        String baseNameString = (String) environment.getProperties().get(JSR77_BASE_NAME_PROPERTY);
+        return JMXUtil.getObjectName(baseNameString);
+    }
+
     /**
      * Gets the parent configurations of this configuration.
      * @return the parents of this configuration
@@ -429,6 +449,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @return true if this configuration contains the specified GBean; false otherwise
      */
     public synchronized boolean containsGBean(ObjectName gbean) {
+        //TODO does not work
+        if (true) {
+            throw new IllegalArgumentException("does not work");
+        }
         return gbeans.containsKey(gbean);
     }
 
@@ -440,7 +464,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             log.trace("Registering GBean " + beanData.getName());
 
             // add a dependency on this configuration
-            beanData.getDependencies().add(objectName);
+            beanData.getDependencies().add(new AbstractNameQuery(abstractName));
 
             // register the bean with the kernel
             kernel.loadGBean(beanData, configurationClassLoader);
@@ -457,10 +481,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
 
-        gbeans.put(beanData.getName(), beanData);
+        gbeans.put(beanData.getNameMap(), beanData);
     }
 
     public synchronized void removeGBean(ObjectName name) throws GBeanNotFoundException {
+        //TODO does not work
         if (!gbeans.containsKey(name)) {
             throw new GBeanNotFoundException(name);
         }
@@ -483,11 +508,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         Set parentNames = new HashSet();
         for (Iterator iterator = parents.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
-            ObjectName parentName = getConfigurationObjectName(configuration.getId());
+            AbstractName parentName = getConfigurationAbstractName(configuration.getId());
             parentNames.add(parentName);
         }
         DependencyManager dependencyManager = this.kernel.getDependencyManager();
-        dependencyManager.addDependencies(this.objectName, parentNames);
+        dependencyManager.addDependencies(abstractName, parentNames);
 
         // declare the artifacts as loaded
         LinkedHashSet artifacts = new LinkedHashSet();
@@ -513,8 +538,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     private void shutdown() {
         // unregister all GBeans
-        for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
-            ObjectName name = (ObjectName) i.next();
+        for (Iterator i = gbeans.values().iterator(); i.hasNext();) {
+            GBeanData gbeanData = (GBeanData) i.next();
+            AbstractName name = gbeanData.getAbstractName();
             try {
                 if (kernel.isLoaded(name)) {
                     log.trace("Unregistering GBean " + name);

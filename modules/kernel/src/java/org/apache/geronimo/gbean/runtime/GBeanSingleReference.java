@@ -17,19 +17,20 @@
 
 package org.apache.geronimo.gbean.runtime;
 
-import java.util.Set;
-import java.util.Iterator;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
+
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -45,7 +46,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
     /**
      * The object to which the proxy is bound
      */
-    private ObjectName proxyTarget;
+    private AbstractName proxyTarget;
 
     public GBeanSingleReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, DependencyManager dependencyManager) throws InvalidConfigurationException {
         super(gbeanInstance, referenceInfo, kernel, dependencyManager);
@@ -57,28 +58,28 @@ public class GBeanSingleReference extends AbstractGBeanReference {
             //
             // We must have exactly one running target
             //
-            ObjectName objectName = getGBeanInstance().getObjectNameObject();
+            AbstractName abstractName = getGBeanInstance().getAbstractName();
             Set targets = getTargets();
             if (targets.size() == 0) {
                 waitingForMe = true;
-                log.debug("Waiting to start " + objectName + " because no targets are running for reference " + getName() +" matching the patterns " + getPatternsText());
+                log.debug("Waiting to start " + abstractName + " because no targets are running for reference " + getName() +" matching the patterns " + getPatternsText());
                 return false;
             } else if (targets.size() > 1) {
                 waitingForMe = true;
-                log.debug("Waiting to start " + objectName + " because more then one targets are running for the single valued reference " + getName() +" matching the patterns " + getPatternsText());
+                log.debug("Waiting to start " + abstractName + " because more then one targets are running for the single valued reference " + getName() +" matching the patterns " + getPatternsText());
                 return false;
             }
             waitingForMe = false;
 
             // stop all gbeans that would match our patterns from starting
             DependencyManager dependencyManager = getDependencyManager();
-            dependencyManager.addStartHolds(objectName, getPatterns());
+            dependencyManager.addStartHolds(abstractName, getPatterns());
 
             // add a dependency on our target and create the proxy
-            ObjectName target = (ObjectName) targets.iterator().next();
+            AbstractName target = (AbstractName) targets.iterator().next();
             setProxy(getKernel().getProxyManager().createProxy(target, getReferenceType()));
             proxyTarget = target;
-            dependencyManager.addDependency(objectName, target);
+            dependencyManager.addDependency(abstractName, target);
         }
 
         return true;
@@ -88,31 +89,31 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         StringBuffer buf = new StringBuffer();
         Set patterns = getPatterns();
         for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
-            ObjectName objectName = (ObjectName) iterator.next();
-            buf.append(objectName.getCanonicalName()).append(" ");
+            AbstractNameQuery refInfo = (AbstractNameQuery) iterator.next();
+            buf.append(refInfo).append(" ");
         }
         return buf.toString();
     }
 
     public synchronized void stop() {
         waitingForMe = false;
-        ObjectName objectName = getGBeanInstance().getObjectNameObject();
+        AbstractName abstractName = getGBeanInstance().getAbstractName();
         Set patterns = getPatterns();
         DependencyManager dependencyManager = getDependencyManager();
         if (!patterns.isEmpty()) {
-            dependencyManager.removeStartHolds(objectName, patterns);
+            dependencyManager.removeStartHolds(abstractName, patterns);
         }
 
         Object proxy = getProxy();
         if (proxy != null) {
-            dependencyManager.removeDependency(objectName, proxyTarget);
+            dependencyManager.removeDependency(abstractName, proxyTarget);
             getKernel().getProxyManager().destroyProxy(proxy);
             setProxy(null);
             proxyTarget = null;
         }
     }
 
-    protected synchronized void targetAdded(ObjectName target) {
+    protected synchronized void targetAdded(AbstractName target) {
         // if we are running, and we now have two valid targets, which is an illegal state so we need to fail
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
@@ -129,7 +130,7 @@ public class GBeanSingleReference extends AbstractGBeanReference {
         }
     }
 
-    protected synchronized void targetRemoved(ObjectName target) {
+    protected synchronized void targetRemoved(AbstractName target) {
         GBeanInstance gbeanInstance = getGBeanInstance();
         if (gbeanInstance.getStateInstance() == State.RUNNING) {
             // we no longer have a valid target, which is an illegal state so we need to fail
@@ -159,20 +160,20 @@ public class GBeanSingleReference extends AbstractGBeanReference {
 
     protected LifecycleListener createLifecycleListener() {
         return new LifecycleAdapter() {
-                    public void running(ObjectName objectName) {
-                        addTarget(objectName);
+                    public void running(AbstractName abstractName) {
+                        addTarget(abstractName);
                     }
 
-                    public void stopped(ObjectName objectName) {
-                        removeTarget(objectName);
+                    public void stopped(AbstractName abstractName) {
+                        removeTarget(abstractName);
                     }
 
-                    public void failed(ObjectName objectName) {
-                        removeTarget(objectName);
+                    public void failed(AbstractName abstractName) {
+                        removeTarget(abstractName);
                     }
 
-                    public void unloaded(ObjectName objectName) {
-                        removeTarget(objectName);
+                    public void unloaded(AbstractName abstractName) {
+                        removeTarget(abstractName);
                     }
                 };
     }

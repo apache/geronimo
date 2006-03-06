@@ -17,6 +17,8 @@
 
 package org.apache.geronimo.kernel.proxy;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 import javax.management.ObjectName;
 
 
@@ -30,4 +32,5 @@ public interface ProxyFactory {
      * @return the proxy
      */
     Object createProxy(ObjectName target);
+    Object createProxy(AbstractName target);
 }

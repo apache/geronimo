@@ -17,98 +17,100 @@
 
 package org.apache.geronimo.kernel;
 
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.Collections;
-import java.util.Set;
-import javax.management.ObjectName;
-
 import junit.framework.TestCase;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
-import org.apache.log4j.Logger;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GBeanTest extends TestCase {
-    private ObjectName name;
-    private ObjectName name2;
     private Kernel kernel;
 
     public void testListGBeans() throws Exception {
-        ObjectName name = new ObjectName(":name=test");
-        GBeanData gbean = new GBeanData(name, MockGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         
         kernel.loadGBean(gbean, getClass().getClassLoader());
-        kernel.startGBean(name);
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(name));
+        kernel.startGBean(gbean.getAbstractName());
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean.getAbstractName()));
 
-        Set gbeans = kernel.listGBeans(name);
+        Set gbeans = kernel.listGBeans(new AbstractNameQuery(gbean.getAbstractName()));
         assertEquals(1, gbeans.size());
-        assertEquals(name, gbeans.iterator().next());
+        assertEquals(gbean.getAbstractName(), gbeans.iterator().next());
     }
 
     public void testLoad() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
-        GBeanData gbean = new GBeanData(name, MockGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         gbean.setAttribute("name", "Test");
         gbean.setAttribute("finalInt", new Integer(123));
         kernel.loadGBean(gbean, myCl);
-        kernel.startGBean(name);
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(name));
-        assertEquals("Hello", kernel.invoke(name, "doSomething", new Object[]{"Hello"}, new String[]{String.class.getName()}));
+        kernel.startGBean(gbean.getAbstractName());
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbean.getAbstractName()));
+        assertEquals("Hello", kernel.invoke(gbean.getAbstractName(), "doSomething", new Object[]{"Hello"}, new String[]{String.class.getName()}));
 
-        assertEquals(name.getCanonicalName(), kernel.getAttribute(name, "objectName"));
-        assertEquals(name.getCanonicalName(), kernel.getAttribute(name, "actualObjectName"));
+        assertEquals(gbean.getAbstractName().getObjectName().getCanonicalName(), kernel.getAttribute(gbean.getAbstractName(), "objectName"));
+        assertEquals(gbean.getAbstractName().getObjectName().getCanonicalName(), kernel.getAttribute(gbean.getAbstractName(), "actualObjectName"));
 
-        assertSame(myCl, kernel.getAttribute(name, "actualClassLoader"));
+        assertSame(myCl, kernel.getAttribute(gbean.getAbstractName(), "actualClassLoader"));
 
         // the MockGBean implemmentation of getConfigurationClassLoader will throw an exception, but since the GBean architecture
         // handles this directly the implementation method will never be called
-        kernel.getAttribute(name, "classLoader");
+        kernel.getAttribute(gbean.getAbstractName(), "classLoader");
 
-        assertSame(kernel, kernel.getAttribute(name, "kernel"));
-        assertSame(kernel, kernel.getAttribute(name, "actualKernel"));
+        assertSame(kernel, kernel.getAttribute(gbean.getAbstractName(), "kernel"));
+        assertSame(kernel, kernel.getAttribute(gbean.getAbstractName(), "actualKernel"));
 
-        kernel.stopGBean(name);
-        kernel.unloadGBean(name);
+        kernel.stopGBean(gbean.getAbstractName());
+        kernel.unloadGBean(gbean.getAbstractName());
     }
 
     public void testEndpoint() throws Exception {
         ClassLoader cl = MockGBean.class.getClassLoader();
-        GBeanData gbean1 = new GBeanData(name, MockGBean.getGBeanInfo());
+        GBeanData gbean1 = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         gbean1.setAttribute("finalInt", new Integer(123));
         kernel.loadGBean(gbean1, cl);
-        kernel.startGBean(name);
+        kernel.startGBean(gbean1.getAbstractName());
 
-        GBeanData gbean2 = new GBeanData(name2, MockGBean.getGBeanInfo());
+        GBeanData gbean2 = buildGBeanData("name", "test2", MockGBean.getGBeanInfo());
         gbean2.setAttribute("finalInt", new Integer(123));
-        gbean2.setReferencePatterns("MockEndpoint", Collections.singleton(name));
+        gbean2.setReferencePattern("MockEndpoint", new AbstractNameQuery(gbean1.getAbstractName()));
         kernel.loadGBean(gbean2, cl);
-        kernel.startGBean(name2);
+        kernel.startGBean(gbean2.getAbstractName());
 
-        assertEquals("endpointCheck", kernel.invoke(name2, "checkEndpoint", null, null));
+        assertEquals("endpointCheck", kernel.invoke(gbean2.getAbstractName(), "checkEndpoint", null, null));
     }
 
     public void testProxiesInterfaces() throws Exception {
         ClassLoader cl = getClass().getClassLoader();
         ClassLoader myCl = new URLClassLoader(new URL[0], cl);
-        GBeanData gbean = new GBeanData(name, MockGBean.getGBeanInfo());
+        GBeanData gbean = buildGBeanData("name", "test", MockGBean.getGBeanInfo());
         gbean.setAttribute("name", "Test");
         gbean.setAttribute("finalInt", new Integer(123));
         kernel.loadGBean(gbean, myCl);
-        kernel.startGBean(name);
+        kernel.startGBean(gbean.getAbstractName());
         ProxyManager mgr = kernel.getProxyManager();
 
-        Object test = mgr.createProxy(name, myCl);
+        Object test = mgr.createProxy(gbean.getAbstractName(), myCl);
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertTrue(test instanceof MockParentInterface2);
@@ -129,7 +131,7 @@ public class GBeanTest extends TestCase {
         ((MockChildInterface2)test).doNothing();
         assertEquals("Foo", ((MockChildInterface2)test).doSomething("Foo"));
 
-        test = mgr.createProxy(name, MockEndpoint.class);
+        test = mgr.createProxy(gbean.getAbstractName(), MockEndpoint.class);
         assertTrue(test instanceof MockEndpoint);
         assertFalse(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
@@ -139,7 +141,7 @@ public class GBeanTest extends TestCase {
 
         ProxyFactory proxyFactory;
         proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, MockParentInterface2.class, MockChildInterface2.class}, myCl);
-        test = proxyFactory.createProxy(name);
+        test = proxyFactory.createProxy(gbean.getAbstractName());
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertTrue(test instanceof MockParentInterface2);
@@ -148,7 +150,7 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof Comparable);
 
         proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, MockParentInterface1.class, MockChildInterface1.class}, myCl);
-        test = proxyFactory.createProxy(name);
+        test = proxyFactory.createProxy(gbean.getAbstractName());
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
@@ -157,7 +159,7 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof Comparable);
 
         proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, MockParentInterface1.class, MockChildInterface1.class, Comparable.class}, myCl);
-        test = proxyFactory.createProxy(name);
+        test = proxyFactory.createProxy(gbean.getAbstractName());
         assertTrue(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
@@ -165,7 +167,7 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof MockChildInterface2);
 
         proxyFactory = mgr.createProxyFactory(new Class[]{MockParentInterface1.class, MockChildInterface1.class, Comparable.class}, myCl);
-        test = proxyFactory.createProxy(name);
+        test = proxyFactory.createProxy(gbean.getAbstractName());
         assertFalse(test instanceof MockEndpoint);
         assertTrue(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
@@ -173,7 +175,7 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof MockChildInterface2);
 
         proxyFactory = mgr.createProxyFactory(new Class[]{MockEndpoint.class, Comparable.class}, myCl);
-        test = proxyFactory.createProxy(name);
+        test = proxyFactory.createProxy(gbean.getAbstractName());
         assertTrue(test instanceof MockEndpoint);
         assertFalse(test instanceof MockParentInterface1);
         assertFalse(test instanceof MockParentInterface2);
@@ -181,7 +183,7 @@ public class GBeanTest extends TestCase {
         assertFalse(test instanceof MockChildInterface2);
 
         proxyFactory = mgr.createProxyFactory(new Class[]{Comparable.class}, myCl);
-        test = proxyFactory.createProxy(name);
+        test = proxyFactory.createProxy(gbean.getAbstractName());
 
         try {
             proxyFactory = mgr.createProxyFactory(null, myCl);
@@ -197,7 +199,7 @@ public class GBeanTest extends TestCase {
 
         try {
             // two classes
-            test = mgr.createProxyFactory(new Class[]{MockGBean.class, Object.class}, cl).createProxy(name);
+            test = mgr.createProxyFactory(new Class[]{MockGBean.class, Object.class}, cl).createProxy(gbean.getAbstractName());
             fail();
         } catch (IllegalArgumentException e) {
         }
@@ -206,8 +208,6 @@ public class GBeanTest extends TestCase {
     protected void setUp() throws Exception {
         Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
         Logger.getRootLogger().setLevel(Level.DEBUG);
-        name = new ObjectName("test:name=MyMockGBean");
-        name2 = new ObjectName("test:name=MyMockGBean2");
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
     }
@@ -215,4 +215,15 @@ public class GBeanTest extends TestCase {
     protected void tearDown() throws Exception {
         kernel.shutdown();
     }
+    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        AbstractName abstractName = buildAbstractName(key, value, info);
+        return new GBeanData(abstractName, info);
+    }
+
+    private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        Map names = new HashMap();
+        names.put(key, value);
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:" + key + "=" + value));
+    }
+
 }

@@ -35,7 +35,7 @@ public class Artifact implements Comparable, Serializable {
     private final boolean resolved;
 
     public Artifact(String groupId, String artifactId, String version, String type) {
-        this(groupId, artifactId, new Version(version), type);
+        this(groupId, artifactId, version == null? null: new Version(version), type);
     }
 
     public Artifact(String groupId, String artifactId, Version version, String type) {
@@ -120,11 +120,8 @@ public class Artifact implements Comparable, Serializable {
             return false;
         }
 
-        if (version != null ? !version.equals(artifact.version) : artifact.version != null) {
-            return false;
-        }
+        return !(version != null ? !version.equals(artifact.version) : artifact.version != null);
 
-        return true;
     }
 
     public int hashCode() {
@@ -149,4 +146,21 @@ public class Artifact implements Comparable, Serializable {
         return groupId + "/" + artifactId + "/" + version + "/" + type;
     }
 
+    /**
+     * see if this artifact matches the other artifact (which is more specific than this one)
+     * @param otherArtifact the more specific artifact we are comparing with
+     * @return whether the other artifact is consistent with everything specified in this artifact.
+     */
+    public boolean matches(Artifact otherArtifact) {
+        if (groupId != null && !groupId.equals(otherArtifact.groupId)) {
+            return false;
+        }
+        if (artifactId != null && !artifactId.equals(otherArtifact.artifactId)) {
+            return false;
+        }
+        if (version != null && !version.equals(otherArtifact.version)) {
+            return false;
+        }
+        return (type == null || type.equals(otherArtifact.type));
+    }
 }

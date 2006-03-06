@@ -34,6 +34,7 @@ import org.apache.geronimo.kernel.basic.ProxyInvoker;
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -47,20 +48,20 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
     /**
      * The object name to which we are connected.
      */
-    private final ObjectName objectName;
+    private final AbstractName objectName;
 
     /**
      * GBeanInvokers keyed on the proxy interface method index
      */
     private ProxyInvoker[] gbeanInvokers;
 
-    public JMXProxyMethodInterceptor(Class proxyType, Kernel kernel, ObjectName objectName) {
+    public JMXProxyMethodInterceptor(Class proxyType, Kernel kernel, AbstractName targetName) {
         assert proxyType != null;
         assert kernel != null;
-        assert objectName != null;
+        assert targetName != null;
 
         this.proxyType = proxyType;
-        this.objectName = objectName;
+        this.objectName = targetName;
         gbeanInvokers = createGBeanInvokers(kernel);
     }
 
@@ -68,7 +69,7 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
         gbeanInvokers = null;
     }
 
-    public ObjectName getObjectName() {
+    public AbstractName getAbstractName() {
         return objectName;
     }
 
@@ -172,8 +173,8 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
     }
 
     static final class HashCodeInvoke implements ProxyInvoker {
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return new Integer(objectName.hashCode());
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return new Integer(abstractName.hashCode());
         }
     }
 
@@ -184,9 +185,9 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.proxyManager = proxyManager;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
             ObjectName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
-            return Boolean.valueOf(objectName.equals(proxyTarget));
+            return Boolean.valueOf(abstractName.equals(proxyTarget));
         }
     }
 
@@ -197,8 +198,8 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.interfaceName = "[" + interfaceName + ": ";
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return interfaceName + objectName + "]";
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return interfaceName + abstractName + "]";
         }
     }
 
@@ -209,8 +210,8 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return new Integer(kernel.getGBeanState(objectName));
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return new Integer(kernel.getGBeanState(abstractName));
         }
     }
 
@@ -221,8 +222,8 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return State.fromInt(kernel.getGBeanState(objectName));
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return State.fromInt(kernel.getGBeanState(abstractName));
         }
     }
 
@@ -233,8 +234,8 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            kernel.startGBean(objectName);
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            kernel.startGBean(abstractName);
             return null;
         }
     }
@@ -246,8 +247,8 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            kernel.startRecursiveGBean(objectName);
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            kernel.startRecursiveGBean(abstractName);
             return null;
         }
     }
@@ -259,8 +260,8 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return new Long(kernel.getGBeanStartTime(objectName));
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return new Long(kernel.getGBeanStartTime(abstractName));
         }
     }
 
@@ -271,15 +272,15 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
             this.kernel = kernel;
         }
 
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            kernel.stopGBean(objectName);
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            kernel.stopGBean(abstractName);
             return null;
         }
     }
 
     static final class GetObjectNameInvoke implements ProxyInvoker {
-        public Object invoke(ObjectName objectName, Object[] arguments) throws Throwable {
-            return objectName.getCanonicalName();
+        public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
+            return abstractName.getObjectName().getCanonicalName();
         }
     }
 }

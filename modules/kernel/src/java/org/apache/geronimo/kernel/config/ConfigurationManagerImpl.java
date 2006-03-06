@@ -19,41 +19,43 @@ package org.apache.geronimo.kernel.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.MissingDependencyException;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.net.URL;
-import java.net.URI;
-import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The standard non-editable ConfigurationManager implementation.  That is,
@@ -184,7 +186,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                 Map.Entry entry = (Map.Entry) iterator.next();
                 Artifact configurationId = (Artifact) entry.getKey();
                 GBeanData configurationData = (GBeanData) entry.getValue();
-                ObjectName configurationName = Configuration.getConfigurationObjectName(configurationId);
+                AbstractName configurationName = Configuration.getConfigurationAbstractName(configurationId);
 
                 // load the configuation
                 try {
@@ -334,14 +336,14 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         LinkedHashSet importNames = new LinkedHashSet();
         for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            ObjectName importName = Configuration.getConfigurationObjectName(artifact);
-            importNames.add(importName);
+            AbstractName importName = Configuration.getConfigurationAbstractName(artifact);
+            importNames.add(new AbstractNameQuery(importName));
         }
         LinkedHashSet referenceNames = new LinkedHashSet();
         for (Iterator iterator = references.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
-            ObjectName referenceName = Configuration.getConfigurationObjectName(artifact);
-            referenceNames.add(referenceName);
+            AbstractName referenceName = Configuration.getConfigurationAbstractName(artifact);
+            referenceNames.add(new AbstractNameQuery(referenceName));
         }
 
         // add dependencies on the imports and references
@@ -386,6 +388,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
 
         // register all the GBeans
+        AbstractNameQuery configurationReferencePattern = new AbstractNameQuery(Configuration.getConfigurationAbstractName(configuration.getId()));
         ConfigurationStore configurationStore = configuration.getConfigurationStore();
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
@@ -402,7 +405,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             }
 
             // add a dependency from the gbean to the configuration
-            gbeanData.getDependencies().add(Configuration.getConfigurationObjectName(getConfigurationId(configuration)));
+            gbeanData.getDependencies().add(configurationReferencePattern);
 
             log.trace("Registering GBean " + gbeanData.getName());
 
@@ -440,18 +443,20 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         try {
             // start the gbeans
             Map gbeans = configuration.getGBeans();
-            for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-                ObjectName gbeanName = (ObjectName) iterator.next();
+            for (Iterator iterator = gbeans.values().iterator(); iterator.hasNext();) {
+                GBeanData gbeanData = (GBeanData) iterator.next();
+                AbstractName gbeanName = gbeanData.getAbstractName();
                 if (kernel.isGBeanEnabled(gbeanName)) {
                     kernel.startRecursiveGBean(gbeanName);
                 }
             }
 
             // assure all of the gbeans are started
-//            for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-//                ObjectName gbeanName = (ObjectName) iterator.next();
+//            for (Iterator iterator = gbeans.values().iterator(); iterator.hasNext();) {
+//                GBeanData gbeanData = (GBeanData) iterator.next();
+//                AbstractName gbeanName = gbeanData.getAbstractName();
 //                if (State.RUNNING_INDEX != kernel.getGBeanState(gbeanName)) {
-//                    throw new InvalidConfigurationException("Configuration " + getConfigurationId(configuration) + " failed to start because gbean " + gbeanName + " did not start");
+//                    throw new InvalidConfigurationException("Configuration " + configuration.getId() + " failed to start because gbean " + gbeanName + " did not start");
 //                }
 //            }
         } catch (GBeanNotFoundException e) {
@@ -483,12 +488,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
 
     private void stop(Configuration configuration) throws InvalidConfigException {
         try {
-            Collection gbeans = configuration.getGBeans().keySet();
+            Collection gbeans = configuration.getGBeans().values();
 
             // stop the gbeans
             for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
-                // todo should try to stop all beans
-                ObjectName gbeanName = (ObjectName) iterator.next();
+                GBeanData gbeanData = (GBeanData) iterator.next();
+                AbstractName gbeanName = gbeanData.getAbstractName();
                 kernel.stopGBean(gbeanName);
             }
         } catch (Exception e) {
@@ -519,9 +524,9 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     }
 
     private void unload(Artifact configurationId) throws NoSuchConfigException {
-        ObjectName configName;
+        AbstractName configName;
         try {
-            configName = Configuration.getConfigurationObjectName(configurationId);
+            configName = Configuration.getConfigurationAbstractName(configurationId);
         } catch (InvalidConfigException e) {
             throw new NoSuchConfigException("Could not construct configuration object name", e);
         }
@@ -532,8 +537,9 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
 
                     // unload the gbeans
                     // todo move this to stopConfiguration
-                    for (Iterator iterator = gbeans.keySet().iterator(); iterator.hasNext();) {
-                        ObjectName gbeanName = (ObjectName) iterator.next();
+                    for (Iterator iterator = gbeans.values().iterator(); iterator.hasNext();) {
+                        GBeanData gbeanData = (GBeanData) iterator.next();
+                        AbstractName gbeanName = gbeanData.getAbstractName();
                         kernel.unloadGBean(gbeanName);
                     }
                 } catch (Exception e) {

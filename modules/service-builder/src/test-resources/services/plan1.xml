@@ -78,7 +78,7 @@
             </ns:javabean>
         </xml-attribute>
         <reference name="MockEndpoint">
-            <gbean-name>geronimo.test:name=MyMockGMBean</gbean-name>
+            <name>MyMockGMBean</name>
         </reference>
     </gbean>
 </configuration>

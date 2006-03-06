@@ -28,6 +28,8 @@ import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 
 /**
  * @version $Rev$ $Date$
@@ -48,7 +50,7 @@ public class GBeanInstanceState {
     /**
      * The unique name of this service.
      */
-    private final ObjectName objectName;
+    private final AbstractName abstractName;
 
     /**
      * The dependency manager
@@ -70,8 +72,8 @@ public class GBeanInstanceState {
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
     private volatile State state = State.STOPPED;
 
-    GBeanInstanceState(ObjectName objectName, Kernel kernel, DependencyManager dependencyManager, GBeanInstance gbeanInstance, LifecycleBroadcaster lifecycleBroadcaster) {
-        this.objectName = objectName;
+    GBeanInstanceState(AbstractName abstractName, Kernel kernel, DependencyManager dependencyManager, GBeanInstance gbeanInstance, LifecycleBroadcaster lifecycleBroadcaster) {
+        this.abstractName = abstractName;
         this.kernel = kernel;
         this.dependencyManager = dependencyManager;
         this.gbeanInstance = gbeanInstance;
@@ -132,19 +134,17 @@ public class GBeanInstanceState {
         start();
 
         // startRecursive all of objects that depend on me
-        Set dependents = dependencyManager.getChildren(objectName);
+        Set dependents = dependencyManager.getChildren(abstractName);
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
-            ObjectName dependent = (ObjectName) iterator.next();
+            AbstractName dependent = (AbstractName) iterator.next();
             try {
                 if (kernel.isGBeanEnabled(dependent)) {
                     kernel.startRecursiveGBean(dependent);
                 }
             } catch (GBeanNotFoundException e) {
                 // this is ok the gbean died before we could start it
-                continue;
             } catch (Exception e) {
-                // the is something wrong with this gbean... skip it
-                continue;
+                // there is something wrong with this gbean... skip it
             }
         }
     }
@@ -182,9 +182,9 @@ public class GBeanInstanceState {
         // Don't try to stop dependents from within a synchronized block... this should reduce deadlocks
 
         // stop all of my dependent objects
-        Set dependents = dependencyManager.getChildren(objectName);
+        Set dependents = dependencyManager.getChildren(abstractName);
         for (Iterator iterator = dependents.iterator(); iterator.hasNext();) {
-            ObjectName child = (ObjectName) iterator.next();
+            AbstractName child = (AbstractName) iterator.next();
             try {
                 log.trace("Checking if child is running: child=" + child);
                 if (kernel.getGBeanState(child) == State.RUNNING_INDEX) {
@@ -253,25 +253,25 @@ public class GBeanInstanceState {
             }
 
             // check if an gbean is blocking us from starting
-            final ObjectName blocker = dependencyManager.checkBlocker(objectName);
+            final AbstractName blocker = dependencyManager.checkBlocker(abstractName);
             if (blocker != null) {
                 blockerListener = new LifecycleAdapter() {
 
-                    public void stopped(ObjectName objectName) {
-                        checkBlocker(objectName);
+                    public void stopped(AbstractName abstractName) {
+                        checkBlocker(abstractName);
                     }
 
-                    public void failed(ObjectName objectName) {
-                        checkBlocker(objectName);
+                    public void failed(AbstractName abstractName) {
+                        checkBlocker(abstractName);
                     }
 
-                    public void unloaded(ObjectName objectName) {
-                        checkBlocker(objectName);
+                    public void unloaded(AbstractName abstractName) {
+                        checkBlocker(abstractName);
                     }
 
-                    private void checkBlocker(ObjectName objectName) {
+                    private void checkBlocker(AbstractName abstractName) {
                         synchronized (GBeanInstanceState.this) {
-                            if (!objectName.equals(blocker)) {
+                            if (!abstractName.equals(blocker)) {
                                 // it did not start so just exit this method
                                 return;
                             }
@@ -289,14 +289,15 @@ public class GBeanInstanceState {
                     }
                 };
                 // register the listener and return
-                kernel.getLifecycleMonitor().addLifecycleListener(blockerListener, blocker);
+                AbstractNameQuery blockerPattern = new AbstractNameQuery(blocker.getArtifact(), blocker.getName(), blocker.getInterfaceTypes());
+                kernel.getLifecycleMonitor().addLifecycleListener(blockerListener, blockerPattern);
                 return;
             }
 
             // check if all of the gbeans we depend on are running
-            Set parents = dependencyManager.getParents(objectName);
+            Set parents = dependencyManager.getParents(abstractName);
             for (Iterator i = parents.iterator(); i.hasNext();) {
-                ObjectName parent = (ObjectName) i.next();
+                AbstractName parent = (AbstractName) i.next();
                 if (!kernel.isLoaded(parent)) {
                     log.trace("Cannot run because parent is not registered: parent=" + parent);
                     return;
@@ -331,7 +332,7 @@ public class GBeanInstanceState {
             }
         } catch (Throwable t) {
             // oops there was a problem and the gbean failed
-            log.error("Error while starting; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
+            log.error("Error while starting; GBean is now in the FAILED state: abstractName=\"" + abstractName + "\"", t);
             setStateInstance(State.FAILED);
             lifecycleBroadcaster.fireFailedEvent();
 
@@ -368,7 +369,7 @@ public class GBeanInstanceState {
             }
 
             // check if all of the mbeans depending on us are stopped
-            Set children = dependencyManager.getChildren(objectName);
+            Set children = dependencyManager.getChildren(abstractName);
             for (Iterator i = children.iterator(); i.hasNext();) {
                 ObjectName child = (ObjectName) i.next();
                 if (kernel.isLoaded(child)) {
@@ -398,7 +399,7 @@ public class GBeanInstanceState {
                 return;
             }
         } catch (Throwable t) {
-            log.error("Error while stopping; GBean is now in the FAILED state: objectName=\"" + objectName + "\"", t);
+            log.error("Error while stopping; GBean is now in the FAILED state: abstractName=\"" + abstractName + "\"", t);
             setStateInstance(State.FAILED);
             lifecycleBroadcaster.fireFailedEvent();
 
@@ -498,7 +499,7 @@ public class GBeanInstanceState {
     }
 
     public String toString() {
-        return "GBeanInstanceState for: " + objectName;
+        return "GBeanInstanceState for: " + abstractName;
     }
 
 }

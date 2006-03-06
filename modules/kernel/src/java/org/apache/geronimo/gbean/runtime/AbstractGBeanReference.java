@@ -16,14 +16,7 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
 import org.apache.geronimo.kernel.ClassLoading;
@@ -32,6 +25,13 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -141,9 +141,9 @@ public abstract class AbstractGBeanReference implements GBeanReference {
 
     protected abstract LifecycleListener createLifecycleListener();
 
-    protected abstract void targetAdded(ObjectName target);
+    protected abstract void targetAdded(AbstractName target);
 
-    protected abstract void targetRemoved(ObjectName target);
+    protected abstract void targetRemoved(AbstractName target);
 
     protected final Kernel getKernel() {
         return kernel;
@@ -208,7 +208,7 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     public final synchronized void online() {
         Set gbeans = kernel.listGBeans(patterns);
         for (Iterator objectNameIterator = gbeans.iterator(); objectNameIterator.hasNext();) {
-            ObjectName target = (ObjectName) objectNameIterator.next();
+            AbstractName target = (AbstractName) objectNameIterator.next();
             if (!targets.contains(target)) {
 
                 // if the bean is running add it to the runningTargets list
@@ -236,17 +236,17 @@ public abstract class AbstractGBeanReference implements GBeanReference {
         return targets;
     }
 
-    protected final void addTarget(ObjectName objectName) {
-        if (!targets.contains(objectName)) {
-            targets.add(objectName);
-            targetAdded(objectName);
+    protected final void addTarget(AbstractName abstractName) {
+        if (!targets.contains(abstractName)) {
+            targets.add(abstractName);
+            targetAdded(abstractName);
         }
     }
 
-    protected final void removeTarget(ObjectName objectName) {
-        boolean wasTarget = targets.remove(objectName);
+    protected final void removeTarget(AbstractName abstractName) {
+        boolean wasTarget = targets.remove(abstractName);
         if (wasTarget) {
-            targetRemoved(objectName);
+            targetRemoved(abstractName);
         }
     }
 
@@ -260,12 +260,12 @@ public abstract class AbstractGBeanReference implements GBeanReference {
     /**
      * Is the component in the Running state
      *
-     * @param objectName name of the component to check
+     * @param abstractName name of the component to check
      * @return true if the component is running; false otherwise
      */
-    private boolean isRunning(Kernel kernel, ObjectName objectName) {
+    private boolean isRunning(Kernel kernel, AbstractName abstractName) {
         try {
-            final int state = kernel.getGBeanState(objectName);
+            final int state = kernel.getGBeanState(abstractName);
             return state == State.RUNNING_INDEX;
         } catch (GBeanNotFoundException e) {
             // mbean is no longer registerd

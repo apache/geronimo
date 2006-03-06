@@ -16,14 +16,15 @@
  */
 package org.apache.geronimo.kernel.lifecycle;
 
+import org.apache.geronimo.gbean.AbstractNameQuery;
+
 import java.util.Set;
-import javax.management.ObjectName;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface LifecycleMonitor {
-    void addLifecycleListener(LifecycleListener listener, ObjectName pattern);
+    void addLifecycleListener(LifecycleListener listener, AbstractNameQuery pattern);
 
     void addLifecycleListener(LifecycleListener listener, Set patterns);
 

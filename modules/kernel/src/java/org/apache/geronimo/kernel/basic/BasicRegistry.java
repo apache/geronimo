@@ -30,17 +30,20 @@ import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
 import org.apache.geronimo.gbean.GBeanName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 
 /**
  * @version $Rev$ $Date$
  */
 public class BasicRegistry {
-    private final Map registry = new HashMap();
+    private final Map objectNameRegistry = new HashMap();
+    private final Map infoRegistry = new HashMap();
     private String kernelName = "";
 
     /**
-     * Start the registry and associate it with a kernel.
+     * Start the objectNameRegistry and associate it with a kernel.
      *
      * @param kernel the kernel to associate with
      */
@@ -49,10 +52,10 @@ public class BasicRegistry {
     }
 
     /**
-     * Shut down the registry and unregister any GBeans
+     * Shut down the objectNameRegistry and unregister any GBeans
      */
     public synchronized void stop() {
-        registry.clear();
+        objectNameRegistry.clear();
         kernelName = "";
     }
 
@@ -63,7 +66,11 @@ public class BasicRegistry {
      * @return true if there is a GBean registered with that name
      */
     public synchronized boolean isRegistered(GBeanName name) {
-        return registry.containsKey(name);
+        return objectNameRegistry.containsKey(name);
+    }
+
+    public synchronized boolean isRegistered(AbstractName refInfo) {
+        return infoRegistry.containsKey(refInfo);
     }
 
     /**
@@ -74,10 +81,11 @@ public class BasicRegistry {
      */
     public synchronized void register(GBeanInstance gbeanInstance) throws GBeanAlreadyExistsException {
         GBeanName name = createGBeanName(gbeanInstance.getObjectNameObject());
-        if (registry.containsKey(name)) {
+        if (objectNameRegistry.containsKey(name)) {
             throw new GBeanAlreadyExistsException("GBean already registered: " + name);
         }
-        registry.put(name, gbeanInstance);
+        objectNameRegistry.put(name, gbeanInstance);
+        infoRegistry.put(gbeanInstance.getAbstractName(), gbeanInstance);
     }
 
     /**
@@ -87,13 +95,24 @@ public class BasicRegistry {
      * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
      */
     public synchronized void unregister(GBeanName name) throws GBeanNotFoundException, InternalKernelException {
-        if (registry.remove(name) == null) {
+        GBeanInstance gbeanInstance = (GBeanInstance) objectNameRegistry.remove(name);
+        if (gbeanInstance == null) {
             try {
                 throw new GBeanNotFoundException(name.getObjectName());
             } catch (MalformedObjectNameException e) {
                 throw new InternalKernelException(e);
             }
         }
+        infoRegistry.remove(gbeanInstance.getAbstractName());
+    }
+
+    public synchronized void unregister(AbstractName abstractName) throws GBeanNotFoundException {
+        GBeanInstance gbeanInstance = (GBeanInstance) infoRegistry.remove(abstractName);
+        if (gbeanInstance == null) {
+            throw new GBeanNotFoundException(abstractName);
+        }
+        GBeanName name = createGBeanName(gbeanInstance.getObjectNameObject());
+        objectNameRegistry.remove(name);
     }
 
     /**
@@ -104,7 +123,7 @@ public class BasicRegistry {
      * @throws GBeanNotFoundException if there is no GBean registered with the supplied name
      */
     public synchronized GBeanInstance getGBeanInstance(GBeanName name) throws GBeanNotFoundException {
-        GBeanInstance instance = (GBeanInstance) registry.get(name);
+        GBeanInstance instance = (GBeanInstance) objectNameRegistry.get(name);
         if (instance == null) {
             try {
                 throw new GBeanNotFoundException(name.getObjectName());
@@ -115,25 +134,49 @@ public class BasicRegistry {
         return instance;
     }
 
+    public synchronized GBeanInstance getGBeanInstance(AbstractName abstractName) throws GBeanNotFoundException {
+        GBeanInstance instance = (GBeanInstance) infoRegistry.get(abstractName);
+        if (instance == null) {
+            throw new GBeanNotFoundException(abstractName);
+        }
+        return instance;
+    }
+
 
     /**
-     * Search the registry for GBeans matching a name pattern.
+     * Search the objectNameRegistry for GBeans matching a name pattern.
      *
-     * @param domain the domain to query in; null indicates all
+     * @param domain     the domain to query in; null indicates all
      * @param properties the properties the GBeans must have
      * @return an unordered Set<GBeanInstance> of GBeans that matched the pattern
      */
     public Set listGBeans(String domain, Map properties) {
         // fairly dumb implementation that iterates the list of all registered GBeans
         Map clone;
-        synchronized(this) {
-            clone = new HashMap(registry);
+        synchronized (this) {
+            clone = new HashMap(objectNameRegistry);
         }
         Set result = new HashSet(clone.size());
         for (Iterator i = clone.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
             GBeanName name = (GBeanName) entry.getKey();
             if (name.matches(domain, properties)) {
+                result.add(entry.getValue());
+            }
+        }
+        return result;
+    }
+
+    public Set listGBeans(AbstractNameQuery query) {
+        Map clone;
+        synchronized (this) {
+            clone = new HashMap(infoRegistry);
+        }
+        Set result = new HashSet(clone.size());
+        for (Iterator i = clone.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            AbstractName name = (AbstractName) entry.getKey();
+            if (query == null || query.matches(name)) {
                 result.add(entry.getValue());
             }
         }

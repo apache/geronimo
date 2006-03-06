@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URI;
 import java.net.MalformedURLException;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -43,6 +44,8 @@ import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
@@ -61,12 +64,12 @@ public class ConfigurationManagerTest extends TestCase {
         assertTrue(configurationManager.isLoaded(artifact3));
         assertTrue(configurationManager.isLoaded(artifact2));
         assertTrue(configurationManager.isLoaded(artifact1));
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationObjectName(artifact3))) ;
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationObjectName(artifact2))) ;
-        assertTrue(kernel.isLoaded(Configuration.getConfigurationObjectName(artifact1))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationObjectName(artifact3))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationObjectName(artifact2))) ;
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationObjectName(artifact1))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertTrue(kernel.isLoaded(Configuration.getConfigurationAbstractName(artifact1))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact3))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact2))) ;
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(Configuration.getConfigurationAbstractName(artifact1))) ;
     }
 
     protected void setUp() throws Exception {
@@ -75,12 +78,11 @@ public class ConfigurationManagerTest extends TestCase {
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
-        ObjectName artifactManagerName = new ObjectName(":j2eeType=ArtifactManager");
-        GBeanData artifactManagerData = new GBeanData(artifactManagerName, DefaultArtifactManager.GBEAN_INFO);
+        GBeanData artifactManagerData = buildGBeanData("name", "ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
         kernel.loadGBean(artifactManagerData, getClass().getClassLoader());
-        kernel.startGBean(artifactManagerName);
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerName));
-        ArtifactManager artifactManager = (ArtifactManager) kernel.getProxyManager().createProxy(artifactManagerName, ArtifactManager.class);
+        kernel.startGBean(artifactManagerData.getAbstractName());
+        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
+        ArtifactManager artifactManager = (ArtifactManager) kernel.getProxyManager().createProxy(artifactManagerData.getAbstractName(), ArtifactManager.class);
 
         artifact1 = new Artifact("test", "1", "1.1", "bar");
         artifact2 = new Artifact("test", "2", "2.2", "bar");
@@ -88,21 +90,21 @@ public class ConfigurationManagerTest extends TestCase {
 
         Environment e1 = new Environment();
         e1.setConfigId(artifact1);
-        GBeanData gbeanData1 = new GBeanData(Configuration.getConfigurationObjectName(artifact1), Configuration.GBEAN_INFO);
+        GBeanData gbeanData1 = new GBeanData(Configuration.getConfigurationAbstractName(artifact1), Configuration.GBEAN_INFO);
         gbeanData1.setAttribute("environment", e1);
         configurations.put(artifact1, gbeanData1);
 
         Environment e2 = new Environment();
         e2.setConfigId(artifact2);
         e2.addImport(new Artifact("test", "1", (Version) null, "bar"));
-        GBeanData gbeanData2 = new GBeanData(Configuration.getConfigurationObjectName(artifact2), Configuration.GBEAN_INFO);
+        GBeanData gbeanData2 = new GBeanData(Configuration.getConfigurationAbstractName(artifact2), Configuration.GBEAN_INFO);
         gbeanData2.setAttribute("environment", e2);
         configurations.put(artifact2, gbeanData2);
 
         Environment e3 = new Environment();
         e3.setConfigId(artifact3);
         e3.addImport(new Artifact("test", "2", (Version) null, "bar"));
-        GBeanData gbeanData3 = new GBeanData(Configuration.getConfigurationObjectName(artifact3), Configuration.GBEAN_INFO);
+        GBeanData gbeanData3 = new GBeanData(Configuration.getConfigurationAbstractName(artifact3), Configuration.GBEAN_INFO);
         gbeanData3.setAttribute("environment", e3);
         configurations.put(artifact3, gbeanData3);
 
@@ -148,6 +150,17 @@ public class ConfigurationManagerTest extends TestCase {
         public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
             throw new UnsupportedOperationException();
         }
+    }
+
+    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        AbstractName abstractName = buildAbstractName(key, value, info);
+        return new GBeanData(abstractName, info);
+    }
+
+    private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+        Map names = new HashMap();
+        names.put(key, value);
+        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:" + key + "=" + value));
     }
 
     private class TestRepository implements ListableRepository {

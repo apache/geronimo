@@ -16,18 +16,19 @@
  */
 package org.apache.geronimo.kernel.lifecycle;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 import java.util.EventListener;
-import javax.management.ObjectName;
 
 /**
  * @version $Rev$ $Date$
  */
 public interface LifecycleListener extends EventListener {
-    public void loaded(ObjectName objectName);
-    public void starting(ObjectName objectName);
-    public void running(ObjectName objectName);
-    public void stopping(ObjectName objectName);
-    public void stopped(ObjectName objectName);
-    public void failed(ObjectName objectName);
-    public void unloaded(ObjectName objectName);
+    public void loaded(AbstractName abstractName);
+    public void starting(AbstractName abstractName);
+    public void running(AbstractName abstractName);
+    public void stopping(AbstractName abstractName);
+    public void stopped(AbstractName abstractName);
+    public void failed(AbstractName abstractName);
+    public void unloaded(AbstractName abstractName);
 }

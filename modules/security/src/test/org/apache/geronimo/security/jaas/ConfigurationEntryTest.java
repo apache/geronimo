@@ -18,11 +18,12 @@
 package org.apache.geronimo.security.jaas;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
@@ -33,14 +34,19 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.jaas.server.JaasLoginService;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
+import org.apache.geronimo.security.realm.SecurityRealm;
 import org.apache.geronimo.security.remoting.jmx.JaasLoginServiceRemotingServer;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
@@ -52,15 +58,15 @@ import org.apache.geronimo.system.serverinfo.ServerInfo;
 public class ConfigurationEntryTest extends TestCase {
 
     protected Kernel kernel;
-    protected ObjectName serverInfo;
-    protected ObjectName loginConfiguration;
-    protected ObjectName loginService;
-    protected ObjectName clientCE;
-    protected ObjectName testUPCred;
-    protected ObjectName testCE;         //audit lm
-    protected ObjectName testProperties; //properties lm
-    protected ObjectName testRealm;
-    protected ObjectName serverStub;
+    protected AbstractName serverInfo;
+    protected AbstractName loginConfiguration;
+    protected AbstractName loginService;
+    protected AbstractName clientCE;
+    protected AbstractName testUPCred;
+    protected AbstractName testCE;         //audit lm
+    protected AbstractName testProperties; //properties lm
+    protected AbstractName testRealm;
+    protected AbstractName serverStub;
 
     public void test() throws Exception {
         File log = new File("target/login-audit.log");
@@ -135,38 +141,34 @@ public class ConfigurationEntryTest extends TestCase {
 
         // Create all the parts
 
-        serverInfo = new ObjectName("geronimo.system:role=ServerInfo");
-        gbean = new GBeanData(serverInfo, BasicServerInfo.GBEAN_INFO);
+        gbean = buildGBeanData("name", "ServerInfo", BasicServerInfo.GBEAN_INFO);
+        serverInfo = gbean.getAbstractName();
         gbean.setAttribute("baseDirectory", ".");
         kernel.loadGBean(gbean, ServerInfo.class.getClassLoader());
         kernel.startGBean(serverInfo);
 
-        loginConfiguration = new ObjectName("geronimo.security:type=LoginConfiguration");
-        gbean = new GBeanData(loginConfiguration, GeronimoLoginConfiguration.getGBeanInfo());
-        Set configurations = new HashSet();
-        configurations.add(new ObjectName("geronimo.security:type=SecurityRealm,*"));
-        configurations.add(new ObjectName("geronimo.security:type=ConfigurationEntry,*"));
-        gbean.setReferencePatterns("Configurations", configurations);
+        gbean = buildGBeanData("new", "LoginConfiguration", GeronimoLoginConfiguration.getGBeanInfo());
+        loginConfiguration = gbean.getAbstractName();
+        gbean.setReferencePattern("Configurations", new AbstractNameQuery(ConfigurationEntryFactory.class.getName()));
         kernel.loadGBean(gbean, GeronimoLoginConfiguration.class.getClassLoader());
 
-        loginService = new ObjectName("test:name=TestLoginService");
-        gbean = new GBeanData(loginService, JaasLoginService.getGBeanInfo());
-        gbean.setReferencePatterns("Realms", Collections.singleton(new ObjectName("geronimo.security:type=SecurityRealm,*")));
-//        gbean.setAttribute("reclaimPeriod", new Long(100));
+        gbean = buildGBeanData("name", "TestLoginService", JaasLoginService.getGBeanInfo());
+        loginService = gbean.getAbstractName();
+        gbean.setReferencePattern("Realms", new AbstractNameQuery((SecurityRealm.class.getName())));
         gbean.setAttribute("algorithm", "HmacSHA1");
         gbean.setAttribute("password", "secret");
         kernel.loadGBean(gbean, JaasLoginService.class.getClassLoader());
 
         // TODO What is this?
-        clientCE = new ObjectName("geronimo.security:type=ConfigurationEntry,jaasId=properties-client");
-        gbean = new GBeanData(clientCE, ServerRealmConfigurationEntry.getGBeanInfo());
+        gbean = buildGBeanData("name", "client-ConfigurationEntry", ServerRealmConfigurationEntry.getGBeanInfo());
+        clientCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginService", loginService);
+        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
         kernel.loadGBean(gbean, ServerRealmConfigurationEntry.class.getClassLoader());
 
-        testProperties = new ObjectName("geronimo.security:type=LoginModule,name=properties");
-        gbean = new GBeanData(testProperties, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
+        testProperties = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.PropertiesFileLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         Properties props = new Properties();
@@ -177,15 +179,15 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        testUPCred = new ObjectName("geronimo.security:type=LoginModule,name=UPCred");
-        gbean = new GBeanData(testUPCred, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData("name", "UPCredLoginModule", LoginModuleGBean.getGBeanInfo());
+        testUPCred = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.jaas.UPCredentialLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         gbean.setAttribute("options", new Properties());
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        testCE = new ObjectName("geronimo.security:type=LoginModule,name=audit");
-        gbean = new GBeanData(testCE, LoginModuleGBean.getGBeanInfo());
+        gbean = buildGBeanData    ("name", "AuditLoginModule", LoginModuleGBean.getGBeanInfo());
+        testCE = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "org.apache.geronimo.security.realm.providers.FileAuditLoginModule");
         gbean.setAttribute("serverSide", new Boolean(true));
         props = new Properties();
@@ -193,45 +195,40 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("options", props);
         kernel.loadGBean(gbean, LoginModuleGBean.class.getClassLoader());
 
-        ObjectName testUseName3 = new ObjectName("geronimo.security:type=LoginModuleUse,name=UPCred");
-        gbean = new GBeanData(testUseName3, JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "UPCredLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        AbstractName testUseName3 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", testUPCred);
+        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testUPCred));
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        ObjectName testUseName2 = new ObjectName("geronimo.security:type=LoginModuleUse,name=audit");
-        gbean = new GBeanData(testUseName2, JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "AuditLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        AbstractName testUseName2 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", testCE);
-        gbean.setReferencePattern("Next", testUseName3);
+        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testCE));
+        gbean.setReferencePattern("Next", new AbstractNameQuery(testUseName3));
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        ObjectName testUseName1 = new ObjectName("geronimo.security:type=LoginModuleUse,name=properties");
-        gbean = new GBeanData(testUseName1, JaasLoginModuleUse.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
+        AbstractName testUseName1 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", testProperties);
-        gbean.setReferencePattern("Next", testUseName2);
+        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testProperties));
+        gbean.setReferencePattern("Next", new AbstractNameQuery(testUseName2));
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
-        testRealm = new ObjectName("geronimo.security:type=SecurityRealm,realm=properties-realm");
-        gbean = new GBeanData(testRealm, GenericSecurityRealm.getGBeanInfo());
+        gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
+        testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-//        props = new Properties();
-//        props.setProperty("LoginModule.3.REQUIRED","geronimo.security:type=LoginModule,name=UPCred");
-//        props.setProperty("LoginModule.2.REQUIRED","geronimo.security:type=LoginModule,name=audit");
-//        props.setProperty("LoginModule.1.REQUIRED","geronimo.security:type=LoginModule,name=properties");
-//        gbean.setAttribute("loginModuleConfiguration", props);
-        gbean.setReferencePattern("LoginModuleConfiguration", testUseName1);
-        gbean.setReferencePatterns("ServerInfo", Collections.singleton(serverInfo));
-        gbean.setReferencePattern("LoginService", loginService);
+        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName1));
+        gbean.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfo));
+        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
-        serverStub = new ObjectName("geronimo.remoting:target=JaasLoginServiceRemotingServer");
-        gbean = new GBeanData(serverStub, JaasLoginServiceRemotingServer.getGBeanInfo());
+        gbean = buildGBeanData("name", "JaasLoginServiceRemotingServer", JaasLoginServiceRemotingServer.getGBeanInfo());
+        serverStub = gbean.getAbstractName();
         gbean.setAttribute("protocol", "tcp");
         gbean.setAttribute("host", "0.0.0.0");
         gbean.setAttribute("port", new Integer(4242));
-        gbean.setReferencePattern("LoginService", loginService);
+        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
         kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);
@@ -268,4 +265,16 @@ public class ConfigurationEntryTest extends TestCase {
 
         kernel.shutdown();
     }
+
+    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+          AbstractName abstractName = buildAbstractName(key, value, info);
+          return new GBeanData(abstractName, info);
+      }
+
+      private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
+          Map names = new HashMap();
+          names.put(key, value);
+          return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:" + key + "=" + value));
+      }
+
 }

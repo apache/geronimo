@@ -20,6 +20,7 @@ package org.apache.geronimo.kernel.jmx;
 import java.util.Set;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Hashtable;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.MBeanInfo;
@@ -56,6 +57,14 @@ public final class JMXUtil {
             return new ObjectName(name);
         } catch (MalformedObjectNameException e) {
             throw new IllegalArgumentException("Malformed ObjectName: " + name);
+        }
+    }
+
+   public static ObjectName getObjectName(String domain, Hashtable keys) throws IllegalArgumentException {
+        try {
+            return new ObjectName(domain, keys);
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalArgumentException("Malformed ObjectName: " + domain + ":" + keys);
         }
     }
 
