@@ -702,7 +702,7 @@
       <layout>legacy</layout>
     </repository>
     <repository>
-      <id>maven1</id>
+      <id>maven1-ibiblio</id>
       <name>Maven1 Repository on iBiblio</name>
       <url>http://www.ibiblio.org/maven/</url>
       <layout>legacy</layout>
@@ -742,6 +742,7 @@
         <module>modules/deployment</module>
         <module>modules/derby</module>
         <module>modules/directory</module>
+        <module>modules/hot-deploy</module>
         <module>modules/interceptor</module>
         <module>modules/j2ee</module>
         <module>modules/j2ee-builder</module>
