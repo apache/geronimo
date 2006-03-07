@@ -696,16 +696,37 @@
       <url>http://snapshots.maven.codehaus.org/maven2</url>
     </repository>
     <repository>
+      <id>maven1-ibiblio</id>
+      <name>Maven1 Repository on iBiblio</name>
+      <url>http://www.ibiblio.org/maven</url>
+      <layout>legacy</layout>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>maven2-central</id>
+      <name>Maven2 Central Repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
+    <repository>
       <id>apache-cvs</id>
       <name>Apache CVS Repository</name>
       <url>http://cvs.apache.org/repository</url>
       <layout>legacy</layout>
-    </repository>
-    <repository>
-      <id>maven1-ibiblio</id>
-      <name>Maven1 Repository on iBiblio</name>
-      <url>http://www.ibiblio.org/maven/</url>
-      <layout>legacy</layout>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
     </repository>
   </repositories>
 
