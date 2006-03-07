@@ -101,7 +101,7 @@ public class RunningTest extends TestCase {
         serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName,
                 BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", "modules/directory/target");
+        serverInfoGBean.setAttribute("baseDirectory", "./target");
         start(serverInfoGBean);
 
         // DirectoryGBean
