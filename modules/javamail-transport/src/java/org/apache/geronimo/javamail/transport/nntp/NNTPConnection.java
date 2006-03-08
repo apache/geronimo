@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2006 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ import org.apache.geronimo.javamail.util.MIMEOutputStream;
  * delivery.
  * <p/>
  * There is no way to indicate failure for a given recipient (it's possible to have a
- * recipient address rejected).  The sun impl throws exceptions even if others are successful,
+ * recipient address rejected).  The sun impl throws exceptions even if others successful),
  * but maybe we do a different way...
  * <p/>
  *
@@ -146,6 +146,9 @@ public class NNTPConnection  {
     protected HashMap serverAuthenticationMechanisms;
     // map of server extension arguments
     protected HashMap serverExtensionArgs;
+
+    // the welcome string from the server.
+    protected String welcomeString = null;
 
     /**
      * Normal constructor for an NNTPConnection() object.
@@ -383,6 +386,9 @@ public class NNTPConnection  {
             postingAllowed = false;
         }
 
+        // the NNTP store will want to use the welcome string, so save it.
+        welcomeString = line.getMessage();
+
         // find out what extensions this server supports.
         getExtensions();
     }
@@ -536,7 +542,7 @@ public class NNTPConnection  {
      * server is in the right place and ready for getting the DATA message
      * and the data right place in the sequence
      */
-    public void sendPost(Message msg) throws MessagingException {
+    public synchronized void sendPost(Message msg) throws MessagingException {
 
         // send the POST command
         NNTPReply line = sendCommand("POST");
@@ -590,7 +596,7 @@ public class NNTPConnection  {
      *
      * @return The command reply.
      */
-    public NNTPReply sendCommand(String command, int success) throws MessagingException {
+    public synchronized NNTPReply sendCommand(String command, int success) throws MessagingException {
         NNTPReply reply = sendCommand(command);
         if (reply.getCode() == success) {
             reply.retrieveData(in);
@@ -943,6 +949,26 @@ public class NNTPConnection  {
      */
     public boolean isPostingAllowed() {
         return postingAllowed;
+    }
+
+
+    /**
+     * Retrieve the welcome string sent back from the server.
+     *
+     * @return The server provided welcome string.
+     */
+    public String getWelcomeString() {
+        return welcomeString;
+    }
+
+
+    /**
+     * Return the server host for this connection.
+     *
+     * @return The String name of the server host.
+     */
+    public String getHost() {
+        return host;
     }
 }
 

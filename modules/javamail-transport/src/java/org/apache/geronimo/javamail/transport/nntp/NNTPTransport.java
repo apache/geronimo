@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2006 The Apache Software Foundation
+ * Copyright 2003-2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ import org.apache.geronimo.mail.util.SessionUtil;
  * delivery.
  * <p/>
  * There is no way to indicate failure for a given recipient (it's possible to have a
- * recipient address rejected).  The sun impl throws exceptions even if others are successful,
+ * recipient address rejected).  The sun impl throws exceptions even if others successful),
  * but maybe we do a different way...
  * <p/>
  *
@@ -63,13 +63,10 @@ import org.apache.geronimo.mail.util.SessionUtil;
 public class NNTPTransport extends Transport {
 
     /**
-     * property keys for protocol properties.  The actual property name will
-     * be appended with "mail." + protocol + ".", where the protocol is either
-     * "smtp" or "smtps".
+     * property keys for protocol properties.
      */
-    protected static final String MAIL_NNTP_AUTH = "auth";
-    protected static final String MAIL_NNTP_PORT = "port";
-    protected static final String MAIL_NNTP_TIMEOUT = "timeout";
+    protected static final String NNTP_AUTH = "mail.nntp.auth";
+    protected static final String NNTP_PORT = "mail.nntp.port";
 
     protected static final int DEFAULT_NNTP_PORT = 119;
 
@@ -119,7 +116,7 @@ public class NNTPTransport extends Transport {
 
         // first check to see if we need to authenticate.  If we need this, then we must have a username and
         // password specified.  Failing this may result in a user prompt to collect the information.
-        boolean mustAuthenticate = SessionUtil.getBooleanProperty(session, MAIL_NNTP_AUTH, false);
+        boolean mustAuthenticate = SessionUtil.getBooleanProperty(session, NNTP_AUTH, false);
 
         // if we need to authenticate, and we don't have both a userid and password, then we fail this
         // immediately.  The Service.connect() method will try to obtain the user information and retry the
@@ -133,7 +130,7 @@ public class NNTPTransport extends Transport {
         // if not configured, we just use the default default.
         if (port == -1) {
             // check for a property and fall back on the default if it's not set.
-            port = SessionUtil.getIntProperty(session, MAIL_NNTP_PORT, DEFAULT_NNTP_PORT);
+            port = SessionUtil.getIntProperty(session, NNTP_PORT, DEFAULT_NNTP_PORT);
         }
 
 
@@ -252,6 +249,8 @@ public class NNTPTransport extends Transport {
      * @exception MessagingException
      */
     public void close() throws MessagingException {
+		// This is done to ensure proper event notification.
+		super.close();
         connection.close();
         connection = null;
     }

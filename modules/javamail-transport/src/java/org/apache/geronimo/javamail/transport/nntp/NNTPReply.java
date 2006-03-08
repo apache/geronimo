@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2006 The Apache Software Foundation
+ * Copyright 2005 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import javax.mail.MessagingException;
  *
  * @version $Rev$ $Date$
  */
-class NNTPReply {
+public class NNTPReply {
     // general server responses
     public static final int POSTING_ALLOWED = 200;
     public static final int NO_POSTING_ALLOWED = 201;
@@ -82,6 +82,10 @@ class NNTPReply {
     public static final int AUTHINFO_SIMPLE_REQUIRED = 450;
     public static final int AUTHENTICATION_REJECTED = 482;
 
+    // list active reponses
+    public static final int LIST_FOLLOWS             = 215;
+
+
     // The original reply string
     private final String reply;
     // returned message code
@@ -132,11 +136,15 @@ class NNTPReply {
             data = new ArrayList();
 
             String line = in.readLine();
-
             // read until the end of file or until we see the end of data marker.
             while (line != null && !line.equals(".")) {
+                // this line is not the terminator, but it may have been byte stuffed.  If it starts with
+                // '.', throw away the leading one.
+                if (line.startsWith(".")) {
+                    line = line.substring(1);
+                }
+
                 // just add the line to the list
-                // TODO:  figure out if we need to handle "stuffing".
                 data.add(line);
                 line = in.readLine();
             }
