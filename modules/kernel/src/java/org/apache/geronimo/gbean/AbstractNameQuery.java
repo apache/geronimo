@@ -31,42 +31,36 @@ import java.util.Collections;
  */
 public class AbstractNameQuery implements Serializable {
 
-    private final List artifacts;
+    private final Artifact artifact;
     private final Map name;
     private final Set interfaceTypes;
 
     public AbstractNameQuery(AbstractName abstractName) {
-        this.artifacts = Collections.singletonList(abstractName.getArtifact());
+        this.artifact = abstractName.getArtifact();
         this.name = abstractName.getName();
         this.interfaceTypes = abstractName.getInterfaceTypes();
     }
 
     public AbstractNameQuery(Artifact artifact, Map name, String interfaceType) {
-        this.artifacts = Collections.singletonList(artifact);
+        this.artifact = artifact;
         this.name = name;
         this.interfaceTypes = Collections.singleton(interfaceType);
     }
 
     public AbstractNameQuery(String interfaceType) {
-        this.artifacts = Collections.EMPTY_LIST;
+        this.artifact = null;
         this.name = Collections.EMPTY_MAP;
         this.interfaceTypes = Collections.singleton(interfaceType);
     }
 
-    public AbstractNameQuery(List artifacts, Map name, Set interfaceTypes) {
-        this.artifacts = artifacts;
-        this.name = name;
-        this.interfaceTypes = interfaceTypes;
-    }
-
     public AbstractNameQuery(Artifact artifact, Map name, Set interfaceTypes) {
-        this.artifacts = Collections.singletonList(artifact);
+        this.artifact = artifact;
         this.name = name;
         this.interfaceTypes = interfaceTypes;
     }
 
-    public List getArtifacts() {
-        return artifacts;
+    public Artifact getArtifact() {
+        return artifact;
     }
 
     public Map getName() {
@@ -78,13 +72,8 @@ public class AbstractNameQuery implements Serializable {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer();
-        String separator = "";
-        for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
-            buf.append(separator).append("artifact=").append(artifact);
-            separator = ",";
-        }
+        StringBuffer buf = new StringBuffer("artifact=");
+        buf.append(artifact);
         for (Iterator iterator = interfaceTypes.iterator(); iterator.hasNext();) {
             String interfaceType = (String) iterator.next();
             buf.append(",interface=").append(interfaceType);
@@ -102,7 +91,7 @@ public class AbstractNameQuery implements Serializable {
 
         final AbstractNameQuery that = (AbstractNameQuery) o;
 
-        if (artifacts != null ? !artifacts.equals(that.artifacts) : that.artifacts != null) return false;
+        if (artifact != null ? !artifact.equals(that.artifact) : that.artifact != null) return false;
         if (interfaceTypes != null ? !interfaceTypes.equals(that.interfaceTypes) : that.interfaceTypes != null)
             return false;
         return !(name != null ? !name.equals(that.name) : that.name != null);
@@ -111,41 +100,12 @@ public class AbstractNameQuery implements Serializable {
 
     public int hashCode() {
         int result;
-        result = (artifacts != null ? artifacts.hashCode() : 0);
+        result = (artifact != null ? artifact.hashCode() : 0);
         result = 29 * result + (name != null ? name.hashCode() : 0);
         result = 29 * result + (interfaceTypes != null ? interfaceTypes.hashCode() : 0);
         return result;
     }
 
-    /**
-     * determine if the supplied info is more specific and matches our patterns.  In this method
-     * "this" is the query, the info parameter is the test specific info.
-     * @param info
-     * @return if the specific info supplied matches our patterns.
-     */
-    public boolean matches(AbstractNameQuery info) {
-        List artifacts = info.getArtifacts();
-        if (artifacts.size() != 1) {
-            throw new IllegalArgumentException("source info must have only one artifact");
-        }
-        if (!info.getName().entrySet().containsAll(name.entrySet())) {
-            return false;
-        }
-        if (!info.getInterfaceTypes().containsAll(interfaceTypes)) {
-            return false;
-        }
-        if (getArtifacts().isEmpty()) {
-            return true;
-        }
-        Artifact otherArtifact = (Artifact) artifacts.iterator().next();
-        for (Iterator iterator = getArtifacts().iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
-            if (artifact.matches(otherArtifact)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public boolean matches(AbstractName info) {
         if (!info.getName().entrySet().containsAll(name.entrySet())) {
@@ -154,16 +114,10 @@ public class AbstractNameQuery implements Serializable {
         if (!info.getInterfaceTypes().containsAll(interfaceTypes)) {
             return false;
         }
-        if (getArtifacts().isEmpty()) {
+        if (artifact == null) {
             return true;
         }
         Artifact otherArtifact = info.getArtifact();
-        for (Iterator iterator = getArtifacts().iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
-            if (artifact.matches(otherArtifact)) {
-                return true;
-            }
-        }
-        return false;
+        return artifact.matches(otherArtifact);
     }
 }

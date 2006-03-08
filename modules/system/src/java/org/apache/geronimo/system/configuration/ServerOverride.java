@@ -18,6 +18,7 @@ package org.apache.geronimo.system.configuration;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.apache.geronimo.kernel.InvalidGBeanException;
 
 import javax.management.MalformedObjectNameException;
 import java.io.PrintWriter;
@@ -34,7 +35,7 @@ class ServerOverride {
     public ServerOverride() {
     }
 
-    public ServerOverride(Element element) throws MalformedObjectNameException {
+    public ServerOverride(Element element) throws MalformedObjectNameException, InvalidGBeanException {
         NodeList configs = element.getElementsByTagName("configuration");
         for (int i = 0; i < configs.getLength(); i++) {
             Element configurationElement = (Element) configs.item(i);

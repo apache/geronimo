@@ -25,6 +25,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
@@ -441,6 +442,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return Collections.unmodifiableMap(gbeans);
     }
 
+    //TODO this is pretty much broken, it assumes everything is pre-resolved
     public synchronized void addGBean(GBeanData beanData, boolean start) throws InvalidConfigException, GBeanAlreadyExistsException {
         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
@@ -449,7 +451,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             log.trace("Registering GBean " + beanData.getName());
 
             // add a dependency on this configuration
-            beanData.getDependencies().add(abstractName);
+            beanData.addDependency(abstractName);
 
             // register the bean with the kernel
             kernel.loadGBean(beanData, configurationClassLoader);

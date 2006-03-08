@@ -51,7 +51,7 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
     private final HashMap registry = new HashMap();
     private final Kernel kernel;
     private final MBeanServer mbeanServer;
-    private static final AbstractNameQuery ALL = new AbstractNameQuery(Collections.EMPTY_LIST, Collections.EMPTY_MAP, Collections.EMPTY_SET);
+    private static final AbstractNameQuery ALL = new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET);
 
     public MBeanServerKernelBridge(Kernel kernel, String mbeanServerId) throws MBeanServerNotFound {
         this.kernel = kernel;

@@ -38,13 +38,15 @@ public class AbstractName implements Serializable {
     private final ObjectName objectName;
 
     public AbstractName(Artifact artifact, Map name, String interfaceType, ObjectName objectName) {
-        this.artifact = artifact;
-        this.name = name;
-        this.interfaceTypes = Collections.singleton(interfaceType);
-        this.objectName = objectName;
+        this(artifact, name, Collections.singleton(interfaceType), objectName);
+        assert interfaceType != null;
     }
 
     public AbstractName(Artifact artifact, Map name, Set interfaceTypes, ObjectName objectName) {
+        assert artifact != null;
+        assert name != null;
+        assert interfaceTypes != null;
+        assert objectName != null;
         this.artifact = artifact;
         this.name = name;
         this.interfaceTypes = interfaceTypes;

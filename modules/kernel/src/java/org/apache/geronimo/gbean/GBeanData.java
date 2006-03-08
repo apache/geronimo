@@ -128,7 +128,28 @@ public class GBeanData implements Externalizable {
     }
 
     public Set getDependencies() {
-        return dependencies;
+        return new HashSet(dependencies);
+    }
+
+    public void setDependencies(Set dependencies) {
+        this.dependencies.clear();
+        this.dependencies.addAll(dependencies);
+    }
+
+    public void addDependencies(Set dependencies) {
+        this.dependencies.addAll(dependencies);
+    }
+
+    public void addDependency(ReferencePatterns dependency) {
+        this.dependencies.add(dependency);
+    }
+
+    public void addDependency(AbstractNameQuery refInfo) {
+        this.dependencies.add(new ReferencePatterns(Collections.singleton(refInfo)));
+    }
+
+    public void addDependency(AbstractName dependency) {
+        this.dependencies.add(new ReferencePatterns(dependency));
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -213,5 +234,6 @@ public class GBeanData implements Externalizable {
             throw new ClassNotFoundException("Unable to find class used in GBeanData " + abstractName, e);
         }
     }
+
 }
 

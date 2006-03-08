@@ -27,6 +27,7 @@ import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * Standard implementation of an editable ConfigurationManager.
@@ -35,12 +36,12 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
  */
 public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl implements EditableConfigurationManager {
     public EditableConfigurationManagerImpl(Kernel kernel,
-            Collection stores,
-            ManageableAttributeStore attributeStore,
-            PersistentConfigurationList configurationList,
-            ArtifactManager artifactManager,
-            ArtifactResolver artifactResolver,
-            ClassLoader classLoader) {
+                                            Collection stores,
+                                            ManageableAttributeStore attributeStore,
+                                            PersistentConfigurationList configurationList,
+                                            ArtifactManager artifactManager,
+                                            ArtifactResolver artifactResolver,
+                                            ClassLoader classLoader) {
         super(kernel, stores, attributeStore, configurationList, artifactManager, artifactResolver, classLoader);
     }
 
@@ -55,7 +56,7 @@ public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl i
         attributeStore.addGBean(configID.toString(), gbean);
     }
 
-    public void removeGBeanFromConfiguration(Artifact configID, ObjectName gbean) throws GBeanNotFoundException, InvalidConfigException {
+    public void removeGBeanFromConfiguration(Artifact configID, AbstractName gbean) throws GBeanNotFoundException, InvalidConfigException {
         // Make sure the specified configuration has the specified GBean
         try {
             ObjectName name = Configuration.getConfigurationObjectName(configID);

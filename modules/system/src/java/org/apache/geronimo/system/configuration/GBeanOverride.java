@@ -264,9 +264,8 @@ class GBeanOverride {
             for (Iterator patternIterator = patterns.getPatterns().iterator(); patternIterator.hasNext();) {
                 AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
                 out.println("          <pattern>");
-                List artifacts = pattern.getArtifacts();
-                if (artifacts != null && !artifacts.isEmpty()) {
-                    Artifact artifact = (Artifact) artifacts.get(0);
+                Artifact artifact = pattern.getArtifact();
+                if (artifact != null) {
                     if (artifact.getGroupId() != null) {
                         out.println("              <groupId>" + artifact.getGroupId() + "</groupId>");
                     }

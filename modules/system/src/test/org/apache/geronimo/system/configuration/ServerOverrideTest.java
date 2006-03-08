@@ -82,7 +82,7 @@ public class ServerOverrideTest extends TestCase {
 
     private AbstractNameQuery getAbstractNameQuery(String pizzaOvenString) throws MalformedObjectNameException {
         ObjectName pizzaOvenPattern = new ObjectName(pizzaOvenString);
-        return new AbstractNameQuery(Collections.EMPTY_LIST, pizzaOvenPattern.getKeyPropertyList(), Collections.EMPTY_SET);
+        return new AbstractNameQuery(null, pizzaOvenPattern.getKeyPropertyList(), Collections.EMPTY_SET);
     }
 
     public void testGBeanXml() throws Exception {

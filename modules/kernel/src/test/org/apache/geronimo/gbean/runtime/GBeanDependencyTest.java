@@ -43,7 +43,7 @@ public class GBeanDependencyTest extends TestCase {
         AbstractName parentName = buildAbstractName("parent", MockGBean.getGBeanInfo());
         GBeanData gbeanDataParent = new GBeanData(parentName, MockGBean.getGBeanInfo());
         GBeanData gbeanDataChild = new GBeanData(buildAbstractName("child", MockGBean.getGBeanInfo()), MockGBean.getGBeanInfo());
-        gbeanDataChild.getDependencies().add(parentName);
+        gbeanDataChild.addDependency(new ReferencePatterns(parentName));
         kernel.loadGBean(gbeanDataChild, MockGBean.class.getClassLoader());
         kernel.startGBean(gbeanDataChild.getName());
         assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getName()));

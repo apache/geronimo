@@ -77,7 +77,7 @@ public final class ConfigurationUtil {
         // register all the GBeans
         for (Iterator i = gbeans.values().iterator(); i.hasNext();) {
             GBeanData gbeanData = (GBeanData) i.next();
-            gbeanData.getDependencies().add(configurationName);
+            gbeanData.addDependency(configurationName);
 
             // load the gbean into the kernel
             kernel.loadGBean(gbeanData, configurationClassLoader);

@@ -94,6 +94,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
 
     }
 
+    //TODO configid these need to be converted to ReferencePatterns
     protected Set findGBeanDependencies(EARContext earContext) {
         Set dependencies = new HashSet();
         dependencies.addAll(earContext.listGBeans(MANAGED_CONNECTION_FACTORY_PATTERN));

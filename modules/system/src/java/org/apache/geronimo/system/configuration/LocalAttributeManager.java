@@ -31,6 +31,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -320,6 +321,8 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         } catch (ParserConfigurationException e) {
             log.error("Unable to read saved manageable attributes", e);
         } catch (MalformedObjectNameException e) {
+            log.error("Unable to read saved manageable attributes", e);
+        } catch (InvalidGBeanException e) {
             log.error("Unable to read saved manageable attributes", e);
         }
     }

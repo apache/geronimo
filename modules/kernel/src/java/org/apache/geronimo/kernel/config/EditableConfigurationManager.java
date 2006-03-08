@@ -16,8 +16,7 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.net.URI;
-import javax.management.ObjectName;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -44,5 +43,5 @@ public interface EditableConfigurationManager extends ConfigurationManager {
      * @param configID  The configuration to remove the GBean from.
      * @param gbean     The ObjectName of the GBean to remove.
      */
-    void removeGBeanFromConfiguration(Artifact configID, ObjectName gbean) throws InvalidConfigException, GBeanNotFoundException;
+    void removeGBeanFromConfiguration(Artifact configID, AbstractName gbean) throws InvalidConfigException, GBeanNotFoundException;
 }

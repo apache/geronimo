@@ -69,7 +69,7 @@ public class BasicDependencyManager implements DependencyManager {
     public BasicDependencyManager(LifecycleMonitor lifecycleMonitor) throws Exception {
         assert lifecycleMonitor != null;
         this.lifecycleMonitor = lifecycleMonitor;
-        lifecycleMonitor.addLifecycleListener(lifecycleListener, new AbstractNameQuery(Collections.EMPTY_LIST, Collections.EMPTY_MAP, Collections.EMPTY_SET));
+        lifecycleMonitor.addLifecycleListener(lifecycleListener, new AbstractNameQuery(null, Collections.EMPTY_MAP, Collections.EMPTY_SET));
     }
 
     public synchronized void close() {

@@ -311,7 +311,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             //This is overkill, but allows for people not using java:comp context (even though we don't support it)
             //and sidesteps the problem of circular references between ejbs.
             Set dependencies = findGBeanDependencies(earContext);
-            webModuleData.getDependencies().addAll(dependencies);
+            webModuleData.addDependencies(dependencies);
 
             webModuleData.setAttribute("componentContext", compContext);
             webModuleData.setAttribute("userTransaction", userTransaction);

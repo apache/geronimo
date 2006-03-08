@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
 import java.util.Collections;
 
 /**
@@ -126,17 +125,17 @@ public class GBeanBuilder {
     public void setReference(String name, PatternType[] patterns, J2eeContext j2eeContext) throws DeploymentException {
         Set patternNames = new HashSet(patterns.length);
         for (int i = 0; i < patterns.length; i++) {
-            patternNames.add(buildUnresolvedReferenceInfo(name, patterns[i]));
+            patternNames.add(buildAbstractNameQuery(name, patterns[i]));
         }
         gbean.setReferencePatterns(name, patternNames);
     }
 
     public void addDependency(PatternType patternType, J2eeContext j2eeContext) throws DeploymentException {
-        AbstractNameQuery refInfo = buildUnresolvedReferenceInfo(null, patternType);
-        gbean.getDependencies().add(refInfo);
+        AbstractNameQuery refInfo = buildAbstractNameQuery(null, patternType);
+        gbean.addDependency(refInfo);
     }
 
-    private AbstractNameQuery buildUnresolvedReferenceInfo(String refName, PatternType pattern) throws DeploymentException {
+    private AbstractNameQuery buildAbstractNameQuery(String refName, PatternType pattern) throws DeploymentException {
 //        if (refName == null) {
 //            throw new DeploymentException("No type specified in dependency pattern " + pattern + " for gbean " + gbean.getName());
 //        }
@@ -161,10 +160,7 @@ public class GBeanBuilder {
         String type = pattern.isSetType() ? pattern.getType().trim() : null;
         String name = pattern.getName().trim();
 
-        List artifacts = Collections.EMPTY_LIST;
-        if (artifactid != null) {
-            artifacts = Collections.singletonList(new Artifact(groupId, artifactid, version, "car"));
-        }
+        Artifact artifact = artifactid != null? new Artifact(groupId, artifactid, version, "car"): null;
         //get the type from the gbean info if not supplied explicitly
         if (type == null) {
             type = referenceInfo.getNameTypeName();
@@ -178,7 +174,7 @@ public class GBeanBuilder {
             nameMap.put("module", module);
         }
         String interfaceType = referenceInfo.getProxyType();
-        return new AbstractNameQuery(artifacts, nameMap, Collections.singleton(interfaceType));
+        return new AbstractNameQuery(artifact, nameMap, Collections.singleton(interfaceType));
     }
 
     public GBeanData getGBeanData() {

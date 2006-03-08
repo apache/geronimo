@@ -262,7 +262,7 @@ public final class GBeanInstance implements StateManageable {
 
         //dependencies
         for (Iterator iterator = gbeanData.getDependencies().iterator(); iterator.hasNext();) {
-            AbstractName dependencyName = (AbstractName) iterator.next();
+            AbstractName dependencyName = ((ReferencePatterns) iterator.next()).getAbstractName();
             dependencySet.add(new GBeanDependency(this, dependencyName, kernel));
         }
 
@@ -771,7 +771,7 @@ public final class GBeanInstance implements StateManageable {
             }
         }
         if (configName != null) {
-            manageableStore.setValue(configName, abstractName.getObjectName(), attribute.getAttributeInfo(), value);
+            manageableStore.setValue(configName, abstractName, attribute.getAttributeInfo(), value);
         } else {
             log.error("Unable to identify Configuration for GBean " + abstractName.getObjectName() + ".  Manageable attribute " + attribute.getName() + " was not updated in persistent store.");
         }
