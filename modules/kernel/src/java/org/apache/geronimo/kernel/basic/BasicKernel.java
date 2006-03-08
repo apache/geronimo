@@ -228,8 +228,8 @@ public class BasicKernel implements Kernel {
     }
 
     public void loadGBean(GBeanData gbeanData, ClassLoader classLoader) throws GBeanAlreadyExistsException, InternalKernelException {
-        AbstractName objectName = gbeanData.getAbstractName();
-        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleMonitor.createLifecycleBroadcaster(objectName), classLoader);
+        AbstractName abstractName = gbeanData.getAbstractName();
+        GBeanInstance gbeanInstance = new GBeanInstance(gbeanData, this, dependencyManager, lifecycleMonitor.createLifecycleBroadcaster(abstractName), classLoader);
         registry.register(gbeanInstance);
     }
 

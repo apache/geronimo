@@ -17,25 +17,53 @@
 
 package org.apache.geronimo.gbean.runtime;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
 import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
  */
 public class GBeanCollectionReference extends AbstractGBeanReference {
-    public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, DependencyManager dependencyManager) throws InvalidConfigurationException {
-        super(gbeanInstance, referenceInfo, kernel, dependencyManager);
+
+
+    /**
+     * is this reference online
+     */
+    private boolean isOnline = false;
+    /**
+     * The target objectName patterns to watch for a connection.
+     */
+    private Set patterns = Collections.EMPTY_SET;
+    /**
+     * Current set of targets
+     */
+    private final Set targets = new HashSet();
+    /**
+     * Our listener for lifecycle events
+     */
+    private final LifecycleListener listener;
+
+    public GBeanCollectionReference(GBeanInstance gbeanInstance, GReferenceInfo referenceInfo, Kernel kernel, ReferencePatterns referencePatterns) throws InvalidConfigurationException {
+        super(gbeanInstance, referenceInfo, kernel, !(referencePatterns == null || referencePatterns.getPatterns().isEmpty()));
+        listener = createLifecycleListener();
+        if (referencePatterns != null) {
+            setPatterns(referencePatterns.getPatterns());
+        }
     }
 
     public synchronized boolean start() {
         // We only need to start if there are patterns and we don't already have a proxy
-        if (!getPatterns().isEmpty() && getProxy() == null) {
+        if (!patterns.isEmpty() && getProxy() == null) {
             // add a dependency on our target and create the proxy
             setProxy(new ProxyCollection(getName(), getReferenceType(), getKernel().getProxyManager(), getTargets()));
         }
@@ -87,4 +115,74 @@ public class GBeanCollectionReference extends AbstractGBeanReference {
                     }
                 };
     }
+
+    public final Set getPatterns() {
+        return patterns;
+    }
+
+    public final void setPatterns(Set patterns) {
+        if (isOnline) {
+            throw new IllegalStateException("Pattern set can not be modified while online");
+        }
+
+        if (patterns == null || patterns.isEmpty() || (patterns.size() == 1 && patterns.iterator().next() == null)) {
+            this.patterns = Collections.EMPTY_SET;
+        } else {
+            patterns = new HashSet(patterns);
+            for (Iterator iterator = this.patterns.iterator(); iterator.hasNext();) {
+                if (iterator.next() == null) {
+                    iterator.remove();
+                    //there can be at most one null value in a set.
+                    break;
+                }
+            }
+            this.patterns = Collections.unmodifiableSet(patterns);
+        }
+    }
+
+    public final synchronized void online() {
+        Set gbeans = getKernel().listGBeans(patterns);
+        for (Iterator objectNameIterator = gbeans.iterator(); objectNameIterator.hasNext();) {
+            AbstractName target = (AbstractName) objectNameIterator.next();
+            if (!targets.contains(target)) {
+
+                // if the bean is running add it to the runningTargets list
+                if (isRunning(getKernel(), target)) {
+                    targets.add(target);
+                }
+            }
+        }
+
+        getKernel().getLifecycleMonitor().addLifecycleListener(listener, patterns);
+        isOnline = true;
+    }
+
+    public final synchronized void offline() {
+        // make sure we are stoped
+        stop();
+
+        getKernel().getLifecycleMonitor().removeLifecycleListener(listener);
+
+        targets.clear();
+        isOnline = false;
+    }
+
+    protected final Set getTargets() {
+        return targets;
+    }
+
+    protected final void addTarget(AbstractName abstractName) {
+        if (!targets.contains(abstractName)) {
+            targets.add(abstractName);
+            targetAdded(abstractName);
+        }
+    }
+
+    protected final void removeTarget(AbstractName abstractName) {
+        boolean wasTarget = targets.remove(abstractName);
+        if (wasTarget) {
+            targetRemoved(abstractName);
+        }
+    }
+
 }

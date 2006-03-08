@@ -17,23 +17,20 @@
 
 package org.apache.geronimo.kernel.basic;
 
-import java.util.Collection;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.DependencyManager;
+import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
+import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
+import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
+
+import javax.management.ObjectName;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
-import org.apache.geronimo.kernel.lifecycle.LifecycleMonitor;
-import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 
 /**
  * DependencyManager is the record keeper of the dependencies in Geronimo.  The DependencyManager
@@ -69,12 +66,6 @@ public class BasicDependencyManager implements DependencyManager {
      */
     private final Map parentToChildMap = new HashMap();
 
-    /**
-     * A map from a component's ObjectName to the list of ObjectPatterns that the component is blocking
-     * from starting.
-     */
-    private final Map startHoldsMap = new HashMap();
-
     public BasicDependencyManager(LifecycleMonitor lifecycleMonitor) throws Exception {
         assert lifecycleMonitor != null;
         this.lifecycleMonitor = lifecycleMonitor;
@@ -85,7 +76,6 @@ public class BasicDependencyManager implements DependencyManager {
         lifecycleMonitor.removeLifecycleListener(lifecycleListener);
         childToParentMap.clear();
         parentToChildMap.clear();
-        startHoldsMap.clear();
     }
 
     /**
@@ -202,71 +192,11 @@ public class BasicDependencyManager implements DependencyManager {
         return new HashSet(children);
     }
 
-    /**
-     * Adds a hold on a collection of object name patterns.  If the name of a component matches an object name
-     * pattern in the collection, the component should not start.
-     *
-     * @param abstractName
-     * @param holds a collection of object name patterns which should not start
-     */
-    public synchronized void addStartHolds(AbstractName abstractName, Collection holds) {
-        Collection currentHolds = (Collection) startHoldsMap.get(abstractName);
-        if (currentHolds == null) {
-            currentHolds = new LinkedList(holds);
-            startHoldsMap.put(abstractName, currentHolds);
-        } else {
-            currentHolds.addAll(holds);
-        }
-    }
-
-    /**
-     * Removes a collection of holds.
-     *
-     * @param abstractName
-     * @param holds a collection of the holds to remove
-     */
-    public synchronized void removeStartHolds(AbstractName abstractName, Collection holds) {
-        Collection currentHolds = (Collection) startHoldsMap.get(abstractName);
-        if (currentHolds != null) {
-            currentHolds.removeAll(holds);
-        }
-    }
-
-    /**
-     * Removes all of the holds owned by a component.
-     *
-     * @param abstractName
-     */
-    public synchronized void removeAllStartHolds(AbstractName abstractName) {
-        startHoldsMap.remove(abstractName);
-    }
-
-    /**
-     * Gets the object name of the mbean blocking the start specified mbean.
-     *
-     * @param abstractName
-     * @return the mbean blocking the specified mbean, or null if there are no blockers
-     */
-    public synchronized AbstractName checkBlocker(AbstractName abstractName) {
-        // check if objectName name is on one of the hold lists
-        for (Iterator iterator = startHoldsMap.keySet().iterator(); iterator.hasNext();) {
-            AbstractName blocker = (AbstractName) iterator.next();
-            List holds = (List) startHoldsMap.get(blocker);
-            for (Iterator holdsIterator = holds.iterator(); holdsIterator.hasNext();) {
-                AbstractNameQuery pattern = (AbstractNameQuery) holdsIterator.next();
-                if (pattern.matches(abstractName)) {
-                    return blocker;
-                }
-            }
-        }
-        return null;
-    }
 
     private class DependencyManagerLifecycleListener extends LifecycleAdapter {
         public void unloaded(AbstractName abstractName) {
             synchronized (BasicDependencyManager.this) {
                 removeAllDependencies(abstractName);
-                removeAllStartHolds(abstractName);
             }
 
         }

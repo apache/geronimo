@@ -36,7 +36,7 @@ public class MavenAttributeStore implements ManageableAttributeStore {
     public MavenAttributeStore() {
     }
 
-    public Collection setAttributes(Artifact configurationName, Collection datas, ClassLoader classLoader) {
+    public Collection applyOverrides(Artifact configurationName, Collection datas, ClassLoader classLoader) {
         return datas;
     }
 

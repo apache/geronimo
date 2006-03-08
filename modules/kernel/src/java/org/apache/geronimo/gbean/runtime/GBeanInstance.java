@@ -55,7 +55,9 @@ public final class GBeanInstance implements StateManageable {
     private static final int RUNNING = 2;
     private static final int DESTROYING = 3;
 
-    /** Attribute name used to retrieve the RawInvoker for the GBean */
+    /**
+     * Attribute name used to retrieve the RawInvoker for the GBean
+     */
     public static final String RAW_INVOKER = "$$RAW_INVOKER$$";
 
     /**
@@ -189,10 +191,11 @@ public final class GBeanInstance implements StateManageable {
     /**
      * Construct a GBeanMBean using the supplied GBeanData and class loader
      *
-     * @param gbeanData the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
+     * @param gbeanData   the data for the new GBean including GBeanInfo, intial attribute values, and reference patterns
      * @param classLoader the class loader used to load the gbean instance and attribute/reference types
-     * @throws org.apache.geronimo.gbean.InvalidConfigurationException if the gbeanInfo is inconsistent with the actual java classes, such as
-     * mismatched attribute types or the intial data cannot be set
+     * @throws org.apache.geronimo.gbean.InvalidConfigurationException
+     *          if the gbeanInfo is inconsistent with the actual java classes, such as
+     *          mismatched attribute types or the intial data cannot be set
      */
     public GBeanInstance(GBeanData gbeanData, Kernel kernel, DependencyManager dependencyManager, LifecycleBroadcaster lifecycleBroadcaster, ClassLoader classLoader) throws InvalidConfigurationException {
         this.abstractName = gbeanData.getAbstractName();
@@ -205,7 +208,7 @@ public final class GBeanInstance implements StateManageable {
         try {
             type = classLoader.loadClass(gbeanInfo.getClassName());
         } catch (ClassNotFoundException e) {
-            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + classLoader + 
+            throw new InvalidConfigurationException("Could not load GBeanInfo class from classloader: " + classLoader +
                     " className=" + gbeanInfo.getClassName());
         }
 
@@ -231,26 +234,39 @@ public final class GBeanInstance implements StateManageable {
 
         // references
         Set referencesSet = new HashSet();
+        Set dependencySet = new HashSet();
+        // add the references
+        Map dataReferences = gbeanData.getReferences();
         for (Iterator iterator = gbeanInfo.getReferences().iterator(); iterator.hasNext();) {
             GReferenceInfo referenceInfo = (GReferenceInfo) iterator.next();
+            String referenceName = referenceInfo.getName();
+            ReferencePatterns referencePatterns = (ReferencePatterns) dataReferences.remove(referenceName);
             if (referenceInfo.getProxyType().equals(Collection.class.getName())) {
-                referencesSet.add(new GBeanCollectionReference(this, referenceInfo, kernel, dependencyManager));
+                referencesSet.add(new GBeanCollectionReference(this, referenceInfo, kernel, referencePatterns));
+
             } else {
-                referencesSet.add(new GBeanSingleReference(this, referenceInfo, kernel, dependencyManager));
+                referencesSet.add(new GBeanSingleReference(this, referenceInfo, kernel, referencePatterns));
+                if (referencePatterns != null) {
+                    dependencySet.add(new GBeanDependency(this, referencePatterns.getAbstractName(), kernel));
+                }
             }
         }
-        references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[gbeanInfo.getReferences().size()]);
+        if (!dataReferences.isEmpty()) {
+            throw new IllegalStateException("Attempting to set unknown references: " + dataReferences.keySet());
+        }
+
+        references = (GBeanReference[]) referencesSet.toArray(new GBeanReference[referencesSet.size()]);
         for (int i = 0; i < references.length; i++) {
             referenceIndex.put(references[i].getName(), new Integer(i));
         }
 
-        dependencies = new GBeanDependency[gbeanData.getDependencies().size()];
-        int j = 0;
+        //dependencies
         for (Iterator iterator = gbeanData.getDependencies().iterator(); iterator.hasNext();) {
-            AbstractNameQuery dependencyName = (AbstractNameQuery) iterator.next();
-            GBeanDependency dependency = new GBeanDependency(this, dependencyName, kernel, dependencyManager);
-            dependencies[j++] = dependency;
+            AbstractName dependencyName = (AbstractName) iterator.next();
+            dependencySet.add(new GBeanDependency(this, dependencyName, kernel));
         }
+
+        dependencies = (GBeanDependency[]) dependencySet.toArray(new GBeanDependency[dependencySet.size()]);
 
         // framework operations -- all framework operations have currently been removed
 
@@ -332,31 +348,23 @@ public final class GBeanInstance implements StateManageable {
                 String attributeName = (String) entry.getKey();
                 Object attributeValue = entry.getValue();
                 if ("gbeanEnabled".equals(attributeName)) {
-                    enabled = ((Boolean)attributeValue).booleanValue();
+                    enabled = ((Boolean) attributeValue).booleanValue();
                 } else {
-                    if(entry.getValue() != null) {
+                    if (entry.getValue() != null) {
                         setAttribute(attributeName, attributeValue, false);
                     }
                 }
             }
 
-            // add the references
-            Map dataReferences = gbeanData.getReferences();
-            for (Iterator iterator = dataReferences.entrySet().iterator(); iterator.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String referenceName = (String) entry.getKey();
-                Set referencePattern = (Set) entry.getValue();
-                getReferenceByName(referenceName).setPatterns(referencePattern);
-            }
         } catch (Exception e) {
             throw new InvalidConfigurationException("Could not inject configuration data into the GBean " + abstractName, e);
         }
 
-        for (int i = 0; i < references.length; i++) {
-            references[i].online();
-        }
         for (int i = 0; i < dependencies.length; i++) {
             dependencies[i].online();
+        }
+        for (int i = 0; i < references.length; i++) {
+            references[i].online();
         }
         lifecycleBroadcaster.fireLoadedEvent();
     }
@@ -388,7 +396,7 @@ public final class GBeanInstance implements StateManageable {
         // tell everyone we are done
         lifecycleBroadcaster.fireUnloadedEvent();
 
-        if(manageableStore != null) {
+        if (manageableStore != null) {
             kernel.getProxyManager().destroyProxy(manageableStore);
             manageableStore = null;
         }
@@ -595,12 +603,13 @@ public final class GBeanInstance implements StateManageable {
         }
 
         // add the references
-        for (int i = 0; i < references.length; i++) {
-            GBeanReference reference = references[i];
-            String name = reference.getName();
-            Set patterns = reference.getPatterns();
-            gbeanData.setReferencePatterns(name, patterns);
-        }
+        //TODO is it possible to extract the references?
+//        for (int i = 0; i < references.length; i++) {
+//            GBeanReference reference = references[i];
+//            String name = reference.getName();
+//            Set patterns = reference.getPatterns();
+//            gbeanData.setReferencePatterns(name, patterns);
+//        }
         //TODO copy the dependencies??
         return gbeanData;
     }
@@ -611,7 +620,7 @@ public final class GBeanInstance implements StateManageable {
      *
      * @param index the index of the attribute
      * @return the attribute value
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                 if a target instance throws and exception
      * @throws IndexOutOfBoundsException if the index is invalid
      */
     public Object getAttribute(int index) throws Exception {
@@ -628,10 +637,10 @@ public final class GBeanInstance implements StateManageable {
         if (state != DESTROYED || attribute.isFramework()) {
             return attribute.getValue(instance);
         } else {
-            if(attribute.isPersistent()) {
+            if (attribute.isPersistent()) {
                 return attribute.getPersistentValue();
             } else {
-                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute "+attribute.getName()+" when GBeanInstance is DESTROYED");
+                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute " + attribute.getName() + " when GBeanInstance is DESTROYED");
             }
         }
     }
@@ -642,7 +651,7 @@ public final class GBeanInstance implements StateManageable {
      *
      * @param attributeName the name of the attribute to retrieve
      * @return the attribute value
-     * @throws Exception if a problem occurs while getting the value
+     * @throws Exception                if a problem occurs while getting the value
      * @throws NoSuchAttributeException if the attribute name is not found in the map
      */
     public Object getAttribute(String attributeName) throws NoSuchAttributeException, Exception {
@@ -667,10 +676,10 @@ public final class GBeanInstance implements StateManageable {
         if (state != DESTROYED || attribute.isFramework()) {
             return attribute.getValue(instance);
         } else {
-            if(attribute.isPersistent()) {
+            if (attribute.isPersistent()) {
                 return attribute.getPersistentValue();
             } else {
-                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute "+attributeName+" when GBeanInstance is DESTROYED");
+                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute " + attributeName + " when GBeanInstance is DESTROYED");
             }
         }
     }
@@ -681,7 +690,7 @@ public final class GBeanInstance implements StateManageable {
      *
      * @param index the index of the attribute
      * @param value the new value of attribute value
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                 if a target instance throws and exception
      * @throws IndexOutOfBoundsException if the index is invalid
      */
     public void setAttribute(int index, Object value) throws Exception, IndexOutOfBoundsException {
@@ -704,7 +713,7 @@ public final class GBeanInstance implements StateManageable {
         } else {
             attribute.setPersistentValue(value);
         }
-        if(manage && attribute.isManageable()) {
+        if (manage && attribute.isManageable()) {
             updateManageableAttribute(attribute, value);
         }
     }
@@ -714,8 +723,8 @@ public final class GBeanInstance implements StateManageable {
      * first be looked up in a HashMap.
      *
      * @param attributeName the name of the attribute to retrieve
-     * @param value the new attribute value
-     * @throws Exception if a target instance throws and exception
+     * @param value         the new attribute value
+     * @throws Exception                if a target instance throws and exception
      * @throws NoSuchAttributeException if the attribute name is not found in the map
      */
     public void setAttribute(String attributeName, Object value) throws Exception, NoSuchAttributeException {
@@ -738,33 +747,33 @@ public final class GBeanInstance implements StateManageable {
         } else {
             attribute.setPersistentValue(value);
         }
-        if(manage && attribute.isManageable()) {
+        if (manage && attribute.isManageable()) {
             updateManageableAttribute(attribute, value);
         }
     }
 
     private void updateManageableAttribute(GBeanAttribute attribute, Object value) {
-        if(manageableStore == null) {
+        if (manageableStore == null) {
             Set set = kernel.listGBeans(new GBeanQuery(null, ManageableAttributeStore.class.getName()));
-            if(set.size() == 0) {
+            if (set.size() == 0) {
                 return;
             }
             manageableStore = (ManageableAttributeStore) kernel.getProxyManager().createProxy((ObjectName) set.iterator().next(),
-                                                                                              ManageableAttributeStore.class);
+                    ManageableAttributeStore.class);
         }
         String configName = null;
         Set set = kernel.getDependencyManager().getParents(abstractName);
         for (Iterator iterator = set.iterator(); iterator.hasNext();) {
             ObjectName name = (ObjectName) iterator.next();
-            if(Configuration.isConfigurationObjectName(name)) {
+            if (Configuration.isConfigurationObjectName(name)) {
                 configName = ObjectName.unquote(name.getKeyProperty("name"));
                 break;
             }
         }
-        if(configName != null) {
+        if (configName != null) {
             manageableStore.setValue(configName, abstractName.getObjectName(), attribute.getAttributeInfo(), value);
         } else {
-            log.error("Unable to identify Configuration for GBean "+abstractName.getObjectName()+".  Manageable attribute "+attribute.getName()+" was not updated in persistent store.");
+            log.error("Unable to identify Configuration for GBean " + abstractName.getObjectName() + ".  Manageable attribute " + attribute.getName() + " was not updated in persistent store.");
         }
     }
 
@@ -773,20 +782,19 @@ public final class GBeanInstance implements StateManageable {
         if (index == null) {
             throw new NoSuchAttributeException("Unknown attribute " + name + " in gbean " + abstractName.getObjectName());
         }
-        GBeanAttribute attribute = attributes[index.intValue()];
-        return attribute;
+        return attributes[index.intValue()];
     }
 
     /**
      * Invokes an opreation using the operation index.  This is the most efficient way to invoke
      * an operation as it avoids a HashMap lookup.
      *
-     * @param index the index of the attribute
+     * @param index     the index of the attribute
      * @param arguments the arguments to the operation
      * @return the result of the operation
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                 if a target instance throws and exception
      * @throws IndexOutOfBoundsException if the index is invalid
-     * @throws IllegalStateException if the gbean instance has been destroyed
+     * @throws IllegalStateException     if the gbean instance has been destroyed
      */
     public Object invoke(int index, Object[] arguments) throws Exception {
         GBeanOperation operation = operations[index];
@@ -811,12 +819,12 @@ public final class GBeanInstance implements StateManageable {
      * GOperationSignature object.
      *
      * @param operationName the name of the operation to invoke
-     * @param arguments arguments to the operation
-     * @param types types of the operation arguemtns
+     * @param arguments     arguments to the operation
+     * @param types         types of the operation arguemtns
      * @return the result of the operation
-     * @throws Exception if a target instance throws and exception
+     * @throws Exception                if a target instance throws and exception
      * @throws NoSuchOperationException if the operation signature is not found in the map
-     * @throws IllegalStateException if the gbean instance has been destroyed
+     * @throws IllegalStateException    if the gbean instance has been destroyed
      */
     public Object invoke(String operationName, Object[] arguments, String[] types) throws Exception, NoSuchOperationException {
         GOperationSignature signature = new GOperationSignature(operationName, types);
@@ -845,8 +853,7 @@ public final class GBeanInstance implements StateManageable {
         if (index == null) {
             throw new IllegalArgumentException("Unknown reference " + name);
         }
-        GBeanReference reference = references[index.intValue()];
-        return reference;
+        return references[index.intValue()];
     }
 
     boolean createInstance() throws Exception {
@@ -864,11 +871,11 @@ public final class GBeanInstance implements StateManageable {
 
             // Call all start on every reference.  This way the dependecies are held until we can start
             boolean allStarted = true;
-            for (int i = 0; i < references.length; i++) {
-                allStarted = references[i].start() && allStarted;
-            }
             for (int i = 0; i < dependencies.length; i++) {
                 allStarted = dependencies[i].start() && allStarted;
+            }
+            for (int i = 0; i < references.length; i++) {
+                allStarted = references[i].start() && allStarted;
             }
             if (!allStarted) {
                 return false;
@@ -1044,7 +1051,7 @@ public final class GBeanInstance implements StateManageable {
                     GBeanAttribute attribute = attributes[i];
                     if (attribute.isPersistent() && attribute.isReadable()) {
                         // copy the current attribute value to the persistent value
-                        Object value = null;
+                        Object value;
                         try {
                             value = attribute.getValue(instance);
                         } catch (Throwable e) {
@@ -1179,7 +1186,7 @@ public final class GBeanInstance implements StateManageable {
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj instanceof GBeanInstance == false) return false;
-        return abstractName.equals(((GBeanInstance)obj).abstractName);
+        return abstractName.equals(((GBeanInstance) obj).abstractName);
     }
 
     public int hashCode() {

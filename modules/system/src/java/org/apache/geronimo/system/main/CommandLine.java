@@ -33,6 +33,7 @@ import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.gbean.AbstractName;
 
 
 /**
@@ -75,7 +76,7 @@ public class CommandLine {
     }
 
     private Kernel kernel;
-    private ObjectName configurationName;
+    private AbstractName configurationName;
 
     public void invokeMainGBean(List configurations, ObjectName mainGBean, String mainMethod, String[] args) throws Exception {
         startKernel(configurations);

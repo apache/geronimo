@@ -16,22 +16,21 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.repository.Artifact;
 
-import java.util.Map;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -44,7 +43,7 @@ public class GBeanDependencyTest extends TestCase {
         AbstractName parentName = buildAbstractName("parent", MockGBean.getGBeanInfo());
         GBeanData gbeanDataParent = new GBeanData(parentName, MockGBean.getGBeanInfo());
         GBeanData gbeanDataChild = new GBeanData(buildAbstractName("child", MockGBean.getGBeanInfo()), MockGBean.getGBeanInfo());
-        gbeanDataChild.getDependencies().add(new AbstractNameQuery(parentName));
+        gbeanDataChild.getDependencies().add(parentName);
         kernel.loadGBean(gbeanDataChild, MockGBean.class.getClassLoader());
         kernel.startGBean(gbeanDataChild.getName());
         assertEquals(State.STARTING_INDEX, kernel.getGBeanState(gbeanDataChild.getName()));

@@ -279,9 +279,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                     while (true) {
                         GBeanData gbeanData = new GBeanData();
                         gbeanData.readExternal(ois);
-                        gbeanData.initializeName(id, baseName);
-
-                        gbeans.put(gbeanData.getNameMap(), gbeanData);
+                        gbeans.put(gbeanData.getAbstractName(), gbeanData);
                     }
                 } catch (EOFException e) {
                     // ok
@@ -436,24 +434,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     /**
-     * Gets an unmodifiable map of the GBeanDatas for the GBeans in this configuration by ObjectName.
+     * Gets an unmodifiable collection of the GBeanDatas for the GBeans in this configuration.
      * @return the GBeans in this configuration
      */
     public Map getGBeans() {
         return Collections.unmodifiableMap(gbeans);
-    }
-
-    /**
-     * Determines of this configuration constains the specified GBean.
-     * @param gbean the name of the GBean
-     * @return true if this configuration contains the specified GBean; false otherwise
-     */
-    public synchronized boolean containsGBean(ObjectName gbean) {
-        //TODO does not work
-        if (true) {
-            throw new IllegalArgumentException("does not work");
-        }
-        return gbeans.containsKey(gbean);
     }
 
     public synchronized void addGBean(GBeanData beanData, boolean start) throws InvalidConfigException, GBeanAlreadyExistsException {
@@ -464,7 +449,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             log.trace("Registering GBean " + beanData.getName());
 
             // add a dependency on this configuration
-            beanData.getDependencies().add(new AbstractNameQuery(abstractName));
+            beanData.getDependencies().add(abstractName);
 
             // register the bean with the kernel
             kernel.loadGBean(beanData, configurationClassLoader);
@@ -481,25 +466,9 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             Thread.currentThread().setContextClassLoader(oldCl);
         }
 
-        gbeans.put(beanData.getNameMap(), beanData);
+        gbeans.put(beanData.getAbstractName(), beanData);
     }
 
-    public synchronized void removeGBean(ObjectName name) throws GBeanNotFoundException {
-        //TODO does not work
-        if (!gbeans.containsKey(name)) {
-            throw new GBeanNotFoundException(name);
-        }
-        try {
-            if (kernel.getGBeanState(name) == State.RUNNING_INDEX) {
-                kernel.stopGBean(name);
-            }
-            kernel.unloadGBean(name);
-        } catch (GBeanNotFoundException e) {
-            // Bean is no longer loaded
-        }
-
-        gbeans.remove(name);
-    }
 
     public void doStart() throws Exception {
         assert objectName != null;
@@ -538,9 +507,8 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     private void shutdown() {
         // unregister all GBeans
-        for (Iterator i = gbeans.values().iterator(); i.hasNext();) {
-            GBeanData gbeanData = (GBeanData) i.next();
-            AbstractName name = gbeanData.getAbstractName();
+        for (Iterator i = gbeans.keySet().iterator(); i.hasNext();) {
+            AbstractName name = (AbstractName) i.next();
             try {
                 if (kernel.isLoaded(name)) {
                     log.trace("Unregistering GBean " + name);

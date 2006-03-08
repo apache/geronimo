@@ -16,11 +16,12 @@
  */
 package org.apache.geronimo.system.configuration;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.InvalidGBeanException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -39,7 +40,7 @@ class ConfigurationOverride {
         this.load = load;
     }
 
-    public ConfigurationOverride(Element element) throws MalformedObjectNameException {
+    public ConfigurationOverride(Element element) throws MalformedObjectNameException, InvalidGBeanException {
         name = element.getAttribute("name");
 
         String loadConfigString = element.getAttribute("load");
@@ -81,12 +82,12 @@ class ConfigurationOverride {
         return gbeans;
     }
 
-    public GBeanOverride getGBean(ObjectName gbeanName) {
-        return (GBeanOverride) gbeans.get(gbeanName);
+    public GBeanOverride getGBean(AbstractName gbeanName) {
+        return (GBeanOverride) gbeans.get(gbeanName.getObjectName());
     }
 
-    public void addGBean(ObjectName gbeanName, GBeanOverride gbean) {
-        gbeans.put(gbeanName, gbean);
+    public void addGBean(AbstractName gbeanName, GBeanOverride gbean) {
+        gbeans.put(gbeanName.getObjectName(), gbean);
     }
 
     public void writeXml(PrintWriter out) {

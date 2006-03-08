@@ -20,7 +20,12 @@ import org.apache.geronimo.common.propertyeditor.PropertyEditors;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.util.EncryptionManager;
+import org.apache.geronimo.kernel.InvalidGBeanException;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -35,6 +40,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @version $Rev$ $Date$
@@ -52,7 +59,7 @@ class GBeanOverride {
         gbeanInfo = null;
     }
 
-    public GBeanOverride(ObjectName name, boolean load) {
+    public GBeanOverride(AbstractName name, boolean load) {
         this.name = name;
         this.load = load;
         gbeanInfo = null;
@@ -83,7 +90,7 @@ class GBeanOverride {
         references.putAll(gbeanData.getReferences());
     }
 
-    public GBeanOverride(Element gbean) throws MalformedObjectNameException {
+    public GBeanOverride(Element gbean) throws MalformedObjectNameException, InvalidGBeanException {
         String nameString = gbean.getAttribute("name");
         if (nameString.indexOf(':') > -1) {
             name = ObjectName.getInstance(nameString);
@@ -125,19 +132,41 @@ class GBeanOverride {
             NodeList patterns = reference.getElementsByTagName("pattern");
             for (int p = 0; p < references.getLength(); p++) {
                 Element pattern = (Element) patterns.item(p);
-                NodeList gbeanNames = pattern.getElementsByTagName("gbean-name");
-                if (gbeanNames.getLength() != 1) {
-                    throw new MalformedObjectNameException("pattern does not contain a valid gbean-name:" +
-                            " name=" + nameString +
-                            " referenceName=" + referenceName);
+                String groupId = getChildAsText(pattern, "groupId");
+                String artifactId = getChildAsText(pattern, "artifactId");
+                String version = getChildAsText(pattern, "version");
+                String type = getChildAsText(pattern, "type");
+                String module = getChildAsText(pattern, "module");
+                String name = getChildAsText(pattern, "name");
+
+                Artifact referenceArtifact = null;
+                if (artifactId != null) {
+                    referenceArtifact = new Artifact(groupId, artifactId, version, type);
                 }
-                String value = getContentsAsText((Element)gbeanNames.item(0));
-                ObjectName objectNamePattern = new ObjectName(value);
-                objectNamePatterns.add(objectNamePattern);
+                Map nameMap = new HashMap();
+                if (module != null) {
+                    nameMap.put("module", module);
+                }
+                if (name != null) {
+                    nameMap.put("name", name);
+                }
+                AbstractNameQuery abstractNameQuery = new AbstractNameQuery(referenceArtifact, nameMap, Collections.EMPTY_SET);
+                objectNamePatterns.add(abstractNameQuery);
             }
 
-            setReferencePatterns(referenceName, objectNamePatterns);
+            setReferencePatterns(referenceName, new ReferencePatterns(objectNamePatterns));
         }
+    }
+
+    private static String getChildAsText(Element element, String name) throws InvalidGBeanException {
+        NodeList children = element.getElementsByTagName(name);
+        if (children == null || children.getLength() == 0) {
+            return null;
+        }
+        if (children.getLength() > 1) {
+            throw new InvalidGBeanException("invalid name, too many parts named: " + name);
+        }
+        return getContentsAsText((Element) children.item(0));
     }
 
     private static String getContentsAsText(Element element) {
@@ -188,15 +217,11 @@ class GBeanOverride {
         return references;
     }
 
-    public Set getReferencePatterns(String name) {
-        return (Set) references.get(name);
+    public ReferencePatterns getReferencePatterns(String name) {
+        return (ReferencePatterns) references.get(name);
     }
 
-    public void setReferencePattern(String name, ObjectName pattern) {
-        setReferencePatterns(name, Collections.singleton(pattern));
-    }
-
-    public void setReferencePatterns(String name, Set patterns) {
+    public void setReferencePatterns(String name, ReferencePatterns patterns) {
         references.put(name, patterns);
     }
 
@@ -212,7 +237,7 @@ class GBeanOverride {
         if (gbeanInfo != null) {
             out.print(" gbeanInfo=\"" + gbeanInfo + "\"");
         }
-        
+
         if (!load) {
             out.print(" load=\"false\"");
         }
@@ -233,14 +258,35 @@ class GBeanOverride {
         for (Iterator iterator = references.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             String name = (String) entry.getKey();
-            Set patterns = (Set) entry.getValue();
+            ReferencePatterns patterns = (ReferencePatterns) entry.getValue();
 
             out.println("      <reference name=\"" + name + "\">");
-            for (Iterator patternIterator = patterns.iterator(); patternIterator.hasNext();) {
-                ObjectName pattern = (ObjectName) patternIterator.next();
-                out.print("          <pattern><gbean-name>");
-                out.print(pattern.getCanonicalName());
-                out.println("</gbean-name></pattern>");
+            for (Iterator patternIterator = patterns.getPatterns().iterator(); patternIterator.hasNext();) {
+                AbstractNameQuery pattern = (AbstractNameQuery) patternIterator.next();
+                out.println("          <pattern>");
+                List artifacts = pattern.getArtifacts();
+                if (artifacts != null && !artifacts.isEmpty()) {
+                    Artifact artifact = (Artifact) artifacts.get(0);
+                    if (artifact.getGroupId() != null) {
+                        out.println("              <groupId>" + artifact.getGroupId() + "</groupId>");
+                    }
+                    out.println("              <artifactId>" + artifact.getArtifactId() + "</artifactId>");
+                    if (artifact.getVersion() != null) {
+                        out.println("              <version>" + artifact.getVersion() + "</version>");
+                    }
+                    if (artifact.getType() != null) {
+                        out.println("              <type>" + artifact.getType() + "</ype>");
+                    }
+                    Map nameMap = pattern.getName();
+                    if (nameMap.get("module") != null) {
+                        out.println("              <module>" + nameMap.get("module") + "</module>");
+                    }
+                    if (nameMap.get("name") != null) {
+                        out.println("              <name>" + nameMap.get("name") + "</name>");
+                    }
+                }
+                out.print(pattern.toString());
+                out.println("</pattern>");
             }
             out.println("      </reference>");
         }

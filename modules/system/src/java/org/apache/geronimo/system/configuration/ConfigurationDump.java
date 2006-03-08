@@ -220,8 +220,8 @@ public class ConfigurationDump {
         }
 
         Configuration configuration = (Configuration) kernel.getProxyManager().createProxy(name, Configuration.class);
-        Map gbeans = configuration.getGBeans();
-        for (Iterator iterator = gbeans.values().iterator(); iterator.hasNext();) {
+        Collection gbeans = configuration.getGBeans().values();
+        for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
             out.println();
             out.println();

@@ -57,11 +57,12 @@ public class MBeanServerKernelBridge implements GBeanLifecycle {
         this.kernel = kernel;
         ArrayList servers = MBeanServerFactory.findMBeanServer(mbeanServerId);
         if (servers.size() == 0) {
-            throw new MBeanServerNotFound("No MBeanServers were found with the agent id " + mbeanServerId);
+            mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
         } else if (servers.size() > 1) {
             throw new MBeanServerNotFound(servers.size() + " MBeanServers were found with the agent id " + mbeanServerId);
+        } else {
+            mbeanServer = (MBeanServer) servers.get(0);
         }
-        mbeanServer = (MBeanServer) servers.get(0);
 
     }
 

@@ -17,22 +17,9 @@
 
 package org.apache.geronimo.system.main;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
@@ -41,8 +28,17 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
 import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.system.jmx.MBeanServerKernelBridge;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
+
+import javax.management.ObjectName;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -231,8 +227,8 @@ public class Daemon {
             ClassLoader classLoader = Daemon.class.getClassLoader();
 
             // create a mbean server
-            MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
-            String mbeanServerId = (String) mbeanServer.getAttribute(new ObjectName("JMImplementation:type=MBeanServerDelegate"), "MBeanServerId");
+//            MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
+//            String mbeanServerId = (String) mbeanServer.getAttribute(new ObjectName("JMImplementation:type=MBeanServerDelegate"), "MBeanServerId");
 
             // create the kernel
             final Kernel kernel = KernelFactory.newInstance().createKernel("geronimo");
@@ -256,11 +252,12 @@ public class Daemon {
             });
 
             // add the jmx bridge
-            ObjectName mbeanServerKernelBridgeName = new ObjectName("geronimo.boot:role=MBeanServerKernelBridge");
-            GBeanData mbeanServerKernelBridge = new GBeanData(mbeanServerKernelBridgeName, MBeanServerKernelBridge.GBEAN_INFO);
-            mbeanServerKernelBridge.setAttribute("mbeanServerId", mbeanServerId);
-            kernel.loadGBean(mbeanServerKernelBridge, classLoader);
-            kernel.startGBean(mbeanServerKernelBridgeName);
+            //now it's in the plan
+//            ObjectName mbeanServerKernelBridgeName = new ObjectName("geronimo.boot:role=MBeanServerKernelBridge");
+//            GBeanData mbeanServerKernelBridge = new GBeanData(mbeanServerKernelBridgeName, MBeanServerKernelBridge.GBEAN_INFO);
+//            mbeanServerKernelBridge.setAttribute("mbeanServerId", mbeanServerId);
+//            kernel.loadGBean(mbeanServerKernelBridge, classLoader);
+//            kernel.startGBean(mbeanServerKernelBridgeName);
 
             // load this configuration
             InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");

@@ -32,10 +32,6 @@ public interface GBeanReference {
 
     Class getProxyType();
 
-    Set getPatterns();
-
-    void setPatterns(Set patterns);
-
     void online();
 
     void offline();

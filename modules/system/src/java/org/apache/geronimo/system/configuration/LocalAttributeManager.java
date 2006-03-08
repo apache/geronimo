@@ -19,12 +19,14 @@ package org.apache.geronimo.system.configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.propertyeditor.PropertyEditors;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.config.PersistentConfigurationList;
@@ -95,7 +97,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         return readOnly;
     }
 
-    public synchronized Collection setAttributes(Artifact configurationName, Collection gbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
+    public synchronized Collection applyOverrides(Artifact configurationName, Collection gbeanDatas, ClassLoader classLoader) throws InvalidConfigException {
         // clone the datas since we will be modifying this collection
         gbeanDatas = new ArrayList(gbeanDatas);
 
@@ -109,7 +111,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         Map datasByName = new HashMap();
         for (Iterator iterator = gbeanDatas.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
-            datasByName.put(gbeanData.getName(), gbeanData);
+            datasByName.put(gbeanData.getAbstractName(), gbeanData);
         }
 
         // add the new GBeans
@@ -119,13 +121,13 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
             GBeanOverride gbean = (GBeanOverride) entry.getValue();
             if (!datasByName.containsKey(name) && gbean.getGBeanInfo() != null && gbean.isLoad()) {
                 if (!(name instanceof ObjectName)) {
-                    throw new InvalidConfigException("New GBeans must be specified with a full objectName:" +
+                    throw new InvalidConfigException("New GBeans must be specified with a full abstractName:" +
                             " configuration=" + configName +
                             " gbeanName=" + name);
                 }
-                ObjectName objectName = (ObjectName) name;
                 GBeanInfo gbeanInfo = GBeanInfo.getGBeanInfo(gbean.getGBeanInfo(), classLoader);
-                GBeanData gBeanData = new GBeanData(objectName, gbeanInfo);
+                AbstractName abstractName = new AbstractName(configurationName, ((ObjectName)name).getKeyPropertyList(), gbeanInfo.getInterfaces(), (ObjectName)name);
+                GBeanData gBeanData = new GBeanData(abstractName, gbeanInfo);
                 gbeanDatas.add(gBeanData);
             }
         }
@@ -153,10 +155,10 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
      *
      */
     private synchronized boolean setAttributes(GBeanData data, ConfigurationOverride configuration, String configName, ClassLoader classLoader) throws InvalidConfigException {
-        ObjectName gbeanName = data.getName();
+        AbstractName gbeanName = data.getAbstractName();
         GBeanOverride gbean = configuration.getGBean(gbeanName);
         if (gbean == null) {
-            gbean = configuration.getGBean(gbeanName.getKeyProperty("name"));
+            gbean = configuration.getGBean((String) gbeanName.getName().get("name"));
         }
 
         if (gbean == null) {
@@ -193,7 +195,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
                 throw new InvalidConfigException("No reference: " + referenceName + " for gbean: " + data.getName());
             }
 
-            Set referencePatterns = (Set) entry.getValue();
+            ReferencePatterns referencePatterns = (ReferencePatterns) entry.getValue();
 
             data.setReferencePatterns(referenceName, referencePatterns);
         }
@@ -201,7 +203,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
     }
 
 
-    private synchronized Object getValue(GAttributeInfo attribute, String value, String configurationName, ObjectName gbeanName, ClassLoader classLoader) {
+    private synchronized Object getValue(GAttributeInfo attribute, String value, String configurationName, AbstractName gbeanName, ClassLoader classLoader) {
         if (value == null) {
             return null;
         }
@@ -221,14 +223,14 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         }
     }
 
-    public synchronized void setValue(String configurationName, ObjectName gbeanName, GAttributeInfo attribute, Object value) {
+    public synchronized void setValue(String configurationName, AbstractName gbeanName, GAttributeInfo attribute, Object value) {
         if (readOnly) {
             return;
         }
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, true);
         GBeanOverride gbean = configuration.getGBean(gbeanName);
         if (gbean == null) {
-            gbean = configuration.getGBean(gbeanName.getKeyProperty("name"));
+            gbean = configuration.getGBean((String) gbeanName.getName().get("name"));
             if (gbean == null) {
                 gbean = new GBeanOverride(gbeanName, true);
                 configuration.addGBean(gbeanName, gbean);
@@ -241,15 +243,10 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         } catch (InvalidAttributeException e) {
             // attribute can not be represented as a string
             log.error(e.getMessage());
-            return;
         }
     }
 
-    public synchronized void setReferencePattern(String configurationName, ObjectName gbeanName, GReferenceInfo reference, ObjectName pattern) {
-        setReferencePatterns(configurationName, gbeanName, reference, Collections.singleton(pattern));
-    }
-
-    public synchronized void setReferencePatterns(String configurationName, ObjectName gbeanName, GReferenceInfo reference, Set patterns) {
+    public synchronized void setReferencePatterns(String configurationName, AbstractName gbeanName, GReferenceInfo reference, ReferencePatterns patterns) {
         if (readOnly) {
             return;
         }
@@ -257,7 +254,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         ConfigurationOverride configuration = serverOverride.getConfiguration(configurationName, true);
         GBeanOverride gbean = configuration.getGBean(gbeanName);
         if (gbean == null) {
-            gbean = configuration.getGBean(gbeanName.getKeyProperty("name"));
+            gbean = configuration.getGBean((String)gbeanName.getName().get("name"));
             if (gbean == null) {
                 gbean = new GBeanOverride(gbeanName, true);
                 configuration.addGBean(gbeanName, gbean);
@@ -267,7 +264,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         attributeChanged();
     }
 
-    public synchronized void setShouldLoad(String configurationName, ObjectName gbeanName, boolean load) {
+    public synchronized void setShouldLoad(String configurationName, AbstractName gbeanName, boolean load) {
         if (readOnly) {
             return;
         }
@@ -276,7 +273,7 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         GBeanOverride gbean = configuration.getGBean(gbeanName);
         if (gbean == null) {
             // attempt to lookup by short name
-            gbean = configuration.getGBean(gbeanName.getKeyProperty("name"));
+            gbean = configuration.getGBean((String)gbeanName.getName().get("name"));
         }
 
         if (gbean == null) {
@@ -304,7 +301,6 @@ public class LocalAttributeManager implements ManageableAttributeStore, Persiste
         } catch (InvalidAttributeException e) {
             // attribute can not be represented as a string
             log.error(e.getMessage());
-            return;
         }
     }
 

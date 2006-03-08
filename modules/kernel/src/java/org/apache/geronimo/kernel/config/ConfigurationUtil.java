@@ -46,7 +46,7 @@ public final class ConfigurationUtil {
     private ConfigurationUtil() {
     }
 
-    public static ObjectName loadBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, InputStream in, ClassLoader classLoader) throws Exception {
         // load and start the configuration in this jar
         GBeanData configuration = new GBeanData();
         ObjectInputStream ois = new ObjectInputStream(in);
@@ -58,8 +58,8 @@ public final class ConfigurationUtil {
 
         Environment environment = (Environment) configuration.getAttribute("environment");
         Artifact configId = environment.getConfigId();
-        ObjectName configurationName = Configuration.getConfigurationObjectName(configId);
-        configuration.setName(configurationName);
+        AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);
+        configuration.setAbstractName(configurationName);
 
         // for a bootstrap we should have an empty kernel, so clear the references and dependencies
         configuration.setAttribute("artifactManager", null);

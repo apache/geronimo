@@ -16,20 +16,17 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import java.util.Iterator;
-import java.util.Set;
-import javax.management.ObjectName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.DependencyManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.lifecycle.LifecycleAdapter;
-import org.apache.geronimo.kernel.lifecycle.LifecycleListener;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+
+import javax.management.ObjectName;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -61,12 +58,6 @@ public class GBeanInstanceState {
      * The broadcaster of lifecycle events
      */
     private final LifecycleBroadcaster lifecycleBroadcaster;
-
-    /**
-     * The listener for the of the object blocking the start of this gbean.
-     * When the blocker dies we attempt to start.
-     */
-    private LifecycleListener blockerListener;
 
     // This must be volatile otherwise getState must be synchronized which will result in deadlock as dependent
     // objects check if each other are in one state or another (i.e., classic A calls B while B calls A)
@@ -244,53 +235,6 @@ public class GBeanInstanceState {
         synchronized (this) {
             // if we are still trying to start and can start now... start
             if (getStateInstance() != State.STARTING) {
-                return;
-            }
-
-            if (blockerListener != null) {
-                log.trace("Cannot run because gbean is still being blocked");
-                return;
-            }
-
-            // check if an gbean is blocking us from starting
-            final AbstractName blocker = dependencyManager.checkBlocker(abstractName);
-            if (blocker != null) {
-                blockerListener = new LifecycleAdapter() {
-
-                    public void stopped(AbstractName abstractName) {
-                        checkBlocker(abstractName);
-                    }
-
-                    public void failed(AbstractName abstractName) {
-                        checkBlocker(abstractName);
-                    }
-
-                    public void unloaded(AbstractName abstractName) {
-                        checkBlocker(abstractName);
-                    }
-
-                    private void checkBlocker(AbstractName abstractName) {
-                        synchronized (GBeanInstanceState.this) {
-                            if (!abstractName.equals(blocker)) {
-                                // it did not start so just exit this method
-                                return;
-                            }
-
-                            // it started, so remove the blocker and attempt a full start
-                            kernel.getLifecycleMonitor().removeLifecycleListener(this);
-                            GBeanInstanceState.this.blockerListener = null;
-                        }
-
-                        try {
-                            attemptFullStart();
-                        } catch (Exception e) {
-                            log.warn("A problem occured while attempting to start", e);
-                        }
-                    }
-                };
-                // register the listener and return
-                AbstractNameQuery blockerPattern = new AbstractNameQuery(blocker.getArtifact(), blocker.getName(), blocker.getInterfaceTypes());
-                kernel.getLifecycleMonitor().addLifecycleListener(blockerListener, blockerPattern);
                 return;
             }
 

@@ -68,15 +68,15 @@ public class AbstractName implements Serializable {
     }
 
     public String toString() {
-        StringBuffer buf = new StringBuffer();
-            buf.append("artifact=").append(artifact);
-        for (Iterator iterator = interfaceTypes.iterator(); iterator.hasNext();) {
-            String interfaceType = (String) iterator.next();
-            buf.append(",interface=").append(interfaceType);
-        }
+        StringBuffer buf = new StringBuffer("AbstractName");
         for (Iterator iterator = name.entrySet().iterator(); iterator.hasNext();) {
             Map.Entry entry = (Map.Entry) iterator.next();
             buf.append(",").append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        buf.append(",artifact=").append(artifact);
+        for (Iterator iterator = interfaceTypes.iterator(); iterator.hasNext();) {
+            String interfaceType = (String) iterator.next();
+            buf.append(",interface=").append(interfaceType);
         }
         return buf.toString();
     }

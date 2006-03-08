@@ -19,9 +19,7 @@ package org.apache.geronimo.kernel;
 
 import org.apache.geronimo.gbean.AbstractName;
 
-import java.util.Collection;
 import java.util.Set;
-import javax.management.ObjectName;
 
 /**
  * DependencyManager is the record keeper of the dependencies in Geronimo.  The DependencyManager
@@ -86,35 +84,4 @@ public interface DependencyManager {
      */
     public Set getChildren(AbstractName parent);
 
-    /**
-     * Adds a hold on a collection of object name patterns.  If the name of a component matches an object name
-     * pattern in the collection, the component should not start.
-     *
-     * @param abstractName
-     * @param holds a collection of object name patterns which should not start
-     */
-    public void addStartHolds(AbstractName abstractName, Collection holds);
-
-    /**
-     * Removes a collection of holds.
-     *
-     * @param abstractName
-     * @param holds a collection of the holds to remove
-     */
-    public void removeStartHolds(AbstractName abstractName, Collection holds);
-
-    /**
-     * Removes all of the holds owned by a component.
-     *
-     * @param abstractName
-     */
-    public void removeAllStartHolds(AbstractName abstractName);
-
-    /**
-     * Gets the object name of the bean blocking the start specified bean.
-     *
-     * @param abstractName
-     * @return the bean blocking the specified bean, or null if there are no blockers
-     */
-    public AbstractName checkBlocker(AbstractName abstractName);
 }

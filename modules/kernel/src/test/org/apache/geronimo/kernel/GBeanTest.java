@@ -93,7 +93,7 @@ public class GBeanTest extends TestCase {
 
         GBeanData gbean2 = buildGBeanData("name", "test2", MockGBean.getGBeanInfo());
         gbean2.setAttribute("finalInt", new Integer(123));
-        gbean2.setReferencePattern("MockEndpoint", new AbstractNameQuery(gbean1.getAbstractName()));
+        gbean2.setReferencePattern("MockEndpoint", gbean1.getAbstractName());
         kernel.loadGBean(gbean2, cl);
         kernel.startGBean(gbean2.getAbstractName());
 

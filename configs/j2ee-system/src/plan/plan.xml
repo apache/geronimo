@@ -37,6 +37,9 @@ specific services - those should be provided by children.
     </properties>
   </environment>
 
+  <!-- MBean server service -->
+  <gbean name="MBeanServerKernelBridge" class="org.apache.geronimo.system.jmx.MBeanServerKernelBridge"/>
+
   <!-- ServerInfo service -->
   <gbean name="ServerInfo" class="org.apache.geronimo.system.serverinfo.BasicServerInfo"/>
 

@@ -19,9 +19,10 @@ package org.apache.geronimo.kernel.config;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.repository.Artifact;
 
-import javax.management.ObjectName;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -38,8 +39,8 @@ public interface ManageableAttributeStore {
     public static final String ATTRIBUTE_STORE = "AttributeStore";
 
     /**
-     * Given a conifguration name and a set of GBeanDatas, apply all the saved
-     * attribute values to those GBeans before the caller attempts to load
+     * Given a configuration name and a set of GBeanDatas, apply all the saved
+     * overrides to that set of GBeans before the caller attempts to load
      * them.
      *
      * @param configurationName The configuration in question
@@ -49,7 +50,7 @@ public interface ManageableAttributeStore {
      * @return                  The modified GBeanData's
      * @throws InvalidConfigException If something bad happens
      */
-    public Collection setAttributes(Artifact configurationName, Collection datas, ClassLoader classLoader) throws InvalidConfigException;
+    public Collection applyOverrides(Artifact configurationName, Collection datas, ClassLoader classLoader) throws InvalidConfigException;
 
     /**
      * Sets the stored value for a particular attribute.  The attribute is
@@ -67,7 +68,7 @@ public interface ManageableAttributeStore {
      * @param attribute The attribute in question
      * @param value The value to save, or null if no value should be saved
      */
-    public void setValue(String configurationName, ObjectName gbean, GAttributeInfo attribute, Object value);
+    public void setValue(String configurationName, AbstractName gbean, GAttributeInfo attribute, Object value);
 
     /**
      * Sets the pattern for a GBean reference. The reference is
@@ -79,9 +80,9 @@ public interface ManageableAttributeStore {
      * @param configurationName the name of the configuration holding the GBean in question
      * @param gbean the ObjectName of the GBean
      * @param reference the attribute information
-     * @param pattern new object name pattern for this reference
+     * @param patterns
      */
-    public void setReferencePattern(String configurationName, ObjectName gbean, GReferenceInfo reference, ObjectName pattern);
+    public void setReferencePatterns(String configurationName, AbstractName gbean, GReferenceInfo reference, ReferencePatterns patterns);
 
     /**
      * Sets the patterns for a GBean reference. The reference is
@@ -93,7 +94,7 @@ public interface ManageableAttributeStore {
      * @param reference the attribute information
      * @param patterns new object name patterns for this reference; must not be null
      */
-    public void setReferencePatterns(String configurationName, ObjectName gbean, GReferenceInfo reference, Set patterns);
+//    public void setReferencePatterns(String configurationName, AbstractName gbean, GReferenceInfo reference, Set patterns);
 
     /**
      * Sets whether a particular GBean should be loaded for this configuration.
@@ -105,7 +106,7 @@ public interface ManageableAttributeStore {
      * @param gbean             The GBean in question
      * @param load              True if the GBean should load with the configuration
      */
-    public void setShouldLoad(String configurationName, ObjectName gbean, boolean load);
+    public void setShouldLoad(String configurationName, AbstractName gbean, boolean load);
 
 
     /**

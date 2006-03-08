@@ -17,9 +17,12 @@
 package org.apache.geronimo.system.configuration;
 
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
@@ -47,12 +50,14 @@ public class ServerOverrideTest extends TestCase {
         pizza.setAttribute("cheese", "mozzarella");
         assertEquals("mozzarella", pizza.getAttribute("cheese"));
 
-        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
-        pizza.setReferencePattern("oven", pizzaOvenPattern);
-        assertEquals(Collections.singleton(pizzaOvenPattern), pizza.getReferencePatterns("oven"));
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
+        ReferencePatterns pizzaOvenPatterns = new ReferencePatterns(Collections.singleton(pizzaOvenQuery));
+        pizza.setReferencePatterns("oven", pizzaOvenPatterns);
+        assertEquals(pizzaOvenPatterns, pizza.getReferencePatterns("oven"));
 
-        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
-        Set ovenPatterns = new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern}));
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
+        ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
         assertEquals(ovenPatterns, pizza.getReferencePatterns("oven"));
 
@@ -70,6 +75,16 @@ public class ServerOverrideTest extends TestCase {
         assertSame(dinnerMenu, restaurant.getConfiguration("Dinner Menu"));
     }
 
+    private ReferencePatterns getReferencePatterns(AbstractNameQuery[] queries) {
+        Set querySet = new LinkedHashSet(Arrays.asList(queries));
+        return new ReferencePatterns(querySet);
+    }
+
+    private AbstractNameQuery getAbstractNameQuery(String pizzaOvenString) throws MalformedObjectNameException {
+        ObjectName pizzaOvenPattern = new ObjectName(pizzaOvenString);
+        return new AbstractNameQuery(Collections.EMPTY_LIST, pizzaOvenPattern.getKeyPropertyList(), Collections.EMPTY_SET);
+    }
+
     public void testGBeanXml() throws Exception {
         GBeanOverride pizza = new GBeanOverride("Pizza", true);
         assertCopyIdentical(pizza);
@@ -83,12 +98,14 @@ public class ServerOverrideTest extends TestCase {
         pizza.setAttribute("size", "x-large");
         assertCopyIdentical(pizza);
 
-        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
-        pizza.setReferencePattern("oven", pizzaOvenPattern);
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
+        ReferencePatterns pizzaOvenPatterns = new ReferencePatterns(Collections.singleton(pizzaOvenQuery));
+        pizza.setReferencePatterns("oven", pizzaOvenPatterns);
         assertCopyIdentical(pizza);
 
-        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
-        Set ovenPatterns = new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern}));
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
+        ReferencePatterns ovenPatterns = getReferencePatterns(queries);
         pizza.setReferencePatterns("oven", ovenPatterns);
         assertCopyIdentical(pizza);
     }
@@ -103,16 +120,19 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
-        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
-        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
-        pizza.setReferencePatterns("oven", new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern})));
-        assertCopyIdentical(dinnerMenu);
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
+        ReferencePatterns ovenPatterns = getReferencePatterns(queries);
+        pizza.setReferencePatterns("oven", ovenPatterns);
+         assertCopyIdentical(dinnerMenu);
 
         dinnerMenu.addGBean(pizza);
         assertCopyIdentical(dinnerMenu);
 
         GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
-        garlicCheeseBread.setReferencePattern("oven", toasterOvenPattern);
+        ReferencePatterns toasterOvenPatterns = new ReferencePatterns(Collections.singleton(toasterOvenQuery));
+        garlicCheeseBread.setReferencePatterns("oven", toasterOvenPatterns);
         dinnerMenu.addGBean(garlicCheeseBread);
         assertCopyIdentical(dinnerMenu);
     }
@@ -126,31 +146,34 @@ public class ServerOverrideTest extends TestCase {
         GBeanOverride pizza = new GBeanOverride("Pizza", false);
         pizza.setAttribute("cheese", "mozzarella");
         pizza.setAttribute("size", "x-large");
-        ObjectName pizzaOvenPattern = new ObjectName(":name=PizzaOven,j2eeType=oven,*");
-        ObjectName toasterOvenPattern = new ObjectName(":name=ToasterOven,j2eeType=oven,*");
-        pizza.setReferencePatterns("oven", new LinkedHashSet(Arrays.asList(new ObjectName[] {pizzaOvenPattern, toasterOvenPattern})));
+        AbstractNameQuery pizzaOvenQuery = getAbstractNameQuery(":name=PizzaOven,j2eeType=oven");
+        AbstractNameQuery toasterOvenQuery = getAbstractNameQuery(":name=ToasterOven,j2eeType=oven,*");
+        AbstractNameQuery[] queries = new AbstractNameQuery[]{pizzaOvenQuery, toasterOvenQuery};
+        ReferencePatterns ovenPatterns = getReferencePatterns(queries);
+        pizza.setReferencePatterns("oven", ovenPatterns);
         dinnerMenu.addGBean(pizza);
         GBeanOverride garlicCheeseBread = new GBeanOverride("Garlic Cheese Bread", true);
-        garlicCheeseBread.setReferencePattern("oven", toasterOvenPattern);
+        ReferencePatterns toasterOvenPatterns = new ReferencePatterns(Collections.singleton(toasterOvenQuery));
+        garlicCheeseBread.setReferencePatterns("oven", toasterOvenPatterns);
         dinnerMenu.addGBean(garlicCheeseBread);
         assertCopyIdentical(restaurant);
 
         ConfigurationOverride drinkMenu = new ConfigurationOverride("Drink Menu", false);
         restaurant.addConfiguration(drinkMenu);
         GBeanOverride beer = new GBeanOverride("Beer", true);
-        pizza.setReferencePatterns("glass", new LinkedHashSet(Arrays.asList(new ObjectName[] {
-            new ObjectName(":name=PintGlass"),
-            new ObjectName(":name=BeerStein"),
-            new ObjectName(":name=BeerBottle"),
-            new ObjectName(":name=BeerCan")
-        })));
+        pizza.setReferencePatterns("glass", getReferencePatterns(new AbstractNameQuery[] {
+            getAbstractNameQuery(":name=PintGlass"),
+            getAbstractNameQuery(":name=BeerStein"),
+            getAbstractNameQuery(":name=BeerBottle"),
+            getAbstractNameQuery(":name=BeerCan")
+        }));
         drinkMenu.addGBean(beer);
         GBeanOverride wine = new GBeanOverride("Wine", true);
-        wine.setReferencePatterns("glass", new LinkedHashSet(Arrays.asList(new ObjectName[] {
-            new ObjectName(":name=WineGlass"),
-            new ObjectName(":name=WineBottle"),
-            new ObjectName(":name=BoxWine")
-        })));
+        wine.setReferencePatterns("glass", getReferencePatterns(new AbstractNameQuery[] {
+            getAbstractNameQuery(":name=WineGlass"),
+            getAbstractNameQuery(":name=WineBottle"),
+            getAbstractNameQuery(":name=BoxWine")
+        }));
         drinkMenu.addGBean(wine);
         assertCopyIdentical(restaurant);
     }
@@ -225,8 +248,7 @@ public class ServerOverrideTest extends TestCase {
         System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         Element element = parseXml(in);
-        ServerOverride copy = new ServerOverride(element);
-        return copy;
+        return new ServerOverride(element);
     }
 
     private ConfigurationOverride copy(ConfigurationOverride configuration) throws Exception {
@@ -237,8 +259,7 @@ public class ServerOverrideTest extends TestCase {
         System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         Element element = parseXml(in);
-        ConfigurationOverride copy = new ConfigurationOverride(element);
-        return copy;
+        return new ConfigurationOverride(element);
     }
 
     private GBeanOverride copy(GBeanOverride gbean) throws Exception {
@@ -249,8 +270,7 @@ public class ServerOverrideTest extends TestCase {
         System.out.println(new String(out.toByteArray()));
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
         Element element = parseXml(in);
-        GBeanOverride copy = new GBeanOverride(element);
-        return copy;
+        return new GBeanOverride(element);
     }
 
     private Element parseXml(InputStream in) throws Exception {

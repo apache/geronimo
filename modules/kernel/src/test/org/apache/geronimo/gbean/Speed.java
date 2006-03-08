@@ -16,16 +16,16 @@
  */
 package org.apache.geronimo.gbean;
 
-/**
- * @version $Rev$ $Date$
- */
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 
 import net.sf.cglib.reflect.FastClass;
 import org.apache.geronimo.kernel.MockGBean;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
 
 /**
@@ -97,12 +97,11 @@ public class Speed {
         // start a kernel
         Kernel kernel = KernelFactory.newInstance().createKernel("speed");
         kernel.boot();
-        ObjectName objectName = new ObjectName("speed:type=MockGBean");
-        GBeanData mockGBean = new GBeanData(objectName, MockGBean.getGBeanInfo());
+        GBeanData mockGBean = buildGBeanData();
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
         kernel.loadGBean(mockGBean, Speed.class.getClassLoader());
-        kernel.startGBean(objectName);
+        kernel.startGBean(mockGBean.getAbstractName());
 
         // reflect proxy
 //        ProxyFactory vmProxyFactory = new VMProxyFactory(MyInterface.class);
@@ -145,7 +144,7 @@ public class Speed {
 */
 
         // Raw Invoker
-        RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(objectName, "$$RAW_INVOKER$$");
+        RawInvoker rawInvoker = (RawInvoker) kernel.getAttribute(mockGBean.getAbstractName(), "$$RAW_INVOKER$$");
         int rawIndex = ((Integer) rawInvoker.getOperationIndex().get(new GOperationSignature("doNothing", new String[0]))).intValue();
         iterations = 2000000;
         for (int i = 0; i < iterations; i++) {
@@ -173,6 +172,13 @@ public class Speed {
 //        }
 //        end = System.currentTimeMillis();
 //        printResults("CGLibProxy", end, start, iterations);
+    }
+
+    private static GBeanData buildGBeanData() throws MalformedObjectNameException {
+        ObjectName objectName = new ObjectName("speed:type=MockGBean");
+        AbstractName abstractName = new AbstractName(new Artifact("foo", "bar", "1", "car"), new HashMap(), MockGBean.getGBeanInfo().getInterfaces(), objectName);
+        GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
+        return mockGBean;
     }
 
 
@@ -227,12 +233,11 @@ public class Speed {
         // start a kernel
         Kernel kernel = KernelFactory.newInstance().createKernel("speed");
         kernel.boot();
-        ObjectName objectName = new ObjectName("speed:type=MockGBean");
-        GBeanData mockGBean = new GBeanData(objectName, MockGBean.getGBeanInfo());
+        GBeanData mockGBean = buildGBeanData();
         mockGBean.setAttribute("Name", "bar");
         mockGBean.setAttribute("FinalInt", new Integer(57));
         kernel.loadGBean(mockGBean, Speed.class.getClassLoader());
-        kernel.startGBean(objectName);
+        kernel.startGBean(mockGBean.getAbstractName());
 
         // reflect proxy
 //        ProxyFactory vmProxyFactory = new VMProxyFactory(MyInterface.class);

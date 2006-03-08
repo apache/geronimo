@@ -32,7 +32,8 @@ public class LifecycleMonitorFlyweight implements LifecycleMonitor {
         this.lifecycleMonitor = lifecycleMonitor;
     }
 
-    public void addLifecycleListener(LifecycleListener listener, AbstractNameQuery pattern) {
+    public void addLifecycleListener(LifecycleListener listener, AbstractNameQuery query) {
+        lifecycleMonitor.addLifecycleListener(listener, query);
     }
 
     public void addLifecycleListener(LifecycleListener listener, Set patterns) {
