@@ -278,10 +278,9 @@
         </xs:annotation>
         <xs:choice>
             <xs:sequence>
-                <xs:element name="domain" type="xs:string" minOccurs="0"/>
-                <xs:element name="server" type="xs:string" minOccurs="0"/>
-                <xs:element name="application" type="xs:string" minOccurs="0"/>
-                <xs:element name="moduleType" type="xs:string" minOccurs="0"/>
+                <xs:element name="groupId" type="xs:string" minOccurs="0"/>
+                <xs:element name="artifactId" type="xs:string"/>
+                <xs:element name="version" type="xs:string" minOccurs="0"/>
                 <xs:element name="module" type="xs:string" minOccurs="0"/>
                 <xs:element name="type" type="xs:string" minOccurs="0"/>
                 <xs:element name="name" type="xs:string"/>
