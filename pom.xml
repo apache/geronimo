@@ -784,6 +784,7 @@
         <module>modules/system</module>
         <module>modules/test-ddbean</module>
         <module>modules/timer</module>
+        <module>modules/tomcat</module>
         <module>modules/transaction</module>
         <module>modules/util</module>
         <module>modules/web-builder</module>
