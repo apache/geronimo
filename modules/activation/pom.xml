@@ -28,15 +28,10 @@
   <artifactId>geronimo-activation</artifactId>
   <name>Geronimo :: Activation</name>
   <version>${geronimoVersion}</version>
-  
-  <build>
-    <resources>
-      <resource>
-        <directory>src/resources</directory>
-      </resource>
-    </resources>
-  </build>
-  
+  <description>
+    Geronimo Activation implements Content Handlers for use in conjuction with
+    the Java Activation Framework.
+  </description>
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
