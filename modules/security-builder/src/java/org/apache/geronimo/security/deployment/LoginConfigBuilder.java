@@ -157,7 +157,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                     loginModuleGBeanData.setAttribute("loginDomainName", name);
                     loginModuleGBeanData.setAttribute("loginModuleClass", className);
                     loginModuleGBeanData.setAttribute("options", options);
-                    loginModuleGBeanData.setAttribute("serverSide", new Boolean(serverSide));
+                    loginModuleGBeanData.setAttribute("serverSide", Boolean.valueOf(serverSide));
                     loginModuleGBeanData.setAttribute("wrapPrincipals", Boolean.valueOf(wrapPrincipals));
 
                     context.addGBean(loginModuleGBeanData);

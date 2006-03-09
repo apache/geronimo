@@ -34,9 +34,8 @@ import org.activeio.net.SocketSyncChannelFactory;
 import org.activeio.packet.ByteArrayPacket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -127,14 +126,14 @@ public class SubjectCarryingProtocolTest extends AbstractTest implements Request
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testCE));
+        gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName));
-        gbean.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfo));
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(testCE);

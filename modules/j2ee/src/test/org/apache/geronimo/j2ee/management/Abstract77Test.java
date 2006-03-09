@@ -82,7 +82,7 @@ public abstract class Abstract77Test extends TestCase {
 
         kernel.loadGBean(DOMAIN_DATA, classLoader);
 
-        SERVER_DATA.setReferencePatterns("ServerInfo", Collections.singleton(new AbstractNameQuery(SERVER_INFO_DATA.getAbstractName())));
+        SERVER_DATA.setReferencePattern("ServerInfo", SERVER_INFO_DATA.getAbstractName());
         kernel.loadGBean(SERVER_DATA, classLoader);
 
 

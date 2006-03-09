@@ -27,11 +27,11 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.ObjectName;
 import java.beans.PropertyEditor;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,12 +51,12 @@ public class GBeanBuilder {
     private final Map xmlAttributeBuilderMap;
     private final Map xmlReferenceBuilderMap;
 
-    GBeanBuilder(ObjectName objectName, GBeanInfo gBeanInfo, ClassLoader classLoader, DeploymentContext context, J2eeContext j2eeContext, Map xmlAttributeBuilderMap, Map xmlReferenceBuilderMap) {
+    GBeanBuilder(AbstractName abstractName, GBeanInfo gBeanInfo, ClassLoader classLoader, DeploymentContext context, J2eeContext j2eeContext, Map xmlAttributeBuilderMap, Map xmlReferenceBuilderMap) {
 
         this.classLoader = classLoader;
         this.context = context;
         this.j2eeContext = j2eeContext;
-        this.gbean = new GBeanData(objectName, gBeanInfo);
+        this.gbean = new GBeanData(abstractName, gBeanInfo);
         this.xmlAttributeBuilderMap = xmlAttributeBuilderMap;
         this.xmlReferenceBuilderMap = xmlReferenceBuilderMap;
     }

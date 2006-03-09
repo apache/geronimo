@@ -34,6 +34,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceMap;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
@@ -189,9 +190,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
     public static ObjectName addGBeanData(GbeanType gbean, J2eeContext j2eeContext, ClassLoader cl, DeploymentContext context) throws DeploymentException {
         GBeanInfo gBeanInfo = GBeanInfo.getGBeanInfo(gbean.getClass1(), cl);
         ObjectName objectName;
+        Map nameMap = new HashMap();
         if (gbean.isSetGbeanName()) {
             try {
                 objectName = ObjectName.getInstance(gbean.getGbeanName());
+                nameMap.putAll(objectName.getKeyPropertyList());
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Invalid ObjectName: " + gbean.getName(), e);
             }
@@ -201,11 +204,14 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
                 String j2eeType = gBeanInfo.getJ2eeType();
                 //todo investigate using the module type from the j2eecontext.
                 objectName = NameFactory.getComponentName(null, null, null, null, namePart, j2eeType, j2eeContext);
+                nameMap.put("name", namePart);
+                nameMap.put("type", j2eeType);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Invalid ObjectName: " + namePart, e);
             }
         }
-        GBeanBuilder builder = new GBeanBuilder(objectName, gBeanInfo, cl, context, j2eeContext, xmlAttributeBuilderMap, xmlReferenceBuilderMap);
+        AbstractName abstractName = new AbstractName(context.getConfigID(), nameMap, gBeanInfo.getInterfaces(), objectName);
+        GBeanBuilder builder = new GBeanBuilder(abstractName, gBeanInfo, cl, context, j2eeContext, xmlAttributeBuilderMap, xmlReferenceBuilderMap);
 
         // set up attributes
         AttributeType[] attributeArray = gbean.getAttributeArray();

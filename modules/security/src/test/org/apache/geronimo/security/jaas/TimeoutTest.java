@@ -19,7 +19,6 @@ package org.apache.geronimo.security.jaas;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.DomainPrincipal;
@@ -69,15 +68,15 @@ public class TimeoutTest extends AbstractTest {
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testCE));
+        gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName));
-        gbean.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfo));
-        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         gbean = buildGBeanData("name", "ClientPropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
@@ -95,7 +94,7 @@ public class TimeoutTest extends AbstractTest {
         clientCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("Module", new AbstractNameQuery(clientLM));
+        gbean.setReferencePattern("Module", clientLM);
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

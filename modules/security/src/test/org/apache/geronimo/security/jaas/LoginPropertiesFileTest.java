@@ -19,7 +19,6 @@ package org.apache.geronimo.security.jaas;
 
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.DomainPrincipal;
@@ -67,7 +66,7 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
         gbean.setAttribute("wrapPrincipals", Boolean.TRUE);
-        gbean.setReferencePattern("Module", new AbstractNameQuery(clientLM));
+        gbean.setReferencePattern("Module", clientLM);
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
@@ -85,15 +84,15 @@ public class LoginPropertiesFileTest extends AbstractTest {
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testCE));
+        gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName));
-        gbean.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfo));
-        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

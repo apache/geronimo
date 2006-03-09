@@ -59,7 +59,7 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.getGBeanInfo());
         kerberosLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
-        gbean.setAttribute("serverSide", new Boolean(true)); // normally not, but in this case, it's treated as server-side
+        gbean.setAttribute("serverSide", Boolean.TRUE); // normally not, but in this case, it's treated as server-side
         Properties props = new Properties();
         props.put("debug", "true");
         props.put("useTicketCache", "true");
@@ -71,7 +71,7 @@ public class LoginKerberosNonGeronimoTest extends AbstractTest {
         kerberosCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "kerberos-foobar");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("Module", new AbstractNameQuery(kerberosLM));
+        gbean.setReferencePattern("Module", kerberosLM);
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

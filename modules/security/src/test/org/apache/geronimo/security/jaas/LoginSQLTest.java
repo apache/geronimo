@@ -17,23 +17,22 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.DomainPrincipal;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
+
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
 
 
 /**
@@ -102,15 +101,15 @@ public class LoginSQLTest extends AbstractTest {
         gbean = buildGBeanData("name", "SQLLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(sqlModule));
+        gbean.setReferencePattern("LoginModule", sqlModule);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
         kernel.startGBean(testUseName);
 
         gbean = buildGBeanData("name", "SQLSecurityRealm", GenericSecurityRealm.getGBeanInfo());
         sqlRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "sql-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName));
-        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
         kernel.startGBean(sqlRealm);
 

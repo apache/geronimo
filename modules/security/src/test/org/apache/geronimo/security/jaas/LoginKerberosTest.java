@@ -17,20 +17,19 @@
 
 package org.apache.geronimo.security.jaas;
 
-import java.util.Properties;
-import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosPrincipal;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.security.AbstractTest;
 import org.apache.geronimo.security.ContextManager;
 import org.apache.geronimo.security.IdentificationPrincipal;
 import org.apache.geronimo.security.RealmPrincipal;
 import org.apache.geronimo.security.realm.GenericSecurityRealm;
+
+import javax.security.auth.Subject;
+import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import java.util.Properties;
 
 
 /**
@@ -47,7 +46,7 @@ public class LoginKerberosTest extends AbstractTest {
         GBeanData gbean = buildGBeanData("name", "KerberosLoginModule", LoginModuleGBean.getGBeanInfo());
         kerberosLM = gbean.getAbstractName();
         gbean.setAttribute("loginModuleClass", "com.sun.security.auth.module.Krb5LoginModule");
-        gbean.setAttribute("serverSide", new Boolean(true)); // normally not, but in this case, it's treated as server-side
+        gbean.setAttribute("serverSide", Boolean.TRUE); // normally not, but in this case, it's treated as server-side
         Properties props = new Properties();
         props.put("debug", "true");
         props.put("useTicketCache", "true");
@@ -58,13 +57,13 @@ public class LoginKerberosTest extends AbstractTest {
         gbean = buildGBeanData("name", "KerberosLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(kerberosLM));
+        gbean.setReferencePattern("LoginModule", kerberosLM);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "KerberosSecurityRealm", GenericSecurityRealm.getGBeanInfo());
         kerberosRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "TOOLAZYDOGS.COM");
-        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName));
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
         kernel.startGBean(kerberosLM);
         kernel.startGBean(testUseName);

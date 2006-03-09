@@ -17,10 +17,9 @@
 package org.apache.geronimo.system.configuration;
 
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -39,12 +38,12 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
 
 /**
  * @version $Rev$ $Date$
@@ -74,7 +73,7 @@ public class ConfigurationDump {
             // add the repositories
             GBeanData geronimoRepositoryData = buildGBeanData("name", "Repository", Maven2Repository.GBEAN_INFO);
             geronimoRepositoryData.setAttribute("root", URI.create("repository"));
-            geronimoRepositoryData.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfoData.getAbstractName()));
+            geronimoRepositoryData.setReferencePattern("ServerInfo", serverInfoData.getAbstractName());
             startGBean(kernel, geronimoRepositoryData);
 
             String mavenLocalRepo = System.getProperty("maven.repo.local");
@@ -91,9 +90,9 @@ public class ConfigurationDump {
             if (mavenRepositoryDir.isDirectory()) {
                 GBeanData mavenRepositoryData = buildGBeanData("name", "MavenRepository", Maven2Repository.GBEAN_INFO);
                 mavenRepositoryData.setAttribute("root", mavenRepositoryDir.getAbsoluteFile().toURI());
-                mavenRepositoryData.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfoData.getAbstractName()));
+                mavenRepositoryData.setReferencePattern("ServerInfo", serverInfoData.getAbstractName());
                 startGBean(kernel, mavenRepositoryData);
-                configStoreData.setReferencePattern("Repository", new AbstractNameQuery(mavenRepositoryData.getAbstractName()));
+                configStoreData.setReferencePattern("Repository", mavenRepositoryData.getAbstractName());
             }
 
             startGBean(kernel, configStoreData);

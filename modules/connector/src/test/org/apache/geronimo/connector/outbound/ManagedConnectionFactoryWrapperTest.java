@@ -17,17 +17,6 @@
 
 package org.apache.geronimo.connector.outbound;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Map;
-import java.util.HashMap;
-import javax.management.MalformedObjectNameException;
-import javax.resource.cci.Connection;
-import javax.resource.cci.ConnectionFactory;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.connector.mock.ConnectionFactoryExtension;
 import org.apache.geronimo.connector.mock.MockConnection;
@@ -36,17 +25,27 @@ import org.apache.geronimo.connector.mock.MockManagedConnectionFactory;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoPool;
 import org.apache.geronimo.connector.outbound.connectionmanagerconfig.NoTransactions;
 import org.apache.geronimo.connector.outbound.connectiontracking.ConnectionTracker;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.management.MalformedObjectNameException;
+import javax.resource.cci.Connection;
+import javax.resource.cci.ConnectionFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -121,7 +120,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         cmfName = cmf.getAbstractName();
         cmf.setAttribute("transactionSupport", NoTransactions.INSTANCE);
         cmf.setAttribute("pooling", new NoPool());
-        cmf.setReferencePattern("ConnectionTracker", new AbstractNameQuery(ctcName));
+        cmf.setReferencePattern("ConnectionTracker", ctcName);
         kernel.loadGBean(cmf, cl);
 
 
@@ -134,7 +133,7 @@ public class ManagedConnectionFactoryWrapperTest extends TestCase {
         mcfw.setAttribute("connectionInterface", Connection.class.getName());
         mcfw.setAttribute("connectionImplClass", MockConnection.class.getName());
         //"ResourceAdapterWrapper",
-        mcfw.setReferencePattern("ConnectionManagerContainer", new AbstractNameQuery(cmfName));
+        mcfw.setReferencePattern("ConnectionManagerContainer", cmfName);
         //"ManagedConnectionFactoryListener",
         kernel.loadGBean(mcfw, cl);
 

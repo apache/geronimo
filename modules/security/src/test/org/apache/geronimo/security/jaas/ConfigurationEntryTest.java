@@ -164,7 +164,7 @@ public class ConfigurationEntryTest extends TestCase {
         clientCE = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "properties-client");
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, ServerRealmConfigurationEntry.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesLoginModule", LoginModuleGBean.getGBeanInfo());
@@ -198,29 +198,29 @@ public class ConfigurationEntryTest extends TestCase {
         gbean = buildGBeanData("name", "UPCredLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName3 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testUPCred));
+        gbean.setReferencePattern("LoginModule", testUPCred);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "AuditLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName2 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testCE));
-        gbean.setReferencePattern("Next", new AbstractNameQuery(testUseName3));
+        gbean.setReferencePattern("LoginModule", testCE);
+        gbean.setReferencePattern("Next", testUseName3);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName1 = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testProperties));
-        gbean.setReferencePattern("Next", new AbstractNameQuery(testUseName2));
+        gbean.setReferencePattern("LoginModule", testProperties);
+        gbean.setReferencePattern("Next", testUseName2);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName1));
-        gbean.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfo));
-        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName1);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
         gbean = buildGBeanData("name", "JaasLoginServiceRemotingServer", JaasLoginServiceRemotingServer.getGBeanInfo());
@@ -228,7 +228,7 @@ public class ConfigurationEntryTest extends TestCase {
         gbean.setAttribute("protocol", "tcp");
         gbean.setAttribute("host", "0.0.0.0");
         gbean.setAttribute("port", new Integer(4242));
-        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
 
         kernel.startGBean(loginConfiguration);

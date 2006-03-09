@@ -127,14 +127,14 @@ public class RemoteLoginTest extends TestCase {
         gbean = buildGBeanData("name", "PropertiesLoginModuleUse", JaasLoginModuleUse.getGBeanInfo());
         AbstractName testUseName = gbean.getAbstractName();
         gbean.setAttribute("controlFlag", "REQUIRED");
-        gbean.setReferencePattern("LoginModule", new AbstractNameQuery(testCE));
+        gbean.setReferencePattern("LoginModule", testCE);
         kernel.loadGBean(gbean, JaasLoginModuleUse.class.getClassLoader());
 
         gbean = buildGBeanData("name", "PropertiesSecurityRealm", GenericSecurityRealm.getGBeanInfo());
         testRealm = gbean.getAbstractName();
         gbean.setAttribute("realmName", "properties-realm");
-        gbean.setReferencePattern("LoginModuleConfiguration", new AbstractNameQuery(testUseName));
-        gbean.setReferencePattern("ServerInfo", new AbstractNameQuery(serverInfo));
+        gbean.setReferencePattern("LoginModuleConfiguration", testUseName);
+        gbean.setReferencePattern("ServerInfo", serverInfo);
         kernel.loadGBean(gbean, GenericSecurityRealm.class.getClassLoader());
 
 
@@ -143,7 +143,7 @@ public class RemoteLoginTest extends TestCase {
         gbean.setAttribute("protocol", "tcp");
         gbean.setAttribute("host", "0.0.0.0");
         gbean.setAttribute("port", new Integer(4242));
-        gbean.setReferencePattern("LoginService", new AbstractNameQuery(loginService));
+        gbean.setReferencePattern("LoginService", loginService);
         kernel.loadGBean(gbean, JaasLoginServiceRemotingServer.class.getClassLoader());
 
         kernel.startGBean(loginService);
@@ -183,7 +183,7 @@ public class RemoteLoginTest extends TestCase {
         AbstractName dce = gbean.getAbstractName();
         gbean.setAttribute("applicationConfigName", "FOO");
         gbean.setAttribute("controlFlag", LoginModuleControlFlag.REQUIRED);
-        gbean.setReferencePattern("Module", new AbstractNameQuery(jlc));
+        gbean.setReferencePattern("Module", jlc);
         kernel.loadGBean(gbean, DirectConfigurationEntry.class.getClassLoader());
         kernel.startGBean(dce);
 
