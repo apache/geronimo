@@ -19,6 +19,7 @@ package org.apache.geronimo.directory;
 
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Properties;
 
 import javax.management.ObjectName;
 import javax.naming.Context;
@@ -94,6 +95,13 @@ public class RunningTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
+        Properties props = System.getProperties();
+        props.remove("org.apache.geronimo.home.dir");
+        props.remove("org.apache.geronimo.server.dir");
+        System.setProperties(props);
+
+        String basedir = System.getProperty("basedir");
+
         kernel = KernelFactory.newInstance().createKernel("test.kernel");
         kernel.boot();
 
@@ -101,7 +109,7 @@ public class RunningTest extends TestCase {
         serverInfoName = new ObjectName("geronimo.system:role=ServerInfo");
         serverInfoGBean = new GBeanData(serverInfoName,
                 BasicServerInfo.GBEAN_INFO);
-        serverInfoGBean.setAttribute("baseDirectory", "./target");
+        serverInfoGBean.setAttribute("baseDirectory", basedir + "/target");
         start(serverInfoGBean);
 
         // DirectoryGBean
@@ -116,7 +124,7 @@ public class RunningTest extends TestCase {
         directoryGBean.setAttribute("anonymousAccess", new Boolean(true));
         directoryGBean.setAttribute("enableNetworking", new Boolean(true));
         directoryGBean.setAttribute("port", new Integer(9389));
-        directoryGBean.setAttribute("configFile", "var/directory.xml");
+        directoryGBean.setAttribute("configFile", basedir + "/src/var/directory.xml");
 
         start(directoryGBean);
 
