@@ -29,6 +29,7 @@
   <artifactId>geronimo-test-ddbean</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Test :: DDBeans</name>
+  <description>Geronimo Test DDBeans</description>
   <dependencies>
     <dependency>
       <groupId>xmlbeans</groupId>

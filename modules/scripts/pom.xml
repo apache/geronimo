@@ -29,4 +29,5 @@
   <artifactId>geronimo-scripts</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Scripts</name>
+  <description>Scripts</description>
 </project>

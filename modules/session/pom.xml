@@ -29,6 +29,7 @@
   <artifactId>geronimo-session</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: Session</name>
+  <description>Geronimo Session</description>
   <dependencies>
     <dependency>
       <groupId>commons-logging</groupId>

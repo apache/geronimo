@@ -29,12 +29,12 @@
   <artifactId>geronimo-javamail-transport</artifactId>
   <version>${geronimoVersion}</version>
   <name>Geronimo :: JavaMail Transport</name>
+  <description>Geronimo JavaMail Transport</description>
   <dependencies>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-activation_1.0.2_spec</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
