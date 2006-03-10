@@ -60,6 +60,15 @@
                  <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.3.1_spec</artifactId>
+            <version>${geronimo_spec_javamail_version}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+             </properties>
+        </dependency>
     </dependencies>
 </project>
 

@@ -42,6 +42,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-dependency-plugin</artifactId>
+            <version>${geronimo_dependency_plugin_version}</version>
+            <type>plugin</type>
+        </dependency>
+
+        <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xmlbeans-maven-plugin</artifactId>
             <version>${xmlbeans_maven_plugin_version}</version>
@@ -66,6 +73,9 @@
             <groupId>geronimo</groupId>
             <artifactId>geronimo-client</artifactId>
             <version>${pom.currentVersion}</version>
+            <properties>
+                 <geronimo.dependency>true</geronimo.dependency>
+            </properties>
         </dependency>
 
         <dependency>
