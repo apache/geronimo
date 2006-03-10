@@ -30,12 +30,10 @@
     <!-- Deployer used to process modules and plans -->
     <gbean name="Deployer" class="org.apache.geronimo.deployment.Deployer">
         <references name="Store">
-            <!--gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name-->
-            <pattern><gbean-name>geronimo.maven:name=MavenConfigStore,j2eeType=ConfigurationStore</gbean-name></pattern>
-            <pattern><gbean-name>geronimo.server:j2eeType=ConfigurationStore,name=Local</gbean-name></pattern>
+            <pattern><gbean-name>*:j2eeType=ConfigurationStore,*</gbean-name></pattern>
          </references>
         <reference name="Builders">
-            <gbean-name>geronimo.maven:j2eeType=ConfigBuilder,*</gbean-name>
+            <gbean-name>*:j2eeType=ConfigBuilder,*</gbean-name>
         </reference>
     </gbean>
 

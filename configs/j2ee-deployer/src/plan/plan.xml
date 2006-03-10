@@ -116,9 +116,6 @@
         <attribute name="defaultIdleTimeoutMinutes">15</attribute>
         <attribute name="defaultXATransactionCaching">true</attribute>
         <attribute name="defaultXAThreadCaching">false</attribute>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
-        </reference>
         <xml-attribute name="defaultEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">
                 <dependencies>
@@ -150,9 +147,6 @@
         </reference>
         <reference name="ServiceReferenceBuilder">
             <name>WebServiceBuilder</name>
-        </reference>
-        <reference name="Repository">
-            <gbean-name>*:name=Repository,*</gbean-name>
         </reference>
         <xml-attribute name="defaultServerEnvironment">
             <environment xmlns="http://geronimo.apache.org/xml/ns/deployment-1.1">

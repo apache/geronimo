@@ -305,6 +305,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 earContext = new EARContext(configurationDir,
                         applicationInfo.getEnvironment(),
                         applicationType,
+                        Collections.singleton(repository),
                         kernel,
                         applicationInfo.getApplicationName(),
                         transactionContextManagerObjectName,
@@ -334,11 +335,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
-                getBuilder(module).installModule(earFile, earContext, module, configurationStore);
+                getBuilder(module).installModule(earFile, earContext, module, configurationStore, repository);
             }
 
             // give each module a chance to populate the earContext now that a classloader is available
-            ClassLoader cl = earContext.getClassLoader(repository);
+            ClassLoader cl = earContext.getClassLoader();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
                 Module module = (Module) iterator.next();
                 getBuilder(module).initContext(earContext, module, cl);

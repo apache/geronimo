@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.jar.JarFile;
 import java.io.File;
@@ -62,6 +63,8 @@ import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 
@@ -76,10 +79,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected static final ObjectName ENTITY_BEAN_PATTERN;
     protected final Kernel kernel;
 
-    public AbstractWebModuleBuilder(Kernel kernel) {
+    protected AbstractWebModuleBuilder(Kernel kernel) {
         this.kernel = kernel;
     }
-
 
     static {
         try {
@@ -166,7 +168,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
         return path;
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
         EARContext moduleContext;
         if (module.isStandAlone()) {
             moduleContext = earContext;
@@ -188,6 +190,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 moduleContext = new EARContext(configurationDir,
                         environment,
                         ConfigurationModuleType.WAR,
+                        Collections.singleton(repository),
                         kernel,
                         earContext.getJ2EEApplicationName(),
                         earContext.getTransactionContextManagerObjectName(),
@@ -202,7 +205,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             }
             //TODO this is extremely fishy
             //Add the ear parent here since it can't be loaded by any config store.
-            environment.addImport(earConfigId);
+            environment.addDependency(earConfigId, ImportType.ALL);
         }
         module.setEarContext(moduleContext);
 

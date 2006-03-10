@@ -61,7 +61,7 @@ import org.apache.geronimo.system.repository.IOUtil;
 public class RepositoryConfigurationStore implements ConfigurationStore {
     private final Kernel kernel;
     private final ObjectName objectName;
-    private final WritableListableRepository repository;
+    protected final WritableListableRepository repository;
 
     public RepositoryConfigurationStore(WritableListableRepository repository) {
         this(null, null, repository);
@@ -105,9 +105,10 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
                 }
             } else {
                 JarFile jarFile = new JarFile(location);
-                ZipEntry entry = jarFile.getEntry("META-INF/config.ser");
-                InputStream in = jarFile.getInputStream(entry);
+                InputStream in = null;
                 try {
+                    ZipEntry entry = jarFile.getEntry("META-INF/config.ser");
+                    in = jarFile.getInputStream(entry);
                     ObjectInputStream ois = new ObjectInputStream(in);
                     config.readExternal(ois);
                 } finally {
@@ -125,10 +126,22 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     public boolean containsConfiguration(Artifact configId) {
         File location = repository.getLocation(configId);
-        location = new File(location, "META-INF");
-        location = new File(location, "config.ser");
-
-        return location.isFile() && location.canRead();
+        if (location.isDirectory()) {
+            location = new File(location, "META-INF");
+            location = new File(location, "config.ser");
+            return location.isFile() && location.canRead();
+        } else {
+            JarFile jarFile = null;
+            try {
+                jarFile = new JarFile(location);
+                ZipEntry entry = jarFile.getEntry("META-INF/config.ser");
+                return entry != null && !entry.isDirectory();
+            } catch (IOException e) {
+                return false;
+            } finally {
+                IOUtil.close(jarFile);
+            }
+        }
     }
 
     public File createNewConfigurationDir(Artifact configId) throws ConfigurationAlreadyExistsException {
@@ -145,9 +158,14 @@ public class RepositoryConfigurationStore implements ConfigurationStore {
 
     public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
         File location = repository.getLocation(configId);
-        URL locationUrl = location.toURL();
-        URL resolvedUrl = new URL(locationUrl, uri.toString());
-        return resolvedUrl;
+        if (location.isDirectory()) {
+            URL locationUrl = location.toURL();
+            URL resolvedUrl = new URL(locationUrl, uri.toString());
+            return resolvedUrl;
+        } else {
+            URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
+            return new URL(baseURL, uri.toString());
+        }
     }
 
     public void install(InputStream in, Artifact configId, FileWriteMonitor fileWriteMonitor) throws IOException {

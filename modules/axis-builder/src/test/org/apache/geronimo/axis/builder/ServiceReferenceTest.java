@@ -107,7 +107,7 @@ public class ServiceReferenceTest extends TestCase {
         Map nameKeys = new HashMap();
         nameKeys.put("domain", "geronimo");
         environment.setProperties(nameKeys);
-        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, null);
+        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, null, null);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
@@ -224,7 +224,7 @@ public class ServiceReferenceTest extends TestCase {
         //ejb is from the EJBModule "ejb" targetPath.
         context.addFile(new URI("ejb/META-INF/wsdl/interop.wsdl"), wsdlFile);
         context.addFile(new URI("ejb/META-INF/wsdl/interop-jaxrpcmapping.xml"), new File(wsdlDir, "interop-jaxrpcmapping.xml"));
-        ClassLoader cl = context.getClassLoader(null);
+        ClassLoader cl = context.getClassLoader();
         //new URLClassLoader(new URL[]{wsdldir.toURL()}, isolatedCl);
         URI wsdlURI = new URI("META-INF/wsdl/interop.wsdl");
         URI jaxrpcmappingURI = new URI("META-INF/wsdl/interop-jaxrpcmapping.xml");
@@ -233,7 +233,7 @@ public class ServiceReferenceTest extends TestCase {
         Map portComponentRefMap = null;
         List handlers = null;
         DeserializingReference reference = (DeserializingReference) builder.createService(InteropLab.class, wsdlURI, jaxrpcmappingURI, serviceQName, portComponentRefMap, handlers, gerServiceRefType, context, module, cl);
-        ClassLoader contextCl = context.getClassLoader(null);
+        ClassLoader contextCl = context.getClassLoader();
         reference.setClassLoader(contextCl);
         Object proxy = reference.getContent();
         assertNotNull(proxy);

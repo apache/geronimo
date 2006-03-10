@@ -16,20 +16,20 @@
  */
 package org.apache.geronimo.j2ee.deployment;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javax.management.MalformedObjectNameException;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
-import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
-import org.apache.geronimo.gbean.AbstractName;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @version $Rev$ $Date$
@@ -54,8 +54,8 @@ public class EARContext extends DeploymentContext implements NamingContext {
     private AbstractName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
 
-    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel, String j2eeApplicationName, AbstractName transactionContextManagerObjectName, AbstractName connectionTrackerObjectName, AbstractName transactedTimerName, AbstractName nonTransactedTimerName, AbstractName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
-        super(baseDir, environment, moduleType, kernel);
+    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Collection repositories, Kernel kernel, String j2eeApplicationName, AbstractName transactionContextManagerObjectName, AbstractName connectionTrackerObjectName, AbstractName transactedTimerName, AbstractName nonTransactedTimerName, AbstractName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
+        super(baseDir, environment, moduleType, repositories, kernel);
         if (moduleType.equals(ConfigurationModuleType.EAR)) {
             moduleName = NameFactory.buildApplicationName(environment.getProperties(), environment.getConfigId());
             applicationName = moduleName;

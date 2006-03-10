@@ -39,6 +39,7 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
 
 import javax.management.ObjectName;
 import javax.xml.namespace.QName;
@@ -63,7 +64,7 @@ public class EARConfigBuilderTest extends TestCase {
 
     private static String WEB_NAMESPACE="foo";
     private static JarFile earFile;
-    private static MockConfigStore configStore = new MockConfigStore(null);
+    private static MockConfigStore configStore = new MockConfigStore();
     private static MockEJBConfigBuilder ejbConfigBuilder = new MockEJBConfigBuilder();
     private static MockWARConfigBuilder webConfigBuilder = new MockWARConfigBuilder();
     private static MockConnectorConfigBuilder connectorConfigBuilder = new MockConnectorConfigBuilder();
@@ -87,8 +88,9 @@ public class EARConfigBuilderTest extends TestCase {
     private static final Map portMap = null;
 
     protected void setUp() throws Exception {
+        super.setUp();
         defaultParentId = new Environment();
-        defaultParentId.getImports().add(new Artifact("geronimo", "test", "1", "car"));
+        defaultParentId.addDependency(new Artifact("geronimo", "test", "1", "car"), ImportType.ALL);
         defaultParentId.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
     }
 
@@ -396,12 +398,7 @@ public class EARConfigBuilderTest extends TestCase {
         }
     }
     public static class MockConfigStore implements ConfigurationStore {
-        private final Kernel kernel;
         private final Map locations = new HashMap();
-
-        public MockConfigStore(Kernel kernel) {
-            this.kernel = kernel;
-        }
 
         public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         }
@@ -458,8 +455,6 @@ public class EARConfigBuilderTest extends TestCase {
         static {
             GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, NameFactory.CONFIGURATION_STORE);
             infoBuilder.addInterface(ConfigurationStore.class);
-            infoBuilder.addAttribute("kernel", Kernel.class, false);
-            infoBuilder.setConstructor(new String[] {"kernel"});
             GBEAN_INFO = infoBuilder.getBeanInfo();
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

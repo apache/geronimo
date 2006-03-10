@@ -190,7 +190,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         ObjectName serverName = earContext.getServerObjectName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
-        builder.installModule(jarFile, earContext, module, new MockConfigStore());
+        builder.installModule(jarFile, earContext, module, new MockConfigStore(), null);
         builder.initContext(earContext, module, cl);
         builder.addGBeans(earContext, module, cl, null);
         earContext.close();
@@ -222,12 +222,20 @@ public class TomcatModuleBuilderTest extends TestCase {
         configurationManager.unloadConfiguration(configuration);
     }
 
-    private EARContext createEARContext(File outputPath, Environment environment)
-            throws MalformedObjectNameException, DeploymentException {
-        EARContext earContext = new EARContext(outputPath, environment,
-                ConfigurationModuleType.WAR, kernel, moduleContext
-                        .getJ2eeApplicationName(), tcmName, ctcName, null,
-                null, null, new RefContext(new EJBReferenceBuilder() {
+    private EARContext createEARContext(File outputPath, Environment environment) throws MalformedObjectNameException, DeploymentException {
+        EARContext earContext = new EARContext(
+                outputPath,
+                environment,
+                ConfigurationModuleType.WAR,
+                null,
+                kernel,
+                moduleContext.getJ2eeApplicationName(),
+                tcmName,
+                ctcName,
+                null,
+                null,
+                null,
+                new RefContext(new EJBReferenceBuilder() {
 
                     public Reference createEJBLocalReference(String objectName,
                                                              GBeanData gbeanData, boolean isSession, String localHome, String local)

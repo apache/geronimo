@@ -47,7 +47,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return new EJBModule(false, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule, ConfigurationStore configurationStore) {
+    public void installModule(JarFile earFile, EARContext earContext, Module ejbModule, ConfigurationStore configurationStore, Repository repository) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;

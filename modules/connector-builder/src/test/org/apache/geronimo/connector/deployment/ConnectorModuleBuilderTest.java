@@ -54,6 +54,8 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.tranql.sql.jdbc.JDBCUtil;
 
@@ -189,7 +191,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.startGBean(configurationManagerName);
 
             rarFile = DeploymentUtil.createJarFile(new File(basedir, "target/test-ear-noger.ear"));
-            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultEnvironment, null, connectionTrackerName, null, null, null, null, null, ejbReferenceBuilder, null, new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel), resourceReferenceBuilder, null, serviceReferenceBuilder, kernel);
             ConfigurationData configData = null;
             try {
                 File planFile = new File(basedir, "src/test-data/data/external-application-plan.xml");
@@ -332,7 +334,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
             kernel.startGBean(configurationManagerName);
 
-            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, repository, kernel);
+            ConnectorModuleBuilder moduleBuilder = new ConnectorModuleBuilder(defaultEnvironment, defaultMaxSize, defaultMinSize, defaultBlockingTimeoutMilliseconds, defaultidleTimeoutMinutes, defaultXATransactionCaching, defaultXAThreadCaching, kernel);
             File rarFile = action.getRARFile();
 
             ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
@@ -353,6 +355,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 EARContext earContext = new EARContext(tempDir,
                         module.getEnvironment(),
                         module.getType(),
+                        Collections.singleton(repository),
                         kernel,
                         j2eeContext.getJ2eeApplicationName(),
                         null,
@@ -364,7 +367,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         serviceReferenceBuilder, kernel));
 
                 action.install(moduleBuilder, earContext, module, configurationStore);
-                earContext.getClassLoader(null);
+                earContext.getClassLoader();
                 moduleBuilder.initContext(earContext, module, cl);
                 moduleBuilder.addGBeans(earContext, module, cl, repository);
                 earContext.close();
@@ -407,7 +410,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             kernel.startGBean(configurationManagerName);
             ConfigurationManager configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-            Artifact parentID = (Artifact) defaultEnvironment.getImports().iterator().next();
+            Artifact parentID = ((Dependency) defaultEnvironment.getDependencies().iterator().next()).getArtifact();
             configurationManager.loadConfiguration(parentID);
             configurationManager.startConfiguration(parentID);
 
@@ -569,7 +572,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
     protected void setUp() throws Exception {
         configurationManagerName = new ObjectName(":j2eeType=ConfigurationManager,name=Basic");
         defaultEnvironment = new Environment();
-        defaultEnvironment.getImports().add(Artifact.create("org/apache/geronimo/Server"));
+        defaultEnvironment.addDependency(Artifact.create("org/apache/geronimo/Server"), ImportType.ALL);
         defaultEnvironment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
     }
 
@@ -585,7 +588,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
         public abstract File getRARFile();
 
         public void install(ModuleBuilder moduleBuilder, EARContext earContext, Module module, ConfigurationStore configurationStore) throws Exception {
-            moduleBuilder.installModule(module.getModuleFile(), earContext, module, configurationStore);
+            moduleBuilder.installModule(module.getModuleFile(), earContext, module, configurationStore, repository);
         }
     }
 

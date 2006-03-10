@@ -18,6 +18,7 @@ package org.apache.geronimo.plugin.assembly;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
@@ -25,16 +26,17 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.FileWriteMonitor;
-import org.apache.geronimo.kernel.repository.ListableRepository;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.repository.Repository;
-import org.apache.geronimo.kernel.repository.WriteableRepository;
+import org.apache.geronimo.kernel.repository.Dependency;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
+import org.apache.geronimo.system.repository.Maven1Repository;
+import org.apache.geronimo.system.repository.Maven2Repository;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
@@ -42,27 +44,41 @@ import java.util.LinkedHashSet;
  * @version $Rev$ $Date$
  */
 public class BaseConfigInstaller {
+    public static final FileWriteMonitor LOG_COPY_START = new StartFileWriteMonitor();
+
     /**
      * root file of the targetConfigStore and TargetRepository.  Typically $GERONIMO_HOME of the
      * geronimo server being assembled
      */
-    protected File targetRoot;
+    private File targetRoot;
+
     /**
      * location of the target config store relative to targetRoot.  Typically "config-store"
      */
-    protected String targetConfigStore;
+    private String targetConfigStore;
+
     /**
      * location of the target repository relative to targetRoot.  Typically "repository"
      */
-    protected String targetRepository;
+    private String targetRepository;
+
     /**
      * location of the configuration to be installed relative to the sourceRepository
      */
     private String artifact;
+
     /**
      * location of the source repository for the dependencies
      */
     private File sourceRepository;
+
+    private ArtifactResolver artifactResolver;
+
+    private WritableListableRepository targetRepo;
+    private RepositoryConfigurationStore targetStore;
+
+    private WritableListableRepository sourceRepo;
+    private RepositoryConfigurationStore sourceStore;
 
     public File getTargetRoot() {
         return targetRoot;
@@ -104,81 +120,88 @@ public class BaseConfigInstaller {
         this.sourceRepository = sourceRepository;
     }
 
-    protected void execute(InstallAdapter installAdapter, ListableRepository sourceRepo, WriteableRepository targetRepo) throws IOException, InvalidConfigException, MissingDependencyException {
-        Artifact configId = Artifact.create(artifact);
+    public void execute() throws Exception {
         ArtifactManager artifactManager = new DefaultArtifactManager();
-        ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, sourceRepo);
-        execute(configId, installAdapter, sourceRepo, targetRepo, artifactManager, artifactResolver);
-    }
+        artifactResolver = new DefaultArtifactResolver(artifactManager, sourceRepo);
 
-    protected void execute(Artifact configId, InstallAdapter installAdapter, Repository sourceRepo, WriteableRepository targetRepo, ArtifactManager artifactManager, ArtifactResolver artifactResolver) throws IOException, InvalidConfigException, MissingDependencyException {
-        if (installAdapter.containsConfiguration(configId)) {
+        sourceRepo = new Maven1Repository(getSourceRepository());
+        sourceStore = new RepositoryConfigurationStore(sourceRepo);
+
+        targetRepo = new Maven2Repository(new File(targetRoot, targetRepository));
+        targetStore = new RepositoryConfigurationStore(targetRepo);
+
+        Artifact configId = Artifact.create(artifact);
+
+        // does this configuration exist?
+        if (!sourceRepo.contains(configId)) {
+            throw new NoSuchConfigException(configId.toString());
+        }
+
+        // is this config already installed?
+        if (targetStore.containsConfiguration(configId)) {
             System.out.println("Configuration " + configId + " already present in configuration store");
             return;
         }
-        GBeanData config = installAdapter.install(sourceRepo, configId);
-        Environment environment = (Environment) config.getAttribute("environment");
-        LinkedHashSet imports = environment.getImports();
-        recursiveExecute(artifactResolver, imports, installAdapter, sourceRepo, targetRepo, artifactManager);
+        execute(configId);
+    }
 
-        LinkedHashSet references = environment.getReferences();
-        recursiveExecute(artifactResolver, references, installAdapter, sourceRepo, targetRepo, artifactManager);
-
-        LinkedHashSet dependencies = environment.getDependencies();
-        dependencies = recursiveResolve(artifactResolver, dependencies, sourceRepo);
-        System.out.println("Installed configuration " + configId);
-
-        FileWriteMonitor monitor = new StartFileWriteMonitor();
-
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            Artifact dependency = (Artifact) iterator.next();
-            if (!sourceRepo.contains(dependency)) {
-                throw new RuntimeException("Dependency: " + dependency + " not found in local maven repo: for configuration: " + artifact);
-            }
-            if (!targetRepo.contains(dependency)) {
-                File sourceFile = sourceRepo.getLocation(dependency);
+    private void execute(Artifact configId) throws IOException, InvalidConfigException, MissingDependencyException {
+        LinkedHashSet dependencies;
+        if (sourceStore.containsConfiguration(configId)) {
+            // Copy the configuration into the target configuration store
+            if (!targetStore.containsConfiguration(configId)) {
+                File sourceFile = sourceRepo.getLocation(configId);
                 InputStream in = new FileInputStream(sourceFile);
-                targetRepo.copyToRepository(in, dependency, monitor);
+                try {
+                    targetStore.install(in, configId, LOG_COPY_START);
+                } finally {
+                    in.close();
+                }
             }
-        }
-        Artifact[] parentId = (Artifact[]) config.getAttribute("parentId");
-        if (parentId != null) {
-            for (int i = 0; i < parentId.length; i++) {
-                Artifact parent = parentId[i];
-                execute(parent, installAdapter, sourceRepo, targetRepo, artifactManager, artifactResolver);
+
+            // Determine the dependencies of this configuration
+            try {
+                GBeanData config = targetStore.loadConfiguration(configId);
+                Environment environment = (Environment) config.getAttribute("environment");
+                dependencies = new LinkedHashSet();
+                for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
+                    Dependency dependency = (Dependency) iterator.next();
+                    dependencies.add(dependency.getArtifact());
+                }
+
+                System.out.println("Installed configuration " + configId);
+            } catch (IOException e) {
+                throw new InvalidConfigException("Unable to load configuration: " + configId, e);
+            } catch (NoSuchConfigException e) {
+                throw new InvalidConfigException("Unable to load configuration: " + configId, e);
             }
-        }
-    }
+        } else {
+            if (!sourceRepo.contains(configId)) {
+                throw new RuntimeException("Dependency: " + configId + " not found in local maven repo: for configuration: " + artifact);
+            }
 
-    private void recursiveExecute(ArtifactResolver artifactResolver, LinkedHashSet imports, InstallAdapter installAdapter, Repository sourceRepo, WriteableRepository targetRepo, ArtifactManager artifactManager) throws MissingDependencyException, IOException, InvalidConfigException {
-        imports = artifactResolver.resolve(imports);
-        for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
-            Artifact parentId = (Artifact) iterator.next();
-            execute(parentId, installAdapter, sourceRepo, targetRepo, artifactManager, artifactResolver);
-        }
-    }
+            // Copy the artifact into the target repo
+            if (!targetRepo.contains(configId)) {
+                File sourceFile = sourceRepo.getLocation(configId);
+                InputStream in = new FileInputStream(sourceFile);
+                try {
+                    targetRepo.copyToRepository(in, configId, LOG_COPY_START);
+                } finally {
+                    in.close();
+                }
+            }
 
-    private LinkedHashSet recursiveResolve(ArtifactResolver artifactResolver, LinkedHashSet dependencies, Repository repository) throws MissingDependencyException {
+            // Determine the dependencies of this artifact
+            dependencies = sourceRepo.getDependencies(configId);
+        }
         dependencies = artifactResolver.resolve(dependencies);
-        for (Iterator iterator = new ArrayList(dependencies).iterator(); iterator.hasNext();) {
-            Artifact dependency = (Artifact) iterator.next();
-            if (repository.contains(dependency)) {
-                LinkedHashSet subDependencies = repository.getDependencies(dependency);
-                subDependencies = recursiveResolve(artifactResolver, subDependencies, repository);
-                dependencies.addAll(subDependencies);
-            }
+        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
+            Artifact artifact = (Artifact) iterator.next();
+            execute(artifact);
         }
-        return dependencies;
     }
 
-    protected interface InstallAdapter {
-
-        GBeanData install(Repository sourceRepo, Artifact configId) throws IOException, InvalidConfigException;
-
-        boolean containsConfiguration(Artifact configID);
-    }
-
-    static class StartFileWriteMonitor implements FileWriteMonitor {
+    private static class StartFileWriteMonitor implements FileWriteMonitor {
         public void writeStarted(String fileDescription) {
             System.out.println("Copying " + fileDescription);
         }

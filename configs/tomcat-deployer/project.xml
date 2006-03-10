@@ -55,7 +55,7 @@
             <version>${geronimo_version}</version>
             <type>car</type>
             <properties>
-                 <geronimo.import>true</geronimo.import>
+                <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
 
@@ -65,7 +65,7 @@
             <artifactId>geronimo-tomcat-builder</artifactId>
             <version>${geronimo_version}</version>
             <properties>
-                 <geronimo.dependency>true</geronimo.dependency>
+                <geronimo.dependency>true</geronimo.dependency>
              </properties>
         </dependency>
 

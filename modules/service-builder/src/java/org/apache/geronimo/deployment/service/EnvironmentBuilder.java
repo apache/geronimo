@@ -28,6 +28,7 @@ import org.apache.geronimo.deployment.xbeans.PropertiesType;
 import org.apache.geronimo.deployment.xbeans.PropertyType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -70,29 +71,8 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
             if (environmentType.isSetDependencies()) {
                 ArtifactType[] dependencyArray = environmentType.getDependencies().getDependencyArray();
-                Collection dependencies = new LinkedHashSet();
-                Collection imports = new LinkedHashSet();
-                Collection references = new LinkedHashSet();
-                for (int i = 0; i < dependencyArray.length; i++) {
-                    ArtifactType artifactType = dependencyArray[i];
-                    Artifact artifact = toArtifact(artifactType);
-                    String type = artifact.getType();
-                    if (type.equals("jar")) {
-                        dependencies.add(artifact);
-                    } else if (type.equals("car")) {
-                        if ("classes".equals(artifactType.getImport())) {
-                            throw new IllegalArgumentException("classes-only dependency on car files not yet supported");
-                        } else if ("services".equals(artifactType.getImport())) {
-                            references.add(artifact);
-                        } else {
-                            imports.add(artifact);
-                        }
-                    }
-                }
-                environment.setImports(imports);
+                LinkedHashSet dependencies = toDependencies(dependencyArray);
                 environment.setDependencies(dependencies);
-                environment.setReferences(references);
-
             }
             environment.setInverseClassLoading(environmentType.isSetInverseClassloading());
             environment.setSuppressDefaultEnvironment(environmentType.isSetSuppressDefaultEnvironment());
@@ -109,15 +89,12 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
             if (environment.getConfigId() == null){
                 environment.setConfigId(additionalEnvironment.getConfigId());
             }
-            environment.addProperties(additionalEnvironment.getProperties());
-            environment.addImports(additionalEnvironment.getImports());
             environment.addDependencies(additionalEnvironment.getDependencies());
-            environment.addIncludes(additionalEnvironment.getIncludes());
+            environment.addProperties(additionalEnvironment.getProperties());
             environment.setInverseClassLoading(environment.isInverseClassLoading() || additionalEnvironment.isInverseClassLoading());
             environment.setSuppressDefaultEnvironment(environment.isSuppressDefaultEnvironment() || additionalEnvironment.isSuppressDefaultEnvironment());
             environment.addHiddenClasses(additionalEnvironment.getHiddenClasses());
             environment.addNonOverrideableClasses(additionalEnvironment.getNonOverrideableClasses());
-            environment.addReferences(additionalEnvironment.getReferences());
         }
     }
 
@@ -129,7 +106,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
 
     public static EnvironmentType buildEnvironmentType(Environment environment) {
         EnvironmentType environmentType = EnvironmentType.Factory.newInstance();
-        ArtifactType configId = toArtifactType(environment.getConfigId(), null);
+        ArtifactType configId = toArtifactType(environment.getConfigId());
         environmentType.setConfigId(configId);
 
         if (environment.getProperties().size() >0) {
@@ -143,11 +120,7 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
                 propertyType.setValue(value);
             }
         }
-        List dependencies = new ArrayList();
-        toArtifactTypes(environment.getImports(), null, dependencies);
-//        toArtifactTypes(environment.getIncludes(), null, dependencies));
-        toArtifactTypes(environment.getDependencies(), null, dependencies);
-        toArtifactTypes(environment.getReferences(), ImportType.SERVICES, dependencies);
+        List dependencies = toArtifactTypes(environment.getDependencies());
         ArtifactType[] artifactTypes = (ArtifactType[]) dependencies.toArray(new ArtifactType[dependencies.size()]);
         DependenciesType dependenciesType = environmentType.addNewDependencies();
         dependenciesType.setDependencyArray(artifactTypes);
@@ -169,15 +142,17 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         return classFilter;
     }
 
-    private static void toArtifactTypes(Collection artifacts, ImportType.Enum importType, List dependencies) {
+    private static List toArtifactTypes(Collection artifacts) {
+        List dependencies = new ArrayList();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
-            ArtifactType artifactType = toArtifactType(artifact, importType);
+            Dependency dependency = (Dependency) iterator.next();
+            ArtifactType artifactType = toArtifactType(dependency);
             dependencies.add(artifactType);
         }
+        return dependencies;
     }
 
-    private static ArtifactType toArtifactType(Artifact artifact, ImportType.Enum importType) {
+    private static ArtifactType toArtifactType(Artifact artifact) {
         ArtifactType artifactType = ArtifactType.Factory.newInstance();
         if (artifact.getGroupId() != null) {
             artifactType.setGroupId(artifact.getGroupId());
@@ -191,9 +166,19 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         if (artifact.getType() != null) {
             artifactType.setType(artifact.getType());
         }
-        if (importType != null) {
-            artifactType.setImport(importType);
+        return artifactType;
+    }
+
+    private static ArtifactType toArtifactType(Dependency dependency) {
+        ArtifactType artifactType = toArtifactType(dependency.getArtifact());
+
+        org.apache.geronimo.kernel.repository.ImportType importType = dependency.getImportType();
+        if (importType == org.apache.geronimo.kernel.repository.ImportType.CLASSES) {
+            artifactType.setImport(ImportType.CLASSES);
+        } else if (importType == org.apache.geronimo.kernel.repository.ImportType.SERVICES) {
+            artifactType.setImport(ImportType.SERVICES);
         }
+
         return artifactType;
     }
 
@@ -220,6 +205,29 @@ public class EnvironmentBuilder implements XmlAttributeBuilder {
         return artifacts;
     }
 
+    private static LinkedHashSet toDependencies(ArtifactType[] dependencyArray) {
+        LinkedHashSet dependencies = new LinkedHashSet();
+        for (int i = 0; i < dependencyArray.length; i++) {
+            ArtifactType artifactType = dependencyArray[i];
+            Dependency dependency = toDependency(artifactType);
+            dependencies.add(dependency);
+        }
+        return dependencies;
+    }
+
+    private static Dependency toDependency(ArtifactType artifactType) {
+        Artifact artifact = toArtifact(artifactType);
+        if (ImportType.CLASSES.equals(artifactType.getImport())) {
+            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
+        } else if (ImportType.SERVICES.equals(artifactType.getImport())) {
+            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.SERVICES);
+        } else if (artifactType.getImport() == null) {
+            return new Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.ALL);
+        } else {
+            throw new IllegalArgumentException("Unknown import type: " + artifactType.getImport());
+        }
+    }
+    
     //TODO make private
     static Artifact toArtifact(ArtifactType artifactType) {
         String groupId = artifactType.isSetGroupId() ? artifactType.getGroupId().trim() : null;

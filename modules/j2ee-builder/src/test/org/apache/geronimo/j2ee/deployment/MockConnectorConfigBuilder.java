@@ -45,7 +45,7 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         return new ConnectorModule(false, null, moduleFile, targetPath, null, null, null);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, ConfigurationStore configurationStore) {
+    public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, ConfigurationStore configurationStore, Repository repository) {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;

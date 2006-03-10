@@ -44,11 +44,11 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         this.repositories = repositories;
     }
 
-    public LinkedHashSet resolve(LinkedHashSet artifacts) throws MissingDependencyException {
+    public LinkedHashSet resolve(Collection artifacts) throws MissingDependencyException {
         return this.resolve(Collections.EMPTY_SET, artifacts);
     }
 
-    public LinkedHashSet resolve(Collection parentConfigurations, LinkedHashSet artifacts) throws MissingDependencyException {
+    public LinkedHashSet resolve(Collection parentConfigurations, Collection artifacts) throws MissingDependencyException {
         LinkedHashSet resolvedArtifacts = new LinkedHashSet();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
@@ -135,28 +135,26 @@ public class DefaultArtifactResolver implements ArtifactResolver {
             Environment environment = configuration.getEnvironment();
             if (environment.isInverseClassLoading()) {
                 // Search dependencies of the configuration before searching the parents
-                LinkedHashSet dependencies = environment.getDependencies();
-                Version version = getArtifactVersion(dependencies, groupId, artifactId, type);
+                Version version = getArtifactVersion(configuration.getDependencies(), groupId, artifactId, type);
                 if (version != null) {
                     return version;
                 }
 
-                // wasn't declared in the dependencies, so searcht the parents of the configuration
-                version = searchParents(configuration.getParents(), groupId, artifactId, type);
+                // wasn't declared in the dependencies, so search the parents of the configuration
+                version = searchParents(configuration.getClassParents(), groupId, artifactId, type);
                 if (version != null) {
                     return version;
                 }
 
             } else {
                 // Search the parents before the dependencies of the configuration
-                Version version = searchParents(configuration.getParents(), groupId, artifactId, type);
+                Version version = searchParents(configuration.getClassParents(), groupId, artifactId, type);
                 if (version != null) {
                     return version;
                 }
 
                 // wasn't declared in a parent check the dependencies of the configuration
-                LinkedHashSet dependencies = environment.getDependencies();
-                version = getArtifactVersion(dependencies, groupId, artifactId, type);
+                version = getArtifactVersion(configuration.getDependencies(), groupId, artifactId, type);
                 if (version != null) {
                     return version;
                 }
@@ -165,7 +163,7 @@ public class DefaultArtifactResolver implements ArtifactResolver {
         return null;
     }
 
-    private Version getArtifactVersion(LinkedHashSet artifacts, String groupId, String artifactId, String type) {
+    private Version getArtifactVersion(Collection artifacts, String groupId, String artifactId, String type) {
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             if (groupId.equals(artifact.getGroupId()) &&

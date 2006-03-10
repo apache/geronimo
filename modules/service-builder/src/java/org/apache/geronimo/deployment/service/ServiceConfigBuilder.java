@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collections;
 import java.util.jar.JarFile;
 
 /**
@@ -163,8 +164,8 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
-        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, kernel);
-        ClassLoader cl = context.getClassLoader(repository);
+        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, Collections.singleton(repository), kernel);
+        ClassLoader cl = context.getClassLoader();
 
 
         AbstractName moduleName;

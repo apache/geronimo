@@ -35,6 +35,7 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
 
 import javax.jms.Queue;
 import javax.jms.Topic;
@@ -44,9 +45,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -55,7 +54,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
     protected static Log log = LogFactory
             .getLog(CreateDestinationHandler.class);
 
-    private static final List parentId = Arrays.asList(new URI[] {URI.create("geronimo/activemq-broker/" + GeronimoVersion.GERONIMO_VERSION + "/car")});
+    private static final Artifact parentId = new Artifact("geronimo", "activemq-broker", GeronimoVersion.GERONIMO_VERSION, "car");
 
     static final GBeanInfo QUEUE_INFO;
 
@@ -118,7 +117,7 @@ public class CreateDestinationHandler extends AbstractJMSManager implements Port
                     "createNewConfigurationDir");
             Environment environment = new Environment();
             environment.setConfigId(configId);
-            environment.setImports(parentId);
+            environment.addDependency(parentId, ImportType.ALL);
             List gbeans = new ArrayList();
             gbeans.add(adminObjectData);
             // If we are adding a topic we have to add a browser so we can view

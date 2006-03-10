@@ -144,10 +144,10 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         }
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
         String namespace = module.getNamespace();
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
-        builder.installModule(earFile, earContext, module, configurationStore);
+        builder.installModule(earFile, earContext, module, configurationStore, repository);
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {

@@ -138,15 +138,18 @@ public class GBeanData implements Externalizable {
 
     public void addDependencies(Set dependencies) {
         for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            Object o =  iterator.next();
-            if (o instanceof ReferencePatterns) {
-                this.dependencies.add(o);
-            } else if (o instanceof AbstractName) {
-                this.dependencies.add(new ReferencePatterns((AbstractName) o));
-            } else if (o instanceof AbstractNameQuery) {
-                this.dependencies.add(new ReferencePatterns((AbstractNameQuery) o));
+            Object dependency = iterator.next();
+            if (dependency instanceof AbstractName) {
+                AbstractName name = (AbstractName) dependency;
+                addDependency(name);
+            } else if (dependency instanceof AbstractNameQuery) {
+                AbstractNameQuery nameQuery = (AbstractNameQuery) dependency;
+                addDependency(nameQuery);
+            } else if (dependency instanceof ReferencePatterns) {
+                ReferencePatterns referencePatterns = (ReferencePatterns) dependency;
+                addDependency(referencePatterns);
             } else {
-                throw new IllegalArgumentException("Dependency specification is not a ReferencePatterns, AbstractName, nor AbstractNameQuery: " + o);
+                throw new IllegalArgumentException("Unknown dependency type: " + dependency);
             }
         }
     }

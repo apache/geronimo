@@ -315,9 +315,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         EARContext moduleContext = module.getEarContext();
         Configuration knownParent = null;
         if (!module.isStandAlone()) {
-            knownParent = earContext.getConfiguration(repository, null);
+            knownParent = earContext.getConfiguration(null);
         }
-        ClassLoader moduleClassLoader = moduleContext.getClassLoader(repository, knownParent);
+        ClassLoader moduleClassLoader = moduleContext.getClassLoader(knownParent);
         J2eeContext earJ2eeContext = moduleContext.getModuleName();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
         WebModule webModule = (WebModule) module;

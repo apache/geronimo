@@ -37,7 +37,6 @@ import org.apache.xmlbeans.XmlOptions;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.StringWriter;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -176,16 +175,11 @@ public class PlanProcessor {
 
                 org.apache.geronimo.kernel.repository.Artifact configId = new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, "car");
 
-                Collection imports = toArtifacts(IMPORT_PROPERTY);
-//                Collection includes = toArtifacts(INCLUDE_PROPERTY);
-                Collection dependencies = toArtifacts(DEPENDENCY_PROPERTY);
-                Collection references = toArtifacts(REFERENCE_PROPERTY);
+                LinkedHashSet dependencies = toDependencies();
 
                 Environment newEnvironment = new Environment();
                 newEnvironment.setConfigId(configId);
-                newEnvironment.setImports(imports);
                 newEnvironment.setDependencies(dependencies);
-                newEnvironment.setReferences(references);
 
                 EnvironmentBuilder.mergeEnvironments(oldEnvironment, newEnvironment);
                 EnvironmentType environmentType = EnvironmentBuilder.buildEnvironmentType(oldEnvironment);
@@ -219,23 +213,38 @@ public class PlanProcessor {
         }
     }
 
-    private Collection toArtifacts(String artifactProperty) {
-        Collection artifactList = new LinkedHashSet();
+    private LinkedHashSet toDependencies() {
+        LinkedHashSet dependencies = new LinkedHashSet();
         for (Iterator iterator = artifacts.iterator(); iterator.hasNext();) {
             Artifact artifact = (Artifact) iterator.next();
             Dependency dependency = artifact.getDependency();
-            if ("true".equals(dependency.getProperty(artifactProperty))) {
-                String groupId = dependency.getGroupId();
-                String artifactId = dependency.getArtifactId();
-                String version = dependency.getVersion();
-                String type = dependency.getType();
-                if (type == null) {
-                    type = "jar";
-                }
-                artifactList.add(new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId,  version, type));
+            org.apache.geronimo.kernel.repository.Dependency geronimoDependency = toGeronimoDependency(dependency);
+            if (geronimoDependency != null) {
+                dependencies.add(geronimoDependency);
             }
         }
-        return artifactList;
+        return dependencies;
+    }
+
+    private static org.apache.geronimo.kernel.repository.Dependency toGeronimoDependency(Dependency dependency) {
+        org.apache.geronimo.kernel.repository.Artifact artifact = toGeronimoArtifact(dependency);
+        if ("true".equals(dependency.getProperty(DEPENDENCY_PROPERTY))) {
+            return new org.apache.geronimo.kernel.repository.Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.CLASSES);
+        } else if ("true".equals(dependency.getProperty(REFERENCE_PROPERTY))) {
+            return new org.apache.geronimo.kernel.repository.Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.SERVICES);
+        } else if ("true".equals(dependency.getProperty(IMPORT_PROPERTY))) {
+            return new org.apache.geronimo.kernel.repository.Dependency(artifact, org.apache.geronimo.kernel.repository.ImportType.ALL);
+        } else {
+            // not one of ours
+            return null;
+        }
+    }
+    private static org.apache.geronimo.kernel.repository.Artifact toGeronimoArtifact(Dependency dependency) {
+        String groupId = dependency.getGroupId();
+        String artifactId = dependency.getArtifactId();
+        String version = dependency.getVersion();
+        String type = dependency.getType();
+        return new org.apache.geronimo.kernel.repository.Artifact(groupId, artifactId, version, type);
     }
 
     interface Inserter {

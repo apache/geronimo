@@ -17,29 +17,6 @@
 
 package org.apache.geronimo.kernel;
 
-import junit.framework.TestCase;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationManager;
-import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Environment;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +29,29 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
+import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.InvalidConfigException;
+import org.apache.geronimo.kernel.config.NoSuchConfigException;
+import org.apache.geronimo.kernel.config.EditableConfigurationManagerImpl;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev$ $Date$
@@ -61,7 +61,7 @@ public class ConfigTest extends TestCase {
     private AbstractName gbeanName1;
     private AbstractName gbeanName2;
     private ConfigurationData configurationData;
-    private ConfigurationManager configurationManager;
+    private EditableConfigurationManager configurationManager;
     private final String BASE_NAME = "test:J2EEServer=geronimo";
 
     public void testConfigLifecycle() throws Exception {
@@ -188,7 +188,7 @@ public class ConfigTest extends TestCase {
         mockBean3.setAttribute("value", "1234");
         mockBean3.setAttribute("name", "child");
         mockBean3.setAttribute("finalInt", new Integer(1));
-        configuration.addGBean(mockBean3, true);
+        configurationManager.addGBeanToConfiguration(configuration.getId(), mockBean3, true);
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(mockBean3.getAbstractName()));
         assertEquals(new Integer(1), kernel.getAttribute(mockBean3.getAbstractName(), "finalInt"));
@@ -213,13 +213,13 @@ public class ConfigTest extends TestCase {
         kernel.startGBean(artifactResolverData.getAbstractName());
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactResolverData.getAbstractName()));
 
-        GBeanData configurationManagerData = buildGBeanData(baseArtifact, new String[] {"module", "name"}, new String[] {"base", "BasicConfigurationManager"}, ConfigurationManagerImpl.GBEAN_INFO);
+        GBeanData configurationManagerData = buildGBeanData(baseArtifact, new String[] {"module", "name"}, new String[] {"base", "BasicConfigurationManager"}, EditableConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
 
         kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
         kernel.startGBean(configurationManagerData.getAbstractName());
-        configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
 
         Environment environment = new Environment();
         environment.setConfigId(new Artifact("geronimo", "test", "1", "car"));

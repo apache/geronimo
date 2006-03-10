@@ -40,6 +40,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.ArtifactManager;
 import org.apache.geronimo.kernel.repository.Version;
 import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
@@ -96,14 +97,14 @@ public class ConfigurationManagerTest extends TestCase {
 
         Environment e2 = new Environment();
         e2.setConfigId(artifact2);
-        e2.addImport(new Artifact("test", "1", (Version) null, "bar"));
+        e2.addDependency(new Artifact("test", "1", (Version) null, "bar"), ImportType.ALL);
         GBeanData gbeanData2 = new GBeanData(Configuration.getConfigurationAbstractName(artifact2), Configuration.GBEAN_INFO);
         gbeanData2.setAttribute("environment", e2);
         configurations.put(artifact2, gbeanData2);
 
         Environment e3 = new Environment();
         e3.setConfigId(artifact3);
-        e3.addImport(new Artifact("test", "2", (Version) null, "bar"));
+        e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
         GBeanData gbeanData3 = new GBeanData(Configuration.getConfigurationAbstractName(artifact3), Configuration.GBEAN_INFO);
         gbeanData3.setAttribute("environment", e3);
         configurations.put(artifact3, gbeanData3);

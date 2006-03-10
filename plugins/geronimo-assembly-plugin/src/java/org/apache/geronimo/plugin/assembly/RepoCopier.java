@@ -96,7 +96,7 @@ public class RepoCopier {
         }
         if (!targetRepository.contains(configId)) {
             File sourceFile = sourceRepository.getLocation(configId);
-            targetRepository.copyToRepository(sourceFile, configId, new BaseConfigInstaller.StartFileWriteMonitor());
+            targetRepository.copyToRepository(sourceFile, configId, BaseConfigInstaller.LOG_COPY_START);
         }
     }
 }

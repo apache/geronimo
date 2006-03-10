@@ -49,7 +49,7 @@ public class DeploymentContextTest extends TestCase {
             Map nameKeys = new HashMap();
             nameKeys.put("domain", "d");
             environment.setProperties(nameKeys);
-            DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, null);
+            DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, null, null);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);
@@ -63,7 +63,7 @@ public class DeploymentContextTest extends TestCase {
             Class type = enhancer.createClass();
             URI location = new URI("cglib/");
             context.addClass(location, type.getName(), classBytes);
-            ClassLoader cl = context.getClassLoader(null);
+            ClassLoader cl = context.getClassLoader();
             Class loadedType = cl.loadClass(type.getName());
             assertTrue(DataSource.class.isAssignableFrom(loadedType));
             assertTrue(type != loadedType);

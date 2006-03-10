@@ -50,6 +50,20 @@ public interface ConfigurationManager {
     List listConfigurations(ObjectName store) throws NoSuchStoreException;
 
     /**
+     * Is the specified artifact a configurations?
+     * @param artifact the artifact to check
+     * @return true if the artifact is a configuration
+     */
+    boolean isConfiguration(Artifact artifact);
+
+    /**
+     * Gets the loaded Configuration.
+     * @param configId the configuration to get
+     * @return the specified configuration or null if the configuration has not been loaded
+     */
+    Configuration getConfiguration(Artifact configId);
+
+    /**
      * Load the specified configuration and all parent configurations into the kernel. This does not
      * start any configuration gbeans or load any gbeans from the configurations loaded.  It does
      * not hurt to call this even if some or all of the GBeans are already loaded -- though only
@@ -76,6 +90,8 @@ public interface ConfigurationManager {
      */
     void unloadConfiguration(Artifact configID) throws NoSuchConfigException;
 
+    void unloadConfiguration(Configuration configuration) throws NoSuchConfigException;
+
     /**
      * Start the gbeans in this configuration.  
      *
@@ -83,6 +99,8 @@ public interface ConfigurationManager {
      * @throws InvalidConfigException
      */
     void startConfiguration(Artifact configID) throws InvalidConfigException;
+
+    void startConfiguration(Configuration configuration) throws InvalidConfigException;
 
     /**
      * Stop the gbeans in this configuration, but do not stop the configuration gbean.
@@ -92,11 +110,6 @@ public interface ConfigurationManager {
      */
     void stopConfiguration(Artifact configID) throws InvalidConfigException;
 
-    Configuration getConfiguration(Artifact configId);
-
-    void startConfiguration(Configuration configuration) throws InvalidConfigException;
-
     void stopConfiguration(Configuration configuration) throws InvalidConfigException;
 
-    void unloadConfiguration(Configuration configuration) throws NoSuchConfigException;
 }

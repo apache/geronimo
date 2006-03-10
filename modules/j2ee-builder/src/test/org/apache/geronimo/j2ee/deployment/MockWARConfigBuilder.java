@@ -46,7 +46,7 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
         return new WebModule(false, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module webModule, ConfigurationStore configurationStore) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module webModule, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
         assertNotNull(earFile);
         assertNotNull(earContext);
         this.earContext = earContext;

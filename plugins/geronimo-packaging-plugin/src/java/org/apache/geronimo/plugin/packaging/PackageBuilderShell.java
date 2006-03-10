@@ -25,16 +25,13 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
-import org.apache.commons.jelly.JellyContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geronimo.system.repository.Maven1Repository;
 import org.apache.maven.jelly.MavenJellyContext;
 import org.apache.maven.project.Dependency;
 import org.apache.maven.repository.Artifact;
-import org.apache.geronimo.system.repository.Maven1Repository;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem

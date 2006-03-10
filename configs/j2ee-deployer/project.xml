@@ -48,7 +48,7 @@
             <artifactId>j2ee-server</artifactId>
             <version>${pom.currentVersion}</version>
             <properties>
-                <geronimo.import>true</geronimo.import>
+                <geronimo.dependency>true</geronimo.dependency>
             </properties>
         </dependency>
         <dependency>

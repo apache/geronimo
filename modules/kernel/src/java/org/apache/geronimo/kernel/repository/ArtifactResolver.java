@@ -23,9 +23,9 @@ import java.util.LinkedHashSet;
  * @version $Rev$ $Date$
  */
 public interface ArtifactResolver {
-    LinkedHashSet resolve(LinkedHashSet artifacts) throws MissingDependencyException;
+    LinkedHashSet resolve(Collection artifacts) throws MissingDependencyException;
 
-    LinkedHashSet resolve(Collection parentConfigurations, LinkedHashSet artifacts) throws MissingDependencyException;
+    LinkedHashSet resolve(Collection parentConfigurations, Collection artifacts) throws MissingDependencyException;
 
     Artifact resolve(Artifact artifact) throws MissingDependencyException;
 

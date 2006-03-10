@@ -122,21 +122,18 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     private final boolean defaultXATransactionCaching;
     private final boolean defaultXAThreadCaching;
     private final Environment defaultEnvironment;
-    private final Repository repository;
     private final Kernel kernel;
     private static QName CONNECTOR_QNAME = GerConnectorDocument.type.getDocumentElementName();
     static final String GERCONNECTOR_NAMESPACE = CONNECTOR_QNAME.getNamespaceURI();
 
     public ConnectorModuleBuilder(Environment defaultEnvironment,
-                                  int defaultMaxSize,
-                                  int defaultMinSize,
-                                  int defaultBlockingTimeoutMilliseconds,
-                                  int defaultIdleTimeoutMinutes,
-                                  boolean defaultXATransactionCaching,
-                                  boolean defaultXAThreadCaching,
-                                  Repository repository,
-                                  Kernel kernel) {
-        assert repository != null;
+            int defaultMaxSize,
+            int defaultMinSize,
+            int defaultBlockingTimeoutMilliseconds,
+            int defaultIdleTimeoutMinutes,
+            boolean defaultXATransactionCaching,
+            boolean defaultXAThreadCaching,
+            Kernel kernel) {
         this.defaultEnvironment = defaultEnvironment;
 
         this.defaultMaxSize = defaultMaxSize;
@@ -145,7 +142,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         this.defaultIdleTimeoutMinutes = defaultIdleTimeoutMinutes;
         this.defaultXATransactionCaching = defaultXATransactionCaching;
         this.defaultXAThreadCaching = defaultXAThreadCaching;
-        this.repository = repository;
         this.kernel = kernel;
     }
 
@@ -235,7 +231,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         return new ConnectorModule(standAlone, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
-    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore) throws DeploymentException {
+    public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
         GerConnectorType vendorConnector = (GerConnectorType) module.getVendorDD();
         try {
             JarFile moduleFile = module.getModuleFile();
@@ -867,7 +863,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         infoBuilder.addAttribute("defaultXATransactionCaching", boolean.class, true, true);
         infoBuilder.addAttribute("defaultXAThreadCaching", boolean.class, true, true);
 
-        infoBuilder.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
 
         infoBuilder.addInterface(ModuleBuilder.class);
@@ -880,7 +875,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
                                                 "defaultIdleTimeoutMinutes",
                                                 "defaultXATransactionCaching",
                                                 "defaultXAThreadCaching",
-                                                "Repository",
                                                 "kernel"});
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }

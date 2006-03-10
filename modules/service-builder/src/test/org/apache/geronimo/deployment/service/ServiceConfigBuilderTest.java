@@ -61,7 +61,7 @@ public class ServiceConfigBuilderTest extends TestCase {
         try {
 
             Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
-            DeploymentContext context = new DeploymentContext(outFile, environment, ConfigurationModuleType.SERVICE, null);
+            DeploymentContext context = new DeploymentContext(outFile, environment, ConfigurationModuleType.SERVICE, null, null);
             AbstractName j2eeContext = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.SERVICE, null);
 //            new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
             GbeanType[] gbeans = plan.getGbeanArray();

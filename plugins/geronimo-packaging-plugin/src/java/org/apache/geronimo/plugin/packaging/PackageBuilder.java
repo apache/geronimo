@@ -94,7 +94,7 @@ public class PackageBuilder {
             REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository,j2eeType=Repository");
             ARTIFACT_MANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactManager");
             ARTIFACT_RESOLVER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactResolver");
-            CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=MavenConfigStore,j2eeType=ConfigurationStore");
+            CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=PackageBuilderConfigStore,j2eeType=ConfigurationStore");
             CONFIGMANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ConfigurationManager,j2eeType=ConfigurationManager");
             ATTRIBUTESTORE_NAME = new ObjectName(KERNEL_NAME + ":name=ManagedAttributeStore");
         } catch (MalformedObjectNameException e) {

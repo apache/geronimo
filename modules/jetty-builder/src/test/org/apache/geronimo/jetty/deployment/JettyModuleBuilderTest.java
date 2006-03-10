@@ -75,6 +75,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.security.SecurityServiceImpl;
 import org.apache.geronimo.system.serverinfo.BasicServerInfo;
 import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
@@ -109,7 +110,7 @@ public class JettyModuleBuilderTest extends TestCase {
     private File basedir = new File(System.getProperty("basedir", "."));
     private String PARENT_ARTIFACT_ID = "geronimo/Foo/1/car";
     private String ARTIFACT_ID = "foo/bar/1/car";
-    private List parentId = Arrays.asList(new Artifact[] {Artifact.create(PARENT_ARTIFACT_ID)});
+    private Artifact parentId = Artifact.create(PARENT_ARTIFACT_ID);
     private Environment defaultEnvironment = new Environment();
     private ConfigurationManager configurationManager;
 
@@ -159,6 +160,7 @@ public class JettyModuleBuilderTest extends TestCase {
         EARContext earContext = new EARContext(outputPath,
                 environment,
                 ConfigurationModuleType.WAR,
+                null,
                 kernel,
                 moduleContext.getJ2eeApplicationName(),
                 tcmName,
@@ -279,8 +281,8 @@ public class JettyModuleBuilderTest extends TestCase {
         kernel.startGBean(configurationManagerName);
         configurationManager = (ConfigurationManager) kernel.getProxyManager().createProxy(configurationManagerName, ConfigurationManager.class);
 
-        configurationManager.loadConfiguration((Artifact) parentId.get(0));
-        configurationManager.startConfiguration((Artifact) parentId.get(0));
+        configurationManager.loadConfiguration(parentId);
+        configurationManager.startConfiguration(parentId);
 
         Collection defaultServlets = new HashSet();
         Collection defaultFilters = new HashSet();
@@ -301,7 +303,7 @@ public class JettyModuleBuilderTest extends TestCase {
         securityServiceGBean.setAttribute("policyProvider", "org.apache.geronimo.security.jacc.GeronimoPolicy");
         start(securityServiceGBean);
 
-        defaultEnvironment.addImports(parentId);
+        defaultEnvironment.addDependency(parentId, ImportType.ALL);
         Artifact artifact = Artifact.create("foo/bar/1/car");
         defaultEnvironment.setConfigId(artifact);
         builder = new JettyModuleBuilder(defaultEnvironment, new Integer(1800), false, Collections.EMPTY_LIST, containerName, defaultServlets, defaultFilters, defaultFilterMappings, pojoWebServiceTemplate, webServiceBuilder, kernel);

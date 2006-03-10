@@ -31,13 +31,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
@@ -63,9 +60,9 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.ArtifactResolver;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ImportType;
 
 /**
  * @version $Rev$ $Date$
@@ -75,6 +72,7 @@ public class DeploymentContext {
     private final Environment environment;
     private final ConfigurationModuleType moduleType;
     private final LinkedHashSet classpath = new LinkedHashSet();
+    private final Collection repositories;
     private final Kernel kernel;
     private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
     private final File baseDir;
@@ -82,15 +80,18 @@ public class DeploymentContext {
     private final byte[] buffer = new byte[4096];
     private final List loadedConfigurations = new ArrayList();
     private final List childConfigurationDatas = new ArrayList();
+    private ConfigurationManager configurationManager;
+    private final ArtifactResolver artifactResolver;
 
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType type, Kernel kernel) throws DeploymentException {
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType type, Collection repositories, Kernel kernel) throws DeploymentException {
         assert baseDir != null: "baseDir is null";
         assert environment != null: "environment is null";
         assert type != null: "type is null";
 
         this.environment = environment;
         this.moduleType = type;
+        this.repositories = repositories;
         this.kernel = kernel;
 
         if (!baseDir.exists()) {
@@ -102,6 +103,11 @@ public class DeploymentContext {
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
+        if (kernel != null) {
+            configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        }
+        artifactResolver = new DefaultArtifactResolver(null, repositories);
+
         determineNaming();
         setupParents();
     }
@@ -110,19 +116,32 @@ public class DeploymentContext {
         if (environment.getProperties() != null && !environment.getProperties().isEmpty()) {
             return;
         }
-        Collection parentId = environment.getImports();
-        if (kernel == null || parentId == null || parentId.isEmpty()) {
-            throw new DeploymentException("neither domain and server nor any way to determine them was provided for configuration " + environment.getConfigId());
+        Collection dependencies = environment.getDependencies();
+        if (kernel == null ||  dependencies.isEmpty()) {
+            throw new DeploymentException("Neither domain and server nor any way to determine them was provided for configuration " + environment.getConfigId());
         }
-        Artifact parent = (Artifact) parentId.iterator().next();
         ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
 
         try {
             boolean loaded = false;
-            if (!configurationManager.isLoaded(parent)) {
-                configurationManager.loadConfiguration(parent);
-                loaded = true;
+
+            Artifact parent = null;
+            for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
+                Dependency dependency = (Dependency) iterator.next();
+                Artifact artifact = dependency.getArtifact();
+                if (configurationManager.isConfiguration(artifact)) {
+                    if (!configurationManager.isLoaded(artifact)) {
+                        configurationManager.loadConfiguration(artifact);
+                        loaded = true;
+                    }
+                    parent = artifact;
+                    break;
+                }
             }
+            if (parent == null) {
+                throw new DeploymentException("Neither domain and server nor any way to determine them was provided for configuration " + environment.getConfigId());
+            }
+
             try {
                 ObjectName parentName = Configuration.getConfigurationObjectName(parent);
                 Environment environment = (Environment) kernel.getAttribute(parentName, "environment");
@@ -143,7 +162,7 @@ public class DeploymentContext {
 
         //check that domain and server are now known
         if (environment.getProperties() == null || environment.getProperties().isEmpty()) {
-            throw new IllegalStateException("Properties not be determined from explicit args or parent configuration. ParentID: " + parentId);
+            throw new IllegalStateException("Properties not be determined from explicit args or parent configuration. ParentID: " + dependencies);
         }
     }
 
@@ -381,108 +400,111 @@ public class DeploymentContext {
         return new File(baseUri.resolve(targetPath));
     }
 
-    static interface ParentSource {
-        Collection getParents(Artifact point) throws DeploymentException;
-    }
-
-    List getExtremalSet(Collection points, ParentSource parentSource) throws DeploymentException {
-        LinkedHashMap pointToEnvelopeMap = new LinkedHashMap();
-        for (Iterator iterator = points.iterator(); iterator.hasNext();) {
-            Artifact newPoint = (Artifact) iterator.next();
-            Set newEnvelope = new HashSet();
-            getEnvelope(newPoint, parentSource, newEnvelope);
-            boolean useMe = true;
-            for (Iterator iterator1 = pointToEnvelopeMap.entrySet().iterator(); iterator1.hasNext();) {
-                Map.Entry entry = (Map.Entry) iterator1.next();
-                Set existingEnvelope = (Set) entry.getValue();
-                if (existingEnvelope.contains(newPoint)) {
-                    useMe = false;
-                } else if (newEnvelope.contains(entry.getKey())) {
-                    iterator1.remove();
-                }
-            }
-            if (useMe) {
-                pointToEnvelopeMap.put(newPoint, newEnvelope);
-            }
-        }
-        return new ArrayList(pointToEnvelopeMap.keySet());
-    }
-
-    private void getEnvelope(Artifact point, ParentSource parentSource, Set envelope) throws DeploymentException {
-        Collection newPoints = parentSource.getParents(point);
-        envelope.addAll(newPoints);
-        for (Iterator iterator = newPoints.iterator(); iterator.hasNext();) {
-            Artifact newPoint = (Artifact) iterator.next();
-            getEnvelope(newPoint, parentSource, envelope);
-        }
-    }
-
-    static class ConfigurationParentSource implements ParentSource {
-
-        private final Kernel kernel;
-
-        public ConfigurationParentSource(Kernel kernel) {
-            this.kernel = kernel;
-        }
-
-        public Collection getParents(Artifact configID) throws DeploymentException {
-            ObjectName configName;
-            try {
-                configName = Configuration.getConfigurationObjectName(configID);
-            } catch (InvalidConfigException e) {
-                throw new DeploymentException("Cannot convert ID to ObjectName: ", e);
-            }
-            try {
-                Environment environment = (Environment) kernel.getAttribute(configName, "environment");
-                return environment.getImports();
-            } catch (Exception e) {
-                throw new DeploymentException("Cannot find parents of alleged config: ", e);
-            }
-        }
-
-    }
+//    static interface ParentSource {
+//        Collection getParents(Artifact point) throws DeploymentException;
+//    }
+//
+//    List getExtremalSet(Collection points, ParentSource parentSource) throws DeploymentException {
+//        LinkedHashMap pointToEnvelopeMap = new LinkedHashMap();
+//        for (Iterator iterator = points.iterator(); iterator.hasNext();) {
+//            Artifact newPoint = (Artifact) iterator.next();
+//            Set newEnvelope = new HashSet();
+//            getEnvelope(newPoint, parentSource, newEnvelope);
+//            boolean useMe = true;
+//            for (Iterator iterator1 = pointToEnvelopeMap.entrySet().iterator(); iterator1.hasNext();) {
+//                Map.Entry entry = (Map.Entry) iterator1.next();
+//                Set existingEnvelope = (Set) entry.getValue();
+//                if (existingEnvelope.contains(newPoint)) {
+//                    useMe = false;
+//                } else if (newEnvelope.contains(entry.getKey())) {
+//                    iterator1.remove();
+//                }
+//            }
+//            if (useMe) {
+//                pointToEnvelopeMap.put(newPoint, newEnvelope);
+//            }
+//        }
+//        return new ArrayList(pointToEnvelopeMap.keySet());
+//    }
+//
+//    private void getEnvelope(Artifact point, ParentSource parentSource, Set envelope) throws DeploymentException {
+//        Collection newPoints = parentSource.getParents(point);
+//        envelope.addAll(newPoints);
+//        for (Iterator iterator = newPoints.iterator(); iterator.hasNext();) {
+//            Artifact newPoint = (Artifact) iterator.next();
+//            getEnvelope(newPoint, parentSource, envelope);
+//        }
+//    }
+//
+//    static class ConfigurationParentSource implements ParentSource {
+//
+//        private final Kernel kernel;
+//
+//        public ConfigurationParentSource(Kernel kernel) {
+//            this.kernel = kernel;
+//        }
+//
+//        public Collection getParents(Artifact configID) throws DeploymentException {
+//            ObjectName configName;
+//            try {
+//                configName = Configuration.getConfigurationObjectName(configID);
+//            } catch (InvalidConfigException e) {
+//                throw new DeploymentException("Cannot convert ID to ObjectName: ", e);
+//            }
+//            try {
+//                Environment environment = (Environment) kernel.getAttribute(configName, "environment");
+//                return environment.getImports();
+//            } catch (Exception e) {
+//                throw new DeploymentException("Cannot find parents of alleged config: ", e);
+//            }
+//        }
+//
+//    }
 
     private void setupParents() throws DeploymentException {
-        Collection parentId = environment.getImports();
-        if (kernel != null && parentId != null && parentId.size() > 0) {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        if (kernel != null) {
             try {
-                loadConfigurations(parentId, configurationManager);
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-            }
-        }
-    }
+                List dependencies = new ArrayList(environment.getDependencies());
+                for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
+                    Dependency dependency = (Dependency) iterator.next();
+                    Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
+                    if (configurationManager != null && configurationManager.isConfiguration(resolvedArtifact)) {
+                        configurationManager.loadConfiguration(resolvedArtifact);
 
-    private void loadConfigurations(Collection configurations, ConfigurationManager configurationManager) throws DeploymentException {
-        if (configurationManager != null && configurations != null) {
-            try {
-                for (Iterator iterator = configurations.iterator(); iterator.hasNext();) {
-                    Artifact artifact = (Artifact) iterator.next();
-                    configurationManager.loadConfiguration(artifact);
-                    loadedConfigurations.add(artifact);
+                        // update the dependency list to contain the resolved artifact
+                        dependency = new Dependency(resolvedArtifact, dependency.getImportType());
+                        iterator.set(dependency);
+                    } else if (dependency.getImportType() == ImportType.SERVICES) {
+                        // Service depdendencies require that the depdencency be a configuration
+                        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
+                        throw new DeploymentException("Dependency does not have services: " + resolvedArtifact);
+                    }
                 }
+                environment.setDependencies(dependencies);
+            } catch (DeploymentException e) {
+                throw e;
             } catch (Exception e) {
                 throw new DeploymentException("Unable to load parents", e);
             }
         }
     }
 
-    public ClassLoader getClassLoader(Repository repository) throws DeploymentException {
-        return getClassLoader(repository, null);
+    public ClassLoader getClassLoader() throws DeploymentException {
+        return getConfiguration(null).getConfigurationClassLoader();
     }
 
-    public ClassLoader getClassLoader(Repository repository, Configuration knownParent) throws DeploymentException {
-        return getConfiguration(repository, knownParent).getConfigurationClassLoader();
+    public ClassLoader getClassLoader(Configuration knownParent) throws DeploymentException {
+        return getConfiguration(knownParent).getConfigurationClassLoader();
     }
 
-    public Configuration getConfiguration(Repository repository, Configuration knownParent) throws DeploymentException {
+    public Configuration getConfiguration(Configuration knownParent) throws DeploymentException {
         Environment environmentCopy = new Environment(environment);
-        Set repositories = Collections.singleton(repository);
+        if (knownParent != null) {
+            environmentCopy.addDependency(knownParent.getId(), ImportType.ALL);
+        }
         try {
-            List parents = createParentProxies(repositories, knownParent);
+            List parents = createParentProxies(environmentCopy, knownParent);
             Configuration configuration = new Configuration(parents,
-                    kernel,
                     Configuration.getConfigurationObjectName(environmentCopy.getConfigId()).getCanonicalName(),
                     moduleType,
                     environmentCopy,
@@ -529,26 +551,49 @@ public class DeploymentContext {
         }
     }
 
-    private List createParentProxies(Set repositories, Configuration knownParent) throws MissingDependencyException, InvalidConfigException {
-        ArtifactResolver artifactResolver = new DefaultArtifactResolver(null, repositories);
-        LinkedHashSet imports = environment.getImports();
-        imports = artifactResolver.resolve(imports);
-        environment.setImports(imports);
+    private List createParentProxies(Environment environment, Configuration existingConfiguration) throws InvalidConfigException {
+        List parents = new ArrayList();
+        try {
+            List dependencies = new ArrayList(environment.getDependencies());
+            for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
+                Dependency dependency = (Dependency) iterator.next();
+                Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
+                if (configurationManager != null && isConfiguration(resolvedArtifact, existingConfiguration)) {
+                    // add the parent configuration to the parents collection
+                    Configuration parent = getLoadedConfiguration(resolvedArtifact, existingConfiguration);
+                    parents.add(parent);
 
-        // get proxies to my parent configurations (now that the imports have been resolved)
-        ArrayList parents = new ArrayList();
-        for (Iterator iterator = imports.iterator(); iterator.hasNext();) {
-            Artifact artifact = (Artifact) iterator.next();
-            Configuration parent;
-            if (knownParent != null && artifact.equals(knownParent.getId())) {
-                parent = knownParent;
-            } else {
-                ObjectName parentName = Configuration.getConfigurationObjectName(artifact);
-                parent = (Configuration) kernel.getProxyManager().createProxy(parentName, Configuration.class);
+                    // update the dependency list to contain the resolved artifact
+                    dependency = new Dependency(resolvedArtifact, dependency.getImportType());
+                    iterator.set(dependency);
+                } else if (dependency.getImportType() == ImportType.SERVICES) {
+                    // Service depdendencies require that the depdencency be a configuration
+                    if (configurationManager == null) throw new NullPointerException("configurationManager is null");
+                    throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
+                }
             }
-            parents.add(parent);
+            environment.setDependencies(dependencies);
+        } catch (InvalidConfigException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InvalidConfigException("Unable to load parents", e);
         }
         return parents;
+    }
+
+    private boolean isConfiguration(Artifact artifact, Configuration existingConfiguration) {
+        if (configurationManager.isConfiguration(artifact)) {
+            return true;
+        }
+        return existingConfiguration != null && artifact.equals(existingConfiguration.getId());
+    }
+
+    private Configuration getLoadedConfiguration(Artifact artifact, Configuration existingConfiguration) {
+        if (existingConfiguration != null && artifact.equals(existingConfiguration.getId())) {
+            return existingConfiguration;
+        } else {
+            return configurationManager.getConfiguration(artifact);
+        }
     }
 
     public void close() throws IOException, DeploymentException {

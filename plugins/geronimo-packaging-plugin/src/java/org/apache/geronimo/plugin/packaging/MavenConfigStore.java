@@ -16,7 +16,10 @@
  */
 package org.apache.geronimo.plugin.packaging;
 
-import org.apache.geronimo.gbean.GBeanData;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -24,19 +27,9 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.WritableListableRepository;
 import org.apache.geronimo.system.configuration.ExecutableConfigurationUtil;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.List;
+import org.apache.geronimo.system.configuration.RepositoryConfigurationStore;
 
 /**
  * Implementation of ConfigurationStore that loads Configurations from a repository.
@@ -45,46 +38,9 @@ import java.util.List;
  *
  * @version $Rev$ $Date$
  */
-public class MavenConfigStore implements ConfigurationStore {
-    private final ObjectName objectName;
-    private final Repository repository;
-
-    public MavenConfigStore(String objectName, Repository repository) throws MalformedObjectNameException {
-        this.objectName = new ObjectName(objectName);
-        this.repository = repository;
-    }
-
-    public String getObjectName() {
-        return objectName.toString();
-    }
-
-    public synchronized GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-        if (!repository.contains(configId)) {
-            throw new NoSuchConfigException("Configuration not found: " + configId);
-        }
-
-        GBeanData config = new GBeanData();
-        URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
-        InputStream jis = null;
-        try {
-            URL stateURL = new URL(baseURL, "META-INF/config.ser");
-            jis = stateURL.openStream();
-            ObjectInputStream ois = new ObjectInputStream(jis);
-            config.readExternal(ois);
-        } catch (ClassNotFoundException e) {
-            throw new InvalidConfigException("Unable to load class from config: " + configId, e);
-        } finally {
-            if (jis != null) {
-                jis.close();
-            }
-        }
-
-        return config;
-    }
-
-
-    public boolean containsConfiguration(Artifact configID) {
-        return repository.contains(configID);
+public class MavenConfigStore extends RepositoryConfigurationStore {
+    public MavenConfigStore(String objectName, WritableListableRepository repository) {
+        super(null, objectName, repository);
     }
 
     public File createNewConfigurationDir(Artifact configId) {
@@ -105,18 +61,13 @@ public class MavenConfigStore implements ConfigurationStore {
         }
     }
 
-    public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-        URL baseURL = new URL("jar:" + repository.getLocation(configId).toURL().toString() + "!/");
-        return new URL(baseURL, uri.toString());
-    }
-
     public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
         File source = configurationData.getConfigurationDir();
         if (!source.isDirectory()) {
             throw new InvalidConfigException("Source must be a directory: source=" + source);
         }
         Artifact configId = configurationData.getId();
-        File targetFile =repository.getLocation(configId);
+        File targetFile = repository.getLocation(configId);
         ExecutableConfigurationUtil.createExecutableConfiguration(configurationData, null, targetFile);
     }
 
@@ -128,7 +79,6 @@ public class MavenConfigStore implements ConfigurationStore {
         throw new UnsupportedOperationException();
     }
 
-
     public static final GBeanInfo GBEAN_INFO;
 
     public static GBeanInfo getGBeanInfo() {
@@ -138,8 +88,9 @@ public class MavenConfigStore implements ConfigurationStore {
     static {
         GBeanInfoBuilder builder = GBeanInfoBuilder.createStatic(MavenConfigStore.class);
         builder.addInterface(ConfigurationStore.class);
+        builder.addInterface(ConfigurationStore.class);
         builder.addAttribute("objectName", String.class, false);
-        builder.addReference("Repository", Repository.class);
+        builder.addReference("Repository", WritableListableRepository.class, "Repository");
         builder.setConstructor(new String[]{"objectName", "Repository"});
         GBEAN_INFO = builder.getBeanInfo();
     }

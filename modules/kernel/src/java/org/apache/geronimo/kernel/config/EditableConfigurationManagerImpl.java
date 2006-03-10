@@ -17,7 +17,7 @@
 package org.apache.geronimo.kernel.config;
 
 import java.util.Collection;
-import javax.management.ObjectName;
+
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -36,52 +36,76 @@ import org.apache.geronimo.gbean.AbstractName;
  */
 public class EditableConfigurationManagerImpl extends ConfigurationManagerImpl implements EditableConfigurationManager {
     public EditableConfigurationManagerImpl(Kernel kernel,
-                                            Collection stores,
-                                            ManageableAttributeStore attributeStore,
-                                            PersistentConfigurationList configurationList,
-                                            ArtifactManager artifactManager,
-                                            ArtifactResolver artifactResolver,
-                                            ClassLoader classLoader) {
+            Collection stores,
+            ManageableAttributeStore attributeStore,
+            PersistentConfigurationList configurationList,
+            ArtifactManager artifactManager,
+            ArtifactResolver artifactResolver,
+            ClassLoader classLoader) {
         super(kernel, stores, attributeStore, configurationList, artifactManager, artifactResolver, classLoader);
     }
 
-    public void addGBeanToConfiguration(Artifact configID, GBeanData gbean, boolean start) throws InvalidConfigException {
+    public void addGBeanToConfiguration(Artifact configurationId, GBeanData gbean, boolean start) throws InvalidConfigException {
+        Configuration configuration = getConfiguration(configurationId);
+        ClassLoader configurationClassLoader = configuration.getConfigurationClassLoader();
+
+        ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
         try {
-            ObjectName name = Configuration.getConfigurationObjectName(configID);
-            kernel.invoke(name, "addGBean", new Object[]{gbean, start ? Boolean.TRUE : Boolean.FALSE}, new String[]{GBeanData.class.getName(), boolean.class.getName()});
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to add GBean to configuration", e);
+            Thread.currentThread().setContextClassLoader(configurationClassLoader);
+
+            log.trace("Registering GBean " + gbean.getName());
+
+            // add a dependency on the configuration
+            gbean.addDependency(configuration.getAbstractName());
+
+            // register the bean with the kernel
+            kernel.loadGBean(gbean, configurationClassLoader);
+
+            // start the configuration
+            if (start) {
+                try {
+                    kernel.startRecursiveGBean(gbean.getName());
+                } catch (GBeanNotFoundException e) {
+                    throw new InvalidConfigException("How could we not find a GBean that we just loaded ('" + gbean.getName() + "')?");
+                }
+            }
+
+            configuration.addGBean(gbean);
+        } catch(InvalidConfigException e) {
+            throw e;
+        } catch(Exception e) {
+            throw new InvalidConfigException("Cound not add GBean " + gbean.getName() + " to configuration " + configurationId, e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCl);
         }
 
-        attributeStore.addGBean(configID.toString(), gbean);
+        if (attributeStore != null) {
+            attributeStore.addGBean(configurationId.toString(), gbean);
+        }
     }
 
-    public void removeGBeanFromConfiguration(Artifact configID, AbstractName gbean) throws GBeanNotFoundException, InvalidConfigException {
-        // Make sure the specified configuration has the specified GBean
-        try {
-            ObjectName name = Configuration.getConfigurationObjectName(configID);
-            Boolean result = (Boolean) kernel.invoke(name, "containsGBean", new Object[]{gbean}, new String[]{ObjectName.class.getName()});
-            if(!result.booleanValue()) {
-                throw new GBeanNotFoundException(gbean);
-            }
-        } catch(GBeanNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to add GBean to configuration", e);
+    public void removeGBeanFromConfiguration(Artifact configurationId, AbstractName gbeanName) throws GBeanNotFoundException, InvalidConfigException {
+        Configuration configuration = getConfiguration(configurationId);
+        if (!configuration.containsGBean(gbeanName)) {
+            throw new GBeanNotFoundException(gbeanName);
         }
+        configuration.removeGBean(gbeanName);
 
-        // Stop and unload the GBean if necessary
         try {
-            if (kernel.getGBeanState(gbean) == State.RUNNING_INDEX) {
-                kernel.stopGBean(gbean);
+            if (kernel.getGBeanState(gbeanName) == State.RUNNING_INDEX) {
+                kernel.stopGBean(gbeanName);
             }
-            kernel.unloadGBean(gbean);
+            kernel.unloadGBean(gbeanName);
         } catch (GBeanNotFoundException e) {
             // Bean is no longer loaded
         }
 
+        configuration.removeGBean(gbeanName);
+
         // Make sure it's not loaded next time the configuration is loaded
-        attributeStore.setShouldLoad(configID.toString(), gbean, false);
+        if (attributeStore != null) {
+            attributeStore.setShouldLoad(configurationId.toString(), gbeanName, false);
+        }
     }
 
     public static final GBeanInfo GBEAN_INFO;

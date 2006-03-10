@@ -24,6 +24,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * holds the data from the EnvironmentType xml while it is being resolved, transitively closed, etc.
@@ -31,15 +35,13 @@ import java.util.Set;
  * @version $Rev:$ $Date:$
  */
 public class Environment implements Serializable {
+    private static final long serialVersionUID = 7075760873629376317L;
 
     private Artifact configId;
 
     private final Map properties = new HashMap();
 
-    private final LinkedHashSet imports = new LinkedHashSet();
-    private final LinkedHashSet references = new LinkedHashSet();
     private final LinkedHashSet dependencies = new LinkedHashSet();
-    private final LinkedHashSet includes = new LinkedHashSet();
 
     private final Set hiddenClasses = new HashSet();
     private final Set nonOverrideableClasses = new HashSet();
@@ -52,10 +54,7 @@ public class Environment implements Serializable {
 
     public Environment(Environment environment) {
         this.configId = environment.getConfigId();
-        this.imports.addAll(environment.getImports());
-        this.references.addAll(environment.getReferences());
-        this.dependencies.addAll(environment.getDependencies());
-        this.includes.addAll(environment.getIncludes());
+        this.dependencies.addAll(environment.dependencies);
         this.hiddenClasses.addAll(environment.getHiddenClasses());
         this.nonOverrideableClasses.addAll(environment.getNonOverrideableClasses());
         this.inverseClassLoading = environment.isInverseClassLoading();
@@ -83,72 +82,29 @@ public class Environment implements Serializable {
         addProperties(properties);
     }
 
-    public LinkedHashSet getImports() {
-        return imports;
+    public List getDependencies() {
+        return Collections.unmodifiableList(new ArrayList(dependencies));
     }
 
-    public void addImport(Artifact importArtifact) {
-        this.imports.add(importArtifact);
+    public void addDependency(Artifact artifact, ImportType importType) {
+        this.dependencies.add(new Dependency(artifact, importType));
     }
 
-    public void addImports(Collection imports) {
-        this.imports.addAll(imports);
-    }
-
-    public void setImports(Collection imports) {
-        this.imports.clear();
-        addImports(imports);
-    }
-
-    public LinkedHashSet getReferences() {
-        return references;
-    }
-
-    public void addReference(Artifact reference) {
-        this.references.add(reference);
-    }
-
-    public void addReferences(Collection references) {
-        this.references.addAll(references);
-    }
-
-    public void setReferences(Collection references) {
-        this.references.clear();
-        addReferences(references);
-    }
-
-    public LinkedHashSet getDependencies() {
-        return dependencies;
-    }
-
-    public void addDependency(Artifact dependency) {
+    public void addDependency(Dependency dependency) {
         this.dependencies.add(dependency);
     }
 
     public void addDependencies(Collection dependencies) {
-        this.dependencies.addAll(dependencies);
+        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
+            // make sure they are all dependency objects... generics would be sooooo nice
+            Dependency dependency = (Dependency) iterator.next();
+            addDependency(dependency);
+        }
     }
 
     public void setDependencies(Collection dependencies) {
         this.dependencies.clear();
         addDependencies(dependencies);
-    }
-
-    public LinkedHashSet getIncludes() {
-        return includes;
-    }
-
-    public void addInclude(Artifact include) {
-        this.includes.add(include);
-    }
-
-    public void addIncludes(Collection includes) {
-        this.includes.addAll(includes);
-    }
-
-    public void setIncludes(Collection includes) {
-        this.includes.clear();
-        addIncludes(includes);
     }
 
     public Set getHiddenClasses() {
@@ -192,4 +148,5 @@ public class Environment implements Serializable {
     public void setSuppressDefaultEnvironment(boolean suppressDefaultEnvironment) {
         this.suppressDefaultEnvironment = suppressDefaultEnvironment;
     }
+
 }
