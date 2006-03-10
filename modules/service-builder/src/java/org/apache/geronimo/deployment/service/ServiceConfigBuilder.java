@@ -35,7 +35,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -50,7 +49,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
@@ -169,49 +167,48 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ClassLoader cl = context.getClassLoader(repository);
 
 
-        J2eeContext j2eeContext;
+        AbstractName moduleName;
         try {
-            j2eeContext = NameFactory.buildJ2eeContext(environment.getProperties(), NameFactory.NULL, NameFactory.J2EE_MODULE, environment.getConfigId().toString(), null, null);
+            moduleName = NameFactory.buildModuleName(environment.getProperties(), configId, NameFactory.J2EE_MODULE, null);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }
         GbeanType[] gbeans = configurationType.getGbeanArray();
-        addGBeans(gbeans, cl, j2eeContext, context);
+        addGBeans(gbeans, cl, moduleName, context);
         context.close();
         return context.getConfigurationData();
     }
 
-    public static void addGBeans(GbeanType[] gbeans, ClassLoader cl, J2eeContext j2eeContext, DeploymentContext context) throws DeploymentException {
+    public static void addGBeans(GbeanType[] gbeans, ClassLoader cl, AbstractName moduleName, DeploymentContext context) throws DeploymentException {
         for (int i = 0; i < gbeans.length; i++) {
-            addGBeanData(gbeans[i], j2eeContext, cl, context);
+            addGBeanData(gbeans[i], moduleName, cl, context);
         }
     }
 
-    public static ObjectName addGBeanData(GbeanType gbean, J2eeContext j2eeContext, ClassLoader cl, DeploymentContext context) throws DeploymentException {
+    public static AbstractName addGBeanData(GbeanType gbean, AbstractName moduleName, ClassLoader cl, DeploymentContext context) throws DeploymentException {
         GBeanInfo gBeanInfo = GBeanInfo.getGBeanInfo(gbean.getClass1(), cl);
-        ObjectName objectName;
-        Map nameMap = new HashMap();
-        if (gbean.isSetGbeanName()) {
-            try {
-                objectName = ObjectName.getInstance(gbean.getGbeanName());
-                nameMap.putAll(objectName.getKeyPropertyList());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Invalid ObjectName: " + gbean.getName(), e);
-            }
-        } else {
+        AbstractName abstractName;
+//        if (gbean.isSetGbeanName()) {
+//            try {
+//                abstractName = ObjectName.getInstance(gbean.getGbeanName());
+//                nameMap.putAll(abstractName.getKeyPropertyList());
+//            } catch (MalformedObjectNameException e) {
+//                throw new DeploymentException("Invalid ObjectName: " + gbean.getName(), e);
+//            }
+//        } else {
             String namePart = gbean.getName();
             try {
                 String j2eeType = gBeanInfo.getJ2eeType();
                 //todo investigate using the module type from the j2eecontext.
-                objectName = NameFactory.getComponentName(null, null, null, null, namePart, j2eeType, j2eeContext);
-                nameMap.put("name", namePart);
-                nameMap.put("type", j2eeType);
+                abstractName = NameFactory.getChildName(moduleName, j2eeType, namePart, gBeanInfo.getInterfaces());
+//                nameMap.put("name", namePart);
+//                nameMap.put("type", j2eeType);
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("Invalid ObjectName: " + namePart, e);
             }
-        }
-        AbstractName abstractName = new AbstractName(context.getConfigID(), nameMap, gBeanInfo.getInterfaces(), objectName);
-        GBeanBuilder builder = new GBeanBuilder(abstractName, gBeanInfo, cl, context, j2eeContext, xmlAttributeBuilderMap, xmlReferenceBuilderMap);
+//        }
+//        AbstractName abstractName = new AbstractName(context.getConfigID(), nameMap, gBeanInfo.getInterfaces(), abstractName);
+        GBeanBuilder builder = new GBeanBuilder(abstractName, gBeanInfo, cl, context, moduleName, xmlAttributeBuilderMap, xmlReferenceBuilderMap);
 
         // set up attributes
         AttributeType[] attributeArray = gbean.getAttributeArray();
@@ -238,7 +235,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ReferenceType[] referenceArray = gbean.getReferenceArray();
         if (referenceArray != null) {
             for (int j = 0; j < referenceArray.length; j++) {
-                builder.setReference(referenceArray[j].getName2(), referenceArray[j], j2eeContext);
+                builder.setReference(referenceArray[j].getName2(), referenceArray[j], moduleName);
             }
         }
 
@@ -246,7 +243,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         ReferencesType[] referencesArray = gbean.getReferencesArray();
         if (referencesArray != null) {
             for (int j = 0; j < referencesArray.length; j++) {
-                builder.setReference(referencesArray[j].getName(), referencesArray[j].getPatternArray(), j2eeContext);
+                builder.setReference(referencesArray[j].getName(), referencesArray[j].getPatternArray(), moduleName);
             }
         }
 
@@ -267,13 +264,13 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         if (dependencyArray != null) {
             for (int i = 0; i < dependencyArray.length; i++) {
                 PatternType patternType = dependencyArray[i];
-                builder.addDependency(patternType, j2eeContext);
+                builder.addDependency(patternType);
             }
         }
 
         GBeanData gBeanData = builder.getGBeanData();
         context.addGBean(gBeanData);
-        return objectName;
+        return abstractName;
     }
 
     public static final GBeanInfo GBEAN_INFO;

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 
 /**
  * @version $Rev:$ $Date:$
@@ -58,7 +59,7 @@ public class AbstractName implements Serializable {
     }
 
     public Map getName() {
-        return name;
+        return Collections.unmodifiableMap(name);
     }
 
     public Set getInterfaceTypes() {

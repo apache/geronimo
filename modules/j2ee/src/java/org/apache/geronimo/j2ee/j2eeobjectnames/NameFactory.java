@@ -16,8 +16,16 @@
  */
 package org.apache.geronimo.j2ee.j2eeobjectnames;
 
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+
 import java.util.Properties;
 import java.util.Map;
+import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Collections;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -112,30 +120,59 @@ public class NameFactory {
     public static final String CORBA_TSS = "CORBATSS";
     public static final String WEB_SERVICE_LINK = "WSLink";
 
-    public static J2eeContext buildJ2eeContext(Map properties, String applicationName, String moduleType, String moduleName, String j2eeName, String j2eeType) throws MalformedObjectNameException {
+    private static String[] moduleTypeNames = new String[] {
+            J2EE_APPLICATION, //null?? this should never happen
+            EJB_MODULE,
+            APP_CLIENT_MODULE,
+            RESOURCE_ADAPTER_MODULE,
+            WEB_MODULE,
+            J2EE_MODULE,  //this is a bad name here
+            J2EE_MODULE   //should be SpringModule?
+    };
+
+    public static AbstractName buildApplicationName(Map properties, Artifact artifact) throws MalformedObjectNameException {
         String baseNameString = (String) properties.get(JSR77_BASE_NAME_PROPERTY);
         ObjectName baseName = ObjectName.getInstance(baseNameString);
         String domain = baseName.getDomain();
-        String serverName = baseName.getKeyProperty(J2EE_SERVER);
+        Hashtable keys = baseName.getKeyPropertyList();
+        String serverName = (String) keys.get(J2EE_SERVER);
         if (serverName == null) {
             throw new MalformedObjectNameException("No J2EEServer key in " + baseNameString);
         }
-        return new J2eeContextImpl(domain, serverName, applicationName, moduleType, moduleName, j2eeName, j2eeType);
+        Map nameMap = new HashMap();
+        keys.put(J2EE_TYPE, J2EE_APPLICATION);
+        keys.put(J2EE_NAME, artifact.toString());
+        ObjectName moduleObjectName = ObjectName.getInstance(domain, keys);
+        return new AbstractName(artifact, nameMap, Collections.EMPTY_SET, moduleObjectName);
     }
 
-    public static ObjectName getDomainName(String j2eeDomainName, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put(J2EE_TYPE, J2EE_DOMAIN);
-        props.put(J2EE_NAME, context.getJ2eeDomainName(j2eeDomainName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
+    public static AbstractName buildModuleName(Map properties, Artifact artifact, ConfigurationModuleType moduleType, String moduleName) throws MalformedObjectNameException {
+        String moduleTypeString = moduleTypeNames[moduleType.getValue()];
+        String baseNameString = (String) properties.get(JSR77_BASE_NAME_PROPERTY);
+        ObjectName baseName = ObjectName.getInstance(baseNameString);
+        String domain = baseName.getDomain();
+        Hashtable keys = baseName.getKeyPropertyList();
+        String serverName = (String) keys.get(J2EE_SERVER);
+        if (serverName == null) {
+            throw new MalformedObjectNameException("No J2EEServer key in " + baseNameString);
+        }
+        Map nameMap = new HashMap();
+        if (moduleName == null) {
+            //this is a standalone module
+            keys.put(J2EE_APPLICATION, NULL);
+            keys.put(J2EE_TYPE, moduleTypeString);
+            keys.put(J2EE_NAME, artifact.toString());
+        } else {
+            //this is part of an application
+            keys.put(J2EE_APPLICATION, artifact.toString());
+            keys.put(J2EE_TYPE, moduleTypeString);
+            keys.put(J2EE_NAME, moduleName);
+            nameMap.put("module", moduleName);
+        }
+        ObjectName moduleObjectName = ObjectName.getInstance(domain, keys);
+        return new AbstractName(artifact, nameMap, Collections.EMPTY_SET, moduleObjectName);
     }
 
-    public static ObjectName getServerName(String j2eeDomainName, String j2eeServerName, J2eeContext context) throws MalformedObjectNameException {
-        Properties props = new Properties();
-        props.put(J2EE_TYPE, J2EE_SERVER);
-        props.put(J2EE_NAME, context.getJ2eeServerName(j2eeServerName));
-        return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
-    }
 
     public static ObjectName getApplicationName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
@@ -222,7 +259,7 @@ public class NameFactory {
         try {
             return ObjectName.getInstance(buffer.toString());
         } catch (MalformedObjectNameException e) {
-            throw (MalformedObjectNameException)new MalformedObjectNameException("Could not construct object name: " + buffer.toString()).initCause(e);
+            throw (MalformedObjectNameException) new MalformedObjectNameException("Could not construct object name: " + buffer.toString()).initCause(e);
         }
     }
 
@@ -284,8 +321,27 @@ public class NameFactory {
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 
-    //TODO parameterize this
-    public static ObjectName getSecurityRealmName(String realmName) throws MalformedObjectNameException {
-        return ObjectName.getInstance("geronimo.security:type=SecurityRealm,name=" + realmName);
+    public static ObjectName getChildName(ObjectName parentObjectName, String type, String name) throws MalformedObjectNameException {
+        String domain = parentObjectName.getDomain();
+        Hashtable parentKeys = parentObjectName.getKeyPropertyList();
+        String parentType = (String) parentKeys.remove(J2EE_TYPE);
+        String parentName = (String) parentKeys.remove(J2EE_NAME);
+        parentKeys.put(parentType, parentName);
+        parentKeys.put(J2EE_TYPE, type);
+        parentKeys.put(J2EE_NAME, name);
+        return ObjectName.getInstance(domain, parentKeys);
+    }
+
+    public static AbstractName getChildName(AbstractName parentAbstractName, String type, String name, Set interfaceTypes) throws MalformedObjectNameException {
+        Artifact artifact = parentAbstractName.getArtifact();
+        Map nameMap = new HashMap(parentAbstractName.getName());
+        ObjectName parentObjectName = parentAbstractName.getObjectName();
+        ObjectName childObjectName = getChildName(parentObjectName, type, name);
+        String parentType = (String) nameMap.remove("type");
+        String parentName = (String) nameMap.remove("name");
+        nameMap.put(parentType, parentName);
+        nameMap.put("type", type);
+        nameMap.put("name", name);
+        return new AbstractName(artifact, nameMap, interfaceTypes, childObjectName);
     }
 }

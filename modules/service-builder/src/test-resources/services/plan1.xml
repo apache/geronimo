@@ -30,8 +30,8 @@
         </configId>
         <properties>
             <property>
-                <name>domain</name>
-                <value>geronimo.server</value>
+                <name>org.apache.geronimo.name.javax.management.j2ee.BaseName</name>
+                <value>domain:J2EEServer=test</value>
             </property>
         </properties>
         <dependencies>
@@ -62,7 +62,7 @@
 
         </dependencies>
     </environment>
-    <gbean gbeanName="geronimo.test:name=MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
+    <gbean name="MyMockGMBean" class="org.apache.geronimo.deployment.MockGBean">
         <attribute name="value">1234</attribute>
         <attribute name="intValue">1234</attribute>
         <xml-attribute name="fooBarBean">

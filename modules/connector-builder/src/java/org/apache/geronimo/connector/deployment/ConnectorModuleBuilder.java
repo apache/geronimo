@@ -263,7 +263,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     }
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
+        J2eeContext earJ2eeContext = earContext.getModuleName();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
         J2eeContext resourceJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.JCA_RESOURCE, module.getName());
         final ConnectorType connector = (ConnectorType) module.getSpecDD();
@@ -280,7 +280,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         // initalize the GBean
         resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerObjectName());
         if (!earContext.getJ2EEApplicationName().equals(NameFactory.NULL)) {
-            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getApplicationObjectName());
+            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getApplicationName());
         }
 
         resourceAdapterModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());
@@ -370,7 +370,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
+        J2eeContext earJ2eeContext = earContext.getModuleName();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
         J2eeContext resourceJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.JCA_RESOURCE, module.getName());
 

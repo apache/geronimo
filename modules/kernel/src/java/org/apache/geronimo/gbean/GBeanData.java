@@ -133,11 +133,22 @@ public class GBeanData implements Externalizable {
 
     public void setDependencies(Set dependencies) {
         this.dependencies.clear();
-        this.dependencies.addAll(dependencies);
+        addDependencies(dependencies);
     }
 
     public void addDependencies(Set dependencies) {
-        this.dependencies.addAll(dependencies);
+        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
+            Object o =  iterator.next();
+            if (o instanceof ReferencePatterns) {
+                this.dependencies.add(o);
+            } else if (o instanceof AbstractName) {
+                this.dependencies.add(new ReferencePatterns((AbstractName) o));
+            } else if (o instanceof AbstractNameQuery) {
+                this.dependencies.add(new ReferencePatterns((AbstractNameQuery) o));
+            } else {
+                throw new IllegalArgumentException("Dependency specification is not a ReferencePatterns, AbstractName, nor AbstractNameQuery: " + o);
+            }
+        }
     }
 
     public void addDependency(ReferencePatterns dependency) {
@@ -145,7 +156,7 @@ public class GBeanData implements Externalizable {
     }
 
     public void addDependency(AbstractNameQuery refInfo) {
-        this.dependencies.add(new ReferencePatterns(Collections.singleton(refInfo)));
+        this.dependencies.add(new ReferencePatterns(refInfo));
     }
 
     public void addDependency(AbstractName dependency) {

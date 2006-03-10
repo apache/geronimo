@@ -35,6 +35,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.GBeanDataRegistry;
@@ -187,7 +188,7 @@ public class MessageDestinationTest extends TestCase {
             this.j2eeContext = j2eeContext;
         }
 
-        public J2eeContext getJ2eeContext() {
+        public AbstractName getModuleName() {
             return j2eeContext;
         }
 

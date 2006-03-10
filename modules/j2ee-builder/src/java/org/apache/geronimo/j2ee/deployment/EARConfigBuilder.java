@@ -29,6 +29,7 @@ import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
@@ -43,6 +44,7 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
+import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
@@ -90,15 +92,15 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final Environment defaultEnvironment;
-    private final ObjectName transactionContextManagerObjectName;
-    private final ObjectName connectionTrackerObjectName;
-    private final ObjectName transactionalTimerObjectName;
-    private final ObjectName nonTransactionalTimerObjectName;
-    private final ObjectName corbaGBeanObjectName;
+    private final AbstractName transactionContextManagerObjectName;
+    private final AbstractName connectionTrackerObjectName;
+    private final AbstractName transactionalTimerObjectName;
+    private final AbstractName nonTransactionalTimerObjectName;
+    private final AbstractName corbaGBeanObjectName;
     private static final String DEFAULT_GROUPID = "defaultGroupId";
 
 
-    public EARConfigBuilder(Environment defaultEnvironment, ObjectName transactionContextManagerObjectName, ObjectName connectionTrackerObjectName, ObjectName transactionalTimerObjectName, ObjectName nonTransactionalTimerObjectName, ObjectName corbaGBeanObjectName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(Environment defaultEnvironment, AbstractName transactionContextManagerAbstractName, AbstractName connectionTrackerAbstractName, AbstractName transactionalTimerAbstractName, AbstractName nonTransactionalTimerAbstractName, AbstractName corbaGBeanAbstractName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultEnvironment = defaultEnvironment;
@@ -110,11 +112,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         this.connectorConfigBuilder = connectorConfigBuilder;
         this.appClientConfigBuilder = appClientConfigBuilder;
         this.serviceReferenceBuilder = serviceReferenceBuilder;
-        this.transactionContextManagerObjectName = transactionContextManagerObjectName;
-        this.connectionTrackerObjectName = connectionTrackerObjectName;
-        this.transactionalTimerObjectName = transactionalTimerObjectName;
-        this.nonTransactionalTimerObjectName = nonTransactionalTimerObjectName;
-        this.corbaGBeanObjectName = corbaGBeanObjectName;
+        this.transactionContextManagerObjectName = transactionContextManagerAbstractName;
+        this.connectionTrackerObjectName = connectionTrackerAbstractName;
+        this.transactionalTimerObjectName = transactionalTimerAbstractName;
+        this.nonTransactionalTimerObjectName = nonTransactionalTimerAbstractName;
+        this.corbaGBeanObjectName = corbaGBeanAbstractName;
     }
 
     public Object getDeploymentPlan(File planFile, JarFile jarFile) throws DeploymentException {
@@ -345,12 +347,12 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             // add gbeans declared in the geronimo-application.xml
             if (geronimoApplication != null) {
                 GbeanType[] gbeans = geronimoApplication.getGbeanArray();
-                ServiceConfigBuilder.addGBeans(gbeans, cl, earContext.getJ2eeContext(), earContext);
+                ServiceConfigBuilder.addGBeans(gbeans, cl, earContext.getModuleName(), earContext);
             }
 
             // Create the J2EEApplication managed object
             if (ConfigurationModuleType.EAR == applicationType) {
-                GBeanData gbeanData = new GBeanData(earContext.getApplicationObjectName(), J2EEApplicationImpl.GBEAN_INFO);
+                GBeanData gbeanData = new GBeanData(earContext.getApplicationName(), J2EEApplicationImpl.GBEAN_INFO);
                 try {
                     String originalSpecDD = applicationInfo.getOriginalSpecDD();
                     if (originalSpecDD == null) {
@@ -363,22 +365,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 gbeanData.setReferencePattern("j2eeServer", earContext.getServerObjectName());
                 earContext.addGBean(gbeanData);
             }
-
-            //TODO this might need to be constructed only if there is security...
-            ObjectName jaccBeanName = null;
-            String moduleName;
-            if (ConfigurationModuleType.EAR == applicationType) {
-                moduleName = NameFactory.NULL;
-            } else {
-                Module module = (Module) modules.iterator().next();
-                moduleName = module.getName();
-            }
-            try {
-                jaccBeanName = NameFactory.getComponentName(null, null, null, moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER, earContext.getJ2eeContext());
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Could not construct name for JACCBean", e);
-            }
-            earContext.setJaccManagerName(jaccBeanName);
 
             //look for application plan security config
             if (geronimoApplication != null && geronimoApplication.isSetSecurity()) {
@@ -393,9 +379,16 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
 
             //add the JACC gbean if there is a principal-role mapping
+            //TODO configid verify that the jaccManagerName is not needed before this.  cf. how this is handled in 1.2 branch.
             if (earContext.getSecurityConfiguration() != null) {
-                GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(jaccBeanName, earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
+                GBeanData jaccBeanData = null;
+                try {
+                    jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
+                } catch (MalformedObjectNameException e) {
+                    throw new DeploymentException("Could not construct name for JACCBean", e);
+                }
                 earContext.addGBean(jaccBeanData);
+                earContext.setJaccManagerName(jaccBeanData.getAbstractName());
             }
             earContext.close();
             return earContext.getConfigurationData();
@@ -678,11 +671,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoFactory.addAttribute("transactionContextManagerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("connectionTrackerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("transactionalTimerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("nonTransactionalTimerObjectName", ObjectName.class, true);
-        infoFactory.addAttribute("corbaGBeanObjectName", ObjectName.class, true);
+        infoFactory.addAttribute("transactionContextManagerObjectName", AbstractName.class, true);
+        infoFactory.addAttribute("connectionTrackerObjectName", AbstractName.class, true);
+        infoFactory.addAttribute("transactionalTimerObjectName", AbstractName.class, true);
+        infoFactory.addAttribute("nonTransactionalTimerObjectName", AbstractName.class, true);
+        infoFactory.addAttribute("corbaGBeanObjectName", AbstractName.class, true);
 
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);

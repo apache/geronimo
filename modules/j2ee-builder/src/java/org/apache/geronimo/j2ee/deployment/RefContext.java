@@ -35,7 +35,6 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 
 
 /**
@@ -124,13 +123,13 @@ public class RefContext {
     }
 
     public String getResourceAdapterContainerId(URI moduleURI, String resourceLink, NamingContext context) throws UnresolvedReferenceException {
-        J2eeContext j2eeContext = context.getJ2eeContext();
+        J2eeContext j2eeContext = context.getModuleName();
         ObjectName containerName = locateComponentName(resourceLink, moduleURI, NameFactory.JCA_RESOURCE, NameFactory.JCA_RESOURCE_ADAPTER, j2eeContext, context, "resource adapter");
         return containerName.getCanonicalName();
     }
 
     public String getConnectionFactoryContainerId(URI moduleURI, String resourceLink, String type, NamingContext context) throws UnresolvedReferenceException {
-        J2eeContext j2eeContext = context.getJ2eeContext();
+        J2eeContext j2eeContext = context.getModuleName();
         ObjectName containerName = locateComponentName(resourceLink, moduleURI, NameFactory.JCA_RESOURCE, type, j2eeContext, context, "connection factory");
         return containerName.getCanonicalName();
     }
@@ -168,7 +167,7 @@ public class RefContext {
     }
 
     public String getAdminObjectContainerId(URI moduleURI, String resourceLink, NamingContext context) throws DeploymentException {
-        J2eeContext j2eeContext = context.getJ2eeContext();
+        J2eeContext j2eeContext = context.getModuleName();
         ObjectName containerName = locateComponentName(resourceLink, moduleURI, NameFactory.JCA_RESOURCE, NameFactory.JCA_ADMIN_OBJECT, j2eeContext, context, "admin object");
         return containerName.getCanonicalName();
     }
@@ -244,7 +243,7 @@ public class RefContext {
 
     private GBeanData locateEjbInApplication(NamingContext namingContext, boolean isSession, String ejbLink, URI module) throws UnresolvedReferenceException {
         GBeanData gbeanData;
-        J2eeContext j2eeContext = namingContext.getJ2eeContext();
+        J2eeContext j2eeContext = namingContext.getModuleName();
         if (isSession) {
             gbeanData = locateComponentInApplication(ejbLink, module, NameFactory.EJB_MODULE, NameFactory.STATELESS_SESSION_BEAN, j2eeContext, "remote ejb", namingContext, false);
             if (gbeanData == null) {

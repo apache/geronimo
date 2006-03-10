@@ -255,7 +255,7 @@ public class ENCConfigBuilder {
                         getStringValue(gerResourceRef.getModule()),
                         getStringValue(gerResourceRef.getName()),
                         gerResourceRef.getType() == null ? type : gerResourceRef.getType().trim(),
-                        context.getJ2eeContext()).getCanonicalName();
+                        context.getModuleName()).getCanonicalName();
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for resource", e);
             }
@@ -322,7 +322,7 @@ public class ENCConfigBuilder {
                         getStringValue(gerResourceEnvRef.getName()),
                         NameFactory.JMS_RESOURCE,
                         //gerResourceEnvRef.getType(),
-                        context.getJ2eeContext()).getCanonicalName();
+                        context.getModuleName()).getCanonicalName();
             } catch (MalformedObjectNameException e) {
                 throw new DeploymentException("could not construct object name for jms resource", e);
             }
@@ -375,7 +375,7 @@ public class ENCConfigBuilder {
     }
 
     static void addEJBRefs(NamingContext earContext, NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbRefType[] ejbRefs, Map ejbRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        J2eeContext j2eeContext = ejbContext.getJ2eeContext();
+        J2eeContext j2eeContext = ejbContext.getModuleName();
         for (int i = 0; i < ejbRefs.length; i++) {
             EjbRefType ejbRef = ejbRefs[i];
 
@@ -414,7 +414,7 @@ public class ENCConfigBuilder {
                             String cssLink = remoteRef.getCssLink().trim();
                             //TODO is this correct?
                             String moduleType = null;
-                            cssBean = refContext.locateComponentName(cssLink, moduleURI, moduleType, NameFactory.CORBA_CSS, earContext.getJ2eeContext(), earContext, "css gbean");
+                            cssBean = refContext.locateComponentName(cssLink, moduleURI, moduleType, NameFactory.CORBA_CSS, earContext.getModuleName(), earContext, "css gbean");
                         } else {
                             GerCssType css = remoteRef.getCss();
                             cssBean = NameFactory.getComponentName(getStringValue(css.getDomain()),
@@ -423,7 +423,7 @@ public class ENCConfigBuilder {
                                     getStringValue(css.getModule()),
                                     getStringValue(css.getName()),
                                     getStringValue(NameFactory.CORBA_CSS),
-                                    earContext.getJ2eeContext());
+                                    earContext.getModuleName());
                         }
                         ejbReference = refContext.getCORBARemoteRef(new URI(getStringValue(remoteRef.getNsCorbaloc())),
                                 getStringValue(remoteRef.getName()),
@@ -472,7 +472,7 @@ public class ENCConfigBuilder {
     }
 
     static void addEJBLocalRefs(NamingContext ejbContext, RefContext refContext, URI moduleURI, EjbLocalRefType[] ejbLocalRefs, Map ejbLocalRefMap, ClassLoader cl, ComponentContextBuilder builder) throws DeploymentException {
-        J2eeContext j2eeContext = ejbContext.getJ2eeContext();
+        J2eeContext j2eeContext = ejbContext.getModuleName();
         for (int i = 0; i < ejbLocalRefs.length; i++) {
             EjbLocalRefType ejbLocalRef = ejbLocalRefs[i];
 

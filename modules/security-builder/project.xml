@@ -62,44 +62,56 @@
         </dependency>
 
         <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-security</artifactId>
-             <version>${pom.currentVersion}</version>
-       </dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-security</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 
         <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-deployment</artifactId>
-             <version>${pom.currentVersion}</version>
-       </dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deployment</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 
         <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-deploy-config</artifactId>
-             <version>${pom.currentVersion}</version>
-       </dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-deploy-config</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 
-         <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-service-builder</artifactId>
-             <version>${pom.currentVersion}</version>
-       </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 
-       <!--needed only because security schema references j2ee 1.4 schema for description element -->
-       <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-j2ee-schema</artifactId>
-             <version>${pom.currentVersion}</version>
-             <properties>
+        <!--needed only because security schema references j2ee 1.4 schema for description element -->
+<!--
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-j2ee-schema</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
                 <xmlbeans>true</xmlbeans>
-             </properties>
-       </dependency>
+            </properties>
+        </dependency>
+-->
+
+        <!--pattern element in login config ref -->
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
 
         <dependency>
-             <groupId>geronimo</groupId>
-             <artifactId>geronimo-common</artifactId>
-             <version>${pom.currentVersion}</version>
-         </dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-common</artifactId>
+            <version>${pom.currentVersion}</version>
+        </dependency>
 
         <dependency>
             <groupId>geronimo</groupId>

@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -29,7 +30,7 @@ import java.util.Set;
  */
 public interface NamingContext {
 
-    J2eeContext getJ2eeContext();
+    AbstractName getModuleName();
 
     void addGBean(GBeanData gbean);
 

@@ -45,9 +45,6 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -58,7 +55,6 @@ import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
-import org.apache.geronimo.security.util.URLPattern;
 import org.apache.geronimo.transaction.context.OnlineUserTransaction;
 import org.apache.geronimo.web.deployment.AbstractWebModuleBuilder;
 import org.apache.geronimo.web.deployment.GenericToSpecificPlanConverter;
@@ -71,7 +67,6 @@ import org.apache.geronimo.xbeans.j2ee.ErrorPageType;
 import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
 import org.apache.geronimo.xbeans.j2ee.FilterType;
 import org.apache.geronimo.xbeans.j2ee.FormLoginConfigType;
-import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
 import org.apache.geronimo.xbeans.j2ee.JspConfigType;
 import org.apache.geronimo.xbeans.j2ee.ListenerType;
 import org.apache.geronimo.xbeans.j2ee.LocaleEncodingMappingListType;
@@ -80,17 +75,11 @@ import org.apache.geronimo.xbeans.j2ee.LoginConfigType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.MimeMappingType;
 import org.apache.geronimo.xbeans.j2ee.ParamValueType;
-import org.apache.geronimo.xbeans.j2ee.RoleNameType;
-import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
-import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
-import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
 import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
 import org.apache.geronimo.xbeans.j2ee.ServletType;
 import org.apache.geronimo.xbeans.j2ee.TaglibType;
-import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
 import org.apache.geronimo.xbeans.j2ee.WebAppDocument;
 import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
 import org.apache.geronimo.xbeans.j2ee.WelcomeFileListType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -101,9 +90,6 @@ import org.mortbay.jetty.servlet.FormAuthenticator;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
 import javax.servlet.Servlet;
 import javax.transaction.UserTransaction;
 import java.io.File;
@@ -111,7 +97,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.Permission;
 import java.security.PermissionCollection;
@@ -129,7 +114,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 
 /**
@@ -334,7 +318,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
             knownParent = earContext.getConfiguration(repository, null);
         }
         ClassLoader moduleClassLoader = moduleContext.getClassLoader(repository, knownParent);
-        J2eeContext earJ2eeContext = moduleContext.getJ2eeContext();
+        J2eeContext earJ2eeContext = moduleContext.getModuleName();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
         WebModule webModule = (WebModule) module;
 
@@ -360,7 +344,7 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
         try {
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerObjectName());
             if (!moduleContext.getJ2EEApplicationName().equals("null")) {
-                webModuleData.setReferencePattern("J2EEApplication", moduleContext.getApplicationObjectName());
+                webModuleData.setReferencePattern("J2EEApplication", moduleContext.getApplicationName());
             }
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());

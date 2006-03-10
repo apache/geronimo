@@ -270,7 +270,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             knownParent = earContext.getConfiguration(repository, null);
         }
         ClassLoader moduleClassLoader = moduleContext.getClassLoader(repository, knownParent);
-        J2eeContext earJ2eeContext = moduleContext.getJ2eeContext();
+        J2eeContext earJ2eeContext = moduleContext.getModuleName();
         J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
         WebModule webModule = (WebModule) module;
 
@@ -296,7 +296,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         try {
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerObjectName());
             if (!moduleContext.getJ2EEApplicationName().equals("null")) {
-                webModuleData.setReferencePattern("J2EEApplication", moduleContext.getApplicationObjectName());
+                webModuleData.setReferencePattern("J2EEApplication", moduleContext.getApplicationName());
             }
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());

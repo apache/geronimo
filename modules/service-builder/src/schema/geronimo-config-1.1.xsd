@@ -274,7 +274,7 @@
 
     <xs:group name="gbean-nameGroup">
         <xs:annotation>
-            <xs:documentation>This group contains the components of a jsr-77 object name</xs:documentation>
+            <xs:documentation>This group contains the components of an abstract name</xs:documentation>
         </xs:annotation>
         <xs:choice>
             <xs:sequence>

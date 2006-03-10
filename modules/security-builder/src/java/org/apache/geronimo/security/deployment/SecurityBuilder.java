@@ -21,11 +21,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.management.ObjectName;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
+import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.security.deploy.DefaultPrincipal;
 import org.apache.geronimo.security.deploy.DistinguishedName;
 import org.apache.geronimo.security.deploy.LoginDomainPrincipalInfo;
@@ -45,6 +46,7 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRealmPrincipalType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 
 /**
@@ -145,7 +147,7 @@ public class SecurityBuilder {
     }
 
     private static Security buildSecurityConfig(GerSecurityType securityType) {
-        Security security = null;
+        Security security;
 
         if (securityType == null) {
             return null;
@@ -225,8 +227,9 @@ public class SecurityBuilder {
         return new PrincipalInfo(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
     }
 
-    public static GBeanData configureApplicationPolicyManager(ObjectName name, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
-        GBeanData jaccBeanData = new GBeanData(name, ApplicationPolicyConfigurationManager.GBEAN_INFO);
+    public static GBeanData configureApplicationPolicyManager(AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) throws MalformedObjectNameException {
+        AbstractName jaccBeanName = NameFactory.getChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER, ApplicationPolicyConfigurationManager.GBEAN_INFO.getInterfaces());
+        GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         jaccBeanData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());
         jaccBeanData.setAttribute("roleDesignates", securityConfiguration.getRoleDesignates());

@@ -295,7 +295,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Repository repository) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getJ2eeContext();
+        J2eeContext earJ2eeContext = earContext.getModuleName();
 
         AppClientModule appClientModule = (AppClientModule) module;
 
@@ -338,7 +338,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         try {
             appClientModuleGBeanData.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
             if (!earContext.getJ2EEApplicationName().equals("null")) {
-                appClientModuleGBeanData.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationObjectName()));
+                appClientModuleGBeanData.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationName()));
             }
             appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
 
@@ -374,7 +374,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 // pop in all the gbeans declared in the geronimo app client file
                 if (geronimoAppClient != null) {
                     GbeanType[] gbeans = geronimoAppClient.getGbeanArray();
-                    ServiceConfigBuilder.addGBeans(gbeans, appClientClassLoader, appClientDeploymentContext.getJ2eeContext(), appClientDeploymentContext);
+                    ServiceConfigBuilder.addGBeans(gbeans, appClientClassLoader, appClientDeploymentContext.getModuleName(), appClientDeploymentContext);
                     //deploy the resource adapters specified in the geronimo-application.xml
                     Collection resourceModules = new ArrayList();
                     try {

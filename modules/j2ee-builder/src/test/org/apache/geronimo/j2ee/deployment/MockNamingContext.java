@@ -22,6 +22,7 @@ import javax.management.ObjectName;
 
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.deployment.GBeanDataRegistry;
@@ -38,7 +39,7 @@ public class MockNamingContext implements NamingContext {
         this.j2eeContext = j2eeContext;
     }
 
-    public J2eeContext getJ2eeContext() {
+    public AbstractName getModuleName() {
         return j2eeContext;
     }
 

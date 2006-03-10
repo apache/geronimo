@@ -16,23 +16,18 @@
  */
 package org.apache.geronimo.security.deployment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
+import org.apache.geronimo.deployment.service.GBeanBuilder;
 import org.apache.geronimo.deployment.service.XmlReferenceBuilder;
+import org.apache.geronimo.deployment.xbeans.PatternType;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
@@ -44,6 +39,15 @@ import org.apache.geronimo.xbeans.geronimo.loginconfig.GerOptionType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+
+import javax.management.MalformedObjectNameException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 
 /**
@@ -58,7 +62,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
         return LOGIN_CONFIG_NAMESPACE;
     }
 
-    public Set getReferences(XmlObject xmlObject, DeploymentContext context, J2eeContext j2eeContext, ClassLoader classLoader) throws DeploymentException
+    public ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName parentName, ClassLoader classLoader) throws DeploymentException
     {
         GerLoginConfigType loginConfig = (GerLoginConfigType) xmlObject.copy().changeType(GerLoginConfigType.type);
         XmlOptions xmlOptions = new XmlOptions();
@@ -82,51 +86,40 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                 GerAbstractLoginModuleType abstractLoginModule = (GerAbstractLoginModuleType) child;
                 String controlFlag = abstractLoginModule.getControlFlag().toString();
                 boolean wrapPrincipals = (abstractLoginModule.isSetWrapPrincipals() && abstractLoginModule.getWrapPrincipals());
-                ObjectName loginModuleName;
+                ReferencePatterns loginModuleReferencePatterns;
                 String name;
                 if (abstractLoginModule instanceof GerLoginModuleRefType)
                 {
                     GerLoginModuleRefType loginModuleRef = (GerLoginModuleRefType) abstractLoginModule;
-                    String domain = trim(loginModuleRef.getDomain());
-                    String server = trim(loginModuleRef.getServer());
-                    String application = trim(loginModuleRef.getApplication());
-                    String module = trim(loginModuleRef.getModule());
-                    String type = trim(loginModuleRef.getType());
-                    if (type == null)
-                    {
-                        type = NameFactory.LOGIN_MODULE;
+                    PatternType patternType = loginModuleRef.getPattern();
+                    AbstractNameQuery loginModuleNameQuery = GBeanBuilder.buildAbstractNameQuery(patternType, USE_REFERENCE_INFO);
+                    loginModuleReferencePatterns = new ReferencePatterns(loginModuleNameQuery);
+                    name = (String) loginModuleNameQuery.getName().get("name");
+                    if (name == null) {
+                        throw new DeploymentException("You must specify the name of the login module in the login module ref " + patternType);
                     }
-                    name = trim(loginModuleRef.getName());
-                    try
-                    {
-                        loginModuleName = NameFactory.getComponentName(domain, server, application, module, name, type, j2eeContext);
-                    }
-                    catch (MalformedObjectNameException e)
-                    {
-                        throw new DeploymentException("cannot construct login module name from parts,", e);
-                    }
-                    try
-                    {
-                        String loginDomain = (String) context.getAttribute(loginModuleName, "loginDomainName");
-                        if (!loginModuleNames.add(loginDomain))
-                        {
-                            throw new DeploymentException("Security realm contains two login domains called '" + loginDomain + "'");
-                        }
-                    }
-                    catch (DeploymentException e)
-                    {
-                        throw e;
-                    }
-                    catch (Exception e)
-                    {
-                        throw new DeploymentException("Unable to create reference to login module " + name, e);
-                    }
+//TODO configid reinstate this check for duplicate domain names
+//                    try
+//                    {
+//                        String loginDomain = (String) context.getAttribute(loginModuleName, "loginDomainName");
+//                        if (!loginModuleNames.add(loginDomain))
+//                        {
+//                            throw new DeploymentException("Security realm contains two login domains called '" + loginDomain + "'");
+//                        }
+//                    }
+//                    catch (DeploymentException e)
+//                    {
+//                        throw e;
+//                    }
+//                    catch (Exception e)
+//                    {
+//                        throw new DeploymentException("Unable to create reference to login module " + name, e);
+//                    }
                 }
                 else if (abstractLoginModule instanceof GerLoginModuleType)
                 {
                     //create the LoginModuleGBean also
-                    name = null;
-                    loginModuleName = null;
+                    AbstractName loginModuleName;
 
                     GerLoginModuleType loginModule = (GerLoginModuleType) abstractLoginModule;
                     name = trim(loginModule.getLoginDomainName());
@@ -147,7 +140,8 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                     }
                     try
                     {
-                        loginModuleName = NameFactory.getComponentName(null, null, null, null, name, NameFactory.LOGIN_MODULE, j2eeContext);
+                        loginModuleName = NameFactory.getChildName(parentName, NameFactory.LOGIN_MODULE, name, LoginModuleGBean.GBEAN_INFO.getInterfaces());
+                        loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
                     }
                     catch (MalformedObjectNameException e)
                     {
@@ -166,10 +160,10 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                 {
                     throw new DeploymentException("Unknown abstract login module type: " + abstractLoginModule.getClass());
                 }
-                ObjectName thisName;
+                AbstractName thisName;
                 try
                 {
-                    thisName = NameFactory.getComponentName(null, null, null, null, name, "LoginModuleUse", j2eeContext);
+                    thisName = NameFactory.getChildName(parentName, "LoginModuleUse", name, JaasLoginModuleUse.GBEAN_INFO.getInterfaces());
                 }
                 catch (MalformedObjectNameException e)
                 {
@@ -177,7 +171,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                 }
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
                 loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
-                loginModuleUseGBeanData.setReferencePattern("LoginModule", loginModuleName);
+                loginModuleUseGBeanData.setReferencePatterns("LoginModule", loginModuleReferencePatterns);
                 uses.add(loginModuleUseGBeanData);
             }
             for (int i = uses.size() - 1; i >= 0; i--)
@@ -185,7 +179,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                 GBeanData data = (GBeanData) uses.get(i);
                 if (i > 0)
                 {
-                    ((GBeanData) uses.get(i - 1)).setReferencePattern("Next", data.getName());
+                    ((GBeanData) uses.get(i - 1)).setReferencePattern("Next", data.getAbstractName());
                 }
                 context.addGBean(data);
             }
@@ -194,7 +188,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
         {
             xmlCursor.dispose();
         }
-        return uses.size() == 0 ? Collections.EMPTY_SET : Collections.singleton(((GBeanData) uses.get(0)).getName());
+        return uses.size() == 0 ? null : new ReferencePatterns(((GBeanData) uses.get(0)).getAbstractName());
     }
 
     private String trim(String string)
@@ -204,11 +198,29 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
 
     public static final GBeanInfo GBEAN_INFO;
 
+    private static final GReferenceInfo USE_REFERENCE_INFO;
+
     static
     {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
         infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
+
+        Set referenceInfos = JaasLoginModuleUse.GBEAN_INFO.getReferences();
+        GReferenceInfo found = null;
+        for (Iterator iterator = referenceInfos.iterator(); iterator.hasNext();) {
+            GReferenceInfo testReferenceInfo = (GReferenceInfo) iterator.next();
+            String testRefName = testReferenceInfo.getName();
+            if (testRefName.equals("LoginModule")) {
+                found = testReferenceInfo;
+                break;
+            }
+        }
+        if (found == null) {
+            throw new RuntimeException("Someone changed the gbeaninfo on JaasLoginModuleUse");
+        }
+        USE_REFERENCE_INFO = found;
+
     }
 
     public static GBeanInfo getGBeanInfo()

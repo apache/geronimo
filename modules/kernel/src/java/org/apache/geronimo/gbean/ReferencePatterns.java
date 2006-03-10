@@ -18,6 +18,8 @@
 package org.apache.geronimo.gbean;
 
 import java.util.Set;
+import java.util.Collections;
+import java.util.Iterator;
 import java.io.Serializable;
 
 /**
@@ -30,6 +32,17 @@ public class ReferencePatterns implements Serializable {
 
     public ReferencePatterns(Set patterns) {
         this.patterns = patterns;
+        this.abstractName = null;
+        for (Iterator iterator = patterns.iterator(); iterator.hasNext();) {
+            Object o = iterator.next();
+            if (!(o instanceof AbstractNameQuery)) {
+                throw new IllegalArgumentException("Item is not an AbstractNameQuery: " + o);
+            }
+        }
+    }
+
+    public ReferencePatterns(AbstractNameQuery abstractNameQuery) {
+        this.patterns = Collections.singleton(abstractNameQuery);
         this.abstractName = null;
     }
 
