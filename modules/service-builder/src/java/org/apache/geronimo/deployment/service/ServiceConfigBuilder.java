@@ -169,7 +169,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
         AbstractName moduleName;
         try {
-            moduleName = NameFactory.buildModuleName(environment.getProperties(), configId, NameFactory.J2EE_MODULE, null);
+            moduleName = NameFactory.buildModuleName(environment.getProperties(), configId, ConfigurationModuleType.SERVICE, null);
         } catch (MalformedObjectNameException e) {
             throw new DeploymentException(e);
         }

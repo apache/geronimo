@@ -34,8 +34,6 @@ import javax.management.ObjectName;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -64,7 +62,7 @@ public class ServiceConfigBuilderTest extends TestCase {
 
             Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
             DeploymentContext context = new DeploymentContext(outFile, environment, ConfigurationModuleType.SERVICE, null);
-            AbstractName j2eeContext = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), NameFactory.J2EE_MODULE, null);
+            AbstractName j2eeContext = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.SERVICE, null);
 //            new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
