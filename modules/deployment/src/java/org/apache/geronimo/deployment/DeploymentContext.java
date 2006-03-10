@@ -47,6 +47,8 @@ import javax.management.ObjectName;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.Configuration;
@@ -187,11 +189,11 @@ public class DeploymentContext {
         return gbeans.getGBeanNames();
     }
 
-    public Set listGBeans(ObjectName pattern) {
+    public Set listGBeans(AbstractNameQuery pattern) {
         return gbeans.listGBeans(pattern);
     }
 
-    public GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
+    public GBeanData getGBeanInstance(AbstractName name) throws GBeanNotFoundException {
         return gbeans.getGBeanInstance(name);
     }
 

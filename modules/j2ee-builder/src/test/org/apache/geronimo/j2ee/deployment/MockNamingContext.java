@@ -23,6 +23,7 @@ import javax.management.ObjectName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.deployment.GBeanDataRegistry;
@@ -33,14 +34,14 @@ import org.apache.geronimo.deployment.GBeanDataRegistry;
 public class MockNamingContext implements NamingContext {
 
     private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
-    private final J2eeContext j2eeContext;
+    private final AbstractName moduleName;
 
-    public MockNamingContext(J2eeContext j2eeContext) {
-        this.j2eeContext = j2eeContext;
+    public MockNamingContext(AbstractName moduleName) {
+        this.moduleName = moduleName;
     }
 
     public AbstractName getModuleName() {
-        return j2eeContext;
+        return moduleName;
     }
 
     public void addGBean(GBeanData gbean) {
@@ -51,11 +52,11 @@ public class MockNamingContext implements NamingContext {
         return gbeans.getGBeanNames();
     }
 
-    public Set listGBeans(ObjectName pattern) {
+    public Set listGBeans(AbstractNameQuery pattern) {
         return gbeans.listGBeans(pattern);
     }
 
-    public GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
+    public GBeanData getGBeanInstance(AbstractName name) throws GBeanNotFoundException {
         return gbeans.getGBeanInstance(name);
     }
 

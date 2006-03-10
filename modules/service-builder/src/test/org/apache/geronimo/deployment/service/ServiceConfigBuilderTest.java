@@ -66,9 +66,9 @@ public class ServiceConfigBuilderTest extends TestCase {
 //            new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
-            Set beanDatas = context.listGBeans(new ObjectName("*:*"));
+            Set beanDatas = context.listGBeans(null);
             assertEquals(1, beanDatas.size());
-            ObjectName beanName = (ObjectName) beanDatas.iterator().next();
+            AbstractName beanName = (AbstractName) beanDatas.iterator().next();
             GBeanData data = context.getGBeanInstance(beanName);
             FooBarBean fooBarBean = (FooBarBean) data.getAttribute("fooBarBean");
             assertNotNull(fooBarBean);

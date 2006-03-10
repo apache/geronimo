@@ -25,6 +25,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
@@ -118,7 +119,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) {
+        public Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) {
             return null;
         }
 

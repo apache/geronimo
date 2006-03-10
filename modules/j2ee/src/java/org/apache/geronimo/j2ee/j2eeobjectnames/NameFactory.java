@@ -17,6 +17,7 @@
 package org.apache.geronimo.j2ee.j2eeobjectnames;
 
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 
@@ -129,6 +130,8 @@ public class NameFactory {
             J2EE_MODULE,  //this is a bad name here
             J2EE_MODULE   //should be SpringModule?
     };
+    private static final String DEFAULT_DOMAIN_NAME = "geronimo";
+    private static final String DEFAULT_SERVER_NAME = "geronimo";
 
     public static AbstractName buildApplicationName(Map properties, Artifact artifact) throws MalformedObjectNameException {
         String baseNameString = (String) properties.get(JSR77_BASE_NAME_PROPERTY);
@@ -210,6 +213,35 @@ public class NameFactory {
         return getEjbComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, j2eeName, j2eeType, context).getCanonicalName();
     }
 
+
+    public static AbstractNameQuery getComponentNameQuery(String name, String type, AbstractName context) {
+        return getComponentNameQuery(null, null, name, type, context);
+    }
+
+    public static AbstractNameQuery getComponentNameQuery(String moduleName, String moduleType, String name, String type, AbstractName context) {
+        Map nameProperties = new HashMap(context.getName());
+
+        // from the existing name properties define a new propertye ${j2eeType}=${name}
+        String parentName = (String) nameProperties.remove(J2EE_NAME);
+        String parentJ2eeType = (String) nameProperties.remove(J2EE_TYPE);
+        if (parentName != null && parentJ2eeType != null) {
+            nameProperties.put(parentJ2eeType, parentName);
+        }
+
+        if (!"*".equals(moduleName)) {
+            nameProperties.put(moduleType, moduleName);
+        }
+
+        if (!"*".equals(name)) {
+            nameProperties.put(J2EE_NAME, name);
+        }
+
+        if (type != null) {
+            nameProperties.put(J2EE_TYPE, type);
+        }
+
+        return new AbstractNameQuery(context.getArtifact(), nameProperties, (String)null);
+    }
 
     public static ObjectName getComponentNameQuery(String domainName, String serverName, String applicationName, String moduleType, String moduleName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
         StringBuffer buffer = new StringBuffer();
@@ -332,16 +364,38 @@ public class NameFactory {
         return ObjectName.getInstance(domain, parentKeys);
     }
 
-    public static AbstractName getChildName(AbstractName parentAbstractName, String type, String name, Set interfaceTypes) throws MalformedObjectNameException {
+    public static AbstractName getRootName(Artifact artifact, String name, String type) {
+        Hashtable nameMap = new Hashtable();
+        nameMap.put(J2EE_SERVER, DEFAULT_SERVER_NAME);
+        nameMap.put(J2EE_TYPE, type);
+        nameMap.put(J2EE_NAME, name);
+
+        ObjectName moduleObjectName = null;
+        try {
+            moduleObjectName = ObjectName.getInstance(DEFAULT_DOMAIN_NAME, nameMap);
+        } catch (MalformedObjectNameException e) {
+            throw new AssertionError(e);
+        }
+
+        return new AbstractName(artifact, nameMap, Collections.EMPTY_SET, moduleObjectName);
+    }
+
+
+    public static AbstractName getChildName(AbstractName parentAbstractName, String type, String name, Set interfaceTypes) {
         Artifact artifact = parentAbstractName.getArtifact();
         Map nameMap = new HashMap(parentAbstractName.getName());
-        ObjectName parentObjectName = parentAbstractName.getObjectName();
-        ObjectName childObjectName = getChildName(parentObjectName, type, name);
-        String parentType = (String) nameMap.remove("type");
-        String parentName = (String) nameMap.remove("name");
+        ObjectName childObjectName = null;
+        try {
+            ObjectName parentObjectName = parentAbstractName.getObjectName();
+            childObjectName = getChildName(parentObjectName, type, name);
+        } catch (MalformedObjectNameException e) {
+            throw new AssertionError(e);
+        }
+        String parentType = (String) nameMap.remove(J2EE_TYPE);
+        String parentName = (String) nameMap.remove(J2EE_NAME);
         nameMap.put(parentType, parentName);
-        nameMap.put("type", type);
-        nameMap.put("name", name);
+        nameMap.put(J2EE_TYPE, type);
+        nameMap.put(J2EE_NAME, name);
         return new AbstractName(artifact, nameMap, interfaceTypes, childObjectName);
     }
 }

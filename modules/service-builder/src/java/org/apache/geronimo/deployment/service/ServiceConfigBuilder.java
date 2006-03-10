@@ -198,15 +198,11 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 //            }
 //        } else {
             String namePart = gbean.getName();
-            try {
-                String j2eeType = gBeanInfo.getJ2eeType();
-                //todo investigate using the module type from the j2eecontext.
-                abstractName = NameFactory.getChildName(moduleName, j2eeType, namePart, gBeanInfo.getInterfaces());
+            String j2eeType = gBeanInfo.getJ2eeType();
+            //todo investigate using the module type from the j2eecontext.
+            abstractName = NameFactory.getChildName(moduleName, j2eeType, namePart, gBeanInfo.getInterfaces());
 //                nameMap.put("name", namePart);
 //                nameMap.put("type", j2eeType);
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException("Invalid ObjectName: " + namePart, e);
-            }
 //        }
 //        AbstractName abstractName = new AbstractName(context.getConfigID(), nameMap, gBeanInfo.getInterfaces(), abstractName);
         GBeanBuilder builder = new GBeanBuilder(abstractName, gBeanInfo, cl, context, moduleName, xmlAttributeBuilderMap, xmlReferenceBuilderMap);

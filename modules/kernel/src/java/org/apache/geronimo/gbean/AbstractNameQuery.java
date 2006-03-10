@@ -17,19 +17,19 @@
 
 package org.apache.geronimo.gbean;
 
-import org.apache.geronimo.kernel.repository.Artifact;
-
 import java.io.Serializable;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
  * @version $Rev:$ $Date:$
  */
 public class AbstractNameQuery implements Serializable {
+    private static final long serialVersionUID = 7444620122607155678L;
 
     private final Artifact artifact;
     private final Map name;
@@ -44,7 +44,11 @@ public class AbstractNameQuery implements Serializable {
     public AbstractNameQuery(Artifact artifact, Map name, String interfaceType) {
         this.artifact = artifact;
         this.name = name;
-        this.interfaceTypes = Collections.singleton(interfaceType);
+        if (interfaceType != null) {
+            this.interfaceTypes = Collections.singleton(interfaceType);
+        } else {
+            this.interfaceTypes = Collections.EMPTY_SET;
+        }
     }
 
     public AbstractNameQuery(String interfaceType) {
@@ -56,6 +60,7 @@ public class AbstractNameQuery implements Serializable {
     public AbstractNameQuery(Artifact artifact, Map name, Set interfaceTypes) {
         this.artifact = artifact;
         this.name = name;
+        if (interfaceTypes == null) interfaceTypes = Collections.EMPTY_SET;
         this.interfaceTypes = interfaceTypes;
     }
 

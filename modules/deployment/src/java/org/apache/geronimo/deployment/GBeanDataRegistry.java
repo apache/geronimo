@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 
 /**
@@ -34,15 +34,15 @@ import org.apache.geronimo.kernel.GBeanNotFoundException;
 public class GBeanDataRegistry {
     private final Map registry = new HashMap();
 
-    public void preregister(ObjectName name) {
+    public void preregister(AbstractName name) {
         registry.put(name, null);
     }
 
     public void register(GBeanData gbean) {
-        registry.put(gbean.getName(), gbean);
+        registry.put(gbean.getAbstractName(), gbean);
     }
 
-    public synchronized GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException {
+    public synchronized GBeanData getGBeanInstance(AbstractName name) throws GBeanNotFoundException {
         GBeanData gbeanData = (GBeanData) registry.get(name);
         if (gbeanData == null) {
             throw new GBeanNotFoundException(name);
@@ -59,12 +59,12 @@ public class GBeanDataRegistry {
     }
 
 
-    public Set listGBeans(ObjectName pattern) {
+    public Set listGBeans(AbstractNameQuery query) {
         Set result = new HashSet();
         for (Iterator i = registry.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Map.Entry) i.next();
-            ObjectName name = (ObjectName) entry.getKey();
-            if (pattern.apply(name)) {
+            AbstractName name = (AbstractName) entry.getKey();
+            if (query == null || query.matches(name)) {
                 result.add(name);
             }
         }

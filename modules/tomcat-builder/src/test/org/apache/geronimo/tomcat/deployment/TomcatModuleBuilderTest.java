@@ -49,6 +49,7 @@ import org.apache.geronimo.deployment.util.UnpackedJarFile;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -249,7 +250,7 @@ public class TomcatModuleBuilderTest extends TestCase {
                     }
 
                     public Reference createCORBAReference(URI corbaURL,
-                                                          String objectName, ObjectName containerName,
+                                                          String objectName, AbstractName containerName,
                                                           String home) throws DeploymentException {
                         return null;
                     }

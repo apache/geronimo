@@ -19,11 +19,11 @@ package org.apache.geronimo.j2ee.deployment;
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 
-import javax.management.ObjectName;
 import javax.naming.Reference;
 import java.io.File;
 import java.net.URI;
@@ -85,7 +85,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
-    public Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException {
+    public Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) throws DeploymentException {
         return null;
     }
 

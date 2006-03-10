@@ -17,11 +17,11 @@
 package org.apache.geronimo.j2ee.deployment;
 
 import java.net.URI;
-import javax.management.ObjectName;
 import javax.naming.Reference;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractName;
 
 
 /**
@@ -33,7 +33,7 @@ public interface EJBReferenceBuilder {
 
     Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException;
 
-    Reference createCORBAReference(URI corbaURL, String objectName, ObjectName containerName, String home) throws DeploymentException;
+    Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) throws DeploymentException;
 
     Object createHandleDelegateReference() throws DeploymentException;
 

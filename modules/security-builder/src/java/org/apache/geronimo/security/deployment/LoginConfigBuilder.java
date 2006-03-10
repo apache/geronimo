@@ -138,15 +138,8 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                         String value = trim(gerOptionType.getStringValue());
                         options.setProperty(key, value);
                     }
-                    try
-                    {
-                        loginModuleName = NameFactory.getChildName(parentName, NameFactory.LOGIN_MODULE, name, LoginModuleGBean.GBEAN_INFO.getInterfaces());
-                        loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
-                    }
-                    catch (MalformedObjectNameException e)
-                    {
-                        throw new DeploymentException("cannot construct login module use name from parts,", e);
-                    }
+                    loginModuleName = NameFactory.getChildName(parentName, NameFactory.LOGIN_MODULE, name, LoginModuleGBean.GBEAN_INFO.getInterfaces());
+                    loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
                     GBeanData loginModuleGBeanData = new GBeanData(loginModuleName, LoginModuleGBean.GBEAN_INFO);
                     loginModuleGBeanData.setAttribute("loginDomainName", name);
                     loginModuleGBeanData.setAttribute("loginModuleClass", className);
@@ -161,14 +154,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                     throw new DeploymentException("Unknown abstract login module type: " + abstractLoginModule.getClass());
                 }
                 AbstractName thisName;
-                try
-                {
-                    thisName = NameFactory.getChildName(parentName, "LoginModuleUse", name, JaasLoginModuleUse.GBEAN_INFO.getInterfaces());
-                }
-                catch (MalformedObjectNameException e)
-                {
-                    throw new DeploymentException("cannot construct login module use name from parts,", e);
-                }
+                thisName = NameFactory.getChildName(parentName, "LoginModuleUse", name, JaasLoginModuleUse.GBEAN_INFO.getInterfaces());
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
                 loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
                 loginModuleUseGBeanData.setReferencePatterns("LoginModule", loginModuleReferencePatterns);

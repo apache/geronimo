@@ -18,11 +18,10 @@ package org.apache.geronimo.j2ee.deployment;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.repository.Artifact;
 
-import javax.management.ObjectName;
 import java.util.Set;
 
 /**
@@ -36,9 +35,9 @@ public interface NamingContext {
 
     Set getGBeanNames();
 
-    Set listGBeans(ObjectName pattern);
+    Set listGBeans(AbstractNameQuery pattern);
 
-    GBeanData getGBeanInstance(ObjectName name) throws GBeanNotFoundException;
+    GBeanData getGBeanInstance(AbstractName name) throws GBeanNotFoundException;
 
     Artifact getConfigID();
 

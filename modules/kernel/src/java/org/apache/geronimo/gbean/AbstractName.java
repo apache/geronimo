@@ -46,7 +46,7 @@ public class AbstractName implements Serializable {
     public AbstractName(Artifact artifact, Map name, Set interfaceTypes, ObjectName objectName) {
         assert artifact != null;
         assert name != null;
-        assert interfaceTypes != null;
+        if (interfaceTypes == null) interfaceTypes = Collections.EMPTY_SET;
         assert objectName != null;
         this.artifact = artifact;
         this.name = name;
