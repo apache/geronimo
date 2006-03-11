@@ -16,7 +16,10 @@
  */
 package org.apache.geronimo.kernel;
 
+import java.util.Set;
+
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 
 import javax.management.ObjectName;
 
@@ -39,6 +42,10 @@ public class GBeanNotFoundException extends KernelException {
 
     public GBeanNotFoundException(AbstractName abstractName) {
         super(abstractName + " not found");
+    }
+
+    public GBeanNotFoundException(String message, Set patterns) {
+        super(message + ": " + patterns);
     }
 
     public ObjectName getGBeanName() {

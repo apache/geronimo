@@ -166,6 +166,7 @@ public class ConfigTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName2));
 
         // unload -- configuration and gbeans should be unloaded
+        configurationManager.stopConfiguration(configuration);
         configurationManager.unloadConfiguration(configuration);
 
         assertFalse(kernel.isLoaded(configurationName));
