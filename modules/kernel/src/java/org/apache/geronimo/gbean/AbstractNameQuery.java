@@ -41,6 +41,12 @@ public class AbstractNameQuery implements Serializable {
         this.interfaceTypes = abstractName.getInterfaceTypes();
     }
 
+    public AbstractNameQuery(Artifact artifact, Map name) {
+        this.artifact = artifact;
+        this.name = name;
+        this.interfaceTypes = Collections.EMPTY_SET;
+    }
+
     public AbstractNameQuery(Artifact artifact, Map name, String interfaceType) {
         this.artifact = artifact;
         this.name = name;

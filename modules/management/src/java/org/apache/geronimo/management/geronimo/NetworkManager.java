@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 /**
  * Base management interface for a network technology with associated
  * containers and connectors.  Examples might be Web, EJB, JMS (all
@@ -41,8 +43,9 @@ public interface NetworkManager {
      * Removes a connector.  This shuts it down if necessary, and removes it
      * from the server environment.  It must be a connector that uses this
      * network technology.
+     * @param connectorName
      */
-    public void removeConnector(String objectName);
+    public void removeConnector(AbstractName connectorName);
 
     /**
      * Gets the ObjectNames of any existing connectors for this network

@@ -2,7 +2,7 @@ package org.apache.geronimo.naming.deployment.jsr88;
 
 import org.apache.geronimo.deployment.plugin.XmlBeanSupport;
 import org.apache.geronimo.xbeans.geronimo.naming.GerGbeanLocatorType;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.geronimo.xbeans.geronimo.naming.GerPatternType;
 
 /**
  * Represents an element of the gbean-locatorType in a Geronimo
@@ -39,38 +39,10 @@ public class GBeanLocator extends XmlBeanSupport {
     public void setGBeanLink(String link) {
         GerGbeanLocatorType locator = getGBeanLocator();
         if(link != null) {
-            ObjectNameGroup before = null;
-            if(locator.isSetApplication()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetApplication();
-            }
-            if(locator.isSetDomain()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetDomain();
-            }
-            if(locator.isSetModule()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetModule();
-            }
-            if(locator.isSetName()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetName();
-            }
-            if(locator.isSetServer()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetServer();
-            }
-            if(locator.isSetType()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetType();
-            }
-            if(before != null) {
-                pcs.firePropertyChange("objectNameComponents", before, null);
-            }
-            if(locator.isSetTargetName()) {
-                String temp = locator.getTargetName();
-                locator.unsetTargetName();
-                pcs.firePropertyChange("targetName", temp, null);
+            if(locator.isSetPattern()) {
+                Pattern oldPattern = buildPattern(locator.getPattern());
+                locator.unsetPattern();
+                pcs.firePropertyChange("objectNameComponents", oldPattern, null);
             }
         }
         String old = getGBeanLink();
@@ -78,65 +50,18 @@ public class GBeanLocator extends XmlBeanSupport {
         pcs.firePropertyChange("GBeanLink", old, link);
     }
 
-    public String getTargetName() {
-        return getGBeanLocator().getGbeanLink();
-    }
 
-    public void setTargetName(String name) {
-        GerGbeanLocatorType locator = getGBeanLocator();
-        if(name != null) {
-            ObjectNameGroup before = null;
-            if(locator.isSetApplication()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetApplication();
-            }
-            if(locator.isSetDomain()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetDomain();
-            }
-            if(locator.isSetModule()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetModule();
-            }
-            if(locator.isSetName()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetName();
-            }
-            if(locator.isSetServer()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetServer();
-            }
-            if(locator.isSetType()) {
-                if(before == null) before = getObjectNameComponents();
-                locator.unsetType();
-            }
-            if(before != null) {
-                pcs.firePropertyChange("objectNameComponents", before, null);
-            }
-            if(locator.isSetGbeanLink()) {
-                String temp = locator.getGbeanLink();
-                locator.unsetGbeanLink();
-                pcs.firePropertyChange("GBeanLink", temp, null);
-            }
-        }
-        String old = getTargetName();
-        locator.setTargetName(name);
-        pcs.firePropertyChange("targetName", old, name);
-    }
-
-    public ObjectNameGroup getObjectNameComponents() {
-        ObjectNameGroup group = new ObjectNameGroup();
-        GerGbeanLocatorType locator = getGBeanLocator();
-        group.setApplication(locator.getApplication());
-        group.setDomain(locator.getDomain());
-        group.setModule(locator.getModule());
-        group.setName(locator.getName());
-        group.setServer(locator.getServer());
-        group.setType(locator.getType());
+    public Pattern buildPattern(GerPatternType patternType) {
+        Pattern group = new Pattern();
+        group.setGroupId(patternType.getGroupId());
+        group.setArtifactId(patternType.getArtifactId());
+        group.setVersion(patternType.getVersion());
+        group.setModule(patternType.getModule());
+        group.setName(patternType.getName());
         return group.empty() ? null : group;
     }
 
-    public void setObjectNamecomponents(ObjectNameGroup group) {
+    public void setPattern(Pattern group) {
         GerGbeanLocatorType locator = getGBeanLocator();
         if(group != null && !group.empty()) {
             if(locator.isSetGbeanLink()) {
@@ -144,53 +69,28 @@ public class GBeanLocator extends XmlBeanSupport {
                 locator.unsetGbeanLink();
                 pcs.firePropertyChange("GBeanLink", temp, null);
             }
-            if(locator.isSetTargetName()) {
-                String temp = locator.getTargetName();
-                locator.unsetTargetName();
-                pcs.firePropertyChange("targetName", temp, null);
+        }
+        Pattern old = buildPattern(locator.getPattern());
+            locator.unsetPattern();
+        if(group != null) {
+            GerPatternType patternType = locator.addNewPattern();
+            if(!isEmpty(group.getGroupId())) {
+                patternType.setGroupId(group.getGroupId());
+            }
+            if(!isEmpty(group.getArtifactId())) {
+                patternType.setArtifactId(group.getArtifactId());
+            }
+            if(!isEmpty(group.getModule())) {
+                patternType.setModule(group.getModule());
+            }
+            if(!isEmpty(group.getName())) {
+                patternType.setName(group.getName());
+            }
+            if(!isEmpty(group.getVersion())) {
+                patternType.setVersion(group.getVersion());
             }
         }
-        ObjectNameGroup old = getObjectNameComponents();
-        if(group == null) {
-            locator.unsetApplication();
-            locator.unsetDomain();
-            locator.unsetModule();
-            locator.unsetName();
-            locator.unsetServer();
-            locator.unsetType();
-        } else {
-            if(isEmpty(group.getApplication())) {
-                locator.unsetApplication();
-            } else {
-                locator.setApplication(group.getApplication());
-            }
-            if(isEmpty(group.getDomain())) {
-                locator.unsetDomain();
-            } else {
-                locator.setDomain(group.getDomain());
-            }
-            if(isEmpty(group.getModule())) {
-                locator.unsetModule();
-            } else {
-                locator.setModule(group.getModule());
-            }
-            if(isEmpty(group.getName())) {
-                locator.unsetName();
-            } else {
-                locator.setName(group.getName());
-            }
-            if(isEmpty(group.getServer())) {
-                locator.unsetServer();
-            } else {
-                locator.setServer(group.getServer());
-            }
-            if(isEmpty(group.getType())) {
-                locator.unsetType();
-            } else {
-                locator.setType(group.getType());
-            }
-        }
-        pcs.firePropertyChange("objectNameComponents", old, getObjectNameComponents());
+        pcs.firePropertyChange("objectNameComponents", old, group);
     }
 
     private static boolean isEmpty(String s) {

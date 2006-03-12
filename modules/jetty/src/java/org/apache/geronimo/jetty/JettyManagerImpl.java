@@ -22,8 +22,10 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.jetty.connector.AJP13Connector;
 import org.apache.geronimo.jetty.connector.HTTPConnector;
 import org.apache.geronimo.jetty.connector.HTTPSConnector;
@@ -31,12 +33,10 @@ import org.apache.geronimo.jetty.connector.JettyConnector;
 import org.apache.geronimo.jetty.requestlog.JettyLogManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.management.geronimo.WebManager;
-import org.apache.geronimo.system.serverinfo.ServerInfo;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -45,6 +45,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Collections;
 
 /**
  * Jetty implementation of WebManager.  Knows how to manipulate
@@ -69,22 +70,15 @@ public class JettyManagerImpl implements WebManager {
      * the connector may well require further customization before being fully
      * functional (e.g. SSL settings for an HTTPS connector).
      */
-    public String addConnector(String containerObjectName, String uniqueName, String protocol, String host, int port) {
-        ObjectName container;
-        try {
-            container = ObjectName.getInstance(containerObjectName);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Invalid web container ObjectName '"+containerObjectName+"'");
-        }
-        ObjectName name = getConnectorName(container, protocol, uniqueName);
+    public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port) {
+        AbstractName name = NameFactory.getChildName(containerName, NameFactory.GERONIMO_SERVICE, "JettyWebConnector-" + protocol + "-" + uniqueName, null);
         GBeanData connector;
         if (protocol.equals(PROTOCOL_HTTP)) {
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);
         } else if (protocol.equals(PROTOCOL_HTTPS)) {
             connector = new GBeanData(name, HTTPSConnector.GBEAN_INFO);
-            GBeanQuery query = new GBeanQuery(null, ServerInfo.class.getName());
-            Set set = kernel.listGBeans(query);
-            connector.setReferencePattern("ServerInfo", (ObjectName) set.iterator().next());
+            AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, "ServerInfo"));
+            connector.setReferencePattern("ServerInfo", query);
             //todo: default HTTPS settings
         } else if (protocol.equals(PROTOCOL_AJP)) {
             connector = new GBeanData(name, AJP13Connector.GBEAN_INFO);
@@ -95,13 +89,12 @@ public class JettyManagerImpl implements WebManager {
         connector.setAttribute("port", new Integer(port));
         connector.setAttribute("minThreads", new Integer(10));
         connector.setAttribute("maxThreads", new Integer(50));
-        connector.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, container);
+        connector.setReferencePattern(JettyConnector.CONNECTOR_CONTAINER_REFERENCE, containerName);
         EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
         if(mgr != null) {
             try {
-                ObjectName config = Util.getConfiguration(kernel, container);
-                mgr.addGBeanToConfiguration(Configuration.getConfigurationID(config), connector, false);
-                return name.getCanonicalName();
+                mgr.addGBeanToConfiguration(containerName.getArtifact(), connector, false);
+                return name;
             } catch (InvalidConfigException e) {
                 log.error("Unable to add GBean", e);
                 return null;
@@ -141,16 +134,11 @@ public class JettyManagerImpl implements WebManager {
      * Removes a connector.  This shuts it down if necessary, and removes it
      * from the server environment.  It must be a connector that this container
      * is responsible for.
+     * @param connectorName
      */
-    public void removeConnector(String objectName) {
-        ObjectName name;
+    public void removeConnector(AbstractName connectorName) {
         try {
-            name = ObjectName.getInstance(objectName);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Invalid object name '" + objectName + "': " + e.getMessage());
-        }
-        try {
-            GBeanInfo info = kernel.getGBeanInfo(name);
+            GBeanInfo info = kernel.getGBeanInfo(connectorName);
             boolean found = false;
             Set intfs = info.getInterfaces();
             for (Iterator it = intfs.iterator(); it.hasNext();) {
@@ -160,13 +148,12 @@ public class JettyManagerImpl implements WebManager {
                 }
             }
             if (!found) {
-                throw new GBeanNotFoundException(name);
+                throw new GBeanNotFoundException(connectorName);
             }
-            ObjectName config = Util.getConfiguration(kernel, name);
             EditableConfigurationManager mgr = ConfigurationUtil.getEditableConfigurationManager(kernel);
             if(mgr != null) {
                 try {
-                    mgr.removeGBeanFromConfiguration(Configuration.getConfigurationID(config), name);
+                    mgr.removeGBeanFromConfiguration(connectorName.getArtifact(), connectorName);
                 } catch (InvalidConfigException e) {
                     log.error("Unable to add GBean", e);
                 } finally {
@@ -176,7 +163,7 @@ public class JettyManagerImpl implements WebManager {
                 log.warn("The ConfigurationManager in the kernel does not allow editing");
             }
         } catch (GBeanNotFoundException e) {
-            log.warn("No such GBean '" + objectName + "'"); //todo: what if we want to remove a failed GBean?
+            log.warn("No such GBean '" + connectorName + "'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {
             log.error(e);
         }
@@ -243,7 +230,7 @@ public class JettyManagerImpl implements WebManager {
             for (Iterator it = set.iterator(); it.hasNext();) {
                 ObjectName name = (ObjectName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
-                Set refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
+                ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
                 for (Iterator refit = refs.iterator(); refit.hasNext();) {
                     ObjectName ref = (ObjectName) refit.next();
                     boolean match = false;
@@ -315,20 +302,6 @@ public class JettyManagerImpl implements WebManager {
             return (String[]) results.toArray(new String[results.size()]);
         } catch (Exception e) {
             throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerObjectName+"': "+e);
-        }
-    }
-
-    private ObjectName getConnectorName(ObjectName container, String protocol, String uniqueName) {
-        Hashtable table = new Hashtable();
-        table.put(NameFactory.J2EE_APPLICATION, container.getKeyProperty(NameFactory.J2EE_APPLICATION));
-        table.put(NameFactory.J2EE_SERVER, container.getKeyProperty(NameFactory.J2EE_SERVER));
-        table.put(NameFactory.J2EE_MODULE, container.getKeyProperty(NameFactory.J2EE_MODULE));
-        table.put(NameFactory.J2EE_TYPE, container.getKeyProperty(NameFactory.J2EE_TYPE));
-        table.put(NameFactory.J2EE_NAME, "JettyWebConnector-" + protocol + "-" + uniqueName);
-        try {
-            return ObjectName.getInstance(container.getDomain(), table);
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException("Never should have failed: " + e.getMessage());
         }
     }
 

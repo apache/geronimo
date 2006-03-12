@@ -259,8 +259,18 @@
     </xs:complexType>
 
     <xs:complexType name="patternType">
-        <xs:sequence>
-            <xs:group ref="sys:gbean-nameGroup"/>
+        <xs:annotation>
+            <xs:documentation>This group contains the components of an abstract name</xs:documentation>
+        </xs:annotation>
+         <xs:sequence>
+            <xs:sequence>
+                <xs:element name="groupId" type="xs:string" minOccurs="0"/>
+                <xs:element name="artifactId" type="xs:string" minOccurs="0"/>
+                <xs:element name="version" type="xs:string" minOccurs="0"/>
+                <xs:element name="module" type="xs:string" minOccurs="0"/>
+                <xs:element name="type" type="xs:string" minOccurs="0"/>
+                <xs:element name="name" type="xs:string"/>
+            </xs:sequence>
         </xs:sequence>
     </xs:complexType>
 
@@ -272,24 +282,6 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:group name="gbean-nameGroup">
-        <xs:annotation>
-            <xs:documentation>This group contains the components of an abstract name</xs:documentation>
-        </xs:annotation>
-        <xs:choice>
-            <xs:sequence>
-                <xs:element name="groupId" type="xs:string" minOccurs="0"/>
-                <xs:element name="artifactId" type="xs:string"/>
-                <xs:element name="version" type="xs:string" minOccurs="0"/>
-                <xs:element name="module" type="xs:string" minOccurs="0"/>
-                <xs:element name="type" type="xs:string" minOccurs="0"/>
-                <xs:element name="name" type="xs:string"/>
-            </xs:sequence>
-            <!-- todo try to eliminate explicit gbean-name -->
-            <xs:element name="gbean-name" type="xs:string"/>
-        </xs:choice>
-    </xs:group>
-    
     <xs:element name="service" type="sys:serviceType"/>
 
     <xs:complexType name="serviceType">

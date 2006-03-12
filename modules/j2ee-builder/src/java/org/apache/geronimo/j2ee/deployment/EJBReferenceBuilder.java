@@ -22,6 +22,8 @@ import javax.naming.Reference;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 
 /**
@@ -33,7 +35,7 @@ public interface EJBReferenceBuilder {
 
     Reference createEJBRemoteReference(String objectName, GBeanData gbeanData, boolean isSession, String home, String remote) throws DeploymentException;
 
-    Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) throws DeploymentException;
+    Reference createCORBAReference(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException;
 
     Object createHandleDelegateReference() throws DeploymentException;
 

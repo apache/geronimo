@@ -16,20 +16,21 @@
  */
 package org.apache.geronimo.naming.reference;
 
-import javax.management.ObjectName;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-
-import org.apache.geronimo.kernel.Kernel;
 
 /**
  * @version $Rev$ $Date$
  */
-public class ORBReference extends SimpleAwareReference {
-    private final ObjectName corbaGBean;
+public class ORBReference extends ConfigurationAwareReference {
 
-    public ORBReference(ObjectName corbaGBean) {
-        this.corbaGBean = corbaGBean;
+    public ORBReference(Artifact configId, AbstractNameQuery abstractNameQuery) {
+        super(configId, abstractNameQuery);
     }
 
     public String getClassName() {
@@ -39,9 +40,10 @@ public class ORBReference extends SimpleAwareReference {
     public Object getContent() throws NamingException {
         Kernel kernel = getKernel();
         try {
-            return kernel.getAttribute(corbaGBean, "ORB");
+            AbstractName targetName = resolveTargetName();
+            return kernel.getAttribute(targetName, "ORB");
         } catch (Exception e) {
-            throw (NameNotFoundException) new NameNotFoundException("Error getting ORB attribut from CORBAGBean: objectName=" + corbaGBean).initCause(e);
+            throw (NameNotFoundException) new NameNotFoundException("Error getting ORB attribut from CORBAGBean: name query =" + abstractNameQuery).initCause(e);
         }
     }
 }

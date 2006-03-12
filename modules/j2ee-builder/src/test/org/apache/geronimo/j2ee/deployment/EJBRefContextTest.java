@@ -29,8 +29,10 @@ import org.apache.geronimo.common.UnresolvedReferenceException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.Configuration;
 
 /**
  * @version $Rev$ $Date$
@@ -250,11 +252,11 @@ public class EJBRefContextTest extends TestCase {
     }
 
     private static class MockResourceReferenceBuilder implements ResourceReferenceBuilder {
-        public Reference createResourceRef(String containerId, Class iface) {
+        public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
             return null;
         }
 
-        public Reference createAdminObjectRef(String containerId, Class iface) {
+        public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
             return null;
         }
 

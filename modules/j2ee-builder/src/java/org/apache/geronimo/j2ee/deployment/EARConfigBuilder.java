@@ -30,6 +30,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
@@ -74,7 +75,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev:385232 $ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
 
@@ -91,15 +92,15 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final Environment defaultEnvironment;
-    private final AbstractName transactionContextManagerObjectName;
-    private final AbstractName connectionTrackerObjectName;
-    private final AbstractName transactionalTimerObjectName;
-    private final AbstractName nonTransactionalTimerObjectName;
-    private final AbstractName corbaGBeanObjectName;
+    private final AbstractNameQuery transactionContextManagerObjectName;
+    private final AbstractNameQuery connectionTrackerObjectName;
+    private final AbstractNameQuery transactionalTimerObjectName;
+    private final AbstractNameQuery nonTransactionalTimerObjectName;
+    private final AbstractNameQuery corbaGBeanObjectName;
     private static final String DEFAULT_GROUPID = "defaultGroupId";
 
 
-    public EARConfigBuilder(Environment defaultEnvironment, AbstractName transactionContextManagerAbstractName, AbstractName connectionTrackerAbstractName, AbstractName transactionalTimerAbstractName, AbstractName nonTransactionalTimerAbstractName, AbstractName corbaGBeanAbstractName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(Environment defaultEnvironment, AbstractNameQuery transactionContextManagerAbstractName, AbstractNameQuery connectionTrackerAbstractName, AbstractNameQuery transactionalTimerAbstractName, AbstractNameQuery nonTransactionalTimerAbstractName, AbstractNameQuery corbaGBeanAbstractName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultEnvironment = defaultEnvironment;

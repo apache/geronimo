@@ -16,66 +16,65 @@
  */
 package org.apache.geronimo.web.deployment;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.zip.ZipEntry;
-import java.util.jar.JarFile;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.PermissionCollection;
-import java.security.Permissions;
-import java.security.Permission;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.security.jacc.WebRoleRefPermission;
-import javax.security.jacc.WebUserDataPermission;
-import javax.security.jacc.WebResourcePermission;
-
-import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
+import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.deployment.util.DeploymentUtil;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
+import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.common.DeploymentException;
-import org.apache.geronimo.xbeans.j2ee.WebAppType;
-import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
-import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
-import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
-import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
-import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
-import org.apache.geronimo.xbeans.j2ee.RoleNameType;
-import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
-import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
-import org.apache.geronimo.xbeans.j2ee.ServletType;
-import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
-import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
+import org.apache.geronimo.xbeans.j2ee.FilterMappingType;
+import org.apache.geronimo.xbeans.j2ee.HttpMethodType;
+import org.apache.geronimo.xbeans.j2ee.RoleNameType;
+import org.apache.geronimo.xbeans.j2ee.SecurityConstraintType;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleRefType;
+import org.apache.geronimo.xbeans.j2ee.SecurityRoleType;
+import org.apache.geronimo.xbeans.j2ee.ServletMappingType;
+import org.apache.geronimo.xbeans.j2ee.ServletType;
+import org.apache.geronimo.xbeans.j2ee.UrlPatternType;
+import org.apache.geronimo.xbeans.j2ee.WebAppType;
+import org.apache.geronimo.xbeans.j2ee.WebResourceCollectionType;
+
+import javax.security.jacc.WebResourcePermission;
+import javax.security.jacc.WebRoleRefPermission;
+import javax.security.jacc.WebUserDataPermission;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev$ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
-    protected static final ObjectName MANAGED_CONNECTION_FACTORY_PATTERN;
-    private static final ObjectName ADMIN_OBJECT_PATTERN;
-    protected static final ObjectName STATELESS_SESSION_BEAN_PATTERN;
-    protected static final ObjectName STATEFUL_SESSION_BEAN_PATTERN;
-    protected static final ObjectName ENTITY_BEAN_PATTERN;
+    protected static final AbstractNameQuery MANAGED_CONNECTION_FACTORY_PATTERN;
+    private static final AbstractNameQuery ADMIN_OBJECT_PATTERN;
+    protected static final AbstractNameQuery STATELESS_SESSION_BEAN_PATTERN;
+    protected static final AbstractNameQuery STATEFUL_SESSION_BEAN_PATTERN;
+    protected static final AbstractNameQuery ENTITY_BEAN_PATTERN;
     protected final Kernel kernel;
 
     protected AbstractWebModuleBuilder(Kernel kernel) {
@@ -83,15 +82,11 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     static {
-        try {
-            MANAGED_CONNECTION_FACTORY_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.JCA_MANAGED_CONNECTION_FACTORY +  ",*");
-            ADMIN_OBJECT_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.JCA_ADMIN_OBJECT +  ",*");
-            STATELESS_SESSION_BEAN_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.STATELESS_SESSION_BEAN +  ",*");
-            STATEFUL_SESSION_BEAN_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.STATEFUL_SESSION_BEAN +  ",*");
-            ENTITY_BEAN_PATTERN = ObjectName.getInstance("*:j2eeType=" + NameFactory.ENTITY_BEAN +  ",*");
-        } catch (MalformedObjectNameException e) {
-            throw new RuntimeException(e);
-        }
+        MANAGED_CONNECTION_FACTORY_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_MANAGED_CONNECTION_FACTORY));
+        ADMIN_OBJECT_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.JCA_ADMIN_OBJECT));
+        STATELESS_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATELESS_SESSION_BEAN));
+        STATEFUL_SESSION_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.STATEFUL_SESSION_BEAN));
+        ENTITY_BEAN_PATTERN = new AbstractNameQuery(null, Collections.singletonMap(NameFactory.J2EE_TYPE, NameFactory.ENTITY_BEAN));
 
     }
 
@@ -176,7 +171,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
             Artifact earConfigId = earContext.getConfigID();
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             environment.setConfigId(configId);
-            File configurationDir = null;
+            File configurationDir;
             try {
                 configurationDir = configurationStore.createNewConfigurationDir(environment.getConfigId());
             } catch (ConfigurationAlreadyExistsException e) {

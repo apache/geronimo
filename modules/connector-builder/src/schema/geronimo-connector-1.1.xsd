@@ -18,14 +18,14 @@
 
 <xs:schema xmlns="http://www.w3.org/2001/XMLSchema"
     xmlns:ger="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
-    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.0"
+    xmlns:naming="http://geronimo.apache.org/xml/ns/naming-1.1"
     xmlns:sys="http://geronimo.apache.org/xml/ns/deployment-1.1"
     targetNamespace="http://geronimo.apache.org/xml/ns/j2ee/connector-1.1"
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     elementFormDefault="qualified"
     attributeFormDefault="unqualified">
 
-    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.0" schemaLocation="geronimo-naming-1.0.xsd"/>
+    <xs:import namespace="http://geronimo.apache.org/xml/ns/naming-1.1" schemaLocation="geronimo-naming-1.1.xsd"/>
     <xs:import namespace="http://geronimo.apache.org/xml/ns/deployment-1.1" schemaLocation="geronimo-config-1.1.xsd"/>
     <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
 

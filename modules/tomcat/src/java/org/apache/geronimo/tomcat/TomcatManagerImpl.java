@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Hashtable;
-import java.net.URISyntaxException;
 import javax.management.ObjectName;
 import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.management.geronimo.WebManager;
@@ -29,6 +28,7 @@ import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.system.serverinfo.ServerInfo;
 import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
@@ -64,19 +64,19 @@ public class TomcatManagerImpl implements WebManager {
      * customization before being fully functional (e.g. SSL settings for a secure connector).  This may need to be done
      * before starting the resulting connector.
      *
-     * @param containerObjectName The ObjectName of the container that the connector should be added to
+     * @param containerName
      * @param uniqueName          A name fragment that's unique to this connector
      * @param protocol            The protocol that the connector should use
      * @param host                The host name or IP that the connector should listen on
      * @param port                The port that the connector should listen on
      * @return The ObjectName of the new connector.
      */
-    public String addConnector(String containerObjectName, String uniqueName, String protocol, String host, int port) {
+    public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port) {
         ObjectName container;
         try {
-            container = ObjectName.getInstance(containerObjectName);
+            container = ObjectName.getInstance(containerName);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Invalid web container ObjectName '"+containerObjectName+"'");
+            throw new IllegalArgumentException("Invalid web container ObjectName '"+containerName +"'");
         }
         ObjectName name = getConnectorName(container, protocol, uniqueName);
         GBeanData connector;
@@ -143,13 +143,14 @@ public class TomcatManagerImpl implements WebManager {
     /**
      * Removes a connector.  This shuts it down if necessary, and removes it from the server environment.  It must be a
      * connector that uses this network technology.
+     * @param connectorName
      */
-    public void removeConnector(String objectName) {
+    public void removeConnector(AbstractName connectorName) {
         ObjectName name = null;
         try {
-            name = ObjectName.getInstance(objectName);
+            name = ObjectName.getInstance(connectorName);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException("Invalid object name '"+objectName+"': "+e.getMessage());
+            throw new IllegalArgumentException("Invalid object name '"+connectorName +"': "+e.getMessage());
         }
         try {
             GBeanInfo info = kernel.getGBeanInfo(name);
@@ -178,7 +179,7 @@ public class TomcatManagerImpl implements WebManager {
                 log.warn("The ConfigurationManager in the kernel does not allow editing");
             }
         } catch (GBeanNotFoundException e) {
-            log.warn("No such GBean '"+objectName+"'"); //todo: what if we want to remove a failed GBean?
+            log.warn("No such GBean '"+connectorName +"'"); //todo: what if we want to remove a failed GBean?
         } catch (Exception e) {
             log.error(e);
         }

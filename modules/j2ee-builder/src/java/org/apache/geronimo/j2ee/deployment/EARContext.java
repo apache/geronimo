@@ -25,6 +25,7 @@ import javax.management.MalformedObjectNameException;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -32,20 +33,20 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev$ $Date$
  */
 public class EARContext extends DeploymentContext implements NamingContext {
     private final AbstractName domainObjectName;
     private final AbstractName serverObjectName;
     private final AbstractName applicationName;
 
-    private final AbstractName transactionContextManagerObjectName;
-    private final AbstractName connectionTrackerObjectName;
+    private final AbstractNameQuery transactionContextManagerObjectName;
+    private final AbstractNameQuery connectionTrackerObjectName;
 
-    private final AbstractName transactedTimerName;
-    private final AbstractName nonTransactedTimerName;
+    private final AbstractNameQuery transactedTimerName;
+    private final AbstractNameQuery nonTransactedTimerName;
 
-    private final AbstractName corbaGBeanObjectName;
+    private final AbstractNameQuery corbaGBeanObjectName;
 
     private final RefContext refContext;
     private final AbstractName moduleName;
@@ -54,7 +55,7 @@ public class EARContext extends DeploymentContext implements NamingContext {
     private AbstractName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
 
-    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel, String j2eeApplicationName, AbstractName transactionContextManagerObjectName, AbstractName connectionTrackerObjectName, AbstractName transactedTimerName, AbstractName nonTransactedTimerName, AbstractName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
+    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel, String j2eeApplicationName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
         super(baseDir, environment, moduleType, kernel);
         if (moduleType.equals(ConfigurationModuleType.EAR)) {
             moduleName = NameFactory.buildApplicationName(environment.getProperties(), environment.getConfigId());
@@ -99,23 +100,23 @@ public class EARContext extends DeploymentContext implements NamingContext {
         return applicationName;
     }
 
-    public AbstractName getTransactionContextManagerObjectName() {
+    public AbstractNameQuery getTransactionContextManagerObjectName() {
         return transactionContextManagerObjectName;
     }
 
-    public AbstractName getConnectionTrackerObjectName() {
+    public AbstractNameQuery getConnectionTrackerObjectName() {
         return connectionTrackerObjectName;
     }
 
-    public AbstractName getTransactedTimerName() {
+    public AbstractNameQuery getTransactedTimerName() {
         return transactedTimerName;
     }
 
-    public AbstractName getNonTransactedTimerName() {
+    public AbstractNameQuery getNonTransactedTimerName() {
         return nonTransactedTimerName;
     }
 
-    public AbstractName getCORBAGBeanObjectName() {
+    public AbstractNameQuery getCORBAGBeanObjectName() {
         return corbaGBeanObjectName;
     }
 

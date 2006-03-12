@@ -27,6 +27,8 @@ import org.apache.geronimo.deployment.util.NestedJarFile;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -39,14 +41,14 @@ import org.apache.geronimo.j2ee.deployment.NamingContext;
 import org.apache.geronimo.j2ee.deployment.RefContext;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.ServiceReferenceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
-import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -65,7 +67,6 @@ import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
@@ -85,18 +86,18 @@ import java.util.zip.ZipEntry;
 
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev:385232 $ $Date$
  */
 public class AppClientModuleBuilder implements ModuleBuilder {
 
     private final Environment defaultClientEnvironment;
     private final Environment defaultServerEnvironment;
-    private final ObjectName corbaGBeanObjectName;
+    private final AbstractNameQuery corbaGBeanObjectName;
     private final Kernel kernel;
 
     private final String clientApplicationName = "client-application";
-    private final ObjectName transactionContextManagerObjectName;
-    private final ObjectName connectionTrackerObjectName;
+    private final AbstractNameQuery transactionContextManagerObjectName;
+    private final AbstractNameQuery connectionTrackerObjectName;
     private final EJBReferenceBuilder ejbReferenceBuilder;
     private final ModuleBuilder connectorModuleBuilder;
     private final ResourceReferenceBuilder resourceReferenceBuilder;
@@ -105,9 +106,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
     public AppClientModuleBuilder(Environment defaultClientEnvironment,
             Environment defaultServerEnvironment,
-            ObjectName transactionContextManagerObjectName,
-            ObjectName connectionTrackerObjectName,
-            ObjectName corbaGBeanObjectName,
+            AbstractNameQuery transactionContextManagerObjectName,
+            AbstractNameQuery connectionTrackerObjectName,
+            AbstractNameQuery corbaGBeanObjectName,
             EJBReferenceBuilder ejbReferenceBuilder,
             ModuleBuilder connectorModuleBuilder,
             ResourceReferenceBuilder resourceReferenceBuilder,
@@ -176,7 +177,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
-        GerApplicationClientType gerAppClient = null;
+        GerApplicationClientType gerAppClient;
         XmlObject rawPlan = null;
         try {
             // load the geronimo-application-client.xml from either the supplied plan or from the earFile
@@ -192,6 +193,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     }
                 }
             } catch (IOException e) {
+                //exception means we create default
             }
 
             // if we got one extract the validate it otherwise create a default one
@@ -259,7 +261,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             clientEnvironment.setConfigId(configId);
         }
-        File appClientDir = null;
+        File appClientDir;
         try {
             appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
         } catch (ConfigurationAlreadyExistsException e) {
@@ -292,7 +294,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Repository repository) throws DeploymentException {
-        J2eeContext earJ2eeContext = earContext.getModuleName();
+        AbstractName earName = earContext.getModuleName();
 
         AppClientModule appClientModule = (AppClientModule) module;
 
@@ -301,7 +303,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
 
         // get the app client main class
         JarFile moduleFile = module.getModuleFile();
-        String mainClasss = null;
+        String mainClasss;
 //        String classPath = null;
         try {
             Manifest manifest = moduleFile.getManifest();
@@ -321,13 +323,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         // generate the object name for the app client
-        ObjectName appClientModuleName = null;
-        try {
-            //TODO consider constructing a module context
-            appClientModuleName = NameFactory.getModuleName(null, null, null, NameFactory.APP_CLIENT_MODULE, appClientModule.getName(), earJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct module name", e);
-        }
+        AbstractName appClientModuleName = NameFactory.getChildName(earName, NameFactory.APP_CLIENT_MODULE, appClientModule.getName(), null);
 
         // create a gbean for the app client module and add it to the ear
         Map componentContext;
@@ -342,7 +338,11 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         } catch (Exception e) {
             throw new DeploymentException("Unable to initialize AppClientModule GBean", e);
         }
-        earContext.addGBean(appClientModuleGBeanData);
+        try {
+            earContext.addGBean(appClientModuleGBeanData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException("Could not add application client module gbean to configuration", e);
+        }
 
         EARContext appClientDeploymentContext = appClientModule.getEarContext();
         ConfigurationData appClientConfigurationData = null;
@@ -426,7 +426,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
 
                 // add the app client static jndi provider
-                ObjectName jndiContextName = ObjectName.getInstance("geronimo.client:type=StaticJndiContext");
+                AbstractName jndiContextName = NameFactory.getChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext", null);
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
                     componentContext = buildComponentContext(appClientDeploymentContext, earContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
@@ -439,7 +439,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
                 // finally add the app client container
-                ObjectName appClientContainerName = ObjectName.getInstance("geronimo.client:type=ClientContainer");
+                AbstractName appClientContainerName = NameFactory.getChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer", null);
                 GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
                     appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);
@@ -479,6 +479,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     try {
                         appClientDeploymentContext.close();
                     } catch (IOException e) {
+                        //nothing we can do
                     }
                 }
             }
@@ -503,7 +504,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void addManifestClassPath(DeploymentContext deploymentContext, JarFile earFile, JarFile jarFile, URI jarFileLocation) throws DeploymentException {
-        Manifest manifest = null;
+        Manifest manifest;
         try {
             manifest = jarFile.getManifest();
         } catch (IOException e) {
@@ -555,7 +556,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     throw new DeploymentException("Cound not copy manifest class path entry into configuration: jarFile=" + jarFileLocation + ", path=" + path, e);
                 }
 
-                JarFile classPathJarFile = null;
+                JarFile classPathJarFile;
                 try {
                     classPathJarFile = new JarFile(classPathFile);
                 } catch (IOException e) {

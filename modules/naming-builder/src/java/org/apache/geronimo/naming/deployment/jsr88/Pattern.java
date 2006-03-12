@@ -25,28 +25,36 @@ import java.io.Serializable;
  *
  * @version $Rev: 46019 $ $Date: 2004-09-14 05:56:06 -0400 (Tue, 14 Sep 2004) $
  */
-public class ObjectNameGroup implements Serializable {
-    private String application;
-    private String domain;
+public class Pattern implements Serializable {
+    private String groupId;
+    private String artifactId;
+    private String version;
     private String module;
     private String name;
-    private String server;
     private String type;
 
-    public String getApplication() {
-        return application;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setApplication(String application) {
-        this.application = application;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getArtifactId() {
+        return artifactId;
     }
 
-    public void setDomain(String domain) {
-        this.domain = domain;
+    public void setArtifactId(String artifactId) {
+        this.artifactId = artifactId;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public String getModule() {
@@ -65,13 +73,6 @@ public class ObjectNameGroup implements Serializable {
         this.name = name;
     }
 
-    public String getServer() {
-        return server;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
 
     public String getType() {
         return type;
@@ -82,11 +83,11 @@ public class ObjectNameGroup implements Serializable {
     }
 
     public boolean empty() {
-        return (application == null || application.trim().equals("")) &&
-                (domain == null || domain.trim().equals("")) &&
+        return (groupId == null || groupId.trim().equals("")) &&
+                (artifactId == null || artifactId.trim().equals("")) &&
+                (version == null || version.trim().equals("")) &&
                 (module == null || module.trim().equals("")) &&
                 (name == null || name.trim().equals("")) &&
-                (server == null || server.trim().equals("")) &&
                 (type == null || type.trim().equals(""));
     }
 
@@ -94,25 +95,25 @@ public class ObjectNameGroup implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final ObjectNameGroup group = (ObjectNameGroup) o;
+        final Pattern pattern = (Pattern) o;
 
-        if (application != null ? !application.equals(group.application) : group.application != null) return false;
-        if (domain != null ? !domain.equals(group.domain) : group.domain != null) return false;
-        if (module != null ? !module.equals(group.module) : group.module != null) return false;
-        if (name != null ? !name.equals(group.name) : group.name != null) return false;
-        if (server != null ? !server.equals(group.server) : group.server != null) return false;
-        if (type != null ? !type.equals(group.type) : group.type != null) return false;
+        if (artifactId != null ? !artifactId.equals(pattern.artifactId) : pattern.artifactId != null) return false;
+        if (groupId != null ? !groupId.equals(pattern.groupId) : pattern.groupId != null) return false;
+        if (module != null ? !module.equals(pattern.module) : pattern.module != null) return false;
+        if (name != null ? !name.equals(pattern.name) : pattern.name != null) return false;
+        if (type != null ? !type.equals(pattern.type) : pattern.type != null) return false;
+        if (version != null ? !version.equals(pattern.version) : pattern.version != null) return false;
 
         return true;
     }
 
     public int hashCode() {
         int result;
-        result = (application != null ? application.hashCode() : 0);
-        result = 29 * result + (domain != null ? domain.hashCode() : 0);
+        result = (groupId != null ? groupId.hashCode() : 0);
+        result = 29 * result + (artifactId != null ? artifactId.hashCode() : 0);
+        result = 29 * result + (version != null ? version.hashCode() : 0);
         result = 29 * result + (module != null ? module.hashCode() : 0);
         result = 29 * result + (name != null ? name.hashCode() : 0);
-        result = 29 * result + (server != null ? server.hashCode() : 0);
         result = 29 * result + (type != null ? type.hashCode() : 0);
         return result;
     }

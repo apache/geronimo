@@ -50,6 +50,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
 import org.apache.geronimo.j2ee.deployment.Module;
@@ -91,7 +92,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 /**
- * @version $Rev: 384933 $ $Date$
+ * @version $Rev:385232 $ $Date$
  */
 public class TomcatModuleBuilderTest extends TestCase {
     private String DOMAIN_NAME = "geronimo.test";
@@ -267,13 +268,13 @@ public class TomcatModuleBuilderTest extends TestCase {
                     }
                 }, new ResourceReferenceBuilder() {
 
-                    public Reference createResourceRef(String containerId,
-                                                       Class iface) throws DeploymentException {
+                    public Reference createResourceRef(AbstractNameQuery containerId,
+                                                       Class iface, Configuration configuration) throws DeploymentException {
                         return null;
                     }
 
-                    public Reference createAdminObjectRef(String containerId,
-                                                          Class iface) throws DeploymentException {
+                    public Reference createAdminObjectRef(AbstractNameQuery containerId,
+                                                          Class iface, Configuration configuration) throws DeploymentException {
                         return null;
                     }
 

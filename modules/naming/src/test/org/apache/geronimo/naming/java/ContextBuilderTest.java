@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
 import javax.management.ObjectName;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;

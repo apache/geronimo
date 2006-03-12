@@ -36,11 +36,13 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.GBeanDataRegistry;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationType;
 import org.apache.geronimo.xbeans.j2ee.MessageDestinationRefType;
@@ -78,11 +80,11 @@ public class MessageDestinationTest extends TestCase {
                 return null;
             }
         }, new ResourceReferenceBuilder() {
-            public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
+            public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
                 return null;
             }
 
-            public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+            public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
                 return null;
             }
 

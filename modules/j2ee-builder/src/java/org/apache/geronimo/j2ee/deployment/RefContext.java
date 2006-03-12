@@ -35,6 +35,8 @@ import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.config.Configuration;
 
 
 /**
@@ -88,8 +90,8 @@ public class RefContext {
         return ejbReferenceBuilder.createEJBRemoteReference(objectName, null, isSession, home, remote);
     }
 
-    public Reference getCORBARemoteRef(URI corbaURL, String objectName, AbstractName containerName, String home) throws DeploymentException {
-        return ejbReferenceBuilder.createCORBAReference(corbaURL, objectName, containerName, home);
+    public Reference getCORBARemoteRef(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
+        return ejbReferenceBuilder.createCORBAReference(configId, containerNameQuery, nsCorbaloc, objectName, home);
     }
 
     public Reference getEJBLocalRef(String objectName, boolean isSession, String localHome, String local) throws DeploymentException {
@@ -110,12 +112,12 @@ public class RefContext {
         return ejbReferenceBuilder.createEJBLocalReference(containerData.getName().getCanonicalName(), containerData, isSession, localHome, local);
     }
 
-    public Reference getConnectionFactoryRef(String containerId, Class iface) throws DeploymentException {
-        return resourceReferenceBuilder.createResourceRef(containerId, iface);
+    public Reference getConnectionFactoryRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
+        return resourceReferenceBuilder.createResourceRef(containerId, iface, configuration);
     }
 
-    public Reference getAdminObjectRef(String containerId, Class iface) throws DeploymentException {
-        return resourceReferenceBuilder.createAdminObjectRef(containerId, iface);
+    public Reference getAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
+        return resourceReferenceBuilder.createAdminObjectRef(containerId, iface, configuration);
     }
 
     public Object getServiceReference(Class serviceInterface, URI wsdlURI, URI jaxrpcMappingURI, QName serviceQName, Map portComponentRefMap, List handlerInfos, Object serviceRefType, DeploymentContext deploymentContext, Module module, ClassLoader classLoader) throws DeploymentException {

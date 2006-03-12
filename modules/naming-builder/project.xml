@@ -61,10 +61,18 @@
             <artifactId>stax-api</artifactId>
             <version>${stax_api_version}</version>
         </dependency>
+        <dependency>
+            <groupId>geronimo</groupId>
+            <artifactId>geronimo-service-builder</artifactId>
+            <version>${pom.currentVersion}</version>
+            <properties>
+                <xmlbeans>true</xmlbeans>
+            </properties>
+        </dependency>
 
         <!-- Module Dependencies -->
 
-           <dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>${commons_logging_version}</version>
@@ -101,13 +109,13 @@
             <version>${pom.currentVersion}</version>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-j2ee-builder</artifactId>
             <version>${pom.currentVersion}</version>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-deployment_1.1_spec</artifactId>
             <version>${geronimo_spec_j2ee_deployment_version}</version>
@@ -122,7 +130,7 @@
             </properties>
         </dependency>
 
-       <dependency>
+        <dependency>
             <groupId>geronimo</groupId>
             <artifactId>geronimo-naming</artifactId>
             <version>${pom.currentVersion}</version>

@@ -19,7 +19,9 @@ package org.apache.geronimo.j2ee.deployment;
 import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
+import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 
@@ -75,11 +77,11 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
         return null;
     }
 
-    public Reference createResourceRef(String containerId, Class iface) throws DeploymentException {
+    public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
         return null;
     }
 
-    public Reference createAdminObjectRef(String containerId, Class iface) throws DeploymentException {
+    public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) throws DeploymentException {
         return null;
     }
 

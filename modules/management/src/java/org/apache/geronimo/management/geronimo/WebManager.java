@@ -16,6 +16,8 @@
  */
 package org.apache.geronimo.management.geronimo;
 
+import org.apache.geronimo.gbean.AbstractName;
+
 /**
  * Specialization of NetworkManager for web containers.
  *
@@ -37,8 +39,7 @@ public interface WebManager extends NetworkManager {
      * functional (e.g. SSL settings for a secure connector).  This may need
      * to be done before starting the resulting connector.
      *
-     * @param containerObjectName The ObjectName of the container that the
-     *                            connector should be added to
+     * @param containerName
      * @param uniqueName          A name fragment that's unique to this
      *                            connector
      * @param protocol            The protocol that the connector should use
@@ -48,7 +49,7 @@ public interface WebManager extends NetworkManager {
      *
      * @return The ObjectName of the new connector.
      */
-    public String addConnector(String containerObjectName, String uniqueName, String protocol, String host, int port);
+    public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port);
 
     /**
      * Gets the ObjectName of the WebAccessLog implementation for a web

@@ -48,6 +48,10 @@ public class GBeanNotFoundException extends KernelException {
         super(message + ": " + patterns);
     }
 
+    public GBeanNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
     public ObjectName getGBeanName() {
         return gBeanName;
     }

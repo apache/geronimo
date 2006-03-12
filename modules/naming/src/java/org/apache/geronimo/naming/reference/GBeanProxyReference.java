@@ -16,20 +16,23 @@
  */
 package org.apache.geronimo.naming.reference;
 
-import javax.management.ObjectName;
-
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
+import org.apache.geronimo.kernel.repository.Artifact;
+
+import javax.naming.NameNotFoundException;
 
 /**
  * @version $Rev$ $Date$
  */
-public class GBeanProxyReference extends SimpleAwareReference {
-    private final ObjectName target;
+public class GBeanProxyReference extends ConfigurationAwareReference {
     private final Class type;
 
-    public GBeanProxyReference(ObjectName target, Class type) {
-        this.target = target;
+    public GBeanProxyReference(Artifact configId, AbstractNameQuery abstractNameQuery, Class type) {
+        super(configId, abstractNameQuery);
         this.type = type;
     }
 
@@ -37,7 +40,13 @@ public class GBeanProxyReference extends SimpleAwareReference {
         return type.getName();
     }
 
-    public Object getContent() throws IllegalStateException {
+    public Object getContent() throws IllegalStateException, NameNotFoundException {
+        AbstractName target;
+        try {
+            target = resolveTargetName();
+        } catch (GBeanNotFoundException e) {
+            throw (NameNotFoundException)new NameNotFoundException("Could not resolve gbean from name query: " + abstractNameQuery).initCause(e);
+        }
         Kernel kernel = getKernel();
         // todo HACK: this is a very bad idea
         ProxyManager proxyManager = kernel.getProxyManager();

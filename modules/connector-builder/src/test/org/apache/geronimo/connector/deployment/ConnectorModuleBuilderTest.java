@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.j2ee.deployment.EARConfigBuilder;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.EJBReferenceBuilder;
@@ -83,7 +84,7 @@ import java.util.Set;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev: 384933 $ $Date$
+ * @version $Rev:385232 $ $Date$
  */
 public class ConnectorModuleBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
@@ -138,11 +139,11 @@ public class ConnectorModuleBuilderTest extends TestCase {
 
     private ResourceReferenceBuilder resourceReferenceBuilder = new ResourceReferenceBuilder() {
 
-        public Reference createResourceRef(String containerId, Class iface) {
+        public Reference createResourceRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
             return null;
         }
 
-        public Reference createAdminObjectRef(String containerId, Class iface) {
+        public Reference createAdminObjectRef(AbstractNameQuery containerId, Class iface, Configuration configuration) {
             return null;
         }
 
