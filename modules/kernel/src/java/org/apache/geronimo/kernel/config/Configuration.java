@@ -38,34 +38,27 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.ReferencePatterns;
-import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.GReferenceInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.ObjectInputStreamExt;
 import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
-import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * A Configuration represents a collection of runnable services that can be
@@ -94,7 +87,7 @@ import org.apache.geronimo.kernel.repository.Repository;
  * a startRecursive() for all the GBeans it contains. Similarly, if the
  * Configuration is stopped then all of its GBeans will be stopped as well.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 384999 $ $Date$
  */
 public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private static final Log log = LogFactory.getLog(Configuration.class);
@@ -132,17 +125,14 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         }
     }
 
-    private final ConfigurationStore configurationStore;
-
     /**
      * The artifact id for this configuration.
      */
     private final Artifact id;
 
     /**
-     * The registered objectName for this configuraion.
+     * The registered abstractName for this configuraion.
      */
-    private final ObjectName objectName;
     private final AbstractName abstractName;
     /**
      * Defines the environment requred for this configuration.
@@ -153,6 +143,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * Identifies the type of configuration (WAR, RAR et cetera)
      */
     private final ConfigurationModuleType moduleType;
+    private final ConfigurationResolver configurationResolver;
 
     /**
      * Parent configurations used for class loader.
@@ -172,7 +163,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     /**
      * Artifacts added to the class loader (non-configuation artifacts).
      */
-    private final LinkedHashSet dependencies;
+    private final LinkedHashSet dependencies = new LinkedHashSet();
 
     /**
      * The GBeanData objects by ObjectName
@@ -185,29 +176,21 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     private final MultiParentClassLoader configurationClassLoader;
 
     /**
-     * The repositories used dependencies.
+     * The relative class path (URI) of this configuation.
      */
-    private final Collection repositories;
-
-    /**
-     * The artifact manager in which loaded artifacts are registered.
-     */
-    private final ArtifactManager artifactManager;
+    private final LinkedHashSet classPath;
 
     /**
      * Only used to allow declaration as a reference.
      */
     public Configuration() {
-        environment = null;
-        configurationStore = null;
         id = null;
-        objectName = null;
         abstractName = null;
         moduleType = null;
-        dependencies = null;
+        environment = null;
+        classPath = null;
+        configurationResolver = null;
         configurationClassLoader = null;
-        repositories = null;
-        artifactManager = null;
     }
 
     /**
@@ -217,35 +200,30 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @param environment
      * @param classPath    a List<URI> of locations that define the codebase for this Configuration
      * @param gbeanState   a byte array contain the Java Serialized form of the GBeans in this Configuration
-     * @param repositories a Collection<Repository> of repositories used to resolve dependencies
      */
-    public Configuration(Collection parents, String objectName, ConfigurationModuleType moduleType, Environment environment, List classPath, byte[] gbeanState, Collection repositories, ConfigurationStore configurationStore, ArtifactManager artifactManager, ArtifactResolver artifactResolver) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
+    public Configuration(Collection parents, /*String objectName, */ConfigurationModuleType moduleType, Environment environment, List classPath, byte[] gbeanState, ConfigurationResolver configurationResolver/*, Collection repositories, ConfigurationStore configurationStore, ArtifactManager artifactManager, ArtifactResolver artifactResolver*/) throws MissingDependencyException, MalformedURLException, NoSuchConfigException, InvalidConfigException {
+        if (parents == null) parents = Collections.EMPTY_SET;
+        if (moduleType == null) throw new NullPointerException("moduleType is null");
+        if (environment == null) throw new NullPointerException("environment is null");
+        if (classPath == null) classPath = Collections.EMPTY_LIST;
+        if (configurationResolver == null) throw new NullPointerException("configurationResolver is null");
+
         this.environment = environment;
         this.moduleType = moduleType;
-        this.repositories = repositories;
-        this.configurationStore = configurationStore;
-        this.artifactManager = artifactManager;
+        this.configurationResolver = configurationResolver;
+        this.classPath = new LinkedHashSet(classPath);
 
         this.id = environment.getConfigId();
-        this.objectName = objectName == null ? null : JMXUtil.getObjectName(objectName);
-        if (objectName.equals(getConfigurationObjectName(id))) {
-            throw new IllegalArgumentException("Expected objectName " +
-                    "<" + getConfigurationObjectName(id).getCanonicalName() + ">" +
-                    ", but actual objectName is " +
-                    "<" + this.objectName.getCanonicalName() + ">");
-        }
         abstractName = getConfigurationAbstractName(id);
 
         //
-        // Resolve all artifacts in the environment
+        // Transitively resolve all the dependencies in the environment
         //
-        if (artifactResolver == null) {
-            artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
-        }
-        environment.setDependencies(resolveDependencies(artifactResolver, parents, environment.getDependencies()));
+        List transtiveDependencies = configurationResolver.resolveTransitiveDependencies(parents, environment.getDependencies());
+        environment.setDependencies(transtiveDependencies);
 
         //
-        // Process environment splitting it into classParents, serviceParents and artifactDependencies
+        // Process transtive dependencies splitting it into classParents, serviceParents and artifactDependencies
         //
         if (parents == null) parents = Collections.EMPTY_SET;
         Map parentsById = new HashMap();
@@ -255,8 +233,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             parentsById.put(id, configuration);
         }
 
-        LinkedHashSet dependencies = new LinkedHashSet();
-        for (Iterator iterator = environment.getDependencies().iterator(); iterator.hasNext();) {
+        for (Iterator iterator = transtiveDependencies.iterator(); iterator.hasNext();) {
             Dependency dependency = (Dependency) iterator.next();
             Artifact artifact = dependency.getArtifact();
             if (parentsById.containsKey(artifact)) {
@@ -273,11 +250,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 dependencies.add(artifact);
             }
         }
-
-        //
-        // recursively resolve the artifact dependencies
-        //
-        this.dependencies = recursiveResolve(parents, artifactResolver, dependencies);
 
         //
         // Propagate non-overridable classes from class parents
@@ -341,43 +313,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 Thread.currentThread().setContextClassLoader(oldCl);
             }
         }
-
-        //
-        // Preprocess all of the GBeans resolving the singleton-references, dependencies, and setting a few configuration specific attributes
-        //
-        for (Iterator iterator = gbeans.values().iterator(); iterator.hasNext();) {
-            GBeanData gbeanData = (GBeanData) iterator.next();
-            preprocessGBeanData(gbeanData);
-        }
-    }
-
-    private List resolveDependencies(ArtifactResolver artifactResolver, Collection parents, List dependencies) throws MissingDependencyException {
-        List resolvedDependencies = new ArrayList();
-        for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-            Dependency dependency =  (Dependency) iterator.next();
-            Artifact artifact = dependency.getArtifact();
-            artifact = artifactResolver.resolve(parents, artifact);
-            resolvedDependencies.add(new Dependency(artifact, dependency.getImportType()));
-        }
-        return resolvedDependencies;
-    }
-
-    private LinkedHashSet recursiveResolve(Collection parents, ArtifactResolver artifactResolver, LinkedHashSet dependencies) throws MissingDependencyException {
-        dependencies = artifactResolver.resolve(parents, dependencies);
-        for (Iterator iterator = new ArrayList(dependencies).iterator(); iterator.hasNext();) {
-            Artifact dependency = (Artifact) iterator.next();
-            for (Iterator iterator1 = repositories.iterator(); iterator1.hasNext();) {
-                Repository repository = (Repository) iterator1.next();
-                if (repository.contains(dependency)) {
-                    LinkedHashSet subDependencies = repository.getDependencies(dependency);
-                    if (!subDependencies.isEmpty()) {
-                        subDependencies = recursiveResolve(parents, artifactResolver, subDependencies);
-                        dependencies.addAll(subDependencies);
-                    }
-                }
-            }
-        }
-        return dependencies;
     }
 
     private void getDepthFirstServiceParents(Configuration configuration, List ancestors) {
@@ -392,23 +327,13 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         List urls = new ArrayList();
         for (Iterator i = dependencies.iterator(); i.hasNext();) {
             Artifact artifact = (Artifact) i.next();
-            File file = null;
-            for (Iterator j = repositories.iterator(); j.hasNext();) {
-                Repository repository = (Repository) j.next();
-                if (repository.contains(artifact)) {
-                    file = repository.getLocation(artifact);
-                    break;
-                }
-            }
-            if (file == null) {
-                throw new MissingDependencyException("Unable to resolve dependency " + artifact);
-            }
+            File file = configurationResolver.resolve(artifact);
             urls.add(file.toURL());
         }
         if (classPath != null) {
             for (Iterator i = classPath.iterator(); i.hasNext();) {
                 URI uri = (URI) i.next();
-                urls.add(configurationStore.resolve(id, uri));
+                urls.add(configurationResolver.resolve(uri));
             }
         }
         return (URL[]) urls.toArray(new URL[urls.size()]);
@@ -427,7 +352,11 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      * @return the unique name of this configuration
      */
     public String getObjectName() {
-        return objectName.getCanonicalName();
+        try {
+            return getConfigurationObjectName(id).getCanonicalName();
+        } catch (InvalidConfigException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public AbstractName getAbstractName() {
@@ -472,6 +401,34 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     /**
+     * @deprecated this is only exposed temporarily for configuration manager
+     */
+    public ConfigurationResolver getConfigurationResolver() {
+        return configurationResolver;
+    }
+
+    /**
+     * Gets the relative class path (URIs) of this configuration.
+     * @return the relative class path of this configuation
+     */
+    public List getClassPath() {
+        return new ArrayList(classPath);
+    }
+
+    public void addToClassPath(URI path) throws IOException {
+        if (!classPath.contains(path)) {
+            try {
+                configurationResolver.resolve(path);
+                URL url = configurationResolver.resolve(path);
+                configurationClassLoader.addURL(url);
+                classPath.add(path);
+            } catch (Exception e) {
+                throw new IOException("Unable to extend classpath with " + path);
+            }
+        }
+    }
+
+    /**
      * Gets the type of the configuration (WAR, RAR et cetera)
      * @return Type of the configuration.
      */
@@ -485,10 +442,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
      */
     public ClassLoader getConfigurationClassLoader() {
         return configurationClassLoader;
-    }
-
-    public ConfigurationStore getConfigurationStore() {
-        return configurationStore;
     }
 
     /**
@@ -508,11 +461,10 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         return gbeans.containsKey(gbean);
     }
 
-    public synchronized void addGBean(GBeanData gbean) throws InvalidConfigException, GBeanAlreadyExistsException {
+    public synchronized void addGBean(GBeanData gbean) throws GBeanAlreadyExistsException {
         if (gbeans.containsKey(gbean.getAbstractName())) {
             throw new GBeanAlreadyExistsException(gbean.getName().getCanonicalName());
         }
-        preprocessGBeanData(gbean);
         gbeans.put(gbean.getAbstractName(), gbean);
     }
 
@@ -521,55 +473,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
             throw new GBeanNotFoundException(name);
         }
         gbeans.remove(name);
-    }
-
-    private void preprocessGBeanData(GBeanData gbeanData) throws InvalidConfigException {
-        for (Iterator references = gbeanData.getReferencesNames().iterator(); references.hasNext();) {
-            String referenceName = (String) references.next();
-            GReferenceInfo referenceInfo = gbeanData.getGBeanInfo().getReference(referenceName);
-            if (referenceInfo == null) {
-                throw new InvalidConfigException("No reference named " + referenceName + " in gbean " + gbeanData.getAbstractName());
-            }
-            boolean isSingleValued = !referenceInfo.getProxyType().equals(Collection.class.getName());
-            if (isSingleValued) {
-                ReferencePatterns referencePatterns = gbeanData.getReferencePatterns(referenceName);
-                AbstractName abstractName = null;
-                try {
-                    abstractName = findGBean(referencePatterns);
-                } catch (GBeanNotFoundException e) {
-                    throw new InvalidConfigException("Unable to resolve reference named " + referenceName + " in gbean " + gbeanData.getAbstractName(), e);
-                }
-                gbeanData.setReferencePatterns(referenceName, new ReferencePatterns(abstractName));
-            }
-        }
-
-        Set newDependencies = new HashSet();
-        for (Iterator dependencyIterator = gbeanData.getDependencies().iterator(); dependencyIterator.hasNext();) {
-            ReferencePatterns referencePatterns = (ReferencePatterns) dependencyIterator.next();
-            AbstractName abstractName = null;
-            try {
-                abstractName = findGBean(referencePatterns);
-            } catch (GBeanNotFoundException e) {
-                throw new InvalidConfigException("Unable to resolve dependency in gbean " + gbeanData.getAbstractName(), e);
-            }
-            newDependencies.add(new ReferencePatterns(abstractName));
-        }
-        gbeanData.setDependencies(newDependencies);
-
-        // If the GBean has a configurationBaseUrl attribute, set it
-        // todo remove this when web app cl are config. cl.
-        GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
-        if (attribute != null && attribute.getType().equals("java.net.URL")) {
-            try {
-                URL baseURL = configurationStore.resolve(id, URI.create(""));
-                gbeanData.setAttribute("configurationBaseUrl", baseURL);
-            } catch (Exception e) {
-                throw new InvalidConfigException("Unable to set attribute named " + "configurationBaseUrl" + " in gbean " + gbeanData.getAbstractName(), e);
-            }
-        }
-
-        // add a dependency from the gbean to the configuration
-        gbeanData.addDependency(abstractName);
     }
 
     public AbstractName findGBean(AbstractNameQuery pattern) throws GBeanNotFoundException {
@@ -588,32 +491,67 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public AbstractName findGBean(Set patterns) throws GBeanNotFoundException {
-        AbstractName result = resolve(this, patterns);
-        if (result != null) {
-            return result;
+        Set result = findGBeans(this, patterns);
+        if (result.size() > 1) {
+            throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
+        } else if (result.size() == 1) {
+            return (AbstractName) result.iterator().next();
         }
 
         // search all parents
         for (Iterator iterator = allServiceParents.iterator(); iterator.hasNext();) {
             Configuration configuration = (Configuration) iterator.next();
-            AbstractName match = resolve(configuration, patterns);
+            Set match = findGBeans(configuration, patterns);
 
             // if we already found a match we have an ambiguous query
-            if (result != null) {
-                throw new GBeanNotFoundException("More than one match for referencePatterns", patterns);
+            if (match.size() > 1) {
+                throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
+            } else if (match.size() == 1) {
+                return (AbstractName) result.iterator().next();
             }
             result = match;
         }
 
-        if (result == null) {
+        if (result.isEmpty()) {
             throw new GBeanNotFoundException("No matches for referencePatterns", patterns);
+        }
+
+        return (AbstractName) result.iterator().next();
+    }
+
+    public LinkedHashSet findGBeans(AbstractNameQuery pattern) {
+        if (pattern == null) throw new NullPointerException("pattern is null");
+        return findGBeans(Collections.singleton(pattern));
+    }
+
+    public LinkedHashSet findGBeans(ReferencePatterns referencePatterns) {
+        if (referencePatterns.getAbstractName() != null) {
+            // this pattern is already resolved
+            LinkedHashSet result = new LinkedHashSet();
+            result.add(referencePatterns.getAbstractName());
+            return result;
+        }
+
+        // check the local config
+        Set patterns = referencePatterns.getPatterns();
+        return findGBeans(patterns);
+    }
+
+    public LinkedHashSet findGBeans(Set patterns) {
+        LinkedHashSet result = findGBeans(this, patterns);
+
+        // search all parents
+        for (Iterator iterator = allServiceParents.iterator(); iterator.hasNext();) {
+            Configuration configuration = (Configuration) iterator.next();
+            Set match = findGBeans(configuration, patterns);
+            result.addAll(match);
         }
 
         return result;
     }
 
-    private AbstractName resolve(Configuration configuration, Set patterns) throws GBeanNotFoundException {
-        AbstractName result = null;
+    private LinkedHashSet findGBeans(Configuration configuration, Set patterns) {
+        LinkedHashSet result = new LinkedHashSet();
 
         Set gbeanNames = configuration.getGBeans().keySet();
         for (Iterator abstractNameQueries = patterns.iterator(); abstractNameQueries.hasNext();) {
@@ -627,11 +565,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
                 for (Iterator iterator = gbeanNames.iterator(); iterator.hasNext();) {
                     AbstractName abstractName = (AbstractName) iterator.next();
                     if (abstractNameQuery.matches(abstractName)) {
-                        // if we already found a match we have an ambiguous query
-                        if (result != null ) {
-                            throw new GBeanNotFoundException("More than one match to referencePatterns", patterns);
-                        }
-                        result = abstractName;
+                        result.add(abstractName);
                     }
                 }
             }
@@ -640,13 +574,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     }
 
     public void doStart() throws Exception {
-        assert objectName != null;
-
-        // declare the artifacts as loaded
-        if (artifactManager != null) {
-            artifactManager.loadArtifacts(id, dependencies);
-        }
-
         log.debug("Started configuration " + id);
     }
 
@@ -668,11 +595,6 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
         // destroy the class loader
         if (configurationClassLoader != null) {
             configurationClassLoader.destroy();
-        }
-
-        // declare all artifacts as unloaded
-        if (artifactManager != null) {
-            artifactManager.unloadAllArtifacts(id);
         }
     }
 
@@ -722,35 +644,22 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Configuration.class);//does not use jsr-77 naming
-        infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("environment", Environment.class, true, false);
+        infoFactory.addReference("Parents", Configuration.class);
         infoFactory.addAttribute("type", ConfigurationModuleType.class, true, false);
+        infoFactory.addAttribute("environment", Environment.class, true, false);
         infoFactory.addAttribute("classPath", List.class, true, false);
         infoFactory.addAttribute("gBeanState", byte[].class, true, false);
-        infoFactory.addAttribute("configurationClassLoader", ClassLoader.class, false);
-        //make id readable for convenience
-        infoFactory.addAttribute("id", Artifact.class, false);
-        //NOTE THESE IS NOT REFERENCES
-        infoFactory.addAttribute("configurationStore", ConfigurationStore.class, true);
-        infoFactory.addAttribute("artifactManager", ArtifactManager.class, true);
-        infoFactory.addAttribute("artifactResolver", ArtifactResolver.class, true);
-
-        infoFactory.addReference("Parents", Configuration.class);
-        infoFactory.addReference("Repositories", Repository.class, "Repository");
+        infoFactory.addAttribute("configurationResolver", ConfigurationResolver.class, true);
 
         infoFactory.addInterface(Configuration.class);
 
         infoFactory.setConstructor(new String[]{
                 "Parents",
-                "objectName",
                 "type",
                 "environment",
                 "classPath",
                 "gBeanState",
-                "Repositories",
-                "configurationStore",
-                "artifactManager",
-                "artifactResolver"
+                "configurationResolver",
         });
 
         GBEAN_INFO = infoFactory.getBeanInfo();

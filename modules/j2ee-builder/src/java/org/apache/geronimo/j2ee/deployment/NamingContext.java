@@ -20,18 +20,19 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.repository.Artifact;
 
 import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
 public interface NamingContext {
 
     AbstractName getModuleName();
 
-    void addGBean(GBeanData gbean);
+    void addGBean(GBeanData gbean) throws GBeanAlreadyExistsException;
 
     Set getGBeanNames();
 

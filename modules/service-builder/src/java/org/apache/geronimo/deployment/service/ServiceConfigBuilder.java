@@ -37,6 +37,7 @@ import org.apache.geronimo.gbean.ReferenceMap;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -56,11 +57,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
 public class ServiceConfigBuilder implements ConfigurationBuilder {
     private final Environment defaultEnvironment;
@@ -164,7 +164,7 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
         } catch (ConfigurationAlreadyExistsException e) {
             throw new DeploymentException(e);
         }
-        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, Collections.singleton(repository), kernel);
+        DeploymentContext context = new DeploymentContext(outfile, environment, ConfigurationModuleType.SERVICE, kernel);
         ClassLoader cl = context.getClassLoader();
 
 
@@ -265,8 +265,12 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
             }
         }
 
-        GBeanData gBeanData = builder.getGBeanData();
-        context.addGBean(gBeanData);
+        GBeanData gbeanData = builder.getGBeanData();
+        try {
+            context.addGBean(gbeanData);
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException(e);
+        }
         return abstractName;
     }
 

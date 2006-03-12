@@ -85,7 +85,7 @@ import java.util.zip.ZipEntry;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public class AppClientModuleBuilder implements ModuleBuilder {
 
@@ -272,7 +272,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             EARContext appClientDeploymentContext = new EARContext(appClientDir,
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
-                    Collections.singleton(repository),
                     kernel,
                     clientApplicationName,
                     transactionContextManagerObjectName,

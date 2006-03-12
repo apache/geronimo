@@ -54,7 +54,7 @@ import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384999 $ $Date$
  */
 public class ConfigTest extends TestCase {
     private Kernel kernel;
@@ -73,14 +73,14 @@ public class ConfigTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
         assertNotNull(configuration.getConfigurationClassLoader());
 
-        assertTrue(kernel.isLoaded(gbeanName1));
-        assertTrue(kernel.isLoaded(gbeanName2));
-
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName1));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
         // start -- gbeans should now be started
         configurationManager.startConfiguration(configuration);
+
+        assertTrue(kernel.isLoaded(gbeanName1));
+        assertTrue(kernel.isLoaded(gbeanName2));
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName1));
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(gbeanName2));
@@ -109,11 +109,8 @@ public class ConfigTest extends TestCase {
         // stop -- gbeans should now be started, but still registered
         configurationManager.stopConfiguration(configuration);
 
-        assertTrue(kernel.isLoaded(gbeanName1));
-        assertTrue(kernel.isLoaded(gbeanName2));
-
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName1));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
 
         // unload -- configuration and gbeans should be unloaded
@@ -133,10 +130,8 @@ public class ConfigTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
         assertNotNull(configuration.getConfigurationClassLoader());
 
-        assertTrue(kernel.isLoaded(gbeanName1));
-        assertTrue(kernel.isLoaded(gbeanName2));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName1));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
 
         // start -- gbeans should now be started
@@ -151,10 +146,8 @@ public class ConfigTest extends TestCase {
         // stop -- gbeans should now be started, but still registered
         configurationManager.stopConfiguration(configuration);
 
-        assertTrue(kernel.isLoaded(gbeanName1));
-        assertTrue(kernel.isLoaded(gbeanName2));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName1));
-        assertEquals(State.STOPPED_INDEX, kernel.getGBeanState(gbeanName2));
+        assertFalse(kernel.isLoaded(gbeanName1));
+        assertFalse(kernel.isLoaded(gbeanName2));
 
 
         // restart -- gbeans should now be started
@@ -247,7 +240,7 @@ public class ConfigTest extends TestCase {
         gbeans.add(mockBean2);
 
 
-        configurationData = new ConfigurationData(ConfigurationModuleType.CAR, null, gbeans, null, environment, null);
+        configurationData = new ConfigurationData(ConfigurationModuleType.CAR, null, gbeans, null, environment, new File("."));
     }
 
     private GBeanData buildGBeanData(Artifact artifact, String[] key, String[] value, GBeanInfo info) throws MalformedObjectNameException {

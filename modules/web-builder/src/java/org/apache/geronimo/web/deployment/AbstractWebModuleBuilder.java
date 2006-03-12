@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.jar.JarFile;
 import java.io.File;
@@ -69,7 +68,7 @@ import org.apache.geronimo.security.jacc.ComponentPermissions;
 import org.apache.geronimo.security.util.URLPattern;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     protected static final ObjectName MANAGED_CONNECTION_FACTORY_PATTERN;
@@ -190,7 +189,6 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                 moduleContext = new EARContext(configurationDir,
                         environment,
                         ConfigurationModuleType.WAR,
-                        Collections.singleton(repository),
                         kernel,
                         earContext.getJ2EEApplicationName(),
                         earContext.getTransactionContextManagerObjectName(),

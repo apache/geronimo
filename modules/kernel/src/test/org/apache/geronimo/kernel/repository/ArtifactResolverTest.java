@@ -20,6 +20,7 @@ import junit.framework.TestCase;
 import org.apache.geronimo.kernel.ConfigTest;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
 
 import java.io.File;
 import java.util.Collections;
@@ -87,19 +88,21 @@ public class ArtifactResolverTest extends TestCase {
         ArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, mockRepository);
 
         // create parent which uses version1 explicitly
+        ConfigurationResolver configurationResolver = new ConfigurationResolver(loader,
+                new ConfigTest.MockConfigStore(new File("foo").toURL()),
+                Collections.singleton(mockRepository),
+                artifactResolver);
+
         Environment environment = new Environment();
         environment.setConfigId(loader);
         environment.addDependency(version1, ImportType.CLASSES);
         Configuration parent = new Configuration(null,
-                Configuration.getConfigurationObjectName(loader).getCanonicalName(),
                 ConfigurationModuleType.SERVICE,
                 environment,
                 null,
                 null,
-                Collections.singleton(mockRepository),
-                new ConfigTest.MockConfigStore(new File("foo").toURL()),
-                artifactManager,
-                artifactResolver);
+                configurationResolver);
+
         LinkedHashSet parents = new LinkedHashSet();
         parents.add(parent);
 

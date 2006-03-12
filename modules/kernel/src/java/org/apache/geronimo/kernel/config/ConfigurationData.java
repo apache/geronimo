@@ -27,7 +27,7 @@ import java.util.List;
 import java.io.File;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 382645 $ $Date$
  */
 public class ConfigurationData {
 
@@ -63,6 +63,7 @@ public class ConfigurationData {
         } else {
             this.classPath = new LinkedHashSet();
         }
+        if (gbeans == null) gbeans = Collections.EMPTY_LIST;
         this.gbeans = gbeans;
         this.childConfigurations = childConfigurations;
         this.environment = environment;

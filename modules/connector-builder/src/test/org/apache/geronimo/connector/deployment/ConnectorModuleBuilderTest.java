@@ -83,7 +83,7 @@ import java.util.Set;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
 public class ConnectorModuleBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
@@ -356,7 +356,6 @@ public class ConnectorModuleBuilderTest extends TestCase {
                 EARContext earContext = new EARContext(tempDir,
                         module.getEnvironment(),
                         module.getType(),
-                        Collections.singleton(repository),
                         kernel,
                         j2eeContext.getJ2eeApplicationName(),
                         null,

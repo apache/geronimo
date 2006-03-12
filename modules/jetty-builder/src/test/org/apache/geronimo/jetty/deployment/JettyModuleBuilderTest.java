@@ -82,7 +82,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
 public class JettyModuleBuilderTest extends TestCase {
     private String DOMAIN_NAME = "geronimo.test";
@@ -160,7 +160,6 @@ public class JettyModuleBuilderTest extends TestCase {
         EARContext earContext = new EARContext(outputPath,
                 environment,
                 ConfigurationModuleType.WAR,
-                null,
                 kernel,
                 moduleContext.getJ2eeApplicationName(),
                 tcmName,

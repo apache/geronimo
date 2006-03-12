@@ -85,37 +85,42 @@ public class ConfigurationManagerTest extends TestCase {
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
         ArtifactManager artifactManager = (ArtifactManager) kernel.getProxyManager().createProxy(artifactManagerData.getAbstractName(), ArtifactManager.class);
 
+        TestConfigStore configStore = new TestConfigStore();
+        TestRepository testRepository = new TestRepository();
+        DefaultArtifactResolver artifactResolver = new DefaultArtifactResolver(artifactManager, testRepository);
+
         artifact1 = new Artifact("test", "1", "1.1", "bar");
         artifact2 = new Artifact("test", "2", "2.2", "bar");
         artifact3 = new Artifact("test", "3", "3.3", "bar");
 
         Environment e1 = new Environment();
         e1.setConfigId(artifact1);
-        GBeanData gbeanData1 = new GBeanData(Configuration.getConfigurationAbstractName(artifact1), Configuration.GBEAN_INFO);
-        gbeanData1.setAttribute("environment", e1);
+        ConfigurationData configurationData1 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e1, new File("."));
+        GBeanData gbeanData1 = ConfigurationUtil.toConfigurationGBeanData(configurationData1, configStore, Collections.singleton(testRepository), artifactResolver);
         configurations.put(artifact1, gbeanData1);
 
         Environment e2 = new Environment();
         e2.setConfigId(artifact2);
         e2.addDependency(new Artifact("test", "1", (Version) null, "bar"), ImportType.ALL);
-        GBeanData gbeanData2 = new GBeanData(Configuration.getConfigurationAbstractName(artifact2), Configuration.GBEAN_INFO);
-        gbeanData2.setAttribute("environment", e2);
+        ConfigurationData configurationData2 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e2, new File("."));
+        GBeanData gbeanData2 = ConfigurationUtil.toConfigurationGBeanData(configurationData2, configStore, Collections.singleton(testRepository), artifactResolver);
         configurations.put(artifact2, gbeanData2);
 
         Environment e3 = new Environment();
         e3.setConfigId(artifact3);
         e3.addDependency(new Artifact("test", "2", (Version) null, "bar"), ImportType.ALL);
-        GBeanData gbeanData3 = new GBeanData(Configuration.getConfigurationAbstractName(artifact3), Configuration.GBEAN_INFO);
-        gbeanData3.setAttribute("environment", e3);
+        ConfigurationData configurationData3 = new ConfigurationData(ConfigurationModuleType.CAR, null, null, null, e3, new File("."));
+        GBeanData gbeanData3 = ConfigurationUtil.toConfigurationGBeanData(configurationData3, configStore, Collections.singleton(testRepository), artifactResolver);
         configurations.put(artifact3, gbeanData3);
 
-        TestRepository testRepository = new TestRepository();
+
         configurationManager = new ConfigurationManagerImpl(kernel,
-                Collections.singleton(new TestConfigStore()),
+                Collections.singleton(configStore),
                 null,
                 null,
                 artifactManager,
-                new DefaultArtifactResolver(artifactManager, testRepository),
+                artifactResolver,
+                Collections.singleton(testRepository),
                 ConfigurationManagerImpl.class.getClassLoader());
     }
 
@@ -191,7 +196,7 @@ public class ConfigurationManagerTest extends TestCase {
         }
 
         public LinkedHashSet getDependencies(Artifact artifact) {
-            throw new UnsupportedOperationException();
+            return new LinkedHashSet();
         }
     }
 }

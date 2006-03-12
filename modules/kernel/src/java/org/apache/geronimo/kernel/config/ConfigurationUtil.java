@@ -16,31 +16,30 @@
  */
 package org.apache.geronimo.kernel.config;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
 import java.io.ObjectOutputStream;
-import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanQuery;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
-import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.ArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384351 $ $Date$
  */
 public final class ConfigurationUtil {
     private ConfigurationUtil() {
@@ -96,11 +95,9 @@ public final class ConfigurationUtil {
     public static void storeBootstrapConfiguration(ConfigurationData configurationData, OutputStream out) throws InvalidConfigException, IOException {
         ObjectOutputStream objectOutputStream = null;
         try {
-            GBeanData configurationGBeanData = toConfigurationGBeanData(configurationData, null);
+            GBeanData configurationGBeanData = toConfigurationGBeanData(configurationData, null, null, null);
             objectOutputStream = new ObjectOutputStream(out);
             configurationGBeanData.writeExternal(objectOutputStream);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException(e);
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
@@ -118,7 +115,7 @@ public final class ConfigurationUtil {
 
     // This method is package protected in an attempt to hide how we turn ConfigurationData into a GBeanData
     // user should be using ConfigurationManager to do this work
-    static GBeanData toConfigurationGBeanData(ConfigurationData configurationData, ConfigurationStore configurationStore) throws InvalidConfigException, MalformedObjectNameException {
+    static GBeanData toConfigurationGBeanData(ConfigurationData configurationData, ConfigurationStore configurationStore, Collection repositories, ArtifactResolver artifactResolver) throws InvalidConfigException {
         Artifact id = configurationData.getId();
         AbstractName abstractName = Configuration.getConfigurationAbstractName(id);
         GBeanData gbeanData = new GBeanData(abstractName, Configuration.GBEAN_INFO);
@@ -127,10 +124,15 @@ public final class ConfigurationUtil {
         gbeanData.setAttribute("environment", environment);
         gbeanData.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));
         gbeanData.setAttribute("classPath", configurationData.getClassPath());
+
+        ConfigurationResolver configurationResolver;
         if (configurationStore != null) {
-            gbeanData.setAttribute("configurationStore", configurationStore);
+            configurationResolver = new ConfigurationResolver(configurationData.getEnvironment().getConfigId(), configurationStore, repositories, artifactResolver);
+        } else {
+            configurationResolver = new ConfigurationResolver(configurationData.getEnvironment().getConfigId(), configurationData.getConfigurationDir(), repositories, artifactResolver);
         }
-        gbeanData.setReferencePattern("Repositories", new AbstractNameQuery(Repository.class.getName()));
+        gbeanData.setAttribute("configurationResolver", configurationResolver);
+
         return gbeanData;
     }
 

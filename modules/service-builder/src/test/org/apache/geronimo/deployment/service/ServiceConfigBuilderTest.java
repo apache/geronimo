@@ -28,16 +28,22 @@ import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 import javax.management.ObjectName;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.Collections;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
 public class ServiceConfigBuilderTest extends TestCase {
 
@@ -61,14 +67,20 @@ public class ServiceConfigBuilderTest extends TestCase {
         try {
 
             Environment environment = EnvironmentBuilder.buildEnvironment(plan.getEnvironment());
-            DeploymentContext context = new DeploymentContext(outFile, environment, ConfigurationModuleType.SERVICE, null, null);
+            Configuration configuration = new Configuration(null,
+                    ConfigurationModuleType.CAR,
+                    environment,
+                    null,
+                    null,
+                    new ConfigurationResolver(environment.getConfigId(), outFile, Collections.singleton(new MockRepository())));
+            DeploymentContext context = new DeploymentContext(configuration, outFile);
             AbstractName j2eeContext = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.SERVICE, null);
-//            new J2eeContextImpl("domain", "server", "null", "test", "configtest", "foo", NameFactory.J2EE_MODULE);
+
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);
-            Set beanDatas = context.listGBeans(null);
-            assertEquals(1, beanDatas.size());
-            AbstractName beanName = (AbstractName) beanDatas.iterator().next();
+            Set gbeanNames = context.getGBeanNames();
+            assertEquals(1, gbeanNames.size());
+            AbstractName beanName = (AbstractName) gbeanNames.iterator().next();
             GBeanData data = context.getGBeanInstance(beanName);
             FooBarBean fooBarBean = (FooBarBean) data.getAttribute("fooBarBean");
             assertNotNull(fooBarBean);
@@ -98,6 +110,19 @@ public class ServiceConfigBuilderTest extends TestCase {
         file.delete();
     }
 
+    private static class MockRepository implements Repository {
+        public boolean contains(Artifact artifact) {
+            return true;
+        }
+
+        public File getLocation(Artifact artifact) {
+            return new File(".");
+        }
+
+        public LinkedHashSet getDependencies(Artifact artifact) {
+            return new LinkedHashSet();
+        }
+    }
     private static class MockReferenceCollection extends ArrayList implements ReferenceCollection {
 
         public void addReferenceCollectionListener(ReferenceCollectionListener listener) {

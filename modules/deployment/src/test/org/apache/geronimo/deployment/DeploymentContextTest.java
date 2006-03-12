@@ -21,19 +21,35 @@ import net.sf.cglib.core.DefaultGeneratorStrategy;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.EditableConfigurationManagerImpl;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
+import org.apache.geronimo.kernel.config.ConfigurationManager;
+import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.AbstractName;
 
 import javax.sql.DataSource;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Hashtable;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public class DeploymentContextTest extends TestCase {
     private byte[] classBytes;
@@ -45,11 +61,18 @@ public class DeploymentContextTest extends TestCase {
         try {
             basedir.deleteOnExit();
             Environment environment = new Environment();
-            environment.setConfigId(new Artifact("foo", "artifact", "1", "car"));
+            Artifact configId = new Artifact("foo", "artifact", "1", "car");
+            environment.setConfigId(configId);
             Map nameKeys = new HashMap();
             nameKeys.put("domain", "d");
             environment.setProperties(nameKeys);
-            DeploymentContext context = new DeploymentContext(basedir, environment, ConfigurationModuleType.CAR, null, null);
+            Configuration configuration = new Configuration(null,
+                    ConfigurationModuleType.CAR,
+                    environment,
+                    null,
+                    null,
+                    new ConfigurationResolver(configId, basedir));
+            DeploymentContext context = new DeploymentContext(configuration, basedir);
             Enhancer enhancer = new Enhancer();
             enhancer.setInterfaces(new Class[]{DataSource.class});
             enhancer.setCallbackType(MethodInterceptor.class);

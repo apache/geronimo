@@ -78,7 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public class ServiceReferenceTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
@@ -107,7 +107,7 @@ public class ServiceReferenceTest extends TestCase {
         Map nameKeys = new HashMap();
         nameKeys.put("domain", "geronimo");
         environment.setProperties(nameKeys);
-        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, null, null);
+        context = new DeploymentContext(tmpbasedir, environment, ConfigurationModuleType.CAR, null);
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();

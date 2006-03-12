@@ -34,6 +34,7 @@ import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -44,7 +45,6 @@ import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.schema.SchemaConversionUtils;
 import org.apache.geronimo.security.deployment.SecurityBuilder;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
-import org.apache.geronimo.security.jacc.ApplicationPolicyConfigurationManager;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationDocument;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerApplicationType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
@@ -55,7 +55,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +74,7 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public class EARConfigBuilder implements ConfigurationBuilder {
 
@@ -305,7 +304,6 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 earContext = new EARContext(configurationDir,
                         applicationInfo.getEnvironment(),
                         applicationType,
-                        Collections.singleton(repository),
                         kernel,
                         applicationInfo.getApplicationName(),
                         transactionContextManagerObjectName,
@@ -393,6 +391,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             }
             earContext.close();
             return earContext.getConfigurationData();
+        } catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException(e);
         } finally {
             Set modules = applicationInfo.getModules();
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {

@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import javax.management.MalformedObjectNameException;
+import java.util.HashSet;
+import java.net.URL;
+import java.net.URI;
 import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
@@ -40,6 +42,9 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
+import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.ReferencePatterns;
+import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.InternalKernelException;
@@ -54,13 +59,14 @@ import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
 import org.apache.geronimo.kernel.repository.MissingDependencyException;
+import org.apache.geronimo.kernel.repository.Repository;
 
 /**
  * The standard non-editable ConfigurationManager implementation.  That is,
  * you can save a lost configurations and stuff, but not change the set of
  * GBeans included in a configuration.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 384999 $ $Date$
  * @see EditableConfigurationManager
  */
 public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLifecycle {
@@ -75,26 +81,30 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     private final ArtifactResolver artifactResolver;
     private final ClassLoader classLoader;
     private final Map configurations = new LinkedHashMap();
+    private final Collection repositories;
 
     public ConfigurationManagerImpl(Kernel kernel,
-                                    Collection stores,
-                                    ManageableAttributeStore attributeStore,
-                                    PersistentConfigurationList configurationList,
-                                    ArtifactManager artifactManager,
-                                    ArtifactResolver artifactResolver,
-                                    ClassLoader classLoader) {
+            Collection stores,
+            ManageableAttributeStore attributeStore,
+            PersistentConfigurationList configurationList,
+            ArtifactManager artifactManager,
+            ArtifactResolver artifactResolver,
+            Collection repositories,
+            ClassLoader classLoader) {
 
         if (kernel == null) throw new NullPointerException("kernel is null");
+        if (stores == null) stores = Collections.EMPTY_SET;
         if (classLoader == null) throw new NullPointerException("classLoader is null");
+        if (artifactResolver == null) artifactResolver = new DefaultArtifactResolver(artifactManager, repositories);
+        if (repositories == null) repositories = Collections.EMPTY_SET;
 
         this.kernel = kernel;
         this.stores = stores;
         this.attributeStore = attributeStore;
         this.configurationList = configurationList;
-        if (artifactResolver == null)
-            artifactResolver = new DefaultArtifactResolver(artifactManager, Collections.EMPTY_SET);
         this.artifactManager = artifactManager;
         this.artifactResolver = artifactResolver;
+        this.repositories = repositories;
         this.classLoader = classLoader;
         shutdownHook = new ShutdownHook(kernel);
     }
@@ -147,7 +157,7 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             configurationStatus.load();
             return configurationStatus.getConfiguration();
         } else if (kernel.isLoaded(Configuration.getConfigurationObjectName(configurationId))) {
-            // hack
+            // todo hack for bootstrap deploy
             Configuration configuration = (Configuration) kernel.getProxyManager().createProxy(Configuration.getConfigurationObjectName(configurationId), Configuration.class);
             configurationStatus = createConfigurationStatus(configuration);
             configurationStatus.load();
@@ -167,13 +177,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     }
 
     public Configuration loadConfiguration(ConfigurationData configurationData, ConfigurationStore configurationStore) throws NoSuchConfigException, IOException, InvalidConfigException {
-        try {
-            GBeanData gbeanData = ConfigurationUtil.toConfigurationGBeanData(configurationData, configurationStore);
-
-            return loadConfiguration(gbeanData);
-        } catch (MalformedObjectNameException e) {
-            throw new InvalidConfigException(e);
-        }
+        GBeanData gbeanData = ConfigurationUtil.toConfigurationGBeanData(configurationData, configurationStore, repositories, artifactResolver);
+        return loadConfiguration(gbeanData);
     }
 
     private Configuration loadConfiguration(GBeanData gbeanData) throws NoSuchConfigException, IOException, InvalidConfigException {
@@ -216,6 +221,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                     // create a proxy to the configuration
                     configuration = (Configuration) kernel.getProxyManager().createProxy(configurationName, Configuration.class);
                     loadedConfigurations.put(configurationId, configuration);
+
+                    // declare the dependencies as loaded
+                    if (artifactManager != null) {
+                        artifactManager.loadArtifacts(configurationId, configuration.getDependencies());
+                    }
+
                     log.debug("Loaded Configuration " + configurationName);
                 } catch (InvalidConfigurationException e) {
                     throw e;
@@ -227,8 +238,8 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                     throw new InvalidConfigException("Error starting configuration gbean " + configurationId, e);
                 }
 
-                // todo move this to startConfiguration when deployment code has been update to not search kernel
-                registerGBeans(configuration);
+//                // todo move this to startConfiguration when deployment code has been update to not search kernel
+//                registerGBeans(configuration);
             }
         } catch (Exception e) {
             for (Iterator iterator = loadedConfigurations.keySet().iterator(); iterator.hasNext();) {
@@ -323,10 +334,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             ConfigurationStore store = (ConfigurationStore) storeSnapshot.get(i);
             if (store.containsConfiguration(configId)) {
                 GBeanData configurationGBean = store.loadConfiguration(configId);
-
                 AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);
                 configurationGBean.setAbstractName(configurationName);
-                configurationGBean.setAttribute("configurationStore", store);
+
+                Environment environment = (Environment) configurationGBean.getAttribute("environment");
+                ConfigurationResolver configurationResolver = new ConfigurationResolver(environment.getConfigId(), store, repositories, artifactResolver);
+                configurationGBean.setAttribute("configurationResolver", configurationResolver);
 
                 return configurationGBean;
             }
@@ -335,11 +348,6 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
     }
 
     private void preprocessConfiguration(GBeanData gbeanData) throws MissingDependencyException, InvalidConfigException {
-        if (artifactManager != null) {
-            gbeanData.setAttribute("artifactManager", artifactManager);
-        }
-        gbeanData.setAttribute("artifactResolver", artifactResolver);
-
         Environment environment = (Environment) gbeanData.getAttribute("environment");
 
         LinkedHashSet parentNames = new LinkedHashSet();
@@ -401,51 +409,15 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             gbeans = attributeStore.applyOverrides(getConfigurationId(configuration), gbeans, configuration.getConfigurationClassLoader());
         }
 
-//        List ancestors = new ArrayList();
-//        resolveAncestors(configuration, ancestors);
-
         // register all the GBeans
-//        AbstractName configurationName = Configuration.getConfigurationAbstractName(configuration.getId());
-//        ConfigurationStore configurationStore = configuration.getConfigurationStore();
         for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
             GBeanData gbeanData = (GBeanData) iterator.next();
 
-//            // copy the gbeanData object as not to mutate the original
-//            gbeanData = new GBeanData(gbeanData);
-//
-//            for (Iterator references = gbeanData.getReferencesNames().iterator(); references.hasNext();) {
-//                String referenceName = (String) references.next();
-//                GReferenceInfo referenceInfo = gbeanData.getGBeanInfo().getReference(referenceName);
-//                if (referenceInfo == null) {
-//                    throw new InvalidConfigException("No reference named " + referenceName + " in gbean " + gbeanData.getAbstractName());
-//                }
-//                boolean isSingleValued = !referenceInfo.getProxyType().equals(Collection.class.getName());
-//                if (isSingleValued) {
-//                    ReferencePatterns referencePatterns = gbeanData.getReferencePatterns(referenceName);
-//                    ReferencePatterns resolvedPatterns = resolveReferencePatterns(referencePatterns, ancestors);
-//                    gbeanData.setReferencePatterns(referenceName, resolvedPatterns);
-//                }
-//            }
-//
-//            Set newDependencies = new HashSet();
-//            for (Iterator dependencies = gbeanData.getDependencies().iterator(); dependencies.hasNext();) {
-//                ReferencePatterns referencePatterns = (ReferencePatterns) dependencies.next();
-//                ReferencePatterns resolvedPatterns = resolveReferencePatterns(referencePatterns, ancestors);
-//                newDependencies.add(resolvedPatterns);
-//            }
-//            gbeanData.setDependencies(newDependencies);
-//
-//            // If the GBean has a configurationBaseUrl attribute, set it
-//            // todo remove this when web app cl are config. cl.
-//            GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
-//            if (attribute != null && attribute.getType().equals("java.net.URL")) {
-//                URL baseURL = configurationStore.resolve(getConfigurationId(configuration), URI.create(""));
-//                gbeanData.setAttribute("configurationBaseUrl", baseURL);
-//            }
-//
-//            // add a dependency from the gbean to the configuration
-//            gbeanData.addDependency(configurationName);
+            // copy the gbeanData object as not to mutate the original
+            gbeanData = new GBeanData(gbeanData);
 
+            // preprocess the gbeanData (resolve references, set base url, declare dependency, etc.)
+            preprocessGBeanData(configuration, gbeanData);
             log.trace("Registering GBean " + gbeanData.getName());
 
             try {
@@ -456,60 +428,54 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
     }
 
-//    private ReferencePatterns resolveReferencePatterns(ReferencePatterns referencePatterns, List ancestors) throws InvalidConfigException {
-//        ReferencePatterns result = null;
-//        boolean first = true;
-//        for (Iterator iterator = ancestors.iterator(); iterator.hasNext();) {
-//            Configuration configuration = (Configuration) iterator.next();
-//            ReferencePatterns match = resolve(referencePatterns, configuration);
-//            if (first && match != null) {
-//                return match;
-//            }
-//            first = false;
-//            if (result != null) {
-//                throw new InvalidConfigException("More than one match for referencePatterns " + referencePatterns);
-//            }
-//            result = match;
-//        }
-//        if (result == null) {
-//            throw new InvalidConfigException("No matches for referencePatterns: " + referencePatterns);
-//        }
-//        return result;
-//    }
-//
-//    private ReferencePatterns resolve(ReferencePatterns referencePatterns, Configuration configuration) throws InvalidConfigException {
-//        if (referencePatterns.getAbstractName() != null) {
-//            //this should not occur, but it means no further resolution is needed
-//            return referencePatterns;
-//        }
-//        ReferencePatterns result = null;
-//        Set gbeanNames = configuration.getGBeans().keySet();
-//        for (Iterator abstractNameQueries = referencePatterns.getPatterns().iterator(); abstractNameQueries.hasNext();) {
-//            AbstractNameQuery abstractNameQuery =  (AbstractNameQuery) abstractNameQueries.next();
-//            Artifact queryArtifact = abstractNameQuery.getArtifact();
-//            //skip this configuration if we know it can't match.
-//            if (queryArtifact == null || queryArtifact.matches(configuration.getId())) {
-//                for (Iterator iterator = gbeanNames.iterator(); iterator.hasNext();) {
-//                    AbstractName abstractName = (AbstractName) iterator.next();
-//                    if (abstractNameQuery.matches(abstractName)) {
-//                        if (result != null ) {
-//                            throw new InvalidConfigException("More than one match to referencePatterns " + referencePatterns + " in configuration " + configuration.getId());
-//                        }
-//                        result = new ReferencePatterns(abstractName);
-//                    }
-//                }
-//            }
-//        }
-//        return result;
-//    }
-//
-//    private void resolveAncestors(Configuration configuration, List ancestors) {
-//        ancestors.add(configuration);
-//        for (Iterator parents = configuration.getServiceParents().iterator(); parents.hasNext();) {
-//            Configuration parent = (Configuration) parents.next();
-//            resolveAncestors(parent, ancestors);
-//        }
-//    }
+    protected static void preprocessGBeanData(Configuration configuration, GBeanData gbeanData) throws InvalidConfigException {
+        for (Iterator references = gbeanData.getReferencesNames().iterator(); references.hasNext();) {
+            String referenceName = (String) references.next();
+            GReferenceInfo referenceInfo = gbeanData.getGBeanInfo().getReference(referenceName);
+            if (referenceInfo == null) {
+                throw new InvalidConfigException("No reference named " + referenceName + " in gbean " + gbeanData.getAbstractName());
+            }
+            boolean isSingleValued = !referenceInfo.getProxyType().equals(Collection.class.getName());
+            if (isSingleValued) {
+                ReferencePatterns referencePatterns = gbeanData.getReferencePatterns(referenceName);
+                AbstractName abstractName = null;
+                try {
+                    abstractName = configuration.findGBean(referencePatterns);
+                } catch (GBeanNotFoundException e) {
+                    throw new InvalidConfigException("Unable to resolve reference named " + referenceName + " in gbean " + gbeanData.getAbstractName(), e);
+                }
+                gbeanData.setReferencePatterns(referenceName, new ReferencePatterns(abstractName));
+            }
+        }
+
+        Set newDependencies = new HashSet();
+        for (Iterator dependencyIterator = gbeanData.getDependencies().iterator(); dependencyIterator.hasNext();) {
+            ReferencePatterns referencePatterns = (ReferencePatterns) dependencyIterator.next();
+            AbstractName abstractName = null;
+            try {
+                abstractName = configuration.findGBean(referencePatterns);
+            } catch (GBeanNotFoundException e) {
+                throw new InvalidConfigException("Unable to resolve dependency in gbean " + gbeanData.getAbstractName(), e);
+            }
+            newDependencies.add(new ReferencePatterns(abstractName));
+        }
+        gbeanData.setDependencies(newDependencies);
+
+        // If the GBean has a configurationBaseUrl attribute, set it
+        // todo remove this when web app cl are config. cl.
+        GAttributeInfo attribute = gbeanData.getGBeanInfo().getAttribute("configurationBaseUrl");
+        if (attribute != null && attribute.getType().equals("java.net.URL")) {
+            try {
+                URL baseURL = configuration.getConfigurationResolver().resolve(URI.create(""));
+                gbeanData.setAttribute("configurationBaseUrl", baseURL);
+            } catch (Exception e) {
+                throw new InvalidConfigException("Unable to set attribute named " + "configurationBaseUrl" + " in gbean " + gbeanData.getAbstractName(), e);
+            }
+        }
+
+        // add a dependency from the gbean to the configuration
+        gbeanData.addDependency(configuration.getAbstractName());
+    }
 
     public void startConfiguration(Configuration configuration) throws InvalidConfigException {
         startConfiguration(getConfigurationId(configuration));
@@ -527,12 +493,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
             Configuration configuration = (Configuration) iterator.next();
             start(configuration);
         }
-//        // todo clean up after failure
+        // todo clean up after failure
     }
 
     public void start(Configuration configuration) throws InvalidConfigException {
         // todo move this from loadConfiguration when deployment code has been update to not search kernel
-        // registerGBeans(configuration);
+         registerGBeans(configuration);
 
         try {
             // start the gbeans
@@ -589,6 +555,12 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
                 AbstractName gbeanName = gbeanData.getAbstractName();
                 kernel.stopGBean(gbeanName);
             }
+
+            for (Iterator iterator = gbeans.iterator(); iterator.hasNext();) {
+                GBeanData gbeanData = (GBeanData) iterator.next();
+                AbstractName gbeanName = gbeanData.getAbstractName();
+                kernel.unloadGBean(gbeanName);
+            }
         } catch (Exception e) {
             throw new InvalidConfigException("Could not stop gbeans in configuration", e);
         }
@@ -625,22 +597,27 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         }
         try {
             if (State.RUNNING_INDEX == kernel.getGBeanState(configName)) {
-                try {
-                    Map gbeans = (Map) kernel.getAttribute(configName, "GBeans");
-
-                    // unload the gbeans
-                    // todo move this to stopConfiguration
-                    for (Iterator iterator = gbeans.values().iterator(); iterator.hasNext();) {
-                        GBeanData gbeanData = (GBeanData) iterator.next();
-                        AbstractName gbeanName = gbeanData.getAbstractName();
-                        kernel.unloadGBean(gbeanName);
-                    }
-                } catch (Exception e) {
-                    throw new InvalidConfigException("Could not stop gbeans in configuration", e);
-                }
+//                try {
+//                    Map gbeans = (Map) kernel.getAttribute(configName, "GBeans");
+//
+//                    // unload the gbeans
+//                    // todo move this to stopConfiguration
+//                    for (Iterator iterator = gbeans.values().iterator(); iterator.hasNext();) {
+//                        GBeanData gbeanData = (GBeanData) iterator.next();
+//                        AbstractName gbeanName = gbeanData.getAbstractName();
+//                        kernel.unloadGBean(gbeanName);
+//                    }
+//                } catch (Exception e) {
+//                    throw new InvalidConfigException("Could not stop gbeans in configuration", e);
+//                }
                 kernel.stopGBean(configName);
             }
             kernel.unloadGBean(configName);
+
+            // declare all artifacts as unloaded
+            if (artifactManager != null) {
+                artifactManager.unloadAllArtifacts(configurationId);
+            }
         } catch (GBeanNotFoundException e) {
             throw new NoSuchConfigException("No config registered: " + configName, e);
         } catch (Exception e) {
@@ -676,9 +653,10 @@ public class ConfigurationManagerImpl implements ConfigurationManager, GBeanLife
         infoFactory.addReference("PersistentConfigurationList", PersistentConfigurationList.class, PersistentConfigurationList.PERSISTENT_CONFIGURATION_LIST);
         infoFactory.addReference("ArtifactManager", ArtifactManager.class, "ArtifactManager");
         infoFactory.addReference("ArtifactResolver", ArtifactResolver.class, "ArtifactResolver");
+        infoFactory.addReference("Repositories", Repository.class, "Repository");
         infoFactory.addAttribute("classLoader", ClassLoader.class, false);
         infoFactory.addInterface(ConfigurationManager.class);
-        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "classLoader"});
+        infoFactory.setConstructor(new String[]{"kernel", "Stores", "AttributeStore", "PersistentConfigurationList", "ArtifactManager", "ArtifactResolver", "Repositories", "classLoader"});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 

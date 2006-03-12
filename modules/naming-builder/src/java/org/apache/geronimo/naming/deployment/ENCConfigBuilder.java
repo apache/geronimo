@@ -71,7 +71,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384667 $ $Date$
  */
 public class ENCConfigBuilder {
 

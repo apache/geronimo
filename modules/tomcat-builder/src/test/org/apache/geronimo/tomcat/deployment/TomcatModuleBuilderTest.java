@@ -91,7 +91,7 @@ import org.apache.geronimo.transaction.context.TransactionContextManagerGBean;
 import org.apache.geronimo.transaction.manager.TransactionManagerImplGBean;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
 public class TomcatModuleBuilderTest extends TestCase {
     private String DOMAIN_NAME = "geronimo.test";
@@ -228,7 +228,6 @@ public class TomcatModuleBuilderTest extends TestCase {
                 outputPath,
                 environment,
                 ConfigurationModuleType.WAR,
-                null,
                 kernel,
                 moduleContext.getJ2eeApplicationName(),
                 tcmName,

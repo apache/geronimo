@@ -211,6 +211,10 @@ public class MultiParentClassLoader extends URLClassLoader {
         return parents;
     }
 
+    protected void addURL(URL url) {
+        super.addURL(url);
+    }
+
     protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
         //
         // Check if class is in the loaded classes cache
@@ -249,8 +253,10 @@ public class MultiParentClassLoader extends URLClassLoader {
         //
         // if we are not using inverse class loading, check local urls now
         //
-        // todo don't we want to exclude non-overridable classes
-        if (/*!inverseClassLoading &&*/ !isDestroyed() /*&& !isNonOverridableClass(name)*/) {
+        // don't worry about excluding non-overridable classes here... we
+        // have alredy checked he parent and the parent didn't have the
+        // class, so we can override now
+        if (!isDestroyed()) {
             try {
                 Class clazz = findClass(name);
                 return resolveClass(clazz, resolve);
@@ -317,8 +323,10 @@ public class MultiParentClassLoader extends URLClassLoader {
         //
         // if we are not using inverse class loading, check local urls now
         //
-        // todo don't we want to exclude non-overridable resources
-        if (/*!inverseClassLoading &&*/ !isDestroyed() /*&& !isNonOverridableResource(name)*/) {
+        // don't worry about excluding non-overridable resources here... we
+        // have alredy checked he parent and the parent didn't have the
+        // resource, so we can override now
+        if (!isDestroyed()) {
             // parents didn't have the resource; attempt to load it from my urls
             return findResource(name);
         }

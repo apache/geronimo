@@ -29,72 +29,78 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import javax.management.ObjectName;
 
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.ArtifactResolver;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Dependency;
 import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.ImportType;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
 public class DeploymentContext {
+    private static int deploymentCount = 42;
 
-    private final Environment environment;
-    private final ConfigurationModuleType moduleType;
-    private final LinkedHashSet classpath = new LinkedHashSet();
-    private final Collection repositories;
-    private final Kernel kernel;
-    private final GBeanDataRegistry gbeans = new GBeanDataRegistry();
     private final File baseDir;
     private final URI baseUri;
     private final byte[] buffer = new byte[4096];
-    private final List loadedConfigurations = new ArrayList();
     private final List childConfigurationDatas = new ArrayList();
-    private ConfigurationManager configurationManager;
-    private final ArtifactResolver artifactResolver;
+    private final ConfigurationManager configurationManager;
+    private final Configuration configuration;
+    private final Environment environment;
 
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel) throws DeploymentException {
+        this(baseDir,
+                environment,
+                moduleType,
+                ConfigurationUtil.getConfigurationManager(kernel));
+    }
 
-    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType type, Collection repositories, Kernel kernel) throws DeploymentException {
-        assert baseDir != null: "baseDir is null";
-        assert environment != null: "environment is null";
-        assert type != null: "type is null";
+    public DeploymentContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, ConfigurationManager configurationManager) throws DeploymentException {
+        this(createTempConfiguration(environment, moduleType, baseDir, configurationManager),
+                baseDir,
+                environment,
+                moduleType,
+                configurationManager);
+    }
 
-        this.environment = environment;
-        this.moduleType = type;
-        this.repositories = repositories;
-        this.kernel = kernel;
+    public DeploymentContext(Configuration configuration, File baseDir) throws DeploymentException {
+        this(configuration,
+                baseDir,
+                configuration.getEnvironment(),
+                configuration.getModuleType(),
+                null);
+    }
+
+    private DeploymentContext(Configuration configuration, File baseDir, Environment environment, ConfigurationModuleType moduleType, ConfigurationManager configurationManager) throws DeploymentException {
+        if (baseDir == null) throw new NullPointerException("baseDir is null");
+        if (environment == null) throw new NullPointerException("environment is null");
+        if (moduleType == null) throw new NullPointerException("type is null");
+        if (configuration == null) throw new NullPointerException("configuration is null");
 
         if (!baseDir.exists()) {
             baseDir.mkdirs();
@@ -105,182 +111,165 @@ public class DeploymentContext {
         this.baseDir = baseDir;
         this.baseUri = baseDir.toURI();
 
-        if (kernel != null) {
-            configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
-        }
-        artifactResolver = new DefaultArtifactResolver(null, repositories);
-
-        determineNaming();
-        setupParents();
+        this.environment = environment;
+        this.configurationManager = configurationManager;
+        this.configuration = configuration;
     }
 
-    private void determineNaming() throws DeploymentException {
-        if (environment.getProperties() != null && !environment.getProperties().isEmpty()) {
-            return;
-        }
-        Collection dependencies = environment.getDependencies();
-        if (kernel == null ||  dependencies.isEmpty()) {
-            throw new DeploymentException("Neither domain and server nor any way to determine them was provided for configuration " + environment.getConfigId());
-        }
-        ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+    private static Configuration createTempConfiguration(Environment environment, ConfigurationModuleType moduleType, File baseDir, ConfigurationManager configurationManager) throws DeploymentException {
+        // create a new environment object for use in our temporary configuration
+        // NOTE: the configuration class will resolve all dependencies and set them
+        // back into this environment object, so don't use this environment for the
+        // final configuration data
+        Environment deploymentEnvironment = new Environment(environment);
 
+        // use a modified configuration id for the configuration object in case this
+        // configuation is already running in the server
+        Artifact id = environment.getConfigId();
+        synchronized (DeploymentContext.class) {
+            id = new Artifact("geronimo-deployment", id.getArtifactId(), "" + deploymentCount++, id.getType());
+        }
+        deploymentEnvironment.setConfigId(id);
+
+        // Add a new temporary configuration to hold our data
+        ConfigurationData configurationData = new ConfigurationData(moduleType, null, null, null, deploymentEnvironment, baseDir);
         try {
-            boolean loaded = false;
-
-            Artifact parent = null;
-            for (Iterator iterator = dependencies.iterator(); iterator.hasNext();) {
-                Dependency dependency = (Dependency) iterator.next();
-                Artifact artifact = dependency.getArtifact();
-                if (configurationManager.isConfiguration(artifact)) {
-                    if (!configurationManager.isLoaded(artifact)) {
-                        configurationManager.loadConfiguration(artifact);
-                        loaded = true;
-                    }
-                    parent = artifact;
-                    break;
-                }
-            }
-            if (parent == null) {
-                throw new DeploymentException("Neither domain and server nor any way to determine them was provided for configuration " + environment.getConfigId());
-            }
-
-            try {
-                ObjectName parentName = Configuration.getConfigurationObjectName(parent);
-                Environment environment = (Environment) kernel.getAttribute(parentName, "environment");
-                this.environment.setProperties(environment.getProperties());
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to copy domain and server from parent configuration", e);
-            } finally {
-                if (loaded) {
-//                    we need to unload again so the loadedAncestors list will be in the correct order to start configs.
-                    configurationManager.unloadConfiguration(parent);
-                }
-            }
+            return configurationManager.loadConfiguration(configurationData, new DeploymentContextConfigurationStore(baseDir));
         } catch (Exception e) {
-            throw new DeploymentException("Unable to load first parent of configuration " + environment.getConfigId(), e);
-        } finally {
-            ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
-        }
-
-        //check that domain and server are now known
-        if (environment.getProperties() == null || environment.getProperties().isEmpty()) {
-            throw new IllegalStateException("Properties not be determined from explicit args or parent configuration. ParentID: " + dependencies);
+            throw new DeploymentException("Unable to create configuration for deployment", e);
         }
     }
 
     public Artifact getConfigID() {
-        return environment.getConfigId();
-    }
-
-    public ConfigurationModuleType getType() {
-        return moduleType;
+        return configuration.getId();
     }
 
     public File getBaseDir() {
         return baseDir;
     }
 
-    public void addGBean(GBeanData gbean) {
-        assert gbean.getName() != null: "GBean name is null";
-        gbeans.register(gbean);
+    public void addGBean(GBeanData gbean) throws GBeanAlreadyExistsException {
+        if (gbean == null) throw new NullPointerException("gbean is null");
+        if (gbean.getName() == null) throw new NullPointerException("gbean.getName() is null");
+        configuration.addGBean(gbean);
     }
 
     public Set getGBeanNames() {
-        return gbeans.getGBeanNames();
+        return new HashSet(configuration.getGBeans().keySet());
     }
 
+    /**
+     * @deprecated use findGBeans(pattern)
+     */
     public Set listGBeans(AbstractNameQuery pattern) {
-        return gbeans.listGBeans(pattern);
+        return findGBeans(pattern);
+    }
+
+    public AbstractName findGBean(AbstractNameQuery pattern) throws GBeanNotFoundException {
+        return configuration.findGBean(pattern);
+    }
+
+    public AbstractName findGBean(Set patterns) throws GBeanNotFoundException {
+        return configuration.findGBean(patterns);
+    }
+
+    public LinkedHashSet findGBeans(AbstractNameQuery pattern) {
+        return configuration.findGBeans(pattern);
+    }
+
+    public LinkedHashSet findGBeans(Set patterns) {
+        return configuration.findGBeans(patterns);
     }
 
     public GBeanData getGBeanInstance(AbstractName name) throws GBeanNotFoundException {
-        return gbeans.getGBeanInstance(name);
+        Map gbeans = configuration.getGBeans();
+        GBeanData gbeanData = (GBeanData) gbeans.get(name);
+        if (gbeanData == null) {
+            throw new GBeanNotFoundException(name);
+        }
+        return gbeanData;
     }
 
     /**
      * Copy a packed jar file into the deployment context and place it into the
      * path specified in the target path.  The newly added packed jar is added
      * to the classpath of the configuration.
-     * <p/>
-     * NOTE: The class loader that is obtained from this deployment context
-     * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the packed jar file should be placed
-     * @param jarFile    the jar file to copy
+     * @param jarFile the jar file to copy
      * @throws IOException if there's a problem copying the jar file
      */
     public void addIncludeAsPackedJar(URI targetPath, JarFile jarFile) throws IOException {
+        if (targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetPath);
+
         File targetFile = getTargetFile(targetPath);
         DeploymentUtil.copyToPackedJar(jarFile, targetFile);
-        classpath.add(targetPath);
+
+        if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
+        configuration.addToClassPath(targetPath);
     }
 
     /**
      * Copy a ZIP file entry into the deployment context and place it into the
      * path specified in the target path.  The newly added entry is added
      * to the classpath of the configuration.
-     * <p/>
-     * NOTE: The class loader that is obtained from this deployment context
-     * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the ZIP file entry should be placed
-     * @param zipFile    the ZIP file
-     * @param zipEntry   the ZIP file entry
+     * @param zipFile the ZIP file
+     * @param zipEntry the ZIP file entry
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
+        if (!targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
+
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, zipFile, zipEntry);
-        classpath.add(targetPath);
+
+        if (!targetFile.isDirectory()) throw new IllegalStateException("target file should be a directory: " + targetFile);
+        configuration.addToClassPath(targetPath);
     }
 
     /**
      * Copy a file into the deployment context and place it into the
      * path specified in the target path.  The newly added file is added
      * to the classpath of the configuration.
-     * <p/>
-     * NOTE: The class loader that is obtained from this deployment context
-     * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the file should be placed
      * @param source     the URL of file to be copied
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, URL source) throws IOException {
+        if (targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetPath);
+
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
-        classpath.add(targetPath);
+
+        if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
+        configuration.addToClassPath(targetPath);
     }
 
     /**
      * Copy a file into the deployment context and place it into the
      * path specified in the target path.  The newly added file is added
      * to the classpath of the configuration.
-     * <p/>
-     * NOTE: The class loader that is obtained from this deployment context
-     * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param targetPath where the file should be placed
      * @param source     the file to be copied
      * @throws IOException if there's a problem copying the ZIP entry
      */
     public void addInclude(URI targetPath, File source) throws IOException {
+        if (targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetPath);
+
         File targetFile = getTargetFile(targetPath);
         addFile(targetFile, source);
-        classpath.add(targetPath);
+
+        if (!targetFile.isFile()) throw new IllegalStateException("target file should be a file: " + targetFile);
+        configuration.addToClassPath(targetPath);
     }
 
     /**
      * Import the classpath from a jar file's manifest.  The imported classpath
      * is crafted relative to <code>moduleBaseUri</code>.
-     * <p/>
-     * NOTE: The class loader that is obtained from this deployment context
-     * may get out of sync with the newly augmented classpath; obtain a freshly
-     * minted class loader by calling <code>getConfigurationClassLoader</code> method.
      *
      * @param moduleFile    the jar file from which the manifest is obtained.
      * @param moduleBaseUri the base for the imported classpath
@@ -320,9 +309,25 @@ public class DeploymentContext {
                 throw new DeploymentException("Manifest class path entries must be relative (J2EE 1.4 Section 8.2): moduel=" + moduleBaseUri);
             }
 
-            URI targetUri = moduleBaseUri.resolve(pathUri);
-            classpath.add(targetUri);
+            try {
+                URI targetUri = moduleBaseUri.resolve(pathUri);
+                if (targetUri.getPath().endsWith("/")) throw new IllegalStateException("target path must not end with a '/' character: " + targetUri);
+                configuration.addToClassPath(targetUri);
+            } catch (IOException e) {
+                throw new DeploymentException(e);
+            }
         }
+    }
+
+    public void addClass(URI targetPath, String fqcn, byte[] bytes) throws IOException, URISyntaxException {
+        if (!targetPath.getPath().endsWith("/")) throw new IllegalStateException("target path must end with a '/' character: " + targetPath);
+
+        String classFileName = fqcn.replace('.', '/') + ".class";
+
+        File targetFile = getTargetFile(new URI(targetPath.toString() + classFileName));
+        addFile(targetFile, new ByteArrayInputStream(bytes));
+
+        configuration.addToClassPath(targetPath);
     }
 
     public void addFile(URI targetPath, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
@@ -339,14 +344,6 @@ public class DeploymentContext {
 
     public void addFile(URI targetPath, String source) throws IOException {
         addFile(getTargetFile(targetPath), new ByteArrayInputStream(source.getBytes()));
-    }
-
-    public void addClass(URI location, String fqcn, byte[] bytes) throws IOException, URISyntaxException {
-        assert location.toString().endsWith("/");
-
-        classpath.add(location);
-        String classFileName = fqcn.replace('.', '/') + ".class";
-        addFile(getTargetFile(new URI(location.toString() + classFileName)), new ByteArrayInputStream(bytes));
     }
 
     private void addFile(File targetFile, ZipFile zipFile, ZipEntry zipEntry) throws IOException {
@@ -397,237 +394,25 @@ public class DeploymentContext {
     }
 
     public File getTargetFile(URI targetPath) {
-        assert !targetPath.isAbsolute() : "targetPath is absolute";
-        assert !targetPath.isOpaque() : "targetPath is opaque";
+        if (targetPath == null) throw new NullPointerException("targetPath is null");
+        if (targetPath.isAbsolute()) throw new IllegalArgumentException("targetPath is absolute");
+        if (targetPath.isOpaque()) throw new IllegalArgumentException("targetPath is opaque");
         return new File(baseUri.resolve(targetPath));
     }
 
-//    static interface ParentSource {
-//        Collection getParents(Artifact point) throws DeploymentException;
-//    }
-//
-//    List getExtremalSet(Collection points, ParentSource parentSource) throws DeploymentException {
-//        LinkedHashMap pointToEnvelopeMap = new LinkedHashMap();
-//        for (Iterator iterator = points.iterator(); iterator.hasNext();) {
-//            Artifact newPoint = (Artifact) iterator.next();
-//            Set newEnvelope = new HashSet();
-//            getEnvelope(newPoint, parentSource, newEnvelope);
-//            boolean useMe = true;
-//            for (Iterator iterator1 = pointToEnvelopeMap.entrySet().iterator(); iterator1.hasNext();) {
-//                Map.Entry entry = (Map.Entry) iterator1.next();
-//                Set existingEnvelope = (Set) entry.getValue();
-//                if (existingEnvelope.contains(newPoint)) {
-//                    useMe = false;
-//                } else if (newEnvelope.contains(entry.getKey())) {
-//                    iterator1.remove();
-//                }
-//            }
-//            if (useMe) {
-//                pointToEnvelopeMap.put(newPoint, newEnvelope);
-//            }
-//        }
-//        return new ArrayList(pointToEnvelopeMap.keySet());
-//    }
-//
-//    private void getEnvelope(Artifact point, ParentSource parentSource, Set envelope) throws DeploymentException {
-//        Collection newPoints = parentSource.getParents(point);
-//        envelope.addAll(newPoints);
-//        for (Iterator iterator = newPoints.iterator(); iterator.hasNext();) {
-//            Artifact newPoint = (Artifact) iterator.next();
-//            getEnvelope(newPoint, parentSource, envelope);
-//        }
-//    }
-//
-//    static class ConfigurationParentSource implements ParentSource {
-//
-//        private final Kernel kernel;
-//
-//        public ConfigurationParentSource(Kernel kernel) {
-//            this.kernel = kernel;
-//        }
-//
-//        public Collection getParents(Artifact configID) throws DeploymentException {
-//            ObjectName configName;
-//            try {
-//                configName = Configuration.getConfigurationObjectName(configID);
-//            } catch (InvalidConfigException e) {
-//                throw new DeploymentException("Cannot convert ID to ObjectName: ", e);
-//            }
-//            try {
-//                Environment environment = (Environment) kernel.getAttribute(configName, "environment");
-//                return environment.getImports();
-//            } catch (Exception e) {
-//                throw new DeploymentException("Cannot find parents of alleged config: ", e);
-//            }
-//        }
-//
-//    }
-
-    private void setupParents() throws DeploymentException {
-        if (kernel != null) {
-            try {
-                List dependencies = new ArrayList(environment.getDependencies());
-                for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
-                    Dependency dependency = (Dependency) iterator.next();
-                    Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
-                    if (configurationManager != null && configurationManager.isConfiguration(resolvedArtifact)) {
-                        configurationManager.loadConfiguration(resolvedArtifact);
-
-                        // update the dependency list to contain the resolved artifact
-                        dependency = new Dependency(resolvedArtifact, dependency.getImportType());
-                        iterator.set(dependency);
-                    } else if (dependency.getImportType() == ImportType.SERVICES) {
-                        // Service depdendencies require that the depdencency be a configuration
-                        if (configurationManager == null) throw new NullPointerException("configurationManager is null");
-                        throw new DeploymentException("Dependency does not have services: " + resolvedArtifact);
-                    }
-                }
-                environment.setDependencies(dependencies);
-            } catch (DeploymentException e) {
-                throw e;
-            } catch (Exception e) {
-                throw new DeploymentException("Unable to load parents", e);
-            }
-        }
-    }
-
     public ClassLoader getClassLoader() throws DeploymentException {
-        return getConfiguration(null).getConfigurationClassLoader();
+        return configuration.getConfigurationClassLoader();
     }
 
-    public ClassLoader getClassLoader(Configuration knownParent) throws DeploymentException {
-        return getConfiguration(knownParent).getConfigurationClassLoader();
-    }
-
-    public Configuration getConfiguration(Configuration knownParent) throws DeploymentException {
-        Environment environmentCopy = new Environment(environment);
-        if (knownParent != null) {
-            environmentCopy.addDependency(knownParent.getId(), ImportType.ALL);
-        }
-        try {
-            List parents = createParentProxies(environmentCopy, knownParent);
-            Configuration configuration = new Configuration(parents,
-                    Configuration.getConfigurationObjectName(environmentCopy.getConfigId()).getCanonicalName(),
-                    moduleType,
-                    environmentCopy,
-                    new ArrayList(classpath),
-                    null,
-                    repositories,
-                    new ConfigurationStore() {
-
-                        public void install(ConfigurationData configurationData) {
-                        }
-
-                        public void uninstall(Artifact configID) {
-                        }
-
-                        public GBeanData loadConfiguration(Artifact configId) {
-                            return null;
-                        }
-
-                        public boolean containsConfiguration(Artifact configID) {
-                            return false;
-                        }
-
-                        public String getObjectName() {
-                            return null;
-                        }
-
-                        public List listConfigurations() {
-                            return null;
-                        }
-
-                        public File createNewConfigurationDir(Artifact configId) {
-                            return null;
-                        }
-
-                        public URL resolve(Artifact configId, URI uri) throws MalformedURLException {
-                            return new File(baseDir, uri.toString()).toURL();
-                        }
-                    },
-                    null,
-                    null);
-            return configuration;
-        } catch (Exception e) {
-            throw new DeploymentException("Could not construct configuration classloader for deployment context", e);
-        }
-    }
-
-    private List createParentProxies(Environment environment, Configuration existingConfiguration) throws InvalidConfigException {
-        List parents = new ArrayList();
-        try {
-            List dependencies = new ArrayList(environment.getDependencies());
-            for (ListIterator iterator = dependencies.listIterator(); iterator.hasNext();) {
-                Dependency dependency = (Dependency) iterator.next();
-                Artifact resolvedArtifact = artifactResolver.resolve(dependency.getArtifact());
-                if (configurationManager != null && isConfiguration(resolvedArtifact, existingConfiguration)) {
-                    // add the parent configuration to the parents collection
-                    Configuration parent = getLoadedConfiguration(resolvedArtifact, existingConfiguration);
-                    parents.add(parent);
-
-                    // update the dependency list to contain the resolved artifact
-                    dependency = new Dependency(resolvedArtifact, dependency.getImportType());
-                    iterator.set(dependency);
-                } else if (dependency.getImportType() == ImportType.SERVICES) {
-                    // Service depdendencies require that the depdencency be a configuration
-                    if (configurationManager == null) throw new NullPointerException("configurationManager is null");
-                    throw new InvalidConfigException("Dependency does not have services: " + resolvedArtifact);
-                }
-            }
-            environment.setDependencies(dependencies);
-        } catch (InvalidConfigException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new InvalidConfigException("Unable to load parents", e);
-        }
-        return parents;
-    }
-
-    private boolean isConfiguration(Artifact artifact, Configuration existingConfiguration) {
-        if (configurationManager.isConfiguration(artifact)) {
-            return true;
-        }
-        return existingConfiguration != null && artifact.equals(existingConfiguration.getId());
-    }
-
-    private Configuration getLoadedConfiguration(Artifact artifact, Configuration existingConfiguration) {
-        if (existingConfiguration != null && artifact.equals(existingConfiguration.getId())) {
-            return existingConfiguration;
-        } else {
-            return configurationManager.getConfiguration(artifact);
-        }
+    public Configuration getConfiguration(Configuration knownParent) {
+        return configuration;
     }
 
     public void close() throws IOException, DeploymentException {
-        if (kernel != null) {
-            ConfigurationManager configurationManager = ConfigurationUtil.getConfigurationManager(kernel);
+        if (configurationManager != null) {
             try {
-//                startedAncestors.clear();
-                //TODO configid WE NEED REFERENCE COUNTING ON THIS STUFF!!!
-                //right now it is impossible to deploy 2 app clients in an ear. 
-//                Collections.reverse(loadedAncestors);
-/*
-                for (Iterator iterator = loadedAncestors.iterator(); iterator.hasNext();) {
-                    Artifact configID = (Artifact) iterator.next();
-                    if (configurationManager.isLoaded(configID)) {
-                        try {
-                            configurationManager.unload(configID);
-                        } catch (NoSuchConfigException e) {
-                            throw new DeploymentException("Could not find a configuration we previously loaded! " + configID, e);
-                        }
-                    }
-                }
-*/
-                for (Iterator iterator = loadedConfigurations.iterator(); iterator.hasNext();) {
-                    Artifact artifact = (Artifact) iterator.next();
-                    try {
-                        configurationManager.unloadConfiguration(artifact);
-                    } catch (NoSuchConfigException ignored) {
-                    }
-                }
-                loadedConfigurations.clear();
-            } finally {
-                ConfigurationUtil.releaseConfigurationManager(kernel, configurationManager);
+                configurationManager.unloadConfiguration(configuration);
+            } catch (NoSuchConfigException ignored) {
             }
         }
     }
@@ -637,11 +422,53 @@ public class DeploymentContext {
     }
 
     public ConfigurationData getConfigurationData() {
-        ConfigurationData configurationData = new ConfigurationData(moduleType, classpath, Arrays.asList(gbeans.getGBeans()), childConfigurationDatas, environment, baseDir);
+        //
+        // DO NOT use the environment in the configuration, it is modifed by the configuration
+        //
+        ConfigurationData configurationData = new ConfigurationData(configuration.getModuleType(),
+                new LinkedHashSet(configuration.getClassPath()),
+                new ArrayList(configuration.getGBeans().values()),
+                childConfigurationDatas,
+                environment,
+                baseDir);
         return configurationData;
     }
 
-    public Object getAttribute(ObjectName name, String property) throws Exception {
-        return kernel.getAttribute(name, property);
+    private static class DeploymentContextConfigurationStore implements ConfigurationStore {
+        private final File baseDir;
+
+        public DeploymentContextConfigurationStore(File baseDir) {
+            this.baseDir = baseDir;
+        }
+
+        public void install(ConfigurationData configurationData) {
+        }
+
+        public void uninstall(Artifact configID) {
+        }
+
+        public GBeanData loadConfiguration(Artifact configId) {
+            return null;
+        }
+
+        public boolean containsConfiguration(Artifact configID) {
+            return false;
+        }
+
+        public String getObjectName() {
+            return null;
+        }
+
+        public List listConfigurations() {
+            return null;
+        }
+
+        public File createNewConfigurationDir(Artifact configId) {
+            return null;
+        }
+
+        public URL resolve(Artifact configId, URI uri) throws MalformedURLException {
+            return new File(baseDir, uri.toString()).toURL();
+        }
     }
 }

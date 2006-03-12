@@ -32,7 +32,7 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.security.deployment.SecurityConfiguration;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public class EARContext extends DeploymentContext implements NamingContext {
     private final AbstractName domainObjectName;
@@ -54,8 +54,8 @@ public class EARContext extends DeploymentContext implements NamingContext {
     private AbstractName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
 
-    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Collection repositories, Kernel kernel, String j2eeApplicationName, AbstractName transactionContextManagerObjectName, AbstractName connectionTrackerObjectName, AbstractName transactedTimerName, AbstractName nonTransactedTimerName, AbstractName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
-        super(baseDir, environment, moduleType, repositories, kernel);
+    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel, String j2eeApplicationName, AbstractName transactionContextManagerObjectName, AbstractName connectionTrackerObjectName, AbstractName transactedTimerName, AbstractName nonTransactedTimerName, AbstractName corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
+        super(baseDir, environment, moduleType, kernel);
         if (moduleType.equals(ConfigurationModuleType.EAR)) {
             moduleName = NameFactory.buildApplicationName(environment.getProperties(), environment.getConfigId());
             applicationName = moduleName;

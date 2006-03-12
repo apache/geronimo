@@ -16,6 +16,14 @@
  */
 package org.apache.geronimo.security.deployment;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.deployment.service.GBeanBuilder;
@@ -29,6 +37,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerAbstractLoginModuleType;
@@ -40,47 +49,32 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
-import javax.management.MalformedObjectNameException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384933 $ $Date$
  */
-public class LoginConfigBuilder implements XmlReferenceBuilder
-{
+public class LoginConfigBuilder implements XmlReferenceBuilder {
     public static final String LOGIN_CONFIG_NAMESPACE = "http://geronimo.apache.org/xml/ns/loginconfig-1.0";
 
-    public String getNamespace()
-    {
+    public String getNamespace() {
         return LOGIN_CONFIG_NAMESPACE;
     }
 
-    public ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName parentName, ClassLoader classLoader) throws DeploymentException
-    {
+    public ReferencePatterns getReferences(XmlObject xmlObject, DeploymentContext context, AbstractName parentName, ClassLoader classLoader) throws DeploymentException {
         GerLoginConfigType loginConfig = (GerLoginConfigType) xmlObject.copy().changeType(GerLoginConfigType.type);
         XmlOptions xmlOptions = new XmlOptions();
         xmlOptions.setLoadLineNumbers();
         Collection errors = new ArrayList();
         xmlOptions.setErrorListener(errors);
-        if (!loginConfig.validate(xmlOptions))
-        {
+        if (!loginConfig.validate(xmlOptions)) {
             throw new DeploymentException("Invalid login configuration:\n" + errors + "\nDescriptor: " + loginConfig.toString());
         }
         XmlCursor xmlCursor = loginConfig.newCursor();
         List uses = new ArrayList();
         Set loginModuleNames = new HashSet();
-        try
-        {
+        try {
             boolean atStart = true;
-            while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling()))
-            {
+            while ((atStart && xmlCursor.toFirstChild()) || (!atStart && xmlCursor.toNextSibling())) {
                 atStart = false;
                 XmlObject child = xmlCursor.getObject();
                 GerAbstractLoginModuleType abstractLoginModule = (GerAbstractLoginModuleType) child;
@@ -88,8 +82,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                 boolean wrapPrincipals = (abstractLoginModule.isSetWrapPrincipals() && abstractLoginModule.getWrapPrincipals());
                 ReferencePatterns loginModuleReferencePatterns;
                 String name;
-                if (abstractLoginModule instanceof GerLoginModuleRefType)
-                {
+                if (abstractLoginModule instanceof GerLoginModuleRefType) {
                     GerLoginModuleRefType loginModuleRef = (GerLoginModuleRefType) abstractLoginModule;
                     PatternType patternType = loginModuleRef.getPattern();
                     AbstractNameQuery loginModuleNameQuery = GBeanBuilder.buildAbstractNameQuery(patternType, USE_REFERENCE_INFO);
@@ -115,24 +108,20 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
 //                    {
 //                        throw new DeploymentException("Unable to create reference to login module " + name, e);
 //                    }
-                }
-                else if (abstractLoginModule instanceof GerLoginModuleType)
-                {
+                } else if (abstractLoginModule instanceof GerLoginModuleType) {
                     //create the LoginModuleGBean also
                     AbstractName loginModuleName;
 
                     GerLoginModuleType loginModule = (GerLoginModuleType) abstractLoginModule;
                     name = trim(loginModule.getLoginDomainName());
-                    if (!loginModuleNames.add(name))
-                    {
+                    if (!loginModuleNames.add(name)) {
                         throw new DeploymentException("Security realm contains two login domains called '" + name + "'");
                     }
                     String className = trim(loginModule.getLoginModuleClass());
                     boolean serverSide = loginModule.getServerSide();
                     Properties options = new Properties();
                     GerOptionType[] optionArray = loginModule.getOptionArray();
-                    for (int j = 0; j < optionArray.length; j++)
-                    {
+                    for (int j = 0; j < optionArray.length; j++) {
                         GerOptionType gerOptionType = optionArray[j];
                         String key = gerOptionType.getName();
                         String value = trim(gerOptionType.getStringValue());
@@ -148,9 +137,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                     loginModuleGBeanData.setAttribute("wrapPrincipals", Boolean.valueOf(wrapPrincipals));
 
                     context.addGBean(loginModuleGBeanData);
-                }
-                else
-                {
+                } else {
                     throw new DeploymentException("Unknown abstract login module type: " + abstractLoginModule.getClass());
                 }
                 AbstractName thisName;
@@ -160,25 +147,23 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
                 loginModuleUseGBeanData.setReferencePatterns("LoginModule", loginModuleReferencePatterns);
                 uses.add(loginModuleUseGBeanData);
             }
-            for (int i = uses.size() - 1; i >= 0; i--)
-            {
+            for (int i = uses.size() - 1; i >= 0; i--) {
                 GBeanData data = (GBeanData) uses.get(i);
-                if (i > 0)
-                {
+                if (i > 0) {
                     ((GBeanData) uses.get(i - 1)).setReferencePattern("Next", data.getAbstractName());
                 }
                 context.addGBean(data);
             }
         }
-        finally
-        {
+        catch (GBeanAlreadyExistsException e) {
+            throw new DeploymentException(e);
+        } finally {
             xmlCursor.dispose();
         }
         return uses.size() == 0 ? null : new ReferencePatterns(((GBeanData) uses.get(0)).getAbstractName());
     }
 
-    private String trim(String string)
-    {
+    private String trim(String string) {
         return string == null ? null : string.trim();
     }
 
@@ -186,8 +171,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
 
     private static final GReferenceInfo USE_REFERENCE_INFO;
 
-    static
-    {
+    static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(LoginConfigBuilder.class, "XmlReferenceBuilder");
         infoBuilder.addInterface(XmlReferenceBuilder.class);
         GBEAN_INFO = infoBuilder.getBeanInfo();
@@ -209,8 +193,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder
 
     }
 
-    public static GBeanInfo getGBeanInfo()
-    {
+    public static GBeanInfo getGBeanInfo() {
         return GBEAN_INFO;
     }
 }
