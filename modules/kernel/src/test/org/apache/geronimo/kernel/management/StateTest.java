@@ -17,8 +17,6 @@
 
 package org.apache.geronimo.kernel.management;
 
-import org.apache.geronimo.kernel.management.State;
-
 import junit.framework.TestCase;
 
 /**

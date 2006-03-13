@@ -38,6 +38,7 @@ import org.apache.geronimo.gbean.GReferenceInfo;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.security.jaas.JaasLoginModuleUse;
 import org.apache.geronimo.security.jaas.LoginModuleGBean;
 import org.apache.geronimo.xbeans.geronimo.loginconfig.GerAbstractLoginModuleType;
@@ -127,7 +128,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                         String value = trim(gerOptionType.getStringValue());
                         options.setProperty(key, value);
                     }
-                    loginModuleName = NameFactory.getChildName(parentName, NameFactory.LOGIN_MODULE, name, LoginModuleGBean.GBEAN_INFO.getInterfaces());
+                    loginModuleName = Naming.createChildName(parentName, NameFactory.LOGIN_MODULE, name);
                     loginModuleReferencePatterns = new ReferencePatterns(loginModuleName);
                     GBeanData loginModuleGBeanData = new GBeanData(loginModuleName, LoginModuleGBean.GBEAN_INFO);
                     loginModuleGBeanData.setAttribute("loginDomainName", name);
@@ -141,7 +142,7 @@ public class LoginConfigBuilder implements XmlReferenceBuilder {
                     throw new DeploymentException("Unknown abstract login module type: " + abstractLoginModule.getClass());
                 }
                 AbstractName thisName;
-                thisName = NameFactory.getChildName(parentName, "LoginModuleUse", name, JaasLoginModuleUse.GBEAN_INFO.getInterfaces());
+                thisName = Naming.createChildName(parentName, "LoginModuleUse", name);
                 GBeanData loginModuleUseGBeanData = new GBeanData(thisName, JaasLoginModuleUse.GBEAN_INFO);
                 loginModuleUseGBeanData.setAttribute("controlFlag", controlFlag);
                 loginModuleUseGBeanData.setReferencePatterns("LoginModule", loginModuleReferencePatterns);

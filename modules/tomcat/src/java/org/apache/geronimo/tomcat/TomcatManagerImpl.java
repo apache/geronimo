@@ -26,6 +26,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -42,7 +43,7 @@ import java.util.Set;
  * Tomcat implementation of the WebManager management API.  Knows how to
  * manipulate other Tomcat objects for management purposes.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class TomcatManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(TomcatManagerImpl.class);
@@ -69,7 +70,7 @@ public class TomcatManagerImpl implements WebManager {
      * @return The ObjectName of the new connector.
      */
     public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port) {
-        AbstractName name = NameFactory.getChildName(containerName, NameFactory.GERONIMO_SERVICE, "TomcatWebConnector-" + protocol + "-" + uniqueName, null);
+        AbstractName name = Naming.createChildName(containerName, NameFactory.GERONIMO_SERVICE, "TomcatWebConnector-" + protocol + "-" + uniqueName);
         GBeanData connector;
         if(protocol.equals(PROTOCOL_HTTP)) {
             connector = new GBeanData(name, ConnectorGBean.GBEAN_INFO);

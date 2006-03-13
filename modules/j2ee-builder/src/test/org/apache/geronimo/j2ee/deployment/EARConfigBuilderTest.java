@@ -50,9 +50,10 @@ import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.Naming;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class EARConfigBuilderTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
@@ -73,11 +74,11 @@ public class EARConfigBuilderTest extends TestCase {
         }
     };
 
-    private static final AbstractName rootConfig = NameFactory.getRootName(new Artifact("test", "stuff", "", "ear"), "app", NameFactory.J2EE_APPLICATION) ;
-    private static final AbstractName transactionManagerObjectName = NameFactory.getChildName(rootConfig, "TransactionManager", "TransactionManager", null);
-    private static final AbstractName connectionTrackerObjectName = NameFactory.getChildName(rootConfig, "ConnectionTracker", "ConnectionTracker", null);
-    private static final AbstractName transactionalTimerObjectName = NameFactory.getChildName(rootConfig, "ThreadPooledTimer", "TransactionalThreaPooledTimer", null);
-    private static final AbstractName nonTransactionalTimerObjectName = NameFactory.getChildName(rootConfig, "ThreadPooledTimer", "NonTransactionalThreaPooledTimer", null);
+    private static final AbstractName rootConfig = Naming.createRootName(new Artifact("test", "stuff", "", "ear"), "app", NameFactory.J2EE_APPLICATION) ;
+    private static final AbstractName transactionManagerObjectName = Naming.createChildName(rootConfig, "TransactionManager", "TransactionManager");
+    private static final AbstractName connectionTrackerObjectName = Naming.createChildName(rootConfig, "ConnectionTracker", "ConnectionTracker");
+    private static final AbstractName transactionalTimerObjectName = Naming.createChildName(rootConfig, "ThreadPooledTimer", "TransactionalThreaPooledTimer");
+    private static final AbstractName nonTransactionalTimerObjectName = Naming.createChildName(rootConfig, "ThreadPooledTimer", "NonTransactionalThreaPooledTimer");
     private Environment defaultParentId;
     private static String contextRoot = "test";
     private static final Map portMap = null;

@@ -25,13 +25,13 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.log4j.BasicConfigurator;
 
 import javax.management.MalformedObjectNameException;
@@ -48,7 +48,7 @@ import java.util.HashMap;
  * JellyBean that builds a Geronimo Configuration using the local Mavem
  * infrastructure.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class PackageBuilder {
 
@@ -105,12 +105,12 @@ public class PackageBuilder {
             throw (IllegalArgumentException)new IllegalArgumentException("Could not construct a fixed object name").initCause(e);
         }
         AbstractName rootName = new AbstractName(artifact, nameMap, objectName);
-        REPOSITORY_NAME = NameFactory.getChildName(rootName, "Repository", "Repository", null);
-        ARTIFACT_MANAGER_NAME = NameFactory.getChildName(rootName, "ArtifactManager", "ArtifactManager", null);
-        ARTIFACT_RESOLVER_NAME = NameFactory.getChildName(rootName, "ArtifactResolver", "ArtifactResolver", null);
-        CONFIGSTORE_NAME = NameFactory.getChildName(rootName, "ConfigurationStore", "PackageBuilderConfigStore", null);
-        CONFIGMANAGER_NAME = NameFactory.getChildName(rootName, "ConfigurationManager", "ConfigurationManager", null);
-        ATTRIBUTESTORE_NAME = NameFactory.getChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore", null);
+        REPOSITORY_NAME = Naming.createChildName(rootName, "Repository", "Repository");
+        ARTIFACT_MANAGER_NAME = Naming.createChildName(rootName, "ArtifactManager", "ArtifactManager");
+        ARTIFACT_RESOLVER_NAME = Naming.createChildName(rootName, "ArtifactResolver", "ArtifactResolver");
+        CONFIGSTORE_NAME = Naming.createChildName(rootName, "ConfigurationStore", "PackageBuilderConfigStore");
+        CONFIGMANAGER_NAME = Naming.createChildName(rootName, "ConfigurationManager", "ConfigurationManager");
+        ATTRIBUTESTORE_NAME = Naming.createChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore");
     }
 
     private String repositoryClass;

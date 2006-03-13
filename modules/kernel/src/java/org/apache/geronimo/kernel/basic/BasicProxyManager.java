@@ -44,7 +44,7 @@ import java.lang.reflect.InvocationTargetException;
  * Creates proxies that communicate directly with a Kernel located in the same
  * JVM as the client.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class BasicProxyManager implements ProxyManager {
     private final static String MANAGED_BEAN_NAME = "org.apache.geronimo.kernel.proxy.GeronimoManagedBean";
@@ -148,7 +148,9 @@ public class BasicProxyManager implements ProxyManager {
         if (target == null) throw new NullPointerException("target is null");
         if (classLoader == null) throw new NullPointerException("classLoader is null");
 
-            Set interfaces = target.getInterfaceTypes();
+        try {
+            GBeanInfo info = kernel.getGBeanInfo(target);
+            Set interfaces = info.getInterfaces();
             if(interfaces.size() == 0) {
                 log.warn("No interfaces found for " + target + " ("+target+")");
                 return null;
@@ -163,6 +165,9 @@ public class BasicProxyManager implements ProxyManager {
                 }
             }
             return createProxyFactory((Class[]) intfs.toArray(new Class[intfs.size()]), classLoader).createProxy(target);
+        } catch (GBeanNotFoundException e) {
+            throw new IllegalArgumentException("Could not get GBeanInfo for target object: " + target);
+        }
     }
 
     public Object[] createProxies(String[] objectNameStrings, ClassLoader classLoader) throws MalformedObjectNameException {

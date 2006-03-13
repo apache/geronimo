@@ -20,15 +20,11 @@ package org.apache.geronimo.kernel;
 import java.io.File;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.kernel.Kernel;
 
 /**
- *
- *
  * @version $Rev$ $Date$
  */
 public class BootstrapTest extends TestCase {
-    private File tmpDir;
     private File kernelState;
 
     public void testCreate() throws Exception {
@@ -41,11 +37,13 @@ public class BootstrapTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
-        tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        super.setUp();
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         kernelState = new File(tmpDir, "kernel.ser");
     }
 
     protected void tearDown() throws Exception {
         kernelState.delete();
+        super.tearDown();
     }
 }

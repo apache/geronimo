@@ -16,26 +16,19 @@
  */
 package org.apache.geronimo.gbean.runtime;
 
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
 import junit.framework.TestCase;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GAttributeInfo;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.InvalidConfigurationException;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.kernel.MockDynamicGBean;
-import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.MockGBean;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.repository.Artifact;
 
-import java.util.Map;
-import java.util.HashMap;
-
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 383682 $ $Date$
  */
 public class GBeanAttributeTest extends TestCase {
 
@@ -48,11 +41,6 @@ public class GBeanAttributeTest extends TestCase {
      */
     private GBeanInstance gbeanInstance = null;
 
-    /**
-     * Wraps DynamicGBean
-     */
-    private GBeanInstance dynamicGBeanInstance = null;
-
     private MethodInvoker getInvoker = null;
 
     private MethodInvoker setInvoker = null;
@@ -60,7 +48,6 @@ public class GBeanAttributeTest extends TestCase {
     private GAttributeInfo persistentPrimitiveAttributeInfo = null;
     private GAttributeInfo attributeInfo = null;
     private Kernel kernel;
-//    private GAttributeInfo throwingExceptionAttributeInfo = null;
 
     public final void testGBeanAttributStringClassMethodInvokerMethodInvoker() {
         try {
@@ -68,11 +55,7 @@ public class GBeanAttributeTest extends TestCase {
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
-//        try {
-//            GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, null);
-//            fail("InvalidConfigurationException expected");
-//        } catch (InvalidConfigurationException expected) {
-//        }
+
         GBeanAttribute attribute;
         attribute = GBeanAttribute.createFrameworkAttribute(gbeanInstance, attributeName, String.class, getInvoker);
         assertEquals(String.class, attribute.getType());
@@ -132,16 +115,6 @@ public class GBeanAttributeTest extends TestCase {
             assertFalse(attribute.isReadable());
             assertTrue(attribute.isWritable());
         }
-
-//        // todo recreate this in the info builder tests since the compariason now happens there
-//        {
-//            final GAttributeInfo attributeInfo = new GAttributeInfo("AnotherFinalInt", int.class.getName(), false, true, true, null, null);
-//            try {
-//                new GBeanAttribute(gbeanInstance, attributeInfo, false);
-//                fail("Getter and setter methods do not have the same types; InvalidConfigurationException expected");
-//            } catch (InvalidConfigurationException expected) {
-//            }
-//        }
 
         {
             // the attribute name and getter name are different, yet both
@@ -354,31 +327,29 @@ public class GBeanAttributeTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
-        gbeanInstance = new GBeanInstance(new GBeanData(buildAbstractName("normal", MockGBean.getGBeanInfo()), MockGBean.getGBeanInfo()),
+        AbstractName name = Naming.createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
+        gbeanInstance = new GBeanInstance(new GBeanData(name, MockGBean.getGBeanInfo()),
                 kernel,
                 kernel.getDependencyManager(),
                 new MyLifecycleBroadcaster(),
                 MockGBean.class.getClassLoader());
-        dynamicGBeanInstance = new GBeanInstance(new GBeanData(buildAbstractName("dynamic", MockDynamicGBean.getGBeanInfo()), MockDynamicGBean.getGBeanInfo()),
-                kernel,
-                kernel.getDependencyManager(),
-                new MyLifecycleBroadcaster(),
-                MockGBean.class.getClassLoader());
+
         getInvoker = new MethodInvoker() {
-
             public Object invoke(Object target, Object[] arguments) throws Exception {
                 throw new UnsupportedOperationException("Throws exception to rise test coverage");
             }
         };
+
         setInvoker = new MethodInvoker() {
-
             public Object invoke(Object target, Object[] arguments) throws Exception {
                 throw new UnsupportedOperationException("Throws exception to rise test coverage");
             }
         };
+
         attributeInfo = new GAttributeInfo(attributeName, String.class.getName(), false, false, "getName", "setName");
         persistentPrimitiveAttributeInfo = new GAttributeInfo(persistentPrimitiveAttributeName, int.class.getName(), true, false, "getMutableInt", "setMutableInt");
     }
@@ -386,12 +357,7 @@ public class GBeanAttributeTest extends TestCase {
     protected void tearDown() throws Exception {
         kernel.shutdown();
         gbeanInstance = null;
-    }
-
-    private AbstractName buildAbstractName(String name, GBeanInfo info) throws MalformedObjectNameException {
-        Map names = new HashMap();
-        names.put("name", name);
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:MockGBean=" + name));
+        super.tearDown();
     }
 
     private static class MyLifecycleBroadcaster implements LifecycleBroadcaster {

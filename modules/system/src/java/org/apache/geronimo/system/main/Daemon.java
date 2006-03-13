@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.common.GeronimoEnvironment;
 import org.apache.geronimo.gbean.GBeanQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.config.ConfigurationManager;
@@ -30,7 +31,6 @@ import org.apache.geronimo.kernel.log.GeronimoLogging;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.system.serverinfo.DirectoryUtils;
 
-import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384141 $ $Date$
  */
 public class Daemon {
     private final static String ARGUMENT_NO_PROGRESS = "--quiet";
@@ -226,10 +226,6 @@ public class Daemon {
 
             ClassLoader classLoader = Daemon.class.getClassLoader();
 
-            // create a mbean server
-//            MBeanServer mbeanServer = MBeanServerFactory.createMBeanServer("geronimo");
-//            String mbeanServerId = (String) mbeanServer.getAttribute(new ObjectName("JMImplementation:type=MBeanServerDelegate"), "MBeanServerId");
-
             // create the kernel
             final Kernel kernel = KernelFactory.newInstance().createKernel("geronimo");
 
@@ -251,14 +247,6 @@ public class Daemon {
                 }
             });
 
-            // add the jmx bridge
-            //now it's in the plan
-//            ObjectName mbeanServerKernelBridgeName = new ObjectName("geronimo.boot:role=MBeanServerKernelBridge");
-//            GBeanData mbeanServerKernelBridge = new GBeanData(mbeanServerKernelBridgeName, MBeanServerKernelBridge.GBEAN_INFO);
-//            mbeanServerKernelBridge.setAttribute("mbeanServerId", mbeanServerId);
-//            kernel.loadGBean(mbeanServerKernelBridge, classLoader);
-//            kernel.startGBean(mbeanServerKernelBridgeName);
-
             // load this configuration
             InputStream in = classLoader.getResourceAsStream("META-INF/config.ser");
             ConfigurationUtil.loadBootstrapConfiguration(kernel, in, classLoader);
@@ -271,7 +259,7 @@ public class Daemon {
                 // --override wasn't used (nothing explicit), see what was running before
                 Set configLists = kernel.listGBeans(query);
                 for (Iterator i = configLists.iterator(); i.hasNext();) {
-                    ObjectName configListName = (ObjectName) i.next();
+                    AbstractName configListName = (AbstractName) i.next();
                     try {
                         configs.addAll((List) kernel.invoke(configListName, "restore"));
                     } catch (IOException e) {
@@ -318,7 +306,7 @@ public class Daemon {
             // Tell every persistent configuration list that the kernel is now fully started
             Set configLists = kernel.listGBeans(query);
             for (Iterator i = configLists.iterator(); i.hasNext();) {
-                ObjectName configListName = (ObjectName) i.next();
+                AbstractName configListName = (AbstractName) i.next();
                 kernel.setAttribute(configListName, "kernelFullyStarted", Boolean.TRUE);
             }
 

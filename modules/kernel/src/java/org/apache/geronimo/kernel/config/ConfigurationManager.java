@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Encapsulates logic for dealing with configurations.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 384686 $ $Date$
  */
 public interface ConfigurationManager {
     /**
@@ -37,7 +37,7 @@ public interface ConfigurationManager {
 
     /**
      * Return a list of the stores this manager knows about.
-     * @return a List<ObjectName> of the stores this manager controls
+     * @return a List<AbstractName> of the stores this manager controls
      */
     List listStores();
 

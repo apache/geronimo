@@ -16,37 +16,36 @@
  */
 package org.apache.geronimo.kernel.config;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
 import java.util.SortedSet;
-import java.util.LinkedHashSet;
 import java.util.TreeSet;
-import java.util.Iterator;
-import java.net.URL;
-import java.net.URI;
-import java.net.MalformedURLException;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import junit.framework.TestCase;
-import org.apache.geronimo.kernel.repository.Environment;
-import org.apache.geronimo.kernel.repository.Artifact;
-import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
-import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.ArtifactManager;
-import org.apache.geronimo.kernel.repository.Version;
-import org.apache.geronimo.kernel.repository.ListableRepository;
-import org.apache.geronimo.kernel.repository.ImportType;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.management.State;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.repository.ArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
+import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.kernel.repository.ImportType;
+import org.apache.geronimo.kernel.repository.ListableRepository;
+import org.apache.geronimo.kernel.repository.Version;
 
 /**
  * @version $Rev$ $Date$
@@ -158,15 +157,9 @@ public class ConfigurationManagerTest extends TestCase {
         }
     }
 
-    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-        AbstractName abstractName = buildAbstractName(key, value, info);
+    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) {
+        AbstractName abstractName = Naming.createRootName(new Artifact("test", "foo", "1", "car"), value, key);
         return new GBeanData(abstractName, info);
-    }
-
-    private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-        Map names = new HashMap();
-        names.put(key, value);
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:" + key + "=" + value));
     }
 
     private class TestRepository implements ListableRepository {

@@ -170,6 +170,7 @@ public class GBeanNameTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         props = new Properties();
     }
 }

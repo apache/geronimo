@@ -45,6 +45,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEAppClientModuleImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
@@ -180,7 +181,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 throw new DeploymentException("Could not construct standalone app client module name", e);
             }
         } else {
-            moduleName = NameFactory.getChildName(earName, NameFactory.APP_CLIENT_MODULE, targetPath, null);
+            moduleName = Naming.createChildName(earName, NameFactory.APP_CLIENT_MODULE, targetPath);
         }
 
         return new AppClientModule(standAlone, moduleName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD);
@@ -443,7 +444,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 }
 
                 // add the app client static jndi provider
-                AbstractName jndiContextName = NameFactory.getChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext", null);
+                AbstractName jndiContextName = Naming.createChildName(appClientDeploymentContext.getModuleName(), "StaticJndiContext", "StaticJndiContext");
                 GBeanData jndiContextGBeanData = new GBeanData(jndiContextName, StaticJndiContextPlugin.GBEAN_INFO);
                 try {
                     componentContext = buildComponentContext(appClientDeploymentContext, earContext, appClientModule, appClient, geronimoAppClient, appClientClassLoader);
@@ -456,7 +457,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                 appClientDeploymentContext.addGBean(jndiContextGBeanData);
 
                 // finally add the app client container
-                AbstractName appClientContainerName = NameFactory.getChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer", null);
+                AbstractName appClientContainerName = Naming.createChildName(appClientDeploymentContext.getModuleName(), "ClientContainer", "ClientContainer");
                 GBeanData appClientContainerGBeanData = new GBeanData(appClientContainerName, AppClientContainer.GBEAN_INFO);
                 try {
                     appClientContainerGBeanData.setAttribute("mainClassName", mainClasss);

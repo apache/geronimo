@@ -21,8 +21,6 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 
 /**
- * 
- * 
  * @version $Rev$ $Date$
  */
 public class MyGBean {
@@ -31,9 +29,10 @@ public class MyGBean {
     }
 
     public static final GBeanInfo GBEAN_INFO;
+
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(MyGBean.class);
-        infoFactory.addOperation("main", new Class[] {String[].class});
+        infoFactory.addOperation("main", new Class[]{String[].class});
         GBEAN_INFO = infoFactory.getBeanInfo();
     }
 }

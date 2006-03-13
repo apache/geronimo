@@ -110,12 +110,14 @@ public class GBeanInfoTest extends TestCase {
 
     final static GReferenceInfo refInfo = new GReferenceInfo("reference", String.class.getName(), String.class.getName(), "setReference", "Fooifier");
 
-    public void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         gbeanInfo = MockGBean.getGBeanInfo();
     }
 
     protected void tearDown() throws Exception {
         gbeanInfo = null;
+        super.tearDown();
     }
 
     public static final class MockGBean {

@@ -38,6 +38,7 @@ import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.StoredObject;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
@@ -91,7 +92,7 @@ import java.util.jar.JarFile;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
@@ -191,7 +192,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 throw new DeploymentException("Could not construct standalone web module name", e);
             }
         } else {
-            moduleName = NameFactory.getChildName(earName, NameFactory.WEB_MODULE, targetPath, null);
+            moduleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, targetPath);
         }
 
         return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
@@ -333,24 +334,24 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
             if (tomcatWebApp.isSetTomcatRealm()) {
                 String tomcatRealm = tomcatWebApp.getTomcatRealm().trim();
-                AbstractName realmName = NameFactory.getChildName(moduleName, RealmGBean.GBEAN_INFO.getJ2eeType(), tomcatRealm, null);
+                AbstractName realmName = Naming.createChildName(moduleName, RealmGBean.GBEAN_INFO.getJ2eeType(), tomcatRealm);
                 webModuleData.setReferencePattern("TomcatRealm", realmName);
             }
             if (tomcatWebApp.isSetValveChain()) {
                 String valveChain = tomcatWebApp.getValveChain().trim();
-                AbstractName valveName = NameFactory.getChildName(moduleName, ValveGBean.J2EE_TYPE, valveChain, null);
+                AbstractName valveName = Naming.createChildName(moduleName, ValveGBean.J2EE_TYPE, valveChain);
                 webModuleData.setReferencePattern("TomcatValveChain", valveName);
             }
 
             if (tomcatWebApp.isSetCluster()) {
                 String cluster = tomcatWebApp.getCluster().trim();
-                AbstractName clusterName = NameFactory.getChildName(moduleName, CatalinaClusterGBean.J2EE_TYPE, cluster, null);
+                AbstractName clusterName =Naming.createChildName(moduleName, CatalinaClusterGBean.J2EE_TYPE, cluster);
                 webModuleData.setReferencePattern("Cluster", clusterName);
             }
 
             if (tomcatWebApp.isSetManager()) {
                 String manager = tomcatWebApp.getManager().trim();
-                AbstractName managerName = NameFactory.getChildName(moduleName, ManagerGBean.J2EE_TYPE, manager, null);
+                AbstractName managerName = Naming.createChildName(moduleName, ManagerGBean.J2EE_TYPE, manager);
                 webModuleData.setReferencePattern("Manager", managerName);
             }
             Map portMap = webModule.getPortMap();

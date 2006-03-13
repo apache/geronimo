@@ -32,6 +32,7 @@ import org.apache.geronimo.jetty.connector.JettyConnector;
 import org.apache.geronimo.jetty.requestlog.JettyLogManager;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
 import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
@@ -47,7 +48,7 @@ import java.util.Collections;
  * Jetty implementation of WebManager.  Knows how to manipulate
  * other Jetty objects for management purposes.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 385372 $ $Date$
  */
 public class JettyManagerImpl implements WebManager {
     private final static Log log = LogFactory.getLog(JettyManagerImpl.class);
@@ -67,7 +68,7 @@ public class JettyManagerImpl implements WebManager {
      * functional (e.g. SSL settings for an HTTPS connector).
      */
     public AbstractName addConnector(AbstractName containerName, String uniqueName, String protocol, String host, int port) {
-        AbstractName name = NameFactory.getChildName(containerName, NameFactory.GERONIMO_SERVICE, "JettyWebConnector-" + protocol + "-" + uniqueName, null);
+        AbstractName name = Naming.createChildName(containerName, NameFactory.GERONIMO_SERVICE, "JettyWebConnector-" + protocol + "-" + uniqueName);
         GBeanData connector;
         if (protocol.equals(PROTOCOL_HTTP)) {
             connector = new GBeanData(name, HTTPConnector.GBEAN_INFO);

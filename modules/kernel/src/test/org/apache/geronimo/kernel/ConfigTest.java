@@ -26,11 +26,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
@@ -44,9 +41,9 @@ import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
+import org.apache.geronimo.kernel.config.EditableConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
-import org.apache.geronimo.kernel.config.EditableConfigurationManagerImpl;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
@@ -68,7 +65,7 @@ public class ConfigTest extends TestCase {
 
         // load -- config should be running and gbean registered but not started
         Configuration configuration = configurationManager.loadConfiguration(configurationData);
-        ObjectName configurationName = new ObjectName(configuration.getObjectName());
+        AbstractName configurationName = Configuration.getConfigurationAbstractName(configuration.getId());
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
         assertNotNull(configuration.getConfigurationClassLoader());
@@ -125,7 +122,7 @@ public class ConfigTest extends TestCase {
     public void testConfigStartStopRestart() throws Exception {
         // load -- config should be running and gbean registered but not started
         Configuration configuration = configurationManager.loadConfiguration(configurationData);
-        ObjectName configurationName = new ObjectName(configuration.getObjectName());
+        AbstractName configurationName = Configuration.getConfigurationAbstractName(configuration.getId());
 
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(configurationName));
         assertNotNull(configuration.getConfigurationClassLoader());
@@ -173,7 +170,7 @@ public class ConfigTest extends TestCase {
         Configuration configuration = configurationManager.loadConfiguration(configurationData);
         assertNotNull(configuration.getConfigurationClassLoader());
 
-        GBeanData mockBean3 = buildGBeanData(configuration.getId(), new String[] {"J2EEServer", "name"}, new String[] {"geronimo", "MyMockGMBean3"}, MockGBean.getGBeanInfo());
+        GBeanData mockBean3 = buildGBeanData(configuration.getId(), "MyMockGMBean3", "MockGBean", MockGBean.getGBeanInfo());
         try {
             kernel.getGBeanState(mockBean3.getAbstractName());
             fail("Gbean should not be found yet");
@@ -196,18 +193,18 @@ public class ConfigTest extends TestCase {
         kernel.boot();
 
         Artifact baseArtifact = new Artifact("test", "base", "1", "car");
-        GBeanData artifactManagerData = buildGBeanData(baseArtifact, new String[] {"module", "j2eeType"}, new String[] {"base", "ArtifactManager"}, DefaultArtifactManager.GBEAN_INFO);
+        GBeanData artifactManagerData = buildGBeanData(baseArtifact, "ArtifactManager", "ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
         kernel.loadGBean(artifactManagerData, getClass().getClassLoader());
         kernel.startGBean(artifactManagerData.getAbstractName());
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
 
-        GBeanData artifactResolverData = buildGBeanData(baseArtifact, new String[] {"module", "j2eeType"}, new String[] {"base", "ArtifactResolver"}, DefaultArtifactResolver.GBEAN_INFO);
+        GBeanData artifactResolverData = buildGBeanData(baseArtifact, "ArtifactResolver", "ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
         artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         kernel.loadGBean(artifactResolverData, getClass().getClassLoader());
         kernel.startGBean(artifactResolverData.getAbstractName());
         assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactResolverData.getAbstractName()));
 
-        GBeanData configurationManagerData = buildGBeanData(baseArtifact, new String[] {"module", "name"}, new String[] {"base", "BasicConfigurationManager"}, EditableConfigurationManagerImpl.GBEAN_INFO);
+        GBeanData configurationManagerData = buildGBeanData(baseArtifact, "ConfigurationManager", "ConfigurationManager", EditableConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
 
@@ -223,14 +220,14 @@ public class ConfigTest extends TestCase {
 
         ArrayList gbeans = new ArrayList();
 
-        GBeanData mockBean1 = buildGBeanData(environment.getConfigId(), new String[] {"J2EEServer", "name"}, new String[] {"geronimo", "MyMockGMBean1"}, MockGBean.getGBeanInfo());
+        GBeanData mockBean1 = buildGBeanData(environment.getConfigId(),"MyMockGMBean1", "MockGBean", MockGBean.getGBeanInfo());
         gbeanName1 = mockBean1.getAbstractName();
         mockBean1.setAttribute("value", "1234");
         mockBean1.setAttribute("name", "child");
         mockBean1.setAttribute("finalInt", new Integer(1));
         gbeans.add(mockBean1);
 
-        GBeanData mockBean2 = buildGBeanData(environment.getConfigId(), new String[] {"J2EEServer", "name"}, new String[] {"geronimo", "MyMockGMBean2"}, MockGBean.getGBeanInfo());
+        GBeanData mockBean2 = buildGBeanData(environment.getConfigId(), "MyMockGMBean2", "MockGBean", MockGBean.getGBeanInfo());
         gbeanName2 = mockBean2.getAbstractName();
         mockBean2.setAttribute("value", "5678");
         mockBean2.setAttribute("name", "Parent");
@@ -243,19 +240,9 @@ public class ConfigTest extends TestCase {
         configurationData = new ConfigurationData(ConfigurationModuleType.CAR, null, gbeans, null, environment, new File("."));
     }
 
-    private GBeanData buildGBeanData(Artifact artifact, String[] key, String[] value, GBeanInfo info) throws MalformedObjectNameException {
-         AbstractName abstractName = buildAbstractName(artifact, key, value, info);
+    private GBeanData buildGBeanData(Artifact artifact, String name, String type, GBeanInfo info) {
+         AbstractName abstractName = Naming.createRootName(artifact, name, type);
          return new GBeanData(abstractName, info);
-     }
-
-     private AbstractName buildAbstractName(Artifact artifact, String[] key, String[] value, GBeanInfo info) throws MalformedObjectNameException {
-         Hashtable names = new Hashtable();
-         for (int i = 0; i < key.length; i++) {
-             String k = key[i];
-             String v = value[i];
-             names.put(k, v);
-         }
-         return new AbstractName(artifact, names, info.getInterfaces(), new ObjectName("test", names));
      }
 
     protected void tearDown() throws Exception {

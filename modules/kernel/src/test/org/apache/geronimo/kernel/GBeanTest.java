@@ -17,11 +17,15 @@
 
 package org.apache.geronimo.kernel;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Set;
+
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.ProxyFactory;
 import org.apache.geronimo.kernel.proxy.ProxyManager;
@@ -31,16 +35,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384141 $ $Date$
  */
 public class GBeanTest extends TestCase {
     private Kernel kernel;
@@ -206,6 +202,7 @@ public class GBeanTest extends TestCase {
     }
 
     protected void setUp() throws Exception {
+        super.setUp();
         Logger.getRootLogger().addAppender(new ConsoleAppender(new PatternLayout("%p [%t] %m %n")));
         Logger.getRootLogger().setLevel(Level.DEBUG);
         kernel = KernelFactory.newInstance().createKernel("test");
@@ -214,16 +211,11 @@ public class GBeanTest extends TestCase {
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
+        super.tearDown();
     }
-    private GBeanData buildGBeanData(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-        AbstractName abstractName = buildAbstractName(key, value, info);
+
+    private GBeanData buildGBeanData(String name, String type, GBeanInfo info) {
+        AbstractName abstractName = Naming.createRootName(new Artifact("test", "foo", "1", "car"), name, type);
         return new GBeanData(abstractName, info);
     }
-
-    private AbstractName buildAbstractName(String key, String value, GBeanInfo info) throws MalformedObjectNameException {
-        Map names = new HashMap();
-        names.put(key, value);
-        return new AbstractName(new Artifact("test", "foo", "1", "car"), names, info.getInterfaces(), new ObjectName("test:" + key + "=" + value));
-    }
-
 }

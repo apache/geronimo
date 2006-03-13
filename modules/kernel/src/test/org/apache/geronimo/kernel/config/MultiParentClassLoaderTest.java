@@ -47,7 +47,6 @@ public class MultiParentClassLoaderTest extends TestCase {
     private static final String NON_EXISTANT_RESOURCE = "non-existant-resource";
     private static final String NON_EXISTANT_CLASS = "NonExistant.class";
     private URLClassLoader[] parents;
-    private File myFile;
     private MultiParentClassLoader classLoader;
     private static final Artifact NAME = new Artifact("test", "fake", "1.0", "car");
 
@@ -293,11 +292,8 @@ public class MultiParentClassLoaderTest extends TestCase {
         assertTrue("File should exist: " + file, file.canRead());
     }
 
-    private static void assertFileNotExists(File file) {
-        assertTrue("File should not exist: " + file, !file.canRead());
-    }
-
     protected void setUp() throws Exception {
+        super.setUp();
         files = new File[3];
         for (int i = 0; i < files.length; i++) {
             files[i] = createJarFile(i);
@@ -308,7 +304,7 @@ public class MultiParentClassLoaderTest extends TestCase {
             parents[i] = new URLClassLoader(new URL[]{files[i].toURL()});
         }
 
-        myFile = createJarFile(33);
+        File myFile = createJarFile(33);
         classLoader = new MultiParentClassLoader(NAME, new URL[]{myFile.toURL()}, parents);
     }
 
@@ -365,6 +361,7 @@ public class MultiParentClassLoaderTest extends TestCase {
             files[i].delete();
 //            assertFileNotExists(files[i]);
         }
+        super.tearDown();
     }
 
     private static class ByteCode extends DefaultGeneratorStrategy {

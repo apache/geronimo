@@ -55,8 +55,8 @@ import org.apache.geronimo.xbeans.j2ee.ModuleType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.MalformedObjectNameException;
 import javax.xml.namespace.QName;
+import javax.management.MalformedObjectNameException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -378,12 +378,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             //add the JACC gbean if there is a principal-role mapping
             //TODO configid verify that the jaccManagerName is not needed before this.  cf. how this is handled in 1.2 branch.
             if (earContext.getSecurityConfiguration() != null) {
-                GBeanData jaccBeanData;
-                try {
-                    jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
-                } catch (MalformedObjectNameException e) {
-                    throw new DeploymentException("Could not construct name for JACCBean", e);
-                }
+                GBeanData jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
                 earContext.addGBean(jaccBeanData);
                 earContext.setJaccManagerName(jaccBeanData.getAbstractName());
             }

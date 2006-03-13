@@ -26,13 +26,13 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationResolver;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Naming;
 
 import javax.management.ObjectName;
 import java.io.File;
@@ -74,7 +74,7 @@ public class ServiceConfigBuilderTest extends TestCase {
                     null,
                     new ConfigurationResolver(environment.getConfigId(), outFile, Collections.singleton(new MockRepository())));
             DeploymentContext context = new DeploymentContext(configuration, outFile);
-            AbstractName j2eeContext = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.SERVICE, null);
+            AbstractName j2eeContext = Naming.createRootName(environment.getConfigId(), environment.getConfigId().toString(), "Configuration");
 
             GbeanType[] gbeans = plan.getGbeanArray();
             ServiceConfigBuilder.addGBeans(gbeans, cl, j2eeContext, context);

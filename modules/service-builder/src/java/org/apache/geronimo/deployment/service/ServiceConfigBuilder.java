@@ -38,6 +38,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -188,23 +189,9 @@ public class ServiceConfigBuilder implements ConfigurationBuilder {
 
     public static AbstractName addGBeanData(GbeanType gbean, AbstractName moduleName, ClassLoader cl, DeploymentContext context) throws DeploymentException {
         GBeanInfo gBeanInfo = GBeanInfo.getGBeanInfo(gbean.getClass1(), cl);
-        AbstractName abstractName;
-//        if (gbean.isSetGbeanName()) {
-//            try {
-//                abstractName = ObjectName.getInstance(gbean.getGbeanName());
-//                nameMap.putAll(abstractName.getKeyPropertyList());
-//            } catch (MalformedObjectNameException e) {
-//                throw new DeploymentException("Invalid ObjectName: " + gbean.getName(), e);
-//            }
-//        } else {
-            String namePart = gbean.getName();
-            String j2eeType = gBeanInfo.getJ2eeType();
-            //todo investigate using the module type from the j2eecontext.
-            abstractName = NameFactory.getChildName(moduleName, j2eeType, namePart, gBeanInfo.getInterfaces());
-//                nameMap.put("name", namePart);
-//                nameMap.put("type", j2eeType);
-//        }
-//        AbstractName abstractName = new AbstractName(context.getConfigID(), nameMap, gBeanInfo.getInterfaces(), abstractName);
+        String namePart = gbean.getName();
+        String j2eeType = gBeanInfo.getJ2eeType();
+        AbstractName abstractName = Naming.createChildName(moduleName, j2eeType, namePart);
         GBeanBuilder builder = new GBeanBuilder(abstractName, gBeanInfo, cl, context, moduleName, xmlAttributeBuilderMap, xmlReferenceBuilderMap);
 
         // set up attributes

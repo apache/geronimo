@@ -17,19 +17,17 @@
 package org.apache.geronimo.gbean;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
 
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.kernel.MockGBean;
-import org.apache.geronimo.kernel.KernelFactory;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
+import org.apache.geronimo.kernel.Kernel;
+import org.apache.geronimo.kernel.KernelFactory;
+import org.apache.geronimo.kernel.MockGBean;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.kernel.repository.Artifact;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384141 $ $Date$
  */
 public class Speed {
     private static final Object[] NO_ARGS = new Object[0];
@@ -174,15 +172,14 @@ public class Speed {
 //        printResults("CGLibProxy", end, start, iterations);
     }
 
-    private static GBeanData buildGBeanData() throws MalformedObjectNameException {
-        ObjectName objectName = new ObjectName("speed:type=MockGBean");
-        AbstractName abstractName = new AbstractName(new Artifact("foo", "bar", "1", "car"), new HashMap(), MockGBean.getGBeanInfo().getInterfaces(), objectName);
+    private static GBeanData buildGBeanData() {
+        AbstractName abstractName = Naming.createRootName(new Artifact("test", "foo", "1", "car"), "test", "test");
         GBeanData mockGBean = new GBeanData(abstractName, MockGBean.getGBeanInfo());
         return mockGBean;
     }
 
 
-    private static void echoTimings() throws Exception {
+    public static void echoTimings() throws Exception {
         Method myMethod = MockGBean.class.getMethod("echo", new Class[]{String.class});
 
         FastClass myFastClass = FastClass.create(MockGBean.class);

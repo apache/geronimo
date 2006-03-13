@@ -25,13 +25,12 @@ import java.util.Properties;
 import java.util.Map;
 import java.util.Hashtable;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.Collections;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class NameFactory {
 
@@ -131,8 +130,6 @@ public class NameFactory {
             J2EE_MODULE,  //this is a bad name here
             J2EE_MODULE   //should be SpringModule?
     };
-    private static final String DEFAULT_DOMAIN_NAME = "geronimo";
-    private static final String DEFAULT_SERVER_NAME = "geronimo";
 
     public static AbstractName buildApplicationName(Map properties, Artifact artifact) throws MalformedObjectNameException {
         String baseNameString = (String) properties.get(JSR77_BASE_NAME_PROPERTY);
@@ -210,9 +207,9 @@ public class NameFactory {
         return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, EJB_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
     }
 
-    public static String getEjbComponentNameString(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
-        return getEjbComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, j2eeName, j2eeType, context).getCanonicalName();
-    }
+//    public static String getEjbComponentNameString(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
+//        return getEjbComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, j2eeModuleName, j2eeName, j2eeType, context).getCanonicalName();
+//    }
 
 
     public static AbstractNameQuery getComponentNameQuery(String name, String type, AbstractName context) {
@@ -296,29 +293,28 @@ public class NameFactory {
         }
     }
 
-    public static ObjectName getComponentNameQuery(String domainName, String serverName, String applicationName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
-        return getComponentNameQuery(domainName, serverName, applicationName, null, "*", name, type, context);
-    }
+//    public static ObjectName getComponentNameQuery(String domainName, String serverName, String applicationName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
+//        return getComponentNameQuery(domainName, serverName, applicationName, null, "*", name, type, context);
+//    }
 
     public static ObjectName getComponentInModuleQuery(String domainName, String serverName, String applicationName, String moduleType, String moduleName, String type, J2eeContext context) throws MalformedObjectNameException {
         return getComponentNameQuery(domainName, serverName, applicationName, moduleType, moduleName, "*", type, context);
     }
 
-    /**
-     * Creates a query for components that are in no application with given name.
-     *
-     * @param domainName
-     * @param serverName
-     * @param name
-     * @param type
-     * @param context
-     * @return
-     * @throws MalformedObjectNameException
-     */
-
-    public static ObjectName getComponentRestrictedQueryName(String domainName, String serverName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
-        return getComponentNameQuery(domainName, serverName, NULL, null, "*", name, type, context);
-    }
+//    /**
+//     * Creates a query for components that are in no application with given name.
+//     *
+//     * @param domainName
+//     * @param serverName
+//     * @param name
+//     * @param type
+//     * @param context
+//     * @return
+//     * @throws MalformedObjectNameException
+//     */
+//    public static ObjectName getComponentRestrictedQueryName(String domainName, String serverName, String name, String type, J2eeContext context) throws MalformedObjectNameException {
+//        return getComponentNameQuery(domainName, serverName, NULL, null, "*", name, type, context);
+//    }
 
     public static ObjectName getWebComponentName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String j2eeName, String j2eeType, J2eeContext context) throws MalformedObjectNameException {
         return getComponentName(j2eeDomainName, j2eeServerName, j2eeApplicationName, WEB_MODULE, j2eeModuleName, j2eeName, j2eeType, context);
@@ -354,49 +350,14 @@ public class NameFactory {
         return ObjectName.getInstance(context.getJ2eeDomainName(j2eeDomainName), props);
     }
 
-    public static ObjectName getChildName(ObjectName parentObjectName, String type, String name) throws MalformedObjectNameException {
-        String domain = parentObjectName.getDomain();
-        Hashtable parentKeys = parentObjectName.getKeyPropertyList();
-        String parentType = (String) parentKeys.remove(J2EE_TYPE);
-        String parentName = (String) parentKeys.remove(J2EE_NAME);
-        parentKeys.put(parentType, parentName);
-        parentKeys.put(J2EE_TYPE, type);
-        parentKeys.put(J2EE_NAME, name);
-        return ObjectName.getInstance(domain, parentKeys);
-    }
-
-    public static AbstractName getRootName(Artifact artifact, String name, String type) {
-        Hashtable nameMap = new Hashtable();
-        nameMap.put(J2EE_SERVER, DEFAULT_SERVER_NAME);
-        nameMap.put(J2EE_TYPE, type);
-        nameMap.put(J2EE_NAME, name);
-
-        ObjectName moduleObjectName = null;
-        try {
-            moduleObjectName = ObjectName.getInstance(DEFAULT_DOMAIN_NAME, nameMap);
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError(e);
-        }
-
-        return new AbstractName(artifact, nameMap, Collections.EMPTY_SET, moduleObjectName);
-    }
-
-
-    public static AbstractName getChildName(AbstractName parentAbstractName, String type, String name, Set interfaceTypes) {
-        Artifact artifact = parentAbstractName.getArtifact();
-        Map nameMap = new HashMap(parentAbstractName.getName());
-        ObjectName childObjectName = null;
-        try {
-            ObjectName parentObjectName = parentAbstractName.getObjectName();
-            childObjectName = getChildName(parentObjectName, type, name);
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError(e);
-        }
-        String parentType = (String) nameMap.remove(J2EE_TYPE);
-        String parentName = (String) nameMap.remove(J2EE_NAME);
-        nameMap.put(parentType, parentName);
-        nameMap.put(J2EE_TYPE, type);
-        nameMap.put(J2EE_NAME, name);
-        return new AbstractName(artifact, nameMap, interfaceTypes, childObjectName);
-    }
+//    public static ObjectName getChildName(ObjectName parentObjectName, String type, String name) throws MalformedObjectNameException {
+//        String domain = parentObjectName.getDomain();
+//        Hashtable parentKeys = parentObjectName.getKeyPropertyList();
+//        String parentType = (String) parentKeys.remove(J2EE_TYPE);
+//        String parentName = (String) parentKeys.remove(J2EE_NAME);
+//        parentKeys.put(parentType, parentName);
+//        parentKeys.put(J2EE_TYPE, type);
+//        parentKeys.put(J2EE_NAME, name);
+//        return ObjectName.getInstance(domain, parentKeys);
+//    }
 }

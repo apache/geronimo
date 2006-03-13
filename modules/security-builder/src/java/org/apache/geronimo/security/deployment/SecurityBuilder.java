@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
-import javax.management.MalformedObjectNameException;
 
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
@@ -47,10 +46,11 @@ import org.apache.geronimo.xbeans.geronimo.security.GerRoleMappingsType;
 import org.apache.geronimo.xbeans.geronimo.security.GerRoleType;
 import org.apache.geronimo.xbeans.geronimo.security.GerSecurityType;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.kernel.Naming;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 384667 $ $Date$
  */
 public class SecurityBuilder {
 
@@ -227,8 +227,8 @@ public class SecurityBuilder {
         return new PrincipalInfo(principalType.getClass1(), principalType.getName(), principalType.isSetDesignatedRunAs());
     }
 
-    public static GBeanData configureApplicationPolicyManager(AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) throws MalformedObjectNameException {
-        AbstractName jaccBeanName = NameFactory.getChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER, ApplicationPolicyConfigurationManager.GBEAN_INFO.getInterfaces());
+    public static GBeanData configureApplicationPolicyManager(AbstractName moduleName, Map contextIDToPermissionsMap, SecurityConfiguration securityConfiguration) {
+        AbstractName jaccBeanName = Naming.createChildName(moduleName, NameFactory.JACC_MANAGER, NameFactory.JACC_MANAGER);
         GBeanData jaccBeanData = new GBeanData(jaccBeanName, ApplicationPolicyConfigurationManager.GBEAN_INFO);
         jaccBeanData.setAttribute("contextIdToPermissionsMap", contextIDToPermissionsMap);
         jaccBeanData.setAttribute("principalRoleMap", securityConfiguration.getPrincipalRoleMap());
