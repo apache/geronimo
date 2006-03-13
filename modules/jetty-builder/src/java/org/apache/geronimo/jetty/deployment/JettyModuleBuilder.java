@@ -339,9 +339,9 @@ public class JettyModuleBuilder extends AbstractWebModuleBuilder {
 
         GBeanData webModuleData = new GBeanData(moduleName, JettyWebAppContext.GBEAN_INFO);
         try {
-            webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerObjectName());
-            if (!moduleContext.getJ2EEApplicationName().equals("null")) {
-                webModuleData.setReferencePattern("J2EEApplication", moduleContext.getApplicationName());
+            webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerName());
+            if (!module.isStandAlone()) {
+                webModuleData.setReferencePattern("J2EEApplication", moduleContext.getModuleName());
             }
 
             webModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());

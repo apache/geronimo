@@ -189,7 +189,7 @@ public class TomcatModuleBuilderTest extends TestCase {
         EARContext earContext = createEARContext(outputPath, defaultEnvironment);
         earContext.setJaccManagerName(jaccBeanName);
         module.setEarContext(earContext);
-        ObjectName serverName = earContext.getServerObjectName();
+        ObjectName serverName = earContext.getServerName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
         builder.installModule(jarFile, earContext, module, new MockConfigStore(), null);
@@ -230,7 +230,7 @@ public class TomcatModuleBuilderTest extends TestCase {
                 environment,
                 ConfigurationModuleType.WAR,
                 kernel,
-                moduleContext.getJ2eeApplicationName(),
+                serverName, moduleContext.getJ2eeApplicationName(),
                 tcmName,
                 ctcName,
                 null,

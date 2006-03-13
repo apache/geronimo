@@ -280,7 +280,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         GBeanData resourceAdapterModuleData = new GBeanData(resourceAdapterModuleName, ResourceAdapterModuleImplGBean.GBEAN_INFO);
 
         // initalize the GBean
-        resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerObjectName());
+        resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
         if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
             resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getModuleName());
         }
@@ -381,7 +381,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         if (resourceModule.isStandAlone()) {
             resourceAdapterModuleName = earContext.getModuleName();
         } else {
-            AbstractName applicationName = earContext.getApplicationName();
+            AbstractName applicationName = earContext.getModuleName();
             resourceAdapterModuleName = NameFactory.getChildName(applicationName, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName(), null);
         }
         AbstractName resourceAdapterjsr77Name = NameFactory.getChildName(resourceAdapterModuleName, NameFactory.RESOURCE_ADAPTER, module.getName(), null);
@@ -801,7 +801,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         // ConnectionFactory
         AbstractName connectionFactoryAbstractName = NameFactory.getChildName(jcaResourceName, NameFactory.JCA_CONNECTION_FACTORY, connectiondefinitionInstance.getName().trim(), null);
         GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImplGBean.GBEAN_INFO);
-        connectionFactoryGBeanData.setReferencePattern("J2EEServer", earContext.getServerObjectName());
+        connectionFactoryGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
         connectionFactoryGBeanData.setAttribute("managedConnectionFactory", managedConnectionFactoryAbstractName.getObjectName().getCanonicalName());
 
         try {

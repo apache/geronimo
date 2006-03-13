@@ -292,6 +292,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
                     kernel,
+                    null, //no server name needed on client
                     clientBaseName,
                     transactionContextManagerObjectName,
                     connectionTrackerObjectName,
@@ -300,9 +301,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     corbaGBeanObjectName,
                     RefContext.derivedClientRefContext(earContext.getRefContext(), ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder));
             appClientModule.setEarContext(appClientDeploymentContext);
-        } catch (Exception e) {
+        } catch (DeploymentException e) {
             DeploymentUtil.recursiveDelete(appClientDir);
-            throw new DeploymentException("Could not create a deployment context for the app client", e);
+            throw e;
         }
 
     }
@@ -345,9 +346,9 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         Map componentContext;
         GBeanData appClientModuleGBeanData = new GBeanData(appClientModuleName, J2EEAppClientModuleImpl.GBEAN_INFO);
         try {
-            appClientModuleGBeanData.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerObjectName()));
-            if (!earContext.getJ2EEApplicationName().equals("null")) {
-                appClientModuleGBeanData.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getApplicationName()));
+            appClientModuleGBeanData.setReferencePatterns("J2EEServer", Collections.singleton(earContext.getServerName()));
+            if (!module.isStandAlone()) {
+                appClientModuleGBeanData.setReferencePatterns("J2EEApplication", Collections.singleton(earContext.getModuleName()));
             }
             appClientModuleGBeanData.setAttribute("deploymentDescriptor", appClientModule.getOriginalSpecDD());
 

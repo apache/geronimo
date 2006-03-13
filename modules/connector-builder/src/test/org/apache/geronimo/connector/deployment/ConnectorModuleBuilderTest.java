@@ -358,7 +358,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
                         module.getEnvironment(),
                         module.getType(),
                         kernel,
-                        j2eeContext.getJ2eeApplicationName(),
+                        serverName, j2eeContext.getJ2eeApplicationName(),
                         null,
                         connectionTrackerName,
                         null,

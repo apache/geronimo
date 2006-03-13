@@ -125,7 +125,7 @@ public class JettyModuleBuilderTest extends TestCase {
         Module module = builder.createModule(null, jarFile);
         EARContext earContext = createEARContext(outputPath, defaultEnvironment);
         module.setEarContext(earContext);
-        ObjectName serverName = earContext.getServerObjectName();
+        ObjectName serverName = earContext.getServerName();
         GBeanData server = new GBeanData(serverName, J2EEServerImpl.GBEAN_INFO);
         start(server);
         builder.initContext(earContext, module, cl);
@@ -162,7 +162,7 @@ public class JettyModuleBuilderTest extends TestCase {
                 environment,
                 ConfigurationModuleType.WAR,
                 kernel,
-                moduleContext.getJ2eeApplicationName(),
+                serverName, moduleContext.getJ2eeApplicationName(),
                 tcmName,
                 ctcName,
                 null,

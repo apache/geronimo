@@ -186,6 +186,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                         environment,
                         ConfigurationModuleType.WAR,
                         kernel,
+                        earContext.getServerName(),
                         module.getModuleName(),
                         earContext.getTransactionContextManagerObjectName(),
                         earContext.getConnectionTrackerObjectName(),
@@ -193,9 +194,9 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                         earContext.getNonTransactedTimerName(),
                         earContext.getCORBAGBeanObjectName(),
                         earContext.getRefContext());
-            } catch (Exception e) {
+            } catch (DeploymentException e) {
                 DeploymentUtil.recursiveDelete(configurationDir);
-                throw new DeploymentException("Could not create a deployment context for the web app", e);
+                throw e;
             }
             //TODO this is extremely fishy
             //Add the ear parent here since it can't be loaded by any config store.

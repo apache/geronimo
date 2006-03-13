@@ -91,6 +91,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private final ServiceReferenceBuilder serviceReferenceBuilder;
 
     private final Environment defaultEnvironment;
+    //TODO configid FIXME
+    private final AbstractNameQuery serverName = null;
     private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
     private final AbstractNameQuery transactionalTimerObjectName;
@@ -182,8 +184,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         GerApplicationType gerApplication = null;
         try {
             // load the geronimo-application.xml from either the supplied plan or from the earFile
-            GerApplicationDocument gerApplicationDoc = null;
-            XmlObject rawPlan = null;
+            XmlObject rawPlan;
             try {
                 if (planFile != null) {
                     rawPlan = XmlBeansUtil.parse(planFile.toURL());
@@ -211,7 +212,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         EnvironmentType environmentType = gerApplication.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        AbstractName earName = null;
+        AbstractName earName;
         try {
             earName = NameFactory.buildApplicationName(environment.getProperties(), environment.getConfigId());
         } catch (MalformedObjectNameException e) {
@@ -290,31 +291,28 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         ApplicationInfo applicationInfo = (ApplicationInfo) plan;
         try {
             // Create the output ear context
-            EARContext earContext = null;
+            EARContext earContext;
             ConfigurationModuleType applicationType = applicationInfo.getType();
             Environment environment = applicationInfo.getEnvironment();
             Artifact configId = environment.getConfigId();
-            File configurationDir = null;
+            File configurationDir;
             try {
                 configurationDir = configurationStore.createNewConfigurationDir(configId);
             } catch (ConfigurationAlreadyExistsException e) {
                 throw new DeploymentException(e);
             }
-            try {
-                earContext = new EARContext(configurationDir,
-                        applicationInfo.getEnvironment(),
-                        applicationType,
-                        kernel,
-                        applicationInfo.getBaseName(),
-                        transactionContextManagerObjectName,
-                        connectionTrackerObjectName,
-                        transactionalTimerObjectName,
-                        nonTransactionalTimerObjectName,
-                        corbaGBeanObjectName,
-                        new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder, kernel));
-            } catch (MalformedObjectNameException e) {
-                throw new DeploymentException(e);
-            }
+            earContext = new EARContext(configurationDir,
+                    applicationInfo.getEnvironment(),
+                    applicationType,
+                    kernel,
+                    serverName,
+                    applicationInfo.getBaseName(),
+                    transactionContextManagerObjectName,
+                    connectionTrackerObjectName,
+                    transactionalTimerObjectName,
+                    nonTransactionalTimerObjectName,
+                    corbaGBeanObjectName,
+                    new RefContext(ejbReferenceBuilder, resourceReferenceBuilder, serviceReferenceBuilder, kernel));
 
             // Copy over all files that are _NOT_ modules
             Set moduleLocations = applicationInfo.getModuleLocations();
@@ -351,7 +349,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
             // Create the J2EEApplication managed object
             if (ConfigurationModuleType.EAR == applicationType) {
-                GBeanData gbeanData = new GBeanData(earContext.getApplicationName(), J2EEApplicationImpl.GBEAN_INFO);
+                GBeanData gbeanData = new GBeanData(earContext.getModuleName(), J2EEApplicationImpl.GBEAN_INFO);
                 try {
                     String originalSpecDD = applicationInfo.getOriginalSpecDD();
                     if (originalSpecDD == null) {
@@ -361,7 +359,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
-                gbeanData.setReferencePattern("j2eeServer", earContext.getServerObjectName());
+                gbeanData.setReferencePattern("j2eeServer", earContext.getServerName());
                 earContext.addGBean(gbeanData);
             }
 
@@ -380,7 +378,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             //add the JACC gbean if there is a principal-role mapping
             //TODO configid verify that the jaccManagerName is not needed before this.  cf. how this is handled in 1.2 branch.
             if (earContext.getSecurityConfiguration() != null) {
-                GBeanData jaccBeanData = null;
+                GBeanData jaccBeanData;
                 try {
                     jaccBeanData = SecurityBuilder.configureApplicationPolicyManager(earContext.getModuleName(), earContext.getContextIDToPermissionsMap(), earContext.getSecurityConfiguration());
                 } catch (MalformedObjectNameException e) {
@@ -536,7 +534,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             GerExtModuleType gerExtModuleTypes[] = gerApplication.getExtModuleArray();
             for (int i = 0; i < gerExtModuleTypes.length; i++) {
                 GerExtModuleType gerExtModule = gerExtModuleTypes[i];
-                String moduleName = null;
+                String moduleName;
                 ModuleBuilder builder;
                 Object moduleContextInfo = null;
                 String moduleTypeName;
@@ -581,7 +579,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 }
                 Object vendorDD = anys[0];
 
-                JarFile moduleFile = null;
+                JarFile moduleFile;
                 if (gerExtModule.isSetInternalPath()) {
                     String modulePath = gerExtModule.getInternalPath().trim();
                     moduleLocations.add(modulePath);
