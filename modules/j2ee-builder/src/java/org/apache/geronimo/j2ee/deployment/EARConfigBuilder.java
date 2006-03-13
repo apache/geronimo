@@ -36,6 +36,7 @@ import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.kernel.config.ConfigurationData;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
@@ -56,7 +57,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import javax.xml.namespace.QName;
-import javax.management.MalformedObjectNameException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -101,7 +101,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     private static final String DEFAULT_GROUPID = "defaultGroupId";
 
 
-    public EARConfigBuilder(Environment defaultEnvironment, AbstractNameQuery transactionContextManagerAbstractName, AbstractNameQuery connectionTrackerAbstractName, AbstractNameQuery transactionalTimerAbstractName, AbstractNameQuery nonTransactionalTimerAbstractName, AbstractNameQuery corbaGBeanAbstractName, Repository repository, ModuleBuilder ejbConfigBuilder, EJBReferenceBuilder ejbReferenceBuilder, ModuleBuilder webConfigBuilder, ModuleBuilder connectorConfigBuilder, ResourceReferenceBuilder resourceReferenceBuilder, ModuleBuilder appClientConfigBuilder, ServiceReferenceBuilder serviceReferenceBuilder, Kernel kernel) {
+    public EARConfigBuilder(Environment defaultEnvironment,
+            AbstractNameQuery transactionContextManagerAbstractName,
+            AbstractNameQuery connectionTrackerAbstractName,
+            AbstractNameQuery transactionalTimerAbstractName,
+            AbstractNameQuery nonTransactionalTimerAbstractName,
+            AbstractNameQuery corbaGBeanAbstractName,
+            Repository repository,
+            ModuleBuilder ejbConfigBuilder,
+            EJBReferenceBuilder ejbReferenceBuilder,
+            ModuleBuilder webConfigBuilder,
+            ModuleBuilder connectorConfigBuilder,
+            ResourceReferenceBuilder resourceReferenceBuilder,
+            ModuleBuilder appClientConfigBuilder,
+            ServiceReferenceBuilder serviceReferenceBuilder,
+            Kernel kernel) {
         this.kernel = kernel;
         this.repository = repository;
         this.defaultEnvironment = defaultEnvironment;
@@ -212,12 +226,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         EnvironmentType environmentType = gerApplication.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
 
-        AbstractName earName;
-        try {
-            earName = NameFactory.buildApplicationName(environment.getProperties(), environment.getConfigId());
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not build ear name", e);
-        }
+        Artifact artifact = environment.getConfigId();
+        AbstractName earName = Naming.createRootName(artifact, artifact.toString(), NameFactory.J2EE_APPLICATION);
 
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate
@@ -666,11 +676,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(EARConfigBuilder.class, NameFactory.CONFIG_BUILDER);
         infoFactory.addAttribute("defaultEnvironment", Environment.class, true, true);
-        infoFactory.addAttribute("transactionContextManagerObjectName", AbstractName.class, true);
-        infoFactory.addAttribute("connectionTrackerObjectName", AbstractName.class, true);
-        infoFactory.addAttribute("transactionalTimerObjectName", AbstractName.class, true);
-        infoFactory.addAttribute("nonTransactionalTimerObjectName", AbstractName.class, true);
-        infoFactory.addAttribute("corbaGBeanObjectName", AbstractName.class, true);
+        infoFactory.addAttribute("transactionContextManagerAbstractName", AbstractNameQuery.class, true);
+        infoFactory.addAttribute("connectionTrackerAbstractName", AbstractNameQuery.class, true);
+        infoFactory.addAttribute("transactionalTimerAbstractName", AbstractNameQuery.class, true);
+        infoFactory.addAttribute("nonTransactionalTimerAbstractName", AbstractNameQuery.class, true);
+        infoFactory.addAttribute("corbaGBeanAbstractName", AbstractNameQuery.class, true);
 
         infoFactory.addReference("Repository", Repository.class, NameFactory.GERONIMO_SERVICE);
         infoFactory.addReference("EJBConfigBuilder", ModuleBuilder.class, NameFactory.MODULE_BUILDER);
@@ -687,11 +697,11 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         infoFactory.setConstructor(new String[]{
                 "defaultEnvironment",
-                "transactionContextManagerObjectName",
-                "connectionTrackerObjectName",
-                "transactionalTimerObjectName",
-                "nonTransactionalTimerObjectName",
-                "corbaGBeanObjectName",
+                "transactionContextManagerAbstractName",
+                "connectionTrackerAbstractName",
+                "transactionalTimerAbstractName",
+                "nonTransactionalTimerAbstractName",
+                "corbaGBeanAbstractName",
                 "Repository",
                 "EJBConfigBuilder",
                 "EJBReferenceBuilder",

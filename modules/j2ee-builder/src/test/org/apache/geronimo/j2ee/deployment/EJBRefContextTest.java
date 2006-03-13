@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 import org.apache.geronimo.common.UnresolvedEJBRefException;
 import org.apache.geronimo.common.UnresolvedReferenceException;
+import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
@@ -235,7 +236,7 @@ public class EJBRefContextTest extends TestCase {
             return new FakeReference(objectName);
         }
 
-        public Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) {
+        public Reference createCORBAReference(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
             return new FakeReference(objectName);
         }
 

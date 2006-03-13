@@ -25,6 +25,9 @@ import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import javax.management.ObjectName;
 import javax.naming.Reference;
@@ -33,7 +36,7 @@ import java.net.URL;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder, ResourceReferenceBuilder{
     public EARContext earContext;
@@ -41,10 +44,13 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
     public ClassLoader cl;
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        AbstractName earName = Naming.createRootName(new Artifact("test", "test-war", "", "rar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
+        AbstractName moduleName = Naming.createChildName(earName, NameFactory.RESOURCE_ADAPTER_MODULE, "rar");
         return new ConnectorModule(true, moduleName, null, moduleFile, "connector", null, null, null);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        AbstractName moduleName = Naming.createChildName(earName, NameFactory.RESOURCE_ADAPTER_MODULE, "rar");
         return new ConnectorModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 

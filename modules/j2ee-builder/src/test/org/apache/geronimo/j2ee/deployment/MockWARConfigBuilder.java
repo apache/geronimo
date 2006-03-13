@@ -21,7 +21,10 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Naming;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -29,7 +32,7 @@ import java.util.Map;
 import java.util.jar.JarFile;
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     public EARContext earContext;
@@ -40,10 +43,13 @@ public class MockWARConfigBuilder extends Assert implements ModuleBuilder {
     private String namespace = "foo";
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        AbstractName earName = Naming.createRootName(new Artifact("test", "test-war", "", "war"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
+        AbstractName moduleName = Naming.createChildName(earName, NameFactory.WEB_MODULE, "war");
         return new WebModule(true, moduleName, null, moduleFile, "war", null, null, null, contextRoot, portMap, namespace);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        AbstractName moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, "war");
         return new WebModule(false, moduleName, null, moduleFile, targetPath, null, null, null, contextRoot, portMap, namespace);
     }
 

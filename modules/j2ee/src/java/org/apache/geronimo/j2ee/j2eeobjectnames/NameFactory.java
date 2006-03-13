@@ -20,6 +20,7 @@ import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.Naming;
 
 import java.util.Properties;
 import java.util.Map;
@@ -130,22 +131,6 @@ public class NameFactory {
             J2EE_MODULE,  //this is a bad name here
             J2EE_MODULE   //should be SpringModule?
     };
-
-    public static AbstractName buildApplicationName(Map properties, Artifact artifact) throws MalformedObjectNameException {
-        String baseNameString = (String) properties.get(JSR77_BASE_NAME_PROPERTY);
-        ObjectName baseName = ObjectName.getInstance(baseNameString);
-        String domain = baseName.getDomain();
-        Hashtable keys = baseName.getKeyPropertyList();
-        String serverName = (String) keys.get(J2EE_SERVER);
-        if (serverName == null) {
-            throw new MalformedObjectNameException("No J2EEServer key in " + baseNameString);
-        }
-        Map nameMap = new HashMap();
-        keys.put(J2EE_TYPE, J2EE_APPLICATION);
-        keys.put(J2EE_NAME, artifact.toString());
-        ObjectName moduleObjectName = ObjectName.getInstance(domain, keys);
-        return new AbstractName(artifact, nameMap, Collections.EMPTY_SET, moduleObjectName);
-    }
 
     public static AbstractName buildModuleName(Map properties, Artifact artifact, ConfigurationModuleType moduleType, String moduleName) throws MalformedObjectNameException {
         String moduleTypeString = moduleTypeNames[moduleType.getValue()];

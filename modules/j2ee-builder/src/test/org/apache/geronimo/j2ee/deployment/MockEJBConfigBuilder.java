@@ -20,9 +20,13 @@ import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
+import org.apache.geronimo.kernel.repository.Artifact;
+import org.apache.geronimo.kernel.Naming;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 
 import javax.naming.Reference;
 import java.io.File;
@@ -32,7 +36,7 @@ import java.util.jar.JarFile;
 
 
 /**
- * @version $Rev$ $Date$
+ * @version $Rev: 385487 $ $Date$
  */
 public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBReferenceBuilder {
     public EARContext earContext;
@@ -40,10 +44,13 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
     public ClassLoader cl;
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
+        AbstractName earName = Naming.createRootName(new Artifact("test", "test-ejb-jar", "", "jar"), NameFactory.NULL, NameFactory.J2EE_APPLICATION) ;
+        AbstractName moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, "ejb-jar");
         return new EJBModule(true, moduleName, null, moduleFile, "ejb.jar", null, null, null);
     }
 
     public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        AbstractName moduleName = Naming.createChildName(earName, NameFactory.EJB_MODULE, "ejb-jar");
         return new EJBModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 
@@ -85,7 +92,7 @@ public class MockEJBConfigBuilder extends Assert implements ModuleBuilder, EJBRe
         return null;
     }
 
-    public Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) throws DeploymentException {
+    public Reference createCORBAReference(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
         return null;
     }
 
