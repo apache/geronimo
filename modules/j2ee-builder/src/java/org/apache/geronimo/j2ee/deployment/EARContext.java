@@ -55,15 +55,10 @@ public class EARContext extends DeploymentContext implements NamingContext {
     private AbstractName jaccManagerName;
     private SecurityConfiguration securityConfiguration;
 
-    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel, String j2eeApplicationName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
+    public EARContext(File baseDir, Environment environment, ConfigurationModuleType moduleType, Kernel kernel, AbstractName baseName, AbstractNameQuery transactionContextManagerObjectName, AbstractNameQuery connectionTrackerObjectName, AbstractNameQuery transactedTimerName, AbstractNameQuery nonTransactedTimerName, AbstractNameQuery corbaGBeanObjectName, RefContext refContext) throws MalformedObjectNameException, DeploymentException {
         super(baseDir, environment, moduleType, kernel);
-        if (moduleType.equals(ConfigurationModuleType.EAR)) {
-            moduleName = NameFactory.buildApplicationName(environment.getProperties(), environment.getConfigId());
+            moduleName = baseName;
             applicationName = moduleName;
-        } else {
-            moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), moduleType, j2eeApplicationName);
-            applicationName = null;
-        }
         //TODO configId FIXME
         domainObjectName = null;//NameFactory.getDomainName(null, moduleName);
         serverObjectName = null;//NameFactory.getServerName(null, null, moduleName);

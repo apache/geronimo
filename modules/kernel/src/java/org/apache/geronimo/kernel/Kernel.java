@@ -267,7 +267,7 @@ public interface Kernel {
      * returns an ObjectName for it.  If the argument is not a service or the
      * kernel cannot produce an ObjectName for it, returns null.
      */
-    ObjectName getObjectNameFor(Object service);
+    AbstractName getAbstractNameFor(Object service);
 
     /**
      * Brings the kernel online

@@ -19,6 +19,7 @@ package org.apache.geronimo.web.deployment;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.deployment.EARContext;
 import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
@@ -102,14 +103,14 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "war", null, true, null);
+        return createModule(plan, moduleFile, "war", null, true, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, (String) moduleContextInfo, earName);
     }
 
-    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot) throws DeploymentException;
+    protected abstract Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName) throws DeploymentException;
 
     /**
      * Some servlets will have multiple url patterns.  However, webservice servlets
@@ -185,7 +186,7 @@ public abstract class AbstractWebModuleBuilder implements ModuleBuilder {
                         environment,
                         ConfigurationModuleType.WAR,
                         kernel,
-                        earContext.getJ2EEApplicationName(),
+                        module.getModuleName(),
                         earContext.getTransactionContextManagerObjectName(),
                         earContext.getConnectionTrackerObjectName(),
                         earContext.getTransactedTimerName(),

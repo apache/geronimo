@@ -175,7 +175,7 @@ public class ENCConfigBuilder {
                     AbstractNameQuery containerId = getResourceContainerId(name, j2eeType, moduleURI, gerResourceRef, earContext);
 
                     //TODO configid not sure what knownParent is supposed to be
-                    ref = refContext.getConnectionFactoryRef(containerId, iface, earContext.getConfiguration(null));
+                    ref = refContext.getConnectionFactoryRef(containerId, iface, earContext.getConfiguration());
                     builder.bind(name, ref);
                 } catch (UnresolvedReferenceException e) {
                     throw new DeploymentException("Unable to resolve resource reference '" + name + "' (" + (e.isMultiple() ? "found multiple matching resources" : "no matching resources found") + ")");
@@ -220,7 +220,7 @@ public class ENCConfigBuilder {
             try {
                 AbstractNameQuery containerId = getAdminObjectContainerId(name, gerResourceEnvRef, earContext);
                 //TODO not sure what knownParent is supposed to be
-                Reference ref = earContext.getRefContext().getAdminObjectRef(containerId, iface, earContext.getConfiguration(null));
+                Reference ref = earContext.getRefContext().getAdminObjectRef(containerId, iface, earContext.getConfiguration());
 
                 builder.bind(name, ref);
             } catch (UnresolvedReferenceException e) {
@@ -283,7 +283,7 @@ public class ENCConfigBuilder {
             //throws exception if it can't locate ref.
             AbstractNameQuery containerId = buildAbstractNameQuery(moduleURI, NameFactory.JCA_ADMIN_OBJECT, linkName);
             //TODO configid not sure what knwonParent is suppsed to be
-            Reference ref = refContext.getAdminObjectRef(containerId, iface, earContext.getConfiguration(null));
+            Reference ref = refContext.getAdminObjectRef(containerId, iface, earContext.getConfiguration());
             builder.bind(name, ref);
 
         }
@@ -743,7 +743,7 @@ public class ENCConfigBuilder {
     }
 
     //TODO consider including target interface
-    private static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type) {
+    public static AbstractNameQuery buildAbstractNameQuery(GerPatternType pattern, String type) {
         String groupId = pattern.isSetGroupId() ? pattern.getGroupId().trim() : null;
         String artifactid = pattern.isSetArtifactId() ? pattern.getArtifactId().trim() : null;
         String version = pattern.isSetVersion() ? pattern.getVersion().trim() : null;
@@ -762,7 +762,7 @@ public class ENCConfigBuilder {
         return new AbstractNameQuery(artifact, nameMap, Collections.EMPTY_SET);
     }
 
-    private static AbstractNameQuery buildAbstractNameQuery(String module, String type, String name) {
+    public static AbstractNameQuery buildAbstractNameQuery(String module, String type, String name) {
         Map nameMap = new HashMap();
         nameMap.put("name", name);
         if (type != null) {

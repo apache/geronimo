@@ -223,8 +223,8 @@ public class KernelGBean implements Kernel{
         kernel.shutdown();
     }
 
-    public ObjectName getObjectNameFor(Object service) {
-        return kernel.getObjectNameFor(service);
+    public AbstractName getAbstractNameFor(Object service) {
+        return kernel.getAbstractNameFor(service);
     }
 
     public static final GBeanInfo GBEAN_INFO;

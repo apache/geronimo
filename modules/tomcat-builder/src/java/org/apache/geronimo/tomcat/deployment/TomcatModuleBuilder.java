@@ -26,6 +26,7 @@ import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.xbeans.EnvironmentType;
 import org.apache.geronimo.deployment.xbeans.GbeanType;
 import org.apache.geronimo.deployment.xmlbeans.XmlBeansUtil;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
@@ -34,13 +35,11 @@ import org.apache.geronimo.j2ee.deployment.Module;
 import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.WebModule;
 import org.apache.geronimo.j2ee.deployment.WebServiceBuilder;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.StoredObject;
-import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
@@ -71,9 +70,8 @@ import org.apache.geronimo.xbeans.j2ee.WebAppType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.transaction.UserTransaction;
+import javax.management.MalformedObjectNameException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -101,7 +99,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     private final Environment defaultEnvironment;
     private final boolean defaultContextPriorityClassloader;
-    private final ObjectName tomcatContainerObjectName;
+    private final AbstractName tomcatContainerObjectName;
 
     private final WebServiceBuilder webServiceBuilder;
 
@@ -109,18 +107,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     public TomcatModuleBuilder(Environment defaultEnvironment,
                                boolean defaultContextPriorityClassloader,
-                               ObjectName tomcatContainerObjectName,
+                               AbstractName tomcatContainerName,
                                WebServiceBuilder webServiceBuilder,
                                Kernel kernel) {
         super(kernel);
         this.defaultEnvironment = defaultEnvironment;
 
         this.defaultContextPriorityClassloader = defaultContextPriorityClassloader;
-        this.tomcatContainerObjectName = tomcatContainerObjectName;
+        this.tomcatContainerObjectName = tomcatContainerName;
         this.webServiceBuilder = webServiceBuilder;
     }
 
-    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot) throws DeploymentException {
+    protected Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, String contextRoot, AbstractName earName) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -185,8 +183,18 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         } catch (MalformedURLException e) {
             //no descriptor
         }
+        AbstractName moduleName;
+        if (earName == null) {
+            try {
+                moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.WAR, null);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct standalone web module name", e);
+            }
+        } else {
+            moduleName = NameFactory.getChildName(earName, NameFactory.WEB_MODULE, targetPath, null);
+        }
 
-        return new WebModule(standAlone, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
+        return new WebModule(standAlone, moduleName, environment, moduleFile, targetPath, webApp, tomcatWebApp, specDD, contextRoot, portMap, TOMCAT_NAMESPACE);
     }
 
 
@@ -265,34 +273,23 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader cl, Repository repository) throws DeploymentException {
         EARContext moduleContext = module.getEarContext();
-        Configuration knownParent = null;
-        if (!module.isStandAlone()) {
-            knownParent = earContext.getConfiguration(null);
-        }
-        ClassLoader moduleClassLoader = moduleContext.getClassLoader(knownParent);
-        J2eeContext earJ2eeContext = moduleContext.getModuleName();
-        J2eeContext moduleJ2eeContext = J2eeContextImpl.newModuleContextFromApplication(earJ2eeContext, NameFactory.WEB_MODULE, module.getName());
+        ClassLoader moduleClassLoader = moduleContext.getClassLoader();
+        AbstractName moduleName = moduleContext.getModuleName();
         WebModule webModule = (WebModule) module;
 
         WebAppType webApp = (WebAppType) webModule.getSpecDD();
         TomcatWebAppType tomcatWebApp = (TomcatWebAppType) webModule.getVendorDD();
 
         GbeanType[] gbeans = tomcatWebApp.getGbeanArray();
-        ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleJ2eeContext, moduleContext);
+        ServiceConfigBuilder.addGBeans(gbeans, moduleClassLoader, moduleName, moduleContext);
 
-        ObjectName webModuleName;
-        try {
-            webModuleName = NameFactory.getModuleName(null, null, null, null, null, moduleJ2eeContext);
-        } catch (MalformedObjectNameException e) {
-            throw new DeploymentException("Could not construct module name", e);
-        }
 
         UserTransaction userTransaction = new OnlineUserTransaction();
         //this may add to the web classpath with enhanced classes.
         //N.B. we use the ear context which has all the gbeans we could possibly be looking up from this ear.
         Map compContext = buildComponentContext(earContext, webModule, webApp, tomcatWebApp, userTransaction, moduleClassLoader);
 
-        GBeanData webModuleData = new GBeanData(webModuleName, TomcatWebAppContext.GBEAN_INFO);
+        GBeanData webModuleData = new GBeanData(moduleName, TomcatWebAppContext.GBEAN_INFO);
         try {
             webModuleData.setReferencePattern("J2EEServer", moduleContext.getServerObjectName());
             if (!moduleContext.getJ2EEApplicationName().equals("null")) {
@@ -336,24 +333,24 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
             }
             if (tomcatWebApp.isSetTomcatRealm()) {
                 String tomcatRealm = tomcatWebApp.getTomcatRealm().trim();
-                ObjectName realmName = NameFactory.getComponentName(null, null, null, null, tomcatRealm, RealmGBean.GBEAN_INFO.getJ2eeType(), moduleJ2eeContext);
+                AbstractName realmName = NameFactory.getChildName(moduleName, RealmGBean.GBEAN_INFO.getJ2eeType(), tomcatRealm, null);
                 webModuleData.setReferencePattern("TomcatRealm", realmName);
             }
             if (tomcatWebApp.isSetValveChain()) {
                 String valveChain = tomcatWebApp.getValveChain().trim();
-                ObjectName valveName = NameFactory.getComponentName(null, null, null, null, valveChain, ValveGBean.J2EE_TYPE, moduleJ2eeContext);
+                AbstractName valveName = NameFactory.getChildName(moduleName, ValveGBean.J2EE_TYPE, valveChain, null);
                 webModuleData.setReferencePattern("TomcatValveChain", valveName);
             }
 
             if (tomcatWebApp.isSetCluster()) {
                 String cluster = tomcatWebApp.getCluster().trim();
-                ObjectName clusterName = NameFactory.getComponentName(null, null, null, null, cluster, CatalinaClusterGBean.J2EE_TYPE, moduleJ2eeContext);
+                AbstractName clusterName = NameFactory.getChildName(moduleName, CatalinaClusterGBean.J2EE_TYPE, cluster, null);
                 webModuleData.setReferencePattern("Cluster", clusterName);
             }
 
             if (tomcatWebApp.isSetManager()) {
                 String manager = tomcatWebApp.getManager().trim();
-                ObjectName managerName = NameFactory.getComponentName(null, null, null, null, manager, ManagerGBean.J2EE_TYPE, moduleJ2eeContext);
+                AbstractName managerName = NameFactory.getChildName(moduleName, ManagerGBean.J2EE_TYPE, manager, null);
                 webModuleData.setReferencePattern("Manager", managerName);
             }
             Map portMap = webModule.getPortMap();
@@ -393,7 +390,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
 
             if (tomcatWebApp.isSetSecurityRealmName()) {
                 if (earContext.getSecurityConfiguration() == null) {
-                     throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + webModuleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
+                     throw new DeploymentException("You have specified a <security-realm-name> for the webapp " + moduleName + " but no <security> configuration (role mapping) is supplied in the Geronimo plan for the web application (or the Geronimo plan for the EAR if the web app is in an EAR)");
                 }
 
                 SecurityHolder securityHolder = new SecurityHolder();
@@ -402,7 +399,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
                 /**
                  * TODO - go back to commented version when possible.
                  */
-                String policyContextID = webModuleName.getCanonicalName().replaceAll("[, :]", "_");
+                String policyContextID = moduleName.toString().replaceAll("[, :]", "_");
                 securityHolder.setPolicyContextID(policyContextID);
 
                 ComponentPermissions componentPermissions = buildSpecSecurityConfig(webApp, securityRoles, rolePermissions);
@@ -475,7 +472,7 @@ public class TomcatModuleBuilder extends AbstractWebModuleBuilder {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(TomcatModuleBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("defaultEnvironment", Environment.class, true, true);
         infoBuilder.addAttribute("defaultContextPriorityClassloader", boolean.class, true, true);
-        infoBuilder.addAttribute("tomcatContainerObjectName", ObjectName.class, true, true);
+        infoBuilder.addAttribute("tomcatContainerObjectName", AbstractName.class, true, true);
         infoBuilder.addReference("WebServiceBuilder", WebServiceBuilder.class, NameFactory.MODULE_BUILDER);
         infoBuilder.addAttribute("kernel", Kernel.class, false);
         infoBuilder.addInterface(ModuleBuilder.class);

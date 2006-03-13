@@ -111,5 +111,5 @@ public interface ProxyManager {
      * @param proxy the proxy to get the target object name from
      * @return the object name of the target
      */
-    public ObjectName getProxyTarget(Object proxy);
+    public AbstractName getProxyTarget(Object proxy);
 }

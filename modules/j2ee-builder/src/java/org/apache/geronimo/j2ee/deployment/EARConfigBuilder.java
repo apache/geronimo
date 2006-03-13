@@ -61,7 +61,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -152,7 +151,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         return new ApplicationInfo(module.getType(),
                 module.getEnvironment(),
-                NameFactory.NULL,
+                module.getModuleName(),
                 null,
                 null,
                 Collections.singleton(module),
@@ -211,13 +210,21 @@ public class EARConfigBuilder implements ConfigurationBuilder {
 
         EnvironmentType environmentType = gerApplication.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
+
+        AbstractName earName = null;
+        try {
+            earName = NameFactory.buildApplicationName(environment.getProperties(), environment.getConfigId());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not build ear name", e);
+        }
+
         // get the modules either the application plan or for a stand alone module from the specific deployer
         // todo change module so you can extract the real module path back out.. then we can eliminate
         // the moduleLocations and have addModules return the modules
         Set moduleLocations = new HashSet();
         Set modules = new LinkedHashSet();
         try {
-            addModules(earFile, application, gerApplication, moduleLocations, modules, environment);
+            addModules(earFile, application, gerApplication, moduleLocations, modules, environment, earName);
         } catch (Throwable e) {
             // close all the modules
             for (Iterator iterator = modules.iterator(); iterator.hasNext();) {
@@ -235,17 +242,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
             throw new DeploymentException(e);
         }
 
-        //TODO extract override from environment name-key map.
-        String applicationName = null;
-        try {
-            applicationName = gerApplication.isSetApplicationName() ? gerApplication.getApplicationName() : environment.getConfigId().toURI().toString();
-        } catch (URISyntaxException e) {
-            throw new DeploymentException("Could not construct application name from configId", e);
-        }
-
         return new ApplicationInfo(ConfigurationModuleType.EAR,
                 environment,
-                applicationName,
+                earName,
                 application,
                 gerApplication,
                 modules,
@@ -306,7 +305,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         applicationInfo.getEnvironment(),
                         applicationType,
                         kernel,
-                        applicationInfo.getApplicationName(),
+                        applicationInfo.getBaseName(),
                         transactionContextManagerObjectName,
                         connectionTrackerObjectName,
                         transactionalTimerObjectName,
@@ -403,7 +402,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
         }
     }
 
-    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, Set modules, Environment environment) throws DeploymentException {
+    private void addModules(JarFile earFile, ApplicationType application, GerApplicationType gerApplication, Set moduleLocations, Set modules, Environment environment, AbstractName earName) throws DeploymentException {
         Map altVendorDDs = new HashMap();
         try {
             if (earFile != null) {
@@ -510,7 +509,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         }
                     }
 
-                    NestedJarFile moduleFile = null;
+                    NestedJarFile moduleFile;
                     try {
                         moduleFile = new NestedJarFile(earFile, modulePath);
                     } catch (IOException e) {
@@ -522,7 +521,8 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                             modulePath,
                             altSpecDD,
                             environment,
-                            moduleContextInfo);
+                            moduleContextInfo,
+                            earName);
 
                     if (module == null) {
                         throw new DeploymentException("Module was not " + moduleTypeName + ": " + modulePath);
@@ -622,7 +622,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                         moduleName,
                         altSpecDD,
                         environment,
-                        moduleContextInfo);
+                        moduleContextInfo, earName);
 
                 if (module == null) {
                     throw new DeploymentException("Module was not " + moduleTypeName + ": " + moduleName);

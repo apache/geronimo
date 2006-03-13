@@ -16,25 +16,24 @@
  */
 package org.apache.geronimo.kernel.jmx;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import javax.management.ObjectName;
-
 import net.sf.cglib.asm.Type;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.basic.KernelGetAttributeInvoker;
 import org.apache.geronimo.kernel.basic.KernelOperationInvoker;
 import org.apache.geronimo.kernel.basic.KernelSetAttributeInvoker;
 import org.apache.geronimo.kernel.basic.ProxyInvoker;
+import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
-import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * @version $Rev$ $Date$
@@ -186,7 +185,7 @@ public class JMXProxyMethodInterceptor implements MethodInterceptor {
         }
 
         public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
-            ObjectName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
+            AbstractName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
             return Boolean.valueOf(abstractName.equals(proxyTarget));
         }
     }

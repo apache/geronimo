@@ -60,7 +60,7 @@ import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 
 /**
- * @version $Rev: 384933 $ $Date$
+ * @version $Rev:385232 $ $Date$
  */
 public class DeploymentContext {
     private static int deploymentCount = 42;
@@ -404,7 +404,7 @@ public class DeploymentContext {
         return configuration.getConfigurationClassLoader();
     }
 
-    public Configuration getConfiguration(Configuration knownParent) {
+    public Configuration getConfiguration() {
         return configuration;
     }
 

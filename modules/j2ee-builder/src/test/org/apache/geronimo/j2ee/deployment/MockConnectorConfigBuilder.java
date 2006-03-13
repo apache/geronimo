@@ -20,6 +20,7 @@ import junit.framework.Assert;
 import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -40,11 +41,11 @@ public class MockConnectorConfigBuilder extends Assert implements ModuleBuilder,
     public ClassLoader cl;
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return new ConnectorModule(true, null, moduleFile, "connector", null, null, null);
+        return new ConnectorModule(true, moduleName, null, moduleFile, "connector", null, null, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
-        return new ConnectorModule(false, null, moduleFile, targetPath, null, null, null);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        return new ConnectorModule(false, moduleName, null, moduleFile, targetPath, null, null, null);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module connectorModule, ConfigurationStore configurationStore, Repository repository) {

@@ -23,6 +23,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.ReferenceCollection;
 import org.apache.geronimo.gbean.ReferenceCollectionEvent;
 import org.apache.geronimo.gbean.ReferenceCollectionListener;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.repository.Environment;
@@ -134,11 +135,11 @@ public class SwitchingModuleBuilder implements ModuleBuilder {
         return builder;
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
         String namespace = getNamespaceFromPlan(plan);
         ModuleBuilder builder = getBuilderFromNamespace(namespace);
         if (builder != null) {
-            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, environment, moduleContextInfo);
+            return builder.createModule(plan, moduleFile, targetPath, specDDUrl, environment, moduleContextInfo, earName);
         } else {
             return null;
         }

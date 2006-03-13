@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Arrays;
 
 /**
  * @version $Rev:$ $Date:$
@@ -95,9 +94,8 @@ public class AbstractName implements Serializable {
         final AbstractName that = (AbstractName) o;
 
         if (artifact != null ? !artifact.equals(that.artifact) : that.artifact != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return !(name != null ? !name.equals(that.name) : that.name != null);
 
-        return true;
     }
 
     public int hashCode() {

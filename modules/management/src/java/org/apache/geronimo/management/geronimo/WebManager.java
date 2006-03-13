@@ -56,8 +56,7 @@ public interface WebManager extends NetworkManager {
      * container.  May be null if the access log cannot be managed.
      *
      * @param containerObjectName The ObjectName of the container whose access
-     *                            log you're interested in.
      *
      */
-    public String getAccessLog(String containerObjectName);
+    public AbstractName getAccessLog(String containerObjectName);
 }

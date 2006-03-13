@@ -78,7 +78,7 @@ import org.apache.geronimo.xbeans.j2ee.PackageMappingType;
 import org.apache.geronimo.xbeans.geronimo.naming.GerServiceRefType;
 
 /**
- * @version $Rev: 384686 $ $Date$
+ * @version $Rev:385232 $ $Date$
  */
 public class ServiceReferenceTest extends TestCase {
     private static final File basedir = new File(System.getProperty("basedir", System.getProperty("user.dir")));
@@ -111,7 +111,7 @@ public class ServiceReferenceTest extends TestCase {
 
         File moduleLocation = new File(tmpbasedir, "ejb");
         moduleLocation.mkdirs();
-        module = new EJBModule(true, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
+        module = new EJBModule(true, moduleName, environment, new UnpackedJarFile(moduleLocation), "ejb", null, null, null);
 
         runExternalWSTest = System.getProperty("geronimo.run.external.webservicetest", "false").equals("true");
     }

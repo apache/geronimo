@@ -20,6 +20,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.XmlObject;
 
 import java.io.IOException;
@@ -38,8 +39,8 @@ public class WebModule extends Module {
     private final String contextRoot;
     private final Map portMap;
 
-    public WebModule(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap, String namespace) throws DeploymentException {
-        super(standAlone, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace);
+    public WebModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String contextRoot, Map portMap, String namespace) throws DeploymentException {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, namespace);
         this.contextRoot = contextRoot;
         this.portMap = portMap;
     }

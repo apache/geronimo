@@ -32,7 +32,7 @@ public interface NetworkManager {
     /**
      * Gets the network containers.
      */
-    public String[] getContainers();
+    public AbstractName[] getContainers();
 
     /**
      * Gets the protocols which this container can configure connectors for.
@@ -53,25 +53,27 @@ public interface NetworkManager {
      *
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public String[] getConnectors(String protocol);
+    public AbstractName[] getConnectors(String protocol);
 
     /**
      * Gets the ObjectNames of any existing connectors associated with this
      * network technology.
      */
-    public String[] getConnectors();
+    public AbstractName[] getConnectors();
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified
      * container for the specified protocol.
      *
+     * @param containerName
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public String[] getConnectorsForContainer(String containerObjectName, String protocol);
+    public AbstractName[] getConnectorsForContainer(AbstractName containerName, String protocol);
 
     /**
      * Gets the ObjectNames of any existing connectors for the specified
      * container.
+     * @param containerName
      */
-    public String[] getConnectorsForContainer(String containerObjectName);
+    public AbstractName[] getConnectorsForContainer(AbstractName containerName);
 }

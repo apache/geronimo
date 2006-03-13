@@ -72,14 +72,14 @@ public class JaasLoginModuleUse implements JaasLoginModuleChain {
     }
 
     public String getLoginModuleName() {
-        return kernel.getObjectNameFor(loginModule).getCanonicalName();
+        return kernel.getAbstractNameFor(loginModule).getObjectName().getCanonicalName();
     }
 
     public String getNextName() {
         if(next == null) {
             return null;
         }
-        return kernel.getObjectNameFor(next).getCanonicalName();
+        return kernel.getAbstractNameFor(next).getObjectName().getCanonicalName();
     }
 
     public String getControlFlag() {

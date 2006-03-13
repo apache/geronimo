@@ -21,6 +21,8 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.kernel.config.ManageableAttributeStore;
 import org.apache.geronimo.kernel.repository.Artifact;
 
@@ -40,16 +42,13 @@ public class MavenAttributeStore implements ManageableAttributeStore {
         return datas;
     }
 
-    public void setValue(String configurationName, ObjectName gbean, GAttributeInfo attribute, Object value) {
+    public void setValue(String configurationName, AbstractName gbean, GAttributeInfo attribute, Object value) {
     }
 
-    public void setReferencePattern(String configurationName, ObjectName gbean, GReferenceInfo reference, ObjectName pattern) {
+    public void setReferencePatterns(String configurationName, AbstractName gbean, GReferenceInfo reference, ReferencePatterns patterns) {
     }
 
-    public void setReferencePatterns(String configurationName, ObjectName gbean, GReferenceInfo reference, Set patterns) {
-    }
-
-    public void setShouldLoad(String configurationName, ObjectName gbean, boolean load) {
+    public void setShouldLoad(String configurationName, AbstractName gbean, boolean load) {
     }
 
     public void addGBean(String configurationName, GBeanData gbeanData) {

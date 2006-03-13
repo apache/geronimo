@@ -436,7 +436,7 @@ public class KernelDelegate implements Kernel {
         }
     }
 
-    public ObjectName getObjectNameFor(Object service) {
+    public AbstractName getAbstractNameFor(Object service) {
         return proxyManager.getProxyTarget(service);
     }
 

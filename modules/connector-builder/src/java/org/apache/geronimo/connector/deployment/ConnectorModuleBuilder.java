@@ -58,10 +58,10 @@ import org.apache.geronimo.j2ee.deployment.ModuleBuilder;
 import org.apache.geronimo.j2ee.deployment.ResourceReferenceBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.GBeanAlreadyExistsException;
 import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.Configuration;
+import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.Repository;
 import org.apache.geronimo.naming.deployment.ENCConfigBuilder;
@@ -92,6 +92,7 @@ import org.apache.xmlbeans.XmlObject;
 
 import javax.naming.Reference;
 import javax.xml.namespace.QName;
+import javax.management.MalformedObjectNameException;
 import java.beans.Introspector;
 import java.beans.PropertyEditor;
 import java.io.File;
@@ -143,14 +144,14 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "rar", null, true);
+        return createModule(plan, moduleFile, "rar", null, true, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, false);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, false, earName);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, boolean standAlone, AbstractName earName) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -226,7 +227,19 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
         EnvironmentType environmentType = gerConnector.getEnvironment();
         Environment environment = EnvironmentBuilder.buildEnvironment(environmentType, defaultEnvironment);
-        return new ConnectorModule(standAlone, environment, moduleFile, targetPath, connector, gerConnector, specDD);
+
+        AbstractName moduleName;
+        if (earName == null) {
+            try {
+                moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.RAR, null);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct standalone connector module name", e);
+            }
+        } else {
+            moduleName = NameFactory.getChildName(earName, NameFactory.RESOURCE_ADAPTER_MODULE, targetPath, null);
+        }
+
+        return new ConnectorModule(standAlone, moduleName, environment, moduleFile, targetPath, connector, gerConnector, specDD);
     }
 
     public void installModule(JarFile earFile, EARContext earContext, Module module, ConfigurationStore configurationStore, Repository repository) throws DeploymentException {
@@ -257,13 +270,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
     public void initContext(EARContext earContext, Module module, ClassLoader cl) throws DeploymentException {
         ConnectorModule resourceModule = (ConnectorModule) module;
-        AbstractName resourceAdapterModuleName;
-        if (resourceModule.isStandAlone()) {
-            resourceAdapterModuleName = earContext.getModuleName();
-        } else {
-            AbstractName applicationName = earContext.getApplicationName();
-            resourceAdapterModuleName = NameFactory.getChildName(applicationName, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName(), null);
-        }
+        AbstractName resourceAdapterModuleName = resourceModule.getModuleName();
+
         AbstractName resourceName = NameFactory.getChildName(resourceAdapterModuleName, NameFactory.JCA_RESOURCE, module.getName(), null);
 
         final ConnectorType connector = (ConnectorType) module.getSpecDD();
@@ -273,8 +281,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
         // initalize the GBean
         resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerObjectName());
-        if (!earContext.getJ2EEApplicationName().equals(NameFactory.NULL)) {
-            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getApplicationName());
+        if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
+            resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_APPLICATION, earContext.getModuleName());
         }
 
         resourceAdapterModuleData.setAttribute("deploymentDescriptor", module.getOriginalSpecDD());

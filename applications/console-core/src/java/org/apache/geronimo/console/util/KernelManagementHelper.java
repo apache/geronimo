@@ -550,7 +550,7 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public WebAccessLog getWebAccessLog(WebManager manager, WebContainer container) {
-        return getWebAccessLog(manager, kernel.getObjectNameFor(container).getCanonicalName());
+        return getWebAccessLog(manager, kernel.getAbstractNameFor(container).getCanonicalName());
     }
 
     public WebAccessLog getWebAccessLog(WebManager manager, String container) {
@@ -579,11 +579,11 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container, String protocol) {
-        return getWebConnectorsForContainer(manager, kernel.getObjectNameFor(container).getCanonicalName(), protocol);
+        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getCanonicalName(), protocol);
     }
 
     public WebConnector[] getWebConnectorsForContainer(WebManager manager, WebContainer container) {
-        return getWebConnectorsForContainer(manager, kernel.getObjectNameFor(container).getCanonicalName());
+        return getWebConnectorsForContainer(manager, kernel.getAbstractNameFor(container).getCanonicalName());
     }
 
     public WebConnector[] getWebConnectorsForContainer(WebManager manager, String containerObjectName, String protocol) {
@@ -730,11 +730,11 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker, String protocol) {
-        return getJMSConnectorsForContainer(manager, kernel.getObjectNameFor(broker).getCanonicalName(), protocol);
+        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getCanonicalName(), protocol);
     }
 
     public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, JMSBroker broker) {
-        return getJMSConnectorsForContainer(manager, kernel.getObjectNameFor(broker).getCanonicalName());
+        return getJMSConnectorsForContainer(manager, kernel.getAbstractNameFor(broker).getCanonicalName());
     }
 
     public JMSConnector[] getJMSConnectorsForContainer(JMSManager manager, String brokerObjectName, String protocol) {

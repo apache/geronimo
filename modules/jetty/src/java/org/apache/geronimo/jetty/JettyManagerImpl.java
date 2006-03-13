@@ -21,7 +21,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
-import org.apache.geronimo.gbean.GBeanQuery;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.ReferencePatterns;
@@ -38,10 +37,7 @@ import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.management.geronimo.WebManager;
 
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -110,16 +106,10 @@ public class JettyManagerImpl implements WebManager {
     /**
      * Get a list of containers for this web implementation.
      */
-    public String[] getContainers() {
-        GBeanQuery query = new GBeanQuery(null, JettyContainer.class.getName());
+    public AbstractName[] getContainers() {
+        AbstractNameQuery query = new AbstractNameQuery(JettyContainer.class.getName());
         Set names = kernel.listGBeans(query);
-        String[] result = new String[names.size()];
-        int i = 0;
-        for (Iterator it = names.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            result[i++] = name.getCanonicalName();
-        }
-        return result;
+        return (AbstractName[]) names.toArray(new AbstractName[names.size()]);
     }
 
     /**
@@ -175,133 +165,91 @@ public class JettyManagerImpl implements WebManager {
      *
      * @param protocol A protocol as returned by getSupportedProtocols
      */
-    public String[] getConnectors(String protocol) {
-        GBeanQuery query = new GBeanQuery(null, JettyWebConnector.class.getName());
+    public AbstractName[] getConnectors(String protocol) {
+        AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
         List result = new ArrayList();
         for (Iterator it = names.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
+            AbstractName name = (AbstractName) it.next();
             try {
                 if (kernel.getAttribute(name, "protocol").equals(protocol)) {
-                    result.add(name.getCanonicalName());
+                    result.add(name);
                 }
             } catch (Exception e) {
                 log.error("Unable to check the protocol for a connector", e);
             }
         }
-        return (String[]) result.toArray(new String[result.size()]);
+        return (AbstractName[]) result.toArray(new AbstractName[result.size()]);
     }
 
-    public String getAccessLog(String containerObjectName) {
-        GBeanQuery query = new GBeanQuery(null, JettyLogManager.class.getName());
+    public AbstractName getAccessLog(String containerObjectName) {
+        AbstractNameQuery query = new AbstractNameQuery(JettyLogManager.class.getName());
         Set names = kernel.listGBeans(query);
         if(names.size() == 0) {
             return null;
         } else if(names.size() > 1) {
             throw new IllegalStateException("Should not be more than one Jetty access log manager");
         }
-        return ((ObjectName)names.iterator().next()).getCanonicalName();
+        return (AbstractName)names.iterator().next();
     }
 
     /**
      * Gets the ObjectNames of any existing connectors.
      */
-    public String[] getConnectors() {
-        GBeanQuery query = new GBeanQuery(null, JettyWebConnector.class.getName());
+    public AbstractName[] getConnectors() {
+        AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
         Set names = kernel.listGBeans(query);
-        String[] result = new String[names.size()];
-        int i = 0;
-        for (Iterator it = names.iterator(); it.hasNext();) {
-            ObjectName name = (ObjectName) it.next();
-            result[i++] = name.getCanonicalName();
-        }
-        return result;
+        return (AbstractName[]) names.toArray(new AbstractName[names.size()]);
     }
 
-    public String[] getConnectorsForContainer(String containerObjectName, String protocol) {
+    public AbstractName[] getConnectorsForContainer(AbstractName containerName, String protocol) {
         if(protocol == null) {
-            return getConnectorsForContainer(containerObjectName);
+            return getConnectorsForContainer(containerName);
         }
         try {
-            ObjectName containerName = ObjectName.getInstance(containerObjectName);
             List results = new ArrayList();
-            GBeanQuery query = new GBeanQuery(null, JettyWebConnector.class.getName());
+            AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
             Set set = kernel.listGBeans(query); // all Jetty connectors
             for (Iterator it = set.iterator(); it.hasNext();) {
-                ObjectName name = (ObjectName) it.next(); // a single Jetty connector
+                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
                 ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
-                for (Iterator refit = refs.iterator(); refit.hasNext();) {
-                    ObjectName ref = (ObjectName) refit.next();
-                    boolean match = false;
-                    if(ref.isPattern()) {
-                        Set matches = kernel.listGBeans(ref);
-                        if(matches.size() != 1) {
-                            log.error("Unable to compare a connector->container reference that's a pattern to a fixed container name: "+ref.getCanonicalName());
-                        } else {
-                            ref = (ObjectName)matches.iterator().next();
-                            if(ref.equals(containerName)) {
-                                match = true;
-                            }
+                //TODO configid need to verify that the refpattern is resolved
+                if(containerName.equals(refs.getAbstractName())) {
+                    try {
+                        String testProtocol = (String) kernel.getAttribute(name, "protocol");
+                        if(testProtocol != null && testProtocol.equals(protocol)) {
+                            results.add(name);
                         }
-                    } else {
-                        if(ref.equals(containerName)) {
-                            match = true;
-                        }
+                    } catch (Exception e) {
+                        log.error("Unable to look up protocol for connector '"+name+"'",e);
                     }
-                    if(match) {
-                        try {
-                            String testProtocol = (String) kernel.getAttribute(name, "protocol");
-                            if(testProtocol != null && testProtocol.equals(protocol)) {
-                                results.add(name.getCanonicalName());
-                            }
-                        } catch (Exception e) {
-                            log.error("Unable to look up protocol for connector '"+name+"'",e);
-                        }
-                        break;
-                    }
+                    break;
                 }
             }
-            return (String[]) results.toArray(new String[results.size()]);
+            return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerObjectName+"': "+e);
+            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': "+e);
         }
     }
 
-    public String[] getConnectorsForContainer(String containerObjectName) {
+    public AbstractName[] getConnectorsForContainer(AbstractName containerName) {
         try {
-            ObjectName containerName = ObjectName.getInstance(containerObjectName);
             List results = new ArrayList();
-            GBeanQuery query = new GBeanQuery(null, JettyWebConnector.class.getName());
+            AbstractNameQuery query = new AbstractNameQuery(JettyWebConnector.class.getName());
             Set set = kernel.listGBeans(query); // all Jetty connectors
             for (Iterator it = set.iterator(); it.hasNext();) {
-                ObjectName name = (ObjectName) it.next(); // a single Jetty connector
+                AbstractName name = (AbstractName) it.next(); // a single Jetty connector
                 GBeanData data = kernel.getGBeanData(name);
-                Set refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
-                for (Iterator refit = refs.iterator(); refit.hasNext();) {
-                    ObjectName ref = (ObjectName) refit.next();
-                    if(ref.isPattern()) {
-                        Set matches = kernel.listGBeans(ref);
-                        if(matches.size() != 1) {
-                            log.error("Unable to compare a connector->container reference that's a pattern to a fixed container name: "+ref.getCanonicalName());
-                        } else {
-                            ref = (ObjectName)matches.iterator().next();
-                            if(ref.equals(containerName)) {
-                                results.add(name.getCanonicalName());
-                                break;
-                            }
-                        }
-                    } else {
-                        if(ref.equals(containerName)) {
-                            results.add(name.getCanonicalName());
-                            break;
-                        }
-                    }
+                ReferencePatterns refs = data.getReferencePatterns(JettyConnector.CONNECTOR_CONTAINER_REFERENCE);
+                //TODO configid need to verify that the refpattern is resolved
+                if (containerName.equals(refs.getAbstractName())) {
+                    results.add(name);
                 }
             }
-            return (String[]) results.toArray(new String[results.size()]);
+            return (AbstractName[]) results.toArray(new AbstractName[results.size()]);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerObjectName+"': "+e);
+            throw new IllegalArgumentException("Unable to look up connectors for Jetty container '"+containerName +"': "+e);
         }
     }
 

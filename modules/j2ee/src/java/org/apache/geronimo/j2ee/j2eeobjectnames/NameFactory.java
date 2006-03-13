@@ -95,7 +95,8 @@ public class NameFactory {
     public static final String JCA_WORK_MANAGER = "JCAWorkManager";
     public static final String JCA_CONNECTION_MANAGER = "JCAConnectionManager";
     public static final String WEB_FILTER = "WebFilter";
-    public static final String WEB_FILTER_MAPPING = "WebFilterMapping";
+    public static final String URL_WEB_FILTER_MAPPING = "URLWebFilterMapping";
+    public static final String SERVLET_WEB_FILTER_MAPPING = "ServletWebFilterMapping";
     public static final String URL_PATTERN = "URLPattern";
     public static final String GERONIMO_SERVICE = "GBean"; //copied in GBeanInfoBuilder to avoid dependencies in the wrong direction.
     public static final String CORBA_SERVICE = "CORBABean";
@@ -326,7 +327,7 @@ public class NameFactory {
     //TODO THIS IS KIND OF WEIRD. Is there a better way???
     public static ObjectName getWebFilterMappingName(String j2eeDomainName, String j2eeServerName, String j2eeApplicationName, String j2eeModuleName, String filterName, String servletName, String urlPattern, J2eeContext context) throws MalformedObjectNameException {
         Properties props = new Properties();
-        props.put(J2EE_TYPE, WEB_FILTER_MAPPING);
+        props.put(J2EE_TYPE, URL_WEB_FILTER_MAPPING);
         props.put(J2EE_SERVER, context.getJ2eeServerName(j2eeServerName));
         props.put(J2EE_APPLICATION, context.getJ2eeApplicationName(j2eeApplicationName));
         props.put(WEB_MODULE, context.getJ2eeModuleName(j2eeModuleName));

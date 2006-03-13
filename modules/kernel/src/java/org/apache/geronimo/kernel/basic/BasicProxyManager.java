@@ -188,12 +188,12 @@ public class BasicProxyManager implements ProxyManager {
         return interceptors.containsKey(proxy);
     }
 
-    public ObjectName getProxyTarget(Object proxy) {
+    public AbstractName getProxyTarget(Object proxy) {
         MethodInterceptor methodInterceptor = (MethodInterceptor) interceptors.get(proxy);
         if (methodInterceptor == null) {
             return null;
         }
-        return getAbstractName(methodInterceptor).getObjectName();
+        return getAbstractName(methodInterceptor);
     }
 
     private class ManagedProxyFactory implements ProxyFactory {

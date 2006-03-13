@@ -20,6 +20,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.XmlObject;
 
 import java.io.IOException;
@@ -37,8 +38,8 @@ public class AppClientModule extends Module {
     private Collection resourceModules;
 
 
-    public AppClientModule(boolean standAlone, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
-        super(standAlone, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+    public AppClientModule(boolean standAlone, AbstractName moduleName, Environment serverEnvironment, Environment clientEnvironment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
+        super(standAlone, moduleName, serverEnvironment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
         this.clientEnvironment = clientEnvironment;
     }
 

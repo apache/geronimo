@@ -110,7 +110,7 @@ public class GenericSecurityRealm implements SecurityRealm, ConfigurationEntryFa
     }
 
     public String getLoginModuleChainName() {
-        return kernel.getObjectNameFor(loginModuleUse).getCanonicalName();
+        return kernel.getAbstractNameFor(loginModuleUse).getObjectName().getCanonicalName();
     }
 
     /**

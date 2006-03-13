@@ -28,12 +28,15 @@ import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.deployment.util.DeploymentUtil;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.common.DeploymentException;
+import org.apache.geronimo.gbean.AbstractName;
 
 /**
  * @version $Rev$ $Date$
  */
 public abstract class Module {
     private final boolean standAlone;
+
+    private final AbstractName moduleName;
     private final String name;
     private final Environment environment;
     private final URI moduleURI;
@@ -49,10 +52,12 @@ public abstract class Module {
 
     private URI uniqueModuleLocation;
 
-    protected Module(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) throws DeploymentException {
+    protected Module(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD, String namespace) throws DeploymentException {
         assert targetPath != null: "targetPath is null";
+        assert moduleName != null: "moduleName is null";
 
         this.standAlone = standAlone;
+        this.moduleName = moduleName;
         this.environment = environment;
         this.moduleFile = moduleFile;
         this.targetPath = targetPath;
@@ -80,6 +85,10 @@ public abstract class Module {
 
     public boolean isStandAlone() {
         return standAlone;
+    }
+
+    public AbstractName getModuleName() {
+        return moduleName;
     }
 
     public Environment getEnvironment() {

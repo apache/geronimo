@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -28,7 +29,7 @@ import org.apache.xmlbeans.XmlObject;
 public class ApplicationInfo {
     private ConfigurationModuleType type;
     private Environment environment;
-    private String applicationName;
+    private AbstractName baseName;
     private XmlObject specDD;
     private XmlObject vendorDD;
     private Set modules;
@@ -38,7 +39,7 @@ public class ApplicationInfo {
     public ApplicationInfo() {
     }
 
-    public ApplicationInfo(ConfigurationModuleType type, Environment environment, String applicationName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
+    public ApplicationInfo(ConfigurationModuleType type, Environment environment, AbstractName baseName, XmlObject specDD, XmlObject vendorDD, Set modules, Set moduleLocations, String originalSpecDD) {
         assert type != null;
         assert environment != null;
         assert modules != null;
@@ -46,7 +47,7 @@ public class ApplicationInfo {
 
         this.type = type;
         this.environment = environment;
-        this.applicationName = applicationName;
+        this.baseName = baseName;
         this.specDD = specDD;
         this.vendorDD = vendorDD;
         this.modules = modules;
@@ -70,12 +71,12 @@ public class ApplicationInfo {
         this.environment = environment;
     }
 
-    public String getApplicationName() {
-        return applicationName;
+    public AbstractName getBaseName() {
+        return baseName;
     }
 
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
+    public void setBaseName(AbstractName baseName) {
+        this.baseName = baseName;
     }
 
     public XmlObject getVendorDD() {

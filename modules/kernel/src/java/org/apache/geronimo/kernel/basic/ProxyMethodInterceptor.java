@@ -16,32 +16,31 @@
  */
 package org.apache.geronimo.kernel.basic;
 
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.beans.Introspector;
-import javax.management.ObjectName;
-
 import net.sf.cglib.asm.Type;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import net.sf.cglib.reflect.FastClass;
-import org.apache.geronimo.gbean.GOperationSignature;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GAttributeInfo;
-import org.apache.geronimo.gbean.GOperationInfo;
-import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.AbstractName;
+import org.apache.geronimo.gbean.GAttributeInfo;
+import org.apache.geronimo.gbean.GBeanData;
+import org.apache.geronimo.gbean.GBeanInfo;
+import org.apache.geronimo.gbean.GOperationInfo;
+import org.apache.geronimo.gbean.GOperationSignature;
 import org.apache.geronimo.gbean.runtime.GBeanInstance;
 import org.apache.geronimo.gbean.runtime.RawInvoker;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.proxy.DeadProxyException;
-import org.apache.geronimo.kernel.proxy.ProxyManager;
 import org.apache.geronimo.kernel.proxy.GeronimoManagedBean;
+import org.apache.geronimo.kernel.proxy.ProxyManager;
+
+import java.beans.Introspector;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @version $Rev$ $Date$
@@ -55,8 +54,6 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
     /**
      * The object name to which we are connected.
      */
-//    private final ObjectName objectName;
-
     private final AbstractName abstractName;
 
     /**
@@ -77,10 +74,6 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
     public synchronized void destroy() {
         gbeanInvokers = null;
     }
-
-//    public ObjectName getObjectName() {
-//        return objectName;
-//    }
 
     public AbstractName getAbstractName() {
         return abstractName;
@@ -308,7 +301,7 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
         }
 
         public Object invoke(AbstractName abstractName, Object[] arguments) throws Throwable {
-            ObjectName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
+            AbstractName proxyTarget = proxyManager.getProxyTarget(arguments[0]);
             return Boolean.valueOf(abstractName.equals(proxyTarget));
         }
     }

@@ -68,6 +68,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import javax.management.ObjectName;
+import javax.management.MalformedObjectNameException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -95,7 +96,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     private final AbstractNameQuery corbaGBeanObjectName;
     private final Kernel kernel;
 
-    private final String clientApplicationName = "client-application";
     private final AbstractNameQuery transactionContextManagerObjectName;
     private final AbstractNameQuery connectionTrackerObjectName;
     private final EJBReferenceBuilder ejbReferenceBuilder;
@@ -127,14 +127,14 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public Module createModule(File plan, JarFile moduleFile) throws DeploymentException {
-        return createModule(plan, moduleFile, "app-client", null, null, true);
+        return createModule(plan, moduleFile, "app-client", null, null, true, null);
     }
 
-    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo) throws DeploymentException {
-        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, false);
+    public Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, Object moduleContextInfo, AbstractName earName) throws DeploymentException {
+        return createModule(plan, moduleFile, targetPath, specDDUrl, environment, false, earName);
     }
 
-    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, boolean standAlone) throws DeploymentException {
+    private Module createModule(Object plan, JarFile moduleFile, String targetPath, URL specDDUrl, Environment environment, boolean standAlone, AbstractName earName) throws DeploymentException {
         assert moduleFile != null: "moduleFile is null";
         assert targetPath != null: "targetPath is null";
         assert !targetPath.endsWith("/"): "targetPath must not end with a '/'";
@@ -172,8 +172,18 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         EnvironmentType serverEnvironmentType = gerAppClient.getServerEnvironment();
         Environment serverEnvironment = EnvironmentBuilder.buildEnvironment(serverEnvironmentType, defaultServerEnvironment);
 
+        AbstractName moduleName;
+        if (earName == null) {
+            try {
+                moduleName = NameFactory.buildModuleName(environment.getProperties(), environment.getConfigId(), ConfigurationModuleType.CAR, null);
+            } catch (MalformedObjectNameException e) {
+                throw new DeploymentException("Could not construct standalone app client module name", e);
+            }
+        } else {
+            moduleName = NameFactory.getChildName(earName, NameFactory.APP_CLIENT_MODULE, targetPath, null);
+        }
 
-        return new AppClientModule(standAlone, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD);
+        return new AppClientModule(standAlone, moduleName, serverEnvironment, clientEnvironment, moduleFile, targetPath, appClient, gerAppClient, specDD);
     }
 
     GerApplicationClientType getGeronimoAppClient(Object plan, JarFile moduleFile, boolean standAlone, String targetPath, ApplicationClientType appClient, Environment environment) throws DeploymentException {
@@ -261,6 +271,13 @@ public class AppClientModuleBuilder implements ModuleBuilder {
             Artifact configId = new Artifact(earConfigId.getGroupId(), earConfigId.getArtifactId() + "_" + module.getTargetPath(), earConfigId.getVersion(), "car");
             clientEnvironment.setConfigId(configId);
         }
+
+        AbstractName clientBaseName;
+        try {
+            clientBaseName = NameFactory.buildModuleName(clientEnvironment.getProperties(), clientEnvironment.getConfigId(), ConfigurationModuleType.CAR, moduleFile.getName());
+        } catch (MalformedObjectNameException e) {
+            throw new DeploymentException("Could not construct abstract name for app client", e);
+        }
         File appClientDir;
         try {
             appClientDir = configurationStore.createNewConfigurationDir(clientEnvironment.getConfigId());
@@ -275,7 +292,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                     clientEnvironment,
                     ConfigurationModuleType.CAR,
                     kernel,
-                    clientApplicationName,
+                    clientBaseName,
                     transactionContextManagerObjectName,
                     connectionTrackerObjectName,
                     null,
@@ -294,7 +311,6 @@ public class AppClientModuleBuilder implements ModuleBuilder {
     }
 
     public void addGBeans(EARContext earContext, Module module, ClassLoader earClassLoader, Repository repository) throws DeploymentException {
-        AbstractName earName = earContext.getModuleName();
 
         AppClientModule appClientModule = (AppClientModule) module;
 
@@ -323,7 +339,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
         }
 
         // generate the object name for the app client
-        AbstractName appClientModuleName = NameFactory.getChildName(earName, NameFactory.APP_CLIENT_MODULE, appClientModule.getName(), null);
+        AbstractName appClientModuleName = appClientModule.getModuleName();
 
         // create a gbean for the app client module and add it to the ear
         Map componentContext;
@@ -401,7 +417,7 @@ public class AppClientModuleBuilder implements ModuleBuilder {
                                 }
                             }
                             XmlObject connectorPlan = resource.getConnector();
-                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null, null);
+                            Module connectorModule = connectorModuleBuilder.createModule(connectorPlan, connectorFile, path, null, null, null, appClientDeploymentContext.getModuleName());
                             resourceModules.add(connectorModule);
                             //TODO configStore == null is fishy, consider moving these stages for connectors into the corresponding stages for this module.
                             connectorModuleBuilder.installModule(connectorFile, appClientDeploymentContext, connectorModule, null, repository);

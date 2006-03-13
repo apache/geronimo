@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GReferenceInfo;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.kernel.Kernel;
 import org.apache.geronimo.kernel.KernelFactory;
 import org.apache.geronimo.kernel.KernelRegistry;
@@ -30,6 +31,7 @@ import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
+import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.log4j.BasicConfigurator;
 
 import javax.management.MalformedObjectNameException;
@@ -39,6 +41,8 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * JellyBean that builds a Geronimo Configuration using the local Mavem
@@ -54,23 +58,23 @@ public class PackageBuilder {
     /**
      * The name of the GBean that will load dependencies from the Maven repository.
      */
-    private static final ObjectName REPOSITORY_NAME;
-    private static final ObjectName ARTIFACT_MANAGER_NAME;
-    private static final ObjectName ARTIFACT_RESOLVER_NAME;
+    private static final AbstractName REPOSITORY_NAME;
+    private static final AbstractName ARTIFACT_MANAGER_NAME;
+    private static final AbstractName ARTIFACT_RESOLVER_NAME;
     /**
      * The name of the GBean that will load Configurations from the Maven repository.
      */
-    private static final ObjectName CONFIGSTORE_NAME;
+    private static final AbstractName CONFIGSTORE_NAME;
 
     /**
      * The name of the GBean that will manage Configurations.
      */
-    private static final ObjectName CONFIGMANAGER_NAME;
+    private static final AbstractName CONFIGMANAGER_NAME;
 
     /**
      * The name of the GBean that will provide values for managed attributes.
      */
-    private static final ObjectName ATTRIBUTESTORE_NAME;
+    private static final AbstractName ATTRIBUTESTORE_NAME;
 
     /**
      * Reference to the kernel that will last the lifetime of this classloader.
@@ -90,16 +94,23 @@ public class PackageBuilder {
     };
 
     static {
+        Artifact artifact = new Artifact("geronimo", "packaging", "fixed", "car");
+        Map nameMap = new HashMap();
+        nameMap.put("type", "plugin");
+        nameMap.put("name", "packaging");
+        ObjectName objectName;
         try {
-            REPOSITORY_NAME = new ObjectName(KERNEL_NAME + ":name=Repository,j2eeType=Repository");
-            ARTIFACT_MANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactManager");
-            ARTIFACT_RESOLVER_NAME = new ObjectName(KERNEL_NAME + ":name=ArtifactResolver");
-            CONFIGSTORE_NAME = new ObjectName(KERNEL_NAME + ":name=PackageBuilderConfigStore,j2eeType=ConfigurationStore");
-            CONFIGMANAGER_NAME = new ObjectName(KERNEL_NAME + ":name=ConfigurationManager,j2eeType=ConfigurationManager");
-            ATTRIBUTESTORE_NAME = new ObjectName(KERNEL_NAME + ":name=ManagedAttributeStore");
+            objectName = ObjectName.getInstance(KERNEL_NAME + "j2eeType=plugin,name=packaging");
         } catch (MalformedObjectNameException e) {
-            throw new ExceptionInInitializerError(e.getMessage());
+            throw (IllegalArgumentException)new IllegalArgumentException("Could not construct a fixed object name").initCause(e);
         }
+        AbstractName rootName = new AbstractName(artifact, nameMap, objectName);
+        REPOSITORY_NAME = NameFactory.getChildName(rootName, "Repository", "Repository", null);
+        ARTIFACT_MANAGER_NAME = NameFactory.getChildName(rootName, "ArtifactManager", "ArtifactManager", null);
+        ARTIFACT_RESOLVER_NAME = NameFactory.getChildName(rootName, "ArtifactResolver", "ArtifactResolver", null);
+        CONFIGSTORE_NAME = NameFactory.getChildName(rootName, "ConfigurationStore", "PackageBuilderConfigStore", null);
+        CONFIGMANAGER_NAME = NameFactory.getChildName(rootName, "ConfigurationManager", "ConfigurationManager", null);
+        ATTRIBUTESTORE_NAME = NameFactory.getChildName(rootName, "ManagedAttributeStore", "ManagedAttributeStore", null);
     }
 
     private String repositoryClass;
@@ -285,7 +296,7 @@ public class PackageBuilder {
             invokeDeployer(kernel, deployer);
             System.out.println("Generated package " + packageFile);
         } catch (Exception e) {
-            log.error(e.getClass().getName()+": "+e.getMessage(), e);
+            log.error(e.getClass().getName() + ": " + e.getMessage(), e);
             throw e;
         }
     }
@@ -387,7 +398,7 @@ public class PackageBuilder {
 
     private List invokeDeployer(Kernel kernel, ObjectName deployer) throws Exception {
         boolean isExecutable = mainClass != null;
-        Object[] args = {planFile, moduleFile, isExecutable? packageFile: null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs};
+        Object[] args = {planFile, moduleFile, isExecutable ? packageFile : null, Boolean.valueOf(!isExecutable), mainClass, classPath, endorsedDirs, extensionDirs};
         return (List) kernel.invoke(deployer, "deploy", args, ARG_TYPES);
     }
 }

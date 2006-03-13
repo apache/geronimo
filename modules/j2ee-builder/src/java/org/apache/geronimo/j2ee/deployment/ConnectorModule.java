@@ -20,6 +20,7 @@ import org.apache.geronimo.common.DeploymentException;
 import org.apache.geronimo.deployment.DeploymentContext;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.AbstractName;
 import org.apache.xmlbeans.XmlObject;
 
 import java.io.IOException;
@@ -31,8 +32,8 @@ import java.util.jar.JarFile;
  * @version $Rev$ $Date$
  */
 public class ConnectorModule extends Module {
-    public ConnectorModule(boolean standAlone, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
-        super(standAlone, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
+    public ConnectorModule(boolean standAlone, AbstractName moduleName, Environment environment, JarFile moduleFile, String targetPath, XmlObject specDD, XmlObject vendorDD, String originalSpecDD) throws DeploymentException {
+        super(standAlone, moduleName, environment, moduleFile, targetPath, specDD, vendorDD, originalSpecDD, null);
     }
 
     public ConfigurationModuleType getType() {

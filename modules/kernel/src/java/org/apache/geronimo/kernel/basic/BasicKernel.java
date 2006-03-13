@@ -408,7 +408,7 @@ public class BasicKernel implements Kernel {
         return results;
     }
 
-    public ObjectName getObjectNameFor(Object service) {
+    public AbstractName getAbstractNameFor(Object service) {
         if(!running) {return null;}
         return proxyManager.getProxyTarget(service);
     }
