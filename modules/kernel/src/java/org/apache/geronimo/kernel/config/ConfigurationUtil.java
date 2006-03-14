@@ -55,6 +55,15 @@ public final class ConfigurationUtil {
             ois.close();
         }
 
+        return loadBootstrapConfiguration(kernel, configuration, classLoader);
+    }
+
+    public static AbstractName loadBootstrapConfiguration(Kernel kernel, ConfigurationData configurationData, ClassLoader classLoader) throws Exception {
+        GBeanData configuration = toConfigurationGBeanData(configurationData, null, null, null);
+        return loadBootstrapConfiguration(kernel, configuration, classLoader);
+    }
+
+    private static AbstractName loadBootstrapConfiguration(Kernel kernel, GBeanData configuration, ClassLoader classLoader) throws Exception {
         Environment environment = (Environment) configuration.getAttribute("environment");
         Artifact configId = environment.getConfigId();
         AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);

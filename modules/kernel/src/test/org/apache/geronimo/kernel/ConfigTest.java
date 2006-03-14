@@ -17,38 +17,19 @@
 
 package org.apache.geronimo.kernel;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import junit.framework.TestCase;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
 import org.apache.geronimo.gbean.GBeanData;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
-import org.apache.geronimo.kernel.config.ConfigurationModuleType;
-import org.apache.geronimo.kernel.config.ConfigurationStore;
 import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.config.EditableConfigurationManager;
 import org.apache.geronimo.kernel.config.EditableConfigurationManagerImpl;
-import org.apache.geronimo.kernel.config.InvalidConfigException;
-import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.management.State;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.DefaultArtifactManager;
 import org.apache.geronimo.kernel.repository.DefaultArtifactResolver;
-import org.apache.geronimo.kernel.repository.Environment;
 
 /**
  * @version $Rev: 384999 $ $Date$
@@ -59,7 +40,7 @@ public class ConfigTest extends TestCase {
     private AbstractName gbeanName2;
     private ConfigurationData configurationData;
     private EditableConfigurationManager configurationManager;
-    private final String BASE_NAME = "test:J2EEServer=geronimo";
+//    private final String BASE_NAME = "test:J2EEServer=geronimo";
 
     public void testConfigLifecycle() throws Exception {
 
@@ -170,7 +151,7 @@ public class ConfigTest extends TestCase {
         Configuration configuration = configurationManager.loadConfiguration(configurationData);
         assertNotNull(configuration.getConfigurationClassLoader());
 
-        GBeanData mockBean3 = buildGBeanData(configuration.getId(), "MyMockGMBean3", "MockGBean", MockGBean.getGBeanInfo());
+        GBeanData mockBean3 = new GBeanData(configuration.getId(), "MyMockGMBean3", MockGBean.getGBeanInfo());
         try {
             kernel.getGBeanState(mockBean3.getAbstractName());
             fail("Gbean should not be found yet");
@@ -192,130 +173,46 @@ public class ConfigTest extends TestCase {
         kernel = KernelFactory.newInstance().createKernel("test");
         kernel.boot();
 
-        Artifact baseArtifact = new Artifact("test", "base", "1", "car");
-        GBeanData artifactManagerData = buildGBeanData(baseArtifact, "ArtifactManager", "ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
-        kernel.loadGBean(artifactManagerData, getClass().getClassLoader());
-        kernel.startGBean(artifactManagerData.getAbstractName());
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactManagerData.getAbstractName()));
+        ConfigurationData bootstrap = new ConfigurationData(new Artifact("test", "test", "", "car"));
 
-        GBeanData artifactResolverData = buildGBeanData(baseArtifact, "ArtifactResolver", "ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
+        GBeanData artifactManagerData = new GBeanData(bootstrap.getId(), "ArtifactManager", DefaultArtifactManager.GBEAN_INFO);
+        bootstrap.addGBean(artifactManagerData);
+
+        GBeanData artifactResolverData = new GBeanData(bootstrap.getId(), "ArtifactResolver", DefaultArtifactResolver.GBEAN_INFO);
         artifactResolverData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
-        kernel.loadGBean(artifactResolverData, getClass().getClassLoader());
-        kernel.startGBean(artifactResolverData.getAbstractName());
-        assertEquals(State.RUNNING_INDEX, kernel.getGBeanState(artifactResolverData.getAbstractName()));
+        bootstrap.addGBean(artifactResolverData);
 
-        GBeanData configurationManagerData = buildGBeanData(baseArtifact, "ConfigurationManager", "ConfigurationManager", EditableConfigurationManagerImpl.GBEAN_INFO);
+        GBeanData configurationManagerData = new GBeanData(bootstrap.getId(), "ConfigurationManager", EditableConfigurationManagerImpl.GBEAN_INFO);
         configurationManagerData.setReferencePattern("ArtifactManager", artifactManagerData.getAbstractName());
         configurationManagerData.setReferencePattern("ArtifactResolver", artifactResolverData.getAbstractName());
+        bootstrap.addGBean(configurationManagerData);
 
-        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-        kernel.startGBean(configurationManagerData.getAbstractName());
+        ConfigurationUtil.loadBootstrapConfiguration(kernel, bootstrap, getClass().getClassLoader());
+
         configurationManager = ConfigurationUtil.getEditableConfigurationManager(kernel);
 
-        Environment environment = new Environment();
-        environment.setConfigId(new Artifact("geronimo", "test", "1", "car"));
-        Map properties = new HashMap();
-        properties.put(Configuration.JSR77_BASE_NAME_PROPERTY, BASE_NAME);
-        environment.setProperties(properties);
 
-        ArrayList gbeans = new ArrayList();
+        configurationData = new ConfigurationData(new Artifact("geronimo", "test", "1", "car"));
 
-        GBeanData mockBean1 = buildGBeanData(environment.getConfigId(),"MyMockGMBean1", "MockGBean", MockGBean.getGBeanInfo());
+        GBeanData mockBean1 = new GBeanData(configurationData.getId(),"MyMockGMBean1", MockGBean.getGBeanInfo());
         gbeanName1 = mockBean1.getAbstractName();
         mockBean1.setAttribute("value", "1234");
         mockBean1.setAttribute("name", "child");
         mockBean1.setAttribute("finalInt", new Integer(1));
-        gbeans.add(mockBean1);
+        configurationData.addGBean(mockBean1);
 
-        GBeanData mockBean2 = buildGBeanData(environment.getConfigId(), "MyMockGMBean2", "MockGBean", MockGBean.getGBeanInfo());
+        GBeanData mockBean2 = new GBeanData(configurationData.getId(), "MyMockGMBean2", MockGBean.getGBeanInfo());
         gbeanName2 = mockBean2.getAbstractName();
         mockBean2.setAttribute("value", "5678");
         mockBean2.setAttribute("name", "Parent");
         mockBean2.setAttribute("finalInt", new Integer(3));
         mockBean2.setReferencePattern("MockEndpoint", gbeanName1);
         mockBean2.setReferencePattern("EndpointCollection", new AbstractNameQuery(gbeanName1));
-        gbeans.add(mockBean2);
-
-
-        configurationData = new ConfigurationData(ConfigurationModuleType.CAR, null, gbeans, null, environment, new File("."));
+        configurationData.addGBean(mockBean2);
     }
-
-    private GBeanData buildGBeanData(Artifact artifact, String name, String type, GBeanInfo info) {
-         AbstractName abstractName = Naming.createRootName(artifact, name, type);
-         return new GBeanData(abstractName, info);
-     }
 
     protected void tearDown() throws Exception {
         kernel.shutdown();
         super.tearDown();
-    }
-
-    public static class MockConfigStore implements ConfigurationStore {
-
-        URL baseURL;
-
-        public MockConfigStore() {
-        }
-
-        public MockConfigStore(URL baseURL) {
-            this.baseURL = baseURL;
-        }
-
-        public void install(ConfigurationData configurationData) throws IOException, InvalidConfigException {
-        }
-
-        public void uninstall(Artifact configID) throws NoSuchConfigException, IOException {
-        }
-
-        public GBeanData loadConfiguration(Artifact configId) throws NoSuchConfigException, IOException, InvalidConfigException {
-            AbstractName configurationName = Configuration.getConfigurationAbstractName(configId);
-            GBeanData configData = new GBeanData(configurationName, Configuration.GBEAN_INFO);
-            Environment environment = new Environment();
-            environment.setConfigId(configId);
-            environment.getProperties().put("foo", "geronimo.test:J2EEServer=geronimo");
-            configData.setAttribute("environment", environment);
-            configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            configData.setAttribute("configurationStore", this);
-            return configData;
-        }
-
-        public boolean containsConfiguration(Artifact configID) {
-            return true;
-        }
-
-        public String getObjectName() {
-            return null;
-        }
-
-        public List listConfigurations() {
-            return null;
-        }
-
-        public File createNewConfigurationDir(Artifact configId) {
-            return null;
-        }
-
-        public URL resolve(Artifact configId, URI uri) throws NoSuchConfigException, MalformedURLException {
-            return baseURL;
-        }
-
-        public final static GBeanInfo GBEAN_INFO;
-
-        private static final byte[] NO_OBJECTS_OS;
-
-        static {
-            GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(MockConfigStore.class, "ConfigurationStore");
-            infoBuilder.addInterface(ConfigurationStore.class);
-            GBEAN_INFO = infoBuilder.getBeanInfo();
-
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.flush();
-                NO_OBJECTS_OS = baos.toByteArray();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
     }
 }

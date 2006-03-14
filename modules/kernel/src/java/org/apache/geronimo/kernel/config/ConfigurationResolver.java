@@ -47,7 +47,6 @@ public class ConfigurationResolver {
 
     public ConfigurationResolver(Artifact configurationId, File baseDir) {
         if (configurationId == null)  throw new NullPointerException("configurationId is null");
-        if (baseDir == null)  throw new NullPointerException("baseDir is null");
 
         this.configurationId = configurationId;
         this.baseDir = baseDir;
@@ -59,7 +58,6 @@ public class ConfigurationResolver {
     public ConfigurationResolver(Artifact configurationId, File baseDir, Collection repositories) {
         if (configurationId == null)  throw new NullPointerException("configurationId is null");
         if (repositories == null) repositories = Collections.EMPTY_SET;
-        if (baseDir == null)  throw new NullPointerException("baseDir is null");
 
         this.configurationId = configurationId;
         if (!repositories.isEmpty()) {
@@ -75,7 +73,6 @@ public class ConfigurationResolver {
     public ConfigurationResolver(Artifact configurationId, File baseDir, Collection repositories, ArtifactResolver artifactResolver) {
         if (configurationId == null)  throw new NullPointerException("configurationId is null");
         if (repositories == null) repositories = Collections.EMPTY_SET;
-        if (baseDir == null)  throw new NullPointerException("baseDir is null");
 
         this.configurationId = configurationId;
         this.artifactResolver = artifactResolver;
@@ -110,8 +107,10 @@ public class ConfigurationResolver {
     public URL resolve(URI uri) throws MalformedURLException, NoSuchConfigException {
         if (configurationStore != null) {
             return configurationStore.resolve(configurationId, uri);
-        } else {
+        } else if (baseDir != null) {
             return new File(baseDir, uri.toString()).toURL();
+        } else {
+            throw new IllegalStateException("No configurationStore or baseDir supplied so paths can not be resolved");
         }
     }
 

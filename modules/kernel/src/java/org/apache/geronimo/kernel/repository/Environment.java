@@ -52,6 +52,10 @@ public class Environment implements Serializable {
     public Environment() {
     }
 
+    public Environment(Artifact configId) {
+        this.configId = configId;
+    }
+
     public Environment(Environment environment) {
         this.configId = environment.getConfigId();
         this.dependencies.addAll(environment.dependencies);

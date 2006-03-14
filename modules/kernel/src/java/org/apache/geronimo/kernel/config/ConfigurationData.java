@@ -19,6 +19,7 @@ package org.apache.geronimo.kernel.config;
 
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
+import org.apache.geronimo.gbean.GBeanData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,32 +41,48 @@ public class ConfigurationData {
     /**
      * List of URIs in this configuration's classpath.  These are for the classes directly included in the configuration
      */
-    private final LinkedHashSet classPath;
+    private final LinkedHashSet classPath = new LinkedHashSet();
 
     /**
      * GBeans contained in this configuration.
      */
-    private final List gbeans;
+    private final List gbeans = new ArrayList();
 
     /**
      * Child configurations of this configuration
      */
-    private final  List childConfigurations;
+    private final List childConfigurations = new ArrayList();
 
     private final Environment environment;
 
     private final File configurationDir;
 
+    public ConfigurationData(Artifact configId) {
+        this(null, null, null, null, new Environment(configId), null);
+    }
+
+    public ConfigurationData(Environment environment) {
+        this(null, null, null, null, environment, null);
+    }
+
     public ConfigurationData(ConfigurationModuleType moduleType, LinkedHashSet classPath, List gbeans, List childConfigurations, Environment environment, File configurationDir) {
-        this.moduleType = moduleType;
-        if (classPath != null) {
-            this.classPath = classPath;
+        if (moduleType != null) {
+            this.moduleType = moduleType;
         } else {
-            this.classPath = new LinkedHashSet();
+            this.moduleType = ConfigurationModuleType.CAR;
         }
-        if (gbeans == null) gbeans = Collections.EMPTY_LIST;
-        this.gbeans = gbeans;
-        this.childConfigurations = childConfigurations;
+        if (classPath != null) {
+            this.classPath.addAll(classPath);
+        }
+        if (gbeans != null){
+            this.gbeans.addAll(gbeans);
+        }
+        if (childConfigurations != null) {
+            this.childConfigurations.addAll(childConfigurations);
+        }
+
+        if (environment == null) throw new NullPointerException("environment is null");
+        if (environment.getConfigId() == null) throw new NullPointerException("environment.configId is null");
         this.environment = environment;
         this.configurationDir = configurationDir;
     }
@@ -84,6 +101,10 @@ public class ConfigurationData {
 
     public List getGBeans() {
         return Collections.unmodifiableList(gbeans);
+    }
+
+    public void addGBean(GBeanData gbeanData) {
+        gbeans.add(gbeanData);
     }
 
     public List getChildConfigurations() {

@@ -50,6 +50,7 @@ import org.apache.geronimo.kernel.config.InvalidConfigException;
 import org.apache.geronimo.kernel.config.NoSuchConfigException;
 import org.apache.geronimo.kernel.config.ConfigurationManagerImpl;
 import org.apache.geronimo.kernel.config.ConfigurationModuleType;
+import org.apache.geronimo.kernel.config.ConfigurationUtil;
 import org.apache.geronimo.kernel.repository.Artifact;
 import org.apache.geronimo.kernel.repository.Environment;
 import org.apache.geronimo.kernel.repository.ImportType;
@@ -248,33 +249,34 @@ public class EARConfigBuilderTest extends TestCase {
         Kernel kernel = KernelFactory.newInstance().createKernel("foo");
         kernel.boot();
 
-        GBeanData store = new GBeanData(Naming.createChildName(rootConfig, "ConfigStore", "ConfigStore"), MockConfigStore.GBEAN_INFO);
-        kernel.loadGBean(store, this.getClass().getClassLoader());
-        kernel.startGBean(store.getAbstractName());
-
-        GBeanData configurationManagerData = new GBeanData(Naming.createChildName(rootConfig, "ConfigurationManager", "ConfigurationManager"), ConfigurationManagerImpl.GBEAN_INFO);
-        configurationManagerData.setReferencePattern("Stores", new AbstractNameQuery(store.getAbstractName()));
-        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-        kernel.startGBean(configurationManagerData.getAbstractName());
-
-        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-                new AbstractNameQuery(transactionManagerObjectName),
-                new AbstractNameQuery(connectionTrackerObjectName),
-                new AbstractNameQuery(transactionalTimerObjectName),
-                new AbstractNameQuery(nonTransactionalTimerObjectName),
-                null,
-                null,
-                ejbConfigBuilder,
-                ejbConfigBuilder,
-                webConfigBuilder,
-                connectorConfigBuilder,
-                resourceReferenceBuilder,
-                appClientConfigBuilder,
-                serviceReferenceBuilder,
-                kernel);
-
         ConfigurationData configurationData = null;
         try {
+            ConfigurationData testConfig = new ConfigurationData(new Artifact("test", "test", "", "car"));
+            GBeanData storeData = new GBeanData(testConfig.getId(), "ConfigStore", MockConfigStore.GBEAN_INFO);
+            testConfig.addGBean(storeData);
+
+            GBeanData configurationManagerData = new GBeanData(testConfig.getId(), "ConfigurationManager", ConfigurationManagerImpl.GBEAN_INFO);
+            configurationManagerData.setReferencePattern("Stores", new AbstractNameQuery(storeData.getAbstractName()));
+            testConfig.addGBean(configurationManagerData);
+
+            ConfigurationUtil.loadBootstrapConfiguration(kernel, testConfig, getClass().getClassLoader());
+
+            EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                    new AbstractNameQuery(transactionManagerObjectName),
+                    new AbstractNameQuery(connectionTrackerObjectName),
+                    new AbstractNameQuery(transactionalTimerObjectName),
+                    new AbstractNameQuery(nonTransactionalTimerObjectName),
+                    null,
+                    null,
+                    ejbConfigBuilder,
+                    ejbConfigBuilder,
+                    webConfigBuilder,
+                    connectorConfigBuilder,
+                    resourceReferenceBuilder,
+                    appClientConfigBuilder,
+                    serviceReferenceBuilder,
+                    kernel);
+
             Object plan = configBuilder.getDeploymentPlan(null, earFile);
             configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
         } finally {
