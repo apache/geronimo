@@ -119,7 +119,7 @@ public final class ConfigurationUtil {
         Artifact id = configurationData.getId();
         AbstractName abstractName = Configuration.getConfigurationAbstractName(id);
         GBeanData gbeanData = new GBeanData(abstractName, Configuration.GBEAN_INFO);
-        gbeanData.setAttribute("type", configurationData.getModuleType());
+        gbeanData.setAttribute("moduleType", configurationData.getModuleType());
         Environment environment = configurationData.getEnvironment();
         gbeanData.setAttribute("environment", environment);
         gbeanData.setAttribute("gBeanState", Configuration.storeGBeans(configurationData.getGBeans()));

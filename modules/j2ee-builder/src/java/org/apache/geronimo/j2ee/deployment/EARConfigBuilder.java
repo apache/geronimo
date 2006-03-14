@@ -31,6 +31,7 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractName;
 import org.apache.geronimo.gbean.AbstractNameQuery;
+import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.ApplicationInfo;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.J2EEApplicationImpl;
@@ -53,6 +54,7 @@ import org.apache.geronimo.xbeans.geronimo.j2ee.GerExtModuleType;
 import org.apache.geronimo.xbeans.geronimo.j2ee.GerModuleType;
 import org.apache.geronimo.xbeans.j2ee.ApplicationType;
 import org.apache.geronimo.xbeans.j2ee.ModuleType;
+import org.apache.geronimo.management.J2EEServer;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -369,7 +371,7 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 } catch (Exception e) {
                     throw new DeploymentException("Error initializing J2EEApplication managed object");
                 }
-                gbeanData.setReferencePattern("j2eeServer", earContext.getServerName());
+                gbeanData.setReferencePatterns("j2eeServer", new ReferencePatterns(new AbstractNameQuery(J2EEServer.class.getName())));
                 earContext.addGBean(gbeanData);
             }
 
@@ -392,8 +394,9 @@ public class EARConfigBuilder implements ConfigurationBuilder {
                 earContext.addGBean(jaccBeanData);
                 earContext.setJaccManagerName(jaccBeanData.getAbstractName());
             }
+            ConfigurationData configurationData = earContext.getConfigurationData();
             earContext.close();
-            return earContext.getConfigurationData();
+            return configurationData;
         } catch (GBeanAlreadyExistsException e) {
             throw new DeploymentException(e);
         } finally {

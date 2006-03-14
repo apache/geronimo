@@ -42,7 +42,6 @@ import org.apache.geronimo.gbean.GBeanData;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.AbstractNameQuery;
-import org.apache.geronimo.gbean.ReferencePatterns;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.kernel.config.Configuration;
 import org.apache.geronimo.kernel.config.ConfigurationData;
@@ -246,44 +245,44 @@ public class EARConfigBuilderTest extends TestCase {
     }
 
     public void testBuildConfiguration() throws Exception {
-//        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
-//        kernel.boot();
-//
-//        GBeanData store = new GBeanData(Naming.createChildName(rootConfig, "ConfigStore", "ConfigStore"), MockConfigStore.GBEAN_INFO);
-//        kernel.loadGBean(store, this.getClass().getClassLoader());
-//        kernel.startGBean(store.getAbstractName());
-//
-//        GBeanData configurationManagerData = new GBeanData(Naming.createChildName(rootConfig, "ConfigurationManager", "ConfigurationManager"), ConfigurationManagerImpl.GBEAN_INFO);
-//        configurationManagerData.setReferencePattern("Stores", new AbstractNameQuery(store.getAbstractName()));
-//        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
-//        kernel.startGBean(configurationManagerData.getAbstractName());
-//
-//        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
-//                new AbstractNameQuery(transactionManagerObjectName),
-//                new AbstractNameQuery(connectionTrackerObjectName),
-//                new AbstractNameQuery(transactionalTimerObjectName),
-//                new AbstractNameQuery(nonTransactionalTimerObjectName),
-//                null,
-//                null,
-//                ejbConfigBuilder,
-//                ejbConfigBuilder,
-//                webConfigBuilder,
-//                connectorConfigBuilder,
-//                resourceReferenceBuilder,
-//                appClientConfigBuilder,
-//                serviceReferenceBuilder,
-//                kernel);
-//
-//        ConfigurationData configurationData = null;
-//        try {
-//            Object plan = configBuilder.getDeploymentPlan(null, earFile);
-//            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
-//        } finally {
-//            if (configurationData != null) {
-//                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
-//            }
-//            kernel.shutdown();
-//        }
+        Kernel kernel = KernelFactory.newInstance().createKernel("foo");
+        kernel.boot();
+
+        GBeanData store = new GBeanData(Naming.createChildName(rootConfig, "ConfigStore", "ConfigStore"), MockConfigStore.GBEAN_INFO);
+        kernel.loadGBean(store, this.getClass().getClassLoader());
+        kernel.startGBean(store.getAbstractName());
+
+        GBeanData configurationManagerData = new GBeanData(Naming.createChildName(rootConfig, "ConfigurationManager", "ConfigurationManager"), ConfigurationManagerImpl.GBEAN_INFO);
+        configurationManagerData.setReferencePattern("Stores", new AbstractNameQuery(store.getAbstractName()));
+        kernel.loadGBean(configurationManagerData, getClass().getClassLoader());
+        kernel.startGBean(configurationManagerData.getAbstractName());
+
+        EARConfigBuilder configBuilder = new EARConfigBuilder(defaultParentId,
+                new AbstractNameQuery(transactionManagerObjectName),
+                new AbstractNameQuery(connectionTrackerObjectName),
+                new AbstractNameQuery(transactionalTimerObjectName),
+                new AbstractNameQuery(nonTransactionalTimerObjectName),
+                null,
+                null,
+                ejbConfigBuilder,
+                ejbConfigBuilder,
+                webConfigBuilder,
+                connectorConfigBuilder,
+                resourceReferenceBuilder,
+                appClientConfigBuilder,
+                serviceReferenceBuilder,
+                kernel);
+
+        ConfigurationData configurationData = null;
+        try {
+            Object plan = configBuilder.getDeploymentPlan(null, earFile);
+            configurationData = configBuilder.buildConfiguration(plan, earFile, configStore);
+        } finally {
+            if (configurationData != null) {
+                DeploymentUtil.recursiveDelete(configurationData.getConfigurationDir());
+            }
+            kernel.shutdown();
+        }
     }
 
     public void testBadEJBJARConfiguration() throws Exception {
@@ -534,7 +533,7 @@ public class EARConfigBuilderTest extends TestCase {
             environment.getProperties().put(NameFactory.JSR77_BASE_NAME_PROPERTY, "geronimo.test:J2EEServer=geronimo");
             configData.setAttribute("environment", environment);
             configData.setAttribute("gBeanState", NO_OBJECTS_OS);
-            configData.setAttribute("type", ConfigurationModuleType.CAR);
+            configData.setAttribute("moduleType", ConfigurationModuleType.CAR);
 
             return configData;
         }

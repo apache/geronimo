@@ -45,7 +45,7 @@ import org.apache.geronimo.kernel.management.StateManageable;
 /**
  * A GBeanInstance is a J2EE Management Managed Object, and is standard base for Geronimo services.
  *
- * @version $Rev$ $Date$
+ * @version $Rev: 384351 $ $Date$
  */
 public final class GBeanInstance implements StateManageable {
     private static final Log log = LogFactory.getLog(GBeanInstance.class);
@@ -640,7 +640,7 @@ public final class GBeanInstance implements StateManageable {
             if (attribute.isPersistent()) {
                 return attribute.getPersistentValue();
             } else {
-                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute " + attribute.getName() + " when GBeanInstance is DESTROYED");
+                throw new IllegalStateException("Cannot retrieve the value for non-persistent attribute \"" + attribute.getName() + "\" when GBeanInstance is DESTROYED");
             }
         }
     }
@@ -780,7 +780,7 @@ public final class GBeanInstance implements StateManageable {
     private GBeanAttribute getAttributeByName(String name) throws NoSuchAttributeException {
         Integer index = (Integer) attributeIndex.get(name);
         if (index == null) {
-            throw new NoSuchAttributeException("Unknown attribute " + name + " in gbean " + abstractName.getObjectName());
+            throw new NoSuchAttributeException("Unknown attribute \"" + name + "\" in gbean " + abstractName.getObjectName());
         }
         return attributes[index.intValue()];
     }

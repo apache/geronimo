@@ -229,9 +229,7 @@
             <xs:element name="xml-reference" type="sys:xml-attributeType"/>
             <xs:element name="dependency" type="sys:patternType"/>
         </xs:choice>
-        <!-- todo try to eliminate explicit gbeanName -->
-        <xs:attribute name="gbeanName" type="xs:string"/>
-        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="class" type="xs:string" use="required"/>
     </xs:complexType>
 

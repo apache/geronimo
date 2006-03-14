@@ -645,7 +645,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(Configuration.class);//does not use jsr-77 naming
         infoFactory.addReference("Parents", Configuration.class);
-        infoFactory.addAttribute("type", ConfigurationModuleType.class, true, false);
+        infoFactory.addAttribute("moduleType", ConfigurationModuleType.class, true, false);
         infoFactory.addAttribute("environment", Environment.class, true, false);
         infoFactory.addAttribute("classPath", List.class, true, false);
         infoFactory.addAttribute("gBeanState", byte[].class, true, false);
@@ -655,7 +655,7 @@ public class Configuration implements GBeanLifecycle, ConfigurationParent {
 
         infoFactory.setConstructor(new String[]{
                 "Parents",
-                "type",
+                "moduleType",
                 "environment",
                 "classPath",
                 "gBeanState",
