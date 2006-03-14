@@ -109,11 +109,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 /**
- * @version $Rev: 385372 $ $Date$
+ * @version $Rev:385659 $ $Date$
  */
 public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceBuilder {
 
@@ -279,7 +280,6 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
 
         //set up the metadata for the ResourceAdapterModule
         GBeanData resourceAdapterModuleData = new GBeanData(resourceAdapterModuleName, ResourceAdapterModuleImplGBean.GBEAN_INFO);
-
         // initalize the GBean
         resourceAdapterModuleData.setReferencePattern(NameFactory.J2EE_SERVER, earContext.getServerName());
         if (!earContext.getModuleName().equals(resourceAdapterModuleName)) {
@@ -385,6 +385,16 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
             AbstractName applicationName = earContext.getModuleName();
             resourceAdapterModuleName = Naming.createChildName(applicationName, NameFactory.RESOURCE_ADAPTER_MODULE, module.getName());
         }
+        /*
+        The chain of idiotic jsr-77 meaningless objects is:
+        ResourceAdapterModule (1)  >
+        ResourceAdapter (n, but there can only be 1 resource adapter in a rar, so we use 1) >
+        JCAResource (1) >
+        JCAConnectionFactory (n) >
+        JCAManagedConnectionFactory (1)
+        We also include:
+        JCAResourceAdapter (n)  (from JCAResource) (actual instance of ResourceAdapter)
+        */
         AbstractName resourceAdapterjsr77Name = Naming.createChildName(resourceAdapterModuleName, NameFactory.RESOURCE_ADAPTER, module.getName());
 
         XmlObject specDD = module.getSpecDD();
@@ -398,7 +408,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         if (resourceAdapterModuleData == null) {
             throw new DeploymentException("Internal consistency bug: gbean data for module is missing: " + resourceAdapterModuleName);
         }
-        resourceAdapterModuleData.setAttribute("resourceAdapter", resourceAdapterjsr77Name.getObjectName().getCanonicalName());
+        resourceAdapterModuleData.setReferencePattern("ResourceAdapter", resourceAdapterjsr77Name);
 
         // add it
         try {
@@ -410,7 +420,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         //construct the bogus resource adapter and jca resource placeholders
         GBeanData resourceAdapterData = new GBeanData(resourceAdapterjsr77Name, ResourceAdapterImplGBean.GBEAN_INFO);
         AbstractName jcaResourcejsr77Name = Naming.createChildName(resourceAdapterjsr77Name, NameFactory.JCA_RESOURCE, module.getName());
-        resourceAdapterData.setAttribute("JCAResource", jcaResourcejsr77Name.getObjectName().getCanonicalName());
+        resourceAdapterData.setReferencePattern("JCAResource", jcaResourcejsr77Name);
         try {
             earContext.addGBean(resourceAdapterData);
         } catch (GBeanAlreadyExistsException e) {
@@ -418,6 +428,8 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         }
 
         GBeanData jcaResourceData = new GBeanData(jcaResourcejsr77Name, JCAResourceImplGBean.GBEAN_INFO);
+        jcaResourceData.setReferencePattern("ConnectionFactories", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP));
+        jcaResourceData.setReferencePattern("ResourceAdapters", new AbstractNameQuery(resourceAdapterModuleName.getArtifact(), Collections.EMPTY_MAP));
         try {
             earContext.addGBean(jcaResourceData);
         } catch (GBeanAlreadyExistsException e) {
@@ -802,8 +814,7 @@ public class ConnectorModuleBuilder implements ModuleBuilder, ResourceReferenceB
         // ConnectionFactory
         AbstractName connectionFactoryAbstractName = Naming.createChildName(jcaResourceName, NameFactory.JCA_CONNECTION_FACTORY, connectiondefinitionInstance.getName().trim());
         GBeanData connectionFactoryGBeanData = new GBeanData(connectionFactoryAbstractName, JCAConnectionFactoryImplGBean.GBEAN_INFO);
-        connectionFactoryGBeanData.setReferencePattern("J2EEServer", earContext.getServerName());
-        connectionFactoryGBeanData.setAttribute("managedConnectionFactory", managedConnectionFactoryAbstractName.getObjectName().getCanonicalName());
+        connectionFactoryGBeanData.setReferencePattern("JCAManagedConnectionFactory", managedConnectionFactoryAbstractName);
 
         try {
             earContext.addGBean(connectionFactoryGBeanData);

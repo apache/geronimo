@@ -21,6 +21,7 @@ import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.JCAConnectionFactory;
+import org.apache.geronimo.management.geronimo.JCAManagedConnectionFactory;
 
 /**
  * 
@@ -32,13 +33,12 @@ public class JCAConnectionFactoryImplGBean {
 
     static {
         GBeanInfoBuilder infoFactory = GBeanInfoBuilder.createStatic(JCAConnectionFactoryImplGBean.class, JCAConnectionFactoryImpl.class, NameFactory.JCA_CONNECTION_FACTORY);
-        infoFactory.addReference("J2EEServer", J2EEServer.class);
 
         infoFactory.addAttribute("objectName", String.class, false);
-        infoFactory.addAttribute("managedConnectionFactory", String.class, true);
+        infoFactory.addReference("JCAManagedConnectionFactory", JCAManagedConnectionFactory.class, NameFactory.JCA_MANAGED_CONNECTION_FACTORY);
         infoFactory.addInterface(JCAConnectionFactory.class);
 
-        infoFactory.setConstructor(new String[]{"objectName", "J2EEServer", "managedConnectionFactory"});
+        infoFactory.setConstructor(new String[]{"objectName", "managedConnectionFactory"});
 
         GBEAN_INFO = infoFactory.getBeanInfo();
     }

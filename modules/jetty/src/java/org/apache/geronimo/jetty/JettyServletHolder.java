@@ -19,8 +19,6 @@ package org.apache.geronimo.jetty;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import java.util.Collections;
-import javax.security.jacc.PolicyContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -74,7 +72,7 @@ public class JettyServletHolder extends ServletHolder implements Servlet {
                 setInitOrder(loadOnStartup.intValue());
             }
             //this now starts the servlet in the appropriate context
-            context.registerServletHolder(this, servletName, servletMappings, webRoleRefPermissions == null? Collections.EMPTY_MAP: webRoleRefPermissions);
+            context.registerServletHolder(this, servletName, servletMappings, objectName);
         }
         setRunAs(runAsRole);
         this.objectName = objectName;

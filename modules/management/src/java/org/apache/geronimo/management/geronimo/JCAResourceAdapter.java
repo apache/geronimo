@@ -1,6 +1,6 @@
 /**
  *
- * Copyright 2003-2004 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,24 +14,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.geronimo.jetty;
 
-import java.util.Map;
-import java.util.Set;
-import javax.security.jacc.PolicyContextException;
+package org.apache.geronimo.management.geronimo;
 
-import org.mortbay.jetty.servlet.ServletHandler;
-import org.mortbay.jetty.servlet.ServletHolder;
+import org.apache.geronimo.management.J2EEManagedObject;
 
 /**
- * @version $Rev$ $Date$
+ * Represents the JSR-77 type with the same name
+ *
+ * @version $Rev: 355877 $ $Date: 2005-12-10 18:48:27 -0800 (Sat, 10 Dec 2005) $
  */
-public interface JettyServletRegistration {
-
-    void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception;
-
-    ServletHandler getServletHandler();
-
-    ClassLoader getWebClassLoader();
-
+public interface JCAResourceAdapter extends J2EEManagedObject {
+    //TODO consider adding references to ManagedConnectionFactory and ActivationSpec/MessageEndpointFactory.
 }

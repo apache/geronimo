@@ -22,11 +22,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
 import org.apache.geronimo.j2ee.management.impl.InvalidObjectNameException;
-import org.apache.geronimo.j2ee.management.impl.Util;
 import org.apache.geronimo.jetty.interceptor.BeforeAfter;
 import org.apache.geronimo.jetty.interceptor.ComponentContextBeforeAfter;
 import org.apache.geronimo.jetty.interceptor.InstanceContextBeforeAfter;
@@ -61,7 +58,6 @@ import org.mortbay.jetty.servlet.SessionManager;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.WebApplicationHandler;
 
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import java.io.IOException;
@@ -70,6 +66,7 @@ import java.net.URL;
 import java.security.PermissionCollection;
 import java.util.Collection;
 import java.util.EventListener;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -83,9 +80,6 @@ import java.util.Set;
 public class JettyWebAppContext extends WebApplicationContext implements GBeanLifecycle, JettyServletRegistration, WebModule {
     private static Log log = LogFactory.getLog(JettyWebAppContext.class);
 
-    private final Kernel kernel;
-    //jsr-77 stuff
-    private final J2eeContext moduleContext;
     private final String originalSpecDD;
     private final J2EEServer server;
     private final J2EEApplication application;
@@ -101,9 +95,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     private final BeforeAfter chain;
     private final int contextLength;
     private final SecurityContextBeforeAfter securityInterceptor;
-    private static final String[] J2EE_TYPES = {NameFactory.SERVLET};
 
     private final String objectName;
+
+    private final Set servletNames = new HashSet();
 
     private String sessionManager;
 
@@ -143,10 +138,8 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
      * @deprecated never use this... this is only here because Jetty WebApplicationContext is externalizable
      */
     public JettyWebAppContext() {
-        kernel = null;
         server = null;
         application = null;
-        moduleContext = null;
         originalSpecDD = null;
         webClassLoader = null;
         jettyContainer = null;
@@ -208,13 +201,11 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         assert trackedConnectionAssociator != null;
         assert jettyContainer != null;
 
-        this.kernel = kernel;
         this.server = server;
         this.application = application;
         this.objectName = objectName;
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
-        moduleContext = J2eeContextImpl.newContext(myObjectName, NameFactory.WEB_MODULE);
 
         this.jettyContainer = jettyContainer;
 
@@ -479,14 +470,10 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
     }
 
     public String[] getServlets() {
-        try {
-            return Util.getObjectNames(kernel, moduleContext, J2EE_TYPES);
-        } catch (MalformedObjectNameException e) {
-            log.error(e);
-            return new String[0];
+        synchronized(servletNames) {
+            return (String[]) servletNames.toArray(new String[servletNames.size()]);
         }
     }
-
 
     public String getSessionManager() {
         return this.sessionManager;
@@ -535,7 +522,7 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
         }
     }
 
-    public void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, Map webRoleRefPermissions) throws Exception {
+    public void registerServletHolder(ServletHolder servletHolder, String servletName, Set servletMappings, String objectName) throws Exception {
         //TODO filters
         handler.addServletHolder(servletHolder);
         if (servletMappings != null) {
@@ -544,14 +531,16 @@ public class JettyWebAppContext extends WebApplicationContext implements GBeanLi
                 handler.mapPathToServlet(urlPattern, servletName);
             }
         }
-//        if (securityInterceptor != null) {
-//            securityInterceptor.registerServletHolder(webRoleRefPermissions);
-//        }
         Object context = enterContextScope(null, null);
         try {
             servletHolder.start();
         } finally {
             leaveContextScope(null, null, context);
+        }
+        if (objectName != null) {
+            synchronized(servletNames) {
+                servletNames.add(objectName);
+            }
         }
     }
 

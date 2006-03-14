@@ -16,50 +16,55 @@
  */
 package org.apache.geronimo.connector;
 
-import javax.management.ObjectName;
-import javax.management.MalformedObjectNameException;
-
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContextImpl;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.j2ee.management.impl.Util;
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.jmx.JMXUtil;
 import org.apache.geronimo.management.geronimo.JCAResource;
+import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
+import org.apache.geronimo.connector.outbound.JCAConnectionFactoryImpl;
+
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * @version $Rev$ $Date$
  */
 public class JCAResourceImpl implements JCAResource  {
-    private final Kernel kernel;
     private final String objectName;
-    private final J2eeContext moduleContext;
 
-    private static final String[] CONNECTION_FACTORY_TYPES = {NameFactory.JCA_CONNECTION_FACTORY};
-    private static final String[] RESOURCE_ADAPTER_INSTANCE_TYPES = {NameFactory.JCA_RESOURCE_ADAPTER};
+    private final Collection connectionFactories;
+    private final Collection resourceAdapters;
 
-    public JCAResourceImpl(String objectName, Kernel kernel) {
+    public JCAResourceImpl(String objectName, Collection connectionFactories, Collection resourceAdapters) {
         this.objectName = objectName;
-        this.kernel = kernel;
-
-        ObjectName myObjectName = JMXUtil.getObjectName(objectName);
-        moduleContext = J2eeContextImpl.newModuleContext(myObjectName, NameFactory.JCA_RESOURCE);
+        this.connectionFactories = connectionFactories;
+        this.resourceAdapters = resourceAdapters;
     }
 
     public String[] getConnectionFactories() {
-        try {
-            return Util.getObjectNames(kernel, moduleContext, CONNECTION_FACTORY_TYPES);
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError();
+        Collection copy;
+        synchronized(connectionFactories) {
+            copy = new ArrayList(connectionFactories);
         }
+        String[] result = new String[copy.size()];
+        int i = 0;
+        for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
+            JCAConnectionFactoryImpl jcaConnectionFactory = (JCAConnectionFactoryImpl) iterator.next();
+            result[i++] = jcaConnectionFactory.getObjectName();
+        }
+        return result;
     }
 
     public String[] getResourceAdapterInstances() {
-        try {
-            return Util.getObjectNames(kernel, moduleContext, RESOURCE_ADAPTER_INSTANCE_TYPES);
-        } catch (MalformedObjectNameException e) {
-            throw new AssertionError();
+        Collection copy;
+        synchronized(resourceAdapters) {
+            copy = new ArrayList(resourceAdapters);
         }
+        String[] result = new String[copy.size()];
+        int i = 0;
+        for (Iterator iterator = copy.iterator(); iterator.hasNext();) {
+            JCAResourceAdapter resourceAdapter = (JCAResourceAdapter) iterator.next();
+            result[i++] = resourceAdapter.getObjectName();
+        }
+        return result;
     }
 
     public String getObjectName() {

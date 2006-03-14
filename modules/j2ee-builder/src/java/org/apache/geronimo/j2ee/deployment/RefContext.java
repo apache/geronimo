@@ -124,18 +124,6 @@ public class RefContext {
         return serviceReferenceBuilder.createService(serviceInterface, wsdlURI, jaxrpcMappingURI, serviceQName, portComponentRefMap, handlerInfos, serviceRefType, deploymentContext, module, classLoader);
     }
 
-    public String getResourceAdapterContainerId(URI moduleURI, String resourceLink, NamingContext context) throws UnresolvedReferenceException {
-        AbstractName moduleName = context.getModuleName();
-        AbstractName containerName = locateComponentName(resourceLink, moduleURI, NameFactory.JCA_RESOURCE, NameFactory.JCA_RESOURCE_ADAPTER, moduleName, context, "resource adapter");
-        return containerName.toString();
-    }
-
-    public String getConnectionFactoryContainerId(URI moduleURI, String resourceLink, String type, NamingContext context) throws UnresolvedReferenceException {
-        AbstractName moduleName = context.getModuleName();
-        AbstractName containerName = locateComponentName(resourceLink, moduleURI, NameFactory.JCA_RESOURCE, type, moduleName, context, "connection factory");
-        return containerName.toString();
-    }
-
     public Object getMessageDestination(String messageDestinationLink) throws DeploymentException {
         Object destination = null;
         int pos = messageDestinationLink.indexOf('#');
@@ -168,11 +156,6 @@ public class RefContext {
         return destination;
     }
 
-    public String getAdminObjectContainerId(URI moduleURI, String resourceLink, NamingContext context) throws DeploymentException {
-        AbstractName moduleName = context.getModuleName();
-        AbstractName containerName = locateComponentName(resourceLink, moduleURI, NameFactory.JCA_RESOURCE, NameFactory.JCA_ADMIN_OBJECT, moduleName, context, "admin object");
-        return containerName.toString();
-    }
 
     public Reference getImplicitEJBRemoteRef(URI module, String refName, boolean isSession, String home, String remote, NamingContext namingContext) throws DeploymentException {
         return ejbReferenceBuilder.getImplicitEJBRemoteRef(module, refName, isSession, home, remote, namingContext);
@@ -210,20 +193,6 @@ public class RefContext {
         AbstractNameQuery query = new AbstractNameQuery(null, Collections.singletonMap("name", "ejb/mgmt/MEJB"), (String)null);
         AbstractName mejbName = locateUniqueNameInKernel(query, "Management EJB");
         return mejbName.toString();
-    }
-
-    public AbstractName locateComponentName(String resourceLink, URI moduleURI, String moduleType, String type, AbstractName j2eeContext, NamingContext context, String queryType) throws UnresolvedReferenceException {
-        GBeanData match = locateComponent(resourceLink, moduleURI, moduleType, type, j2eeContext, context, queryType);
-        return match.getAbstractName();
-    }
-
-    private GBeanData locateComponent(String resourceLink, URI moduleURI, String moduleType, String type, AbstractName j2eeContext, NamingContext context, String queryType) throws UnresolvedReferenceException {
-        GBeanData match = locateComponentInApplication(resourceLink, moduleURI, moduleType, type, j2eeContext, context, true);
-        if (match == null) {
-            //no matches in current context, look in other modules with J2EEApplication=null
-            return locateGBeanInKernel(resourceLink, type, j2eeContext, queryType);
-        }
-        return match;
     }
 
     private GBeanData locateComponentData(AbstractName name, NamingContext context) throws UnresolvedReferenceException {

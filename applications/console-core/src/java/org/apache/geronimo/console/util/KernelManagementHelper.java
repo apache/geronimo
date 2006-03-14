@@ -103,16 +103,15 @@ public class KernelManagementHelper implements ManagementHelper {
     }
 
     public J2EEDomain[] getDomains() {
-        String[] names = Util.getObjectNames(kernel, "*:", new String[]{"J2EEDomain"});
-        J2EEDomain[] domains = new J2EEDomain[names.length];
-        for (int i = 0; i < domains.length; i++) {
-            try {
-                domains[i] = (J2EEDomain)kernel.getProxyManager().createProxy(ObjectName.getInstance(names[i]), J2EEDomain.class);
-            } catch (MalformedObjectNameException e) {
-                log.error("Unable to look up related GBean", e);
-            }
+        //currently returns ObjectNames
+        Set domainNames = kernel.listGBeans(new GBeanQuery(null, J2EEDomain.class.getName()));
+        J2EEDomain[] result = new J2EEDomain[domainNames.size()];
+        int i = 0;
+        for (Iterator iterator = domainNames.iterator(); iterator.hasNext();) {
+            ObjectName domainName = (ObjectName) iterator.next();
+            result[i++] = (J2EEDomain) pm.createProxy(domainName, J2EEDomain.class)
         }
-        return domains;
+        return result;
     }
 
     public J2EEServer[] getServers(J2EEDomain domain) {

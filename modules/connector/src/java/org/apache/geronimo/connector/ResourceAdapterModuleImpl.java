@@ -35,7 +35,7 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final J2EEServer server;
     private final J2EEApplication application;
     private final String deploymentDescriptor;
-    private final String[] resourceAdapters;
+    private final ResourceAdapterImpl resourceAdapter;
 
     private final GBeanData resourceAdapterGBeanData;
     private final Map activationSpecInfoMap;
@@ -48,10 +48,10 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     private final String resourceAdapterVersion;
     private final String eisType;
 
-    public ResourceAdapterModuleImpl(String resourceAdapter,
-                                     String objectName, 
-                                     J2EEServer server, 
-                                     J2EEApplication application, 
+    public ResourceAdapterModuleImpl(String objectName,
+                                     ResourceAdapterImpl resourceAdapter,
+                                     J2EEServer server,
+                                     J2EEApplication application,
                                      String deploymentDescriptor,
                                      GBeanData resourceAdapterGBeanData,
                                      Map activationSpecInfoMap,
@@ -66,7 +66,7 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
         ObjectName myObjectName = JMXUtil.getObjectName(objectName);
         verifyObjectName(myObjectName);
 
-        this.resourceAdapters = new String[] {resourceAdapter};
+        this.resourceAdapter = resourceAdapter;
 
         this.server = server;
         this.application = application;
@@ -119,7 +119,7 @@ public class ResourceAdapterModuleImpl implements ResourceAdapterModule {
     }
 
     public String[] getResourceAdapters() {
-        return resourceAdapters;
+        return new String[]{resourceAdapter.getObjectName()};
     }
 
     public GBeanData getResourceAdapterGBeanData() {

@@ -28,7 +28,6 @@ import org.apache.geronimo.management.J2EEServer;
 import org.apache.geronimo.management.geronimo.ResourceAdapterModule;
 
 /**
- * 
  * @version $Revision$
  */
 public class ResourceAdapterModuleImplGBean {
@@ -42,7 +41,7 @@ public class ResourceAdapterModuleImplGBean {
 
         infoBuilder.addAttribute("deploymentDescriptor", String.class, true);
 
-        infoBuilder.addAttribute("resourceAdapter", String.class, true);
+        infoBuilder.addReference("ResourceAdapter", ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("objectName", String.class, false);
         infoBuilder.addAttribute("server", String.class, false);
         infoBuilder.addAttribute("application", String.class, false);
@@ -64,20 +63,20 @@ public class ResourceAdapterModuleImplGBean {
         infoBuilder.addInterface(ResourceAdapterModule.class);
 
         infoBuilder.setConstructor(new String[]{
-            "resourceAdapter",
-            "objectName",
-            "J2EEServer",
-            "J2EEApplication",
-            "deploymentDescriptor",
-            "resourceAdapterGBeanData",
-            "activationSpecInfoMap",
-            "adminObjectInfoMap",
-            "managedConnectionFactoryInfoMap",
-            "displayName",
-            "description",
-            "vendorName",
-            "resourceAdapterVersion",
-            "EISType"
+                "objectName",
+                "ResourceAdapter",
+                "J2EEServer",
+                "J2EEApplication",
+                "deploymentDescriptor",
+                "resourceAdapterGBeanData",
+                "activationSpecInfoMap",
+                "adminObjectInfoMap",
+                "managedConnectionFactoryInfoMap",
+                "displayName",
+                "description",
+                "vendorName",
+                "resourceAdapterVersion",
+                "EISType"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

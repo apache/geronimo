@@ -129,7 +129,8 @@ public class JettyPOJOWebServiceHolder extends ServletHolder implements GBeanLif
             servletContext.setAttribute(pojoClassID, pojoClass);
 
             //this now starts the servlet in the appropriate context
-            context.registerServletHolder(this, getServletName(), this.servletMappings, this.webRoleRefPermissions);
+            //TODO check that we should not call this a servlet for jsr-77 benefit.
+            context.registerServletHolder(this, getServletName(), this.servletMappings, null);
 //            start();
         }
     }

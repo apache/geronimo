@@ -17,45 +17,18 @@
 
 package org.apache.geronimo.j2ee.management.impl;
 
+import org.apache.geronimo.kernel.Kernel;
+
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import org.apache.geronimo.kernel.Kernel;
-import org.apache.geronimo.kernel.DependencyManager;
-import org.apache.geronimo.kernel.GBeanNotFoundException;
-import org.apache.geronimo.kernel.config.Configuration;
-import org.apache.geronimo.j2ee.j2eeobjectnames.J2eeContext;
-import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
-import org.apache.geronimo.gbean.GBeanInfo;
-import org.apache.geronimo.gbean.AbstractName;
-import org.apache.geronimo.gbean.GBeanData;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
 
 /**
  * @version $Rev$ $Date$
  */
 public class Util {
-    private final static Log log = LogFactory.getLog(Util.class);
-
-    public static String[] getObjectNames(Kernel kernel, J2eeContext context, String[] j2eeTypes) throws MalformedObjectNameException {
-        List objectNames = new LinkedList();
-        for (int i = 0; i < j2eeTypes.length; i++) {
-            String j2eeType = j2eeTypes[i];
-            ObjectName query = NameFactory.getComponentInModuleQuery(null, null, null, null, null, j2eeType,  context);
-            objectNames.addAll(kernel.listGBeans(query));
-        }
-        String[] names = new String[objectNames.size()];
-        Iterator iterator = objectNames.iterator();
-        for (int i = 0; iterator.hasNext(); i++) {
-            names[i] = iterator.next().toString();
-        }
-        return names;
-    }
 
     public static String[] getObjectNames(Kernel kernel, Object parentName, String[] j2eeTypes) {
         List objectNames = new LinkedList();
@@ -76,46 +49,5 @@ public class Util {
         return names;
     }
 
-    /**
-     * Gets a Configuration that is the parent of the specified object.
-     *
-     * @param objectName the bean to find the Configuration for
-     * @return the Configuration the bean is in, or null if it is not in a Configuration
-     */
-    public synchronized static ObjectName getConfiguration(Kernel kernel, ObjectName objectName) {
-        try {
-            GBeanData data = kernel.getGBeanData(objectName);
-            AbstractName abstractName = data.getAbstractName();
-            AbstractName result = getConfiguration(kernel, abstractName);
-            if (result == null) {
-                return null;
-            }
-            return result.getObjectName();
-        } catch (GBeanNotFoundException e) {
-            log.warn("gbean not found" + objectName);
-            return null;
-        }
-    }
 
-    public synchronized static AbstractName getConfiguration(Kernel kernel, AbstractName abstractName) {
-        DependencyManager mgr = kernel.getDependencyManager();
-        Set parents = mgr.getParents(abstractName);
-        if(parents == null || parents.isEmpty()) {
-            log.warn("No parents found for "+abstractName);
-            return null;
-        }
-        for (Iterator it = parents.iterator(); it.hasNext();) {
-            AbstractName name = (AbstractName) it.next();
-            try {
-                GBeanInfo info = kernel.getGBeanInfo(name);
-                if(info.getClassName().equals(Configuration.class.getName())) {
-                    return name;
-                }
-            } catch (GBeanNotFoundException e) {
-                // should never happen
-            }
-        }
-        log.warn("No Configuration parent found");
-        return null;
-    }
 }

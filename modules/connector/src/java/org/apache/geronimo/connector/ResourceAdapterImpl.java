@@ -23,15 +23,15 @@ import org.apache.geronimo.management.ResourceAdapter;
  */
 public class ResourceAdapterImpl implements ResourceAdapter {
     private final String objectName;
-    private final String jcaResource;
+    private final JCAResourceImpl jcaResource;
 
-    public ResourceAdapterImpl(String objectName, String jcaResource) {
+    public ResourceAdapterImpl(String objectName, JCAResourceImpl jcaResource) {
         this.objectName = objectName;
         this.jcaResource = jcaResource;
     }
 
     public String[] getJCAResources() {
-        return new String[] {jcaResource};
+        return new String[] {jcaResource.getObjectName()};
     }
 
     public String getObjectName() {

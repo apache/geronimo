@@ -120,7 +120,7 @@ public class ConnectorModuleBuilderTest extends TestCase {
             return null;
         }
 
-        public Reference createCORBAReference(URI corbaURL, String objectName, AbstractName containerName, String home) {
+        public Reference createCORBAReference(Artifact configId, AbstractNameQuery containerNameQuery, URI nsCorbaloc, String objectName, String home) throws DeploymentException {
             return null;
         }
 

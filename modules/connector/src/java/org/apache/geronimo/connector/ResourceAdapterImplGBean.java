@@ -29,12 +29,13 @@ public class ResourceAdapterImplGBean {
     static {
         GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterImplGBean.class, ResourceAdapterImpl.class, NameFactory.RESOURCE_ADAPTER);
         infoBuilder.addAttribute("objectName", String.class, false);
-        infoBuilder.addAttribute("JCAResource", String.class, true);
+        infoBuilder.addReference("JCAResourceImpl", JCAResourceImpl.class, NameFactory.JCA_RESOURCE);
+        infoBuilder.addAttribute("JCAResource", String.class, false);
         infoBuilder.addInterface(ResourceAdapter.class);
 
         infoBuilder.setConstructor(new String[]{
             "objectName",
-            "JCAResource"
+            "JCAResourceImpl"
         });
 
         GBEAN_INFO = infoBuilder.getBeanInfo();

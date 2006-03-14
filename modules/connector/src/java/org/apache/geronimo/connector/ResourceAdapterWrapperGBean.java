@@ -17,9 +17,6 @@
 
 package org.apache.geronimo.connector;
 
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.ResourceAdapterAssociation;
-
 import org.apache.geronimo.connector.work.GeronimoWorkManager;
 import org.apache.geronimo.gbean.DynamicGBean;
 import org.apache.geronimo.gbean.DynamicGBeanDelegate;
@@ -27,23 +24,30 @@ import org.apache.geronimo.gbean.GBeanInfo;
 import org.apache.geronimo.gbean.GBeanInfoBuilder;
 import org.apache.geronimo.gbean.GBeanLifecycle;
 import org.apache.geronimo.j2ee.j2eeobjectnames.NameFactory;
+import org.apache.geronimo.management.geronimo.JCAResourceAdapter;
+
+import javax.resource.spi.ResourceAdapter;
+import javax.resource.spi.ResourceAdapterAssociation;
 
 /**
  * 
  * @version $Revision$
  */
-public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean {
+public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implements GBeanLifecycle, DynamicGBean, JCAResourceAdapter {
 
     private final DynamicGBeanDelegate delegate;
+    private final String objectName;
 
     public ResourceAdapterWrapperGBean() {
         delegate=null;
+        objectName = null;
     }
 
-    public ResourceAdapterWrapperGBean(final String resourceAdapterClass, final GeronimoWorkManager workManager, ClassLoader cl) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public ResourceAdapterWrapperGBean(final String resourceAdapterClass, final GeronimoWorkManager workManager, ClassLoader cl, String objectName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         super(resourceAdapterClass, workManager, cl);
         delegate = new DynamicGBeanDelegate();
         delegate.addAll(resourceAdapter);
+        this.objectName = objectName;
     }
 
     public Object getAttribute(String name) throws Exception {
@@ -59,20 +63,38 @@ public class ResourceAdapterWrapperGBean extends ResourceAdapterWrapper implemen
         return null;
     }
 
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public boolean isStateManageable() {
+        return false;
+    }
+
+    public boolean isStatisticsProvider() {
+        return false;
+    }
+
+    public boolean isEventProvider() {
+        return false;
+    }
+
     public static final GBeanInfo GBEAN_INFO;
 
     static {
-        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterWrapperGBean.class, NameFactory.RESOURCE_ADAPTER);
+        GBeanInfoBuilder infoBuilder = GBeanInfoBuilder.createStatic(ResourceAdapterWrapperGBean.class, NameFactory.JCA_RESOURCE_ADAPTER);
         infoBuilder.addAttribute("resourceAdapterClass", String.class, true);
         infoBuilder.addAttribute("classLoader", ClassLoader.class, false);
+        infoBuilder.addAttribute("objectName", String.class, false);
 
         infoBuilder.addReference("WorkManager", GeronimoWorkManager.class, NameFactory.JCA_WORK_MANAGER);
 
         infoBuilder.addOperation("registerResourceAdapterAssociation", new Class[]{ResourceAdapterAssociation.class});
 
         infoBuilder.addInterface(ResourceAdapter.class);
+        infoBuilder.addInterface(JCAResourceAdapter.class);
 
-        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "WorkManager", "classLoader"});
+        infoBuilder.setConstructor(new String[]{"resourceAdapterClass", "WorkManager", "classLoader", "objectName"});
 
         GBEAN_INFO = infoBuilder.getBeanInfo();
     }
