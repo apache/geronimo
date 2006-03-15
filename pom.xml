@@ -752,6 +752,7 @@
         <module>modules/activemq-embedded-rar</module>
         <module>modules/axis</module>
         <module>modules/client</module>
+        <module>modules/client-builder</module>
         <module>modules/common</module>
         <module>modules/connector</module>
         <module>modules/connector-builder</module>
