@@ -764,6 +764,7 @@
         <module>modules/derby</module>
         <module>modules/directory</module>
         <module>modules/hot-deploy</module>
+        <module>modules/installer-support</module>
         <module>modules/interceptor</module>
         <module>modules/j2ee</module>
         <module>modules/j2ee-builder</module>
